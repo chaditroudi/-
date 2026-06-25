@@ -1389,6 +1389,207 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
             </div>
           </div>
         </TabsContent>
+
+        {/* ════════════════════════════════════════════════
+            TAB 6 — GESTION (zones + emplacements CRUD)
+        ════════════════════════════════════════════════ */}
+        {canManage && (
+          <TabsContent value="gestion" className="space-y-6">
+
+            {/* ── Zones ── */}
+            <Card className="rounded-2xl border-border/60">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between gap-2">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Warehouse className="h-4 w-4 text-primary" />
+                    Zones de stockage
+                    <span className="text-sm font-normal text-muted-foreground">({zones.length})</span>
+                  </CardTitle>
+                  <Button size="sm" className="gap-1.5 rounded-xl" onClick={openZoneCreate}>
+                    <Plus className="h-4 w-4" />
+                    Nouvelle zone
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                {zones.length === 0 ? (
+                  <div className="py-12 text-center">
+                    <Warehouse className="mx-auto mb-3 h-10 w-10 text-muted-foreground/30" />
+                    <p className="text-sm text-muted-foreground">Aucune zone configurée</p>
+                    <Button size="sm" className="mt-3 rounded-xl" onClick={openZoneCreate}>
+                      <Plus className="mr-1.5 h-4 w-4" />
+                      Créer la première zone
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="hover:bg-transparent">
+                          <TableHead>Code</TableHead>
+                          <TableHead>Nom</TableHead>
+                          <TableHead>Famille</TableHead>
+                          <TableHead className="text-right">Cap. kg</TableHead>
+                          <TableHead className="text-right">Cap. palettes</TableHead>
+                          <TableHead>Temp. consigne</TableHead>
+                          <TableHead>Actif</TableHead>
+                          <TableHead />
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {zones.map(z => (
+                          <TableRow key={z.id} className="group">
+                            <TableCell className="font-mono text-xs font-bold">{z.code}</TableCell>
+                            <TableCell className="text-sm">{z.name}</TableCell>
+                            <TableCell>
+                              <span className="inline-flex items-center gap-1 rounded-lg border border-border/60 bg-muted/40 px-2 py-0.5 text-xs">
+                                {zoneIcon(z)}
+                                {familyLabel[z.storage_family ?? ""] ?? z.storage_family}
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-right text-xs">{fmtNum(z.capacity_kg, " kg")}</TableCell>
+                            <TableCell className="text-right text-xs">{z.capacity_palettes ? fmtNum(z.capacity_palettes, " pal.") : "—"}</TableCell>
+                            <TableCell className="text-xs text-muted-foreground">
+                              {z.temperature_min != null ? `${z.temperature_min}–${z.temperature_max}°C` : "—"}
+                            </TableCell>
+                            <TableCell>
+                              <span className={cn(
+                                "inline-flex h-2 w-2 rounded-full",
+                                z.is_active ? "bg-emerald-500" : "bg-slate-300",
+                              )} />
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                                <Button
+                                  variant="ghost" size="icon"
+                                  className="h-7 w-7 rounded-lg"
+                                  onClick={() => openZoneEdit(z)}
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </Button>
+                                <Button
+                                  variant="ghost" size="icon"
+                                  className="h-7 w-7 rounded-lg text-destructive hover:bg-destructive/10"
+                                  onClick={() => setDeleteZoneConfirm(z)}
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* ── Emplacements ── */}
+            <Card className="rounded-2xl border-border/60">
+              <CardHeader className="pb-3">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    Emplacements
+                    <span className="text-sm font-normal text-muted-foreground">
+                      ({mgmtZoneFilter === "all" ? allLocations.length : allLocations.filter(l => l.storage_zone_id === mgmtZoneFilter).length})
+                    </span>
+                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <Select value={mgmtZoneFilter} onValueChange={setMgmtZoneFilter}>
+                      <SelectTrigger className="w-44 rounded-xl">
+                        <SelectValue placeholder="Toutes les zones" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Toutes les zones</SelectItem>
+                        {zones.map(z => <SelectItem key={z.id} value={z.id}>{z.code}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                    <Button size="sm" className="gap-1.5 rounded-xl" onClick={openLocCreate}>
+                      <Plus className="h-4 w-4" />
+                      Nouvel emplacement
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                {(() => {
+                  const locs = mgmtZoneFilter === "all"
+                    ? allLocations
+                    : allLocations.filter(l => l.storage_zone_id === mgmtZoneFilter);
+                  return locs.length === 0 ? (
+                    <div className="py-12 text-center">
+                      <MapPin className="mx-auto mb-3 h-10 w-10 text-muted-foreground/30" />
+                      <p className="text-sm text-muted-foreground">Aucun emplacement</p>
+                      <Button size="sm" className="mt-3 rounded-xl" onClick={openLocCreate}>
+                        <Plus className="mr-1.5 h-4 w-4" />
+                        Ajouter un emplacement
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="hover:bg-transparent">
+                            <TableHead>Code</TableHead>
+                            <TableHead>Nom</TableHead>
+                            <TableHead>Zone</TableHead>
+                            <TableHead className="text-right">Cap. palettes</TableHead>
+                            <TableHead className="text-right">Cap. kg</TableHead>
+                            <TableHead>Statut</TableHead>
+                            <TableHead>Actif</TableHead>
+                            <TableHead />
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {locs.map(l => (
+                            <TableRow key={l.id} className="group">
+                              <TableCell className="font-mono text-xs font-bold">{l.code}</TableCell>
+                              <TableCell className="text-sm">{l.name}</TableCell>
+                              <TableCell className="text-xs text-muted-foreground">{l.zone_code ?? "—"}</TableCell>
+                              <TableCell className="text-right text-xs">{fmtNum(l.capacity_palettes, " pal.")}</TableCell>
+                              <TableCell className="text-right text-xs">{l.capacity_kg ? fmtNum(l.capacity_kg, " kg") : "—"}</TableCell>
+                              <TableCell>
+                                <Badge className={cn("rounded-full text-[11px]", locationStatusCls(l.location_status))}>
+                                  {locationStatusLabel[l.location_status]}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <span className={cn(
+                                  "inline-flex h-2 w-2 rounded-full",
+                                  l.is_active ? "bg-emerald-500" : "bg-slate-300",
+                                )} />
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                                  <Button
+                                    variant="ghost" size="icon"
+                                    className="h-7 w-7 rounded-lg"
+                                    onClick={() => openLocEdit(l)}
+                                  >
+                                    <Pencil className="h-3.5 w-3.5" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost" size="icon"
+                                    className="h-7 w-7 rounded-lg text-destructive hover:bg-destructive/10"
+                                    onClick={() => setDeleteLocConfirm(l)}
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  );
+                })()}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
       </Tabs>
 
       {/* ── Assign lot dialog ── */}
@@ -1464,6 +1665,249 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
           setScannerOpen(false);
         }}
       />
+
+      {/* ── Zone form dialog ── */}
+      <Dialog open={zoneDialog.open} onOpenChange={open => !open && setZoneDialog({ open: false, editing: null })}>
+        <DialogContent className="rounded-2xl sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Warehouse className="h-5 w-5 text-primary" />
+              {zoneDialog.editing ? "Modifier la zone" : "Nouvelle zone de stockage"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-1">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Code <span className="text-destructive">*</span></Label>
+                <Input
+                  placeholder="BRT-01"
+                  value={zoneForm.code}
+                  onChange={e => setZoneForm(f => ({ ...f, code: e.target.value }))}
+                  className="rounded-xl uppercase"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Famille <span className="text-destructive">*</span></Label>
+                <Select value={zoneForm.storage_family} onValueChange={v => setZoneForm(f => ({ ...f, storage_family: v }))}>
+                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(familyLabel).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Nom <span className="text-destructive">*</span></Label>
+              <Input
+                placeholder="Zone stockage brut n°1"
+                value={zoneForm.name}
+                onChange={e => setZoneForm(f => ({ ...f, name: e.target.value }))}
+                className="rounded-xl"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Capacité (kg) <span className="text-destructive">*</span></Label>
+                <Input type="number" placeholder="50000" value={zoneForm.capacity_kg} onChange={e => setZoneForm(f => ({ ...f, capacity_kg: e.target.value }))} className="rounded-xl" />
+              </div>
+              <div className="space-y-2">
+                <Label>Capacité (palettes)</Label>
+                <Input type="number" placeholder="Optionnel" value={zoneForm.capacity_palettes} onChange={e => setZoneForm(f => ({ ...f, capacity_palettes: e.target.value }))} className="rounded-xl" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Temp. min (°C)</Label>
+                <Input type="number" step="0.1" placeholder="ex: 2" value={zoneForm.temperature_min} onChange={e => setZoneForm(f => ({ ...f, temperature_min: e.target.value }))} className="rounded-xl" />
+              </div>
+              <div className="space-y-2">
+                <Label>Temp. max (°C)</Label>
+                <Input type="number" step="0.1" placeholder="ex: 8" value={zoneForm.temperature_max} onChange={e => setZoneForm(f => ({ ...f, temperature_max: e.target.value }))} className="rounded-xl" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Humidité min (%)</Label>
+                <Input type="number" step="0.1" placeholder="ex: 60" value={zoneForm.humidity_min} onChange={e => setZoneForm(f => ({ ...f, humidity_min: e.target.value }))} className="rounded-xl" />
+              </div>
+              <div className="space-y-2">
+                <Label>Humidité max (%)</Label>
+                <Input type="number" step="0.1" placeholder="ex: 80" value={zoneForm.humidity_max} onChange={e => setZoneForm(f => ({ ...f, humidity_max: e.target.value }))} className="rounded-xl" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Notes</Label>
+              <Textarea placeholder="Observations optionnelles…" value={zoneForm.notes} onChange={e => setZoneForm(f => ({ ...f, notes: e.target.value }))} className="min-h-[60px] resize-none rounded-xl" />
+            </div>
+            <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/30 px-4 py-3">
+              <div>
+                <p className="text-sm font-medium">Zone active</p>
+                <p className="text-xs text-muted-foreground">Désactiver pour masquer sans supprimer</p>
+              </div>
+              <Switch checked={zoneForm.is_active} onCheckedChange={v => setZoneForm(f => ({ ...f, is_active: v }))} />
+            </div>
+            <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/30 px-4 py-3">
+              <div>
+                <p className="text-sm font-medium">Bio uniquement</p>
+                <p className="text-xs text-muted-foreground">Réserve cette zone aux lots certifiés bio</p>
+              </div>
+              <Switch checked={zoneForm.is_bio_only} onCheckedChange={v => setZoneForm(f => ({ ...f, is_bio_only: v }))} />
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" className="rounded-xl" onClick={() => setZoneDialog({ open: false, editing: null })}>
+              Annuler
+            </Button>
+            <Button
+              className="rounded-xl"
+              disabled={!zoneForm.code || !zoneForm.name || !zoneForm.capacity_kg || createZone.isPending || updateZone.isPending}
+              onClick={handleZoneSubmit}
+            >
+              {(createZone.isPending || updateZone.isPending) ? "Enregistrement…" : zoneDialog.editing ? "Enregistrer" : "Créer la zone"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Zone delete confirm ── */}
+      <Dialog open={!!deleteZoneConfirm} onOpenChange={open => !open && setDeleteZoneConfirm(null)}>
+        <DialogContent className="rounded-2xl sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <Trash2 className="h-5 w-5" />
+              Supprimer la zone
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Êtes-vous sûr de vouloir supprimer la zone{" "}
+            <span className="font-semibold text-foreground">{deleteZoneConfirm?.code}</span> ?
+            Cette action est irréversible et supprimera également ses emplacements.
+          </p>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" className="rounded-xl" onClick={() => setDeleteZoneConfirm(null)}>
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              className="rounded-xl"
+              disabled={deleteZone.isPending}
+              onClick={async () => {
+                if (!deleteZoneConfirm) return;
+                await deleteZone.mutateAsync(deleteZoneConfirm.id);
+                setDeleteZoneConfirm(null);
+              }}
+            >
+              {deleteZone.isPending ? "Suppression…" : "Supprimer"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Location form dialog ── */}
+      <Dialog open={locDialog.open} onOpenChange={open => !open && setLocDialog({ open: false, editing: null })}>
+        <DialogContent className="rounded-2xl sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-primary" />
+              {locDialog.editing ? "Modifier l'emplacement" : "Nouvel emplacement"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-1">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Code <span className="text-destructive">*</span></Label>
+                <Input
+                  placeholder="BRT-01-A"
+                  value={locForm.code}
+                  onChange={e => setLocForm(f => ({ ...f, code: e.target.value }))}
+                  className="rounded-xl uppercase"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Zone <span className="text-destructive">*</span></Label>
+                <Select value={locForm.storage_zone_id} onValueChange={v => setLocForm(f => ({ ...f, storage_zone_id: v }))}>
+                  <SelectTrigger className="rounded-xl"><SelectValue placeholder="Choisir" /></SelectTrigger>
+                  <SelectContent>
+                    {zones.map(z => <SelectItem key={z.id} value={z.id}>{z.code} — {z.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Nom <span className="text-destructive">*</span></Label>
+              <Input
+                placeholder="Emplacement A nord"
+                value={locForm.name}
+                onChange={e => setLocForm(f => ({ ...f, name: e.target.value }))}
+                className="rounded-xl"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Capacité palettes <span className="text-destructive">*</span></Label>
+                <Input type="number" min="1" placeholder="ex: 10" value={locForm.capacity_palettes} onChange={e => setLocForm(f => ({ ...f, capacity_palettes: e.target.value }))} className="rounded-xl" />
+              </div>
+              <div className="space-y-2">
+                <Label>Capacité (kg)</Label>
+                <Input type="number" placeholder="Optionnel" value={locForm.capacity_kg} onChange={e => setLocForm(f => ({ ...f, capacity_kg: e.target.value }))} className="rounded-xl" />
+              </div>
+            </div>
+            <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/30 px-4 py-3">
+              <div>
+                <p className="text-sm font-medium">Emplacement actif</p>
+                <p className="text-xs text-muted-foreground">Désactiver pour le mettre hors service</p>
+              </div>
+              <Switch checked={locForm.is_active} onCheckedChange={v => setLocForm(f => ({ ...f, is_active: v }))} />
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" className="rounded-xl" onClick={() => setLocDialog({ open: false, editing: null })}>
+              Annuler
+            </Button>
+            <Button
+              className="rounded-xl"
+              disabled={!locForm.code || !locForm.name || !locForm.storage_zone_id || !locForm.capacity_palettes || createLocation.isPending || updateLocation.isPending}
+              onClick={handleLocSubmit}
+            >
+              {(createLocation.isPending || updateLocation.isPending) ? "Enregistrement…" : locDialog.editing ? "Enregistrer" : "Créer l'emplacement"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Location delete confirm ── */}
+      <Dialog open={!!deleteLocConfirm} onOpenChange={open => !open && setDeleteLocConfirm(null)}>
+        <DialogContent className="rounded-2xl sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <Trash2 className="h-5 w-5" />
+              Supprimer l'emplacement
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Supprimer l'emplacement{" "}
+            <span className="font-semibold text-foreground">{deleteLocConfirm?.code}</span> ?
+            Cette action est irréversible.
+          </p>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" className="rounded-xl" onClick={() => setDeleteLocConfirm(null)}>
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              className="rounded-xl"
+              disabled={deleteLocation.isPending}
+              onClick={async () => {
+                if (!deleteLocConfirm) return;
+                await deleteLocation.mutateAsync(deleteLocConfirm.id);
+                setDeleteLocConfirm(null);
+              }}
+            >
+              {deleteLocation.isPending ? "Suppression…" : "Supprimer"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
