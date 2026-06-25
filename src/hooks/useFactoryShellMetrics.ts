@@ -1,0 +1,88 @@
+import { useMemo } from "react";
+import { useAlerts, useBatches } from "@/hooks/useBatches";
+import { useProductionOrders } from "@/hooks/useProduction";
+import { useReceptionAlerts, useReceptionsV2 } from "@/hooks/useReceptionsV2";
+import { usePhase2Pipeline } from "@/hooks/usePhase2Pipeline";
+import { useListStockLotsQuery, useListShipmentsQuery } from "@/store/api/stockApi";
+import { usePackagingOrders } from "@/hooks/usePackaging";
+import type { AvailableLot } from "@/hooks/useAvailableLotsForPhase2";
+
+const QUALITY_BATCH_STATUSES = new Set(["pending_inspection", "in_inspection", "quarantine"]);
+const ACTIVE_BATCH_ALERT_STATUSES = new Set(["active", "ACTIVE"]);
+
+type FactoryShellMetricOptions = {
+  enableReceptions?: boolean;
+  enableReceptionAlerts?: boolean;
+  enableProduction?: boolean;
+  enableBatches?: boolean;
+  enableBatchAlerts?: boolean;
+  enablePhase2?: boolean;
+  enableStock?: boolean;
+  enablePackaging?: boolean;
+  enableLogistics?: boolean;
+};
+
+export const useFactoryShellMetrics = (options?: FactoryShellMetricOptions) => {
+  const enablePhase2 = options?.enablePhase2 ?? false;
+  const enableStock = options?.enableStock ?? false;
+  const enablePackaging = options?.enablePackaging ?? false;
+  const enableLogistics = options?.enableLogistics ?? false;
+
+  const { data: receptions = [] } = useReceptionsV2({ enabled: options?.enableReceptions ?? true });
+  const { data: receptionAlerts = [] } = useReceptionAlerts({ enabled: options?.enableReceptionAlerts ?? true });
+  const { data: productionOrders = [] } = useProductionOrders({ enabled: options?.enableProduction ?? true });
+  const { data: batches = [] } = useBatches({ enabled: options?.enableBatches ?? true });
+  const { data: batchAlerts = [] } = useAlerts({ enabled: options?.enableBatchAlerts ?? true });
+  const pipeline = usePhase2Pipeline({ enabled: enablePhase2 });
+
+  // RTK Query uses skip, React Query uses enabled
+  const { data: rawPfLots } = useListStockLotsQuery({ category: 'PF' } as any, { skip: !enableStock });
+  const pfLots = (rawPfLots as unknown as any[] | undefined) ?? [];
+
+  const { data: packagingOrders = [] } = usePackagingOrders(undefined, { enabled: enablePackaging });
+
+  const { data: rawShipments } = useListShipmentsQuery(undefined, { skip: !enableLogistics });
+  const shipments = (rawShipments as unknown as any[] | undefined) ?? [];
+
+  return useMemo(() => {
+    const draftReceptions = receptions.filter((r) => r.status === "BROUILLON").length;
+    const waitingQcReceptions = receptions.filter((r) => r.status === "EN_ATTENTE_QC").length;
+    const inQcReceptions = receptions.filter((r) => r.status === "EN_QC").length;
+    const releasedReceptions = receptions.filter((r) => r.status === "LIBERE").length;
+    const pendingReceptions = draftReceptions + waitingQcReceptions + inQcReceptions;
+
+    const inProgressOrders = productionOrders.filter((o) => o.status === "in_progress").length;
+    const qualityLots = batches.filter((b) => QUALITY_BATCH_STATUSES.has(b.status)).length;
+    const quarantinedLots = batches.filter((b) => b.status === "quarantine").length;
+    const storedLots = batches.filter((b) => b.status === "stored").length;
+    const activeAlertsCount =
+      receptionAlerts.length +
+      batchAlerts.filter((a) => ACTIVE_BATCH_ALERT_STATUSES.has(String(a.status))).length;
+
+    const phase2Active = pipeline.inFumigation + pipeline.inCleaning + pipeline.inHydration + pipeline.inTriage;
+    const phase2Waiting = pipeline.waiting.length;
+    const waitingLots: AvailableLot[] = pipeline.waiting;
+    const validatedPFLots = pfLots.filter((l: any) => l.status === 'VALIDATED').length;
+    const activePackagingOrders = packagingOrders.filter((o: any) => o.status === 'EN_COURS' || o.status === 'PLANIFIE').length;
+    const pendingShipments = shipments.filter((s: any) => s.status === 'PLANNED' || s.status === 'IN_PREPARATION').length;
+
+    return {
+      draftReceptions,
+      waitingQcReceptions,
+      inQcReceptions,
+      releasedReceptions,
+      pendingReceptions,
+      inProgressOrders,
+      qualityLots,
+      quarantinedLots,
+      storedLots,
+      activeAlertsCount,
+      phase2Active,
+      phase2Waiting,
+      waitingLots,
+      validatedPFLots,
+      activePackagingOrders,
+      pendingShipments,
+    };
+  }, [batchAlerts, batches, productionOrders, receptionAlerts, receptions, pipeline, pfLots, packagingOrders, shipments]);
+};

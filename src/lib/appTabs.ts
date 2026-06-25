@@ -1,0 +1,187 @@
+import {
+  Activity,
+  AlertTriangle,
+  ArrowRight,
+  BarChart3,
+  Boxes,
+  ClipboardCheck,
+  Factory,
+  Home,
+  Landmark,
+  Package,
+  PackageCheck,
+  QrCode,
+  Settings2,
+  ShieldCheck,
+  ShoppingCart,
+  Truck,
+  Users,
+  Warehouse,
+  type LucideIcon,
+} from "lucide-react";
+import type { AppTab } from "@/lib/roleAccess";
+
+export interface AppTabMeta {
+  label: string;
+  shortLabel: string;
+  icon: LucideIcon;
+  pageTitle: string;
+  pageSubtitle: string;
+}
+
+export const APP_TAB_META: Record<AppTab, AppTabMeta> = {
+  home: {
+    label: "Accueil",
+    shortLabel: "Accueil",
+    icon: Home,
+    pageTitle: "Pilotage usine",
+    pageSubtitle: "Vue d'ensemble des flux, alertes et priorites du jour.",
+  },
+  live: {
+    label: "Centre de Commande",
+    shortLabel: "Live",
+    icon: Activity,
+    pageTitle: "Centre de Commande",
+    pageSubtitle: "Flux de production en temps réel — processus actifs, KPI et alertes.",
+  },
+  scan: {
+    label: "Scanner un lot",
+    shortLabel: "Scan",
+    icon: QrCode,
+    pageTitle: "Scan & Traçabilité",
+    pageSubtitle: "Scannez un QR code ou entrez un code lot pour voir toutes les informations en temps réel.",
+  },
+  receptions: {
+    label: "Reception",
+    shortLabel: "Reception",
+    icon: Truck,
+    pageTitle: "Lots Réception",
+    pageSubtitle: "Lots d'entrée — pesée, création, QC entrant et orientation usine.",
+  },
+  batches: {
+    label: "Lots Qualité",
+    shortLabel: "Lots QC",
+    icon: ClipboardCheck,
+    pageTitle: "Lots Qualité",
+    pageSubtitle: "Lots post-réception — inspections, grades et décisions qualité.",
+  },
+  storage: {
+    label: "Stockage",
+    shortLabel: "Stock",
+    icon: Warehouse,
+    pageTitle: "Stockage",
+    pageSubtitle: "Occupation des zones et capacite operationnelle.",
+  },
+  production: {
+    label: "Production",
+    shortLabel: "Prod",
+    icon: Factory,
+    pageTitle: "Production",
+    pageSubtitle: "Ordres, etapes et controle d'execution atelier.",
+  },
+  packaging: {
+    label: "Conditionnement",
+    shortLabel: "Cond.",
+    icon: PackageCheck,
+    pageTitle: "Conditionnement & Étiquetage",
+    pageSubtitle: "BOM, étiquettes, ordres de conditionnement et gestion des palettes.",
+  },
+  logistics: {
+    label: "Logistique",
+    shortLabel: "Logis",
+    icon: Package,
+    pageTitle: "Logistique",
+    pageSubtitle: "Preparation expedition, flux physiques et coordination.",
+  },
+  purchasing: {
+    label: "Achats",
+    shortLabel: "Achats",
+    icon: ShoppingCart,
+    pageTitle: "Achats",
+    pageSubtitle: "Demandes, commandes et engagements fournisseurs.",
+  },
+  analytics: {
+    label: "Analytics",
+    shortLabel: "Stats",
+    icon: BarChart3,
+    pageTitle: "Analytics",
+    pageSubtitle: "Indicateurs de performance, qualite, stock et couts.",
+  },
+  alerts: {
+    label: "Alertes",
+    shortLabel: "Alertes",
+    icon: AlertTriangle,
+    pageTitle: "Alertes",
+    pageSubtitle: "Surveillance des incidents operationnels et qualite.",
+  },
+  suppliers: {
+    label: "Fournisseurs",
+    shortLabel: "Fourn.",
+    icon: Truck,
+    pageTitle: "Fournisseurs",
+    pageSubtitle: "Agrement, contrats, score qualite et historique livraisons.",
+  },
+  materials: {
+    label: "Matieres",
+    shortLabel: "Matieres",
+    icon: Package,
+    pageTitle: "Matieres",
+    pageSubtitle: "Referentiel matieres et parametres de reception.",
+  },
+  quality: {
+    label: "Qualité",
+    shortLabel: "Qualité",
+    icon: ShieldCheck,
+    pageTitle: "Qualité Transverse",
+    pageSubtitle: "CAPA, journal d'audit et pilotage qualité global usine.",
+  },
+  hr: {
+    label: "RH",
+    shortLabel: "RH",
+    icon: Users,
+    pageTitle: "Ressources Humaines",
+    pageSubtitle: "Employés, pointages, congés et tâches atelier.",
+  },
+  "stock-dashboard": {
+    label: "Lots en stock",
+    shortLabel: "Lots",
+    icon: Boxes,
+    pageTitle: "Gestion Entrepôt — Lots",
+    pageSubtitle: "Vue unifiée des lots par statut (libéré, quarantaine, rejeté) depuis la réception.",
+  },
+  "stock-lots": {
+    label: "Lots Entrepôt",
+    shortLabel: "Entrepôt",
+    icon: Boxes,
+    pageTitle: "Gestion Entrepôt — Lots",
+    pageSubtitle: "Lots libérés — localisation, DLC, FIFO et mouvements entrepôt.",
+  },
+  "stock-products": {
+    label: "Zones Stockage",
+    shortLabel: "Zones",
+    icon: Warehouse,
+    pageTitle: "Gestion Entrepôt — Cartographie",
+    pageSubtitle: "Plan Royal Palm, occupation des zones et capacité physique.",
+  },
+  "stock-movements": {
+    label: "Mouvements Stock",
+    shortLabel: "Mouv.",
+    icon: ArrowRight,
+    pageTitle: "Gestion Entrepôt — Mouvements",
+    pageSubtitle: "Journal des entrées, transferts, sorties et ajustements d'entrepôt.",
+  },
+  "sage-operations": {
+    label: "SAGE Hub",
+    shortLabel: "SAGE",
+    icon: Landmark,
+    pageTitle: "SAGE Hub",
+    pageSubtitle: "Pont entre operations terrain, stock, qualite et logistique.",
+  },
+  settings: {
+    label: "Paramètres",
+    shortLabel: "Config",
+    icon: Settings2,
+    pageTitle: "Préférences & Configuration",
+    pageSubtitle: "Marque, couleurs, modules actifs, informations usine et gestion des utilisateurs.",
+  },
+};

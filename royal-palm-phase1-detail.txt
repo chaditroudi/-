@@ -1,0 +1,1828 @@
+ROYAL PALM
+Groupe Ennour Investissement · Tozeur
+Route El Hajij — 2200 Tozeur — (+216) 76 474 660
+Spécification Fonctionnelle Détaillée
+Phase 1 : Fournisseurs · Réception · Stockage · Contrôle Qualité
+Chaque champ · Chaque règle de gestion · Chaque workflow
+Chaque écran · Chaque scénario · Chaque alerte
+Version 4.0 — Détaillée
+Date Mai 2026
+Périmètre 4 modules Phase 1
+Statut Pour développement
+Classification Confidentiel
+
+-- 1 of 23 --
+
+Royal Palm · Phase 1 — Spécification Détaillée v4.0
+Table des Matières
+Royal Palm · Page 2
+
+-- 2 of 23 --
+
+Royal Palm · Phase 1 — Spécification Détaillée v4.0
+Module 1 : Gestion des Fournisseurs (نيإدارة المورد)
+Ce module gère l'ensemble du référentiel fournisseurs/collecteurs de Royal Palm : identification,
+qualification, évaluation, suivi des performances et gestion des contrats.
+1.1 Fiche Fournisseur — Tous les champs
+Chaque fournisseur ou collecteur qui livre des dattes à Royal Palm doit avoir une fiche complète dans le
+système. La fiche est créée lors du premier contact et mise à jour à chaque livraison.
+1.1.1 Bloc Identité
+N
+° Champ Description & Règles Type Oblig. Défaut Source
+1 Code fournisseur Auto-généré au format RP-
+F[NNN]. Ex: RP-F001. Non
+modifiable après création.
+Auto-généré Auto Séque
+ntiel
+Système
+2 Type d'acteur Producteur direct (ح اّل ف) /
+Collecteur (اعّم ج) / Coopérative (
+تعاضدية) / Société
+Liste
+déroulante
+Oui — Opérateu
+r
+3 Nom ou raison sociale Nom complet. Pour les individus:
+Prénom + Nom + Ben [père]. Ex:
+Salah Ben Mohamed Trabelsi.
+Texte (100
+car.)
+Oui — Opérateu
+r
+4 Surnom / Nom usuel Nom connu localement. Ex: 'Haj
+Salah'. Utile pour identification
+rapide.
+Texte (50
+car.)
+Non — Opérateu
+r
+5 CIN / Matricule fiscal Numéro de CIN (8 chiffres) pour
+individus. Matricule fiscal pour
+sociétés. Validé par format.
+Texte validé Oui — Opérateu
+r
+6 Téléphone principal Format +216 XX XXX XXX. Le
+numéro reçoit les SMS de
+notification.
+Téléphone Oui — Opérateu
+r
+7 Téléphone secondaire Deuxième numéro de contact. Téléphone Non — Opérateu
+r
+8 Email Pour les notifications par email et
+le portail fournisseur. Validé par
+format.
+Email Non — Opérateu
+r
+9 Adresse postale Adresse complète pour
+correspondance.
+Texte (200
+car.)
+Non — Opérateu
+r
+1
+0
+Photo CIN / Document Scan ou photo de la CIN ou du
+registre de commerce. Stocké lié
+à la fiche.
+Fichier
+image/PDF
+Recom
+mandé
+— Opérateu
+r
+1.1.2 Bloc Oasis et Production
+N
+° Champ Description & Règles Type Oblig. Défaut Source
+1
+1
+Région Tozeur / Kébili / Gabès / Gafsa /
+Autre. Liste fermée.
+Liste
+déroulante
+Oui Tozeur Opérateu
+r
+1
+2
+Ville / Localité Ex: Nefta, Degache, Hazoua,
+Douz, El Hamma. Liste semi-
+ouverte.
+Liste + texte Oui — Opérateu
+r
+1
+3
+Nom de l'oasis Nom local de l'oasis ou du jardin.
+Ex: Oasis Ras El Ain, Jardin El
+Bey.
+Texte (100
+car.)
+Non — Opérateu
+r
+Royal Palm · Page 3
+
+-- 3 of 23 --
+
+Royal Palm · Phase 1 — Spécification Détaillée v4.0
+1
+4
+Coordonnées GPS Latitude, Longitude de l'oasis
+principale. Saisie manuelle ou via
+GPS tablette. Ex: 33.9197, 8.1342
+GPS (lat,lon) Recom
+mandé
+— Opérateu
+r/GPS
+1
+5
+Variétés produites Sélection multiple : Deglet Nour /
+Allig / Khouat Allig / Kenta /
+Arechti / Autres
+Multi-
+sélection
+Oui Deglet
+Nour
+Opérateu
+r
+1
+6
+Surface exploitée (ha) Surface estimée en hectares.
+Aide à évaluer la capacité.
+Numérique
+décimal
+Non — Opérateu
+r
+1
+7
+Nombre de palmiers Estimation du nombre de pieds de
+palmiers. Environ 100-130
+pieds/ha à Tozeur.
+Numérique
+entier
+Non — Opérateu
+r
+1
+8
+Production annuelle
+est. (T)
+Tonnes estimées par an. Environ
+50-80 kg/palmier pour Deglet
+Nour adulte.
+Numérique
+décimal
+Recom
+mandé
+— Opérateu
+r
+1
+9
+Mode de culture Traditionnel oasien / Moderne
+intensif / Biologique certifié
+Liste
+déroulante
+Non Traditio
+nnel
+Opérateu
+r
+2
+0
+Irrigué par Puits artésien / Source naturelle /
+Forage / Réseau GID
+Liste
+déroulante
+Non — Opérateu
+r
+1.1.3 Bloc Commercial et Contractuel
+N
+° Champ Description & Règles Type Oblig. Défaut Source
+2
+1
+Type de contrat Annuel (engagement saison) /
+Saisonnier (renouvellement) /
+Ponctuel (sans engagement) /
+Achat sur pied (بيع على الشجر)
+Liste
+déroulante
+Oui Saison
+nier
+Opérateu
+r
+2
+2
+Date début contrat Date de signature ou début de la
+relation.
+Date Oui Date
+du jour
+Opérateu
+r
+2
+3
+Date fin contrat Date d'expiration. Alerte
+automatique 30 jours avant.
+Date Non — Opérateu
+r
+2
+4
+Conditions de
+paiement
+Paiement immédiat / 15 jours / 30
+jours / Avance à la récolte + solde
+à livraison
+Liste
+déroulante
+Oui Immédi
+at
+Acheteur
+2
+5
+RIB bancaire Pour virement des paiements.
+Masqué sauf pour la comptabilité.
+Texte
+masqué
+Recom
+mandé
+— Comptabi
+lité
+2
+6
+Prix convenu (TND/kg) Prix négocié par kg pour la saison
+en cours. Par variété si différent.
+Numérique
+décimal
+Recom
+mandé
+— Acheteur
+2
+7
+Certifications GlobalG.A.P. / Bio UE / Bio
+Tunisie / Fair Trade / Aucune.
+Multi-sélection + date validité.
+Multi-
+sélection
+Non Aucune Opérateu
+r
+2
+8
+Documents
+contractuels
+Contrat signé, cahier des
+charges, attestation Bio, etc.
+Fichiers PDF joints.
+Fichiers
+PDF
+Recom
+mandé
+— Acheteur
+1.1.4 Bloc Statut et Performance (calculé automatiquement)
+N
+° Champ Description & Règles Type Oblig. Défaut Source
+2
+9
+Statut Actif / Inactif / En cours
+d'agrément / Bloqué / Archivé
+Liste Oui En
+cours
+d'agré
+ment
+Système/
+Acheteur
+3
+0
+Score qualité (/100) Calculé automatiquement après
+chaque livraison. Voir algorithme
+ci-dessous.
+Calculé Auto 0 Système
+Royal Palm · Page 4
+
+-- 4 of 23 --
+
+Royal Palm · Phase 1 — Spécification Détaillée v4.0
+3
+1
+Nombre de lots livrés Compteur cumulé depuis la
+création de la fiche.
+Compteur Auto 0 Système
+3
+2
+Poids total livré (T) Cumul des poids nets de tous les
+lots.
+Calculé Auto 0 Système
+3
+3
+Taux de rejet (%) Nombre de lots rejetés / Nombre
+total de lots × 100
+Calculé Auto 0% Système
+3
+4
+Dernière livraison Date du dernier lot enregistré. Date Auto — Système
+3
+5
+Montant total payé
+(TND)
+Cumul des paiements effectués. Calculé Auto 0 Comptabi
+lité
+3
+6
+Date de création fiche Automatique à la création. Timestamp Auto Now Système
+3
+7
+Créé par Utilisateur ayant créé la fiche. Auto (user) Auto User Système
+3
+8
+Dernière modification Date et heure de la dernière
+modification.
+Timestamp Auto Now Système
+3
+9
+Historique
+modifications
+Journal de toutes les
+modifications (champ, ancienne
+valeur, nouvelle valeur, qui,
+quand).
+Log Auto — Système
+1.2 Algorithme de Score Fournisseur
+Le score est calculé sur 100 points et mis à jour après chaque lot inspecté :
+Critère Poids Formule Exemple
+Qualité des lots 40% Moyenne pondérée des 12 derniers mois : Extra =
+100pts, Cat.I = 80pts, Cat.II = 60pts, Rejeté =
+0pts
+3 Extra + 1 Cat.I =
+(300+80)/4 = 95 →
+95×0.4 = 38
+Taux de rejet 20% (1 - Taux de rejet) × 100 Si rejet = 5% → score =
+95
+1 rejet sur 20 = 5% →
+95×0.2 = 19
+Respect quantités 15% 100 - |écart moyen %| Tolérance ±5% = score
+100
+Commandé 5T, livré
+4.8T = -4% →
+96×0.15 = 14.4
+Ponctualité 15% % de livraisons dans le délai (±1 jour = conforme) 18/20 à l'heure = 90%
+→ 90×0.15 = 13.5
+Documents complets 10% % de livraisons avec bon de livraison complet 19/20 = 95% →
+95×0.10 = 9.5
+Score final de l'exemple : 38 + 19 + 14.4 + 13.5 + 9.5 = 94.4 / 100
+1.3 Règles de Gestion — Fournisseurs
+R
+G Règle Détail / Condition Action système
+R
+G
+-
+F
+0
+1
+Unicité CIN/MF Le système empêche la création de deux
+fiches avec le même CIN ou matricule fiscal.
+Message erreur + lien vers
+fiche existante
+R
+G
+-
+F
+Statut initial Tout nouveau fournisseur est créé en statut
+'En cours d'agrément'. Il passe à 'Actif' après
+validation par le responsable achats.
+Workflow validation
+Royal Palm · Page 5
+
+-- 5 of 23 --
+
+Royal Palm · Phase 1 — Spécification Détaillée v4.0
+0
+2
+R
+G
+-
+F
+0
+3
+Blocage automatique Si le taux de rejet dépasse 20% sur les 6
+derniers mois, le système passe le
+fournisseur en statut 'Bloqué' et notifie le
+responsable achats.
+Statut auto + notification
+R
+G
+-
+F
+0
+4
+Alerte score Si le score descend sous 60/100, une alerte
+est envoyée au responsable achats pour
+déclencher un plan d'amélioration.
+Alerte email/SMS
+R
+G
+-
+F
+0
+5
+Expiration contrat 30 jours avant l'expiration du contrat, le
+système envoie une alerte au responsable
+achats.
+Alerte + tâche
+R
+G
+-
+F
+0
+6
+Fournisseur inactif Si aucune livraison depuis 18 mois, le
+système propose l'archivage de la fiche.
+Notification + proposition
+R
+G
+-
+F
+0
+7
+Certification Bio Si le fournisseur livre un lot déclaré 'Bio', le
+système vérifie qu'il a une certification Bio
+valide. Sinon, blocage.
+Contrôle + blocage
+R
+G
+-
+F
+0
+8
+Suppression interdite Un fournisseur avec des lots enregistrés ne
+peut jamais être supprimé. Il peut
+uniquement être archivé.
+Suppression bloquée
+R
+G
+-
+F
+0
+9
+Prix par défaut Lors de la création d'une commande, le prix
+est pré-rempli avec le dernier prix convenu
+pour cette variété.
+Pré-remplissage auto
+R
+G
+-
+F
+1
+0
+Portail fournisseur Tout fournisseur actif avec un email peut
+accéder au portail web en lecture seule : ses
+livraisons, son score, ses paiements.
+Accès portail
+1.4 Workflows Fournisseur
+1.4.1 Workflow de création et agrément
+1. L'opérateur réception ou l'acheteur crée la fiche avec les champs obligatoires. Statut = 'En cours
+d'agrément'.
+2. Le responsable achats reçoit une notification de validation. Il vérifie les informations, les
+documents, et peut demander des compléments.
+3. Le responsable achats valide → Statut = 'Actif'. Ou rejette → Statut = 'Inactif' avec motif.
+4. Si le fournisseur est un producteur Bio, le responsable qualité doit aussi valider la certification
+avant activation.
+Royal Palm · Page 6
+
+-- 6 of 23 --
+
+Royal Palm · Phase 1 — Spécification Détaillée v4.0
+1.4.2 Workflow de mise à jour du score
+5. Un lot est inspecté au Contrôle Qualité (Module 4).
+6. Le résultat (Extra/Cat.I/Cat.II/Rejeté) est enregistré.
+7. Le système recalcule automatiquement les 5 critères du score.
+8. Le nouveau score est enregistré dans la fiche fournisseur.
+9. Si le score a franchi un seuil (60 ou 85), une notification est envoyée.
+10. Le fournisseur peut voir son score mis à jour sur le portail.
+Royal Palm · Page 7
+
+-- 7 of 23 --
+
+Royal Palm · Phase 1 — Spécification Détaillée v4.0
+1.5 Écrans du Module Fournisseur
+1.5.1 Écran Liste des Fournisseurs
+C'est l'écran principal. Il affiche la liste de tous les fournisseurs sous forme de cartes ou de tableau.
+• Barre de recherche : recherche par nom, code, ville, CIN.
+• Filtres : par statut (Actif/Inactif/Bloqué), par région, par variété, par score (plage).
+• Tri : par nom, par score (desc.), par dernier livraison, par poids total livré.
+• Chaque ligne/carte affiche : Code, Nom, Ville/Région, Variétés (badges), Certifications (badges),
+Score (barre colorée), Statut (badge), Dernière livraison.
+• Bouton [+ Nouveau fournisseur] en haut à droite.
+• Clic sur une ligne → ouvre la Fiche Fournisseur détaillée.
+1.5.2 Écran Fiche Fournisseur
+Affiche toutes les informations d'un fournisseur, organisé en onglets :
+• Onglet 'Identité' : tous les champs des blocs 1.1.1 à 1.1.3. Mode lecture par défaut, bouton
+[Modifier] pour passer en édition.
+• Onglet 'Performance' : Score global avec décomposition par critère (graphique radar). Évolution
+du score sur les 12 derniers mois (graphique courbe). Taux de rejet (graphique). Distribution des
+grades livrés (camembert).
+• Onglet 'Livraisons' : Liste chronologique de tous les lots livrés par ce fournisseur. Colonnes :
+LOT-ID, date, variété, poids, qualité, statut. Clic sur un lot → ouvre la fiche lot.
+• Onglet 'Commandes' : Liste des PO associés. Statut de chaque commande.
+• Onglet 'Paiements' : Historique des paiements. Solde éventuel.
+• Onglet 'Documents' : Liste des documents joints (contrat, CIN, certifications). Upload possible.
+• Onglet 'Historique' : Journal de toutes les modifications de la fiche.
+Royal Palm · Page 8
+
+-- 8 of 23 --
+
+Royal Palm · Phase 1 — Spécification Détaillée v4.0
+Module 2 : Réception des Dattes (استقبال التمور)
+Ce module gère l'enregistrement de chaque arrivage de dattes à l'usine Royal Palm : pesée,
+identification, génération du LOT-ID, étiquetage QR/RFID, et orientation vers le stockage temporaire.
+2.1 Processus détaillé de réception chez Royal Palm
+N° Étape Description concrète Qui Durée est.
+1 Arrivée camion Le camion du collecteur/producteur
+arrive au portail de l'usine Route El
+Hajij. Le gardien vérifie le bon de
+livraison papier et la plaque. Il ouvre la
+barrière.
+Gardien 1 min
+2 Pesée brut Le camion se positionne sur le pont-
+bascule (60T). L'opérateur lance la
+pesée. Le poids brut s'affiche et est
+capturé automatiquement dans le
+système via liaison Modbus.
+Opérateur réception 2 min
+3 Déchargement Le camion avance vers la zone de
+déchargement. Les manutentionnaires
+déchargent les caisses (20-25 kg
+chacune) ou les régimes de dattes
+branchées. Mise sur palettes.
+Manutentionnaires 15-30 min
+4 Pesée tare Le camion vide repasse sur le pont-
+bascule. Capture automatique du poids
+tare. Le système calcule le poids net
+(brut - tare).
+Opérateur réception 2 min
+5 Saisie données L'opérateur sur sa tablette saisit :
+fournisseur, variété, conditions, photos.
+Il peut scanner la carte fournisseur si
+existante.
+Opérateur réception 3-5 min
+6 Contrôle rapide L'opérateur fait un contrôle visuel
+rapide : état des caisses, odeurs,
+température IR. Ce n'est PAS
+l'inspection qualité (module 4).
+Opérateur réception 2 min
+7 Génération LOT-
+ID
+Le système génère automatiquement
+le LOT-ID unique et imprime les
+étiquettes QR (1 par palette).
+Système +
+imprimante
+1 min
+8 Étiquetage L'opérateur colle une étiquette QR sur
+chaque palette/lot de caisses. Si RFID
+disponible, un tag est également fixé.
+Opérateur réception 2-3 min
+9 Affectation zone L'opérateur confirme la zone de
+stockage temporaire (zone de
+réception). Le système suggère la zone
+la moins encombrée.
+Opérateur réception 1 min
+10 Notification
+qualité
+Le système envoie automatiquement
+une notification push + SMS à
+l'inspecteur qualité pour déclencher
+l'inspection d'entrée.
+Système Auto
+11 Validation L'opérateur valide l'enregistrement. Le
+lot passe en statut 'Réceptionné — En
+attente inspection'. Le camion peut
+partir.
+Opérateur réception 1 min
+Temps total estimé par lot : 25-45 minutes selon la taille du lot et le nombre de caisses.
+Royal Palm · Page 9
+
+-- 9 of 23 --
+
+Royal Palm · Phase 1 — Spécification Détaillée v4.0
+2.2 Fiche Lot — Tous les champs
+La fiche lot est le document central de traçabilité. Elle est créée à la réception et enrichie à chaque étape de
+la chaîne de production.
+2.2.1 Bloc Identification du Lot
+N
+° Champ Description & Règles Type Oblig. Défaut Source
+1 LOT-ID Auto-généré. Format: RP-[REG]-
+[CODE_FOURN]-[AAAAMMJJ]-
+[SEQ] Exemple: RP-TOZ-C012-
+20261018-003 RP = Royal Palm
+TOZ = Tozeur (KEB=Kébili,
+GAB=Gabès, GAF=Gafsa) C012
+= Code collecteur 20261018 =
+Date réception 003 = 3ème lot du
+jour
+Auto-généré Auto Séque
+ntiel
+Système
+2 QR Code Encodage du LOT-ID + variété +
+poids + date en QR code.
+Résolution 300 dpi minimum pour
+impression.
+Auto-généré Auto — Système
+3 Tag RFID (si dispo) Code EPC du tag UHF. Lié au
+LOT-ID.
+Texte (24
+hex)
+Non — Lecteur
+RFID
+4 Lot parent Si ce lot résulte d'un
+fractionnement, référence au lot
+d'origine. Vide pour un lot
+primaire.
+LOT-ID réf. Auto Vide Système
+5 Lots enfants Si ce lot a été fractionné, liste des
+sous-lots. Vide initialement.
+Liste LOT-ID Auto Vide Système
+2.2.2 Bloc Fournisseur et Origine
+N
+° Champ Description & Règles Type Oblig. Défaut Source
+6 Code fournisseur Sélection dans la liste des
+fournisseurs actifs. Auto-
+complétion par nom ou code.
+Liste filtrée Oui — Opérateu
+r
+7 Nom fournisseur Affiché automatiquement après
+sélection du code.
+Auto-rempli Auto — Système
+8 Oasis d'origine Nom de l'oasis, pré-rempli depuis
+la fiche fournisseur. Modifiable si
+livraison d'une autre oasis.
+Texte/liste Non Depuis
+fiche F.
+Opérateu
+r
+9 GPS oasis Coordonnées GPS, pré-remplies
+depuis fiche fournisseur.
+GPS Auto Depuis
+fiche F.
+Système
+1
+0
+N° bon de livraison Numéro du bon de livraison
+papier du fournisseur/collecteur.
+Saisie manuelle.
+Texte (20
+car.)
+Recom
+mandé
+— Opérateu
+r
+1
+1
+N° commande achat
+(PO)
+Lien vers la commande d'achat si
+elle existe. Liste filtrée par
+fournisseur + statut Confirmé.
+Liste filtrée Non — Opérateu
+r
+2.2.3 Bloc Pesée
+N
+° Champ Description & Règles Type Oblig. Défaut Source
+1 Poids brut (kg) Capture automatique depuis le Numérique Oui — Pont-
+Royal Palm · Page 10
+
+-- 10 of 23 --
+
+Royal Palm · Phase 1 — Spécification Détaillée v4.0
+2 pont-bascule via Modbus RTU.
+Non modifiable manuellement
+sauf panne.
+auto bascule
+1
+3
+Poids tare (kg) Capture automatique après
+déchargement. Non modifiable
+sauf panne.
+Numérique
+auto
+Oui — Pont-
+bascule
+1
+4
+Poids net (kg) Calculé : Brut - Tare. C'est le
+poids officiel du lot.
+Calculé Auto — Système
+1
+5
+Poids annoncé BL (kg) Poids indiqué sur le bon de
+livraison du fournisseur. Saisi
+manuellement.
+Numérique Non — Opérateu
+r
+1
+6
+Écart poids (%) Calculé : |Poids net - Poids
+annoncé| / Poids annoncé × 100.
+Alerte si > 3%.
+Calculé Auto — Système
+1
+7
+Nombre de caisses Comptage physique des caisses
+ou régimes.
+Numérique
+entier
+Oui — Opérateu
+r
+1
+8
+Poids moyen par
+caisse
+Calculé : Poids net / Nombre de
+caisses. Info pour vérification
+cohérence.
+Calculé Auto — Système
+2.2.4 Bloc Produit
+N
+° Champ Description & Règles Type Oblig. Défaut Source
+1
+9
+Variété Deglet Nour / Allig / Khouat Allig /
+Kenta / Arechti / Mélange / Autre
+Liste
+déroulante
+Oui Deglet
+Nour
+Opérateu
+r
+2
+0
+Présentation En caisses / En régimes
+(branchées) / En vrac (sacs) /
+Mélange
+Liste
+déroulante
+Oui En
+caisses
+Opérateu
+r
+2
+1
+Stade de maturation Khalal (لاّل خ — jaune, dur) / Rutab
+(رطب — mou) / Tamar (رّم ت — sec,
+mature). Photos de référence
+affichées.
+Liste +
+photos
+Oui Tamar Opérateu
+r
+2
+2
+Méthode de récolte Manuelle traditionnelle
+(grimpeur) / Semi-mécanique
+(vibreur tronc) / Mécanique
+(récolteuse)
+Liste
+déroulante
+Oui Manuel
+le
+Opérateu
+r
+2
+3
+Date de récolte
+estimée
+Date approximative de la
+cueillette, déclarée par le
+fournisseur.
+Date Non — Opérateu
+r
+2
+4
+Bio déclaré Oui / Non. Si Oui, le système
+vérifie la certification Bio du
+fournisseur (RG-F07).
+Booléen Oui Non Opérateu
+r
+2.2.5 Bloc Transport et Conditions
+N
+° Champ Description & Règles Type Oblig. Défaut Source
+2
+5
+Immatriculation
+véhicule
+Plaque du camion. Auto-
+complétion si véhicule déjà
+connu. Ex: TU-4521-A
+Texte + auto Oui — Opérateu
+r
+2
+6
+Nom chauffeur Nom du chauffeur pour
+identification.
+Texte Non — Opérateu
+r
+2
+7
+Température arrivée
+(°C)
+Mesure par thermomètre IR sur
+les dattes. Alerte si > 35°C (risque
+fermentation).
+Numérique
+(°C)
+Oui — Opérateu
+r
+Royal Palm · Page 11
+
+-- 11 of 23 --
+
+Royal Palm · Phase 1 — Spécification Détaillée v4.0
+2
+8
+Heure départ
+(déclarée)
+Heure de départ du camion de
+l'oasis, déclarée par le chauffeur.
+Pour calculer le temps de
+transport.
+Heure Non — Opérateu
+r
+2
+9
+Conditions transport Bâché / Non bâché / Réfrigéré.
+Impact sur la qualité.
+Liste Non Bâché Opérateu
+r
+3
+0
+État visuel général Bon / Moyen / Mauvais.
+Impression visuelle rapide avant
+inspection qualité.
+Liste Oui Bon Opérateu
+r
+2.2.6 Bloc Photos et Observations
+N
+° Champ Description & Règles Type Oblig. Défaut Source
+3
+1
+Photo 1 — Vue
+d'ensemble
+Photo du lot en cours de
+déchargement ou sur palettes.
+Prise depuis la tablette.
+Photo
+(JPEG)
+Oui — Tablette
+3
+2
+Photo 2 — Gros plan Photo rapprochée d'une caisse
+ouverte montrant l'état des dattes.
+Photo
+(JPEG)
+Oui — Tablette
+3
+3
+Photo 3 (optionnelle) Photo supplémentaire si anomalie
+visible (caisses cassées, odeur,
+moisissure visible).
+Photo
+(JPEG)
+Non — Tablette
+3
+4
+Observations / Notes Texte libre pour commentaires de
+l'opérateur. Ex: 'Quelques caisses
+écrasées en fond de camion',
+'Odeur de fermentation légère'.
+Texte (500
+car.)
+Non — Opérateu
+r
+2.2.7 Bloc Statut et Traçabilité
+N
+° Champ Description & Règles Type Oblig. Défaut Source
+3
+5
+Statut lot Réceptionné → En inspection →
+Accepté / Rejeté → En production
+→ ... Voir machine d'état ci-
+dessous.
+Machine
+d'état
+Auto Récepti
+onné
+Système
+3
+6
+Stade actuel Étape de la chaîne où se trouve le
+lot : Réception / Qualité /
+Fumigation / ...
+Auto Auto Récepti
+on
+Système
+3
+7
+Zone de stockage Zone physique où se trouve le lot.
+Ex: R-03 (réception), CF-A2
+(chambre froide A2).
+Texte Oui — Opérateu
+r
+3
+8
+Date/heure réception Timestamp automatique au
+moment de la validation de
+l'enregistrement.
+Timestamp Auto Now Système
+3
+9
+Opérateur réception Utilisateur connecté qui a
+enregistré le lot.
+Auto (user) Auto User Système
+4
+0
+Historique événements Journal chronologique de tous les
+événements liés à ce lot (création,
+inspection, avancement, etc.)
+Log
+structuré
+Auto — Système
+Royal Palm · Page 12
+
+-- 12 of 23 --
+
+Royal Palm · Phase 1 — Spécification Détaillée v4.0
+2.3 Règles de Gestion — Réception
+R
+G Règle Détail / Condition Action système
+R
+G
+-
+R
+0
+1
+Fournisseur actif requis Un lot ne peut être enregistré que pour un
+fournisseur en statut 'Actif'. Si le fournisseur
+est Bloqué ou Inactif, le système refuse.
+Message erreur + explication
+R
+G
+-
+R
+0
+2
+LOT-ID unique Le LOT-ID est garanti unique. Le compteur
+séquentiel est incrémenté atomiquement.
+Unicité base de données
+R
+G
+-
+R
+0
+3
+Alerte écart poids Si l'écart entre poids net et poids annoncé
+BL dépasse 3%, une alerte orange s'affiche.
+Si > 10%, alerte rouge + notification
+responsable.
+Alerte visuelle + notification
+R
+G
+-
+R
+0
+4
+Alerte température Si température arrivée > 35°C : alerte rouge.
+Le lot est marqué 'Attention température' et
+l'inspecteur qualité en est informé.
+Alerte + flag sur lot
+R
+G
+-
+R
+0
+5
+Bio → vérification Si le champ 'Bio déclaré' = Oui, le système
+vérifie que le fournisseur a une certification
+Bio valide (non expirée). Si non, blocage.
+Vérification auto + blocage
+R
+G
+-
+R
+0
+6
+Photos obligatoires Le lot ne peut pas être validé sans au moins
+2 photos.
+Bouton Valider grisé si < 2
+photos
+R
+G
+-
+R
+0
+7
+Notification auto Dès que le lot est validé, notification push +
+SMS envoyée à l'inspecteur qualité de
+service.
+Notification auto
+R
+G
+-
+R
+0
+8
+Pont-bascule en panne En cas de panne du pont-bascule,
+l'opérateur peut saisir manuellement le poids
+AVEC un motif obligatoire et une alerte
+enregistrée.
+Saisie manuelle + log
+anomalie
+R
+G
+-
+R
+0
+9
+Doublon véhicule même jour Si un même véhicule livre 2 fois le même
+jour, le système affiche un avertissement
+(pas un blocage) pour éviter les erreurs.
+Avertissement informatif
+R
+G
+-
+R
+1
+0
+Délai max réception Si la saisie dépasse 60 minutes entre pesée
+brut et validation, le système enregistre une
+alerte de délai.
+Alerte performance
+Royal Palm · Page 13
+
+-- 13 of 23 --
+
+Royal Palm · Phase 1 — Spécification Détaillée v4.0
+2.4 Machine d'État du Lot
+Le lot traverse les statuts suivants tout au long de sa vie dans l'usine :
+Statut Déclencheur Actions possibles Statut suivant
+Réceptionné Validation formulaire
+réception
+Lancer inspection qualité En inspection
+En inspection Inspecteur scanne le QR Remplir formulaire qualité,
+Décision
+Accepté / Rejeté
+Accepté (grade) Décision inspecteur Orienter vers fumigation ou
+stockage
+En fumigation / En stockage
+brut
+Rejeté Décision inspecteur Notification fournisseur,
+quarantaine
+Quarantaine → Retour /
+Destruction
+En stockage brut Après réception si pas de
+fumigation immédiate
+Attendre place en chambre
+fumigation
+En fumigation
+En fumigation Entrée en chambre Monitoring CCP, attente fin
+cycle
+Fumigé (en attente lavage)
+En lavage Entrée sur ligne de lavage Monitoring, pesée sortie Lavé
+En hydratation Entrée en étuve Monitoring humidité Hydraté
+En triage Entrée sur ligne de tri Classement par grade Trié (sous-lots créés)
+En conditionnement Entrée atelier Glucosage, fourrage Conditionné
+En emballage Entrée ligne emballage CCP-2 détection métaux Emballé
+En entreposage Entrée chambre froide Monitoring CCP-3
+température
+Stocké froid
+Prêt à expédier Picking validé Chargement conteneur Expédié
+Expédié Conteneur scellé Suivi transport Livré client
+Royal Palm · Page 14
+
+-- 14 of 23 --
+
+Royal Palm · Phase 1 — Spécification Détaillée v4.0
+Module 3 : Stockage et Gestion des Zones (نيالتخز)
+Ce module gère les zones de stockage de l'usine Royal Palm : la zone de réception (stockage
+temporaire), le stockage brut (en attente de traitement), et le stockage frigorifique (produits finis). Il
+couvre aussi la gestion des emplacements, les mouvements, et le monitoring des conditions.
+3.1 Cartographie des zones de stockage Royal Palm
+Zone Code Capacité Type Temp. cible Capteurs
+Zone Réception ZR-01 à ZR-06 6 × 30 palettes Couvert,
+ventilé
+Ambiante Temp + humid (2)
+Zone Réception ZR-07 à ZR-10 4 × 20 palettes Couvert,
+ventilé
+Ambiante Temp + humid (2)
+Stockage brut
+attente
+SB-01 à SB-04 4 × 50 palettes Bâtiment
+fermé
+< 30°C Temp + humid (4)
+Chambre froide A1 CF-A1 200 palettes Froid positif 2-4°C Temp × 4 + humid ×
+2
+Chambre froide A2 CF-A2 200 palettes Froid positif 2-4°C Temp × 4 + humid ×
+2
+Chambre froide A3 CF-A3 150 palettes Froid positif 4-6°C Temp × 4 + humid ×
+2
+Chambre froide B1 CF-B1 250 palettes Froid positif 2-4°C Temp × 4 + humid ×
+2
+Chambre froide B2 CF-B2 250 palettes Froid positif 2-4°C Temp × 4 + humid ×
+2
+Chambre froide B3 CF-B3 150 palettes Froid positif 4-6°C Temp × 4 + humid ×
+2
+Chambre
+fumigation 1
+FU-01 25 tonnes Hermétique Ambiante Gaz × 4, Temp × 6
+Chambre
+fumigation 2
+FU-02 25 tonnes Hermétique Ambiante Gaz × 4, Temp × 6
+Zone préparation
+export
+ZE-01 30 palettes Quai couvert Ambiante —
+3.2 Fiche Emplacement — Champs
+N
+° Champ Description & Règles Type Oblig. Défaut Source
+1 Code emplacement Format: [ZONE]-[ALLÉE]-[RACK]-
+[NIVEAU]. Ex: CF-A1-02-05-3 =
+Chambre A1, allée 2, rack 5,
+niveau 3.
+Structuré Oui — Configura
+tion
+2 Zone parente Référence vers la zone (CF-A1,
+SB-02, etc.)
+Référence Auto — Système
+3 Capacité (palettes) Nombre de palettes que cet
+emplacement peut contenir.
+Numérique Oui 1 Configura
+tion
+4 Statut Libre / Occupé / Réservé / Bloqué
+(maintenance)
+Calculé Auto Libre Système
+5 Lot(s) présent(s) LOT-ID des palettes actuellement
+dans cet emplacement.
+Référence(s
+)
+Auto — Système
+6 Date dernier
+mouvement
+Dernière entrée ou sortie. Timestamp Auto — Système
+7 Température actuelle Dernière lecture du capteur le Numérique Auto — Capteur
+Royal Palm · Page 15
+
+-- 15 of 23 --
+
+Royal Palm · Phase 1 — Spécification Détaillée v4.0
+plus proche. Pour les chambres
+froides.
+(°C) IoT
+8 Humidité actuelle Dernière lecture du capteur. Numérique
+(%)
+Auto — Capteur
+IoT
+3.3 Mouvements de stock — Enregistrement
+Chaque fois qu'une palette est déplacée, un mouvement est enregistré :
+N
+° Champ Description & Règles Type Oblig. Défaut Source
+1 ID mouvement Auto-généré séquentiel. Ex: MV-
+20261018-0042
+Auto Auto — Système
+2 LOT-ID Lot concerné. Scan du QR code. Scan QR Oui — Opérateu
+r
+3 Type mouvement Entrée zone / Sortie zone /
+Transfert / Inventaire / Ajustement
+Liste Oui — Opérateu
+r
+4 Zone/Emplacement
+départ
+D'où vient la palette. Scan/
+sélection
+Oui
+(sauf
+entrée)
+— Opérateu
+r
+5 Zone/Emplacement
+arrivée
+Où va la palette. Le système peut
+suggérer le meilleur
+emplacement.
+Scan/
+sélection
+Oui
+(sauf
+sortie)
+Sugges
+tion
+systèm
+e
+Opérateu
+r
+6 Quantité (palettes) Nombre de palettes déplacées. Numérique Oui 1 Opérateu
+r
+7 Motif Réception / Fumigation / Lavage /
+Triage / Emballage / Picking
+export / Inventaire / Autre
+Liste Oui — Opérateu
+r
+8 Date/heure Timestamp automatique. Timestamp Auto Now Système
+9 Opérateur Utilisateur ayant effectué le
+mouvement.
+Auto (user) Auto User Système
+1
+0
+Notes Commentaire libre. Texte Non — Opérateu
+r
+3.4 Règles de Gestion — Stockage
+R
+G Règle Détail / Condition Action système
+R
+G
+-
+S
+0
+1
+Suggestion emplacement Lors d'une entrée en chambre froide, le
+système suggère l'emplacement libre le plus
+proche de la porte (pour FIFO) ou regroupé
+par variété.
+Algorithme suggestion
+R
+G
+-
+S
+0
+2
+FEFO obligatoire Lors d'un picking pour expédition, le
+système propose en priorité les lots avec la
+DLC la plus courte. L'opérateur peut
+override avec motif.
+Liste triée + alerte si override
+R
+G
+-
+S
+0
+3
+Alerte température Si un capteur de chambre froide dépasse
+8°C pendant > 5 min : alerte rouge
+immédiate. Si > 10°C pendant > 30 min :
+alerte critique (SMS direction).
+Multi-niveau alertes
+Royal Palm · Page 16
+
+-- 16 of 23 --
+
+Royal Palm · Phase 1 — Spécification Détaillée v4.0
+R
+G
+-
+S
+0
+4
+Alerte porte ouverte Si une porte de chambre froide reste ouverte
+> 5 minutes : alerte opérateur. > 15
+ouvertures/heure : alerte responsable.
+Capteur porte + compteur
+R
+G
+-
+S
+0
+5
+Alerte DLC J-30 avant DLC : alerte jaune. J-15 : alerte
+orange. J-7 : alerte rouge. Lot affiché en tête
+de liste picking.
+Alertes progressives
+R
+G
+-
+S
+0
+6
+Capacité zone Le système empêche l'affectation d'une
+palette à un emplacement déjà plein. Il
+recalcule le taux d'occupation en temps réel.
+Contrôle + blocage
+R
+G
+-
+S
+0
+7
+Cohérence variété Alerte (non bloquante) si on stocke des
+variétés différentes dans la même zone.
+Pour les chambres froides Bio : uniquement
+des lots Bio.
+Alerte + blocage Bio
+R
+G
+-
+S
+0
+8
+Inventaire tournant Le système programme automatiquement
+des comptages cycliques : chaque zone est
+comptée au moins 1 fois par mois. Rapport
+d'écarts.
+Planification auto
+R
+G
+-
+S
+0
+9
+Historique complet Tout mouvement est enregistré dans
+l'historique du lot ET dans l'historique de
+l'emplacement. Rien ne peut être supprimé.
+Log inviolable
+R
+G
+-
+S
+1
+0
+Durée max stockage brut Si un lot reste en zone de stockage brut
+(SB) plus de 48h sans être orienté vers la
+fumigation, alerte au chef de production.
+Alerte délai
+3.5 Dashboard Stockage
+L'écran principal du module stockage affiche :
+• Plan visuel de l'usine avec chaque zone colorée selon le taux d'occupation (vert < 60%, jaune
+60-85%, rouge > 85%).
+• Pour chaque chambre froide : température actuelle (gros chiffre), tendance 24h (mini graphique),
+taux occupation, nombre de palettes, alerte si anomalie.
+• Liste des lots en stockage brut depuis > 24h (à orienter en priorité).
+• Liste des lots proches de la DLC (FEFO).
+• Statistiques : palettes totales en stock, tonnes par variété, tonnes par grade.
+Royal Palm · Page 17
+
+-- 17 of 23 --
+
+Royal Palm · Phase 1 — Spécification Détaillée v4.0
+Module 4 : Contrôle Qualité Entrée (مراقبة الجودة)
+Ce module est CRITIQUE pour Royal Palm. C'est ici que se décide le sort de chaque lot : acceptation,
+déclassement ou rejet. La rigueur de cette étape conditionne la qualité des produits finis et la
+réputation de Royal Palm sur les marchés d'export.
+4.1 Processus d'inspection détaillé
+N
+° Étape Description concrète Royal Palm Instrument Durée
+1 Réception
+notification
+L'inspecteur reçoit une notification push sur sa
+tablette : 'Nouveau lot RP-TOZ-C012-
+20261018-003 en zone R-03 — Deglet Nour,
+5220 kg, Haj Salah'. Il se déplace vers la zone.
+Tablette 1 min
+2 Scan QR du lot L'inspecteur scanne le QR code de la palette.
+Le système charge automatiquement toutes les
+données de réception et affiche le formulaire
+d'inspection.
+Tablette +
+scanner
+30 sec
+3 Échantillonnage L'inspecteur ouvre 4-6 caisses réparties dans
+le lot (pas seulement le dessus !). Il prélève un
+échantillon de 3-5 kg selon la taille du lot : • Lot
+< 2T : échantillon 2 kg (3-4 caisses) • Lot 2-5T :
+échantillon 3 kg (4-5 caisses) • Lot > 5T :
+échantillon 5 kg (6+ caisses)
+Manuel 3-5 min
+4 Mesure humidité 3 mesures sur des dattes différentes avec
+l'hygromètre portable (Testo ou équivalent). Le
+système calcule la moyenne et affiche le
+résultat par rapport à la plage cible.
+Hygromètre
+calibré
+2-3 min
+5 Mesure calibre Longueur de 10 dattes avec pied à coulisse
+numérique. Le système calcule la moyenne et
+la distribution. Classification automatique.
+Pied à coulisse
+num.
+3-4 min
+6 Évaluation
+défauts
+L'inspecteur examine visuellement et estime le
+% de chaque défaut dans l'échantillon. Grille
+de 6 défauts (voir 4.3). Pour chaque type, il
+saisit le % estimé.
+Visuel +
+tablette
+5-8 min
+7 Test
+organoleptique
+Dégustation de 3-5 dattes. Score 1-5 pour
+goût, texture, apparence. Notes en cas
+d'anomalie (acidité, goût de fermentation,
+amertume).
+Dégustation 2-3 min
+8 Photos
+inspection
+Au minimum 2 photos : vue d'ensemble de
+l'échantillon + gros plan du défaut principal si
+existant. Supplémentaires si anomalies.
+Tablette
+caméra
+1-2 min
+9 Prélèvement
+labo
+Obligatoire si : lot > 5T, nouveau fournisseur,
+ou suspicion de contamination. 500g dans un
+sachet étiqueté avec le LOT-ID. Code
+échantillon labo auto-généré.
+Sachet +
+étiquette
+2 min
+1
+0
+Calcul score Le système calcule automatiquement le score
+global /100 selon la grille pondérée (voir 4.3) et
+propose une classification.
+Automatique Instant
+1
+1
+Décision
+inspecteur
+L'inspecteur peut : Valider la classification
+proposée (1 clic) OU la modifier manuellement
+avec justification obligatoire (texte + photo).
+Tablette 1-2 min
+1
+2
+Validation L'inspecteur valide. Le statut du lot est mis à
+jour. Si rejet : notification automatique au
+fournisseur (SMS + email).
+Tablette 30 sec
+Temps total d'inspection par lot : 20-30 minutes.
+Royal Palm · Page 18
+
+-- 18 of 23 --
+
+Royal Palm · Phase 1 — Spécification Détaillée v4.0
+4.2 Formulaire d'Inspection — Tous les champs
+Le formulaire est divisé en sections qui correspondent aux étapes du processus :
+4.2.1 Section Humidité
+N
+° Champ Description & Règles Type Oblig. Défaut Source
+1 Mesure 1 (%) Première mesure hygromètre.
+Valeur entre 10 et 40.
+Numérique
+(1 déc.)
+Oui — Inspecteu
+r
+2 Mesure 2 (%) Deuxième mesure. Numérique
+(1 déc.)
+Oui — Inspecteu
+r
+3 Mesure 3 (%) Troisième mesure. Numérique
+(1 déc.)
+Oui — Inspecteu
+r
+4 Moyenne humidité Calculée : (M1+M2+M3)/3.
+Arrondi 1 décimale.
+Calculé Auto — Système
+5 Conformité humidité Vert si 20-26% (DN) / Jaune si
+18-20 ou 26-28 / Rouge si <18 ou
+>28. Seuils configurables par
+variété.
+Badge
+couleur
+Auto — Système
+4.2.2 Section Calibre
+N
+° Champ Description & Règles Type Oblig. Défaut Source
+6 Longueur datte 1 à 10 10 mesures de longueur en mm.
+Saisie rapide (clavier numérique
+optimisé).
+Numérique
+×10
+Oui — Inspecteu
+r
+7 Longueur moyenne
+(mm)
+Calculée automatiquement. Calculé Auto — Système
+8 Écart-type longueur Calculé. Indicateur d'homogénéité
+du lot.
+Calculé Auto — Système
+9 Classification calibre Automatique selon INNORPI : ≥
+45mm = Extra 40-45mm = Cat. I
+35-40mm = Cat. II < 35mm =
+Transformation
+Auto Auto — Système
+4.2.3 Section Défauts Visuels
+Pour chaque type de défaut, l'inspecteur estime le pourcentage de dattes affectées dans l'échantillon :
+Défaut Champ Seuil Extra Seuil
+déclass. Seuil rejet Description visuelle
+Insectes (حشرات) % insectes < 1% 1-5% > 5% Trous de ver, larves,
+galeries, excréments
+Moisissure (عفن) %
+moisissure
+0% 0.1-2% > 2% Taches blanches/vertes,
+odeur de moisi
+Fermentation (رمتخ) %
+fermentation
+0% 0.1-1% > 1% Odeur d'alcool, texture
+visqueuse, bulles
+Dégâts mécaniques (
+
+يكيكانيتلف م)
+%
+mécaniques
+< 2% 2-10% > 15% Écrasement, déchirure
+peau, pulpe exposée
+Cristallisation sucre (
+ركتس)
+%
+cristallisation
+< 2% 2-15% > 20% Croûte blanche de sucre
+en surface
+Décoloration ( ريتغ
+اللون)
+%
+décoloration
+< 1% 1-8% > 10% Noircissement, taches
+brunes inhabituelles
+Royal Palm · Page 19
+
+-- 19 of 23 --
+
+Royal Palm · Phase 1 — Spécification Détaillée v4.0
+4.2.4 Section Organoleptique
+N
+° Champ Description & Règles Type Oblig. Défaut Source
+1 Goût (note /5) 5=Excellent sucré miel / 4=Bon /
+3=Acceptable / 2=Faible /
+1=Défectueux (acide, fermenté,
+amer)
+Échelle 1-5 Oui — Inspecteu
+r
+2 Texture (note /5) 5=Moelleuse parfaite / 4=Bonne /
+3=Acceptable / 2=Sèche ou trop
+molle / 1=Fibreuse, dure
+Échelle 1-5 Oui — Inspecteu
+r
+3 Apparence (note /5) 5=Couleur ambrée uniforme,
+brillance / 4=Bonne /
+3=Acceptable / 2=Terne /
+1=Noircie, tachée
+Échelle 1-5 Oui — Inspecteu
+r
+4 Note organoleptique Moyenne des 3 notes. Calculé Auto — Système
+5 Observations goût Texte libre si anomalie détectée.
+Ex: 'Léger goût acide', 'Arrière-
+goût terreux'.
+Texte (200
+car.)
+Non — Inspecteu
+r
+4.2.5 Section Échantillon Laboratoire
+N
+° Champ Description & Règles Type Oblig. Défaut Source
+1 Prélèvement labo ? Oui / Non. Obligatoire si lot > 5T
+ou nouveau fournisseur.
+Booléen Conditi
+onnel
+Non Inspecteu
+r
+2 Code échantillon Auto-généré : LAB-[LOT-ID]-
+[SEQ]. Ex: LAB-RP-TOZ-C012-
+20261018-003-01
+Auto Auto — Système
+3 Analyses demandées Pesticides / Métaux lourds /
+Aflatoxines / Microbiologie /
+Toutes. Multi-sélection.
+Multi-
+sélection
+Oui si
+labo
+— Inspecteu
+r
+4 Emplacement
+stockage éch.
+Où l'échantillon est conservé. Ex:
+Frigo labo, étagère B3.
+Texte Oui si
+labo
+— Inspecteu
+r
+5 Date résultats
+attendue
+Date prévue de retour des
+résultats labo.
+Date Non — Inspecteu
+r
+6 Résultats labo Saisis ultérieurement quand les
+résultats arrivent. Conforme / Non
+conforme + détails.
+Structuré Ultérie
+ur
+— Labo/
+Qualité
+Royal Palm · Page 20
+
+-- 20 of 23 --
+
+Royal Palm · Phase 1 — Spécification Détaillée v4.0
+4.3 Algorithme de Scoring Qualité
+Le score global est calculé sur 100 points selon la pondération suivante :
+Critère Poids Calcul du score partiel
+Humidité 25% Si dans [20-24] → 100pts. Si [24-26] → 85pts. Si [18-20] ou [26-28] →
+60pts. Si <18 ou >28 → 0pts.
+Calibre (taille) 20% ≥45mm → 100pts. 42-45mm → 90pts. 40-42mm → 80pts. 38-40mm →
+60pts. 35-38mm → 40pts. <35mm → 20pts.
+Défauts insectes 20% 100 - (% insectes × 20). Si 0% → 100. Si 2% → 60. Si 5% → 0. Si >5% →
+REJET AUTOMATIQUE.
+Défauts moisissure +
+fermentation
+15% 100 - (% moisi × 50 + % ferment × 100). Seuil de rejet auto : moisi >2% ou
+ferment >1%.
+Organoleptique 10% Note moyenne /5 × 20. Si 5/5 → 100. Si 4/5 → 80. Si 3/5 → 60. Si <3 →
+40.
+Autres défauts 10% 100 - (% mécaniques × 5 + % cristall. × 3 + % décol. × 5). Minimum 0.
+Score final = Σ (score_critère × poids). Classification automatique :
+Grade Score Description Destination
+EXTRA ≥ 85 Lot premium, conforme aux
+exigences les plus strictes
+Ligne premium export Europe/Golfe
+CATÉGORIE I 70-84 Lot standard, légers écarts tolérés Ligne standard export
+CATÉGORIE II 55-69 Lot de qualité inférieure, défauts
+modérés
+Transformation (pâte, industrie) ou
+marché local
+REJETÉ < 55 Lot non conforme, défauts majeurs Quarantaine → retour fournisseur ou
+destruction
+REJETS AUTOMATIQUES (quel que soit le score global) : Moisissure > 2% / Fermentation > 1% /
+Insectes > 5% / Humidité > 32% ou < 14%
+Royal Palm · Page 21
+
+-- 21 of 23 --
+
+Royal Palm · Phase 1 — Spécification Détaillée v4.0
+4.4 Règles de Gestion — Contrôle Qualité
+R
+G Règle Détail / Condition Action système
+R
+G
+-
+Q
+0
+1
+Inspection obligatoire Aucun lot ne peut avancer dans la chaîne
+sans avoir été inspecté. Le système bloque
+tout mouvement d'un lot en statut
+'Réceptionné'.
+Blocage mouvement
+R
+G
+-
+Q
+0
+2
+Délai max inspection Si un lot n'est pas inspecté dans les 4
+heures suivant la réception, alerte au
+responsable qualité. Si > 12h : alerte
+direction.
+Alertes progressives
+R
+G
+-
+Q
+0
+3
+Rejet → notification Tout rejet déclenche automatiquement :
+SMS au fournisseur avec motif + email avec
+photos + enregistrement dans le historique
+fournisseur.
+Notification multi-canal
+R
+G
+-
+Q
+0
+4
+Override inspecteur L'inspecteur peut modifier la classification
+automatique (ex: passer de Cat.I à Extra).
+Mais il DOIT fournir une justification texte (≥
+20 caractères) + une photo.
+Justification obligatoire
+R
+G
+-
+Q
+0
+5
+Double inspection Pour les lots > 10 tonnes, 2 inspecteurs
+différents doivent valider. Le second voit le
+résultat du premier après sa propre saisie.
+Workflow double validation
+R
+G
+-
+Q
+0
+6
+Labo obligatoire Si lot > 5T ou premier lot d'un nouveau
+fournisseur : prélèvement labo
+automatiquement requis. Le lot peut avancer
+mais est marqué 'En attente labo'.
+Flag + rappel
+R
+G
+-
+Q
+0
+7
+Résultats labo négatifs Si les résultats labo reviennent non
+conformes : le lot est automatiquement
+bloqué (même s'il est déjà en production).
+Alerte critique.
+Blocage rétroactif
+R
+G
+-
+Q
+0
+8
+Calibration instruments Le système rappelle la calibration des
+instruments tous les 30 jours (hygromètre,
+pied à coulisse). Alerte si la date de
+calibration est dépassée.
+Alerte maintenance
+R
+G
+-
+Q
+0
+9
+Score → fournisseur Le résultat de l'inspection est
+automatiquement intégré dans le calcul du
+score fournisseur (Module 1).
+Mise à jour auto score
+R
+G
+-
+Q
+1
+0
+Historique immuable Tous les résultats d'inspection sont
+inviolables. Aucune modification possible
+après validation. Seule action : créer une
+'correction' liée à l'inspection originale.
+Log immuable
+Royal Palm · Page 22
+
+-- 22 of 23 --
+
+Royal Palm · Phase 1 — Spécification Détaillée v4.0
+R
+G
+-
+Q
+1
+1
+Rapport journalier Chaque soir à 22h, le système génère
+automatiquement un rapport PDF résumant
+toutes les inspections du jour : lots
+inspectés, grades, rejets, anomalies. Envoyé
+par email au responsable qualité et au
+directeur.
+Rapport auto + email
+R
+G
+-
+Q
+1
+2
+Séparation des rôles L'opérateur de réception (Module 2) ne peut
+PAS effectuer l'inspection qualité (Module 4)
+du même lot. Séparation des fonctions.
+Contrôle utilisateur
+4.5 Scénarios d'Inspection Complets
+4.5.1 Scénario A — Lot Excellent (Accepté Extra)
+Lot RP-TOZ-C012-20261018-003 · Haj Salah · Deglet Nour · 5 220 kg · Nefta
+• Inspecteur Sami reçoit notification à 08h15. Se rend en zone R-03.
+• Scanne QR → formulaire s'ouvre avec données pré-remplies.
+• Ouvre 5 caisses réparties. Prélève 3.5 kg.
+• Humidité : 22.1%, 23.5%, 22.8% → Moyenne 22.8% → Vert (dans [20-24])	✅
+• Calibre : 10 mesures → moyenne 47.2mm → Extra (≥ 45mm)	✅
+• Défauts : insectes 0.5%, moisissure 0%, ferment 0%, mécanique 3%, cristall 1%, décol 0%
+• Organoleptique : goût 5/5, texture 4/5, apparence 5/5 → moyenne 4.7/5
+• Photos : 1 vue ensemble, 1 gros plan (belle qualité)
+• Score calculé : humidité 25, calibre 20, insectes 18, moisi+ferm 15, organo 9.4, autres 9.2 =
+96.6/100
+• Classification proposée : EXTRA → Sami valide ✅
+• Statut lot → 'Accepté Extra'. Orienté vers fumigation (FU-01 ou FU-02).
+4.5.2 Scénario B — Lot Rejeté (Moisissure)
+Lot RP-GAB-C019-20261020-001 · Coopérative El Hamma · Khouat Allig · 1 980 kg
+• Inspecteur Sami ouvre 4 caisses. Odeur suspecte dès la première caisse.
+• Humidité : 31.2%, 29.8%, 30.5% → Moyenne 30.5% → Rouge (> 28%)	❌
+• Défauts : moisissure estimée 4% → REJET AUTOMATIQUE (seuil > 2%)	❌
+• Sami n'a même pas besoin de finir le formulaire : le système affiche 'REJET AUTOMATIQUE —
+Moisissure > 2%' en bannière rouge.
+• Il prend 3 photos (moisissure visible, caisses humides, état général).
+• Il saisit : 'Lot manifestement mal stocké avant livraison. Moisissure visible sur 4% environ.
+Humidité excessive 30.5%. Odeur de moisi prononcée.'
+• Valide le rejet. Le système envoie immédiatement :
+– SMS au fournisseur : 'Lot rejeté — moisissure 4%, humidité 30.5%. Contactez Royal Palm.'
+– Email avec photos et rapport détaillé.
+• Le lot passe en 'Quarantaine' dans la zone dédiée. Le fournisseur est informé qu'il doit reprendre
+le lot sous 48h.
+• Le score du fournisseur est automatiquement mis à jour (ce rejet impacte le score qualité et le
+taux de rejet).
+--- Fin du Document ---
+Royal Palm · Page 23
+
+-- 23 of 23 --
+

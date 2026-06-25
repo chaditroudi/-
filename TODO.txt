@@ -1,0 +1,5 @@
+🥇 Priorité 1 — Auto-déclenchement DA depuis seuil stock
+Le chaînon manquant le plus critique.
+Le stock a threshold_security, la DA existe, mais rien ne les relie. Quand un lot tombe sous le seuil → une DA se crée automatiquement en draft avec l'article, la quantité à réapprovisionner, et un lien vers le lot déclencheur. Le magasinier n'a plus qu'à soumettre.
+
+Impact : supprime les ruptures par oubli humain, trace automatiquement l'origine de chaque achat.
