@@ -294,6 +294,13 @@ export const ReceptionDetailV2 = ({ open, onOpenChange, receptionId }: Reception
                             <InfoRow label="RFID" value={lot.rfid_tag} />
                           </div>
 
+                          {lot.stock_status === 'EN_QUARANTAINE' && lot.quarantine_reason && (
+                            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                              <p className="font-medium">Motif de quarantaine</p>
+                              <p className="mt-1">{lot.quarantine_reason}</p>
+                            </div>
+                          )}
+
                           {/* Pesée + Étiquette GS1 actions */}
                           <div className="flex flex-wrap gap-2 pt-1 border-t border-dashed border-muted-foreground/20">
                             <Button
@@ -318,6 +325,29 @@ export const ReceptionDetailV2 = ({ open, onOpenChange, receptionId }: Reception
                               <QrCode className="h-3.5 w-3.5 text-purple-600" />
                               {hasLabel ? 'Ré-imprimer GS1' : 'Étiquette GS1'}
                             </Button>
+                            {lot.stock_status === 'EN_QUARANTAINE' ? (
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                className="gap-1.5 rounded-xl border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                                onClick={() => setLotToRelease(lot)}
+                              >
+                                <LockOpen className="h-3.5 w-3.5" />
+                                Libérer
+                              </Button>
+                            ) : lot.stock_status !== 'STOCK_REJETE' ? (
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                className="gap-1.5 rounded-xl border-amber-300 text-amber-800 hover:bg-amber-50"
+                                onClick={() => setLotToQuarantine(lot)}
+                              >
+                                <Lock className="h-3.5 w-3.5" />
+                                Mettre en quarantaine
+                              </Button>
+                            ) : null}
                           </div>
 
                           {lot.qr_code_payload && (
@@ -579,6 +609,20 @@ export const ReceptionDetailV2 = ({ open, onOpenChange, receptionId }: Reception
           onClose={() => setGs1Lot(null)}
         />
       )}
+
+      <ReceptionLotStatusDialog
+        lot={lotToQuarantine}
+        receptionId={reception.id}
+        mode="quarantine"
+        onClose={() => setLotToQuarantine(null)}
+      />
+
+      <ReceptionLotStatusDialog
+        lot={lotToRelease}
+        receptionId={reception.id}
+        mode="release"
+        onClose={() => setLotToRelease(null)}
+      />
 
       {reception && qcDialogOpen && (
         <QCInspectionDialog
