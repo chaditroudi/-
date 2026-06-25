@@ -219,6 +219,8 @@ export const LabelPrintDialog = ({ open, onOpenChange, unit, reception, lot }: L
                     <p className="text-sm text-muted-foreground">{reception.reception_type}</p>
                   </div>
 
+                  {/* Info Rows */}
+                  <div className="space-y-2 text-sm">
                     <div className="row flex justify-between">
                       <span className="label text-muted-foreground">Réception:</span>
                       <span className="value font-medium">{reception.reception_number}</span>
