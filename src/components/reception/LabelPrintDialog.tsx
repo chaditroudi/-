@@ -1,10 +1,11 @@
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Printer, Download, QrCode } from 'lucide-react';
+import { Printer, QrCode } from 'lucide-react';
 import { ReceptionUnit, ReceptionV2, ReceptionLot, stockStatusLabels, unitTypeLabels } from '@/types/reception';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -18,17 +19,58 @@ interface LabelPrintDialogProps {
   lot: ReceptionLot | null;
 }
 
+const buildQrPayloadFallback = (unit: ReceptionUnit, reception: ReceptionV2, lot: ReceptionLot) =>
+  JSON.stringify({
+    lot_id: lot.lot_internal || lot.id,
+    reception_number: reception.reception_number,
+    unit_barcode: unit.barcode,
+    quantity: unit.quantity,
+    unit: unit.unit,
+    storage_zone_code: reception.storage_zone_code || null,
+  });
+
+const formatQrPayloadPreview = (qrPayload: string) => {
+  try {
+    const parsed = JSON.parse(qrPayload) as Record<string, unknown>;
+    if (!parsed || Array.isArray(parsed) || typeof parsed !== 'object') {
+      return qrPayload;
+    }
+
+    return Object.entries(parsed)
+      .map(([key, value]) => `${key}: ${value == null ? 'null' : String(value)}`)
+      .join('\n');
+  } catch {
+    return qrPayload;
+  }
+};
+
 export const LabelPrintDialog = ({ open, onOpenChange, unit, reception, lot }: LabelPrintDialogProps) => {
   const labelRef = useRef<HTMLDivElement>(null);
   const markPrinted = useMarkReceptionUnitPrinted();
 
   if (!unit || !lot) return null;
 
+  const qrPayload = useMemo(
+    () =>
+      unit.qr_code_payload?.trim() ||
+      unit.qr_label_text?.trim() ||
+      lot.qr_code_payload?.trim() ||
+      buildQrPayloadFallback(unit, reception, lot),
+    [lot, reception, unit],
+  );
+
+  const qrPayloadPreview = useMemo(() => formatQrPayloadPreview(qrPayload), [qrPayload]);
+  const qrCaption = unit.qr_label_text?.trim() || `${unit.barcode} | ${unit.quantity} ${unit.unit}`;
+  const receptionDate = format(new Date(reception.actual_arrival_date), 'dd/MM/yyyy', { locale: fr });
+  const lastPrintedAt = unit.label_printed_at
+    ? format(new Date(unit.label_printed_at), 'dd/MM/yyyy HH:mm', { locale: fr })
+    : null;
+
   const handlePrint = async () => {
     const printContent = labelRef.current;
     if (!printContent) return;
 
-    const printWindow = window.open('', '_blank');
+    const printWindow = window.open('', '_blank', 'noopener,noreferrer');
     if (!printWindow) return;
 
     printWindow.document.write(`
@@ -47,6 +89,11 @@ export const LabelPrintDialog = ({ open, onOpenChange, unit, reception, lot }: L
               border: 2px solid #000;
               padding: 10px;
               width: 90mm;
+            }
+            .label-sheet {
+              border: 2px solid #111;
+              border-radius: 14px;
+              padding: 14px;
             }
             .header {
               text-align: center;
@@ -97,15 +144,31 @@ export const LabelPrintDialog = ({ open, onOpenChange, unit, reception, lot }: L
             .status-quarantaine { background: #f97316; color: white; }
             .status-rejete { background: #ef4444; color: white; }
             .status-non-stocke { background: #6b7280; color: white; }
-            .qr-placeholder {
-              width: 60px;
-              height: 60px;
-              border: 1px solid #000;
+            .qr-section {
+              text-align: center;
+              margin-top: 12px;
+              padding-top: 12px;
+              border-top: 1px solid #000;
+            }
+            .qr-code {
               display: flex;
-              align-items: center;
               justify-content: center;
-              margin: 8px auto;
+              margin: 8px 0 10px;
+            }
+            .qr-code svg {
+              width: 96px;
+              height: 96px;
+              display: block;
+            }
+            .qr-caption {
               font-size: 10px;
+              color: #444;
+              margin-bottom: 8px;
+            }
+            .meta-note {
+              font-size: 10px;
+              color: #666;
+              text-align: center;
             }
           </style>
         </head>
@@ -144,14 +207,15 @@ export const LabelPrintDialog = ({ open, onOpenChange, unit, reception, lot }: L
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Printer className="h-5 w-5" />
-            Aperçu Étiquette
+            Aperçu Étiquette QR
           </DialogTitle>
         </DialogHeader>
 
         {/* Label Preview */}
-        <div className="flex justify-center">
-          <div ref={labelRef} className="label-container">
-            <Card className="border-2 border-foreground">
+        <div className="space-y-4">
+          <div className="flex justify-center">
+            <div ref={labelRef} className="label-container">
+              <Card className="label-sheet border-2 border-foreground">
               <CardContent className="p-4 space-y-3">
                 {/* Header */}
                 <div className="header text-center border-b pb-3">
@@ -190,36 +254,53 @@ export const LabelPrintDialog = ({ open, onOpenChange, unit, reception, lot }: L
                   )}
                   <div className="row flex justify-between">
                     <span className="label text-muted-foreground">Date réception:</span>
-                    <span className="value font-medium">
-                      {format(new Date(reception.actual_arrival_date), 'dd/MM/yyyy', { locale: fr })}
-                    </span>
+                    <span className="value font-medium">{receptionDate}</span>
                   </div>
                 </div>
 
                 {/* Status Badge */}
                 <div className="text-center">
-                  <Badge className={`status-badge ${
-                    unit.unit_status === 'STOCK_LIBERE' ? 'bg-green-500' :
-                    unit.unit_status === 'EN_QUARANTAINE' ? 'bg-orange-500' :
-                    unit.unit_status === 'STOCK_REJETE' ? 'bg-red-500' :
-                    'bg-gray-500'
-                  } text-white px-4 py-1 text-sm`}>
+                  <Badge className={`status-badge ${getStatusClass()} text-white px-4 py-1 text-sm`}>
                     {stockStatusLabels[unit.unit_status]}
                   </Badge>
                 </div>
 
-                {/* Barcode Section */}
-                <div className="barcode-section text-center pt-3 border-t">
-                  <div className="qr-placeholder border-2 border-foreground w-16 h-16 mx-auto flex items-center justify-center mb-2">
-                    <QrCode className="h-12 w-12 text-muted-foreground" />
+                {/* QR Section */}
+                <div className="qr-section">
+                  <div className="qr-code">
+                    <QRCodeSVG
+                      value={qrPayload}
+                      size={112}
+                      level="M"
+                      marginSize={2}
+                      includeMargin={false}
+                    />
                   </div>
+                  <p className="qr-caption font-medium">{qrCaption}</p>
                   <p className="barcode-text font-mono text-lg font-bold">{unit.barcode}</p>
                   {unit.sscc && (
                     <p className="text-xs text-muted-foreground mt-1">SSCC: {unit.sscc}</p>
                   )}
+                  <p className="meta-note mt-2">Scanner pour accéder à la traçabilité de l'unité</p>
                 </div>
               </CardContent>
-            </Card>
+              </Card>
+            </div>
+          </div>
+
+          <div className="rounded-xl border bg-muted/25 p-3">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <QrCode className="h-4 w-4 text-emerald-600" />
+              Contenu du QR
+            </div>
+            <div className="mt-3 rounded-lg bg-background p-3 font-mono text-xs leading-5 text-muted-foreground whitespace-pre-wrap break-all">
+              {qrPayloadPreview}
+            </div>
+            {lastPrintedAt && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                Dernière impression enregistrée : {lastPrintedAt}
+              </p>
+            )}
           </div>
         </div>
 

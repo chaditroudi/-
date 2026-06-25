@@ -70,7 +70,7 @@ export function Gs1LabelPreview({ lot, onClose }: Gs1LabelPreviewProps) {
         @media print { button { display: none; } }
       </style>
       </head><body>
-      <h2>Étiquette GS1 — ${payload.lot_code}</h2>a
+      <h2>Étiquette GS1 — ${payload.lot_code}</h2>
       <div class="barcode">${payload.gs1_128}</div>
       <table>
         <tr><td>GTIN-14 (AI 01)</td><td>${payload.gtin14}</td></tr>

@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
-import { Plus, Package, Box, Trash2, Printer, QrCode } from 'lucide-react';
+import { Plus, Package, Box, QrCode } from 'lucide-react';
 import { useReceptionUnits, useCreateReceptionUnit } from '@/hooks/useReceptionsV2';
 import { ReceptionLot, ReceptionUnit, unitTypeLabels, stockStatusLabels, stockStatusColors, ReceptionUnitType } from '@/types/reception';
 
@@ -126,18 +126,18 @@ export const UnitsManagement = ({ lot, receptionNumber, onPrintLabel }: UnitsMan
                   )}
                 </div>
 
-                <div className="flex gap-2">
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="flex-1"
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-xs text-muted-foreground">
+                    {unitItem.qr_code_payload ? 'QR prêt pour impression et scan.' : 'Code interne prêt pour impression.'}
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="shrink-0"
                     onClick={() => onPrintLabel(unitItem)}
                   >
-                    <Printer className="h-4 w-4 mr-1" />
-                    Imprimer
-                  </Button>
-                  <Button size="sm" variant="ghost">
-                    <QrCode className="h-4 w-4" />
+                    <QrCode className="h-4 w-4 mr-1" />
+                    Étiquette QR
                   </Button>
                 </div>
               </CardContent>
