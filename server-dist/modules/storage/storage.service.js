@@ -1256,21 +1256,6 @@ let StorageService = class StorageService {
         await Locations.insertMany([prepared]);
         return sanitizeDocument({ ...prepared, storage_zone: zone });
     }
-    async findLocationById(id) {
-        const Locations = getCollectionModel("storage_locations");
-        let doc = sanitizeDocument(await Locations.findOne({ id }).lean().exec());
-        if (!doc && mongoose.Types.ObjectId.isValid(id)) {
-            doc = sanitizeDocument(await Locations.findOne({ _id: new mongoose.Types.ObjectId(id) }).lean().exec());
-        }
-        return doc;
-    }
-    locationFilter(id, storedId) {
-        if (storedId)
-            return { id: storedId };
-        if (mongoose.Types.ObjectId.isValid(id))
-            return { _id: new mongoose.Types.ObjectId(id) };
-        return { id };
-    }
     async updateLocation(id, payload) {
         const Locations = getCollectionModel("storage_locations");
         const loc = await this.findLocationById(id);
@@ -1299,7 +1284,7 @@ let StorageService = class StorageService {
             update.storage_zone_id = String(payload.storage_zone_id);
             update.zone_code = zone.code || null;
         }
-        await Locations.updateOne(this.locationFilter(id, loc.id), { $set: update }).exec();
+        await Locations.updateOne(this.buildIdFilter(id), { $set: update }).exec();
         return sanitizeDocument({ ...loc, ...update });
     }
     async deleteLocation(id) {
@@ -1311,7 +1296,7 @@ let StorageService = class StorageService {
         if (lotsPresent.length > 0) {
             throw conflict("LOCATION_HAS_LOTS", `Cannot delete location ${loc.code}: ${lotsPresent.length} lot(s) present. Move them first.`);
         }
-        await Locations.updateOne(this.locationFilter(id, loc.id), { $set: { is_active: false, updated_at: nowIso() } }).exec();
+        await Locations.updateOne(this.buildIdFilter(id), { $set: { is_active: false, updated_at: nowIso() } }).exec();
         return { id: loc.id, code: loc.code };
     }
 };
