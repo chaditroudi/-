@@ -134,13 +134,14 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
   const [numeroFichePalette, setNumeroFichePalette] = useState(initial?.numero_fiche_palette ?? "");
 
   const [branche1, setBranche1] = useState<BranchLine>(initial?.branche_premiere ?? emptyBranch());
+
   const [branche2, setBranche2] = useState<BranchLine>(initial?.branche_deuxieme ?? emptyBranch());
   const [vrac, setVrac] = useState<BranchLine>(initial?.vrac ?? emptyBranch());
+  
   const [brancheSeche, setBrancheSeche] = useState<BranchSeche>(initial?.branche_seche ?? emptyBranchSeche());
   const [casse, setCasse] = useState<CasseLine[]>(initial?.casse ?? []);
   const [statut, setStatut] = useState<string>(initial?.statut ?? "brouillon");
 
-  // When a supplier is selected from the list, auto-fill the name
   useEffect(() => {
     if (!fournisseurId) return;
     const sup = suppliers.find((s: any) => s.id === fournisseurId);
