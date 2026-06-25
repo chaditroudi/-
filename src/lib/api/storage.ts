@@ -95,6 +95,33 @@ export type MoveStorageStockResult = {
   notifications?: unknown[];
 };
 
+export type CreateZoneInput = {
+  code: string;
+  name: string;
+  storage_family: string;
+  capacity_kg: number;
+  capacity_palettes?: number;
+  temperature_min?: number | null;
+  temperature_max?: number | null;
+  humidity_min?: number | null;
+  humidity_max?: number | null;
+  is_bio_only?: boolean;
+  notes?: string;
+};
+
+export type UpdateZoneInput = Partial<CreateZoneInput> & { is_active?: boolean };
+
+export type CreateLocationInput = {
+  code: string;
+  name: string;
+  storage_zone_id: string;
+  capacity_palettes: number;
+  capacity_kg?: number;
+  is_active?: boolean;
+};
+
+export type UpdateLocationInput = Partial<CreateLocationInput>;
+
 const buildQueryString = (params: Record<string, string | number | boolean | undefined>) => {
   const searchParams = new URLSearchParams();
 
@@ -197,5 +224,45 @@ export const storageApi = {
       body: JSON.stringify(payload),
     });
     return response.data;
+  },
+
+  createZone: async (payload: CreateZoneInput) => {
+    const response = await apiRequest<ApiEnvelope<Module3StorageZone>>('/storage/module3/zones', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    return response.data;
+  },
+
+  updateZone: async (id: string, payload: UpdateZoneInput) => {
+    const response = await apiRequest<ApiEnvelope<Module3StorageZone>>(`/storage/module3/zones/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+    return response.data;
+  },
+
+  deleteZone: async (id: string) => {
+    await apiRequest<ApiEnvelope<unknown>>(`/storage/module3/zones/${id}`, { method: 'DELETE' });
+  },
+
+  createLocation: async (payload: CreateLocationInput) => {
+    const response = await apiRequest<ApiEnvelope<StorageLocation>>('/storage/module3/locations', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    return response.data;
+  },
+
+  updateLocation: async (id: string, payload: UpdateLocationInput) => {
+    const response = await apiRequest<ApiEnvelope<StorageLocation>>(`/storage/module3/locations/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+    return response.data;
+  },
+
+  deleteLocation: async (id: string) => {
+    await apiRequest<ApiEnvelope<unknown>>(`/storage/module3/locations/${id}`, { method: 'DELETE' });
   },
 };

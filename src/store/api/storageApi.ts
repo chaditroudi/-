@@ -18,6 +18,10 @@ import type {
   SuggestFefoLotsInput,
   MoveStorageStockInput,
   MoveStorageStockResult,
+  CreateZoneInput,
+  UpdateZoneInput,
+  CreateLocationInput,
+  UpdateLocationInput,
 } from '@/lib/api/storage';
 
 type Envelope<T> = { data: T };
@@ -105,6 +109,40 @@ export const storageApi = createApi({
     seedModule3: b.mutation<unknown, void>({
       query: () => ({ url: '/storage/module3/seed', method: 'POST', data: {} }),
       invalidatesTags: ['StorageZone', 'StorageLocation'],
+    }),
+
+    createZone: b.mutation<Module3StorageZone, CreateZoneInput>({
+      query: (body) => ({ url: '/storage/module3/zones', method: 'POST', data: body }),
+      transformResponse: (r: Envelope<Module3StorageZone>) => r.data,
+      invalidatesTags: ['StorageZone'],
+    }),
+
+    updateZone: b.mutation<Module3StorageZone, { id: string } & UpdateZoneInput>({
+      query: ({ id, ...body }) => ({ url: `/storage/module3/zones/${id}`, method: 'PUT', data: body }),
+      transformResponse: (r: Envelope<Module3StorageZone>) => r.data,
+      invalidatesTags: ['StorageZone'],
+    }),
+
+    deleteZone: b.mutation<void, string>({
+      query: (id) => ({ url: `/storage/module3/zones/${id}`, method: 'DELETE' }),
+      invalidatesTags: ['StorageZone', 'StorageLocation'],
+    }),
+
+    createLocation: b.mutation<StorageLocation, CreateLocationInput>({
+      query: (body) => ({ url: '/storage/module3/locations', method: 'POST', data: body }),
+      transformResponse: (r: Envelope<StorageLocation>) => r.data,
+      invalidatesTags: ['StorageLocation'],
+    }),
+
+    updateLocation: b.mutation<StorageLocation, { id: string } & UpdateLocationInput>({
+      query: ({ id, ...body }) => ({ url: `/storage/module3/locations/${id}`, method: 'PUT', data: body }),
+      transformResponse: (r: Envelope<StorageLocation>) => r.data,
+      invalidatesTags: ['StorageLocation'],
+    }),
+
+    deleteLocation: b.mutation<void, string>({
+      query: (id) => ({ url: `/storage/module3/locations/${id}`, method: 'DELETE' }),
+      invalidatesTags: ['StorageLocation'],
     }),
   }),
 });
