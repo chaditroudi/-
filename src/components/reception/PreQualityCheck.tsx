@@ -45,11 +45,6 @@ export const PreQualityCheck = ({
               </p>
             </div>
           </CardTitle>
-          <img 
-            src=""
-            alt=""
-            className="hidden"
-          />
           <BrandLogo className="h-10 w-10 shrink-0 opacity-80" imgClassName="h-full w-full object-contain" alt={companyName} />
         </div>
       </CardHeader>

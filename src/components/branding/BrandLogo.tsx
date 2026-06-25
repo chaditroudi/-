@@ -42,7 +42,7 @@ export function BrandLogo({
       ) : (
         <span
           className={cn(
-            'flex h-full w-full items-center justify-center rounded-inherit bg-primary/10 text-xs font-bold uppercase text-primary',
+            'flex h-full w-full items-center justify-center rounded-[inherit] bg-primary/10 text-xs font-bold uppercase text-primary',
             fallbackClassName,
           )}
         >

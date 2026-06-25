@@ -185,8 +185,8 @@ export default function Auth() {
 
           {/* Brand */}
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/15">
-              <BrandLogo className="h-5 w-5" imgClassName="h-full w-full object-contain brightness-[100] invert" alt={companyName} />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/90 p-1.5 ring-1 ring-white/15">
+              <BrandLogo className="h-full w-full" imgClassName="h-full w-full object-contain" alt={companyName} />
             </div>
             <div className="hidden sm:block h-5 w-px bg-white/15" />
             <div className="hidden sm:flex flex-col leading-none">
