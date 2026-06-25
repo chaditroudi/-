@@ -237,7 +237,6 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
           </div>
         </div>
 
-        {/* ── Fournisseur ── */}
         <div className="grid grid-cols-2 gap-3">
           <div>
             <Label className="text-xs">Fournisseur</Label>
@@ -264,7 +263,6 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
           </div>
         </div>
 
-        {/* ── Region ── */}
         <div>
           <Label className="text-xs">Région</Label>
           <Select value={region} onValueChange={setRegion}>
