@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   AlertTriangle,
   BarChart3,
@@ -707,73 +708,72 @@ export function WorkflowNavigation({
         </div>
       </section>
 
-      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border/60 bg-background/96 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-8px_32px_-8px_rgba(15,23,42,0.12)] backdrop-blur-xl md:hidden">
-        <div className="mx-auto flex max-w-[1800px] items-stretch justify-between gap-0.5 px-2 sm:px-4">
-          {mobileTabs.map((tab) => {
-            const meta = APP_TAB_META[tab];
-            const isActive = activeTab === tab;
-            const hasBadge = tab === "alerts" && metrics.activeAlertsCount > 0;
+      {/* Bottom nav rendered via portal to document.body so position:fixed is
+          always relative to the viewport — no ancestor CSS can trap it. */}
+      {createPortal(
+        <div className="fixed inset-x-0 bottom-0 z-[9999] border-t border-border/60 bg-background/96 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-8px_32px_-8px_rgba(15,23,42,0.12)] backdrop-blur-xl md:hidden">
+          <div className="mx-auto flex max-w-[1800px] items-stretch justify-between gap-0.5 px-2 sm:px-4">
+            {mobileTabs.map((tab) => {
+              const meta = APP_TAB_META[tab];
+              const isActive = activeTab === tab;
+              const hasBadge = tab === "alerts" && metrics.activeAlertsCount > 0;
 
-            return (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => handleTabChange(tab)}
-                className={cn(
-                  "relative flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-2.5 text-center",
-                  "transition-all duration-200 active:scale-95",
-                  isActive
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {/* Active background pill */}
-                {isActive && (
-                  <span className="absolute inset-x-1 inset-y-0.5 rounded-2xl bg-primary/10 animate-scale-in" />
-                )}
-
-                {/* Icon with badge */}
-                <span className="relative">
-                  <meta.icon className={cn("h-5 w-5 transition-transform duration-200", isActive && "scale-110")} />
-                  {hasBadge && (
-                    <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white badge-pulse">
-                      {metrics.activeAlertsCount > 9 ? "9+" : metrics.activeAlertsCount}
-                    </span>
+              return (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => handleTabChange(tab)}
+                  className={cn(
+                    "relative flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-2.5 text-center",
+                    "transition-all duration-200 active:scale-95",
+                    isActive ? "text-primary" : "text-muted-foreground hover:text-foreground",
                   )}
-                </span>
+                >
+                  {isActive && (
+                    <span className="absolute inset-x-1 inset-y-0.5 rounded-2xl bg-primary/10 animate-scale-in" />
+                  )}
+                  <span className="relative">
+                    <meta.icon className={cn("h-5 w-5 transition-transform duration-200", isActive && "scale-110")} />
+                    {hasBadge && (
+                      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white badge-pulse">
+                        {metrics.activeAlertsCount > 9 ? "9+" : metrics.activeAlertsCount}
+                      </span>
+                    )}
+                  </span>
+                  <span className={cn(
+                    "truncate text-[11px] font-semibold transition-all duration-200",
+                    isActive ? "text-primary" : "text-muted-foreground",
+                  )}>
+                    {meta.shortLabel}
+                  </span>
+                </button>
+              );
+            })}
 
-                <span className={cn(
-                  "truncate text-[11px] font-semibold transition-all duration-200",
-                  isActive ? "text-primary" : "text-muted-foreground",
-                )}>
-                  {meta.shortLabel}
-                </span>
-              </button>
-            );
-          })}
-
-          <button
-            type="button"
-            onClick={() => setMobileMenuOpen(true)}
-            className={cn(
-              "relative flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-2.5 text-center",
-              "transition-all duration-200 active:scale-95",
-              isOverflowActive ? "text-primary" : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {isOverflowActive && (
-              <span className="absolute inset-x-1 inset-y-0.5 rounded-2xl bg-primary/10 animate-scale-in" />
-            )}
-            <Grid2x2 className={cn("h-5 w-5 transition-transform duration-200", isOverflowActive && "scale-110")} />
-            <span className={cn(
-              "truncate text-[10px] font-semibold",
-              isOverflowActive ? "text-primary" : "text-muted-foreground",
-            )}>
-              Plus
-            </span>
-          </button>
-        </div>
-      </div>
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+              className={cn(
+                "relative flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-2.5 text-center",
+                "transition-all duration-200 active:scale-95",
+                isOverflowActive ? "text-primary" : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {isOverflowActive && (
+                <span className="absolute inset-x-1 inset-y-0.5 rounded-2xl bg-primary/10 animate-scale-in" />
+              )}
+              <Grid2x2 className={cn("h-5 w-5 transition-transform duration-200", isOverflowActive && "scale-110")} />
+              <span className={cn(
+                "truncate text-[11px] font-semibold",
+                isOverflowActive ? "text-primary" : "text-muted-foreground",
+              )}>
+                Plus
+              </span>
+            </button>
+          </div>
+        </div>,
+        document.body,
+      )}
 
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
         <SheetContent side="bottom" className="max-h-[calc(100dvh-60px)] rounded-t-[28px] px-4 pb-8 pt-8 sm:px-6 md:hidden">
