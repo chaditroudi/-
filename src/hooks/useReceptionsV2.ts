@@ -24,6 +24,7 @@ import {
   useUpdateReceptionStatusMutation,
   useListReceptionLotsQuery,
   useCreateReceptionLotMutation,
+  useUpdateReceptionLotMutation,
   useListReceptionUnitsQuery,
   useCreateReceptionUnitMutation,
   useMoveLotToStorageMutation,
@@ -250,6 +251,74 @@ export const useCreateReceptionLot = () => {
         supplier_code: lot.supplier_code ?? null,
       }).unwrap();
       toast.success('Lot ajouté');
+      return data;
+    },
+    isPending: state.isLoading,
+    isError: !!state.error,
+  };
+};
+
+export const useQuarantineReceptionLot = () => {
+  const dispatch = useAppDispatch();
+  const [updateLot, state] = useUpdateReceptionLotMutation();
+
+  return {
+    mutateAsync: async ({
+      receptionId,
+      lotId,
+      actorName,
+      reason,
+    }: {
+      receptionId: string;
+      lotId: string;
+      actorName: string;
+      reason: string;
+    }) => {
+      const data = await updateLot({
+        receptionId,
+        lotId,
+        stock_status: 'EN_QUARANTAINE',
+        quarantine_reason: reason,
+        quarantine_date: new Date().toISOString(),
+        release_date: null,
+        released_by: null,
+      }).unwrap();
+      dispatch(receptionsRtkApi.util.invalidateTags(['LiberedLot']));
+      dispatch(stockApi.util.invalidateTags(['StockLot', 'StockSummary']));
+      toast.warning(`Lot ${data.lot_internal || data.lot_supplier} mis en quarantaine par ${actorName}`);
+      return data;
+    },
+    isPending: state.isLoading,
+    isError: !!state.error,
+  };
+};
+
+export const useReleaseReceptionLot = () => {
+  const dispatch = useAppDispatch();
+  const [updateLot, state] = useUpdateReceptionLotMutation();
+
+  return {
+    mutateAsync: async ({
+      receptionId,
+      lotId,
+      actorName,
+    }: {
+      receptionId: string;
+      lotId: string;
+      actorName: string;
+    }) => {
+      const releasedAt = new Date().toISOString();
+      const data = await updateLot({
+        receptionId,
+        lotId,
+        stock_status: 'STOCK_LIBERE',
+        quarantine_reason: null,
+        release_date: releasedAt,
+        released_by: actorName,
+      }).unwrap();
+      dispatch(receptionsRtkApi.util.invalidateTags(['LiberedLot']));
+      dispatch(stockApi.util.invalidateTags(['StockLot', 'StockSummary']));
+      toast.success(`Lot ${data.lot_internal || data.lot_supplier} libéré par ${actorName}`);
       return data;
     },
     isPending: state.isLoading,
