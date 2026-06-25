@@ -279,6 +279,107 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
 
   const moveStock = useMoveStorageStock();
   const createReading = useCreateStorageReading();
+  const createZone = useCreateZone();
+  const updateZone = useUpdateZone();
+  const deleteZone = useDeleteZone();
+  const createLocation = useCreateLocation();
+  const updateLocation = useUpdateLocation();
+  const deleteLocation = useDeleteLocation();
+
+  // ── Zone/Location management dialogs ─────────────────────────────────────
+  type ZoneFormData = {
+    code: string; name: string; storage_family: string;
+    capacity_kg: string; capacity_palettes: string;
+    temperature_min: string; temperature_max: string;
+    humidity_min: string; humidity_max: string;
+    is_bio_only: boolean; notes: string; is_active: boolean;
+  };
+  const emptyZoneForm: ZoneFormData = {
+    code: "", name: "", storage_family: "raw",
+    capacity_kg: "", capacity_palettes: "",
+    temperature_min: "", temperature_max: "",
+    humidity_min: "", humidity_max: "",
+    is_bio_only: false, notes: "", is_active: true,
+  };
+  const [zoneDialog, setZoneDialog] = useState<{ open: boolean; editing: Module3StorageZone | null }>({ open: false, editing: null });
+  const [zoneForm, setZoneForm] = useState<ZoneFormData>(emptyZoneForm);
+  const [deleteZoneConfirm, setDeleteZoneConfirm] = useState<Module3StorageZone | null>(null);
+
+  type LocFormData = {
+    code: string; name: string; storage_zone_id: string;
+    capacity_palettes: string; capacity_kg: string; is_active: boolean;
+  };
+  const emptyLocForm: LocFormData = { code: "", name: "", storage_zone_id: "", capacity_palettes: "", capacity_kg: "", is_active: true };
+  const [locDialog, setLocDialog] = useState<{ open: boolean; editing: typeof allLocations[0] | null }>({ open: false, editing: null });
+  const [locForm, setLocForm] = useState<LocFormData>(emptyLocForm);
+  const [deleteLocConfirm, setDeleteLocConfirm] = useState<typeof allLocations[0] | null>(null);
+  const [mgmtZoneFilter, setMgmtZoneFilter] = useState("all");
+
+  const openZoneCreate = () => { setZoneForm(emptyZoneForm); setZoneDialog({ open: true, editing: null }); };
+  const openZoneEdit = (z: Module3StorageZone) => {
+    setZoneForm({
+      code: z.code, name: z.name, storage_family: z.storage_family ?? "raw",
+      capacity_kg: String(z.capacity_kg ?? ""), capacity_palettes: String(z.capacity_palettes ?? ""),
+      temperature_min: z.temperature_min != null ? String(z.temperature_min) : "",
+      temperature_max: z.temperature_max != null ? String(z.temperature_max) : "",
+      humidity_min: z.humidity_min != null ? String(z.humidity_min) : "",
+      humidity_max: z.humidity_max != null ? String(z.humidity_max) : "",
+      is_bio_only: z.is_bio_only ?? false,
+      notes: z.notes ?? "", is_active: z.is_active,
+    });
+    setZoneDialog({ open: true, editing: z });
+  };
+  const handleZoneSubmit = async () => {
+    const payload = {
+      code: zoneForm.code.trim().toUpperCase(),
+      name: zoneForm.name.trim(),
+      storage_family: zoneForm.storage_family,
+      capacity_kg: Number(zoneForm.capacity_kg) || 0,
+      capacity_palettes: zoneForm.capacity_palettes ? Number(zoneForm.capacity_palettes) : undefined,
+      temperature_min: zoneForm.temperature_min ? Number(zoneForm.temperature_min) : null,
+      temperature_max: zoneForm.temperature_max ? Number(zoneForm.temperature_max) : null,
+      humidity_min: zoneForm.humidity_min ? Number(zoneForm.humidity_min) : null,
+      humidity_max: zoneForm.humidity_max ? Number(zoneForm.humidity_max) : null,
+      is_bio_only: zoneForm.is_bio_only,
+      notes: zoneForm.notes || undefined,
+      is_active: zoneForm.is_active,
+    };
+    if (zoneDialog.editing) {
+      await updateZone.mutateAsync(zoneDialog.editing.id, payload);
+    } else {
+      await createZone.mutateAsync(payload);
+    }
+    setZoneDialog({ open: false, editing: null });
+    setLastSyncAt(new Date());
+  };
+
+  const openLocCreate = () => { setLocForm(emptyLocForm); setLocDialog({ open: true, editing: null }); };
+  const openLocEdit = (l: typeof allLocations[0]) => {
+    setLocForm({
+      code: l.code, name: l.name, storage_zone_id: l.storage_zone_id ?? "",
+      capacity_palettes: String(l.capacity_palettes ?? ""),
+      capacity_kg: String(l.capacity_kg ?? ""),
+      is_active: l.is_active,
+    });
+    setLocDialog({ open: true, editing: l });
+  };
+  const handleLocSubmit = async () => {
+    const payload = {
+      code: locForm.code.trim().toUpperCase(),
+      name: locForm.name.trim(),
+      storage_zone_id: locForm.storage_zone_id,
+      capacity_palettes: Number(locForm.capacity_palettes) || 0,
+      capacity_kg: locForm.capacity_kg ? Number(locForm.capacity_kg) : undefined,
+      is_active: locForm.is_active,
+    };
+    if (locDialog.editing) {
+      await updateLocation.mutateAsync(locDialog.editing.id, payload);
+    } else {
+      await createLocation.mutateAsync(payload);
+    }
+    setLocDialog({ open: false, editing: null });
+    setLastSyncAt(new Date());
+  };
 
   // ── Derived data ──────────────────────────────────────────────────────────
 
