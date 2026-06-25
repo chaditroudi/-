@@ -79,11 +79,12 @@ const fmtRelative = (date: Date) => {
 
 const occupancy = (cur = 0, cap = 0) => cap > 0 ? Math.min(100, Math.round((cur / cap) * 1000) / 10) : 0;
 
-const zoneOccupancy = (z: Module3StorageZone) => {
-  if ((z.capacity_palettes ?? 0) > 0)
+const zoneOccupancy = (z: Module3StorageZone, actualKg?: number) => {
+  const loadKg = actualKg ?? z.current_load_kg;
+  if ((z.capacity_palettes ?? 0) > 0 && (z.current_load_palettes ?? 0) > 0)
     return occupancy(z.current_load_palettes ?? 0, z.capacity_palettes ?? 0);
   if (z.capacity_kg > 0)
-    return occupancy(z.current_load_kg, z.capacity_kg);
+    return occupancy(loadKg, z.capacity_kg);
   return 0;
 };
 
@@ -293,10 +294,21 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
       .join(" ").toLowerCase().includes(q));
   }, [allLocations, locations, selectedZoneId, locationSearch]);
 
+  // Aggregate actual lot kg per zone from lot data (more accurate than stale backend field)
+  const zoneLoadsKg = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const lot of allLots) {
+      if (lot.storage_zone_code && lot.stock_status !== "STOCK_REJETE") {
+        map.set(lot.storage_zone_code, (map.get(lot.storage_zone_code) ?? 0) + (lot.quantity ?? 0));
+      }
+    }
+    return map;
+  }, [allLots]);
+
   const globalOccupancy = useMemo(() => {
-    const pcts = zones.map(zoneOccupancy);
+    const pcts = zones.map(z => zoneOccupancy(z, zoneLoadsKg.get(z.code)));
     return pcts.length > 0 ? Math.round(pcts.reduce((s, p) => s + p, 0) / pcts.length) : 0;
-  }, [zones]);
+  }, [zones, zoneLoadsKg]);
 
   const liberatedKg = useMemo(
     () => allLots.filter(l => l.stock_status === "STOCK_LIBERE").reduce((s, l) => s + (l.quantity ?? 0), 0),
@@ -501,7 +513,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
               ) : (
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {zones.map(z => {
-                    const pct = zoneOccupancy(z);
+                    const pct = zoneOccupancy(z, zoneLoadsKg.get(z.code));
                     return (
                       <button
                         key={z.id}
@@ -526,9 +538,9 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                         </div>
                         <OccupancyBar pct={pct} />
                         <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                          {(z.capacity_palettes ?? 0) > 0
+                          {(z.capacity_palettes ?? 0) > 0 && (z.current_load_palettes ?? 0) > 0
                             ? <span>{fmtNum(z.current_load_palettes)} / {fmtNum(z.capacity_palettes)} pal.</span>
-                            : <span>{fmtNum(z.current_load_kg, " kg")} / {fmtNum(z.capacity_kg, " kg")}</span>
+                            : <span>{fmtNum(zoneLoadsKg.get(z.code) ?? z.current_load_kg, " kg")} / {fmtNum(z.capacity_kg, " kg")}</span>
                           }
                           {z.current_temperature_c != null && (
                             <span className="flex items-center gap-1">
@@ -775,7 +787,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
           {/* Zone summary cards */}
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {(selectedZoneId === "all" ? zones : zones.filter(z => z.id === selectedZoneId)).map(z => {
-              const pct = zoneOccupancy(z);
+              const pct = zoneOccupancy(z, zoneLoadsKg.get(z.code));
               return (
                 <Card key={z.id} className="rounded-2xl border-border/60">
                   <CardHeader className="pb-2 pt-4">
@@ -802,12 +814,12 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                       </div>
                       <OccupancyBar pct={pct} />
                       <div className="flex justify-between text-[11px] text-muted-foreground">
-                        {(z.capacity_palettes ?? 0) > 0
+                        {(z.capacity_palettes ?? 0) > 0 && (z.current_load_palettes ?? 0) > 0
                           ? <span>{fmtNum(z.current_load_palettes)} / {fmtNum(z.capacity_palettes)} palettes</span>
-                          : <span>{fmtNum(z.current_load_kg, " kg")} / {fmtNum(z.capacity_kg, " kg")}</span>
+                          : <span>{fmtNum(zoneLoadsKg.get(z.code) ?? z.current_load_kg, " kg")} / {fmtNum(z.capacity_kg, " kg")}</span>
                         }
-                        {(z.capacity_palettes ?? 0) > 0 && z.capacity_kg > 0 && (
-                          <span>{fmtNum(z.current_load_kg, " kg")} / {fmtNum(z.capacity_kg, " kg")}</span>
+                        {(z.capacity_palettes ?? 0) > 0 && (z.current_load_palettes ?? 0) > 0 && z.capacity_kg > 0 && (
+                          <span>{fmtNum(zoneLoadsKg.get(z.code) ?? z.current_load_kg, " kg")} / {fmtNum(z.capacity_kg, " kg")}</span>
                         )}
                       </div>
                     </div>
@@ -1289,7 +1301,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                     {zones.filter(z => z.is_active !== false).map(z => (
                       <SelectItem key={z.id} value={z.code}>
                         {z.code} — {familyLabel[z.storage_family] ?? z.storage_family}
-                        {z.current_load_palettes != null && ` (${zoneOccupancy(z)}% occupé)`}
+                        {z.current_load_palettes != null && ` (${zoneOccupancy(z, zoneLoadsKg.get(z.code))}% occupé)`}
                       </SelectItem>
                     ))}
                   </SelectContent>
