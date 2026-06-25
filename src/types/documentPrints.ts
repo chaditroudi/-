@@ -17,17 +17,36 @@ export interface BonReceptionFormData {
 }
 
 export interface BonExpeditionFormData {
+  version: number;
+  document_number: string;
+  year: string;
+  document_date: string;
+  lieu_expedition: string;
+  supplier_code: string;
+  supplier_name: string;
+  conventional: boolean;
+  tn_bio_001: boolean;
+  ggp: boolean;
   vehicle_number: string;
   driver_name: string;
   lieu_reception: string;
   controleur_code: string;
   responsable_nom: string;
-  obs_branche1: string;
-  obs_branche2: string;
-  obs_vrac: string;
-  obs_vrac_sec: string;
-  obs_branche_sec: string;
-  obs_alig: string;
+  signataire_nom: string;
+  general_observation: string;
+  casse_gc: string;
+  casse_p: string;
+  casse_l: string;
+  products: Record<
+    "branche1" | "branche2" | "vrac" | "vrac_sec" | "branche_sec" | "alig_khouat",
+    {
+      nature_caisse: string;
+      quantite_caisse: string;
+      observation: string;
+      source_lots: string[];
+      total_kg: number | null;
+    }
+  >;
 }
 
 export interface RapportQCCriterion {
@@ -100,7 +119,12 @@ export interface DocumentPrint {
   source_id: string;
   source_number: string;
   form_data: DocumentFormData;
+  template_version?: number;
+  print_count?: number;
+  last_printed_at?: string | null;
+  last_printed_by?: string | null;
   created_at?: string;
   updated_at?: string;
   created_by?: string;
+  updated_by?: string;
 }

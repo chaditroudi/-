@@ -22,3 +22,15 @@ export const useSaveDocumentPrint = (source_id: string, document_type: DocumentT
     onError: () => toast.error('Erreur sauvegarde'),
   });
 };
+
+export const useUpdateDocumentPrint = (source_id: string, document_type: DocumentType) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...payload }: { id: string } & Partial<DocumentPrint>) =>
+      documentPrintsApi.update(id, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['document-prints', source_id, document_type] });
+    },
+    onError: () => toast.error('Erreur mise à jour document'),
+  });
+};
