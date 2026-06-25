@@ -85,6 +85,8 @@ const normalizeBonExpeditionFormData = (value: unknown) => {
 const normalizePayload = (payload: Record<string, unknown>, existing?: Record<string, unknown> | null) => {
   const documentType = String(payload.document_type ?? existing?.document_type ?? "");
   if (documentType !== "BON_EXPEDITION") return payload;
+  const formDataSource =
+    payload.form_data === undefined ? existing?.form_data : payload.form_data;
 
   return {
     ...payload,
@@ -108,7 +110,7 @@ const normalizePayload = (payload: Record<string, unknown>, existing?: Record<st
       payload.last_printed_by === undefined
         ? existing?.last_printed_by ?? null
         : payload.last_printed_by,
-    form_data: normalizeBonExpeditionFormData(payload.form_data),
+    form_data: normalizeBonExpeditionFormData(formDataSource),
   };
 };
 
