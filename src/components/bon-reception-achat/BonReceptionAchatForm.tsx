@@ -320,7 +320,7 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
         <Separator />
         <BranchSection title="Vrac" value={vrac} onChange={setVrac} />
         <Separator />
-        <BranchSection title="Branche Sèche" value={brancheSeche} onChange={setBrancheSeche} withPaletteAjout />
+        <BranchSection title="Branche Sèche" value={brancheSeche} onChange={(v) => setBrancheSeche(v as BranchSeche)} withPaletteAjout />
 
         <Separator />
 
