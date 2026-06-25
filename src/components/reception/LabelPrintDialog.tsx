@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -50,16 +50,12 @@ export const LabelPrintDialog = ({ open, onOpenChange, unit, reception, lot }: L
 
   if (!unit || !lot) return null;
 
-  const qrPayload = useMemo(
-    () =>
-      unit.qr_code_payload?.trim() ||
-      unit.qr_label_text?.trim() ||
-      lot.qr_code_payload?.trim() ||
-      buildQrPayloadFallback(unit, reception, lot),
-    [lot, reception, unit],
-  );
-
-  const qrPayloadPreview = useMemo(() => formatQrPayloadPreview(qrPayload), [qrPayload]);
+  const qrPayload =
+    unit.qr_code_payload?.trim() ||
+    unit.qr_label_text?.trim() ||
+    lot.qr_code_payload?.trim() ||
+    buildQrPayloadFallback(unit, reception, lot);
+  const qrPayloadPreview = formatQrPayloadPreview(qrPayload);
   const qrCaption = unit.qr_label_text?.trim() || `${unit.barcode} | ${unit.quantity} ${unit.unit}`;
   const receptionDate = format(new Date(reception.actual_arrival_date), 'dd/MM/yyyy', { locale: fr });
   const lastPrintedAt = unit.label_printed_at
@@ -216,74 +212,72 @@ export const LabelPrintDialog = ({ open, onOpenChange, unit, reception, lot }: L
           <div className="flex justify-center">
             <div ref={labelRef} className="label-container">
               <Card className="label-sheet border-2 border-foreground">
-              <CardContent className="p-4 space-y-3">
-                {/* Header */}
-                <div className="header text-center border-b pb-3">
-                  <h1 className="font-bold text-lg">{reception.supplier?.name || 'Fournisseur'}</h1>
-                  <p className="text-sm text-muted-foreground">{reception.reception_type}</p>
-                </div>
+                <CardContent className="p-4 space-y-3">
+                  {/* Header */}
+                  <div className="header text-center border-b pb-3">
+                    <h1 className="font-bold text-lg">{reception.supplier?.name || 'Fournisseur'}</h1>
+                    <p className="text-sm text-muted-foreground">{reception.reception_type}</p>
+                  </div>
 
-                {/* Info Rows */}
-                <div className="space-y-2 text-sm">
-                  <div className="row flex justify-between">
-                    <span className="label text-muted-foreground">Réception:</span>
-                    <span className="value font-medium">{reception.reception_number}</span>
-                  </div>
-                  <div className="row flex justify-between">
-                    <span className="label text-muted-foreground">Lot interne:</span>
-                    <span className="value font-medium">{lot.lot_internal}</span>
-                  </div>
-                  <div className="row flex justify-between">
-                    <span className="label text-muted-foreground">Lot fournisseur:</span>
-                    <span className="value font-medium">{lot.lot_supplier}</span>
-                  </div>
-                  <Separator />
-                  <div className="row flex justify-between">
-                    <span className="label text-muted-foreground">Type:</span>
-                    <span className="value font-medium">{unitTypeLabels[unit.unit_type]}</span>
-                  </div>
-                  <div className="row flex justify-between">
-                    <span className="label text-muted-foreground">Quantité:</span>
-                    <span className="value font-medium">{unit.quantity} {unit.unit}</span>
-                  </div>
-                  {unit.net_weight && (
                     <div className="row flex justify-between">
-                      <span className="label text-muted-foreground">Poids net:</span>
-                      <span className="value font-medium">{unit.net_weight} kg</span>
+                      <span className="label text-muted-foreground">Réception:</span>
+                      <span className="value font-medium">{reception.reception_number}</span>
                     </div>
-                  )}
-                  <div className="row flex justify-between">
-                    <span className="label text-muted-foreground">Date réception:</span>
-                    <span className="value font-medium">{receptionDate}</span>
+                    <div className="row flex justify-between">
+                      <span className="label text-muted-foreground">Lot interne:</span>
+                      <span className="value font-medium">{lot.lot_internal}</span>
+                    </div>
+                    <div className="row flex justify-between">
+                      <span className="label text-muted-foreground">Lot fournisseur:</span>
+                      <span className="value font-medium">{lot.lot_supplier}</span>
+                    </div>
+                    <Separator />
+                    <div className="row flex justify-between">
+                      <span className="label text-muted-foreground">Type:</span>
+                      <span className="value font-medium">{unitTypeLabels[unit.unit_type]}</span>
+                    </div>
+                    <div className="row flex justify-between">
+                      <span className="label text-muted-foreground">Quantité:</span>
+                      <span className="value font-medium">{unit.quantity} {unit.unit}</span>
+                    </div>
+                    {unit.net_weight && (
+                      <div className="row flex justify-between">
+                        <span className="label text-muted-foreground">Poids net:</span>
+                        <span className="value font-medium">{unit.net_weight} kg</span>
+                      </div>
+                    )}
+                    <div className="row flex justify-between">
+                      <span className="label text-muted-foreground">Date réception:</span>
+                      <span className="value font-medium">{receptionDate}</span>
+                    </div>
                   </div>
-                </div>
 
-                {/* Status Badge */}
-                <div className="text-center">
-                  <Badge className={`status-badge ${getStatusClass()} text-white px-4 py-1 text-sm`}>
-                    {stockStatusLabels[unit.unit_status]}
-                  </Badge>
-                </div>
-
-                {/* QR Section */}
-                <div className="qr-section">
-                  <div className="qr-code">
-                    <QRCodeSVG
-                      value={qrPayload}
-                      size={112}
-                      level="M"
-                      marginSize={2}
-                      includeMargin={false}
-                    />
+                  {/* Status Badge */}
+                  <div className="text-center">
+                    <Badge className={`status-badge ${getStatusClass()} text-white px-4 py-1 text-sm`}>
+                      {stockStatusLabels[unit.unit_status]}
+                    </Badge>
                   </div>
-                  <p className="qr-caption font-medium">{qrCaption}</p>
-                  <p className="barcode-text font-mono text-lg font-bold">{unit.barcode}</p>
-                  {unit.sscc && (
-                    <p className="text-xs text-muted-foreground mt-1">SSCC: {unit.sscc}</p>
-                  )}
-                  <p className="meta-note mt-2">Scanner pour accéder à la traçabilité de l'unité</p>
-                </div>
-              </CardContent>
+
+                  {/* QR Section */}
+                  <div className="qr-section">
+                    <div className="qr-code">
+                      <QRCodeSVG
+                        value={qrPayload}
+                        size={112}
+                        level="M"
+                        marginSize={2}
+                        includeMargin={false}
+                      />
+                    </div>
+                    <p className="qr-caption font-medium">{qrCaption}</p>
+                    <p className="barcode-text font-mono text-lg font-bold">{unit.barcode}</p>
+                    {unit.sscc && (
+                      <p className="text-xs text-muted-foreground mt-1">SSCC: {unit.sscc}</p>
+                    )}
+                    <p className="meta-note mt-2">Scanner pour accéder à la traçabilité de l'unité</p>
+                  </div>
+                </CardContent>
               </Card>
             </div>
           </div>
