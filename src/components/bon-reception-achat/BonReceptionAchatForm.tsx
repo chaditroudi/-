@@ -327,7 +327,7 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
         {/* ── Casse ── */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-semibold">Casse</h4>
+            <h4 className="text-sm font-semibold">Casse</h4>-
             <Button variant="outline" size="sm" onClick={addCasse} className="h-7 gap-1 text-xs">
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
