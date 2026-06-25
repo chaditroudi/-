@@ -45,9 +45,10 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { canPerformAction } from '@/lib/roleAccess';
 import { useTodayPendingNotices } from '@/hooks/useInboundNotices';
 import { usePhase2Pipeline } from '@/hooks/usePhase2Pipeline';
+import { BonReceptionAchatDashboard } from '@/components/bon-reception-achat/BonReceptionAchatDashboard';
 
 type ActiveView = 'receptions' | 'tablet' | 'alerts';
-type SubTab = 'today' | 'qc' | 'registry';
+type SubTab = 'today' | 'qc' | 'registry' | 'bra';
 
 interface ActionQueueItem {
   reception: ReceptionV2;
@@ -337,6 +338,10 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
             <TabsTrigger value="registry" className="rounded-xl px-4 gap-1.5">
               <List className="h-3.5 w-3.5" />
               Registre
+            </TabsTrigger>
+            <TabsTrigger value="bra" className="rounded-xl px-4 gap-1.5">
+              <Printer className="h-3.5 w-3.5" />
+              Bons BRA
             </TabsTrigger>
           </TabsList>
 
@@ -833,6 +838,11 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* ── Tab: Bons de Réception Achat ─────────────────────────────── */}
+          <TabsContent value="bra" className="mt-5">
+            <BonReceptionAchatDashboard />
           </TabsContent>
         </Tabs>
       )}
