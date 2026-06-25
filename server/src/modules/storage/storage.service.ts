@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import mongoose from "mongoose";
 import { badRequest, conflict, notFound } from "../../core/app-error.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
@@ -1446,6 +1447,25 @@ export class StorageService {
 
   // ── Zone CRUD ─────────────────────────────────────────────────────────────
 
+  /** Find a zone by its application `id` field OR by MongoDB `_id` as fallback (for legacy documents). */
+  private async findZoneById(id: string): Promise<StorageRecord | null> {
+    const Zones = getCollectionModel("storage_zones");
+    let doc = sanitizeDocument(await Zones.findOne({ id }).lean().exec()) as StorageRecord | null;
+    if (!doc && mongoose.Types.ObjectId.isValid(id)) {
+      doc = sanitizeDocument(
+        await Zones.findOne({ _id: new mongoose.Types.ObjectId(id) }).lean().exec(),
+      ) as StorageRecord | null;
+    }
+    return doc;
+  }
+
+  /** Build the query filter that matches a zone regardless of whether it uses `id` field or `_id`. */
+  private zoneFilter(id: string, storedId?: unknown): Record<string, unknown> {
+    if (storedId) return { id: storedId };
+    if (mongoose.Types.ObjectId.isValid(id)) return { _id: new mongoose.Types.ObjectId(id) };
+    return { id };
+  }
+
   async createZone(payload: Record<string, unknown>) {
     const Zones = getCollectionModel("storage_zones");
     const code = String(payload.code || "").trim().toUpperCase();
@@ -1479,13 +1499,13 @@ export class StorageService {
 
   async updateZone(id: string, payload: Record<string, unknown>) {
     const Zones = getCollectionModel("storage_zones");
-    const zone = sanitizeDocument(await Zones.findOne({ id }).lean().exec()) as StorageRecord | null;
+    const zone = await this.findZoneById(id);
     if (!zone) throw notFound("ZONE_NOT_FOUND", "Storage zone not found.");
 
     if (payload.code) {
       const newCode = String(payload.code).trim().toUpperCase();
       const dup = sanitizeDocument(await Zones.findOne({ code: newCode }).lean().exec()) as StorageRecord | null;
-      if (dup && dup.id !== id) throw conflict("ZONE_CODE_EXISTS", `Zone code ${newCode} is already used.`);
+      if (dup && dup.id !== zone.id) throw conflict("ZONE_CODE_EXISTS", `Zone code ${newCode} is already used.`);
     }
 
     const update: Record<string, unknown> = { updated_at: nowIso() };
@@ -1502,13 +1522,13 @@ export class StorageService {
     if (payload.is_active !== undefined) update.is_active = Boolean(payload.is_active);
     if (payload.notes !== undefined) update.notes = payload.notes ? String(payload.notes) : null;
 
-    await Zones.updateOne({ id }, { $set: update }).exec();
+    await Zones.updateOne(this.zoneFilter(id, zone.id), { $set: update }).exec();
     return sanitizeDocument({ ...zone, ...update });
   }
 
   async deleteZone(id: string) {
     const Zones = getCollectionModel("storage_zones");
-    const zone = sanitizeDocument(await Zones.findOne({ id }).lean().exec()) as StorageRecord | null;
+    const zone = await this.findZoneById(id);
     if (!zone) throw notFound("ZONE_NOT_FOUND", "Storage zone not found.");
 
     const activeLots = await getCollectionModel("reception_lots").countDocuments({
@@ -1519,8 +1539,8 @@ export class StorageService {
       throw conflict("ZONE_HAS_ACTIVE_LOTS", `Cannot delete zone ${zone.code}: ${activeLots} active lot(s) assigned. Move or reject them first.`);
     }
 
-    await Zones.updateOne({ id }, { $set: { is_active: false, updated_at: nowIso() } }).exec();
-    return { id, code: zone.code };
+    await Zones.updateOne(this.zoneFilter(id, zone.id), { $set: { is_active: false, updated_at: nowIso() } }).exec();
+    return { id: zone.id, code: zone.code };
   }
 
   // ── Location CRUD ─────────────────────────────────────────────────────────
@@ -1555,16 +1575,33 @@ export class StorageService {
     return sanitizeDocument({ ...prepared, storage_zone: zone });
   }
 
+  private async findLocationById(id: string): Promise<StorageRecord | null> {
+    const Locations = getCollectionModel("storage_locations");
+    let doc = sanitizeDocument(await Locations.findOne({ id }).lean().exec()) as StorageRecord | null;
+    if (!doc && mongoose.Types.ObjectId.isValid(id)) {
+      doc = sanitizeDocument(
+        await Locations.findOne({ _id: new mongoose.Types.ObjectId(id) }).lean().exec(),
+      ) as StorageRecord | null;
+    }
+    return doc;
+  }
+
+  private locationFilter(id: string, storedId?: unknown): Record<string, unknown> {
+    if (storedId) return { id: storedId };
+    if (mongoose.Types.ObjectId.isValid(id)) return { _id: new mongoose.Types.ObjectId(id) };
+    return { id };
+  }
+
   async updateLocation(id: string, payload: Record<string, unknown>) {
     const Locations = getCollectionModel("storage_locations");
-    const loc = sanitizeDocument(await Locations.findOne({ id }).lean().exec()) as StorageRecord | null;
+    const loc = await this.findLocationById(id);
     if (!loc) throw notFound("LOCATION_NOT_FOUND", "Storage location not found.");
 
     const update: Record<string, unknown> = { updated_at: nowIso() };
     if (payload.code !== undefined) {
       const newCode = String(payload.code).trim().toUpperCase();
       const dup = sanitizeDocument(await Locations.findOne({ code: newCode }).lean().exec()) as StorageRecord | null;
-      if (dup && dup.id !== id) throw conflict("LOCATION_CODE_EXISTS", `Location code ${newCode} is already used.`);
+      if (dup && dup.id !== loc.id) throw conflict("LOCATION_CODE_EXISTS", `Location code ${newCode} is already used.`);
       update.code = newCode;
     }
     if (payload.name !== undefined) update.name = String(payload.name).trim();
@@ -1573,19 +1610,19 @@ export class StorageService {
     if (payload.is_active !== undefined) update.is_active = Boolean(payload.is_active);
 
     if (payload.storage_zone_id && payload.storage_zone_id !== loc.storage_zone_id) {
-      const zone = sanitizeDocument(await getCollectionModel("storage_zones").findOne({ id: String(payload.storage_zone_id) }).lean().exec()) as StorageRecord | null;
+      const zone = await this.findZoneById(String(payload.storage_zone_id));
       if (!zone) throw notFound("ZONE_NOT_FOUND", "Storage zone not found.");
       update.storage_zone_id = String(payload.storage_zone_id);
       update.zone_code = zone.code || null;
     }
 
-    await Locations.updateOne({ id }, { $set: update }).exec();
+    await Locations.updateOne(this.locationFilter(id, loc.id), { $set: update }).exec();
     return sanitizeDocument({ ...loc, ...update });
   }
 
   async deleteLocation(id: string) {
     const Locations = getCollectionModel("storage_locations");
-    const loc = sanitizeDocument(await Locations.findOne({ id }).lean().exec()) as StorageRecord | null;
+    const loc = await this.findLocationById(id);
     if (!loc) throw notFound("LOCATION_NOT_FOUND", "Storage location not found.");
 
     const lotsPresent = Array.isArray(loc.lot_ids_present) ? loc.lot_ids_present.filter(Boolean) : [];
@@ -1593,8 +1630,8 @@ export class StorageService {
       throw conflict("LOCATION_HAS_LOTS", `Cannot delete location ${loc.code}: ${lotsPresent.length} lot(s) present. Move them first.`);
     }
 
-    await Locations.updateOne({ id }, { $set: { is_active: false, updated_at: nowIso() } }).exec();
-    return { id, code: loc.code };
+    await Locations.updateOne(this.locationFilter(id, loc.id), { $set: { is_active: false, updated_at: nowIso() } }).exec();
+    return { id: loc.id, code: loc.code };
   }
 }
 
