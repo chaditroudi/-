@@ -686,12 +686,20 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                             ? <span>{fmtNum(z.current_load_palettes)} / {fmtNum(z.capacity_palettes)} pal.</span>
                             : <span>{fmtNum(zoneLoadsKg.get(z.code) ?? z.current_load_kg, " kg")} / {fmtNum(z.capacity_kg, " kg")}</span>
                           }
-                          {z.current_temperature_c != null && (
-                            <span className="flex items-center gap-1">
-                              <Thermometer className="h-3 w-3" />
-                              {z.current_temperature_c}°C
-                            </span>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {(lotCountByZone.get(z.code) ?? 0) > 0 && (
+                              <span className="flex items-center gap-0.5">
+                                <Package className="h-3 w-3" />
+                                {lotCountByZone.get(z.code)} lot{(lotCountByZone.get(z.code) ?? 0) > 1 ? "s" : ""}
+                              </span>
+                            )}
+                            {z.current_temperature_c != null && (
+                              <span className="flex items-center gap-1">
+                                <Thermometer className="h-3 w-3" />
+                                {z.current_temperature_c}°C
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </button>
                     );
@@ -787,6 +795,50 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
               </CardContent>
             </Card>
           )}
+
+          {/* ── Manufacturing pipeline ── */}
+          <Card className="rounded-2xl border-border/60">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Factory className="h-4 w-4 text-primary" />
+                Flux de fabrication — lots en cours
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                {([
+                  { key: "waiting",  label: "En attente",    icon: Clock,     color: "bg-slate-100 text-slate-700 border-slate-200",  lots: mfgStages.waiting },
+                  { key: "raw",      label: "Stockage brut", icon: Warehouse,  color: "bg-amber-50 text-amber-800 border-amber-200",   lots: mfgStages.raw },
+                  { key: "cold",     label: "Chambre froide", icon: Snowflake, color: "bg-sky-50 text-sky-800 border-sky-200",         lots: mfgStages.cold },
+                  { key: "fum",      label: "Fumigation",     icon: Wind,      color: "bg-purple-50 text-purple-800 border-purple-200", lots: mfgStages.fum },
+                  { key: "expReady", label: "Prêt export",   icon: Truck,     color: "bg-emerald-50 text-emerald-800 border-emerald-200", lots: mfgStages.expReady },
+                ] as Array<{ key: string; label: string; icon: typeof Clock; color: string; lots: typeof allLots }>).map(({ key, label, icon: Icon, color, lots }) => (
+                  <div key={key} className={cn("flex flex-col gap-2 rounded-xl border p-3.5", color.split(" ").slice(2).join(" "))}>
+                    <div className="flex items-center gap-2">
+                      <Icon className={cn("h-4 w-4 shrink-0", color.split(" ").slice(1, 2).join(" "))} />
+                      <span className={cn("text-[11px] font-semibold uppercase tracking-[0.15em]", color.split(" ").slice(1, 2).join(" "))}>{label}</span>
+                    </div>
+                    <p className={cn("text-2xl font-bold", color.split(" ").slice(1, 2).join(" "))}>{lots.length}</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {lots.reduce((s, l) => s + (l.quantity ?? 0), 0).toLocaleString("fr-FR")} kg
+                    </p>
+                    {lots.length > 0 && (
+                      <div className="space-y-1 border-t border-current/10 pt-2">
+                        {lots.slice(0, 3).map(l => (
+                          <p key={l.id} className="truncate text-[11px] text-muted-foreground">
+                            {l.lot_internal ?? l.lot_supplier ?? l.id?.slice(-6)} · {fmtNum(l.quantity, " kg")}
+                          </p>
+                        ))}
+                        {lots.length > 3 && (
+                          <p className="text-[11px] font-medium text-muted-foreground">+{lots.length - 3} autres</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* ════════════════════════════════════════════════
@@ -1462,6 +1514,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                           <TableHead>Famille</TableHead>
                           <TableHead className="text-right">Cap. kg</TableHead>
                           <TableHead className="text-right">Cap. palettes</TableHead>
+                          <TableHead className="text-right">Lots</TableHead>
                           <TableHead>Temp. consigne</TableHead>
                           <TableHead>Actif</TableHead>
                           <TableHead />
@@ -1480,6 +1533,11 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                             </TableCell>
                             <TableCell className="text-right text-xs">{fmtNum(z.capacity_kg, " kg")}</TableCell>
                             <TableCell className="text-right text-xs">{z.capacity_palettes ? fmtNum(z.capacity_palettes, " pal.") : "—"}</TableCell>
+                            <TableCell className="text-right text-xs">
+                              {(lotCountByZone.get(z.code) ?? 0) > 0
+                                ? <span className="font-semibold text-foreground">{lotCountByZone.get(z.code)}</span>
+                                : <span className="text-muted-foreground">—</span>}
+                            </TableCell>
                             <TableCell className="text-xs text-muted-foreground">
                               {z.temperature_min != null ? `${z.temperature_min}–${z.temperature_max}°C` : "—"}
                             </TableCell>
