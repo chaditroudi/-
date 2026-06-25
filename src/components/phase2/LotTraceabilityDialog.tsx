@@ -570,6 +570,8 @@ export function LotTraceabilityDialog({ open, onOpenChange, lotNumber }: Props) 
                             <div>Quantite dispo: {(lot.current_quantity ?? 0).toLocaleString('fr-TN')} {lot.unit ?? 'kg'}</div>
                             <div>Emplacement: {lot.storage_location_code ?? '—'}</div>
                             <div>Validation QC: {lot.qc_validated_at ? `${fmt(lot.qc_validated_at)} / ${lot.qc_validated_by ?? '—'}` : '—'}</div>
+                            {lot.block_reason ? <div>Blocage: {lot.block_reason}</div> : null}
+                            {!lot.block_reason && lot.status === 'BLOCKED' && lot.quality_notes ? <div>Blocage: {lot.quality_notes}</div> : null}
                           </div>
                         </CardContent>
                       </Card>

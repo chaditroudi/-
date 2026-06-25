@@ -9,6 +9,7 @@ import { useStockLots } from '@/hooks/useStock';
 import { StockLotDialog } from './StockLotDialog';
 import { StockLotQCDialog } from './StockLotQCDialog';
 import { TransferDialog } from './TransferDialog';
+import { StockLotBlockDialog } from './StockLotBlockDialog';
 import { 
   lotStatusLabels, 
   lotStatusColors, 
@@ -23,6 +24,8 @@ import {
   Scale, 
   CheckCircle, 
   ArrowRightLeft,
+  Lock,
+  LockOpen,
   Calendar,
   AlertTriangle
 } from 'lucide-react';
@@ -36,6 +39,8 @@ export const StockLotsList = () => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedLotForTransfer, setSelectedLotForTransfer] = useState<StockLot | null>(null);
   const [lotToValidate, setLotToValidate] = useState<StockLot | null>(null);
+  const [lotToBlock, setLotToBlock] = useState<StockLot | null>(null);
+  const [lotToRelease, setLotToRelease] = useState<StockLot | null>(null);
 
   const { data: lots = [], isLoading } = useStockLots({
     status: statusFilter === 'all' ? undefined : statusFilter,
@@ -190,6 +195,11 @@ export const StockLotsList = () => {
                         <Badge className={`${lotStatusColors[lot.status]} text-white`}>
                           {lotStatusLabels[lot.status]}
                         </Badge>
+                        {(lot.block_reason || (lot.status === 'BLOCKED' && lot.quality_notes)) && (
+                          <p className="mt-1 max-w-[220px] text-xs text-red-700">
+                            {lot.block_reason || lot.quality_notes}
+                          </p>
+                        )}
                       </TableCell>
                       <TableCell>
                         {location ? (
@@ -241,12 +251,35 @@ export const StockLotsList = () => {
                             </Button>
                           )}
                           {lot.status === 'VALIDATED' && (
-                            <Button 
-                              variant="outline" 
+                            <>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => setSelectedLotForTransfer(lot)}
+                                title="Transférer le lot"
+                              >
+                                <ArrowRightLeft className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="border-red-200 text-red-700 hover:bg-red-50"
+                                onClick={() => setLotToBlock(lot)}
+                                title="Bloquer le lot"
+                              >
+                                <Lock className="h-4 w-4" />
+                              </Button>
+                            </>
+                          )}
+                          {lot.status === 'BLOCKED' && (
+                            <Button
+                              variant="outline"
                               size="sm"
-                              onClick={() => setSelectedLotForTransfer(lot)}
+                              className="border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                              onClick={() => setLotToRelease(lot)}
+                              title="Débloquer le lot"
                             >
-                              <ArrowRightLeft className="h-4 w-4" />
+                              <LockOpen className="h-4 w-4" />
                             </Button>
                           )}
                         </div>
@@ -276,6 +309,18 @@ export const StockLotsList = () => {
       <StockLotQCDialog
         lot={lotToValidate}
         onClose={() => setLotToValidate(null)}
+      />
+
+      <StockLotBlockDialog
+        lot={lotToBlock}
+        mode="block"
+        onClose={() => setLotToBlock(null)}
+      />
+
+      <StockLotBlockDialog
+        lot={lotToRelease}
+        mode="release"
+        onClose={() => setLotToRelease(null)}
       />
     </>
   );

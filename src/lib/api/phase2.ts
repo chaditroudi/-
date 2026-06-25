@@ -162,6 +162,7 @@ export interface TraceabilityStockLot {
   packaging_date?: string | null;
   qc_validated_by?: string | null;
   qc_validated_at?: string | null;
+  block_reason?: string | null;
   quality_notes?: string | null;
 }
 
