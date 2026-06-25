@@ -34,6 +34,7 @@ import { GuardsModule } from "./guards.module.js";
   imports: [
     GuardsModule,
     AuthModule,
+    BonReceptionAchatModule,
     RealtimeModule,
     AnalyticsModule,
     CollectionsModule,
