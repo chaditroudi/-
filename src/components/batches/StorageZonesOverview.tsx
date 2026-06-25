@@ -8,7 +8,6 @@ import {
   ChevronRight,
   ClipboardList,
   Clock,
-  Droplets,
   Eye,
   Factory,
   MapPin,
@@ -44,7 +43,6 @@ import {
   useStorageDlcAlerts,
   useStorageDoorEvents,
   useStorageLocationMovements,
-  useSuggestFefoLots,
 } from "@/hooks/useStorageModule3";
 import { useMoveReceptionLotToStorage, useRawStorageOverdueReceptions } from "@/hooks/useReceptionsV2";
 import { useAllReceptionLots, useInventoryCounts } from "@/hooks/useStock";
@@ -261,7 +259,6 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
 
   const moveStock = useMoveStorageStock();
   const createReading = useCreateStorageReading();
-  const suggestFefo = useSuggestFefoLots();
 
   // ── Derived data ──────────────────────────────────────────────────────────
 
@@ -558,7 +555,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-foreground">
-                          {storageMovementTypeLabels[m.movement_type] ?? m.movement_type}
+                          {storageMovementTypeLabels[m.movement_type as StorageMovementType] ?? m.movement_type}
                           {m.lot_code && <span className="ml-2 font-normal text-muted-foreground">· {m.lot_code}</span>}
                         </p>
                         <p className="truncate text-xs text-muted-foreground">
@@ -1064,7 +1061,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                             <TableCell className="text-xs text-muted-foreground">{fmt(m.movement_date)}</TableCell>
                             <TableCell>
                               <Badge className="rounded-full text-[11px] border-border/60 bg-muted/40 text-muted-foreground">
-                                {storageMovementTypeLabels[m.movement_type] ?? m.movement_type}
+                                {storageMovementTypeLabels[m.movement_type as StorageMovementType] ?? m.movement_type}
                               </Badge>
                             </TableCell>
                             <TableCell className="font-mono text-xs">{m.lot_code ?? "—"}</TableCell>
@@ -1232,17 +1229,17 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                         <div key={e.id} className="flex items-center gap-3 px-4 py-2.5">
                           <span className={cn(
                             "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
-                            (e as any).event_type === "OPEN"
+                            e.event_type === "OPEN"
                               ? "bg-amber-100 text-amber-700"
                               : "bg-emerald-100 text-emerald-700",
                           )}>
-                            {(e as any).event_type === "OPEN" ? "O" : "F"}
+                            {e.event_type === "OPEN" ? "O" : "F"}
                           </span>
                           <span className="flex-1 text-xs font-medium text-foreground">
-                            {(e as any).event_type === "OPEN" ? "Ouverture" : "Fermeture"}
-                            <span className="ml-2 font-normal text-muted-foreground">· {(e as any).zone_code ?? "—"}</span>
+                            {e.event_type === "OPEN" ? "Ouverture" : "Fermeture"}
+                            <span className="ml-2 font-normal text-muted-foreground">· {e.zone_code ?? "—"}</span>
                           </span>
-                          <span className="text-[11px] text-muted-foreground">{fmt((e as any).event_at ?? (e as any).created_at)}</span>
+                          <span className="text-[11px] text-muted-foreground">{fmt(e.event_at)}</span>
                         </div>
                       ))}
                     </div>
@@ -1321,8 +1318,8 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
       {/* ── QR scanner ── */}
       <QrScannerDialog
         open={scannerOpen}
-        onClose={() => setScannerOpen(false)}
-        onScan={v => {
+        onOpenChange={setScannerOpen}
+        onDetected={v => {
           setMvtForm(f => ({ ...f, lotCode: normalizeQr(v) }));
           setScannerOpen(false);
         }}
