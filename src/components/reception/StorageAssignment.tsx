@@ -8,12 +8,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { AlertTriangle, ArrowRight, CheckCircle2, Leaf, MapPin, Snowflake, Factory, Warehouse, Wind, ShieldAlert } from 'lucide-react';
+import { AlertTriangle, ArrowRight, CheckCircle2, Leaf, Lock, LockOpen, MapPin, Snowflake, Factory, Warehouse, Wind, ShieldAlert } from 'lucide-react';
 import { ReceptionV2, ReceptionLot, stockStatusLabels, stockStatusColors } from '@/types/reception';
 import { useMoveReceptionLotToStorage } from '@/hooks/useReceptionsV2';
 import { useModule3StorageLocations, useModule3StorageZones } from '@/hooks/useStorageModule3';
 import { checkBioSegregationRGS01, checkLotStorageAllowed } from '@/lib/phase1RuleEngine';
 import type { Module3StorageZone } from '@/types/storage';
+import { ReceptionLotStatusDialog } from './ReceptionLotStatusDialog';
 
 // ── Zone family → semantic role ───────────────────────────────────────────────
 
@@ -79,6 +80,8 @@ export const StorageAssignment = ({ reception, lots }: StorageAssignmentProps) =
   const [targetLocationId, setTargetLocationId] = useState('');
   const [notes, setNotes] = useState('');
   const [performedBy, setPerformedBy] = useState('');
+  const [lotToQuarantine, setLotToQuarantine] = useState<ReceptionLot | null>(null);
+  const [lotToRelease, setLotToRelease] = useState<ReceptionLot | null>(null);
 
   const lotIsBio = reception.bio_declared ?? false;
 
@@ -294,6 +297,27 @@ export const StorageAssignment = ({ reception, lots }: StorageAssignmentProps) =
                           : 'Affecter'}
                       </Button>
                     )}
+                    {lot.stock_status === 'EN_QUARANTAINE' ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                        onClick={() => setLotToRelease(lot)}
+                      >
+                        <LockOpen className="h-4 w-4 mr-1" />
+                        Libérer
+                      </Button>
+                    ) : lot.stock_status !== 'STOCK_REJETE' ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-amber-300 text-amber-800 hover:bg-amber-50"
+                        onClick={() => setLotToQuarantine(lot)}
+                      >
+                        <Lock className="h-4 w-4 mr-1" />
+                        Quarantaine
+                      </Button>
+                    ) : null}
                     {lot.stock_status === 'STOCK_REJETE' && (
                       <Badge variant="outline" className="gap-1 border-red-300 text-red-700 text-xs">
                         <ShieldAlert className="h-3 w-3" /> Rejeté
@@ -491,6 +515,20 @@ export const StorageAssignment = ({ reception, lots }: StorageAssignmentProps) =
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ReceptionLotStatusDialog
+        lot={lotToQuarantine}
+        receptionId={reception.id}
+        mode="quarantine"
+        onClose={() => setLotToQuarantine(null)}
+      />
+
+      <ReceptionLotStatusDialog
+        lot={lotToRelease}
+        receptionId={reception.id}
+        mode="release"
+        onClose={() => setLotToRelease(null)}
+      />
     </div>
   );
 };
