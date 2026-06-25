@@ -1119,22 +1119,26 @@ let StorageService = class StorageService {
         };
     }
     // ── Zone CRUD ─────────────────────────────────────────────────────────────
-    /** Find a zone by its application `id` field OR by MongoDB `_id` as fallback (for legacy documents). */
+    /**
+     * Build the correct MongoDB filter for a document looked up by application ID.
+     * Documents created via prepareInsertDocument store a UUID in the `id` field.
+     * Older/seeded documents only have MongoDB's `_id` (ObjectId); sanitizeDocument
+     * exposes that as `id = String(_id)`, which is a 24-char hex string.
+     * We discriminate by format: 24-char hex → query by `_id`; anything else (UUID) → query by `id`.
+     */
+    buildIdFilter(id) {
+        if (/^[0-9a-f]{24}$/.test(id)) {
+            return { _id: new mongoose.Types.ObjectId(id) };
+        }
+        return { id };
+    }
     async findZoneById(id) {
         const Zones = getCollectionModel("storage_zones");
-        let doc = sanitizeDocument(await Zones.findOne({ id }).lean().exec());
-        if (!doc && mongoose.Types.ObjectId.isValid(id)) {
-            doc = sanitizeDocument(await Zones.findOne({ _id: new mongoose.Types.ObjectId(id) }).lean().exec());
-        }
-        return doc;
+        return sanitizeDocument(await Zones.findOne(this.buildIdFilter(id)).lean().exec());
     }
-    /** Build the query filter that matches a zone regardless of whether it uses `id` field or `_id`. */
-    zoneFilter(id, storedId) {
-        if (storedId)
-            return { id: storedId };
-        if (mongoose.Types.ObjectId.isValid(id))
-            return { _id: new mongoose.Types.ObjectId(id) };
-        return { id };
+    async findLocationById(id) {
+        const Locations = getCollectionModel("storage_locations");
+        return sanitizeDocument(await Locations.findOne(this.buildIdFilter(id)).lean().exec());
     }
     async createZone(payload) {
         const Zones = getCollectionModel("storage_zones");
@@ -1203,7 +1207,7 @@ let StorageService = class StorageService {
             update.is_active = Boolean(payload.is_active);
         if (payload.notes !== undefined)
             update.notes = payload.notes ? String(payload.notes) : null;
-        await Zones.updateOne(this.zoneFilter(id, zone.id), { $set: update }).exec();
+        await Zones.updateOne(this.buildIdFilter(id), { $set: update }).exec();
         return sanitizeDocument({ ...zone, ...update });
     }
     async deleteZone(id) {
@@ -1218,7 +1222,7 @@ let StorageService = class StorageService {
         if (activeLots > 0) {
             throw conflict("ZONE_HAS_ACTIVE_LOTS", `Cannot delete zone ${zone.code}: ${activeLots} active lot(s) assigned. Move or reject them first.`);
         }
-        await Zones.updateOne(this.zoneFilter(id, zone.id), { $set: { is_active: false, updated_at: nowIso() } }).exec();
+        await Zones.updateOne(this.buildIdFilter(id), { $set: { is_active: false, updated_at: nowIso() } }).exec();
         return { id: zone.id, code: zone.code };
     }
     // ── Location CRUD ─────────────────────────────────────────────────────────
