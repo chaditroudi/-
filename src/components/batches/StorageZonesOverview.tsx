@@ -555,11 +555,12 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
       <Tabs value={tab} onValueChange={setTab} className="space-y-4">
         <TabsList className="flex h-auto flex-wrap gap-1 rounded-2xl bg-muted/60 p-1">
           {[
-            { id: "dashboard", label: "Tableau de bord", icon: Activity },
-            { id: "lots",      label: "Lots en stock",   icon: BoxIcon },
-            { id: "zones",     label: "Zones & emplacements", icon: MapPin },
-            { id: "mouvements",label: "Mouvements",      icon: ArrowRightLeft },
-            { id: "conditions",label: "Conditions",      icon: Thermometer },
+            { id: "dashboard",  label: "Tableau de bord",       icon: Activity },
+            { id: "lots",       label: "Lots en stock",          icon: BoxIcon },
+            { id: "zones",      label: "Zones & emplacements",   icon: MapPin },
+            { id: "mouvements", label: "Mouvements",             icon: ArrowRightLeft },
+            { id: "conditions", label: "Conditions",             icon: Thermometer },
+            ...(canManage ? [{ id: "gestion", label: "Gestion", icon: Settings2 }] : []),
           ].map(({ id, label, icon: Icon }) => (
             <TabsTrigger
               key={id}
