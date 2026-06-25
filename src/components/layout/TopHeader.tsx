@@ -78,11 +78,11 @@ export const TopHeader = ({
 
       <Separator orientation="vertical" className="hidden h-5 bg-border/60 sm:block" />
 
-      <div className="hidden items-center gap-2 rounded-xl border border-border/60 bg-card/60 px-2.5 py-1.5 md:flex">
+      <div className="flex items-center gap-2 rounded-xl border border-border/60 bg-card/60 px-2 py-1.5">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-background p-1.5">
           <BrandLogo className="h-full w-full" imgClassName="h-full w-full object-contain" alt={companyName} />
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 hidden md:block">
           <p className="text-[11px] font-semibold leading-tight text-foreground">{companyShortName}</p>
           <p className="max-w-[140px] truncate text-[10px] text-muted-foreground">{companyName}</p>
         </div>
