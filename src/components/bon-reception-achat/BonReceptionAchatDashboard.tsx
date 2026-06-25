@@ -1,5 +1,4 @@
-import { useRef, useState } from "react";
-import { useReactToPrint } from "react-to-print";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -13,7 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 import { FileText, Pencil, Plus, Printer, Search, Trash2 } from "lucide-react";
 import { BonReceptionAchatForm } from "./BonReceptionAchatForm";
-import { BonReceptionAchatPrint } from "./BonReceptionAchatPrint";
+import { printBonReceptionAchat } from "./printBonReceptionAchat";
 import {
   useBonReceptionsAchat,
   useCreateBonReceptionAchat,
@@ -24,8 +23,8 @@ import type { BonReceptionAchat } from "@/types/bonReceptionAchat";
 
 const STATUT_BADGE: Record<string, { label: string; class: string }> = {
   brouillon: { label: "Brouillon", class: "bg-amber-100 text-amber-800 border-amber-200" },
-  valide: { label: "Validé", class: "bg-emerald-100 text-emerald-800 border-emerald-200" },
-  annule: { label: "Annulé", class: "bg-red-100 text-red-700 border-red-200" },
+  valide:    { label: "Validé",    class: "bg-emerald-100 text-emerald-800 border-emerald-200" },
+  annule:    { label: "Annulé",    class: "bg-red-100 text-red-700 border-red-200" },
 };
 
 export function BonReceptionAchatDashboard() {
@@ -34,14 +33,10 @@ export function BonReceptionAchatDashboard() {
   const update = useUpdateBonReceptionAchat();
   const remove = useDeleteBonReceptionAchat();
 
-  const [search, setSearch] = useState("");
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const [editing, setEditing] = useState<BonReceptionAchat | null>(null);
+  const [search, setSearch]           = useState("");
+  const [sheetOpen, setSheetOpen]     = useState(false);
+  const [editing, setEditing]         = useState<BonReceptionAchat | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<BonReceptionAchat | null>(null);
-  const [printTarget, setPrintTarget] = useState<BonReceptionAchat | null>(null);
-
-  const printRef = useRef<HTMLDivElement>(null);
-  const triggerPrint = useReactToPrint({ contentRef: printRef });
 
   const filtered = bons.filter((b) => {
     if (!search) return true;
@@ -55,7 +50,7 @@ export function BonReceptionAchatDashboard() {
   });
 
   const openCreate = () => { setEditing(null); setSheetOpen(true); };
-  const openEdit = (b: BonReceptionAchat) => { setEditing(b); setSheetOpen(true); };
+  const openEdit   = (b: BonReceptionAchat) => { setEditing(b); setSheetOpen(true); };
 
   const handleSubmit = async (data: Partial<BonReceptionAchat>) => {
     if (editing) {
@@ -64,11 +59,6 @@ export function BonReceptionAchatDashboard() {
       await create.mutateAsync(data);
     }
     setSheetOpen(false);
-  };
-
-  const handlePrint = (b: BonReceptionAchat) => {
-    setPrintTarget(b);
-    setTimeout(() => triggerPrint(), 100);
   };
 
   return (
@@ -89,7 +79,7 @@ export function BonReceptionAchatDashboard() {
         </Button>
       </div>
 
-      {/* Counts */}
+      {/* Status counts */}
       <div className="flex gap-3 flex-wrap">
         {Object.entries(STATUT_BADGE).map(([key, { label, class: cls }]) => {
           const count = bons.filter((b) => b.statut === key).length;
@@ -110,7 +100,11 @@ export function BonReceptionAchatDashboard() {
         <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
           <FileText className="h-10 w-10 opacity-30" />
           <p className="text-sm">{search ? "Aucun résultat" : "Aucun bon de réception créé"}</p>
-          {!search && <Button variant="outline" size="sm" onClick={openCreate} className="gap-2"><Plus className="h-4 w-4" />Créer le premier</Button>}
+          {!search && (
+            <Button variant="outline" size="sm" onClick={openCreate} className="gap-2">
+              <Plus className="h-4 w-4" /> Créer le premier
+            </Button>
+          )}
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border bg-card">
@@ -145,13 +139,22 @@ export function BonReceptionAchatDashboard() {
                     </td>
                     <td className="px-4 py-2.5">
                       <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => handlePrint(b)} title="Imprimer">
+                        <Button
+                          variant="ghost" size="sm" className="h-7 w-7 p-0"
+                          onClick={() => printBonReceptionAchat(b)} title="Imprimer"
+                        >
                           <Printer className="h-3.5 w-3.5" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEdit(b)} title="Modifier">
+                        <Button
+                          variant="ghost" size="sm" className="h-7 w-7 p-0"
+                          onClick={() => openEdit(b)} title="Modifier"
+                        >
                           <Pencil className="h-3.5 w-3.5" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeleteTarget(b)} title="Supprimer">
+                        <Button
+                          variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                          onClick={() => setDeleteTarget(b)} title="Supprimer"
+                        >
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       </div>
@@ -168,7 +171,9 @@ export function BonReceptionAchatDashboard() {
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent side="right" className="w-full sm:max-w-2xl flex flex-col gap-0 p-0">
           <SheetHeader className="px-6 pt-6 pb-4 border-b shrink-0">
-            <SheetTitle>{editing ? `Modifier ${editing.numero_bon}` : "Nouveau bon de réception achat"}</SheetTitle>
+            <SheetTitle>
+              {editing ? `Modifier ${editing.numero_bon}` : "Nouveau bon de réception achat"}
+            </SheetTitle>
           </SheetHeader>
           <div className="flex-1 overflow-hidden px-6 pt-4">
             <BonReceptionAchatForm
@@ -193,18 +198,18 @@ export function BonReceptionAchatDashboard() {
             <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={async () => { if (deleteTarget) { await remove.mutateAsync(deleteTarget.id); setDeleteTarget(null); } }}
+              onClick={async () => {
+                if (deleteTarget) {
+                  await remove.mutateAsync(deleteTarget.id);
+                  setDeleteTarget(null);
+                }
+              }}
             >
               Supprimer
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Hidden print target */}
-      <div className="hidden print:block">
-        {printTarget && <BonReceptionAchatPrint ref={printRef} bon={printTarget} />}
-      </div>
     </div>
   );
 }
