@@ -12,11 +12,15 @@ import {
   Factory,
   MapPin,
   Package,
+  Pencil,
+  Plus,
   QrCode,
   RefreshCw,
+  Settings2,
   ShieldAlert,
   Snowflake,
   Thermometer,
+  Trash2,
   Truck,
   Warehouse,
   Wind,
@@ -30,12 +34,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { QrScannerDialog } from "@/components/reception/QrScannerDialog";
 import {
   useCreateStorageReading,
+  useCreateZone,
+  useCreateLocation,
+  useDeleteLocation,
+  useDeleteZone,
   useModule3StorageLocations,
   useModule3StorageZones,
   useMoveStorageStock,
@@ -43,6 +52,8 @@ import {
   useStorageDlcAlerts,
   useStorageDoorEvents,
   useStorageLocationMovements,
+  useUpdateLocation,
+  useUpdateZone,
 } from "@/hooks/useStorageModule3";
 import { useMoveReceptionLotToStorage, useRawStorageOverdueReceptions } from "@/hooks/useReceptionsV2";
 import { useAllReceptionLots, useInventoryCounts } from "@/hooks/useStock";

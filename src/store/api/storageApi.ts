@@ -160,4 +160,10 @@ export const {
   useSuggestFefoMutation,
   useMoveStorageStockMutation,
   useSeedModule3Mutation,
+  useCreateZoneMutation,
+  useUpdateZoneMutation,
+  useDeleteZoneMutation,
+  useCreateLocationMutation,
+  useUpdateLocationMutation,
+  useDeleteLocationMutation,
 } = storageApi;
