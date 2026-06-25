@@ -441,6 +441,27 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
     [allLots],
   );
 
+  // Lot counts per zone code (for zone cards and gestion table)
+  const lotCountByZone = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const lot of allLots) {
+      if (lot.storage_zone_code && lot.stock_status !== "STOCK_REJETE") {
+        map.set(lot.storage_zone_code, (map.get(lot.storage_zone_code) ?? 0) + 1);
+      }
+    }
+    return map;
+  }, [allLots]);
+
+  // Manufacturing pipeline: lots in each production stage
+  const mfgStages = useMemo(() => {
+    const raw      = allLots.filter(l => l.storage_zone_code && zones.find(z => z.code === l.storage_zone_code)?.storage_family === "raw");
+    const cold     = allLots.filter(l => l.storage_zone_code && zones.find(z => z.code === l.storage_zone_code)?.storage_family === "cold");
+    const fum      = allLots.filter(l => l.storage_zone_code && zones.find(z => z.code === l.storage_zone_code)?.storage_family === "fumigation");
+    const expReady = allLots.filter(l => l.storage_zone_code && zones.find(z => z.code === l.storage_zone_code)?.storage_family === "export");
+    const waiting  = allLots.filter(l => !l.storage_zone_code && l.stock_status === "STOCK_LIBERE");
+    return { raw, cold, fum, expReady, waiting };
+  }, [allLots, zones]);
+
   const handleRefresh = useCallback(async () => {
     await Promise.all([refetchZones(), refetchLocations(), refetchMovements(), refetchLots()]);
     setLastSyncAt(new Date());
