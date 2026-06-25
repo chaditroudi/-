@@ -1,21 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { apiRequest } from "@/integrations/mongodb/client";
 import type { BonReceptionAchat, BonReceptionAchatInput } from "@/types/bonReceptionAchat";
 
-const BASE = "/api/bon-receptions-achat";
-
-const apiFetch = async <T>(url: string, init?: RequestInit): Promise<T> => {
-  const token = localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token") || "";
-  const res = await fetch(url, {
-    ...init,
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}`, ...(init?.headers ?? {}) },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.message || err?.error || `HTTP ${res.status}`);
-  }
-  return res.json();
-};
+const BASE = "/bon-receptions-achat";
+type ApiEnvelope<T> = { data: T };
 
 const QK = {
   list: (params?: Record<string, string>) => ["bon_receptions_achat", "list", params ?? {}] as const,
@@ -29,7 +18,7 @@ export const useBonReceptionsAchat = (params?: { fournisseur_id?: string; statut
   return useQuery<BonReceptionAchat[]>({
     queryKey: QK.list(params as Record<string, string>),
     queryFn: async () => {
-      const r: any = await apiFetch(`${BASE}${qs ? `?${qs}` : ""}`);
+      const r = await apiRequest<ApiEnvelope<BonReceptionAchat[]>>(`${BASE}${qs ? `?${qs}` : ""}`);
       return r.data ?? [];
     },
     staleTime: 60_000,
@@ -40,7 +29,7 @@ export const useBonReceptionAchat = (id: string) =>
   useQuery<BonReceptionAchat | null>({
     queryKey: QK.detail(id),
     queryFn: async () => {
-      const r: any = await apiFetch(`${BASE}/${id}`);
+      const r = await apiRequest<ApiEnvelope<BonReceptionAchat | null>>(`${BASE}/${id}`);
       return r.data ?? null;
     },
     enabled: !!id,
@@ -50,8 +39,11 @@ export const useCreateBonReceptionAchat = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: Partial<BonReceptionAchatInput>) => {
-      const r: any = await apiFetch(BASE, { method: "POST", body: JSON.stringify(input) });
-      return r.data as BonReceptionAchat;
+      const r = await apiRequest<ApiEnvelope<BonReceptionAchat>>(BASE, {
+        method: "POST",
+        body: JSON.stringify(input),
+      });
+      return r.data;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["bon_receptions_achat"] });
@@ -65,8 +57,11 @@ export const useUpdateBonReceptionAchat = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...patch }: Partial<BonReceptionAchat> & { id: string }) => {
-      const r: any = await apiFetch(`${BASE}/${id}`, { method: "PATCH", body: JSON.stringify(patch) });
-      return r.data as BonReceptionAchat;
+      const r = await apiRequest<ApiEnvelope<BonReceptionAchat>>(`${BASE}/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(patch),
+      });
+      return r.data;
     },
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["bon_receptions_achat"] });
@@ -81,7 +76,7 @@ export const useDeleteBonReceptionAchat = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      await apiFetch(`${BASE}/${id}`, { method: "DELETE" });
+      await apiRequest<ApiEnvelope<BonReceptionAchat>>(`${BASE}/${id}`, { method: "DELETE" });
       return id;
     },
     onSuccess: () => {
