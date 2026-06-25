@@ -107,6 +107,97 @@ export const useValidateLot = () => {
   };
 };
 
+const mergeLotQualityNotes = (
+  currentNotes: string | null | undefined,
+  nextEntry: string,
+) => {
+  const trimmedCurrent = (currentNotes || '').trim();
+  if (!trimmedCurrent) return nextEntry;
+  return `${trimmedCurrent}\n${nextEntry}`;
+};
+
+export const useBlockLot = () => {
+  const { toast } = useToast();
+  const [update, state] = useUpdateStockLotMutation();
+
+  return {
+    mutateAsync: async ({
+      lotId,
+      lotNumber,
+      blockedBy,
+      reason,
+      currentNotes,
+    }: {
+      lotId: string;
+      lotNumber: string;
+      blockedBy: string;
+      reason: string;
+      currentNotes?: string | null;
+    }) => {
+      const blockedAt = new Date().toISOString();
+      const entry = `[${new Date(blockedAt).toLocaleString('fr-FR')}] Blocage manuel par ${blockedBy}: ${reason}`;
+      const data = await update({
+        id: lotId,
+        status: 'BLOCKED',
+        block_reason: reason,
+        blocked_by: blockedBy,
+        blocked_at: blockedAt,
+        quality_notes: mergeLotQualityNotes(currentNotes, entry),
+      }).unwrap();
+      toast({
+        title: 'Lot bloqué',
+        description: `${lotNumber} a été bloqué manuellement`,
+      });
+      return data;
+    },
+    isPending: state.isLoading,
+  };
+};
+
+export const useReleaseBlockedLot = () => {
+  const { toast } = useToast();
+  const [update, state] = useUpdateStockLotMutation();
+
+  return {
+    mutateAsync: async ({
+      lotId,
+      lotNumber,
+      releasedBy,
+      releaseComment,
+      currentNotes,
+    }: {
+      lotId: string;
+      lotNumber: string;
+      releasedBy: string;
+      releaseComment?: string;
+      currentNotes?: string | null;
+    }) => {
+      const releasedAt = new Date().toISOString();
+      const releaseEntry = releaseComment?.trim()
+        ? `[${new Date(releasedAt).toLocaleString('fr-FR')}] Déblocage manuel par ${releasedBy}: ${releaseComment.trim()}`
+        : `[${new Date(releasedAt).toLocaleString('fr-FR')}] Déblocage manuel par ${releasedBy}`;
+      const data = await update({
+        id: lotId,
+        status: 'VALIDATED',
+        block_reason: null,
+        blocked_by: null,
+        blocked_at: null,
+        released_by: releasedBy,
+        released_at: releasedAt,
+        qc_validated_by: releasedBy,
+        qc_validated_at: releasedAt,
+        quality_notes: mergeLotQualityNotes(currentNotes, releaseEntry),
+      }).unwrap();
+      toast({
+        title: 'Lot débloqué',
+        description: `${lotNumber} est de nouveau disponible`,
+      });
+      return data;
+    },
+    isPending: state.isLoading,
+  };
+};
+
 // ── Locations ──────────────────────────────────────────────────────────────────
 
 export const useStockLocations = () => {
