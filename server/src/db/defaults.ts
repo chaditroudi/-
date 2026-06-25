@@ -878,5 +878,34 @@ export const prepareInsertDocument = async (collection: string, rawInput: Record
     doc.inspected_at = doc.inspected_at || now;
   }
 
+  if (collection === "bon_receptions_achat") {
+    doc.numero_bon = doc.numero_bon || (await nextDailyNumber("BRA"));
+    doc.annee = doc.annee || new Date().getFullYear();
+    doc.convention = doc.convention ?? false;
+    doc.bio_certifie = doc.bio_certifie ?? false;
+    doc.numero_expedition = doc.numero_expedition ?? null;
+    doc.lieu_expedition = doc.lieu_expedition ?? null;
+    doc.fournisseur_id = doc.fournisseur_id ?? null;
+    doc.fournisseur_nom = doc.fournisseur_nom ?? null;
+    doc.numero_facture = doc.numero_facture ?? null;
+    doc.date_reception = doc.date_reception || now.slice(0, 10);
+    doc.heure_arrivee = doc.heure_arrivee ?? null;
+    doc.region = doc.region || "kebilli";
+    doc.numero_lot = doc.numero_lot ?? null;
+    doc.numero_camion = doc.numero_camion ?? null;
+    doc.nom_chauffeur = doc.nom_chauffeur ?? null;
+    doc.lieu_reception = doc.lieu_reception ?? null;
+    doc.responsable_reception = doc.responsable_reception ?? null;
+    doc.numero_rapport_qcr = doc.numero_rapport_qcr ?? null;
+    doc.numero_fiche_palette = doc.numero_fiche_palette ?? null;
+    const emptyBranch = { gc: null, rp: null, gcm: null, l: null, poid_brut: null, poid_net: null, nbre_palette: null, observation: null };
+    doc.branche_premiere = doc.branche_premiere ?? { ...emptyBranch };
+    doc.branche_deuxieme = doc.branche_deuxieme ?? { ...emptyBranch };
+    doc.vrac = doc.vrac ?? { ...emptyBranch };
+    doc.branche_seche = doc.branche_seche ?? { ...emptyBranch, nbre_palette_ajout: null, nbre_palette_retrait: null };
+    doc.casse = Array.isArray(doc.casse) ? doc.casse : [];
+    doc.statut = doc.statut || "brouillon";
+  }
+
   return doc;
 };
