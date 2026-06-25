@@ -120,6 +120,11 @@ export interface StockLot {
   humidity_measured: number | null;
   temperature_measured: number | null;
   quality_notes: string | null;
+  block_reason?: string | null;
+  blocked_at?: string | null;
+  blocked_by?: string | null;
+  released_at?: string | null;
+  released_by?: string | null;
   qc_validated_by: string | null;
   qc_validated_at: string | null;
   
