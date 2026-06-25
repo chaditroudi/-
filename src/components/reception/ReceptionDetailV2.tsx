@@ -8,6 +8,8 @@ import {
   FileText,
   FlaskConical,
   History,
+  Lock,
+  LockOpen,
   Package,
   Play,
   Printer,
@@ -48,6 +50,7 @@ import { StorageAssignment } from './StorageAssignment';
 import { UnitsManagement } from './UnitsManagement';
 import { WeighingRecordDialog } from './WeighingRecordDialog';
 import { Gs1LabelPreview } from './Gs1LabelPreview';
+import { ReceptionLotStatusDialog } from './ReceptionLotStatusDialog';
 
 interface ReceptionDetailV2Props {
   open: boolean;
@@ -79,6 +82,8 @@ export const ReceptionDetailV2 = ({ open, onOpenChange, receptionId }: Reception
   const [selectedLotForLabel, setSelectedLotForLabel] = useState<ReceptionLot | null>(null);
   const [weighingLot, setWeighingLot] = useState<ReceptionLot | null>(null);
   const [gs1Lot, setGs1Lot] = useState<ReceptionLot | null>(null);
+  const [lotToQuarantine, setLotToQuarantine] = useState<ReceptionLot | null>(null);
+  const [lotToRelease, setLotToRelease] = useState<ReceptionLot | null>(null);
 
   if (isLoading || !reception) return null;
 
