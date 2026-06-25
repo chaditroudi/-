@@ -225,7 +225,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
   const [assignNotes, setAssignNotes] = useState("");
   const moveLot = useMoveReceptionLotToStorage();
 
-  const handleAssign = async () => {
+  const handleAssign = useCallback(async () => {
     if (!assignLot || !assignZone || !assignBy) return;
     await moveLot.mutateAsync({
       lotId: assignLot.id,
@@ -240,7 +240,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
     setAssignBy("");
     setAssignNotes("");
     setLastSyncAt(new Date());
-  };
+  }, [assignLot, assignZone, assignBy, assignNotes, moveLot]);
 
   // ── Movement form ─────────────────────────────────────────────────────────
   const [mvtForm, setMvtForm] = useState({
@@ -315,8 +315,12 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
   const [deleteLocConfirm, setDeleteLocConfirm] = useState<typeof allLocations[0] | null>(null);
   const [mgmtZoneFilter, setMgmtZoneFilter] = useState("all");
 
-  const openZoneCreate = () => { setZoneForm(emptyZoneForm); setZoneDialog({ open: true, editing: null }); };
-  const openZoneEdit = (z: Module3StorageZone) => {
+  const openZoneCreate = useCallback(() => {
+    setZoneForm(emptyZoneForm);
+    setZoneDialog({ open: true, editing: null });
+  }, []);
+
+  const openZoneEdit = useCallback((z: Module3StorageZone) => {
     setZoneForm({
       code: z.code, name: z.name, storage_family: z.storage_family ?? "raw",
       capacity_kg: String(z.capacity_kg ?? ""), capacity_palettes: String(z.capacity_palettes ?? ""),
@@ -328,8 +332,9 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
       notes: z.notes ?? "", is_active: z.is_active,
     });
     setZoneDialog({ open: true, editing: z });
-  };
-  const handleZoneSubmit = async () => {
+  }, []);
+
+  const handleZoneSubmit = useCallback(async () => {
     const payload = {
       code: zoneForm.code.trim().toUpperCase(),
       name: zoneForm.name.trim(),
@@ -351,10 +356,14 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
     }
     setZoneDialog({ open: false, editing: null });
     setLastSyncAt(new Date());
-  };
+  }, [zoneForm, zoneDialog.editing, updateZone, createZone]);
 
-  const openLocCreate = () => { setLocForm(emptyLocForm); setLocDialog({ open: true, editing: null }); };
-  const openLocEdit = (l: typeof allLocations[0]) => {
+  const openLocCreate = useCallback(() => {
+    setLocForm(emptyLocForm);
+    setLocDialog({ open: true, editing: null });
+  }, []);
+
+  const openLocEdit = useCallback((l: typeof allLocations[0]) => {
     setLocForm({
       code: l.code, name: l.name, storage_zone_id: l.storage_zone_id ?? "",
       capacity_palettes: String(l.capacity_palettes ?? ""),
@@ -362,8 +371,9 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
       is_active: l.is_active,
     });
     setLocDialog({ open: true, editing: l });
-  };
-  const handleLocSubmit = async () => {
+  }, []);
+
+  const handleLocSubmit = useCallback(async () => {
     const payload = {
       code: locForm.code.trim().toUpperCase(),
       name: locForm.name.trim(),
@@ -379,7 +389,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
     }
     setLocDialog({ open: false, editing: null });
     setLastSyncAt(new Date());
-  };
+  }, [locForm, locDialog.editing, updateLocation, createLocation]);
 
   // ── Derived data ──────────────────────────────────────────────────────────
 
@@ -436,7 +446,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
     setLastSyncAt(new Date());
   }, [refetchZones, refetchLocations, refetchMovements, refetchLots]);
 
-  const handleMovementSubmit = async () => {
+  const handleMovementSubmit = useCallback(async () => {
     if (!mvtForm.lotCode || !mvtForm.destinationLocationId) return;
     await moveStock.mutateAsync({
       sourceLocationId: mvtForm.sourceLocationId === "none" ? undefined : mvtForm.sourceLocationId,
@@ -452,9 +462,9 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
     } as any);
     setMvtForm(f => ({ ...f, lotCode: "", variety: "", quantityPalettes: "1", quantityKg: "", notes: "" }));
     setLastSyncAt(new Date());
-  };
+  }, [mvtForm, moveStock]);
 
-  const handleReadingSubmit = async () => {
+  const handleReadingSubmit = useCallback(async () => {
     if (!readingForm.storageZoneId || !readingForm.temperatureC) return;
     const zone = zones.find(z => z.id === readingForm.storageZoneId);
     await createReading.mutateAsync({
@@ -468,7 +478,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
     });
     setReadingForm(f => ({ ...f, temperatureC: "", humidityPercent: "", gasPpm: "", sensorRef: "" }));
     setLastSyncAt(new Date());
-  };
+  }, [readingForm, zones, createReading]);
 
   // ── Render ────────────────────────────────────────────────────────────────
 
