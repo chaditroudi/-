@@ -95,8 +95,13 @@ export function BrandingPanel({ settings }: Props) {
           </div>
 
           {logoSrc && (
-            <div className="border rounded-lg p-3 bg-muted/30 inline-flex">
-              <img src={logoSrc} alt="Logo preview" className="h-16 object-contain" />
+            <div className="space-y-2">
+              <div className="border rounded-lg p-3 bg-muted/30 inline-flex">
+                <img src={logoSrc} alt="Logo preview" className="h-16 object-contain" />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Ce logo sera utilisé dans le header, la sidebar, l’écran de connexion et les vues principales de l’application.
+              </p>
             </div>
           )}
         </CardContent>

@@ -13,16 +13,16 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { BrandLogo } from '@/components/branding/BrandLogo';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { useBranding } from '@/hooks/useBranding';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import heroBannerImage from '@/assets/hero-banner-dates.jpg';
-import EcodatteLogo from '@/assets/EcodatteLogo.png';
-import royalPalmLogo from '@/assets/logo-royal-palm.png';
 
-const getAuthCopy = (language: string) => {
+const getAuthCopy = (language: string, companyName: string) => {
   if (language.startsWith('fr')) {
     return {
       badge: 'Espace securise',
@@ -43,8 +43,8 @@ const getAuthCopy = (language: string) => {
       loginTitle: 'Connexion equipe',
       loginDescription: 'Retrouvez votre espace de travail et vos priorites.',
       passwordHint: 'Minimum 6 caracteres.',
-      loginHelper: 'Connexion securisee pour les equipes Royal Palm Dates.',
-      footer: 'Royal Palm Dates Group',
+      loginHelper: `Connexion securisee pour les equipes ${companyName}.`,
+      footer: companyName,
       footerTagline: 'Systeme de gestion de production',
       forgotPassword: 'Mot de passe oublie?',
       version: 'v2.0',
@@ -71,8 +71,8 @@ const getAuthCopy = (language: string) => {
       loginTitle: 'تسجيل الدخول',
       loginDescription: 'افتح مساحة العمل الخاصة بك وتابع أولوياتك.',
       passwordHint: 'ستة أحرف على الأقل.',
-      loginHelper: 'دخول آمن لفرق Royal Palm Dates.',
-      footer: 'Royal Palm Dates Group',
+      loginHelper: `دخول آمن لفرق ${companyName}.`,
+      footer: companyName,
       footerTagline: 'نظام إدارة الإنتاج',
       forgotPassword: 'نسيت كلمة المرور؟',
       version: 'v2.0',
@@ -98,8 +98,8 @@ const getAuthCopy = (language: string) => {
     loginTitle: 'Team login',
     loginDescription: 'Return to your workspace and current priorities.',
     passwordHint: 'Minimum 6 characters.',
-    loginHelper: 'Secure access for Royal Palm Dates teams.',
-    footer: 'Royal Palm Dates Group',
+    loginHelper: `Secure access for ${companyName} teams.`,
+    footer: companyName,
     footerTagline: 'Manufacturing Execution System',
     forgotPassword: 'Forgot password?',
     version: 'v2.0',
@@ -143,13 +143,14 @@ export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { signIn, user, isLoading: isAuthLoading } = useAuthContext();
+  const { companyName, companyShortName } = useBranding();
 
   const [isLoginPending, setIsLoginPending] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [showLoginPassword, setShowLoginPassword] = useState(false);
 
-  const authCopy = getAuthCopy(i18n.language);
+  const authCopy = getAuthCopy(i18n.language, companyName);
 
   useEffect(() => {
     if (!isAuthLoading && user) {
@@ -185,13 +186,13 @@ export default function Auth() {
           {/* Brand */}
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/15">
-              <img src={EcodatteLogo} alt="Ecodatte" className="h-5 w-auto brightness-[100] invert" />
+              <BrandLogo className="h-5 w-5" imgClassName="h-full w-full object-contain brightness-[100] invert" alt={companyName} />
             </div>
             <div className="hidden sm:block h-5 w-px bg-white/15" />
             <div className="hidden sm:flex flex-col leading-none">
-              <span className="text-[13px] font-semibold tracking-tight text-white/90">Royal Palm</span>
+              <span className="text-[13px] font-semibold tracking-tight text-white/90">{companyName}</span>
               <span className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">
-                Dates Group
+                {companyShortName}
               </span>
             </div>
           </div>
@@ -248,11 +249,9 @@ export default function Auth() {
             {/* Top: logo + headline */}
             <div className="space-y-8">
               <div className="flex items-center gap-3">
-                <img
-                  src={royalPalmLogo}
-                  alt="Royal Palm"
-                  className="h-10 w-10 rounded-xl object-cover opacity-90 ring-1 ring-white/15"
-                />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 p-1.5 ring-1 ring-white/15">
+                  <BrandLogo className="h-full w-full" imgClassName="h-full w-full object-contain" alt={companyName} />
+                </div>
                 <div className="h-px flex-1 bg-gradient-to-r from-white/20 to-transparent" />
                 <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/35">
                   MES {authCopy.version}
@@ -410,7 +409,9 @@ export default function Auth() {
       <footer className="relative z-10 border-t border-border/40 bg-white/60 py-4 backdrop-blur-sm">
         <div className="mx-auto flex max-w-[1400px] flex-col items-center justify-between gap-2 px-5 text-center sm:flex-row sm:flex-wrap sm:gap-3 sm:px-8 sm:text-left">
           <div className="flex items-center gap-2.5">
-            <img src={EcodatteLogo} alt="Ecodatte" className="h-4 w-auto opacity-40" />
+            <div className="flex h-4 w-4 items-center justify-center opacity-50">
+              <BrandLogo className="h-full w-full" imgClassName="h-full w-full object-contain" alt={companyName} />
+            </div>
             <span className="text-[12px] text-muted-foreground/60">
               © {new Date().getFullYear()} {authCopy.footer}
             </span>

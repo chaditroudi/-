@@ -16,7 +16,7 @@ import {
   Waves,
 } from 'lucide-react';
 
-import EcodatteLogo from '@/assets/EcodatteLogo.png';
+import { BrandLogo } from '@/components/branding/BrandLogo';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -28,6 +28,7 @@ import { PhotoCapture } from './PhotoCapture';
 import { useSuppliers } from '@/hooks/useSuppliers';
 import { useCreateReceptionIntake } from '@/hooks/useReceptionIntake';
 import { useAuth } from '@/hooks/useAuth';
+import { useBranding } from '@/hooks/useBranding';
 import { useReceptionsV2 } from '@/hooks/useReceptionsV2';
 import { useModule3StorageZones } from '@/hooks/useStorageModule3';
 import { getReceptionIntakeZones, suggestReceptionStorageZone } from '@/lib/receptionStorageZones';
@@ -72,6 +73,7 @@ export const ReceptionTabletOperatorScreen = () => {
   const { data: receptions = [] } = useReceptionsV2();
   const { data: storageZones = [] } = useModule3StorageZones();
   const { profile, user } = useAuth();
+  const { companyName, companyShortName } = useBranding();
   const createReception = useCreateReceptionIntake();
 
   const operatorName = profile?.full_name || user?.email?.split('@')[0] || 'Opérateur connecté';
@@ -420,12 +422,12 @@ export const ReceptionTabletOperatorScreen = () => {
         <section className="grid grid-cols-1 gap-4 rounded-[28px] bg-[linear-gradient(135deg,hsl(150_26%_18%)_0%,hsl(154_22%_13%)_100%)] p-4 text-white shadow-xl md:grid-cols-[1.2fr_1fr_1fr_1.2fr]">
           <div className="flex items-center gap-3 rounded-3xl border border-white/10 bg-white/8 px-4 py-3">
             <div className="rounded-2xl bg-white p-2 shadow-lg">
-              <img src={EcodatteLogo} alt="Royal Palm" className="h-12 w-12 object-contain" />
+              <BrandLogo className="h-12 w-12" imgClassName="h-full w-full object-contain" alt={companyName} />
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] uppercase tracking-[0.24em] text-white/62">Royal Palm</p>
+              <p className="text-[11px] uppercase tracking-[0.24em] text-white/62">{companyShortName}</p>
               <p className="truncate text-lg font-semibold">Poste tablette réception</p>
-              <p className="truncate text-sm text-white/72">Traçabilité d’entrée et pesée pont-bascule</p>
+              <p className="truncate text-sm text-white/72">{companyName} · Traçabilité d’entrée et pesée pont-bascule</p>
             </div>
           </div>
 

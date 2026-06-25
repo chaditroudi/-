@@ -23,11 +23,12 @@ import {
   Users,
   Warehouse,
 } from "lucide-react";
-import EcodatteLogo from "@/assets/EcodatteLogo.png";
+import { BrandLogo } from "@/components/branding/BrandLogo";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { useBranding } from "@/hooks/useBranding";
 import { ROLE_CONFIG } from "@/types/roles";
 import {
   Sidebar,
@@ -70,6 +71,7 @@ const STORAGE_SUBTABS = new Set(["stock-dashboard", "stock-lots", "stock-product
 export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSidebarProps) {
   const { t } = useTranslation();
   const { user, profile, roles, signOut, isAdmin } = useAuthContext();
+  const { companyName, companyShortName } = useBranding();
 
   const hasAlerts = activeAlertsCount > 0;
   const identityLabel = profile?.full_name || user?.email || "Utilisateur";
@@ -204,14 +206,14 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
       <SidebarHeader className="px-3 py-4">
         <div className="flex items-center gap-3 px-1">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/12 bg-white/90 p-1.5">
-            <img src={EcodatteLogo} className="h-full w-full object-contain" alt="Ecodattes" />
+            <BrandLogo className="h-full w-full" imgClassName="h-full w-full object-contain" alt={companyName} />
           </div>
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
             <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-sidebar-foreground/40">
-              Royal Palm
+              {companyShortName}
             </p>
             <p className="truncate text-[13px] font-semibold leading-snug text-sidebar-foreground/90">
-              Factory Operations
+              {companyName}
             </p>
           </div>
         </div>

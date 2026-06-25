@@ -1,9 +1,10 @@
 import { Droplets, Bug, AlertTriangle, CheckCircle2, Minus, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { BrandLogo } from '@/components/branding/BrandLogo';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useBranding } from '@/hooks/useBranding';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
-import EcodatteLogo from '@/assets/EcodatteLogo.png';
 
 interface PreQualityCheckProps {
   moisture: number;
@@ -18,6 +19,7 @@ export const PreQualityCheck = ({
   onMoistureChange,
   onInfestationChange
 }: PreQualityCheckProps) => {
+  const { companyName } = useBranding();
   const moistureStatus = moisture > 22 ? 'critical' : moisture > 18 ? 'warning' : 'ok';
 
   const handleMoistureIncrement = () => {
@@ -44,10 +46,11 @@ export const PreQualityCheck = ({
             </div>
           </CardTitle>
           <img 
-            src={EcodatteLogo} 
-            alt="Royal Palm" 
-            className="h-10 w-auto object-contain opacity-80"
+            src=""
+            alt=""
+            className="hidden"
           />
+          <BrandLogo className="h-10 w-10 shrink-0 opacity-80" imgClassName="h-full w-full object-contain" alt={companyName} />
         </div>
       </CardHeader>
       

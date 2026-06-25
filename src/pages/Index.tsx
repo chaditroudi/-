@@ -2,8 +2,8 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react
 import { TopHeader } from "@/components/layout/TopHeader";
 import { WorkflowNavigation } from "@/components/layout/WorkflowNavigation";
 import { AppSidebar } from "@/components/layout/AppSidebar";
+import { BrandLogo } from "@/components/branding/BrandLogo";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
-import EcodatteLogo from "@/assets/EcodatteLogo.png";
 // HomePage is always the default tab — keep eager so it renders without a Suspense flash.
 import { HomePage } from "@/components/home/HomePage";
 import { useSuppliers } from "@/hooks/useSuppliers";
@@ -19,6 +19,7 @@ import { useFactoryShellMetrics } from "@/hooks/useFactoryShellMetrics";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import { useSettingsContext } from "@/contexts/SettingsContext";
+import { useBranding } from "@/hooks/useBranding";
 import type { SiteFeatures } from "@/types/settings";
 
 // ── Lazy-loaded tab content ───────────────────────────────────────────────────
@@ -95,6 +96,7 @@ const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { roles, profile, isAdmin } = useAuthContext();
   const { settings } = useSettingsContext();
+  const { companyName } = useBranding();
   const queryClient = useQueryClient();
 
   // ── Workspace & accessible tabs ───────────────────────────────────────────
@@ -411,9 +413,11 @@ const Index = () => {
 
         <footer className="flex flex-col items-center justify-between gap-2 border-t border-border/40 bg-background/70 px-4 py-3 text-center sm:flex-row sm:px-5 sm:text-left lg:px-6">
           <div className="flex items-center gap-2.5">
-            <img src={EcodatteLogo} alt="Ecodatte" className="h-4 w-auto opacity-35" loading="lazy" decoding="async" />
+            <div className="flex h-5 w-5 items-center justify-center opacity-50">
+              <BrandLogo className="h-full w-full" imgClassName="h-full w-full object-contain" alt={companyName} />
+            </div>
             <span className="text-[11px] text-muted-foreground/50">
-              © {new Date().getFullYear()} Royal Palm Dates Group
+              © {new Date().getFullYear()} {companyName}
             </span>
           </div>
           <div className="flex items-center gap-3 text-[11px] text-muted-foreground/40">

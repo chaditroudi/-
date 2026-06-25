@@ -11,6 +11,7 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { BrandLogo } from "@/components/branding/BrandLogo";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
@@ -24,6 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import { AuditLogPanel } from "@/components/audit";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { useBranding } from "@/hooks/useBranding";
 import { cn } from "@/lib/utils";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -50,6 +52,7 @@ export const TopHeader = ({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const navigate = useNavigate();
   const { user, profile, isLoading: authLoading, signOut, isAdmin } = useAuthContext();
+  const { companyName, companyShortName } = useBranding();
   const { t } = useTranslation();
 
   const todayLabel = new Intl.DateTimeFormat("fr-FR", {
@@ -74,6 +77,16 @@ export const TopHeader = ({
       <SidebarTrigger className="h-9 w-9 shrink-0 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground" />
 
       <Separator orientation="vertical" className="hidden h-5 bg-border/60 sm:block" />
+
+      <div className="hidden items-center gap-2 rounded-xl border border-border/60 bg-card/60 px-2.5 py-1.5 md:flex">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-background p-1.5">
+          <BrandLogo className="h-full w-full" imgClassName="h-full w-full object-contain" alt={companyName} />
+        </div>
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold leading-tight text-foreground">{companyShortName}</p>
+          <p className="max-w-[140px] truncate text-[10px] text-muted-foreground">{companyName}</p>
+        </div>
+      </div>
 
       {/* Page title + section breadcrumb */}
       <div className="order-3 flex min-w-0 basis-full items-center gap-2 pb-1 sm:order-none sm:basis-auto sm:pb-0">
