@@ -1407,6 +1407,27 @@ export class StorageService {
         lotUpdate.storage_location_code = null;
       }
       await StockLots.updateOne({ id: movementLotId }, { $set: lotUpdate }).exec();
+
+      // Keep reception_lots.storage_zone_code in sync so listModule3Zones aggregation stays accurate
+      const ReceptionLots = getCollectionModel("reception_lots");
+      const receptionLotUpdate: Record<string, unknown> = { updated_at: nowIso() };
+      if (destination?.zone_code) {
+        receptionLotUpdate.storage_zone_code = destination.zone_code;
+      } else if (movementType === "SORTIE_ZONE") {
+        receptionLotUpdate.storage_zone_code = null;
+      }
+      if (Object.keys(receptionLotUpdate).length > 1) {
+        await ReceptionLots.updateOne(
+          {
+            $or: [
+              { id: movementLotId },
+              { lot_internal: movementLotCode },
+              { lot_supplier: movementLotCode },
+            ],
+          },
+          { $set: receptionLotUpdate },
+        ).exec();
+      }
     }
 
     const updatedRows = sanitizeDocument(
