@@ -10,7 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { Body, Controller, Get, HttpCode, Post, Query, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query, Req, UseGuards } from "@nestjs/common";
 import { Roles } from "../../nest/route-metadata.js";
 import { RequireAuthGuard, RolesGuard } from "../../nest/route-guards.js";
 import { publishRealtimeDbChange } from "../realtime/realtime.bus.js";
@@ -56,6 +56,36 @@ let StorageController = class StorageController {
     }
     async listStorageDlcAlerts(limit) {
         return { data: await this.storageService.listStorageDlcAlerts(limit ? Number(limit) : undefined) };
+    }
+    async createZone(req, body) {
+        const data = await this.storageService.createZone(body || {});
+        publishRows([data], "storage_zones", "INSERT", req.auth?.user?.id || null, "storage_zone_created");
+        return { data };
+    }
+    async updateZone(req, id, body) {
+        const data = await this.storageService.updateZone(id, body || {});
+        publishRows([data], "storage_zones", "UPDATE", req.auth?.user?.id || null, "storage_zone_updated");
+        return { data };
+    }
+    async deleteZone(req, id) {
+        const data = await this.storageService.deleteZone(id);
+        publishRealtimeDbChange({ type: "storage_zone_deleted", table: "storage_zones", action: "DELETE", actorId: req.auth?.user?.id || null, rows: [data], rowIds: [id], relatedTables: ["storage_locations"] });
+        return { data };
+    }
+    async createLocation(req, body) {
+        const data = await this.storageService.createLocation(body || {});
+        publishRows([data], "storage_locations", "INSERT", req.auth?.user?.id || null, "storage_location_created");
+        return { data };
+    }
+    async updateLocation(req, id, body) {
+        const data = await this.storageService.updateLocation(id, body || {});
+        publishRows([data], "storage_locations", "UPDATE", req.auth?.user?.id || null, "storage_location_updated");
+        return { data };
+    }
+    async deleteLocation(req, id) {
+        const data = await this.storageService.deleteLocation(id);
+        publishRealtimeDbChange({ type: "storage_location_deleted", table: "storage_locations", action: "DELETE", actorId: req.auth?.user?.id || null, rows: [data], rowIds: [id] });
+        return { data };
     }
     async seedModule3() {
         const data = await this.storageService.seedModule3();
@@ -172,6 +202,58 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], StorageController.prototype, "listStorageDlcAlerts", null);
+__decorate([
+    Post("module3/zones"),
+    HttpCode(201),
+    __param(0, Req()),
+    __param(1, Body()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], StorageController.prototype, "createZone", null);
+__decorate([
+    Put("module3/zones/:id"),
+    __param(0, Req()),
+    __param(1, Param("id")),
+    __param(2, Body()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", Promise)
+], StorageController.prototype, "updateZone", null);
+__decorate([
+    Delete("module3/zones/:id"),
+    __param(0, Req()),
+    __param(1, Param("id")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], StorageController.prototype, "deleteZone", null);
+__decorate([
+    Post("module3/locations"),
+    HttpCode(201),
+    __param(0, Req()),
+    __param(1, Body()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], StorageController.prototype, "createLocation", null);
+__decorate([
+    Put("module3/locations/:id"),
+    __param(0, Req()),
+    __param(1, Param("id")),
+    __param(2, Body()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", Promise)
+], StorageController.prototype, "updateLocation", null);
+__decorate([
+    Delete("module3/locations/:id"),
+    __param(0, Req()),
+    __param(1, Param("id")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], StorageController.prototype, "deleteLocation", null);
 __decorate([
     Post("module3/seed"),
     __metadata("design:type", Function),

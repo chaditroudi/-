@@ -1088,6 +1088,24 @@ let StorageService = class StorageService {
                 lotUpdate.storage_location_code = null;
             }
             await StockLots.updateOne({ id: movementLotId }, { $set: lotUpdate }).exec();
+            // Keep reception_lots.storage_zone_code in sync so listModule3Zones aggregation stays accurate
+            const ReceptionLots = getCollectionModel("reception_lots");
+            const receptionLotUpdate = { updated_at: nowIso() };
+            if (destination?.zone_code) {
+                receptionLotUpdate.storage_zone_code = destination.zone_code;
+            }
+            else if (movementType === "SORTIE_ZONE") {
+                receptionLotUpdate.storage_zone_code = null;
+            }
+            if (Object.keys(receptionLotUpdate).length > 1) {
+                await ReceptionLots.updateOne({
+                    $or: [
+                        { id: movementLotId },
+                        { lot_internal: movementLotCode },
+                        { lot_supplier: movementLotCode },
+                    ],
+                }, { $set: receptionLotUpdate }).exec();
+            }
         }
         const updatedRows = sanitizeDocument(await Locations.find({
             id: { $in: [source?.id, destination?.id].filter(Boolean) },
@@ -1104,4 +1122,176 @@ StorageService = __decorate([
     Injectable()
 ], StorageService);
 export { StorageService };
+// ── Zone CRUD ─────────────────────────────────────────────────────────────
+async;
+createZone(payload, (Record));
+{
+    const Zones = getCollectionModel("storage_zones");
+    const code = String(payload.code || "").trim().toUpperCase();
+    if (!code)
+        throw badRequest("ZONE_CODE_REQUIRED", "Zone code is required.");
+    if (!payload.name)
+        throw badRequest("ZONE_NAME_REQUIRED", "Zone name is required.");
+    const existing = sanitizeDocument(await Zones.findOne({ code }).lean().exec());
+    if (existing)
+        throw conflict("ZONE_CODE_EXISTS", `Zone ${code} already exists.`);
+    const prepared = await prepareInsertDocument("storage_zones", {
+        code,
+        name: String(payload.name).trim(),
+        storage_family: String(payload.storage_family || "raw"),
+        zone_type: String(payload.zone_type || "standard"),
+        capacity_kg: asNumber(payload.capacity_kg, 0),
+        capacity_palettes: payload.capacity_palettes != null ? asNumber(payload.capacity_palettes) : null,
+        current_load_kg: 0,
+        current_load_palettes: 0,
+        temperature_min: payload.temperature_min != null ? asNumber(payload.temperature_min) : null,
+        temperature_max: payload.temperature_max != null ? asNumber(payload.temperature_max) : null,
+        humidity_min: payload.humidity_min != null ? asNumber(payload.humidity_min) : null,
+        humidity_max: payload.humidity_max != null ? asNumber(payload.humidity_max) : null,
+        is_bio_only: Boolean(payload.is_bio_only ?? false),
+        is_active: payload.is_active !== false,
+        notes: payload.notes ? String(payload.notes) : null,
+        condition_status: "normal",
+    });
+    await Zones.insertMany([prepared]);
+    return sanitizeDocument(prepared);
+}
+async;
+updateZone(id, string, payload, (Record));
+{
+    const Zones = getCollectionModel("storage_zones");
+    const zone = sanitizeDocument(await Zones.findOne({ id }).lean().exec());
+    if (!zone)
+        throw notFound("ZONE_NOT_FOUND", "Storage zone not found.");
+    if (payload.code) {
+        const newCode = String(payload.code).trim().toUpperCase();
+        const dup = sanitizeDocument(await Zones.findOne({ code: newCode }).lean().exec());
+        if (dup && dup.id !== id)
+            throw conflict("ZONE_CODE_EXISTS", `Zone code ${newCode} is already used.`);
+    }
+    const update = { updated_at: nowIso() };
+    if (payload.code !== undefined)
+        update.code = String(payload.code).trim().toUpperCase();
+    if (payload.name !== undefined)
+        update.name = String(payload.name).trim();
+    if (payload.storage_family !== undefined)
+        update.storage_family = String(payload.storage_family);
+    if (payload.capacity_kg !== undefined)
+        update.capacity_kg = asNumber(payload.capacity_kg);
+    if (payload.capacity_palettes !== undefined)
+        update.capacity_palettes = payload.capacity_palettes != null ? asNumber(payload.capacity_palettes) : null;
+    if (payload.temperature_min !== undefined)
+        update.temperature_min = payload.temperature_min != null ? asNumber(payload.temperature_min) : null;
+    if (payload.temperature_max !== undefined)
+        update.temperature_max = payload.temperature_max != null ? asNumber(payload.temperature_max) : null;
+    if (payload.humidity_min !== undefined)
+        update.humidity_min = payload.humidity_min != null ? asNumber(payload.humidity_min) : null;
+    if (payload.humidity_max !== undefined)
+        update.humidity_max = payload.humidity_max != null ? asNumber(payload.humidity_max) : null;
+    if (payload.is_bio_only !== undefined)
+        update.is_bio_only = Boolean(payload.is_bio_only);
+    if (payload.is_active !== undefined)
+        update.is_active = Boolean(payload.is_active);
+    if (payload.notes !== undefined)
+        update.notes = payload.notes ? String(payload.notes) : null;
+    await Zones.updateOne({ id }, { $set: update }).exec();
+    return sanitizeDocument({ ...zone, ...update });
+}
+async;
+deleteZone(id, string);
+{
+    const Zones = getCollectionModel("storage_zones");
+    const zone = sanitizeDocument(await Zones.findOne({ id }).lean().exec());
+    if (!zone)
+        throw notFound("ZONE_NOT_FOUND", "Storage zone not found.");
+    const activeLots = await getCollectionModel("reception_lots").countDocuments({
+        storage_zone_code: zone.code,
+        stock_status: { $in: ["EN_QUARANTAINE", "STOCK_LIBERE"] },
+    }).exec();
+    if (activeLots > 0) {
+        throw conflict("ZONE_HAS_ACTIVE_LOTS", `Cannot delete zone ${zone.code}: ${activeLots} active lot(s) assigned. Move or reject them first.`);
+    }
+    await Zones.updateOne({ id }, { $set: { is_active: false, updated_at: nowIso() } }).exec();
+    return { id, code: zone.code };
+}
+// ── Location CRUD ─────────────────────────────────────────────────────────
+async;
+createLocation(payload, (Record));
+{
+    const Locations = getCollectionModel("storage_locations");
+    const code = String(payload.code || "").trim().toUpperCase();
+    if (!code)
+        throw badRequest("LOCATION_CODE_REQUIRED", "Location code is required.");
+    if (!payload.storage_zone_id)
+        throw badRequest("STORAGE_ZONE_ID_REQUIRED", "Storage zone ID is required.");
+    const existing = sanitizeDocument(await Locations.findOne({ code }).lean().exec());
+    if (existing)
+        throw conflict("LOCATION_CODE_EXISTS", `Location ${code} already exists.`);
+    const zone = sanitizeDocument(await getCollectionModel("storage_zones").findOne({ id: String(payload.storage_zone_id) }).lean().exec());
+    if (!zone)
+        throw notFound("ZONE_NOT_FOUND", "Storage zone not found.");
+    const prepared = await prepareInsertDocument("storage_locations", {
+        code,
+        name: String(payload.name || "").trim() || code,
+        storage_zone_id: String(payload.storage_zone_id),
+        zone_code: zone.code || null,
+        capacity_palettes: asNumber(payload.capacity_palettes, 0),
+        capacity_kg: payload.capacity_kg != null ? asNumber(payload.capacity_kg) : 0,
+        occupied_palettes: 0,
+        occupied_kg: 0,
+        location_status: "free",
+        lot_ids_present: [],
+        condition_status: "normal",
+        is_active: payload.is_active !== false,
+    });
+    await Locations.insertMany([prepared]);
+    return sanitizeDocument({ ...prepared, storage_zone: zone });
+}
+async;
+updateLocation(id, string, payload, (Record));
+{
+    const Locations = getCollectionModel("storage_locations");
+    const loc = sanitizeDocument(await Locations.findOne({ id }).lean().exec());
+    if (!loc)
+        throw notFound("LOCATION_NOT_FOUND", "Storage location not found.");
+    const update = { updated_at: nowIso() };
+    if (payload.code !== undefined) {
+        const newCode = String(payload.code).trim().toUpperCase();
+        const dup = sanitizeDocument(await Locations.findOne({ code: newCode }).lean().exec());
+        if (dup && dup.id !== id)
+            throw conflict("LOCATION_CODE_EXISTS", `Location code ${newCode} is already used.`);
+        update.code = newCode;
+    }
+    if (payload.name !== undefined)
+        update.name = String(payload.name).trim();
+    if (payload.capacity_palettes !== undefined)
+        update.capacity_palettes = asNumber(payload.capacity_palettes);
+    if (payload.capacity_kg !== undefined)
+        update.capacity_kg = asNumber(payload.capacity_kg);
+    if (payload.is_active !== undefined)
+        update.is_active = Boolean(payload.is_active);
+    if (payload.storage_zone_id && payload.storage_zone_id !== loc.storage_zone_id) {
+        const zone = sanitizeDocument(await getCollectionModel("storage_zones").findOne({ id: String(payload.storage_zone_id) }).lean().exec());
+        if (!zone)
+            throw notFound("ZONE_NOT_FOUND", "Storage zone not found.");
+        update.storage_zone_id = String(payload.storage_zone_id);
+        update.zone_code = zone.code || null;
+    }
+    await Locations.updateOne({ id }, { $set: update }).exec();
+    return sanitizeDocument({ ...loc, ...update });
+}
+async;
+deleteLocation(id, string);
+{
+    const Locations = getCollectionModel("storage_locations");
+    const loc = sanitizeDocument(await Locations.findOne({ id }).lean().exec());
+    if (!loc)
+        throw notFound("LOCATION_NOT_FOUND", "Storage location not found.");
+    const lotsPresent = Array.isArray(loc.lot_ids_present) ? loc.lot_ids_present.filter(Boolean) : [];
+    if (lotsPresent.length > 0) {
+        throw conflict("LOCATION_HAS_LOTS", `Cannot delete location ${loc.code}: ${lotsPresent.length} lot(s) present. Move them first.`);
+    }
+    await Locations.updateOne({ id }, { $set: { is_active: false, updated_at: nowIso() } }).exec();
+    return { id, code: loc.code };
+}
 export const storageService = new StorageService();
