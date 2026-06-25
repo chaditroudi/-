@@ -313,7 +313,6 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
 
         <Separator />
 
-        {/* ── Branches ── */}
         <BranchSection title="Branche 1ère" value={branche1} onChange={setBranche1} />
         <Separator />
         <BranchSection title="Branche 2ème" value={branche2} onChange={setBranche2} />
@@ -324,7 +323,6 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
 
         <Separator />
 
-        {/* ── Casse ── */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <h4 className="text-sm font-semibold">Casse</h4>-
