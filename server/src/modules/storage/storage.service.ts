@@ -1443,7 +1443,6 @@ export class StorageService {
       notifications: [...fefoAlertBundle.notifications, ...varietyAlertBundle.notifications],
     };
   }
-}
 
   // ── Zone CRUD ─────────────────────────────────────────────────────────────
 
