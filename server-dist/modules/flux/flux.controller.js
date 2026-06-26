@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var _a, _b, _c, _d;
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { RequireAuthGuard } from "../../nest/route-guards.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
@@ -123,7 +124,7 @@ __decorate([
     Post("runs"),
     __param(0, Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [typeof (_a = typeof Record !== "undefined" && Record) === "function" ? _a : Object]),
     __metadata("design:returntype", Promise)
 ], FluxController.prototype, "createRun", null);
 __decorate([
@@ -131,7 +132,7 @@ __decorate([
     __param(0, Param("id")),
     __param(1, Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String, typeof (_b = typeof Record !== "undefined" && Record) === "function" ? _b : Object]),
     __metadata("design:returntype", Promise)
 ], FluxController.prototype, "updateRun", null);
 __decorate([
@@ -151,7 +152,7 @@ __decorate([
     Post("haccp-states"),
     __param(0, Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [typeof (_c = typeof Record !== "undefined" && Record) === "function" ? _c : Object]),
     __metadata("design:returntype", Promise)
 ], FluxController.prototype, "upsertHaccpState", null);
 __decorate([
@@ -159,7 +160,7 @@ __decorate([
     __param(0, Param("id")),
     __param(1, Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String, typeof (_d = typeof Record !== "undefined" && Record) === "function" ? _d : Object]),
     __metadata("design:returntype", Promise)
 ], FluxController.prototype, "updateHaccpState", null);
 FluxController = __decorate([

@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var _a, _b;
 import { Body, Controller, Get, Param, Post, Put, Query, Req, UseGuards } from "@nestjs/common";
 import { Roles } from "../../nest/route-metadata.js";
 import { RequireAuthGuard, RolesGuard } from "../../nest/route-guards.js";
@@ -58,7 +59,7 @@ __decorate([
     __param(0, Body()),
     __param(1, Req()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [typeof (_a = typeof Record !== "undefined" && Record) === "function" ? _a : Object, Object]),
     __metadata("design:returntype", Promise)
 ], DocumentPrintsController.prototype, "upsert", null);
 __decorate([
@@ -68,7 +69,7 @@ __decorate([
     __param(1, Body()),
     __param(2, Req()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:paramtypes", [String, typeof (_b = typeof Record !== "undefined" && Record) === "function" ? _b : Object, Object]),
     __metadata("design:returntype", Promise)
 ], DocumentPrintsController.prototype, "update", null);
 DocumentPrintsController = __decorate([
