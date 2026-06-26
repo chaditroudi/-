@@ -831,6 +831,160 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
                   {/* Validation errors are shown in the dialog footer — see DialogFooter below */}
                 </div>
               </div>
+
+              {/* ── RQC — Rapport Contrôle Qualité Réception Achat ── */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Shield className="h-4 w-4" />
+                    Grille Contrôle Qualité (RQC)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {/* Certification row */}
+                  <div className="flex flex-wrap gap-4 text-sm">
+                    {[
+                      { key: 'conventionnel', label: 'Conventionnel' },
+                      { key: 'bio_certifie', label: 'TN-Bio 001' },
+                      { key: 'ggp', label: 'GGP' },
+                    ].map(({ key, label }) => (
+                      <label key={key} className="flex items-center gap-2 cursor-pointer">
+                        <Checkbox
+                          checked={rqc[key as 'conventionnel'|'bio_certifie'|'ggp']}
+                          onCheckedChange={(v) => setRqc(p => ({ ...p, [key]: Boolean(v) }))}
+                        />
+                        <span>{label}</span>
+                      </label>
+                    ))}
+                    <div className="ml-auto flex items-center gap-4">
+                      <span className="text-xs text-muted-foreground font-medium">Type dattes :</span>
+                      {[['type_dattes_branche','Branche'],['type_dattes_vrac','Vrac']].map(([key,label]) => (
+                        <label key={key} className="flex items-center gap-1 cursor-pointer text-sm">
+                          <Checkbox
+                            checked={rqc[key as 'type_dattes_branche'|'type_dattes_vrac']}
+                            onCheckedChange={(v) => setRqc(p => ({ ...p, [key]: Boolean(v) }))}
+                          />
+                          <span>{label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Poids */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    {[
+                      { key: 'poids_echantillon_branche_kg', label: 'Poids Ech. (kg)' },
+                      { key: 'poids_tb_kg', label: 'Poids T.B. (kg)' },
+                      { key: 'taux_tb_percent', label: '% T.B.' },
+                      { key: 'poids_vrac_kg', label: 'VRAC (kg)' },
+                    ].map(({ key, label }) => (
+                      <div key={key} className="space-y-1">
+                        <Label className="text-xs">{label}</Label>
+                        <Input
+                          type="number" min="0" step="0.1" className="h-8 text-sm"
+                          value={(rqc[key as keyof RQCData] as number | null) ?? ''}
+                          onChange={e => setRqc(p => ({ ...p, [key]: e.target.value === '' ? null : Number(e.target.value) }))}
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Criteria table */}
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-slate-700 text-white">
+                          <th className="border border-slate-600 px-2 py-1 text-left min-w-[100px]">Critères</th>
+                          <th className="border border-slate-600 px-2 py-1">TEST 1 (%)</th>
+                          <th className="border border-slate-600 px-2 py-1">TEST 2 (%)</th>
+                          <th className="border border-slate-600 px-2 py-1">TEST 3 (%)</th>
+                          <th className="border border-slate-600 px-2 py-1">Taux Moy.</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {([
+                          { field: 'infestee' as RqcCritereKey, label: 'Infestée', highlight: true },
+                          { field: 'fermentee' as RqcCritereKey, label: 'Fermentée', highlight: true },
+                          { field: 'immature' as RqcCritereKey, label: 'Immature', highlight: true },
+                          { field: 'craquellee' as RqcCritereKey, label: 'Craquelée', highlight: true },
+                          { field: 'grasse' as RqcCritereKey, label: 'Grasse', highlight: false },
+                          { field: 'seche' as RqcCritereKey, label: 'Sèche', highlight: false },
+                          { field: 'tachee' as RqcCritereKey, label: 'Tachée', highlight: false },
+                          { field: 'ridee' as RqcCritereKey, label: 'Ridée', highlight: false },
+                          { field: 'petit_calibre' as RqcCritereKey, label: 'Petit calibre', highlight: false },
+                        ] as { field: RqcCritereKey; label: string; highlight: boolean }[]).map(({ field, label, highlight }) => (
+                          <tr key={field} className={highlight ? 'bg-amber-50' : ''}>
+                            <td className="border border-slate-300 px-2 py-0.5 font-medium">{label}</td>
+                            {(['test1','test2','test3'] as const).map(t => (
+                              <td key={t} className="border border-slate-300 p-0.5">
+                                <Input
+                                  type="number" min="0" max="100" step="0.1"
+                                  className="h-6 text-xs px-1 border-0 focus-visible:ring-1"
+                                  value={rqc[field][t] ?? ''}
+                                  onChange={e => updateRqcCritere(field, t, e.target.value === '' ? null : Number(e.target.value))}
+                                />
+                              </td>
+                            ))}
+                            <td className="border border-slate-300 px-2 py-0.5 text-center font-bold">
+                              {rqc[field].taux_moyen != null ? `${rqc[field].taux_moyen}%` : '—'}
+                            </td>
+                          </tr>
+                        ))}
+                        <tr className="bg-yellow-100 font-bold">
+                          <td className="border border-slate-300 px-2 py-1">Taux déchet</td>
+                          <td colSpan={3} className="border border-slate-300 px-2 py-1 text-xs text-muted-foreground">= infestée + fermentée + immature + craquelée</td>
+                          <td className="border border-slate-300 px-2 py-1 text-center">
+                            {(() => {
+                              const vals = [rqc.infestee, rqc.fermentee, rqc.immature, rqc.craquellee]
+                                .map(c => c.taux_moyen)
+                                .filter((v): v is number => v != null);
+                              return vals.length ? `${Math.round(vals.reduce((a,b)=>a+b,0)*10)/10}%` : '—';
+                            })()}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Conclusion */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <div className="space-y-1 md:col-span-2">
+                      <Label className="text-xs">Conclusion</Label>
+                      <Input className="h-8 text-sm" value={rqc.conclusion ?? ''} onChange={e => setRqc(p => ({ ...p, conclusion: e.target.value || null }))} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Endommagé (%)</Label>
+                      <Input type="number" min="0" max="100" step="0.1" className="h-8 text-sm"
+                        value={rqc.endommage_percent ?? ''}
+                        onChange={e => setRqc(p => ({ ...p, endommage_percent: e.target.value === '' ? null : Number(e.target.value) }))}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">DB</Label>
+                      <Input className="h-8 text-sm" value={rqc.db_score ?? ''}
+                        onChange={e => setRqc(p => ({ ...p, db_score: e.target.value || null }))}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Signatures */}
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { key: 'responsable_qc1', label: 'Responsable QC 1' },
+                      { key: 'responsable_qc2', label: 'Responsable QC 2' },
+                      { key: 'directeur_qc', label: 'Directeur QC' },
+                    ].map(({ key, label }) => (
+                      <div key={key} className="space-y-1">
+                        <Label className="text-xs">{label}</Label>
+                        <Input className="h-8 text-sm"
+                          value={(rqc[key as keyof RQCData] as string | null) ?? ''}
+                          onChange={e => setRqc(p => ({ ...p, [key]: e.target.value || null }))}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           )}
 
@@ -851,6 +1005,24 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
                   Score final {score.finalScore}/100 - {getQcClassificationLabel(score.classification)}
                 </p>
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const insp = existingInspections.find(i => i.id === inspectionId);
+                  const fakeInsp = {
+                    id: inspectionId ?? '',
+                    inspection_number: insp?.inspection_number ?? openInspection?.inspection_number ?? inspectionId ?? '',
+                    inspector_name: inspectorName,
+                    secondary_inspector_name: secondaryInspectorName || null,
+                    rqc,
+                  } as Parameters<typeof printRQC>[0];
+                  printRQC(fakeInsp, reception);
+                }}
+              >
+                <Printer className="h-4 w-4 mr-2" />
+                Imprimer RQC
+              </Button>
             </div>
           )}
         </ScrollArea>
