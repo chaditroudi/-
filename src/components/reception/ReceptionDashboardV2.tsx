@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { format, isToday } from 'date-fns';
 import { fr, enUS, ar } from 'date-fns/locale';
@@ -88,6 +88,12 @@ const ss = {
   set: (key: string, v: string) => { try { sessionStorage.setItem(key, v); } catch {} },
 };
 
+const getSamplingGuidance = (quantityTotal: number) => {
+  if (quantityTotal <= 1000) return "Échantillonnage recommandé: minimum 2 kg pour un lot jusqu'à 1 tonne.";
+  if (quantityTotal > 5000) return 'Échantillonnage recommandé: minimum 5 kg pour un lot au-delà de 5 tonnes.';
+  return 'Échantillonnage recommandé: entre 2 kg et 5 kg selon la représentativité du lot.';
+};
+
 export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurchaseOrderId?: string }) => {
   const { t, i18n } = useTranslation();
   const { roles } = useAuthContext();
@@ -97,9 +103,9 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
   const [activeView, setActiveView] = useState<ActiveView>('receptions');
   const [subTab, setSubTab] = useState<SubTab>(() => ss.get('rdv2-subtab', 'today') as SubTab);
 
-  const updateSearch = (v: string) => { setSearch(v); ss.set('rdv2-search', v); };
-  const updateStatusFilter = (v: string) => { setStatusFilter(v); ss.set('rdv2-status', v); };
-  const updateSubTab = (v: SubTab) => { setSubTab(v); ss.set('rdv2-subtab', v); };
+  const updateSearch = useCallback((v: string) => { setSearch(v); ss.set('rdv2-search', v); }, []);
+  const updateStatusFilter = useCallback((v: string) => { setStatusFilter(v); ss.set('rdv2-status', v); }, []);
+  const updateSubTab = useCallback((v: SubTab) => { setSubTab(v); ss.set('rdv2-subtab', v); }, []);
   const [wizardOpen, setWizardOpen] = useState(false);
   const [selectedReception, setSelectedReception] = useState<ReceptionV2 | null>(null);
 
