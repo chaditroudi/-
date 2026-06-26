@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +31,8 @@ interface QCInspectionDialogProps {
 
 const defaultHumidity: [number, number, number] = [22, 22, 22];
 const defaultCalibers = [45, 45, 45, 45, 45, 45, 45, 45, 45, 45];
+
+type RqcCritereKey = keyof Pick<RQCData,'infestee'|'fermentee'|'immature'|'craquellee'|'grasse'|'seche'|'tachee'|'ridee'|'petit_calibre'>;
 
 const emptyRqcCritere = (): RQCCritere => ({ test1: null, test2: null, test3: null, taux_moyen: null });
 const defaultRqc = (): RQCData => ({

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -36,28 +36,28 @@ export function BonExpeditionDashboard() {
   const [editing, setEditing]           = useState<BonExpedition | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<BonExpedition | null>(null);
 
-  const filtered = bons.filter((b) => {
-    if (!search) return true;
+  const filtered = useMemo(() => {
+    if (!search) return bons;
     const q = search.toLowerCase();
-    return (
+    return bons.filter((b) =>
       b.numero_bon?.toLowerCase().includes(q) ||
       b.code_fournisseur?.toLowerCase().includes(q) ||
       b.lieu?.toLowerCase().includes(q) ||
       b.numero_camion?.toLowerCase().includes(q)
     );
-  });
+  }, [bons, search]);
 
-  const openCreate = () => { setEditing(null); setSheetOpen(true); };
-  const openEdit   = (b: BonExpedition) => { setEditing(b); setSheetOpen(true); };
+  const openCreate = useCallback(() => { setEditing(null); setSheetOpen(true); }, []);
+  const openEdit   = useCallback((b: BonExpedition) => { setEditing(b); setSheetOpen(true); }, []);
 
-  const handleSubmit = async (data: Partial<BonExpedition>) => {
+  const handleSubmit = useCallback(async (data: Partial<BonExpedition>) => {
     if (editing) {
       await update.mutateAsync({ id: editing.id, ...data });
     } else {
       await create.mutateAsync(data);
     }
     setSheetOpen(false);
-  };
+  }, [editing, update, create]);
 
   return (
     <div className="flex flex-col gap-4 h-full">

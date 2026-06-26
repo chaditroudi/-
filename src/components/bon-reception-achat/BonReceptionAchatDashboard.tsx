@@ -38,28 +38,28 @@ export function BonReceptionAchatDashboard() {
   const [editing, setEditing]         = useState<BonReceptionAchat | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<BonReceptionAchat | null>(null);
 
-  const filtered = bons.filter((b) => {
-    if (!search) return true;
+  const filtered = useMemo(() => {
+    if (!search) return bons;
     const q = search.toLowerCase();
-    return (
+    return bons.filter((b) =>
       b.numero_bon?.toLowerCase().includes(q) ||
       b.fournisseur_nom?.toLowerCase().includes(q) ||
       b.numero_lot?.toLowerCase().includes(q) ||
       b.numero_camion?.toLowerCase().includes(q)
     );
-  });
+  }, [bons, search]);
 
-  const openCreate = () => { setEditing(null); setSheetOpen(true); };
-  const openEdit   = (b: BonReceptionAchat) => { setEditing(b); setSheetOpen(true); };
+  const openCreate = useCallback(() => { setEditing(null); setSheetOpen(true); }, []);
+  const openEdit   = useCallback((b: BonReceptionAchat) => { setEditing(b); setSheetOpen(true); }, []);
 
-  const handleSubmit = async (data: Partial<BonReceptionAchat>) => {
+  const handleSubmit = useCallback(async (data: Partial<BonReceptionAchat>) => {
     if (editing) {
       await update.mutateAsync({ id: editing.id, ...data });
     } else {
       await create.mutateAsync(data);
     }
     setSheetOpen(false);
-  };
+  }, [editing, update, create]);
 
   return (
     <div className="flex flex-col gap-4 h-full">
