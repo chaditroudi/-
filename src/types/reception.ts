@@ -176,6 +176,44 @@ export interface QCChecklistItem {
   created_at: string;
 }
 
+// ── RQC (Rapport Contrôle Qualité Réception Achat) ─────────────────────────
+export interface RQCCritere {
+  test1: number | null;
+  test2: number | null;
+  test3: number | null;
+  taux_moyen: number | null;
+}
+
+export interface RQCData {
+  conventionnel: boolean;
+  bio_certifie: boolean;
+  ggp: boolean;
+  bon_de_reception_ref: string | null;
+  poids_echantillon_branche_kg: number | null;
+  poids_tb_kg: number | null;
+  taux_tb_percent: number | null;
+  poids_vrac_kg: number | null;
+  type_dattes_branche: boolean;
+  type_dattes_vrac: boolean;
+  infestee: RQCCritere;
+  fermentee: RQCCritere;
+  immature: RQCCritere;
+  craquellee: RQCCritere;
+  grasse: RQCCritere;
+  seche: RQCCritere;
+  tachee: RQCCritere;
+  ridee: RQCCritere;
+  petit_calibre: RQCCritere;
+  taux_dechet_percent: number | null;
+  endommage_percent: number | null;
+  db_score: string | null;
+  td_percent: number | null;
+  conclusion: string | null;
+  responsable_qc1: string | null;
+  responsable_qc2: string | null;
+  directeur_qc: string | null;
+}
+
 // QC Inspection
 /** RG-Q07: one entry per analysis type when lab returns results */
 export interface LabAnalysisResult {
@@ -219,6 +257,7 @@ export interface QCInspection {
   secondary_inspector_name?: string | null;
   recommended_decision?: QCDecisionType | null;
   override_justification?: string | null;
+  rqc?: RQCData | null;
   created_at: string;
   updated_at: string;
   // Joined
