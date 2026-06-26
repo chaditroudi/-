@@ -78,6 +78,18 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
   const [overridePhoto, setOverridePhoto] = useState<string[]>([]);
   const [selectedNcCodes, setSelectedNcCodes] = useState<string[]>([]);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [rqc, setRqc] = useState<RQCData>(defaultRqc);
+
+  type RqcCritereKey = keyof Pick<RQCData,'infestee'|'fermentee'|'immature'|'craquellee'|'grasse'|'seche'|'tachee'|'ridee'|'petit_calibre'>;
+
+  const updateRqcCritere = (field: RqcCritereKey, test: 'test1'|'test2'|'test3', value: number | null) => {
+    setRqc(prev => {
+      const critere = { ...prev[field], [test]: value };
+      const vals = [critere.test1, critere.test2, critere.test3].filter((v): v is number => v != null);
+      critere.taux_moyen = vals.length ? Math.round((vals.reduce((a,b)=>a+b,0)/vals.length)*10)/10 : null;
+      return { ...prev, [field]: critere };
+    });
+  };
 
   const createInspection = useCreateQCInspection();
   const submitDecision = useSubmitQCDecision();
@@ -167,6 +179,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
     setOverridePhoto([]);
     setSelectedNcCodes([]);
     setSubmitError(null);
+    setRqc(defaultRqc());
   };
 
   const closeDialog = () => {
@@ -267,6 +280,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
       overrideJustification: isOverriding ? comment.trim() : undefined,
       overridePhoto: isOverriding && overridePhoto.length > 0 ? overridePhoto[0] : undefined,
       nonconformityCodes: selectedNcCodes.length > 0 ? selectedNcCodes : undefined,
+      rqc,
       checkResults: [
         { check_code: "HUM", check_name: "Humidite", severity: "MAJEUR", result: score.humidityScore >= 60 ? "CONFORME" : "NON_CONFORME", note: `${score.humidityAverage}%`, measured_value: String(score.humidityAverage), expected_value: "20-26" },
         { check_code: "CAL", check_name: "Calibre", severity: "MAJEUR", result: score.caliberScore >= 60 ? "CONFORME" : "NON_CONFORME", note: `${score.caliberAverage} mm`, measured_value: String(score.caliberAverage), expected_value: ">= 40" },
