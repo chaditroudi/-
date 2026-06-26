@@ -142,7 +142,7 @@ export function BonExpeditionForm({ initial, onSubmit, isSaving }: Props) {
             <Select value={fournisseurId} onValueChange={setFournisseurId}>
               <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Choisir..." /></SelectTrigger>
               <SelectContent>
-                {suppliers.map((s: any) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                {(suppliers as Supplier[]).map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
