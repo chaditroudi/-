@@ -334,47 +334,59 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
       {/* ── Receptions view ──────────────────────────────────────────────── */}
       {activeView === 'receptions' && (
         <Tabs value={subTab} onValueChange={(v) => updateSubTab(v as SubTab)}>
-          {/* Sub-tab bar — scrollable on small screens */}
-          <div className="overflow-x-auto -mx-1 px-1 pb-0.5">
-            <TabsList className="inline-flex h-auto gap-1 bg-muted/50 border border-border/60 rounded-2xl p-1.5 min-w-max">
+          {/* Sub-tab bar — scrollable, clearly clickable */}
+          <div className="overflow-x-auto scrollbar-hide">
+            <div className="flex gap-1 border-b border-border pb-0 min-w-max">
               {([
                 {
-                  value: 'today',
+                  value: 'today' as SubTab,
                   icon: Clock3,
                   label: 'Travail du jour',
                   badge: actionQueue.length > 0 ? actionQueue.length : null,
                   badgeClass: 'bg-primary text-primary-foreground',
                 },
                 {
-                  value: 'qc',
+                  value: 'qc' as SubTab,
                   icon: QrCode,
                   label: 'Contrôle QC',
                   badge: awaitingQc.length > 0 ? awaitingQc.length : null,
                   badgeClass: 'bg-amber-500 text-white',
                 },
-                { value: 'registry', icon: List, label: 'Registre', badge: null, badgeClass: '' },
-                { value: 'bra', icon: Printer, label: 'Bons BRA', badge: null, badgeClass: '' },
-                { value: 'bde', icon: Truck, label: 'Bons BDE', badge: null, badgeClass: '' },
-              ] as { value: SubTab; icon: React.ElementType; label: string; badge: number | null; badgeClass: string }[]).map((tab) => (
-                <TabsTrigger
-                  key={tab.value}
-                  value={tab.value}
-                  className={cn(
-                    'relative flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all',
-                    'text-muted-foreground hover:text-foreground',
-                    'data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm',
-                  )}
-                >
-                  <tab.icon className="h-4 w-4 shrink-0" />
-                  <span className="whitespace-nowrap">{tab.label}</span>
-                  {tab.badge != null && (
-                    <span className={cn('ml-0.5 flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold leading-none', tab.badgeClass)}>
-                      {tab.badge}
-                    </span>
-                  )}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+                { value: 'registry' as SubTab, icon: List, label: 'Registre', badge: null, badgeClass: '' },
+                { value: 'bra' as SubTab, icon: Printer, label: 'Bons BRA', badge: null, badgeClass: '' },
+                { value: 'bde' as SubTab, icon: Truck, label: 'Bons BDE', badge: null, badgeClass: '' },
+              ]).map((tab) => {
+                const active = subTab === tab.value;
+                return (
+                  <button
+                    key={tab.value}
+                    type="button"
+                    onClick={() => updateSubTab(tab.value)}
+                    className={cn(
+                      'group relative flex cursor-pointer select-none items-center gap-2 whitespace-nowrap px-4 py-3 text-sm font-medium outline-none transition-colors',
+                      active
+                        ? 'text-primary'
+                        : 'text-muted-foreground hover:text-foreground',
+                    )}
+                  >
+                    <tab.icon className={cn('h-4 w-4 shrink-0 transition-colors', active ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground')} />
+                    {tab.label}
+                    {tab.badge != null && (
+                      <span className={cn('flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold leading-none', tab.badgeClass)}>
+                        {tab.badge}
+                      </span>
+                    )}
+                    {/* Active underline */}
+                    <span
+                      className={cn(
+                        'absolute bottom-0 left-0 h-0.5 w-full rounded-full transition-all duration-200',
+                        active ? 'bg-primary scale-x-100' : 'bg-transparent scale-x-0 group-hover:bg-border group-hover:scale-x-100',
+                      )}
+                    />
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* ── Tab: Travail du jour ─────────────────────────────────────── */}
