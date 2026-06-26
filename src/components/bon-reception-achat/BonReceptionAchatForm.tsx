@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus, Trash2 } from "lucide-react";
 import type { BonReceptionAchat, BranchLine, BranchSeche, CasseLine } from "@/types/bonReceptionAchat";
 import { useSuppliers } from "@/hooks/useSuppliers";
+import type { Supplier } from "@/types/mes";
 
 interface Props {
   initial?: Partial<BonReceptionAchat>;
@@ -48,7 +49,7 @@ const BranchSection = ({
               type="number"
               step="0.01"
               placeholder="—"
-              value={(value as any)[field] ?? ""}
+              value={(value[field as keyof BranchLine] as number | null) ?? ""}
               onChange={(e) => set(field, e.target.value)}
               className="h-8 text-sm"
             />
@@ -144,8 +145,8 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
 
   useEffect(() => {
     if (!fournisseurId) return;
-    const sup = suppliers.find((s: any) => s.id === fournisseurId);
-    if (sup) setFournisseurNom((sup as any).name ?? fournisseurNom);
+    const sup = (suppliers as Supplier[]).find((s) => s.id === fournisseurId);
+    if (sup) setFournisseurNom(sup.name);
   }, [fournisseurId, suppliers]);
 
   const addCasse = () => setCasse((c) => [...c, { nature: "", quantite: null }]);
