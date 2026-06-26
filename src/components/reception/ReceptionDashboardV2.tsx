@@ -46,9 +46,10 @@ import { canPerformAction } from '@/lib/roleAccess';
 import { useTodayPendingNotices } from '@/hooks/useInboundNotices';
 import { usePhase2Pipeline } from '@/hooks/usePhase2Pipeline';
 import { BonReceptionAchatDashboard } from '@/components/bon-reception-achat/BonReceptionAchatDashboard';
+import { BonExpeditionDashboard } from '@/components/bon-expedition/BonExpeditionDashboard';
 
 type ActiveView = 'receptions' | 'tablet' | 'alerts';
-type SubTab = 'today' | 'qc' | 'registry' | 'bra';
+type SubTab = 'today' | 'qc' | 'registry' | 'bra' | 'bde';
 
 interface ActionQueueItem {
   reception: ReceptionV2;
