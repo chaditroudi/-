@@ -8,9 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AlertTriangle, CheckCircle, Clock, FlaskConical, Play, Shield, XCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle, Clock, FlaskConical, Play, Printer, Shield, XCircle } from "lucide-react";
 import { useCalibrationStatus, useCreateQCInspection, useQCInspections, useSubmitQCDecision } from "@/hooks/useReceptionsV2";
-import { QCDecisionType, ReceptionV2 } from "@/types/reception";
+import { QCDecisionType, RQCData, RQCCritere, ReceptionV2 } from "@/types/reception";
+import { printRQC } from "./printRQC";
 import { computeQcScore, getQcClassificationLabel, getQcDecisionLabel } from "@/lib/royalPalmPhase1";
 import { PhotoCapture } from "./PhotoCapture";
 import { useAuth } from "@/hooks/useAuth";
@@ -30,6 +31,20 @@ interface QCInspectionDialogProps {
 
 const defaultHumidity: [number, number, number] = [22, 22, 22];
 const defaultCalibers = [45, 45, 45, 45, 45, 45, 45, 45, 45, 45];
+
+const emptyRqcCritere = (): RQCCritere => ({ test1: null, test2: null, test3: null, taux_moyen: null });
+const defaultRqc = (): RQCData => ({
+  conventionnel: false, bio_certifie: false, ggp: false,
+  bon_de_reception_ref: null,
+  poids_echantillon_branche_kg: null, poids_tb_kg: null, taux_tb_percent: null,
+  poids_vrac_kg: null, type_dattes_branche: true, type_dattes_vrac: false,
+  infestee: emptyRqcCritere(), fermentee: emptyRqcCritere(), immature: emptyRqcCritere(),
+  craquellee: emptyRqcCritere(), grasse: emptyRqcCritere(), seche: emptyRqcCritere(),
+  tachee: emptyRqcCritere(), ridee: emptyRqcCritere(), petit_calibre: emptyRqcCritere(),
+  taux_dechet_percent: null, endommage_percent: null, db_score: null,
+  td_percent: null, conclusion: null,
+  responsable_qc1: null, responsable_qc2: null, directeur_qc: null,
+});
 
 export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspectionDialogProps) => {
   const { user, isAdmin, profile } = useAuth();
