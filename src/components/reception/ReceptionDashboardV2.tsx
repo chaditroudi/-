@@ -226,8 +226,7 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
     }
   }, [scanValue]);
 
-  // ── Metric chips data ──────────────────────────────────────────────────────
-  const metricChips = [
+  const metricChips = useMemo(() => [
     {
       icon: Truck,
       label: "Aujourd'hui",
@@ -260,7 +259,7 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
       bg: inQc.length > 0 ? 'bg-sky-50 border-sky-200' : 'bg-muted/30 border-border',
       onClick: () => { updateSubTab('registry'); updateStatusFilter('EN_QC'); },
     },
-  ];
+  ], [stats, receptionsToday.length, awaitingQc.length, alerts.length, inQc.length, updateSubTab, updateStatusFilter]);
 
   return (
     <div className="space-y-5">
@@ -763,7 +762,11 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
 
                 {/* List */}
                 <div className="space-y-2">
-                  {isLoading ? (
+                  {isError ? (
+                    <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-700">
+                      Erreur de chargement des réceptions. Vérifiez votre connexion et rechargez la page.
+                    </div>
+                  ) : isLoading ? (
                     <div className="py-8 text-center text-sm text-muted-foreground">{t('common.loading')}</div>
                   ) : filteredReceptions.length === 0 ? (
                     <div className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
