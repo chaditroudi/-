@@ -6,6 +6,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 import { Module } from "@nestjs/common";
 import { BonReceptionAchatModule } from "../modules/bon-reception-achat/bon-reception-achat.module.js";
+import { BonExpeditionModule } from "../modules/bon-expedition/bon-expedition.module.js";
 import { AnalyticsModule } from "../modules/analytics/analytics.module.js";
 import { DocumentPrintsModule } from "../modules/document-prints/document-prints.module.js";
 import { AuditModule } from "../modules/audit/audit.module.js";
@@ -42,6 +43,7 @@ AppModule = __decorate([
             GuardsModule,
             AuthModule,
             BonReceptionAchatModule,
+            BonExpeditionModule,
             RealtimeModule,
             AnalyticsModule,
             CollectionsModule,
