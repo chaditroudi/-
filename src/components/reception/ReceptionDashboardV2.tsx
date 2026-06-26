@@ -344,6 +344,10 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
               <Printer className="h-3.5 w-3.5" />
               Bons BRA
             </TabsTrigger>
+            <TabsTrigger value="bde" className="rounded-xl px-4 gap-1.5">
+              <Truck className="h-3.5 w-3.5" />
+              Bons BDE
+            </TabsTrigger>
           </TabsList>
 
           {/* ── Tab: Travail du jour ─────────────────────────────────────── */}
@@ -844,6 +848,11 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
           {/* ── Tab: Bons de Réception Achat ─────────────────────────────── */}
           <TabsContent value="bra" className="mt-5">
             <BonReceptionAchatDashboard />
+          </TabsContent>
+
+          {/* ── Tab: Bons d'Expédition ───────────────────────────────────── */}
+          <TabsContent value="bde" className="mt-5">
+            <BonExpeditionDashboard />
           </TabsContent>
         </Tabs>
       )}
