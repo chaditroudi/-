@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus, Trash2 } from "lucide-react";
-import type { BonReceptionAchat, BranchLine, BranchSeche, CasseLine } from "@/types/bonReceptionAchat";
+import type { BonReceptionAchat, BonStatut, BranchLine, BranchSeche, CasseLine, Region } from "@/types/bonReceptionAchat";
 import { useSuppliers } from "@/hooks/useSuppliers";
 import type { Supplier } from "@/types/mes";
 
@@ -79,7 +79,7 @@ const BranchSection = ({
           <div className="flex-1">
             <Label className="text-xs">Observation</Label>
             <Input
-              value={(value as any).observation ?? ""}
+              value={value.observation ?? ""}
               onChange={(e) => onChange({ ...value, observation: e.target.value || null })}
               className="h-8 text-sm"
             />
@@ -159,7 +159,7 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
       annee: Number(annee),
       convention,
       bio_certifie: bioCertifie,
-      region: region as any,
+      region: region as Region,
       fournisseur_id: fournisseurId || null,
       fournisseur_nom: fournisseurNom || null,
       numero_expedition: numeroExpedition || null,
@@ -179,7 +179,7 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
       vrac,
       branche_seche: brancheSeche,
       casse,
-      statut: statut as any,
+      statut: statut as BonStatut,
     });
   };
 

@@ -153,6 +153,7 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
   const awaitingQc = useMemo(() => receptions.filter((r) => r.status === 'EN_ATTENTE_QC'), [receptions]);
   const inQc = useMemo(() => receptions.filter((r) => r.status === 'EN_QC'), [receptions]);
   const draftReceptions = useMemo(() => receptions.filter((r) => r.status === 'BROUILLON'), [receptions]);
+  const blockedReceptions = useMemo(() => receptions.filter((r) => r.status === 'BLOQUE'), [receptions]);
   const activeQueueBase = useMemo(
     () => receptions.filter((r) => ['BROUILLON', 'EN_ATTENTE_QC', 'EN_QC', 'BLOQUE'].includes(r.status)),
     [receptions],
