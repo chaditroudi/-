@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import type { BonExpedition, BonExpeditionInput, ExpeditionLigne, ProduitType } from "@/types/bonExpedition";
 import { PRODUIT_LABELS, PRODUIT_ORDER } from "@/types/bonExpedition";
 import { useSuppliers } from "@/hooks/useSuppliers";
+import type { Supplier } from "@/types/mes";
 
 interface Props {
   initial?: Partial<BonExpedition>;
@@ -51,17 +52,17 @@ export function BonExpeditionForm({ initial, onSubmit, isSaving }: Props) {
   // Auto-fill code from supplier selection
   useEffect(() => {
     if (!fournisseurId) return;
-    const sup = suppliers.find((s: any) => s.id === fournisseurId);
-    if (sup) setCodeFournisseur((sup as any).code ?? (sup as any).name ?? codeFournisseur);
+    const sup = (suppliers as Supplier[]).find((s) => s.id === fournisseurId);
+    if (sup) setCodeFournisseur(sup.code ?? sup.name);
   }, [fournisseurId, suppliers]);
 
-  const updateLigne = (produit: ProduitType, field: keyof Omit<ExpeditionLigne, "produit">, val: string) => {
+  const updateLigne = useCallback((produit: ProduitType, field: keyof Omit<ExpeditionLigne, "produit">, val: string) => {
     setLignes((prev) =>
       prev.map((l) => l.produit === produit ? { ...l, [field]: val || null } : l),
     );
-  };
+  }, []);
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     onSubmit({
       annee: Number(annee),
       conventionnel,
@@ -82,9 +83,9 @@ export function BonExpeditionForm({ initial, onSubmit, isSaving }: Props) {
       casse_gc: n(casseGc),
       casse_p: n(casseP),
       casse_l: n(casseL),
-      statut: statut as any,
+      statut,
     });
-  };
+  }, [annee, conventionnel, bioCertifie, ggp, lieu, codeFournisseur, fournisseurId, codeControleur, dateExpedition, numeroCamion, nomChauffeur, lieuReception, responsableReception, nomSignataire, lignes, casseNature, casseGc, casseP, casseL, statut, onSubmit]);
 
   return (
     <ScrollArea className="h-full pr-4">
