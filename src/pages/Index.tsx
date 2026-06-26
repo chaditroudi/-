@@ -49,8 +49,12 @@ const SageOperationsHub      = lazy(() => import('@/components/home/SageOperatio
 
 // ── Suspense fallback ─────────────────────────────────────────────────────────
 const TabLoader = () => (
-  <div className="flex items-center justify-center py-24">
-    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+  <div className="flex flex-col items-center justify-center gap-3 py-28">
+    <div className="relative h-9 w-9">
+      <div className="absolute inset-0 animate-spin rounded-full border-[3px] border-primary/15 border-t-primary" />
+      <div className="absolute inset-1.5 animate-ping rounded-full bg-primary/10" />
+    </div>
+    <p className="text-[12px] font-medium text-muted-foreground/50 animate-pulse">Chargement…</p>
   </div>
 );
 
@@ -402,7 +406,7 @@ const Index = () => {
         </div>
 
         <main className="flex-1 min-w-0 overflow-x-hidden overflow-y-auto">
-          <div className="mesh-overlay mx-auto w-full max-w-[1800px] px-3 py-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-5 sm:pb-[calc(5rem+env(safe-area-inset-bottom))] lg:px-6 lg:py-6 lg:pb-8">
+          <div className="mx-auto w-full max-w-[1800px] px-3 py-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-5 sm:pb-[calc(5rem+env(safe-area-inset-bottom))] lg:px-6 lg:py-6 lg:pb-8">
             <div key={activeTab} className="animate-page-enter w-full">
               <Suspense fallback={<TabLoader />}>
                 {renderContent()}
@@ -411,19 +415,19 @@ const Index = () => {
           </div>
         </main>
 
-        <footer className="flex flex-col items-center justify-between gap-2 border-t border-border/40 bg-background/70 px-4 py-3 text-center sm:flex-row sm:px-5 sm:text-left lg:px-6">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-5 w-5 items-center justify-center opacity-50">
+        <footer className="flex flex-col items-center justify-between gap-2 border-t border-border/30 bg-background/60 px-4 py-3 text-center backdrop-blur-sm sm:flex-row sm:px-5 sm:text-left lg:px-6">
+          <div className="flex items-center gap-2">
+            <div className="flex h-5 w-5 items-center justify-center opacity-40">
               <BrandLogo className="h-full w-full" imgClassName="h-full w-full object-contain" alt={companyName} />
             </div>
-            <span className="text-[11px] text-muted-foreground/50">
+            <span className="text-[11px] text-muted-foreground/45">
               © {new Date().getFullYear()} {companyName}
             </span>
           </div>
-          <div className="flex items-center gap-3 text-[11px] text-muted-foreground/40">
+          <div className="flex items-center gap-2.5 text-[11px] text-muted-foreground/35">
             <span className="hidden sm:inline">Manufacturing Execution System</span>
-            <span className="h-3 w-px bg-border/50 hidden sm:block" />
-            <span className="font-semibold text-primary/50">v2.0</span>
+            <span className="h-3 w-px bg-border/60 hidden sm:block" />
+            <span className="rounded-full border border-primary/20 bg-primary/6 px-2 py-0.5 text-[10px] font-bold text-primary/60">v2.0</span>
           </div>
         </footer>
 
