@@ -78,6 +78,7 @@ export type SubmitQcDecisionInput = {
   recommendedDecision?: QCDecisionType;
   overrideJustification?: string;
   nonconformityCodes?: string[];
+  rqc?: Record<string, unknown> | null;
   checkResults: Array<{
     checklist_item_id?: string;
     check_code: string;

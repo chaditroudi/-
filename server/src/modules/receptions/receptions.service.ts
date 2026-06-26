@@ -882,6 +882,7 @@ export class ReceptionsService {
       secondary_inspector_name: payload.secondaryInspectorName || null,
       recommended_decision: payload.recommendedDecision || null,
       override_justification: payload.overrideJustification || null,
+      rqc: payload.rqc || null,
     };
 
     await QCInspections().updateOne({ id: inspectionId }, { $set: inspectionUpdate }).exec();
