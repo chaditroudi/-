@@ -340,6 +340,22 @@ export const prepareInsertDocument = async (collection: string, rawInput: Record
     doc.ended_at = doc.ended_at ?? null;
     doc.decision = doc.decision ?? null;
     doc.lab_sample_required = doc.lab_sample_required ?? false;
+    const emptyCritere = { test1: null, test2: null, test3: null, taux_moyen: null };
+    doc.rqc = doc.rqc ?? {
+      conventionnel: false, bio_certifie: false, ggp: false,
+      bon_de_reception_ref: null,
+      poids_echantillon_branche_kg: null, poids_tb_kg: null, taux_tb_percent: null,
+      poids_vrac_kg: null,
+      type_dattes_branche: true, type_dattes_vrac: false,
+      infestee: { ...emptyCritere }, fermentee: { ...emptyCritere },
+      immature: { ...emptyCritere }, craquellee: { ...emptyCritere },
+      grasse: { ...emptyCritere }, seche: { ...emptyCritere },
+      tachee: { ...emptyCritere }, ridee: { ...emptyCritere },
+      petit_calibre: { ...emptyCritere },
+      taux_dechet_percent: null, endommage_percent: null,
+      db_score: null, td_percent: null, conclusion: null,
+      responsable_qc1: null, responsable_qc2: null, directeur_qc: null,
+    };
   }
 
   if (collection === "qc_check_results") {
