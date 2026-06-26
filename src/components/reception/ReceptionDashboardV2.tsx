@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { format, isToday } from 'date-fns';
 import { fr, enUS, ar } from 'date-fns/locale';
@@ -334,39 +334,48 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
       {/* ── Receptions view ──────────────────────────────────────────────── */}
       {activeView === 'receptions' && (
         <Tabs value={subTab} onValueChange={(v) => updateSubTab(v as SubTab)}>
-          {/* Sub-tab bar */}
-          <TabsList className="h-11 rounded-2xl bg-muted/60 p-1 w-full sm:w-auto">
-            <TabsTrigger value="today" className="rounded-xl px-4 gap-1.5">
-              <Clock3 className="h-3.5 w-3.5" />
-              Travail du jour
-              {actionQueue.length > 0 && (
-                <span className="ml-0.5 rounded-full bg-primary/15 px-1.5 py-px text-[10px] font-semibold text-primary">
-                  {actionQueue.length}
-                </span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="qc" className="rounded-xl px-4 gap-1.5">
-              <QrCode className="h-3.5 w-3.5" />
-              Contrôle QC
-              {awaitingQc.length > 0 && (
-                <span className="ml-0.5 rounded-full bg-amber-500/20 px-1.5 py-px text-[10px] font-semibold text-amber-700">
-                  {awaitingQc.length}
-                </span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="registry" className="rounded-xl px-4 gap-1.5">
-              <List className="h-3.5 w-3.5" />
-              Registre
-            </TabsTrigger>
-            <TabsTrigger value="bra" className="rounded-xl px-4 gap-1.5">
-              <Printer className="h-3.5 w-3.5" />
-              Bons BRA
-            </TabsTrigger>
-            <TabsTrigger value="bde" className="rounded-xl px-4 gap-1.5">
-              <Truck className="h-3.5 w-3.5" />
-              Bons BDE
-            </TabsTrigger>
-          </TabsList>
+          {/* Sub-tab bar — scrollable on small screens */}
+          <div className="overflow-x-auto -mx-1 px-1 pb-0.5">
+            <TabsList className="inline-flex h-auto gap-1 bg-muted/50 border border-border/60 rounded-2xl p-1.5 min-w-max">
+              {([
+                {
+                  value: 'today',
+                  icon: Clock3,
+                  label: 'Travail du jour',
+                  badge: actionQueue.length > 0 ? actionQueue.length : null,
+                  badgeClass: 'bg-primary text-primary-foreground',
+                },
+                {
+                  value: 'qc',
+                  icon: QrCode,
+                  label: 'Contrôle QC',
+                  badge: awaitingQc.length > 0 ? awaitingQc.length : null,
+                  badgeClass: 'bg-amber-500 text-white',
+                },
+                { value: 'registry', icon: List, label: 'Registre', badge: null, badgeClass: '' },
+                { value: 'bra', icon: Printer, label: 'Bons BRA', badge: null, badgeClass: '' },
+                { value: 'bde', icon: Truck, label: 'Bons BDE', badge: null, badgeClass: '' },
+              ] as { value: SubTab; icon: React.ElementType; label: string; badge: number | null; badgeClass: string }[]).map((tab) => (
+                <TabsTrigger
+                  key={tab.value}
+                  value={tab.value}
+                  className={cn(
+                    'relative flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all',
+                    'text-muted-foreground hover:text-foreground',
+                    'data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm',
+                  )}
+                >
+                  <tab.icon className="h-4 w-4 shrink-0" />
+                  <span className="whitespace-nowrap">{tab.label}</span>
+                  {tab.badge != null && (
+                    <span className={cn('ml-0.5 flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold leading-none', tab.badgeClass)}>
+                      {tab.badge}
+                    </span>
+                  )}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
 
           {/* ── Tab: Travail du jour ─────────────────────────────────────── */}
           <TabsContent value="today" className="mt-5 space-y-4">
