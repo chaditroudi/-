@@ -183,8 +183,8 @@ export default defineConfig(async ({ mode }) => {
           background_color: "#f8fafc",
           display: "standalone",
           orientation: "any",
-          scope: "/",
-          start_url: "/",
+          scope: "./",
+          start_url: "./index.html",
           icons: [
             { src: "pwa-192x192.png", sizes: "192x192", type: "image/png" },
             { src: "pwa-512x512.png", sizes: "512x512", type: "image/png" },
@@ -202,7 +202,7 @@ export default defineConfig(async ({ mode }) => {
           // API calls — network first, fall back to cache
           runtimeCaching: [
             {
-              urlPattern: /^\/api\//,
+              urlPattern: ({ url }) => url.pathname.startsWith('/api') || url.pathname.includes('/api'),
               handler: "NetworkFirst",
               options: {
                 cacheName: "api-cache",
