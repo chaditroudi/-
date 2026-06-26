@@ -204,13 +204,7 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
   const handleOpenDetail = useCallback((reception: ReceptionV2) => { setSelectedReception(reception); setDetailOpen(true); }, []);
   const handleStartQC = useCallback((reception: ReceptionV2) => { setSelectedReception(reception); setQcDialogOpen(true); }, []);
 
-  const getSamplingGuidance = (quantityTotal: number) => {
-    if (quantityTotal <= 1000) return "Échantillonnage recommandé: minimum 2 kg pour un lot jusqu'à 1 tonne.";
-    if (quantityTotal > 5000) return 'Échantillonnage recommandé: minimum 5 kg pour un lot au-delà de 5 tonnes.';
-    return 'Échantillonnage recommandé: entre 2 kg et 5 kg selon la représentativité du lot.';
-  };
-
-  const handleScanLot = async (explicitValue?: string) => {
+  const handleScanLot = useCallback(async (explicitValue?: string) => {
     const normalizedValue = (explicitValue ?? scanValue).trim();
     if (!normalizedValue) return;
     setIsScanLoading(true);
@@ -230,7 +224,7 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
     } finally {
       setIsScanLoading(false);
     }
-  };
+  }, [scanValue]);
 
   // ── Metric chips data ──────────────────────────────────────────────────────
   const metricChips = [
