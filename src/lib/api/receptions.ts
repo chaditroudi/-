@@ -129,7 +129,7 @@ export const receptionsExtApi = {
   },
 
   listLabPendingInspections: async () => {
-    const r = await apiRequest<{ data: unknown[] }>('/qc-inspections?lab_pending=true');
+    const r = await apiRequest<{ data: QCInspection[] }>('/qc-inspections?lab_pending=true');
     return r.data ?? [];
   },
 
