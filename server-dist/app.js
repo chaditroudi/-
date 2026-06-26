@@ -19,7 +19,27 @@ export const createApp = async () => {
     const app = await NestFactory.create(AppModule, {
         logger: ["log", "error", "warn"],
     });
-    app.enableCors({ origin: true, credentials: true });
+    const allowedOrigins = (process.env.CORS_ORIGINS || '')
+        .split(',')
+        .map((o) => o.trim())
+        .filter(Boolean);
+    app.enableCors({
+        origin: (origin, callback) => {
+            // allow requests with no origin (mobile apps, curl, server-to-server)
+            if (!origin)
+                return callback(null, true);
+            if (allowedOrigins.includes(origin) ||
+                origin.endsWith('.github.io') ||
+                origin.startsWith('http://localhost') ||
+                origin.startsWith('http://127.0.0.1')) {
+                return callback(null, true);
+            }
+            return callback(new Error(`CORS: origin ${origin} not allowed`));
+        },
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+    });
     app.use(express.json({ limit: "10mb" }));
     app.use(requestContextMiddleware);
     app.use((req, _res, next) => {
