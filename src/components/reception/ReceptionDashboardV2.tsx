@@ -122,15 +122,15 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
   const [scannerOpen, setScannerOpen] = useState(false);
   const [noticeOpen, setNoticeOpen] = useState(false);
 
-  const getLocale = () => {
+  const getLocale = useCallback(() => {
     switch (i18n.language) {
       case 'ar': return ar;
       case 'en': return enUS;
       default: return fr;
     }
-  };
+  }, [i18n.language]);
 
-  const { data: receptions = [], isLoading } = useReceptionsV2();
+  const { data: receptions = [], isLoading, isError } = useReceptionsV2();
   const { data: stats } = useReceptionStats();
   const { data: alerts = [] } = useReceptionAlerts();
   const { data: labPendingInspections = [] } = useLabPendingInspections();
@@ -139,52 +139,70 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
   const { data: materials = [] } = useMaterials();
   const { data: todayNotices = [] } = useTodayPendingNotices();
 
-  const canManageReception = canPerformAction(roles, 'reception_data_entry') || canPerformAction(roles, 'reception_weighing');
+  const canManageReception = useMemo(
+    () => canPerformAction(roles, 'reception_data_entry') || canPerformAction(roles, 'reception_weighing'),
+    [roles],
+  );
   const canUseTablet = canManageReception;
-  const canUseQcScan = canPerformAction(roles, 'qc_entry_scan') || canPerformAction(roles, 'quality_supervision');
-
-  const receptionsToday = receptions.filter((r) => isToday(new Date(r.created_at)));
-  const awaitingQc = receptions.filter((r) => r.status === 'EN_ATTENTE_QC');
-  const inQc = receptions.filter((r) => r.status === 'EN_QC');
-  const draftReceptions = receptions.filter((r) => r.status === 'BROUILLON');
-  const blockedReceptions = receptions.filter((r) => r.status === 'BLOQUE');
-  const activeQueueBase = receptions.filter((r) => ['BROUILLON', 'EN_ATTENTE_QC', 'EN_QC', 'BLOQUE'].includes(r.status));
-
-  const overdueInspections = receptions.filter((r) => {
-    if (!['EN_ATTENTE_QC', 'EN_QC'].includes(r.status)) return false;
-    return Date.now() - new Date(r.created_at).getTime() > 4 * 60 * 60 * 1000;
-  });
-  const criticalOverdueInspections = overdueInspections.filter(
-    (r) => Date.now() - new Date(r.created_at).getTime() > 12 * 60 * 60 * 1000,
+  const canUseQcScan = useMemo(
+    () => canPerformAction(roles, 'qc_entry_scan') || canPerformAction(roles, 'quality_supervision'),
+    [roles],
   );
 
-  const actionQueue: ActionQueueItem[] = activeQueueBase
-    .sort((a, b) => {
-      const byPriority = getPriorityRank(a) - getPriorityRank(b);
-      return byPriority !== 0 ? byPriority : new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-    })
-    .slice(0, 5)
-    .map((reception) => {
-      const urgency = getUrgencyMeta(reception);
-      return { reception, urgencyLabel: urgency.label, urgencyClassName: urgency.className, helperText: urgency.helper };
+  const receptionsToday = useMemo(() => receptions.filter((r) => isToday(new Date(r.created_at))), [receptions]);
+  const awaitingQc = useMemo(() => receptions.filter((r) => r.status === 'EN_ATTENTE_QC'), [receptions]);
+  const inQc = useMemo(() => receptions.filter((r) => r.status === 'EN_QC'), [receptions]);
+  const draftReceptions = useMemo(() => receptions.filter((r) => r.status === 'BROUILLON'), [receptions]);
+  const activeQueueBase = useMemo(
+    () => receptions.filter((r) => ['BROUILLON', 'EN_ATTENTE_QC', 'EN_QC', 'BLOQUE'].includes(r.status)),
+    [receptions],
+  );
+
+  const overdueInspections = useMemo(
+    () => receptions.filter((r) => {
+      if (!['EN_ATTENTE_QC', 'EN_QC'].includes(r.status)) return false;
+      return Date.now() - new Date(r.created_at).getTime() > 4 * 60 * 60 * 1000;
+    }),
+    [receptions],
+  );
+  const criticalOverdueInspections = useMemo(
+    () => overdueInspections.filter((r) => Date.now() - new Date(r.created_at).getTime() > 12 * 60 * 60 * 1000),
+    [overdueInspections],
+  );
+
+  const actionQueue = useMemo<ActionQueueItem[]>(
+    () => [...activeQueueBase]
+      .sort((a, b) => {
+        const byPriority = getPriorityRank(a) - getPriorityRank(b);
+        return byPriority !== 0 ? byPriority : new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      })
+      .slice(0, 5)
+      .map((reception) => {
+        const urgency = getUrgencyMeta(reception);
+        return { reception, urgencyLabel: urgency.label, urgencyClassName: urgency.className, helperText: urgency.helper };
+      }),
+    [activeQueueBase],
+  );
+
+  const filteredReceptions = useMemo(() => {
+    const dateFiltered = filterByDateRange(receptions, dateRange);
+    const searchLower = search.toLowerCase();
+    return dateFiltered.filter((r) => {
+      const supplierName = r.supplier?.name || r.supplier_name_snapshot || '';
+      const matchesSearch =
+        r.reception_number.toLowerCase().includes(searchLower) ||
+        supplierName.toLowerCase().includes(searchLower) ||
+        r.delivery_note_number?.toLowerCase().includes(searchLower);
+      if (!matchesSearch) return false;
+      if (statusFilter === 'all') return true;
+      if (statusFilter === 'active') return ['BROUILLON', 'EN_ATTENTE_QC', 'EN_QC', 'BLOQUE'].includes(r.status);
+      if (statusFilter === 'today') return isToday(new Date(r.created_at));
+      return r.status === statusFilter;
     });
+  }, [receptions, dateRange, search, statusFilter]);
 
-  const dateFilteredReceptions = filterByDateRange(receptions, dateRange);
-  const filteredReceptions = dateFilteredReceptions.filter((r) => {
-    const supplierName = r.supplier?.name || r.supplier_name_snapshot || '';
-    const matchesSearch =
-      r.reception_number.toLowerCase().includes(search.toLowerCase()) ||
-      supplierName.toLowerCase().includes(search.toLowerCase()) ||
-      r.delivery_note_number?.toLowerCase().includes(search.toLowerCase());
-    if (!matchesSearch) return false;
-    if (statusFilter === 'all') return true;
-    if (statusFilter === 'active') return ['BROUILLON', 'EN_ATTENTE_QC', 'EN_QC', 'BLOQUE'].includes(r.status);
-    if (statusFilter === 'today') return isToday(new Date(r.created_at));
-    return r.status === statusFilter;
-  });
-
-  const handleOpenDetail = (reception: ReceptionV2) => { setSelectedReception(reception); setDetailOpen(true); };
-  const handleStartQC = (reception: ReceptionV2) => { setSelectedReception(reception); setQcDialogOpen(true); };
+  const handleOpenDetail = useCallback((reception: ReceptionV2) => { setSelectedReception(reception); setDetailOpen(true); }, []);
+  const handleStartQC = useCallback((reception: ReceptionV2) => { setSelectedReception(reception); setQcDialogOpen(true); }, []);
 
   const getSamplingGuidance = (quantityTotal: number) => {
     if (quantityTotal <= 1000) return "Échantillonnage recommandé: minimum 2 kg pour un lot jusqu'à 1 tonne.";
