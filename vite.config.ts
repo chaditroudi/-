@@ -104,7 +104,10 @@ export default defineConfig(async ({ mode }) => {
     ? (await import("lovable-tagger")).componentTagger()
     : null;
 
+  const isProd = mode === "production";
+
   return {
+  base: isProd ? "./" : "/",
   cacheDir: "node_modules/.vite-date-harvest-hub",
   server: {
     host: "::",
