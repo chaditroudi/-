@@ -10,7 +10,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards, } from "@nestjs/common";
 import { Roles } from "../../nest/route-metadata.js";
 import { RequireAuthGuard, RolesGuard } from "../../nest/route-guards.js";
@@ -167,7 +166,7 @@ __decorate([
     Roles(...PURCHASING_ROLES),
     __param(0, Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_a = typeof Record !== "undefined" && Record) === "function" ? _a : Object]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], P2PController.prototype, "createRFQ", null);
 __decorate([
@@ -184,7 +183,7 @@ __decorate([
     __param(0, Param("id")),
     __param(1, Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, typeof (_b = typeof Record !== "undefined" && Record) === "function" ? _b : Object]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], P2PController.prototype, "updateRFQ", null);
 __decorate([
@@ -201,7 +200,7 @@ __decorate([
     __param(0, Param("id")),
     __param(1, Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, typeof (_c = typeof Record !== "undefined" && Record) === "function" ? _c : Object]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], P2PController.prototype, "addRFQResponse", null);
 __decorate([
@@ -227,7 +226,7 @@ __decorate([
     Roles(...PURCHASING_ROLES),
     __param(0, Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_d = typeof Record !== "undefined" && Record) === "function" ? _d : Object]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], P2PController.prototype, "createGoodsReceipt", null);
 __decorate([
@@ -244,7 +243,7 @@ __decorate([
     __param(0, Param("id")),
     __param(1, Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, typeof (_e = typeof Record !== "undefined" && Record) === "function" ? _e : Object]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], P2PController.prototype, "updateGoodsReceipt", null);
 __decorate([
@@ -270,7 +269,7 @@ __decorate([
     Roles(...PURCHASING_ROLES),
     __param(0, Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_f = typeof Record !== "undefined" && Record) === "function" ? _f : Object]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], P2PController.prototype, "createInvoice", null);
 __decorate([
@@ -287,7 +286,7 @@ __decorate([
     __param(0, Param("id")),
     __param(1, Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, typeof (_g = typeof Record !== "undefined" && Record) === "function" ? _g : Object]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], P2PController.prototype, "updateInvoice", null);
 __decorate([
@@ -331,7 +330,7 @@ __decorate([
     Roles(...PURCHASING_ROLES),
     __param(0, Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_h = typeof Record !== "undefined" && Record) === "function" ? _h : Object]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], P2PController.prototype, "createCertificate", null);
 __decorate([
@@ -340,7 +339,7 @@ __decorate([
     __param(0, Param("id")),
     __param(1, Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, typeof (_j = typeof Record !== "undefined" && Record) === "function" ? _j : Object]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], P2PController.prototype, "updateCertificate", null);
 __decorate([
@@ -364,7 +363,7 @@ __decorate([
     Roles(...PURCHASING_ROLES),
     __param(0, Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_k = typeof Record !== "undefined" && Record) === "function" ? _k : Object]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], P2PController.prototype, "createBudgetCenter", null);
 __decorate([
@@ -373,7 +372,7 @@ __decorate([
     __param(0, Param("id")),
     __param(1, Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, typeof (_l = typeof Record !== "undefined" && Record) === "function" ? _l : Object]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], P2PController.prototype, "updateBudgetCenter", null);
 P2PController = __decorate([

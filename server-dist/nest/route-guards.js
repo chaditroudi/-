@@ -7,7 +7,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a, _b;
 import { Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { badRequest, forbidden, unauthorized } from "../core/app-error.js";
@@ -47,7 +46,7 @@ let RolesGuard = class RolesGuard {
 };
 RolesGuard = __decorate([
     Injectable(),
-    __metadata("design:paramtypes", [typeof (_a = typeof Reflector !== "undefined" && Reflector) === "function" ? _a : Object])
+    __metadata("design:paramtypes", [Reflector])
 ], RolesGuard);
 export { RolesGuard };
 let DbActionGuard = class DbActionGuard {
@@ -81,7 +80,7 @@ let DbActionGuard = class DbActionGuard {
 };
 DbActionGuard = __decorate([
     Injectable(),
-    __metadata("design:paramtypes", [typeof (_b = typeof Reflector !== "undefined" && Reflector) === "function" ? _b : Object])
+    __metadata("design:paramtypes", [Reflector])
 ], DbActionGuard);
 export { DbActionGuard };
 let RpcGuard = class RpcGuard {

@@ -10,7 +10,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a;
 import { Body, Controller, Get, Param, Patch, Put, Req, UseGuards } from "@nestjs/common";
 import { forbidden } from "../../core/app-error.js";
 import { RequireAuthGuard } from "../../nest/route-guards.js";
@@ -62,7 +61,7 @@ __decorate([
     __param(0, Req()),
     __param(1, Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, typeof (_a = typeof Record !== "undefined" && Record) === "function" ? _a : Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], SettingsController.prototype, "updateSettings", null);
 __decorate([
