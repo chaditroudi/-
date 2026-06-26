@@ -7,7 +7,6 @@ import {
   Building2,
   CheckCircle,
   ChevronDown,
-  ChevronRight,
   ClipboardList,
   Factory,
   Home,
@@ -53,7 +52,6 @@ interface AppSidebarProps {
 type NavItem = { id: string; title: string; icon: typeof Home; badge?: number };
 type NavSection = { key: string; label: string; items: NavItem[] };
 
-// Maps each tab to its sidebar section key for auto-expand on external navigation
 const TAB_SECTION: Record<string, string> = {
   home: "operations", live: "operations", scan: "operations",
   receptions: "operations", production: "operations", alerts: "operations",
@@ -65,7 +63,6 @@ const TAB_SECTION: Record<string, string> = {
   analytics: "pilotage", "sage-operations": "pilotage",
 };
 
-// stock-* sub-tabs are handled by the single "storage" nav item
 const STORAGE_SUBTABS = new Set(["stock-dashboard", "stock-lots", "stock-products", "stock-movements"]);
 
 export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSidebarProps) {
@@ -129,7 +126,6 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
     },
   ];
 
-  // Open the section containing the current tab by default; always open operations
   const [openSections, setOpenSections] = useState<Record<string, boolean>>(() => {
     const active = TAB_SECTION[activeTab] ?? "operations";
     return {
@@ -140,7 +136,6 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
     };
   });
 
-  // Auto-expand the correct section when navigating from mobile nav or URL
   useEffect(() => {
     const section = TAB_SECTION[activeTab];
     if (section) setOpenSections((p) => ({ ...p, [section]: true }));
@@ -150,7 +145,6 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
     setOpenSections((p) => ({ ...p, [key]: !p[key] }));
 
   const renderNavItem = (item: NavItem) => {
-    // Highlight "storage" when any stock-* sub-tab is active
     const isActive =
       activeTab === item.id ||
       (item.id === "storage" && STORAGE_SUBTABS.has(activeTab));
@@ -163,26 +157,31 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
           isActive={isActive}
           tooltip={item.title}
           className={cn(
-            "group/item relative h-9 gap-2.5 rounded-xl px-2.5 text-[13px] font-medium transition-all duration-150",
+            "group/item relative h-9 gap-2.5 rounded-xl px-2.5 text-[13px] font-medium transition-all duration-200",
             isActive
-              ? "bg-white/12 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]"
-              : "text-sidebar-foreground/62 hover:bg-white/6 hover:text-sidebar-foreground",
+              ? "bg-white/10 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.07)]"
+              : "text-sidebar-foreground/55 hover:bg-white/8 hover:text-white",
           )}
         >
+          {/* Active indicator — glowing emerald bar */}
           {isActive && (
-            <span className="absolute start-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-e-full bg-emerald-400 group-data-[collapsible=icon]:hidden" />
+            <span className="absolute start-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-e-full bg-emerald-400 shadow-[0_0_10px_2px_rgba(52,211,153,0.5)] group-data-[collapsible=icon]:hidden" />
           )}
 
+          {/* Icon container */}
           <span
             className={cn(
-              "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border transition-colors duration-150",
+              "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border transition-all duration-200",
               isActive
-                ? "border-white/12 bg-white/10 text-white"
-                : "border-transparent bg-transparent text-sidebar-foreground/50",
-              isAlertsItem && hasAlerts && !isActive && "text-amber-300",
+                ? "border-emerald-400/30 bg-emerald-500/15 text-emerald-300 shadow-[0_0_10px_-2px_rgba(52,211,153,0.25)]"
+                : cn(
+                    "border-white/8 bg-transparent text-sidebar-foreground/40",
+                    "group-hover/item:border-white/14 group-hover/item:bg-white/8 group-hover/item:text-white",
+                  ),
+              isAlertsItem && hasAlerts && !isActive && "border-amber-400/25 text-amber-300",
             )}
           >
-            <item.icon className="h-[15px] w-[15px]" />
+            <item.icon className="h-[14px] w-[14px] transition-transform duration-200 group-hover/item:scale-110" />
           </span>
 
           <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
@@ -201,68 +200,86 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-e border-sidebar-border/40 bg-sidebar">
+    <Sidebar
+      collapsible="icon"
+      className="border-e border-sidebar-border/20"
+      style={{
+        background: "linear-gradient(175deg, hsl(150,22%,13%) 0%, hsl(150,18%,9%) 100%)",
+      }}
+    >
       {/* Brand header */}
-      <SidebarHeader className="px-3 py-4">
+      <SidebarHeader className="px-3 pb-4 pt-5">
         <div className="flex items-center gap-3 px-1">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/12 bg-white/90 p-1.5">
-            <BrandLogo className="h-full w-full" imgClassName="h-full w-full object-contain" alt={companyName} />
+          {/* Logo — glowing ring */}
+          <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-400/25 bg-white/90 p-1.5 shadow-[0_0_18px_-4px_rgba(52,211,153,0.4)]">
+            <BrandLogo
+              className="h-full w-full"
+              imgClassName="h-full w-full object-contain"
+              alt={companyName}
+            />
           </div>
+
+          {/* Company info */}
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
-            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-sidebar-foreground/40">
+            <p className="text-[9.5px] font-bold uppercase tracking-[0.24em] text-emerald-400/55">
               {companyShortName}
             </p>
-            <p className="truncate text-[13px] font-semibold leading-snug text-sidebar-foreground/90">
+            <p className="truncate text-[13px] font-semibold leading-snug text-white/88">
               {companyName}
             </p>
           </div>
         </div>
       </SidebarHeader>
 
-      <SidebarSeparator className="mx-3 bg-sidebar-border/40" />
+      {/* Separator with gradient */}
+      <div className="mx-3 mb-1 h-px bg-gradient-to-r from-transparent via-white/12 to-transparent" />
 
-      {/* Nested / collapsible navigation */}
-      <SidebarContent className="px-2 py-3">
+      {/* Navigation sections */}
+      <SidebarContent className="px-2 py-2">
         {sections.map((section) => {
           const isOpen = openSections[section.key];
           return (
-            <SidebarGroup key={section.key} className="mb-1 p-0 last:mb-0">
-              {/* Section toggle header — hidden when sidebar collapses to icons */}
+            <SidebarGroup key={section.key} className="mb-0.5 p-0 last:mb-0">
+              {/* Section toggle */}
               <button
                 type="button"
                 onClick={() => toggleSection(section.key)}
-                className="group-data-[collapsible=icon]:hidden mb-0.5 flex w-full items-center justify-between rounded-lg px-3 py-1.5 transition-colors hover:bg-white/5"
+                className="group-data-[collapsible=icon]:hidden mb-0.5 flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 transition-colors hover:bg-white/5"
               >
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-sidebar-foreground/35">
+                <span className="text-[9.5px] font-bold uppercase tracking-[0.22em] text-white/25">
                   {section.label}
                 </span>
-                {isOpen
-                  ? <ChevronDown className="h-3 w-3 text-sidebar-foreground/30" />
-                  : <ChevronRight className="h-3 w-3 text-sidebar-foreground/30" />
-                }
+                <ChevronDown
+                  className={cn(
+                    "h-3 w-3 text-white/20 transition-transform duration-200",
+                    !isOpen && "-rotate-90",
+                  )}
+                />
               </button>
 
-              {/* Items: respect open state; always visible in icon-only mode */}
+              {/* Items */}
               <div
                 className={cn(
-                  "overflow-hidden transition-all duration-200",
+                  "overflow-hidden transition-all duration-250 ease-out",
                   isOpen
                     ? "max-h-[500px] opacity-100"
                     : "max-h-0 opacity-0 group-data-[collapsible=icon]:max-h-[500px] group-data-[collapsible=icon]:opacity-100",
                 )}
               >
                 <SidebarGroupContent>
-                  <SidebarMenu className="gap-0.5">{section.items.map(renderNavItem)}</SidebarMenu>
+                  <SidebarMenu className="gap-0.5">
+                    {section.items.map(renderNavItem)}
+                  </SidebarMenu>
                 </SidebarGroupContent>
               </div>
             </SidebarGroup>
           );
         })}
 
-        {/* Settings — admin only, always visible standalone */}
+        {/* Settings — admin only */}
         {isAdmin && (
           <>
-            <SidebarSeparator className="mx-1 my-2 bg-sidebar-border/30" />
+            <div className="mx-1 my-2 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
             <SidebarMenu className="gap-0.5">
               <SidebarMenuItem>
                 <SidebarMenuButton
@@ -270,14 +287,21 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
                   isActive={activeTab === "settings"}
                   tooltip="Paramètres"
                   className={cn(
-                    "h-9 gap-2.5 rounded-xl px-2.5 text-[13px] font-medium transition-all duration-150",
+                    "group/item h-9 gap-2.5 rounded-xl px-2.5 text-[13px] font-medium transition-all duration-200",
                     activeTab === "settings"
-                      ? "bg-white/12 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]"
-                      : "text-sidebar-foreground/62 hover:bg-white/6 hover:text-sidebar-foreground",
+                      ? "bg-white/10 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.07)]"
+                      : "text-sidebar-foreground/55 hover:bg-white/8 hover:text-white",
                   )}
                 >
-                  <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-transparent text-sidebar-foreground/50">
-                    <Settings className="h-[15px] w-[15px]" />
+                  <span
+                    className={cn(
+                      "flex h-7 w-7 items-center justify-center rounded-lg border transition-all duration-200",
+                      activeTab === "settings"
+                        ? "border-emerald-400/30 bg-emerald-500/15 text-emerald-300"
+                        : "border-white/8 text-sidebar-foreground/40 group-hover/item:border-white/14 group-hover/item:bg-white/8 group-hover/item:text-white",
+                    )}
+                  >
+                    <Settings className="h-[14px] w-[14px] transition-transform duration-200 group-hover/item:scale-110" />
                   </span>
                   <span className="group-data-[collapsible=icon]:hidden">Paramètres</span>
                 </SidebarMenuButton>
@@ -287,33 +311,38 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
         )}
       </SidebarContent>
 
-      <SidebarSeparator className="mx-3 bg-sidebar-border/40" />
+      <div className="mx-3 h-px bg-gradient-to-r from-transparent via-white/12 to-transparent" />
 
-      {/* Footer: alert pill + user card */}
+      {/* Footer */}
       <SidebarFooter className="px-3 py-3">
+        {/* Alert pill */}
         {hasAlerts && (
-          <div className="mb-2 flex items-center gap-2 rounded-xl border border-amber-400/20 bg-amber-400/8 px-3 py-2 group-data-[collapsible=icon]:hidden">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-400" />
-            <p className="text-[11px] font-semibold text-amber-300">
+          <div className="mb-2 flex items-center gap-2.5 rounded-xl border border-amber-400/20 bg-amber-400/8 px-3 py-2 group-data-[collapsible=icon]:hidden">
+            <span className="relative flex h-2 w-2 shrink-0">
+              <span className="animate-ping-slow absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-50" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-400" />
+            </span>
+            <p className="text-[11px] font-semibold text-amber-300/90">
               {activeAlertsCount} alerte{activeAlertsCount > 1 ? "s" : ""} active{activeAlertsCount > 1 ? "s" : ""}
             </p>
           </div>
         )}
 
-        <div className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/5 px-2.5 py-2.5">
-          <Avatar className="h-8 w-8 shrink-0 border border-white/15">
+        {/* User card */}
+        <div className="flex items-center gap-2.5 rounded-xl border border-white/10 bg-gradient-to-r from-white/7 to-white/4 px-2.5 py-2.5">
+          <Avatar className="h-8 w-8 shrink-0 border border-white/18 shadow-[0_0_10px_-2px_rgba(52,211,153,0.2)]">
             <AvatarImage src={profile?.avatar_url || undefined} alt={identityLabel} />
-            <AvatarFallback className="bg-emerald-600/60 text-[11px] font-bold text-white">
+            <AvatarFallback className="bg-emerald-600/55 text-[11px] font-bold text-white">
               {userInitials}
             </AvatarFallback>
           </Avatar>
 
           <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
-            <p className="truncate text-[13px] font-semibold leading-tight text-sidebar-foreground/90">
+            <p className="truncate text-[12.5px] font-semibold leading-tight text-white/88">
               {identityLabel}
             </p>
             {roleLabel && (
-              <p className="truncate text-[10px] leading-tight text-sidebar-foreground/40">
+              <p className="truncate text-[10px] leading-tight text-white/35">
                 {roleLabel}
               </p>
             )}
@@ -323,7 +352,7 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
             <button
               onClick={signOut}
               title="Se déconnecter"
-              className="shrink-0 rounded-lg p-1 text-sidebar-foreground/35 transition-colors hover:bg-white/8 hover:text-red-400 group-data-[collapsible=icon]:hidden"
+              className="shrink-0 rounded-lg p-1.5 text-white/30 transition-all duration-150 hover:bg-red-500/15 hover:text-red-400 group-data-[collapsible=icon]:hidden"
             >
               <LogOut className="h-3.5 w-3.5" />
             </button>
