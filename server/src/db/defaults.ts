@@ -878,6 +878,38 @@ export const prepareInsertDocument = async (collection: string, rawInput: Record
     doc.inspected_at = doc.inspected_at || now;
   }
 
+  if (collection === "bon_expeditions") {
+    doc.numero_bon = doc.numero_bon || (await nextDailyNumber("BDE"));
+    doc.annee = doc.annee || new Date().getFullYear();
+    doc.conventionnel = doc.conventionnel ?? false;
+    doc.bio_certifie = doc.bio_certifie ?? false;
+    doc.ggp = doc.ggp ?? false;
+    doc.lieu = doc.lieu ?? null;
+    doc.code_fournisseur = doc.code_fournisseur ?? null;
+    doc.fournisseur_id = doc.fournisseur_id ?? null;
+    doc.code_controleur = doc.code_controleur ?? null;
+    doc.date_expedition = doc.date_expedition || now.slice(0, 10);
+    doc.numero_camion = doc.numero_camion ?? null;
+    doc.nom_chauffeur = doc.nom_chauffeur ?? null;
+    doc.lieu_reception = doc.lieu_reception ?? null;
+    doc.responsable_reception = doc.responsable_reception ?? null;
+    doc.nom_signataire = doc.nom_signataire ?? null;
+    const defaultLignes = [
+      { produit: "branche_1ere",  nature_caisse: null, quantite_caisse: null, observation: null },
+      { produit: "branche_2eme",  nature_caisse: null, quantite_caisse: null, observation: null },
+      { produit: "vrac",          nature_caisse: null, quantite_caisse: null, observation: null },
+      { produit: "vrac_seche",    nature_caisse: null, quantite_caisse: null, observation: null },
+      { produit: "branche_seche", nature_caisse: null, quantite_caisse: null, observation: null },
+      { produit: "alig_khouat",   nature_caisse: null, quantite_caisse: null, observation: null },
+    ];
+    doc.lignes = Array.isArray(doc.lignes) && doc.lignes.length > 0 ? doc.lignes : defaultLignes;
+    doc.casse_nature = doc.casse_nature ?? null;
+    doc.casse_gc = doc.casse_gc ?? null;
+    doc.casse_p = doc.casse_p ?? null;
+    doc.casse_l = doc.casse_l ?? null;
+    doc.statut = doc.statut || "brouillon";
+  }
+
   if (collection === "bon_receptions_achat") {
     doc.numero_bon = doc.numero_bon || (await nextDailyNumber("BRA"));
     doc.annee = doc.annee || new Date().getFullYear();
