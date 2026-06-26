@@ -82,16 +82,14 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [rqc, setRqc] = useState<RQCData>(defaultRqc);
 
-  type RqcCritereKey = keyof Pick<RQCData,'infestee'|'fermentee'|'immature'|'craquellee'|'grasse'|'seche'|'tachee'|'ridee'|'petit_calibre'>;
-
-  const updateRqcCritere = (field: RqcCritereKey, test: 'test1'|'test2'|'test3', value: number | null) => {
+  const updateRqcCritere = useCallback((field: RqcCritereKey, test: 'test1'|'test2'|'test3', value: number | null) => {
     setRqc(prev => {
       const critere = { ...prev[field], [test]: value };
       const vals = [critere.test1, critere.test2, critere.test3].filter((v): v is number => v != null);
       critere.taux_moyen = vals.length ? Math.round((vals.reduce((a,b)=>a+b,0)/vals.length)*10)/10 : null;
       return { ...prev, [field]: critere };
     });
-  };
+  }, []);
 
   const createInspection = useCreateQCInspection();
   const submitDecision = useSubmitQCDecision();
