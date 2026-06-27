@@ -332,19 +332,23 @@ const Index = () => {
         return (
           <div className="space-y-4">
             {waitingLots.length > 0 && features.phase2_enabled && (
-              <div className="flex items-center gap-3 px-4 py-2.5 bg-amber-50 border border-amber-200 rounded-xl text-sm">
-                <span className="font-semibold text-amber-700">
-                  {waitingLots.length} lot(s) VALIDE{waitingLots.length > 1 ? 's' : ''} en attente de Phase 2
+              <div className="flex items-center gap-3 rounded-xl border border-amber-200/70 bg-amber-50/80 px-4 py-2.5 text-sm backdrop-blur-sm">
+                <span className="relative flex h-2 w-2 shrink-0">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-60" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" />
                 </span>
-                <span className="text-amber-600 text-xs flex-1">
+                <span className="font-semibold text-amber-700">
+                  {waitingLots.length} lot{waitingLots.length > 1 ? 's' : ''} en attente de Phase 2
+                </span>
+                <span className="flex-1 truncate text-xs text-amber-600/80">
                   {waitingLots.map(l => l.reception_number).slice(0, 5).join(' · ')}
                   {waitingLots.length > 5 ? ` +${waitingLots.length - 5}` : ''}
                 </span>
                 <button
                   onClick={handleGoToProduction}
-                  className="text-xs font-semibold text-amber-700 underline underline-offset-2 hover:text-amber-900 transition-colors shrink-0"
+                  className="shrink-0 rounded-lg border border-amber-300/60 bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-700 transition-colors hover:bg-amber-200 hover:text-amber-900"
                 >
-                  Aller en Production →
+                  Production →
                 </button>
               </div>
             )}
@@ -417,19 +421,21 @@ const Index = () => {
           </div>
         </main>
 
-        <footer className="flex flex-col items-center justify-between gap-2 border-t border-border/30 bg-background/60 px-4 py-3 text-center backdrop-blur-sm sm:flex-row sm:px-5 sm:text-left lg:px-6">
+        <footer className="flex flex-col items-center justify-between gap-2 border-t border-border/40 bg-card/70 px-4 py-2.5 text-center backdrop-blur-sm sm:flex-row sm:px-5 sm:text-left lg:px-6">
           <div className="flex items-center gap-2">
-            <div className="flex h-5 w-5 items-center justify-center opacity-40">
+            <div className="flex h-[18px] w-[18px] items-center justify-center opacity-35">
               <BrandLogo className="h-full w-full" imgClassName="h-full w-full object-contain" alt={companyName} />
             </div>
-            <span className="text-[11px] text-muted-foreground/45">
+            <span className="text-[10.5px] font-medium text-muted-foreground/40">
               © {new Date().getFullYear()} {companyName}
             </span>
           </div>
-          <div className="flex items-center gap-2.5 text-[11px] text-muted-foreground/35">
-            <span className="hidden sm:inline">Manufacturing Execution System</span>
-            <span className="h-3 w-px bg-border/60 hidden sm:block" />
-            <span className="rounded-full border border-primary/20 bg-primary/6 px-2 py-0.5 text-[10px] font-bold text-primary/60">v2.0</span>
+          <div className="flex items-center gap-2 text-[10.5px] text-muted-foreground/32">
+            <span className="hidden sm:inline font-medium">MES Royal Palm</span>
+            <span className="hidden h-2.5 w-px bg-border/50 sm:block" />
+            <span className="rounded-full border border-primary/18 bg-primary/5 px-2 py-0.5 text-[9.5px] font-bold tracking-wide text-primary/55">
+              v2.0
+            </span>
           </div>
         </footer>
 
