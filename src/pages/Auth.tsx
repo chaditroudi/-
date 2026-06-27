@@ -1,142 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-  ArrowRight,
-  CheckCircle2,
-  Eye,
-  EyeOff,
-  Factory,
-  Lock,
-  Mail,
-  ShieldCheck,
-  Sparkles,
-} from 'lucide-react';
+import { ArrowRight, Eye, EyeOff, Lock, Mail, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { BrandLogo } from '@/components/branding/BrandLogo';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { BrandLogo } from '@/components/branding/BrandLogo';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useBranding } from '@/hooks/useBranding';
-import { LanguageSwitcher } from '@/components/LanguageSwitcher';
-import heroBannerImage from '@/assets/hero-banner-dates.jpg';
-
-const getAuthCopy = (language: string, companyName: string) => {
-  if (language.startsWith('fr')) {
-    return {
-      badge: 'Espace securise',
-      title: 'Pilotez la production',
-      titleAccent: 'sans friction.',
-      subtitle:
-        "Accedez aux receptions, aux ordres de production et aux alertes qualite depuis une interface plus claire pour l'usine.",
-      highlights: [
-        'Visibilite en temps reel sur les receptions et blocages',
-        'Acces rapide aux modules production, stock et qualite',
-        'Permissions adaptees au role de chaque equipe',
-      ],
-      stats: [
-        { value: '24/7', label: 'suivi des operations' },
-        { value: 'Role', label: 'acces securise' },
-        { value: 'Live', label: 'alertes critiques' },
-      ],
-      loginTitle: 'Connexion equipe',
-      loginDescription: 'Retrouvez votre espace de travail et vos priorites.',
-      passwordHint: 'Minimum 6 caracteres.',
-      loginHelper: `Connexion securisee pour les equipes ${companyName}.`,
-      footer: companyName,
-      footerTagline: 'Systeme de gestion de production',
-      forgotPassword: 'Mot de passe oublie?',
-      version: 'v2.0',
-    };
-  }
-
-  if (language.startsWith('ar')) {
-    return {
-      badge: 'مساحة آمنة',
-      title: 'ادخل إلى نظام الإنتاج',
-      titleAccent: 'بسرعة ووضوح.',
-      subtitle:
-        'تابع الاستقبال والإنتاج والتنبيهات من واجهة أكثر وضوحاً ومناسبة لفرق المصنع.',
-      highlights: [
-        'رؤية مباشرة لحالة الاستقبال والتنبيهات',
-        'وصول سريع إلى وحدات الإنتاج والمخزون والجودة',
-        'صلاحيات مناسبة لكل دور داخل المؤسسة',
-      ],
-      stats: [
-        { value: '24/7', label: 'متابعة العمليات' },
-        { value: 'Role', label: 'وصول آمن' },
-        { value: 'Live', label: 'تنبيهات فورية' },
-      ],
-      loginTitle: 'تسجيل الدخول',
-      loginDescription: 'افتح مساحة العمل الخاصة بك وتابع أولوياتك.',
-      passwordHint: 'ستة أحرف على الأقل.',
-      loginHelper: `دخول آمن لفرق ${companyName}.`,
-      footer: companyName,
-      footerTagline: 'نظام إدارة الإنتاج',
-      forgotPassword: 'نسيت كلمة المرور؟',
-      version: 'v2.0',
-    };
-  }
-
-  return {
-    badge: 'Secure workspace',
-    title: 'Run production with',
-    titleAccent: 'total clarity.',
-    subtitle:
-      'Access receptions, production orders, stock, and quality alerts from a sharper entry point built for factory teams.',
-    highlights: [
-      'Real-time visibility on receptions and blockers',
-      'Faster access to production, stock, and quality modules',
-      'Role-based permissions for every team member',
-    ],
-    stats: [
-      { value: '24/7', label: 'operations visibility' },
-      { value: 'Role', label: 'secure access' },
-      { value: 'Live', label: 'critical alerts' },
-    ],
-    loginTitle: 'Team login',
-    loginDescription: 'Return to your workspace and current priorities.',
-    passwordHint: 'Minimum 6 characters.',
-    loginHelper: `Secure access for ${companyName} teams.`,
-    footer: companyName,
-    footerTagline: 'Manufacturing Execution System',
-    forgotPassword: 'Forgot password?',
-    version: 'v2.0',
-  };
-};
-
-const inputCls =
-  'h-11 rounded-xl border-border/60 bg-background/60 ps-11 pe-11 text-sm text-foreground shadow-none placeholder:text-muted-foreground/55 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary/50 transition-colors';
-
-const FormField = ({
-  htmlFor,
-  label,
-  icon: Icon,
-  children,
-  helper,
-  helperClassName,
-}: {
-  htmlFor: string;
-  label: string;
-  icon: typeof Mail;
-  children: React.ReactNode;
-  helper?: string;
-  helperClassName?: string;
-}) => (
-  <div className="space-y-2">
-    <Label htmlFor={htmlFor} className="text-[13px] font-medium text-foreground/80">
-      {label}
-    </Label>
-    <div className="relative">
-      <Icon className="pointer-events-none absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
-      {children}
-    </div>
-    {helper && (
-      <p className={`text-[11px] leading-relaxed ${helperClassName ?? 'text-muted-foreground/70'}`}>{helper}</p>
-    )}
-  </div>
-);
+import { cn } from '@/lib/utils';
 
 export default function Auth() {
   const { t, i18n } = useTranslation();
@@ -145,285 +19,207 @@ export default function Auth() {
   const { signIn, user, isLoading: isAuthLoading } = useAuthContext();
   const { companyName, companyShortName } = useBranding();
 
-  const [isLoginPending, setIsLoginPending] = useState(false);
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPwd, setShowPwd] = useState(false);
+  const [pending, setPending] = useState(false);
 
-  const authCopy = getAuthCopy(i18n.language, companyName);
+  const isRTL = i18n.language.startsWith('ar');
 
   useEffect(() => {
-    if (!isAuthLoading && user) {
-      navigate('/');
-    }
+    if (!isAuthLoading && user) navigate('/');
   }, [user, isAuthLoading, navigate]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoginPending(true);
+    setPending(true);
     try {
-      await signIn(loginEmail, loginPassword);
+      await signIn(email, password);
       toast({ title: t('messages.saveSuccess'), description: t('home.welcome') });
       navigate('/');
-    } catch (error: any) {
+    } catch (err: any) {
       toast({
         title: t('common.error'),
-        description: error.message || t('messages.loadError'),
+        description: err.message || t('messages.loadError'),
         variant: 'destructive',
       });
     } finally {
-      setIsLoginPending(false);
+      setPending(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-
-      {/* ── HEADER ───────────────────────────────────────────────────────── */}
-      <header className="fixed inset-x-0 top-0 z-50 h-16 border-b border-white/8 bg-sidebar/95 backdrop-blur-xl">
-        <div className="mx-auto flex h-full max-w-[1400px] items-center justify-between px-5 sm:px-8">
-
-          {/* Brand */}
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/90 p-1.5 ring-1 ring-white/15">
-              <BrandLogo className="h-full w-full" imgClassName="h-full w-full object-contain" alt={companyName} />
-            </div>
-            <div className="hidden sm:block h-5 w-px bg-white/15" />
-            <div className="hidden sm:flex flex-col leading-none">
-              <span className="text-[13px] font-semibold tracking-tight text-white/90">{companyName}</span>
-              <span className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">
-                {companyShortName}
-              </span>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center gap-3">
-            <div className="hidden items-center gap-1.5 rounded-full border border-emerald-400/25 bg-emerald-400/10 px-3 py-1 sm:flex">
-              <ShieldCheck className="h-3 w-3 text-emerald-400" />
-              <span className="text-[11px] font-semibold tracking-wide text-emerald-300">
-                {authCopy.badge}
-              </span>
-            </div>
-            <div className="rounded-xl border border-white/12 bg-white/8 p-0.5">
-              <LanguageSwitcher />
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* ── BODY ─────────────────────────────────────────────────────────── */}
-      <div className="flex flex-1 pt-16">
-
-        {/* ── HERO SIDEBAR ─────────────────────────────────────────────── */}
-        <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] flex-col overflow-hidden bg-sidebar lg:flex lg:w-[50%] xl:w-[55%]">
-
-          {/* Background texture */}
-          <div
-            className="absolute inset-0 bg-cover bg-center opacity-[0.18]"
-            style={{ backgroundImage: `url(${heroBannerImage})` }}
-          />
-
-          {/* Gradient layers */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#061510]/95 via-[#0b2218]/85 to-[#123322]/75" />
-          <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-[#061510] to-transparent" />
-
-          {/* Decorative blobs */}
-          <div className="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-emerald-500/12 blur-3xl" />
-          <div className="absolute -left-16 bottom-16 h-64 w-64 rounded-full bg-primary/18 blur-3xl" />
-          <div className="absolute right-12 bottom-32 h-40 w-40 rounded-full bg-amber-400/8 blur-2xl" />
-
-          {/* Subtle dot grid */}
-          <div
-            className="absolute inset-0 opacity-[0.035]"
-            style={{
-              backgroundImage:
-                'radial-gradient(circle, white 1px, transparent 1px)',
-              backgroundSize: '28px 28px',
-            }}
-          />
-
-          {/* Content */}
-          <div className="relative flex h-full flex-col justify-between p-8 xl:p-12">
-
-            {/* Top: logo + headline */}
-            <div className="space-y-8">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 p-1.5 ring-1 ring-white/15">
-                  <BrandLogo className="h-full w-full" imgClassName="h-full w-full object-contain" alt={companyName} />
-                </div>
-                <div className="h-px flex-1 bg-gradient-to-r from-white/20 to-transparent" />
-                <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/35">
-                  MES {authCopy.version}
-                </span>
-              </div>
-
-              <div className="space-y-4">
-                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1">
-                  <Sparkles className="h-3 w-3 text-emerald-400" />
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
-                    {authCopy.footerTagline}
-                  </span>
-                </div>
-
-                <h1 className="max-w-sm text-4xl font-bold leading-[1.08] tracking-tight text-white xl:text-5xl">
-                  {authCopy.title}{' '}
-                  <span className="bg-gradient-to-r from-emerald-300 to-emerald-500 bg-clip-text text-transparent">
-                    {authCopy.titleAccent}
-                  </span>
-                </h1>
-
-                <p className="max-w-sm text-sm leading-relaxed text-white/55">
-                  {authCopy.subtitle}
-                </p>
-              </div>
-
-              {/* Feature list */}
-              <div className="space-y-3">
-                {authCopy.highlights.map((item, i) => (
-                  <div
-                    key={item}
-                    className="flex items-start gap-3 rounded-2xl border border-white/6 bg-white/4 px-4 py-3 backdrop-blur-sm"
-                    style={{ animationDelay: `${i * 80}ms` }}
-                  >
-                    <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-400/20">
-                      <CheckCircle2 className="h-3 w-3 text-emerald-400" />
-                    </div>
-                    <p className="text-sm text-white/68">{item}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Bottom: stats */}
-            <div className="grid grid-cols-3 gap-3">
-              {authCopy.stats.map((stat) => (
-                <div
-                  key={stat.label}
-                  className="rounded-2xl border border-white/8 bg-black/20 p-4 backdrop-blur-sm"
-                >
-                  <p className="text-2xl font-bold tracking-tight text-white">{stat.value}</p>
-                  <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">
-                    {stat.label}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </aside>
-
-        {/* ── FORM PANEL ───────────────────────────────────────────────── */}
-        <main className="flex flex-1 flex-col items-center justify-start overflow-y-auto px-4 py-10 sm:px-8 lg:justify-center">
-
-          {/* Subtle dot pattern background */}
-          <div
-            className="pointer-events-none fixed inset-0 opacity-[0.3] lg:start-[50%] xl:start-[55%]"
-            style={{
-              backgroundImage:
-                'radial-gradient(circle, hsl(142 30% 82%) 1px, transparent 1px)',
-              backgroundSize: '22px 22px',
-            }}
-          />
-
-          <div className="relative w-full max-w-[440px]">
-
-            {/* Card header above card */}
-            <div className="mb-7 text-center">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/15 bg-primary/8 text-primary shadow-sm">
-                <Factory className="h-7 w-7" />
-              </div>
-              <h2 className="text-2xl font-bold tracking-tight text-foreground">
-                {authCopy.loginTitle}
-              </h2>
-              <p className="mt-1.5 text-sm text-muted-foreground">
-                {authCopy.loginDescription}
-              </p>
-            </div>
-
-            {/* Main card — login only */}
-            <div className="overflow-hidden rounded-[1.75rem] border border-border/50 bg-white shadow-[0_32px_64px_-16px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.03)]">
-              <div className="p-5 sm:p-6">
-                <form onSubmit={handleLogin} className="space-y-4">
-
-                  <FormField htmlFor="login-email" label={t('auth.email')} icon={Mail}>
-                    <Input
-                      id="login-email"
-                      type="email"
-                      placeholder="user@royalpalm.tn"
-                      value={loginEmail}
-                      onChange={(e) => setLoginEmail(e.target.value)}
-                      className={inputCls}
-                      required
-                      autoComplete="email"
-                    />
-                  </FormField>
-
-                  <FormField htmlFor="login-password" label={t('auth.password')} icon={Lock}>
-                    <Input
-                      id="login-password"
-                      type={showLoginPassword ? 'text' : 'password'}
-                      placeholder="••••••••"
-                      value={loginPassword}
-                      onChange={(e) => setLoginPassword(e.target.value)}
-                      className={inputCls}
-                      required
-                      autoComplete="current-password"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowLoginPassword((v) => !v)}
-                      className="absolute end-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60 transition-colors hover:text-foreground"
-                      aria-label={showLoginPassword ? 'Hide password' : 'Show password'}
-                    >
-                      {showLoginPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </FormField>
-
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="h-11 w-full rounded-xl bg-gradient-to-r from-primary to-emerald-500 text-[14px] font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:opacity-90 hover:shadow-primary/35"
-                    disabled={isLoginPending}
-                  >
-                    {isLoginPending ? t('common.loading') : t('auth.login')}
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-
-                  <p className="text-center text-[11px] text-muted-foreground/60">
-                    {authCopy.loginHelper}
-                  </p>
-                </form>
-              </div>
-            </div>
-
-            {/* Below-card hint (mobile: show secure badge) */}
-            <div className="mt-5 flex items-center justify-center gap-2 text-center">
-              <ShieldCheck className="h-3.5 w-3.5 text-muted-foreground/50" />
-              <p className="text-[11px] text-muted-foreground/50">{authCopy.badge}</p>
-            </div>
-          </div>
-        </main>
+    <div
+      dir={isRTL ? 'rtl' : 'ltr'}
+      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#F4F6F9] px-4 py-10"
+    >
+      {/* ── Subtle background blobs ── */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-emerald-500/6 blur-3xl" />
+        <div className="absolute -bottom-32 -left-20 h-80 w-80 rounded-full bg-primary/5 blur-3xl" />
+        <div className="absolute -bottom-24 -right-16 h-72 w-72 rounded-full bg-emerald-300/6 blur-3xl" />
       </div>
 
-      {/* ── FOOTER ───────────────────────────────────────────────────────── */}
-      <footer className="relative z-10 border-t border-border/40 bg-white/60 py-4 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-[1400px] flex-col items-center justify-between gap-2 px-5 text-center sm:flex-row sm:flex-wrap sm:gap-3 sm:px-8 sm:text-left">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-4 w-4 items-center justify-center opacity-50">
-              <BrandLogo className="h-full w-full" imgClassName="h-full w-full object-contain" alt={companyName} />
-            </div>
-            <span className="text-[12px] text-muted-foreground/60">
-              © {new Date().getFullYear()} {authCopy.footer}
-            </span>
+      {/* ── Language switcher ── */}
+      <div className="absolute end-4 top-4 z-10">
+        <div className="rounded-xl border border-border/60 bg-white/80 p-0.5 backdrop-blur-sm shadow-xs">
+          <LanguageSwitcher />
+        </div>
+      </div>
+
+      {/* ── Card ── */}
+      <div className="relative w-full max-w-[400px]">
+
+        {/* Logo + Brand */}
+        <div className="mb-8 flex flex-col items-center gap-4 text-center">
+          <div
+            className="flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/18 bg-white p-2.5"
+            style={{ boxShadow: '0 0 0 6px hsl(142 68% 27% / 0.07), 0 8px 24px -8px hsl(142 68% 27% / 0.25)' }}
+          >
+            <BrandLogo className="h-full w-full" imgClassName="h-full w-full object-contain" alt={companyName} />
           </div>
-          <div className="flex items-center gap-4 text-[12px] text-muted-foreground/50">
-            <span>{authCopy.footerTagline}</span>
-            <span className="hidden h-3 w-px bg-border/50 sm:block" />
-            <span className="font-medium text-primary/60">{authCopy.version}</span>
+
+          <div>
+            <div className="mb-1.5 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/7 px-3 py-0.5">
+              <ShieldCheck className="h-3 w-3 text-primary/70" />
+              <span className="text-[10.5px] font-bold uppercase tracking-[0.18em] text-primary/65">
+                {companyShortName} · MES
+              </span>
+            </div>
+            <h1 className="text-[22px] font-bold tracking-tight text-foreground">
+              {i18n.language.startsWith('ar')
+                ? 'تسجيل الدخول'
+                : i18n.language.startsWith('fr')
+                  ? 'Connexion équipe'
+                  : 'Team login'}
+            </h1>
+            <p className="mt-1 text-[13px] text-muted-foreground/70">
+              {i18n.language.startsWith('ar')
+                ? 'افتح مساحة عملك'
+                : i18n.language.startsWith('fr')
+                  ? 'Accédez à votre espace de travail'
+                  : 'Access your workspace'}
+            </p>
           </div>
         </div>
-      </footer>
 
+        {/* Form card */}
+        <div
+          className="rounded-2xl border border-border/60 bg-white p-6 sm:p-7"
+          style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 20px 48px -16px rgba(0,0,0,0.12)' }}
+        >
+          <form onSubmit={handleSubmit} className="space-y-4">
+
+            {/* Email */}
+            <div className="space-y-1.5">
+              <Label htmlFor="email" className="text-[12.5px] font-semibold text-foreground/80">
+                {t('auth.email')}
+              </Label>
+              <div className="relative">
+                <Mail className="pointer-events-none absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/45" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="user@royalpalm.tn"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoComplete="email"
+                  className={cn(
+                    'h-11 rounded-xl border-border/60 ps-11 text-[13.5px]',
+                    'placeholder:text-muted-foreground/40',
+                    'focus-visible:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/15',
+                    'transition-all duration-150',
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div className="space-y-1.5">
+              <Label htmlFor="password" className="text-[12.5px] font-semibold text-foreground/80">
+                {t('auth.password')}
+              </Label>
+              <div className="relative">
+                <Lock className="pointer-events-none absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/45" />
+                <Input
+                  id="password"
+                  type={showPwd ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                  className={cn(
+                    'h-11 rounded-xl border-border/60 ps-11 pe-11 text-[13.5px]',
+                    'placeholder:text-muted-foreground/40',
+                    'focus-visible:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/15',
+                    'transition-all duration-150',
+                  )}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPwd((v) => !v)}
+                  className="absolute end-3.5 top-1/2 -translate-y-1/2 rounded-md p-0.5 text-muted-foreground/50 transition-colors hover:text-foreground"
+                  aria-label={showPwd ? 'Hide' : 'Show'}
+                >
+                  {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Submit */}
+            <Button
+              type="submit"
+              size="lg"
+              disabled={pending}
+              className={cn(
+                'mt-2 h-11 w-full rounded-xl text-[13.5px] font-semibold',
+                'bg-gradient-to-r from-primary to-emerald-500',
+                'shadow-[0_4px_16px_-4px_hsl(142_68%_27%_/_0.45)]',
+                'hover:opacity-92 hover:shadow-[0_6px_20px_-4px_hsl(142_68%_27%_/_0.55)]',
+                'transition-all duration-200',
+                'disabled:opacity-60 disabled:cursor-not-allowed',
+              )}
+            >
+              {pending ? (
+                <span className="flex items-center gap-2">
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                  {t('common.loading')}
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  {t('auth.login')}
+                  <ArrowRight className="h-4 w-4" />
+                </span>
+              )}
+            </Button>
+          </form>
+        </div>
+
+        {/* Below-card trust line */}
+        <div className="mt-5 flex items-center justify-center gap-2">
+          <ShieldCheck className="h-3.5 w-3.5 text-muted-foreground/35" />
+          <p className="text-[11px] text-muted-foreground/45">
+            {i18n.language.startsWith('ar')
+              ? `دخول آمن لفرق ${companyName}`
+              : i18n.language.startsWith('fr')
+                ? `Connexion sécurisée — ${companyName}`
+                : `Secure access · ${companyName}`}
+          </p>
+        </div>
+      </div>
+
+      {/* ── Footer ── */}
+      <footer className="absolute bottom-0 inset-x-0 border-t border-border/30 bg-white/50 py-3 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-[900px] items-center justify-between gap-3 px-5 text-[10.5px] text-muted-foreground/40">
+          <span>© {new Date().getFullYear()} {companyName}</span>
+          <span className="hidden sm:inline">Manufacturing Execution System</span>
+          <span className="rounded-full border border-primary/16 bg-primary/5 px-2 py-0.5 font-bold tracking-wide text-primary/50">
+            v2.0
+          </span>
+        </div>
+      </footer>
     </div>
   );
 }
