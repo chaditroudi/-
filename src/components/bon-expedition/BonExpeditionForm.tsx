@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import type { BonExpedition, BonExpeditionInput, ExpeditionLigne, ProduitType } from "@/types/bonExpedition";
 import { PRODUIT_LABELS, PRODUIT_ORDER } from "@/types/bonExpedition";
 import { useSuppliers } from "@/hooks/useSuppliers";
+import { useExportOrders } from "@/hooks/useExportOrders";
 import type { Supplier } from "@/types/mes";
 
 interface Props {
@@ -24,6 +25,7 @@ const n = (v: string) => (v === "" ? null : Number(v));
 
 export function BonExpeditionForm({ initial, onSubmit, isSaving }: Props) {
   const { data: suppliers = [] } = useSuppliers({ enabled: true });
+  const { data: exportOrders = [] } = useExportOrders();
   const today = new Date().toISOString().slice(0, 10);
 
   const [conventionnel, setConventionnel] = useState(initial?.conventionnel ?? false);
@@ -41,6 +43,7 @@ export function BonExpeditionForm({ initial, onSubmit, isSaving }: Props) {
   const [responsableReception, setResponsableReception] = useState(initial?.responsable_reception ?? "");
   const [nomSignataire, setNomSignataire] = useState(initial?.nom_signataire ?? "");
   const [statut, setStatut] = useState<string>(initial?.statut ?? "brouillon");
+  const [exportOrderRef, setExportOrderRef] = useState<string>(initial?.export_order_ref ?? "");
   const [lignes, setLignes] = useState<ExpeditionLigne[]>(
     initial?.lignes && initial.lignes.length > 0 ? initial.lignes : defaultLignes(),
   );
@@ -84,8 +87,9 @@ export function BonExpeditionForm({ initial, onSubmit, isSaving }: Props) {
       casse_p: n(casseP),
       casse_l: n(casseL),
       statut,
+      export_order_ref: exportOrderRef || null,
     });
-  }, [annee, conventionnel, bioCertifie, ggp, lieu, codeFournisseur, fournisseurId, codeControleur, dateExpedition, numeroCamion, nomChauffeur, lieuReception, responsableReception, nomSignataire, lignes, casseNature, casseGc, casseP, casseL, statut, onSubmit]);
+  }, [annee, conventionnel, bioCertifie, ggp, lieu, codeFournisseur, fournisseurId, codeControleur, dateExpedition, numeroCamion, nomChauffeur, lieuReception, responsableReception, nomSignataire, lignes, casseNature, casseGc, casseP, casseL, statut, exportOrderRef, onSubmit]);
 
   return (
     <ScrollArea className="h-full pr-4">
@@ -112,6 +116,24 @@ export function BonExpeditionForm({ initial, onSubmit, isSaving }: Props) {
               </SelectContent>
             </Select>
           </div>
+        </div>
+
+        {/* ── Export Order link ── */}
+        <div>
+          <Label className="text-xs">Commande export liée</Label>
+          <Select value={exportOrderRef || "none"} onValueChange={(v) => setExportOrderRef(v === "none" ? "" : v)}>
+            <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Aucune commande liée" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Aucune</SelectItem>
+              {exportOrders
+                .filter((o) => o.status !== "cancelled")
+                .map((o) => (
+                  <SelectItem key={o.id} value={o.order_ref}>
+                    {o.order_ref} — {o.customer_name} ({o.customer_country})
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="flex gap-6">

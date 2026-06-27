@@ -115,6 +115,7 @@ export function BonExpeditionDashboard() {
                 <th className="text-left px-4 py-2.5 font-medium">Lieu</th>
                 <th className="text-left px-4 py-2.5 font-medium">Camion</th>
                 <th className="text-left px-4 py-2.5 font-medium">Conv.</th>
+                <th className="text-left px-4 py-2.5 font-medium">Commande export</th>
                 <th className="text-left px-4 py-2.5 font-medium">Statut</th>
                 <th className="text-right px-4 py-2.5 font-medium">Actions</th>
               </tr>
@@ -133,6 +134,9 @@ export function BonExpeditionDashboard() {
                       {b.conventionnel ? <span className="text-emerald-600 text-xs font-bold">✓</span> : "—"}
                       {b.bio_certifie ? <span className="ml-1 text-emerald-600 text-xs font-bold">BIO</span> : ""}
                       {b.ggp ? <span className="ml-1 text-sky-600 text-xs font-bold">GGP</span> : ""}
+                    </td>
+                    <td className="px-4 py-2.5 font-mono text-xs text-primary">
+                      {b.export_order_ref ?? <span className="text-muted-foreground">—</span>}
                     </td>
                     <td className="px-4 py-2.5">
                       <Badge variant="outline" className={cn("text-xs", statBadge.class)}>
