@@ -327,6 +327,8 @@ const Index = () => {
         return (
           <QualityDashboard currentUser={profile?.full_name ?? workspaceProfile.workspaceLabel} />
         );
+      case 'export':
+        return <ExportDashboard />;
       case 'settings':
         return <SettingsDashboard />;
       case 'receptions':
