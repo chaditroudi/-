@@ -132,7 +132,6 @@ const BranchSection = ({
   );
 };
 
-// ── BonReceptionAchatForm ─────────────────────────────────────────────────────
 
 export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
   const { data: suppliers = [] } = useSuppliers({ enabled: true });
