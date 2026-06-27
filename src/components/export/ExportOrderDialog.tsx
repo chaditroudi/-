@@ -16,6 +16,7 @@ import type {
 } from '@/types/exportOrders';
 import { useBatches } from '@/hooks/useBatches';
 import { useCOADocuments } from '@/hooks/useExportOrders';
+import { useCustomers } from '@/hooks/useCustomers';
 
 interface Props {
   open: boolean;
@@ -60,7 +61,9 @@ const INCOTERMS  = ['CIF', 'FOB', 'EXW', 'DDP', 'DAP', 'CFR'];
 export function ExportOrderDialog({ open, onOpenChange, initial, onSubmit, isSaving }: Props) {
   const { data: batches = [] } = useBatches({ enabled: open });
   const { data: coaDocs = [] } = useCOADocuments();
+  const { data: customers = [] } = useCustomers({ enabled: open });
 
+  const [selectedCustomerId, setSelectedCustomerId] = useState('');
   const [customerName,    setCustomerName]    = useState('');
   const [customerCountry, setCustomerCountry] = useState<BuyerCountry>('EU');
   const [customerAddress, setCustomerAddress] = useState('');
@@ -88,12 +91,28 @@ export function ExportOrderDialog({ open, onOpenChange, initial, onSubmit, isSav
       setNotes(initial.notes ?? '');
       setLines(initial.lines.map((l) => ({ ...l, _key: crypto.randomUUID() })));
     } else {
+      setSelectedCustomerId('');
       setCustomerName(''); setCustomerCountry('EU'); setCustomerAddress('');
       setCustomerContact(''); setIncoterms('CIF'); setPortLoading('Tunis');
       setPortDest(''); setCurrency('EUR'); setLanguage('fr'); setNotes('');
       setLines([emptyLine()]);
     }
   }, [open, initial]);
+
+  const handleCustomerSelect = (id: string) => {
+    setSelectedCustomerId(id);
+    if (id === 'none') return;
+    const c = customers.find((x) => x.id === id);
+    if (!c) return;
+    setCustomerName(c.name);
+    setCustomerCountry(c.country);
+    setCustomerAddress(c.address ?? '');
+    setCustomerContact(c.contact_name ?? '');
+    setLanguage(c.preferred_language);
+    setIncoterms(c.preferred_incoterms ?? 'CIF');
+    setCurrency(c.preferred_currency);
+    setPortDest(c.port_of_destination ?? '');
+  };
 
   const addLine    = () => setLines((l) => [...l, emptyLine()]);
   const removeLine = (key: string) => setLines((l) => l.filter((r) => r._key !== key));
@@ -134,6 +153,26 @@ export function ExportOrderDialog({ open, onOpenChange, initial, onSubmit, isSav
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Customer selector */}
+          {customers.length > 0 && (
+            <div>
+              <Label className="text-xs">Sélectionner un client enregistré</Label>
+              <Select value={selectedCustomerId || 'none'} onValueChange={handleCustomerSelect}>
+                <SelectTrigger className="h-8 text-sm mt-1">
+                  <SelectValue placeholder="Choisir un client (optionnel)..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">— Saisie manuelle —</SelectItem>
+                  {customers.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name} · {c.country}{c.specific_country ? ` (${c.specific_country})` : ''}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           {/* Client */}
           <div>
             <p className="text-xs font-semibold uppercase text-muted-foreground mb-2">Client</p>

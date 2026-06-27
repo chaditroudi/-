@@ -73,7 +73,7 @@ const TAB_SECTION_LABEL: Partial<Record<AppTab, string>> = {
   "stock-products": "Qualité & Stock", "stock-movements": "Qualité & Stock",
   suppliers: "Gestion", materials: "Gestion", purchasing: "Gestion",
   logistics: "Gestion", hr: "Gestion",
-  analytics: "Pilotage", "sage-operations": "Pilotage", export: "Pilotage",
+  analytics: "Pilotage", "sage-operations": "Pilotage", export: "Pilotage", customers: "Pilotage",
   settings: "Administration",
 };
 
