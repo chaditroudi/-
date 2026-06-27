@@ -20,8 +20,6 @@ const Row = ({ label, gc, rp, gcm, l, poidBrut, poidNet }: {
   </tr>
 );
 
-const metricRow = (branch: BranchLine) => branch;
-
 export const BonReceptionAchatPrint = forwardRef<HTMLDivElement, Props>(({ bon }, ref) => {
   const b1 = bon.branche_premiere;
   const b2 = bon.branche_deuxieme;
@@ -53,13 +51,13 @@ export const BonReceptionAchatPrint = forwardRef<HTMLDivElement, Props>(({ bon }
           <div className="text-[#1a5276] font-bold text-base text-center">BON DE RECEPTION ACHAT</div>
           <div className="flex gap-6 mt-2 text-[11px]">
             <label className="flex items-center gap-1">
-              <span className="inline-block w-4 h-4 border border-[#1a5276] flex items-center justify-center text-center">
+              <span className="flex h-4 w-4 items-center justify-center border border-[#1a5276] text-center">
                 {bon.convention ? "✓" : ""}
               </span>
               <span className="font-semibold">Convention</span>
             </label>
             <label className="flex items-center gap-1">
-              <span className="inline-block w-4 h-4 border border-[#1a5276] flex items-center justify-center text-center">
+              <span className="flex h-4 w-4 items-center justify-center border border-[#1a5276] text-center">
                 {bon.bio_certifie ? "✓" : ""}
               </span>
               <span>TN-Bio-001</span>
@@ -131,7 +129,7 @@ export const BonReceptionAchatPrint = forwardRef<HTMLDivElement, Props>(({ bon }
               </tr>
             </thead>
             <tbody>
-              <Row label="Branche 1ère" {...metricRow(b1)} poidBrut={b1.poid_brut} poidNet={b1.poid_net} />
+              <Row label="Branche 1ère" gc={b1.gc} rp={b1.rp} gcm={b1.gcm} l={b1.l} poidBrut={b1.poid_brut} poidNet={b1.poid_net} />
               <tr className="border border-[#1a5276] text-[10px]">
                 <td className="border border-[#1a5276] px-1 py-0.5 text-left bg-[#eaf4fb]">Nbre de palette</td>
                 <td colSpan={6} className="border border-[#1a5276] px-1 py-0.5">{b1.nbre_palette ?? ""}</td>
