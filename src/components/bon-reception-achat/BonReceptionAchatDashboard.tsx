@@ -53,12 +53,16 @@ export function BonReceptionAchatDashboard() {
   const openEdit   = useCallback((b: BonReceptionAchat) => { setEditing(b); setSheetOpen(true); }, []);
 
   const handleSubmit = useCallback(async (data: Partial<BonReceptionAchat>) => {
-    if (editing) {
-      await update.mutateAsync({ id: editing.id, ...data });
-    } else {
-      await create.mutateAsync(data);
+    try {
+      if (editing) {
+        await update.mutateAsync({ id: editing.id, ...data });
+      } else {
+        await create.mutateAsync(data);
+      }
+      setSheetOpen(false);
+    } catch {
+      // Error toast is handled by the mutation's onError; sheet stays open for retry
     }
-    setSheetOpen(false);
   }, [editing, update, create]);
 
   return (
