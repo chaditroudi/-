@@ -49,12 +49,14 @@ const SageOperationsHub      = lazy(() => import('@/components/home/SageOperatio
 
 // ── Suspense fallback ─────────────────────────────────────────────────────────
 const TabLoader = () => (
-  <div className="flex flex-col items-center justify-center gap-3 py-28">
-    <div className="relative h-9 w-9">
-      <div className="absolute inset-0 animate-spin rounded-full border-[3px] border-primary/15 border-t-primary" />
-      <div className="absolute inset-1.5 animate-ping rounded-full bg-primary/10" />
+  <div className="flex flex-col items-center justify-center gap-4 py-32">
+    <div className="relative h-10 w-10">
+      <div className="absolute inset-0 animate-spin rounded-full border-2 border-primary/10 border-t-primary" />
+      <div className="absolute inset-[5px] animate-spin rounded-full border-2 border-transparent border-b-primary/40" style={{ animationDirection: 'reverse', animationDuration: '0.7s' }} />
     </div>
-    <p className="text-[12px] font-medium text-muted-foreground/50 animate-pulse">Chargement…</p>
+    <p className="text-[11.5px] font-semibold tracking-wider text-muted-foreground/40 animate-pulse uppercase">
+      Chargement
+    </p>
   </div>
 );
 
