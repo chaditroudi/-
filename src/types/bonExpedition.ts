@@ -51,6 +51,7 @@ export interface BonExpedition {
   casse_p: number | null;
   casse_l: number | null;
   statut: BonExpeditionStatut;
+  export_order_ref: string | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;
