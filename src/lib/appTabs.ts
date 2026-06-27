@@ -18,6 +18,7 @@ import {
   Users,
   Warehouse,
   FileSignature,
+  BookUser,
   type LucideIcon,
 } from "lucide-react";
 import type { AppTab } from "@/lib/roleAccess";
