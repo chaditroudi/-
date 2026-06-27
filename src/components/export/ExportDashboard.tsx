@@ -13,7 +13,8 @@ import {
 import { cn } from '@/lib/utils';
 import {
   FileText, Plus, Printer, Pencil, Trash2, Search, Lock,
-  FileCheck, Globe, RefreshCw, CheckCircle2, Clock,
+  FileCheck, Globe, RefreshCw, CheckCircle2, Clock, ChevronRight,
+  TrendingUp, Package, DollarSign, ShieldCheck,
 } from 'lucide-react';
 import {
   useExportOrders, useCreateExportOrder, useUpdateExportOrder, useDeleteExportOrder,
@@ -46,6 +47,12 @@ const CONTRACT_STATUS: Record<string, { label: string; cls: string; icon: React.
 
 const COUNTRY_LABEL: Record<string, string> = { EU: '🇪🇺 UE', USA: '🇺🇸 USA', SA: '🇸🇦 KSA' };
 const LANG_LABEL:    Record<string, string> = { fr: 'FR', en: 'EN', ar: 'AR' };
+
+const NEXT_STATUS: Record<string, { status: string; label: string; cls: string } | undefined> = {
+  draft:     { status: 'confirmed', label: 'Confirmer',  cls: 'text-blue-600 hover:text-blue-700' },
+  confirmed: { status: 'shipped',   label: 'Expédier',   cls: 'text-purple-600 hover:text-purple-700' },
+  shipped:   { status: 'completed', label: 'Terminer',   cls: 'text-emerald-600 hover:text-emerald-700' },
+};
 
 // ── Approve dialog ────────────────────────────────────────────────────────────
 
@@ -306,6 +313,18 @@ export function ExportDashboard() {
                         </td>
                         <td className="px-4 py-2.5">
                           <div className="flex justify-end gap-1">
+                            {NEXT_STATUS[order.status] && (
+                              <Button
+                                variant="ghost" size="sm"
+                                className={cn('h-7 px-2 text-xs gap-1', NEXT_STATUS[order.status]!.cls)}
+                                onClick={() => updateOrder.mutateAsync({ id: order.id, status: NEXT_STATUS[order.status]!.status as any })}
+                                disabled={updateOrder.isPending}
+                                title={NEXT_STATUS[order.status]!.label}
+                              >
+                                <ChevronRight className="h-3 w-3" />
+                                {NEXT_STATUS[order.status]!.label}
+                              </Button>
+                            )}
                             {!hasContract && (
                               <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1"
                                 onClick={() => handleGenerateContract(order)}

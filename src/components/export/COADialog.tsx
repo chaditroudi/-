@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/select';
 import type { COADocument } from '@/types/exportOrders';
 import { useBatches } from '@/hooks/useBatches';
+import { useListQualityInspectionsQuery } from '@/store/api/batchesApi';
 
 interface Props {
   open: boolean;
@@ -22,6 +23,8 @@ interface Props {
 
 export function COADialog({ open, onOpenChange, initial, onSubmit, isSaving }: Props) {
   const { data: batches = [] } = useBatches({ enabled: open });
+  const [activeBatchId, setActiveBatchId] = useState('');
+  const { data: inspections = [] } = useListQualityInspectionsQuery(activeBatchId, { skip: !activeBatchId });
 
   const [batchId,        setBatchId]        = useState('');
   const [batchRef,       setBatchRef]       = useState('');
@@ -66,10 +69,11 @@ export function COADialog({ open, onOpenChange, initial, onSubmit, isSaving }: P
   }, [open, initial]);
 
   const handleBatchSelect = (id: string) => {
-    if (id === 'none') { setBatchId(''); setBatchRef(''); return; }
+    if (id === 'none') { setBatchId(''); setBatchRef(''); setActiveBatchId(''); return; }
     const b = batches.find((x) => x.id === id) as any;
     if (!b) return;
     setBatchId(id);
+    setActiveBatchId(id);
     setBatchRef(b.batch_number ?? id);
     setOriginRegion(b.origin_region ?? '');
     setOriginFarm(b.origin_farm ?? '');
@@ -77,6 +81,18 @@ export function COADialog({ open, onOpenChange, initial, onSubmit, isSaving }: P
     setVisualGrade(b.quality_grade ?? '');
     setNetWeight(b.current_weight_kg != null ? String(b.current_weight_kg) : '');
   };
+
+  // Auto-fill QC fields from the latest inspection whenever inspections load
+  useEffect(() => {
+    if (!activeBatchId || inspections.length === 0) return;
+    const latest = [...inspections].sort(
+      (a: any, b: any) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime()
+    )[0] as any;
+    if (latest.humidity_measured != null) setHumidityPct(String(latest.humidity_measured));
+    if (latest.mold_percentage != null)   setMoldScore(String(latest.mold_percentage));
+    if (latest.recommended_grade)         setVisualGrade(latest.recommended_grade);
+    if (latest.weight_measured_kg != null) setNetWeight(String(latest.weight_measured_kg));
+  }, [activeBatchId, inspections]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
