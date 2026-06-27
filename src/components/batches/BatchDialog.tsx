@@ -27,29 +27,6 @@ export const BatchDialog = ({ open, onOpenChange, suppliers, materials }: BatchD
 
   const createBatch = useCreateBatch();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    createBatch.mutate(
-      {
-        supplier_id: supplierId || undefined,
-        material_id: materialId || undefined,
-        origin_region: originRegion || undefined,
-        origin_farm: originFarm || undefined,
-        harvest_date: harvestDate || undefined,
-        initial_weight_kg: parseFloat(initialWeight),
-        notes: notes || undefined,
-        created_by: createdBy || undefined,
-      },
-      {
-        onSuccess: () => {
-          resetForm();
-          onOpenChange(false);
-        },
-      },
-    );
-  };
-
   const resetForm = () => {
     setSupplierId("");
     setMaterialId("");
@@ -61,6 +38,26 @@ export const BatchDialog = ({ open, onOpenChange, suppliers, materials }: BatchD
     setCreatedBy("");
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await createBatch.mutateAsync({
+        supplier_id: supplierId || undefined,
+        material_id: materialId || undefined,
+        origin_region: originRegion || undefined,
+        origin_farm: originFarm || undefined,
+        harvest_date: harvestDate || undefined,
+        initial_weight_kg: parseFloat(initialWeight),
+        notes: notes || undefined,
+        created_by: createdBy || undefined,
+      });
+      resetForm();
+      onOpenChange(false);
+    } catch {
+      // Error toast is handled by the mutation's onError in useBatches
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
@@ -70,15 +67,19 @@ export const BatchDialog = ({ open, onOpenChange, suppliers, materials }: BatchD
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
+
+            {/* Certification badge — read-only display */}
             <div className="col-span-2">
-              <Label htmlFor="createdBy">TN-BIO-001</Label>
-              <Input id="TN-BIO-001" value="TN-BIO-001" />
+              <Label className="text-xs text-muted-foreground">Certification</Label>
+              <div className="mt-1 flex h-9 items-center rounded-md border border-border/60 bg-muted/30 px-3 text-sm font-medium text-muted-foreground">
+                TN-BIO-001
+              </div>
             </div>
 
             <div>
-              <Label htmlFor="supplierId">Fournisseur</Label>
+              <Label htmlFor="bd-supplier">Fournisseur</Label>
               <Select value={supplierId || "none"} onValueChange={(val) => setSupplierId(val === "none" ? "" : val)}>
-                <SelectTrigger>
+                <SelectTrigger id="bd-supplier">
                   <SelectValue placeholder="Sélectionner..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -95,9 +96,9 @@ export const BatchDialog = ({ open, onOpenChange, suppliers, materials }: BatchD
             </div>
 
             <div>
-              <Label htmlFor="materialId">Type de dattes</Label>
+              <Label htmlFor="bd-material">Type de dattes</Label>
               <Select value={materialId || "none"} onValueChange={(val) => setMaterialId(val === "none" ? "" : val)}>
-                <SelectTrigger>
+                <SelectTrigger id="bd-material">
                   <SelectValue placeholder="Sélectionner..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -112,9 +113,9 @@ export const BatchDialog = ({ open, onOpenChange, suppliers, materials }: BatchD
             </div>
 
             <div>
-              <Label htmlFor="originRegion">Région d'origine</Label>
+              <Label htmlFor="bd-region">Région d&apos;origine</Label>
               <Input
-                id="originRegion"
+                id="bd-region"
                 value={originRegion}
                 onChange={(e) => setOriginRegion(e.target.value)}
                 placeholder="Ex: Tozeur"
@@ -122,9 +123,9 @@ export const BatchDialog = ({ open, onOpenChange, suppliers, materials }: BatchD
             </div>
 
             <div>
-              <Label htmlFor="originFarm">Exploitation</Label>
+              <Label htmlFor="bd-farm">Exploitation</Label>
               <Input
-                id="originFarm"
+                id="bd-farm"
                 value={originFarm}
                 onChange={(e) => setOriginFarm(e.target.value)}
                 placeholder="Nom de l'exploitation"
@@ -132,9 +133,9 @@ export const BatchDialog = ({ open, onOpenChange, suppliers, materials }: BatchD
             </div>
 
             <div>
-              <Label htmlFor="harvestDate">Date de Réception</Label>
+              <Label htmlFor="bd-harvest">Date de Réception</Label>
               <Input
-                id="harvestDate"
+                id="bd-harvest"
                 type="date"
                 value={harvestDate}
                 onChange={(e) => setHarvestDate(e.target.value)}
@@ -142,9 +143,9 @@ export const BatchDialog = ({ open, onOpenChange, suppliers, materials }: BatchD
             </div>
 
             <div>
-              <Label htmlFor="initialWeight">Poids initial (kg) *</Label>
+              <Label htmlFor="bd-weight">Poids initial (kg) *</Label>
               <Input
-                id="initialWeight"
+                id="bd-weight"
                 type="number"
                 step="0.1"
                 min="0"
@@ -155,9 +156,9 @@ export const BatchDialog = ({ open, onOpenChange, suppliers, materials }: BatchD
             </div>
 
             <div className="col-span-2">
-              <Label htmlFor="createdBy">Réceptionné par</Label>
+              <Label htmlFor="bd-created-by">Réceptionné par</Label>
               <Input
-                id="createdBy"
+                id="bd-created-by"
                 value={createdBy}
                 onChange={(e) => setCreatedBy(e.target.value)}
                 placeholder="Nom de l'opérateur"
@@ -165,9 +166,9 @@ export const BatchDialog = ({ open, onOpenChange, suppliers, materials }: BatchD
             </div>
 
             <div className="col-span-2">
-              <Label htmlFor="notes">Notes</Label>
+              <Label htmlFor="bd-notes">Notes</Label>
               <Textarea
-                id="notes"
+                id="bd-notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Observations à la réception..."
