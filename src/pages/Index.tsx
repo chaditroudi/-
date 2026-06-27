@@ -46,6 +46,7 @@ const HRDashboard            = lazy(() => import('@/components/employees').then(
 const ScanStation            = lazy(() => import('@/components/scan/ScanStation').then(m => ({ default: m.ScanStation })));
 const FactoryCommandCenter   = lazy(() => import('@/components/home/FactoryCommandCenter').then(m => ({ default: m.FactoryCommandCenter })));
 const SageOperationsHub      = lazy(() => import('@/components/home/SageOperationsHub').then(m => ({ default: m.SageOperationsHub })));
+const ExportDashboard        = lazy(() => import('@/components/export/ExportDashboard').then(m => ({ default: m.ExportDashboard })));
 
 // ── Suspense fallback ─────────────────────────────────────────────────────────
 const TabLoader = () => (
@@ -71,7 +72,7 @@ const TAB_SECTION_LABEL: Partial<Record<AppTab, string>> = {
   "stock-products": "Qualité & Stock", "stock-movements": "Qualité & Stock",
   suppliers: "Gestion", materials: "Gestion", purchasing: "Gestion",
   logistics: "Gestion", hr: "Gestion",
-  analytics: "Pilotage", "sage-operations": "Pilotage",
+  analytics: "Pilotage", "sage-operations": "Pilotage", export: "Pilotage",
   settings: "Administration",
 };
 

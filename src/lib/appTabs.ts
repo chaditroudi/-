@@ -17,6 +17,7 @@ import {
   Truck,
   Users,
   Warehouse,
+  FileSignature,
   type LucideIcon,
 } from "lucide-react";
 import type { AppTab } from "@/lib/roleAccess";
@@ -176,6 +177,13 @@ export const APP_TAB_META: Record<AppTab, AppTabMeta> = {
     icon: Landmark,
     pageTitle: "SAGE Hub",
     pageSubtitle: "Pont entre operations terrain, stock, qualite et logistique.",
+  },
+  export: {
+    label: "Export",
+    shortLabel: "Export",
+    icon: FileSignature,
+    pageTitle: "Contrats Export",
+    pageSubtitle: "Commandes export, contrats PDF multi-pays (EU/USA/SA), COA et traçabilité acheteur.",
   },
   settings: {
     label: "Paramètres",

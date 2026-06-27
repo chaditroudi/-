@@ -22,6 +22,7 @@ export type AppTab =
   | 'stock-products'
   | 'stock-movements'
   | 'sage-operations'
+  | 'export'
   | 'settings';
 
 export type RoleAction =
@@ -77,6 +78,7 @@ const ALL_APP_TABS: AppTab[] = [
   'stock-products',
   'stock-movements',
   'sage-operations',
+  'export',
   'settings',
 ];
 
