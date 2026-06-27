@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 
 import { BonReceptionAchatModule } from "../modules/bon-reception-achat/bon-reception-achat.module.js";
 import { ExportModule } from "../modules/export/export.module.js";
+import { CustomersModule } from "../modules/customers/customers.module.js";
 import { BonExpeditionModule } from "../modules/bon-expedition/bon-expedition.module.js";
 import { AnalyticsModule } from "../modules/analytics/analytics.module.js";
 import { DocumentPrintsModule } from "../modules/document-prints/document-prints.module.js";
@@ -39,6 +40,7 @@ import { GuardsModule } from "./guards.module.js";
     BonReceptionAchatModule,
     BonExpeditionModule,
     ExportModule,
+    CustomersModule,
     RealtimeModule,
     AnalyticsModule,
     CollectionsModule,
