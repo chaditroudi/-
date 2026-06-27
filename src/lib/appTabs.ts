@@ -186,6 +186,13 @@ export const APP_TAB_META: Record<AppTab, AppTabMeta> = {
     pageTitle: "Contrats Export",
     pageSubtitle: "Commandes export, contrats PDF multi-pays (EU/USA/SA), COA et traçabilité acheteur.",
   },
+  customers: {
+    label: "Clients",
+    shortLabel: "Clients",
+    icon: BookUser,
+    pageTitle: "Clients Export",
+    pageSubtitle: "Carnet d'adresses clients : préférences contrat, Incoterms, langue et port de destination.",
+  },
   settings: {
     label: "Paramètres",
     shortLabel: "Config",

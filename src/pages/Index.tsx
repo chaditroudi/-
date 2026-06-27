@@ -47,6 +47,7 @@ const ScanStation            = lazy(() => import('@/components/scan/ScanStation'
 const FactoryCommandCenter   = lazy(() => import('@/components/home/FactoryCommandCenter').then(m => ({ default: m.FactoryCommandCenter })));
 const SageOperationsHub      = lazy(() => import('@/components/home/SageOperationsHub').then(m => ({ default: m.SageOperationsHub })));
 const ExportDashboard        = lazy(() => import('@/components/export/ExportDashboard').then(m => ({ default: m.ExportDashboard })));
+const CustomersDashboard     = lazy(() => import('@/components/customers/CustomersDashboard'));
 
 // ── Suspense fallback ─────────────────────────────────────────────────────────
 const TabLoader = () => (
@@ -329,6 +330,8 @@ const Index = () => {
         );
       case 'export':
         return <ExportDashboard />;
+      case 'customers':
+        return <CustomersDashboard />;
       case 'settings':
         return <SettingsDashboard />;
       case 'receptions':
