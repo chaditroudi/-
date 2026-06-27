@@ -23,6 +23,7 @@ export type AppTab =
   | 'stock-movements'
   | 'sage-operations'
   | 'export'
+  | 'customers'
   | 'settings';
 
 export type RoleAction =
@@ -79,6 +80,7 @@ const ALL_APP_TABS: AppTab[] = [
   'stock-movements',
   'sage-operations',
   'export',
+  'customers',
   'settings',
 ];
 
@@ -112,7 +114,7 @@ const ROLE_WORKSPACES: Record<ActorRole, RoleWorkspaceProfile> = {
     interfaceLabel: 'Dashboard exécutif web',
     workspaceLabel: 'Pilotage global usine',
     defaultTab: 'home',
-    primaryTabs: ['home', 'production', 'packaging', 'receptions', 'storage', 'alerts', 'analytics', 'export', 'sage-operations'],
+    primaryTabs: ['home', 'production', 'packaging', 'receptions', 'storage', 'alerts', 'analytics', 'export', 'customers', 'sage-operations'],
     quickTabs: ['quality', 'suppliers', 'purchasing', 'logistics', 'hr', 'settings'],
     actions: ['executive_dashboard', 'production_supervision', 'quality_supervision', 'shipping_planning', 'purchasing_management'],
   },
