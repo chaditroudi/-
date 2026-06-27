@@ -10,7 +10,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
-import { FileText, Pencil, Plus, Printer, Search, Trash2 } from "lucide-react";
+import { FileText, Pencil, Plus, Printer, Search, Trash2, ClipboardPlus } from "lucide-react";
 import { BonReceptionAchatForm } from "./BonReceptionAchatForm";
 import { printBonReceptionAchat } from "./printBonReceptionAchat";
 import {
@@ -19,6 +19,7 @@ import {
   useDeleteBonReceptionAchat,
   useUpdateBonReceptionAchat,
 } from "@/hooks/useBonReceptionAchat";
+import { useCreateBatch } from "@/hooks/useBatches";
 import type { BonReceptionAchat } from "@/types/bonReceptionAchat";
 
 const STATUT_BADGE: Record<string, { label: string; class: string }> = {
@@ -29,9 +30,10 @@ const STATUT_BADGE: Record<string, { label: string; class: string }> = {
 
 export function BonReceptionAchatDashboard() {
   const { data: bons = [], isLoading } = useBonReceptionsAchat();
-  const create = useCreateBonReceptionAchat();
-  const update = useUpdateBonReceptionAchat();
-  const remove = useDeleteBonReceptionAchat();
+  const create      = useCreateBonReceptionAchat();
+  const update      = useUpdateBonReceptionAchat();
+  const remove      = useDeleteBonReceptionAchat();
+  const createBatch = useCreateBatch();
 
   const [search, setSearch]           = useState("");
   const [sheetOpen, setSheetOpen]     = useState(false);
@@ -51,6 +53,21 @@ export function BonReceptionAchatDashboard() {
 
   const openCreate = useCallback(() => { setEditing(null); setSheetOpen(true); }, []);
   const openEdit   = useCallback((b: BonReceptionAchat) => { setEditing(b); setSheetOpen(true); }, []);
+
+  const handleCreateLot = useCallback(async (bon: BonReceptionAchat) => {
+    const totalNet =
+      (bon.branche_premiere?.poid_net ?? 0) +
+      (bon.branche_deuxieme?.poid_net ?? 0) +
+      (bon.vrac?.poid_net ?? 0) +
+      (bon.branche_seche?.poid_net ?? 0);
+    await createBatch.mutateAsync({
+      origin_region:    bon.region ?? undefined,
+      harvest_date:     bon.date_reception ?? undefined,
+      initial_weight_kg: totalNet > 0 ? totalNet : 1,
+      notes:            `Créé depuis BRA ${bon.numero_bon}`,
+      created_by:       bon.responsable_reception ?? undefined,
+    });
+  }, [createBatch]);
 
   const handleSubmit = useCallback(async (data: Partial<BonReceptionAchat>) => {
     try {
@@ -143,6 +160,16 @@ export function BonReceptionAchatDashboard() {
                     </td>
                     <td className="px-4 py-2.5">
                       <div className="flex justify-end gap-1">
+                        {b.statut === "valide" && (
+                          <Button
+                            variant="ghost" size="sm" className="h-7 w-7 p-0 text-emerald-600 hover:text-emerald-700"
+                            onClick={() => handleCreateLot(b)}
+                            disabled={createBatch.isPending}
+                            title="Créer lot qualité depuis ce bon"
+                          >
+                            <ClipboardPlus className="h-3.5 w-3.5" />
+                          </Button>
+                        )}
                         <Button
                           variant="ghost" size="sm" className="h-7 w-7 p-0"
                           onClick={() => printBonReceptionAchat(b)} title="Imprimer"
