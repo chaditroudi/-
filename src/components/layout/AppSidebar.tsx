@@ -212,9 +212,6 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
     <Sidebar
       collapsible="icon"
       className="border-e border-white/6"
-      style={{
-        background: "linear-gradient(175deg, #0e2016 0%, #080f0a 100%)",
-      }}
     >
       {/* ── Brand header ── */}
       <SidebarHeader className="px-3 pb-4 pt-5">

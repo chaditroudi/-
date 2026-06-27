@@ -415,6 +415,23 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   SIDEBAR — gradient override
+   Tailwind's bg-sidebar points to hsl(--sidebar-background).
+   The style prop on <Sidebar> hits the outer wrapper only, so
+   we must target the inner panel directly via data attribute.
+   ═══════════════════════════════════════════════════════════════ */
+[data-sidebar="sidebar"] {
+  background: linear-gradient(175deg, hsl(152, 30%, 10%) 0%, hsl(152, 22%, 7%) 100%) !important;
+  border-right: 1px solid rgba(255,255,255,0.055) !important;
+}
+
+/* Sidebar scrollable area */
+[data-sidebar="sidebar"] > .overflow-auto,
+[data-sidebar="sidebar"] > [data-sidebar="content"] {
+  background: transparent;
+}
+
+/* ═══════════════════════════════════════════════════════════════
    SCROLLBAR
    ═══════════════════════════════════════════════════════════════ */
 ::-webkit-scrollbar        { width: 5px; height: 5px; }
