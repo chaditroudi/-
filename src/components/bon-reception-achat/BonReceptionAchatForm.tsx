@@ -6,7 +6,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, Trash2 } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown, Plus, Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { BonReceptionAchat, BonStatut, BranchLine, BranchSeche, CasseLine, Region } from "@/types/bonReceptionAchat";
 import { useSuppliers } from "@/hooks/useSuppliers";
 import type { Supplier } from "@/types/mes";
@@ -17,8 +19,6 @@ interface Props {
   isSaving: boolean;
 }
 
-// Casse rows carry a client-side stable key so React can diff correctly
-// when items are removed from the middle of the list.
 type CasseRow = CasseLine & { _key: string };
 
 const emptyBranch = (): BranchLine => ({
@@ -31,8 +31,6 @@ const emptyBranchSeche = (): BranchSeche => ({
 });
 
 const toNum = (v: string) => (v === "" ? null : Number(v));
-
-// ── BranchSection ─────────────────────────────────────────────────────────────
 
 const BranchSection = ({
   id: sectionId,
@@ -162,15 +160,13 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
   const [vrac,         setVrac]         = useState<BranchLine>(initial?.vrac             ?? emptyBranch());
   const [brancheSeche, setBrancheSeche] = useState<BranchSeche>(initial?.branche_seche  ?? emptyBranchSeche());
 
-  // Casse rows carry a stable `_key` so React can reconcile correctly
-  // when items are removed from the middle of the list.
   const [casse, setCasse] = useState<CasseRow[]>(() =>
     (initial?.casse ?? []).map((c) => ({ ...c, _key: crypto.randomUUID() })),
   );
 
   const [statut, setStatut] = useState<string>(initial?.statut ?? "brouillon");
+  const [showDetails, setShowDetails] = useState(false);
 
-  // Auto-fill supplier name when dropdown changes
   useEffect(() => {
     if (!fournisseurId) return;
     const sup = (suppliers as Supplier[]).find((s) => s.id === fournisseurId);
@@ -216,7 +212,6 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
       branche_deuxieme: branche2,
       vrac,
       branche_seche: brancheSeche,
-      // Strip client-side _key before sending to backend
       casse: casse.map(({ _key: _, ...c }) => c),
       statut: statut as BonStatut,
     });
@@ -226,132 +221,141 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
     <ScrollArea className="h-full pr-4">
       <div className="space-y-5 pb-4">
 
-        {/* ── Header fields ── */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div>
-            <Label htmlFor="f-annee" className="text-xs">Année</Label>
-            <Input id="f-annee" value={annee} onChange={(e) => setAnnee(e.target.value)} className="h-8 text-sm" />
+        {/* ── Essentials ── */}
+        <div className="space-y-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <Label htmlFor="f-fournisseur" className="text-xs">Fournisseur</Label>
+              <Select value={fournisseurId} onValueChange={setFournisseurId}>
+                <SelectTrigger id="f-fournisseur" className="h-9 text-sm"><SelectValue placeholder="Choisir un fournisseur…" /></SelectTrigger>
+                <SelectContent>
+                  {(suppliers as Supplier[]).map((s) => (
+                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div>
-            <Label htmlFor="f-date" className="text-xs">Date de réception</Label>
-            <Input id="f-date" type="date" value={dateReception} onChange={(e) => setDateReception(e.target.value)} className="h-8 text-sm" />
-          </div>
-          <div>
-            <Label htmlFor="f-heure" className="text-xs">Heure arrivée</Label>
-            <Input id="f-heure" type="time" value={heureArrivee} onChange={(e) => setHeureArrivee(e.target.value)} className="h-8 text-sm" />
-          </div>
-          <div>
-            <Label htmlFor="f-statut" className="text-xs">Statut</Label>
-            <Select value={statut} onValueChange={setStatut}>
-              <SelectTrigger id="f-statut" className="h-8 text-sm"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="brouillon">Brouillon</SelectItem>
-                <SelectItem value="valide">Validé</SelectItem>
-                <SelectItem value="annule">Annulé</SelectItem>
-              </SelectContent>
-            </Select>
+
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div>
+              <Label htmlFor="f-date" className="text-xs">Date de réception</Label>
+              <Input id="f-date" type="date" value={dateReception} onChange={(e) => setDateReception(e.target.value)} className="h-9 text-sm" />
+            </div>
+            <div>
+              <Label htmlFor="f-lot" className="text-xs">N° de Lot</Label>
+              <Input id="f-lot" value={numeroLot} onChange={(e) => setNumeroLot(e.target.value)} className="h-9 text-sm" />
+            </div>
+            <div>
+              <Label htmlFor="f-region" className="text-xs">Région</Label>
+              <Select value={region} onValueChange={setRegion}>
+                <SelectTrigger id="f-region" className="h-9 text-sm"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="el_jirid">El Jirid</SelectItem>
+                  <SelectItem value="kebilli">Kebilli</SelectItem>
+                  <SelectItem value="autre">Autre</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="f-statut" className="text-xs">Statut</Label>
+              <Select value={statut} onValueChange={setStatut}>
+                <SelectTrigger id="f-statut" className="h-9 text-sm"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="brouillon">Brouillon</SelectItem>
+                  <SelectItem value="valide">Validé</SelectItem>
+                  <SelectItem value="annule">Annulé</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
-        <div className="flex gap-6">
-          <label className="flex cursor-pointer items-center gap-2 text-sm">
-            <Checkbox checked={convention} onCheckedChange={(c) => setConvention(!!c)} />
-            Convention
-          </label>
-          <label className="flex cursor-pointer items-center gap-2 text-sm">
-            <Checkbox checked={bioCertifie} onCheckedChange={(c) => setBioCertifie(!!c)} />
-            TN-Bio-001
-          </label>
-        </div>
+        {/* ── Optional administrative details ── */}
+        <Collapsible open={showDetails} onOpenChange={setShowDetails}>
+          <CollapsibleTrigger asChild>
+            <button
+              type="button"
+              className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", showDetails && "rotate-180")} />
+              {showDetails ? "Masquer les détails" : "Détails administratifs (optionnel)"}
+            </button>
+          </CollapsibleTrigger>
+
+          <CollapsibleContent className="space-y-3 pt-3">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div>
+                <Label htmlFor="f-annee" className="text-xs">Année</Label>
+                <Input id="f-annee" value={annee} onChange={(e) => setAnnee(e.target.value)} className="h-8 text-sm" />
+              </div>
+              <div>
+                <Label htmlFor="f-heure" className="text-xs">Heure arrivée</Label>
+                <Input id="f-heure" type="time" value={heureArrivee} onChange={(e) => setHeureArrivee(e.target.value)} className="h-8 text-sm" />
+              </div>
+              <div className="col-span-2 flex items-end gap-6 pb-1">
+                <label className="flex cursor-pointer items-center gap-2 text-sm">
+                  <Checkbox checked={convention} onCheckedChange={(c) => setConvention(!!c)} />
+                  Convention
+                </label>
+                <label className="flex cursor-pointer items-center gap-2 text-sm">
+                  <Checkbox checked={bioCertifie} onCheckedChange={(c) => setBioCertifie(!!c)} />
+                  TN-Bio-001
+                </label>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="f-expedition" className="text-xs">N° Bon d&apos;expédition</Label>
+                <Input id="f-expedition" value={numeroExpedition} onChange={(e) => setNumeroExpedition(e.target.value)} className="h-8 text-sm" />
+              </div>
+              <div>
+                <Label htmlFor="f-lieu-exp" className="text-xs">Lieu expédition</Label>
+                <Input id="f-lieu-exp" value={lieuExpedition} onChange={(e) => setLieuExpedition(e.target.value)} className="h-8 text-sm" />
+              </div>
+              <div>
+                <Label htmlFor="f-fournisseur-nom" className="text-xs">Nom fournisseur (libre)</Label>
+                <Input id="f-fournisseur-nom" value={fournisseurNom} onChange={(e) => setFournisseurNom(e.target.value)} className="h-8 text-sm" />
+              </div>
+              <div>
+                <Label htmlFor="f-facture" className="text-xs">N° Facture</Label>
+                <Input id="f-facture" value={numeroFacture} onChange={(e) => setNumeroFacture(e.target.value)} className="h-8 text-sm" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="f-camion" className="text-xs">N° Camion</Label>
+                <Input id="f-camion" value={numeroCamion} onChange={(e) => setNumeroCamion(e.target.value)} className="h-8 text-sm" placeholder="ex. 71 74 9032" />
+              </div>
+              <div>
+                <Label htmlFor="f-chauffeur" className="text-xs">Chauffeur</Label>
+                <Input id="f-chauffeur" value={nomChauffeur} onChange={(e) => setNomChauffeur(e.target.value)} className="h-8 text-sm" />
+              </div>
+              <div>
+                <Label htmlFor="f-lieu-rec" className="text-xs">Lieu de réception</Label>
+                <Input id="f-lieu-rec" value={lieuReception} onChange={(e) => setLieuReception(e.target.value)} className="h-8 text-sm" />
+              </div>
+              <div>
+                <Label htmlFor="f-responsable" className="text-xs">Responsable réception</Label>
+                <Input id="f-responsable" value={responsableReception} onChange={(e) => setResponsableReception(e.target.value)} className="h-8 text-sm" />
+              </div>
+              <div>
+                <Label htmlFor="f-qcr" className="text-xs">N° Rapport QCR</Label>
+                <Input id="f-qcr" value={numeroRapportQcr} onChange={(e) => setNumeroRapportQcr(e.target.value)} className="h-8 text-sm" />
+              </div>
+              <div>
+                <Label htmlFor="f-palette" className="text-xs">N° Fiche palette</Label>
+                <Input id="f-palette" value={numeroFichePalette} onChange={(e) => setNumeroFichePalette(e.target.value)} className="h-8 text-sm" />
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
 
         <Separator />
 
-        {/* ── Expedition ── */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label htmlFor="f-expedition" className="text-xs">N° Bon d&apos;expédition</Label>
-            <Input id="f-expedition" value={numeroExpedition} onChange={(e) => setNumeroExpedition(e.target.value)} className="h-8 text-sm" />
-          </div>
-          <div>
-            <Label htmlFor="f-lieu-exp" className="text-xs">Lieu expédition</Label>
-            <Input id="f-lieu-exp" value={lieuExpedition} onChange={(e) => setLieuExpedition(e.target.value)} className="h-8 text-sm" />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label htmlFor="f-fournisseur" className="text-xs">Fournisseur</Label>
-            <Select value={fournisseurId} onValueChange={setFournisseurId}>
-              <SelectTrigger id="f-fournisseur" className="h-8 text-sm"><SelectValue placeholder="Choisir..." /></SelectTrigger>
-              <SelectContent>
-                {(suppliers as Supplier[]).map((s) => (
-                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="f-fournisseur-nom" className="text-xs">Nom fournisseur (libre)</Label>
-            <Input id="f-fournisseur-nom" value={fournisseurNom} onChange={(e) => setFournisseurNom(e.target.value)} className="h-8 text-sm" />
-          </div>
-          <div>
-            <Label htmlFor="f-facture" className="text-xs">N° Facture</Label>
-            <Input id="f-facture" value={numeroFacture} onChange={(e) => setNumeroFacture(e.target.value)} className="h-8 text-sm" />
-          </div>
-          <div>
-            <Label htmlFor="f-lot" className="text-xs">N° de Lot</Label>
-            <Input id="f-lot" value={numeroLot} onChange={(e) => setNumeroLot(e.target.value)} className="h-8 text-sm" />
-          </div>
-        </div>
-
-        <div>
-          <Label htmlFor="f-region" className="text-xs">Région</Label>
-          <Select value={region} onValueChange={setRegion}>
-            <SelectTrigger id="f-region" className="h-8 w-48 text-sm"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="el_jirid">El Jirid</SelectItem>
-              <SelectItem value="kebilli">Kebilli</SelectItem>
-              <SelectItem value="autre">Autre</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <Separator />
-
-        {/* ── Transport ── */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label htmlFor="f-camion" className="text-xs">N° Camion</Label>
-            <Input id="f-camion" value={numeroCamion} onChange={(e) => setNumeroCamion(e.target.value)} className="h-8 text-sm" placeholder="ex. 71 74 9032" />
-          </div>
-          <div>
-            <Label htmlFor="f-chauffeur" className="text-xs">Chauffeur</Label>
-            <Input id="f-chauffeur" value={nomChauffeur} onChange={(e) => setNomChauffeur(e.target.value)} className="h-8 text-sm" />
-          </div>
-        </div>
-
-        {/* ── Reception info ── */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label htmlFor="f-lieu-rec" className="text-xs">Lieu de réception</Label>
-            <Input id="f-lieu-rec" value={lieuReception} onChange={(e) => setLieuReception(e.target.value)} className="h-8 text-sm" />
-          </div>
-          <div>
-            <Label htmlFor="f-responsable" className="text-xs">Responsable réception</Label>
-            <Input id="f-responsable" value={responsableReception} onChange={(e) => setResponsableReception(e.target.value)} className="h-8 text-sm" />
-          </div>
-          <div>
-            <Label htmlFor="f-qcr" className="text-xs">N° Rapport QCR</Label>
-            <Input id="f-qcr" value={numeroRapportQcr} onChange={(e) => setNumeroRapportQcr(e.target.value)} className="h-8 text-sm" />
-          </div>
-          <div>
-            <Label htmlFor="f-palette" className="text-xs">N° Fiche palette</Label>
-            <Input id="f-palette" value={numeroFichePalette} onChange={(e) => setNumeroFichePalette(e.target.value)} className="h-8 text-sm" />
-          </div>
-        </div>
-
-        <Separator />
-
+        {/* ── Branch sections ── */}
         <BranchSection id="b1" title="Branche 1ère"  value={branche1}     onChange={setBranche1} />
         <Separator />
         <BranchSection id="b2" title="Branche 2ème"  value={branche2}     onChange={setBranche2} />
