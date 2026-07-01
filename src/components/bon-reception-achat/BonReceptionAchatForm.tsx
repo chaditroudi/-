@@ -34,7 +34,7 @@ const toNum = (v: string) => (v === "" ? null : Number(v));
 
 // ── Step indicator ────────────────────────────────────────────────────────────
 
-const STEPS = ["Identification", "Quantités", "Finaliser"] as const;
+const STEPS = ["Qui & Quand", "Quantités reçues", "Terminer"] as const;
 
 const StepIndicator = ({ current }: { current: number }) => (
   <div className="flex items-center gap-0">
@@ -82,6 +82,15 @@ const StepIndicator = ({ current }: { current: number }) => (
 
 // ── BranchSection ─────────────────────────────────────────────────────────────
 
+const BRANCH_FIELD_LABELS: Record<string, string> = {
+  gc:        "GC",
+  rp:        "RP",
+  gcm:       "GCM",
+  l:         "L",
+  poid_brut: "Poids brut",
+  poid_net:  "Poids net",
+};
+
 const BranchSection = ({
   id: sectionId,
   title,
@@ -105,8 +114,8 @@ const BranchSection = ({
           const inputId = `${sectionId}-${field}`;
           return (
             <div key={field}>
-              <Label htmlFor={inputId} className="text-xs uppercase text-muted-foreground">
-                {field.replace("_", " ")}
+              <Label htmlFor={inputId} className="text-xs font-medium text-muted-foreground">
+                {BRANCH_FIELD_LABELS[field]}
               </Label>
               <Input
                 id={inputId}
