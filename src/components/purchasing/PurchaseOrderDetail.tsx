@@ -432,7 +432,7 @@ const PurchaseOrderDetailContent = ({
                       <div className="space-y-1">
                         <Label className="text-xs">Lot fournisseur *</Label>
                         <Input
-                          placeholder="LOT-FOURNISSEUR-123" className="h-8 text-sm"
+                          placeholder="LOT-FOURNISSEUR-123" className="h-10"
                           value={input.supplierLot}
                           onChange={(e) => updateLineInput(line.id, 'supplierLot', e.target.value)}
                         />
@@ -440,7 +440,7 @@ const PurchaseOrderDetailContent = ({
                       <div className="space-y-1">
                         <Label className="text-xs">N° BRF / GRN</Label>
                         <Input
-                          placeholder="GRN-20260621-001" className="h-8 text-sm"
+                          placeholder="GRN-20260621-001" className="h-10"
                           value={input.grnNumber}
                           onChange={(e) => updateLineInput(line.id, 'grnNumber', e.target.value)}
                         />
@@ -451,7 +451,7 @@ const PurchaseOrderDetailContent = ({
                           value={input.qcStatus}
                           onValueChange={(v) => updateLineInput(line.id, 'qcStatus', v)}
                         >
-                          <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                          <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="accepted"><span className="text-green-700">✓ Accepté</span></SelectItem>
                             <SelectItem value="conditional"><span className="text-amber-600">⚠ Sous réserve (quarantaine)</span></SelectItem>

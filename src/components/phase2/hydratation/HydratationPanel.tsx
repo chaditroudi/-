@@ -255,7 +255,7 @@ export function HydratationPanel({ currentUser = 'Utilisateur' }: { currentUser?
                 />
                 {!selectedLot && (
                   <Input
-                    className="mt-1 text-xs h-8"
+                    className="mt-1 text-sm h-10"
                     value={createForm.lot_number}
                     onChange={(e) => setCreateForm(p => ({ ...p, lot_number: e.target.value }))}
                     placeholder="Ou saisir N° lot manuellement"

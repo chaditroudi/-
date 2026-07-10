@@ -881,7 +881,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
                       <div key={key} className="space-y-1">
                         <Label className="text-xs">{label}</Label>
                         <Input
-                          type="number" min="0" step="0.1" className="h-8 text-sm"
+                          type="number" min="0" step="0.1" className="h-10"
                           value={(rqc[key as keyof RQCData] as number | null) ?? ''}
                           onChange={e => setRqc(p => ({ ...p, [key]: e.target.value === '' ? null : Number(e.target.value) }))}
                         />
@@ -950,18 +950,18 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                     <div className="space-y-1 md:col-span-2">
                       <Label className="text-xs">Conclusion</Label>
-                      <Input className="h-8 text-sm" value={rqc.conclusion ?? ''} onChange={e => setRqc(p => ({ ...p, conclusion: e.target.value || null }))} />
+                      <Input className="h-10" value={rqc.conclusion ?? ''} onChange={e => setRqc(p => ({ ...p, conclusion: e.target.value || null }))} />
                     </div>
                     <div className="space-y-1">
                       <Label className="text-xs">Endommagé (%)</Label>
-                      <Input type="number" min="0" max="100" step="0.1" className="h-8 text-sm"
+                      <Input type="number" min="0" max="100" step="0.1" className="h-10"
                         value={rqc.endommage_percent ?? ''}
                         onChange={e => setRqc(p => ({ ...p, endommage_percent: e.target.value === '' ? null : Number(e.target.value) }))}
                       />
                     </div>
                     <div className="space-y-1">
                       <Label className="text-xs">DB</Label>
-                      <Input className="h-8 text-sm" value={rqc.db_score ?? ''}
+                      <Input className="h-10" value={rqc.db_score ?? ''}
                         onChange={e => setRqc(p => ({ ...p, db_score: e.target.value || null }))}
                       />
                     </div>
@@ -976,7 +976,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
                     ].map(({ key, label }) => (
                       <div key={key} className="space-y-1">
                         <Label className="text-xs">{label}</Label>
-                        <Input className="h-8 text-sm"
+                        <Input className="h-10"
                           value={(rqc[key as keyof RQCData] as string | null) ?? ''}
                           onChange={e => setRqc(p => ({ ...p, [key]: e.target.value || null }))}
                         />

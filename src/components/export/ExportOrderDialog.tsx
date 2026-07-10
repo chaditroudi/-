@@ -296,7 +296,7 @@ export function ExportOrderDialog({ open, onOpenChange, initial, onSubmit, isSav
                             });
                           }}
                         >
-                          <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Sélectionner lot..." /></SelectTrigger>
+                          <SelectTrigger className="h-10 text-sm"><SelectValue placeholder="Sélectionner lot..." /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="none">Aucun</SelectItem>
                             {batches
@@ -313,7 +313,7 @@ export function ExportOrderDialog({ open, onOpenChange, initial, onSubmit, isSav
                       <div className="col-span-2">
                         <Label className="text-xs">Produit</Label>
                         <Input
-                          className="h-8 text-xs"
+                          className="h-10 text-sm"
                           value={line.product_name}
                           onChange={(e) => setLine(line._key, { product_name: e.target.value })}
                           placeholder="Dattes Deglet Nour..."
@@ -323,7 +323,7 @@ export function ExportOrderDialog({ open, onOpenChange, initial, onSubmit, isSav
                       <div>
                         <Label className="text-xs">Poids net (kg) *</Label>
                         <Input
-                          type="number" step="0.01" min="0" className="h-8 text-xs" required
+                          type="number" step="0.01" min="0" className="h-10 text-sm" required
                           value={line.net_weight_kg || ''}
                           onChange={(e) => setLine(line._key, { net_weight_kg: parseFloat(e.target.value) || 0 })}
                         />
@@ -332,7 +332,7 @@ export function ExportOrderDialog({ open, onOpenChange, initial, onSubmit, isSav
                       <div>
                         <Label className="text-xs">Prix unitaire *</Label>
                         <Input
-                          type="number" step="0.0001" min="0" className="h-8 text-xs" required
+                          type="number" step="0.0001" min="0" className="h-10 text-sm" required
                           value={line.unit_price || ''}
                           onChange={(e) => setLine(line._key, { unit_price: parseFloat(e.target.value) || 0 })}
                         />
@@ -340,13 +340,13 @@ export function ExportOrderDialog({ open, onOpenChange, initial, onSubmit, isSav
 
                       <div>
                         <Label className="text-xs">Grade</Label>
-                        <Input className="h-8 text-xs" value={line.quality_grade ?? ''} readOnly
+                        <Input className="h-10 text-sm" value={line.quality_grade ?? ''} readOnly
                           placeholder="Auto depuis lot" />
                       </div>
 
                       <div>
                         <Label className="text-xs">Réf. COA</Label>
-                        <Input className="h-8 text-xs font-mono"
+                        <Input className="h-10 text-sm font-mono"
                           value={line.coa_ref ?? (coa?.coa_ref ?? '')}
                           onChange={(e) => setLine(line._key, { coa_ref: e.target.value })}
                           placeholder="COA-2026-..."

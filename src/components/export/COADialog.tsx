@@ -173,18 +173,18 @@ export function COADialog({ open, onOpenChange, initial, onSubmit, isSaving }: P
             <div className="grid grid-cols-3 gap-3">
               <div>
                 <Label htmlFor="coa-humidity" className="text-xs">Humidité (%)</Label>
-                <Input id="coa-humidity" type="number" step="0.1" min="0" max="100" className="h-8"
+                <Input id="coa-humidity" type="number" step="0.1" min="0" max="100" className="h-10"
                   value={humidityPct} onChange={(e) => setHumidityPct(e.target.value)} />
               </div>
               <div>
                 <Label htmlFor="coa-mold" className="text-xs">Score moisissure</Label>
-                <Input id="coa-mold" type="number" step="0.1" min="0" className="h-8"
+                <Input id="coa-mold" type="number" step="0.1" min="0" className="h-10"
                   value={moldScore} onChange={(e) => setMoldScore(e.target.value)} />
               </div>
               <div>
                 <Label htmlFor="coa-grade" className="text-xs">Grade visuel</Label>
                 <Select value={visualGrade || 'none'} onValueChange={(v) => setVisualGrade(v === 'none' ? '' : v)}>
-                  <SelectTrigger id="coa-grade" className="h-8"><SelectValue /></SelectTrigger>
+                  <SelectTrigger id="coa-grade" className="h-10"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">—</SelectItem>
                     <SelectItem value="premium">Premium</SelectItem>
@@ -196,12 +196,12 @@ export function COADialog({ open, onOpenChange, initial, onSubmit, isSaving }: P
               </div>
               <div>
                 <Label htmlFor="coa-net" className="text-xs">Poids net (kg)</Label>
-                <Input id="coa-net" type="number" step="0.01" min="0" className="h-8"
+                <Input id="coa-net" type="number" step="0.01" min="0" className="h-10"
                   value={netWeight} onChange={(e) => setNetWeight(e.target.value)} />
               </div>
               <div>
                 <Label htmlFor="coa-gross" className="text-xs">Poids brut (kg)</Label>
-                <Input id="coa-gross" type="number" step="0.01" min="0" className="h-8"
+                <Input id="coa-gross" type="number" step="0.01" min="0" className="h-10"
                   value={grossWeight} onChange={(e) => setGrossWeight(e.target.value)} />
               </div>
             </div>
