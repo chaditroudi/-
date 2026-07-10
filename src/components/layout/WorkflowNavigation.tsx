@@ -9,12 +9,10 @@ import {
   Factory,
   Grid2x2,
   Home,
-  Monitor,
   Package,
   ShieldCheck,
   ShoppingCart,
   Truck,
-  UserRound,
   Warehouse,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -392,8 +390,6 @@ export function WorkflowNavigation({
   const workflowCards = getWorkflowCards(roles, metrics).filter((card) => primaryTabs.includes(card.id));
   const allTabs = unique<AppTab>([...primaryTabs, ...quickTabs, "home"]);
   const activeAppTab = activeTab as AppTab;
-  const activeMeta = APP_TAB_META[activeAppTab] ?? APP_TAB_META.home;
-  const activeCard = workflowCards.find((card) => card.id === activeAppTab);
   const mobileTabs = unique<AppTab>([
     ...primaryTabs.slice(0, 3),
     ...(quickTabs.length > 0 ? quickTabs : ["home" as AppTab]),
@@ -637,73 +633,31 @@ export function WorkflowNavigation({
             </div>
           </div>
 
-          {/* ── MOBILE: current module card + horizontal pill tabs (< md) ── */}
-          <div className="space-y-3 border-t border-border/30 py-3 md:hidden">
-            <div className="surface-card rounded-[26px] px-4 py-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    Espace actif
-                  </p>
-                  <div className="mt-2 flex items-center gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                      <activeMeta.icon className="h-5 w-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="truncate text-base font-semibold text-foreground">{activeMeta.label}</p>
-                      <p className="truncate text-sm text-muted-foreground">
-                        {activeCard?.description ?? `${workspaceLabel} adapté aux écrans tactiles.`}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <Badge className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-primary hover:bg-primary/10">
-                  <ShieldCheck className="h-3 w-3" />
-                  {getMetricForTab(activeAppTab, metrics)}
-                </Badge>
-              </div>
+          {/* ── MOBILE: horizontal pill tabs (< md) ── */}
+          <div className="border-t border-border/30 py-2.5 md:hidden">
+            <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {primaryTabs.map((tab) => {
+                const meta = APP_TAB_META[tab];
+                const isActive = activeTab === tab;
 
-              <div className="mt-4 flex flex-wrap items-center gap-2">
-                <Badge variant="secondary" className="inline-flex items-center gap-1 rounded-full px-2.5 py-1">
-                  <UserRound className="h-3 w-3" />
-                  {roleLabel}
-                </Badge>
-                <Badge variant="outline" className="inline-flex items-center gap-1 rounded-full px-2.5 py-1">
-                  <Monitor className="h-3 w-3" />
-                  {interfaceLabel}
-                </Badge>
-              </div>
+                return (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => handleTabChange(tab)}
+                    className={cn(
+                      "flex min-h-[44px] min-w-fit shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors active:scale-[0.97]",
+                      isActive
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "bg-white/75 text-foreground hover:border-primary/25 hover:bg-white",
+                    )}
+                  >
+                    <meta.icon className="h-4 w-4" />
+                    <span>{meta.label}</span>
+                  </button>
+                );
+              })}
             </div>
-
-            <div className="space-y-2">
-              <p className="px-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Destinations principales
-              </p>
-              <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {primaryTabs.map((tab) => {
-                  const meta = APP_TAB_META[tab];
-                  const isActive = activeTab === tab;
-
-                  return (
-                    <button
-                      key={tab}
-                      type="button"
-                      onClick={() => handleTabChange(tab)}
-                      className={cn(
-                        "flex min-w-fit shrink-0 items-center gap-2 rounded-full border px-3 py-2 text-sm transition-colors",
-                        isActive
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "bg-white/75 text-foreground hover:border-primary/25 hover:bg-white",
-                      )}
-                    >
-                      <meta.icon className="h-4 w-4" />
-                      <span>{meta.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
           </div>
         </div>
       </section>

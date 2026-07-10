@@ -145,7 +145,7 @@ export const TopHeader = ({
                   variant="ghost"
                   size="icon"
                   title={t("header.auditLog")}
-                  className="h-7 w-7 rounded-[9px] text-muted-foreground/65 hover:bg-card hover:text-foreground hover:shadow-xs"
+                  className="h-9 w-9 rounded-[9px] text-muted-foreground/70 hover:bg-card hover:text-foreground hover:shadow-xs"
                 >
                   <History className="h-3.5 w-3.5" />
                 </Button>
@@ -176,7 +176,7 @@ export const TopHeader = ({
               setTimeout(() => setIsRefreshing(false), 600);
             }}
             title="Actualiser"
-            className="h-7 w-7 rounded-[9px] text-muted-foreground/65 hover:bg-card hover:text-foreground hover:shadow-xs"
+            className="h-9 w-9 rounded-[9px] text-muted-foreground/70 hover:bg-card hover:text-foreground hover:shadow-xs"
           >
             <RefreshCw
               className={cn(
