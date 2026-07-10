@@ -123,7 +123,7 @@ function UpdateCcpDialog({ ccpCode, current, open, onOpenChange }: UpdateCcpDial
       <DialogContent className="max-w-sm">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Badge className="rounded-md bg-red-600 px-2 py-0.5 text-[11px] font-bold text-white">
+            <Badge className="rounded-md bg-red-600 px-2 py-0.5 text-xs font-bold text-white">
               {ccpCode}
             </Badge>
             Mettre à jour l'état CCP
@@ -210,7 +210,7 @@ function CcpCard({ ccp, liveState }: CcpCardProps) {
               {statusIcon(status)}
               <div>
                 <div className="flex items-center gap-2">
-                  <Badge className="rounded-md bg-red-600 px-2 py-0.5 text-[11px] font-bold text-white">
+                  <Badge className="rounded-md bg-red-600 px-2 py-0.5 text-xs font-bold text-white">
                     {ccp.code}
                   </Badge>
                   <span className="text-sm font-semibold text-foreground">{ccp.stage}</span>
@@ -219,11 +219,11 @@ function CcpCard({ ccp, liveState }: CcpCardProps) {
               </div>
             </div>
             <div className="shrink-0 flex flex-col items-end gap-1.5">
-              <Badge className={cn('rounded-full border px-2 py-0.5 text-[11px] font-semibold', statusBadgeClass(status))}>
+              <Badge className={cn('rounded-full border px-2 py-0.5 text-xs font-semibold', statusBadgeClass(status))}>
                 {statusLabel(status)}
               </Badge>
               {liveState?.last_checked_at && (
-                <span className="text-[10px] text-muted-foreground">
+                <span className="text-[11px] text-muted-foreground">
                   {new Date(liveState.last_checked_at).toLocaleString('fr-FR', {
                     day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
                   })}
@@ -232,7 +232,7 @@ function CcpCard({ ccp, liveState }: CcpCardProps) {
               <Button
                 size="sm"
                 variant="outline"
-                className="h-6 rounded-lg px-2 text-[10px]"
+                className="h-6 rounded-lg px-2 text-[11px]"
                 onClick={() => setUpdateOpen(true)}
               >
                 <Edit3 className="mr-1 h-2.5 w-2.5" />
@@ -243,7 +243,7 @@ function CcpCard({ ccp, liveState }: CcpCardProps) {
         </CardHeader>
         <CardContent className="pt-0">
           {liveState?.measured_value && (
-            <div className="mb-2 flex items-center gap-2 rounded-lg bg-muted/40 px-3 py-1.5 text-[11px]">
+            <div className="mb-2 flex items-center gap-2 rounded-lg bg-muted/40 px-3 py-1.5 text-xs">
               <span className="text-muted-foreground">Valeur mesurée :</span>
               <span className="font-semibold text-foreground">{liveState.measured_value}</span>
               {liveState.checked_by && (
@@ -252,13 +252,13 @@ function CcpCard({ ccp, liveState }: CcpCardProps) {
             </div>
           )}
           {liveState?.note && (
-            <p className="mb-3 rounded-lg bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
+            <p className="mb-3 rounded-lg bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
               {liveState.note}
             </p>
           )}
 
           <button
-            className="flex items-center gap-1 text-[11px] text-primary/70 hover:text-primary"
+            className="flex items-center gap-1 text-xs text-primary/70 hover:text-primary"
             onClick={() => setExpanded((p) => !p)}
           >
             {expanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
@@ -309,10 +309,10 @@ function PrpCard({ prp }: { prp: typeof HACCP_PRPS[0] }) {
       </div>
       <div className="min-w-0">
         <div className="flex items-center gap-1.5">
-          <Badge variant="outline" className="rounded-full px-1.5 py-0 text-[9px] font-bold">{prp.code}</Badge>
+          <Badge variant="outline" className="rounded-full px-1.5 py-0 text-[11px] font-bold">{prp.code}</Badge>
           <span className="text-xs font-semibold text-foreground">{prp.label}</span>
         </div>
-        <p className="mt-0.5 text-[10px] text-muted-foreground">{prp.description}</p>
+        <p className="mt-0.5 text-[11px] text-muted-foreground">{prp.description}</p>
       </div>
       <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400 opacity-60" />
     </div>
@@ -384,7 +384,7 @@ export function HaccpDashboard() {
       <Card className="surface-card border-border">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest">
+            <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-widest">
               Points critiques
             </Badge>
             <CardTitle className="text-base font-semibold">CCP1 &amp; CCP2</CardTitle>
@@ -431,7 +431,7 @@ export function HaccpDashboard() {
       <Card className="surface-card border-border">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest">
+            <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-widest">
               PRP
             </Badge>
             <CardTitle className="text-base font-semibold">

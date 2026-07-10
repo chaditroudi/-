@@ -142,7 +142,7 @@ export const SageOperationsHub = ({ onNavigate, accessibleTabs }: SageOperations
                   </div>
                   <div className="text-lg font-bold">{card.value}</div>
                   <div className="text-xs text-muted-foreground">{card.title}</div>
-                  <div className="text-[11px] text-muted-foreground">{card.subtitle}</div>
+                  <div className="text-xs text-muted-foreground">{card.subtitle}</div>
                 </div>
               </Button>
             ))}

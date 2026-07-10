@@ -208,9 +208,9 @@ export function LabelTemplatePanel({ currentUser = 'Utilisateur' }: { currentUse
                       </div>
                       <div className="flex gap-1 shrink-0">
                         {tpl.brand === 'PRIVATE_LABEL' && (
-                          <Badge variant="outline" className="text-[10px] h-4 px-1 text-purple-700">PL</Badge>
+                          <Badge variant="outline" className="text-[11px] h-4 px-1 text-purple-700">PL</Badge>
                         )}
-                        <Badge className={`text-[10px] px-1.5 ${STATUS_STYLE[tpl.status]}`}>{tpl.status}</Badge>
+                        <Badge className={`text-[11px] px-1.5 ${STATUS_STYLE[tpl.status]}`}>{tpl.status}</Badge>
                       </div>
                     </div>
                   </CardHeader>
@@ -285,8 +285,8 @@ export function LabelTemplatePanel({ currentUser = 'Utilisateur' }: { currentUse
                     <div className="flex items-center gap-2">
                       <span className="font-semibold text-sm">{c.name}</span>
                       <span className="font-mono text-xs text-muted-foreground">{c.code}</span>
-                      <Badge variant="outline" className="text-[10px] h-4 px-1">{c.country}</Badge>
-                      {!c.active && <Badge className="text-[10px] h-4 px-1 bg-slate-100 text-slate-500">Inactif</Badge>}
+                      <Badge variant="outline" className="text-[11px] h-4 px-1">{c.country}</Badge>
+                      {!c.active && <Badge className="text-[11px] h-4 px-1 bg-slate-100 text-slate-500">Inactif</Badge>}
                     </div>
                     {c.contact_name && (
                       <div className="text-xs text-muted-foreground mt-0.5">

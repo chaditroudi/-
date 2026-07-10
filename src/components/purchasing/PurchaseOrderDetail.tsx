@@ -214,9 +214,9 @@ const PurchaseOrderDetailContent = ({
   };
 
   const qcBadge = (status: string) => {
-    if (status === 'accepted') return <Badge className="bg-green-600 text-white text-[10px]">Accepté</Badge>;
-    if (status === 'conditional') return <Badge className="bg-amber-500 text-white text-[10px]">Quarantaine</Badge>;
-    return <Badge className="bg-red-600 text-white text-[10px]">Rejeté</Badge>;
+    if (status === 'accepted') return <Badge className="bg-green-600 text-white text-[11px]">Accepté</Badge>;
+    if (status === 'conditional') return <Badge className="bg-amber-500 text-white text-[11px]">Quarantaine</Badge>;
+    return <Badge className="bg-red-600 text-white text-[11px]">Rejeté</Badge>;
   };
 
   return (
@@ -243,10 +243,10 @@ const PurchaseOrderDetailContent = ({
                 </Badge>
               )}
               {(order as any).three_way_match_status === 'matched' && (
-                <Badge className="bg-green-700 text-white text-[10px]"><CheckCircle2 className="h-3 w-3 mr-1" />3-way OK</Badge>
+                <Badge className="bg-green-700 text-white text-[11px]"><CheckCircle2 className="h-3 w-3 mr-1" />3-way OK</Badge>
               )}
               {(order as any).three_way_match_status === 'mismatch' && (
-                <Badge className="bg-red-600 text-white text-[10px]"><XCircle className="h-3 w-3 mr-1" />3-way Litige</Badge>
+                <Badge className="bg-red-600 text-white text-[11px]"><XCircle className="h-3 w-3 mr-1" />3-way Litige</Badge>
               )}
               <Button variant="outline" size="sm" onClick={handlePrint}><Printer className="h-3.5 w-3.5 mr-1" />Imprimer</Button>
               <Button variant="outline" size="sm" onClick={handleDownloadPdf}><Download className="h-3.5 w-3.5 mr-1" />PDF</Button>
@@ -329,7 +329,7 @@ const PurchaseOrderDetailContent = ({
                           <div>{line.description}</div>
                           {line.material?.code && <span className="text-xs text-muted-foreground">({line.material.code})</span>}
                           <Progress value={pct} className={`h-1 mt-1 ${hasIssue ? 'bg-red-100' : ''}`} />
-                          <span className="text-[10px] text-muted-foreground">{pct.toFixed(0)}% livré · tol +{overTol}%</span>
+                          <span className="text-[11px] text-muted-foreground">{pct.toFixed(0)}% livré · tol +{overTol}%</span>
                         </TableCell>
                         <TableCell className="text-right text-sm">{target.toFixed(2)} {line.unit}</TableCell>
                         <TableCell className="text-right text-sm">{received.toFixed(2)} {line.unit}</TableCell>
@@ -405,12 +405,12 @@ const PurchaseOrderDetailContent = ({
                     </div>
                     <div className="flex items-center gap-1">
                       {Number((line as any).quarantine_quantity || 0) > 0 && (
-                        <Badge className="bg-amber-100 text-amber-700 border-amber-300 text-[10px]">
+                        <Badge className="bg-amber-100 text-amber-700 border-amber-300 text-[11px]">
                           <ShieldAlert className="h-2.5 w-2.5 mr-0.5" />{Number((line as any).quarantine_quantity).toFixed(2)} quarantaine
                         </Badge>
                       )}
                       {Number((line as any).rejected_quantity || 0) > 0 && (
-                        <Badge className="bg-red-100 text-red-700 border-red-300 text-[10px]">
+                        <Badge className="bg-red-100 text-red-700 border-red-300 text-[11px]">
                           <XCircle className="h-2.5 w-2.5 mr-0.5" />{Number((line as any).rejected_quantity).toFixed(2)} rejeté
                         </Badge>
                       )}
@@ -427,7 +427,7 @@ const PurchaseOrderDetailContent = ({
                           value={input.receivedNow}
                           onChange={(e) => updateLineInput(line.id, 'receivedNow', e.target.value)}
                         />
-                        {wouldExceed && <p className="text-[10px] text-red-500">Dépasse tolérance +{overTol}%</p>}
+                        {wouldExceed && <p className="text-[11px] text-red-500">Dépasse tolérance +{overTol}%</p>}
                       </div>
                       <div className="space-y-1">
                         <Label className="text-xs">Lot fournisseur *</Label>
@@ -525,7 +525,7 @@ const PurchaseOrderDetailContent = ({
                             <TableCell className="text-sm">{lot.lot_supplier ?? '—'}</TableCell>
                             <TableCell className="text-sm">{lot.quantity != null ? `${lot.quantity} ${lot.unit ?? 'kg'}` : '—'}</TableCell>
                             <TableCell>
-                              <Badge variant="outline" className="text-[10px]">{lot.stock_status ?? 'N/A'}</Badge>
+                              <Badge variant="outline" className="text-[11px]">{lot.stock_status ?? 'N/A'}</Badge>
                             </TableCell>
                             <TableCell className="text-xs text-muted-foreground">
                               {lot.created_at ? format(new Date(String(lot.created_at)), 'dd/MM/yy HH:mm', { locale: fr }) : '—'}
@@ -663,7 +663,7 @@ const PurchaseOrderDetailContent = ({
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-medium">{Number(log.received_qty ?? 0).toFixed(2)} kg</span>
                           {qcBadge(String(log.qc_status ?? 'accepted'))}
-                          {log.grn_number && <Badge variant="outline" className="text-[10px]">GRN: {String(log.grn_number)}</Badge>}
+                          {log.grn_number && <Badge variant="outline" className="text-[11px]">GRN: {String(log.grn_number)}</Badge>}
                           <span className="text-xs text-muted-foreground ml-auto">
                             {log.received_at ? format(new Date(String(log.received_at)), 'dd/MM/yyyy HH:mm', { locale: fr }) : '—'}
                           </span>

@@ -47,8 +47,8 @@ export function PackagingPerformance({ period }: { period: Period }) {
               </ResponsiveContainer>
             </div>
             <div className="text-2xl font-black -mt-10" style={{ color: oeeColor(oee) }}>{oee.toFixed(1)}%</div>
-            <div className="text-[10px] text-muted-foreground">OEE Global</div>
-            <Badge className="mt-1 text-[10px]" style={{ background: oeeColor(oee) }}>{oeeLabel(oee)}</Badge>
+            <div className="text-[11px] text-muted-foreground">OEE Global</div>
+            <Badge className="mt-1 text-[11px]" style={{ background: oeeColor(oee) }}>{oeeLabel(oee)}</Badge>
           </CardContent>
         </Card>
         {[
@@ -63,7 +63,7 @@ export function PackagingPerformance({ period }: { period: Period }) {
                 <span className="text-xs text-muted-foreground">{label}</span>
               </div>
               <div className={`text-2xl font-black ${color}`}>{value}</div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">{sub}</div>
+              <div className="text-[11px] text-muted-foreground mt-0.5">{sub}</div>
             </CardContent>
           </Card>
         ))}
@@ -89,7 +89,7 @@ export function PackagingPerformance({ period }: { period: Period }) {
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div className="h-2 rounded-full transition-all" style={{ width: `${l.oee}%`, background: oeeColor(l.oee) }} />
                   </div>
-                  <div className="text-[10px] text-muted-foreground">{l.produced.toLocaleString()} / {l.target.toLocaleString()} unités</div>
+                  <div className="text-[11px] text-muted-foreground">{l.produced.toLocaleString()} / {l.target.toLocaleString()} unités</div>
                 </div>
               ))}
             </div>

@@ -102,7 +102,7 @@ function StartRunDialog({ code, open, onOpenChange }: StartRunDialogProps) {
       <DialogContent className="max-w-sm">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Badge className="rounded-md text-white text-[11px] font-bold" style={{ backgroundColor: def.color }}>
+            <Badge className="rounded-md text-white text-xs font-bold" style={{ backgroundColor: def.color }}>
               {code}
             </Badge>
             Démarrer une production
@@ -129,7 +129,7 @@ function StartRunDialog({ code, open, onOpenChange }: StartRunDialogProps) {
               placeholder="ex. 1000"
               required
             />
-            <p className="mt-1 text-[10px] text-muted-foreground">
+            <p className="mt-1 text-[11px] text-muted-foreground">
               Rendement attendu : {def.balance.yieldRangePercent[0]}–{def.balance.yieldRangePercent[1]} %
             </p>
           </div>
@@ -196,14 +196,14 @@ function CompleteRunDialog({ run, open, onOpenChange }: CompleteRunDialogProps) 
       <DialogContent className="max-w-sm">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Badge className="rounded-md text-white text-[11px] font-bold" style={{ backgroundColor: def.color }}>
+            <Badge className="rounded-md text-white text-xs font-bold" style={{ backgroundColor: def.color }}>
               {run.flux_code}
             </Badge>
             Terminer la production
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-1">
-          <div className="rounded-lg bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
+          <div className="rounded-lg bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
             Entrée : <span className="font-bold text-foreground">{run.input_weight_kg.toLocaleString('fr-FR')} kg</span>
             {' · '}Opérateur : {run.operator_name}
           </div>
@@ -299,7 +299,7 @@ function ActiveRunBadge({ run }: { run: FluxRun }) {
           <div className="flex gap-1.5">
             <Button
               size="sm"
-              className="h-9 rounded-lg px-2 text-[11px] bg-emerald-600 hover:bg-emerald-700"
+              className="h-9 rounded-lg px-2 text-xs bg-emerald-600 hover:bg-emerald-700"
               onClick={() => setCompleteOpen(true)}
             >
               <CheckCircle2 className="mr-1 h-3 w-3" />
@@ -308,7 +308,7 @@ function ActiveRunBadge({ run }: { run: FluxRun }) {
             <Button
               size="sm"
               variant="ghost"
-              className="h-9 rounded-lg px-2 text-[11px] text-red-500 hover:bg-red-50 hover:text-red-700"
+              className="h-9 rounded-lg px-2 text-xs text-red-500 hover:bg-red-50 hover:text-red-700"
               onClick={() => cancel.mutate(run.id)}
               disabled={cancel.isPending}
             >
@@ -316,7 +316,7 @@ function ActiveRunBadge({ run }: { run: FluxRun }) {
             </Button>
           </div>
         </div>
-        <div className="mt-2 grid grid-cols-2 gap-2 text-[11px]">
+        <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
           <div>
             <span className="text-muted-foreground">Opérateur : </span>
             <span className="font-medium text-foreground">{run.operator_name}</span>
@@ -339,7 +339,7 @@ function RecentRunsList({ runs }: { runs: FluxRun[] }) {
 
   return (
     <div className="mt-2">
-      <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+      <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
         Historique récent
       </p>
       <div className="space-y-1.5">
@@ -353,7 +353,7 @@ function RecentRunsList({ runs }: { runs: FluxRun[] }) {
             <div
               key={run.id}
               className={cn(
-                'flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-[11px]',
+                'flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-xs',
                 isCancel
                   ? 'border-border bg-muted/30 opacity-60'
                   : 'border-border bg-card',
@@ -369,16 +369,16 @@ function RecentRunsList({ runs }: { runs: FluxRun[] }) {
                 </>
               )}
               {run.ccp2_passed === false && (
-                <Badge className="ml-auto rounded-full bg-red-100 px-1.5 py-0 text-[9px] font-semibold text-red-700">
+                <Badge className="ml-auto rounded-full bg-red-100 px-1.5 py-0 text-[11px] font-semibold text-red-700">
                   CCP2 NC
                 </Badge>
               )}
               {isCancel && (
-                <Badge className="ml-auto rounded-full bg-muted px-1.5 py-0 text-[9px] text-muted-foreground">
+                <Badge className="ml-auto rounded-full bg-muted px-1.5 py-0 text-[11px] text-muted-foreground">
                   Annulé
                 </Badge>
               )}
-              <span className="ml-auto text-[10px] text-muted-foreground">
+              <span className="ml-auto text-[11px] text-muted-foreground">
                 {new Date(run.started_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })}
               </span>
             </div>
@@ -399,7 +399,7 @@ function StepChip({ step }: { step: ProductionLineStep }) {
         {step.sequence > 1 && <span className="hidden h-px w-4 bg-border sm:block" />}
         <div
           className={cn(
-            'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-[10px] font-bold transition-colors',
+            'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-[11px] font-bold transition-colors',
             hasCcp
               ? 'border-red-400 bg-red-50 text-red-700'
               : step.requiresQC
@@ -411,11 +411,11 @@ function StepChip({ step }: { step: ProductionLineStep }) {
           {step.sequence}
         </div>
       </div>
-      <span className="max-w-[60px] text-center text-[9px] leading-tight text-muted-foreground">
+      <span className="max-w-[60px] text-center text-[11px] leading-tight text-muted-foreground">
         {step.label}
       </span>
       {hasCcp && (
-        <Badge className="rounded-full bg-red-600 px-1 py-0 text-[8px] font-bold text-white">
+        <Badge className="rounded-full bg-red-600 px-1 py-0 text-[11px] font-bold text-white">
           {step.ccp}
         </Badge>
       )}
@@ -425,7 +425,7 @@ function StepChip({ step }: { step: ProductionLineStep }) {
 
 function LineParamPill({ icon: Icon, label }: { icon: typeof Thermometer; label: string }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/60 px-2 py-0.5 text-[10px] text-muted-foreground">
+    <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/60 px-2 py-0.5 text-[11px] text-muted-foreground">
       <Icon className="h-2.5 w-2.5" />
       {label}
     </span>
@@ -465,19 +465,19 @@ function ProductionLineCard({
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge
-                  className="rounded-md px-2 py-0.5 text-[11px] font-bold text-white"
+                  className="rounded-md px-2 py-0.5 text-xs font-bold text-white"
                   style={{ backgroundColor: def.color }}
                 >
                   {def.code}
                 </Badge>
                 <span className="text-sm font-semibold text-foreground">{def.labelFr}</span>
                 {def.isDerived && (
-                  <Badge variant="outline" className="rounded-full px-1.5 py-0 text-[9px]">
+                  <Badge variant="outline" className="rounded-full px-1.5 py-0 text-[11px]">
                     Dérivé
                   </Badge>
                 )}
                 {activeRun && (
-                  <span className="flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                  <span className="flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
                     <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
                     Live
                   </span>
@@ -493,12 +493,12 @@ function ProductionLineCard({
                 <span className="font-bold" style={{ color: def.color }}>
                   {def.balance.yieldRangePercent[0]}–{def.balance.yieldRangePercent[1]} %
                 </span>
-                <p className="mt-0.5 text-[9px] text-muted-foreground">du tonnage</p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">du tonnage</p>
               </div>
               {!activeRun && (
                 <Button
                   size="sm"
-                  className="h-9 rounded-lg px-2.5 text-[11px]"
+                  className="h-9 rounded-lg px-2.5 text-xs"
                   style={{ backgroundColor: def.color }}
                   onClick={() => setStartOpen(true)}
                   disabled={isLoading}
@@ -510,7 +510,7 @@ function ProductionLineCard({
             </div>
           </div>
 
-          <p className="mt-2 text-[10px] text-muted-foreground">
+          <p className="mt-2 text-[11px] text-muted-foreground">
             <span className="font-medium text-foreground">Entrée :</span> {def.inputQuality}
           </p>
 
@@ -541,7 +541,7 @@ function ProductionLineCard({
           {activeRun ? (
             <ActiveRunBadge run={activeRun} />
           ) : (
-            <div className="mt-3 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+            <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
               <Square className="h-3 w-3" />
               <span>Ligne inactive</span>
             </div>
@@ -556,7 +556,7 @@ function ProductionLineCard({
 
           {/* Expand / collapse */}
           <button
-            className="mt-3 flex items-center gap-1 text-[11px] text-primary/70 hover:text-primary"
+            className="mt-3 flex items-center gap-1 text-xs text-primary/70 hover:text-primary"
             onClick={onToggle}
           >
             {isExpanded
@@ -566,27 +566,27 @@ function ProductionLineCard({
 
           {isExpanded && (
             <div className="mt-3 space-y-2 border-t border-border pt-3">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Étapes</p>
-              <div className="divide-y divide-border rounded-xl border border-border text-[11px]">
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Étapes</p>
+              <div className="divide-y divide-border rounded-xl border border-border text-xs">
                 {def.steps.map((step) => (
                   <div key={step.code} className="flex items-center gap-3 px-3 py-2">
                     <span className="w-5 text-center font-semibold text-muted-foreground">{step.sequence}</span>
                     <div className="flex-1 min-w-0">
                       <span className="font-medium text-foreground">{step.label}</span>
                       {step.ccp && (
-                        <Badge className="ml-1.5 rounded-full bg-red-600 px-1.5 py-0 text-[8px] font-bold text-white">
+                        <Badge className="ml-1.5 rounded-full bg-red-600 px-1.5 py-0 text-[11px] font-bold text-white">
                           {step.ccp}
                         </Badge>
                       )}
                       {step.requiresQC && !step.ccp && (
-                        <Badge variant="outline" className="ml-1.5 rounded-full border-amber-300 px-1.5 py-0 text-[8px] text-amber-700">
+                        <Badge variant="outline" className="ml-1.5 rounded-full border-amber-300 px-1.5 py-0 text-[11px] text-amber-700">
                           QC
                         </Badge>
                       )}
                       <p className="text-muted-foreground">{step.description}</p>
                     </div>
                     {step.parameters && step.parameters.length > 0 && (
-                      <div className="shrink-0 text-right text-[9px] text-muted-foreground">
+                      <div className="shrink-0 text-right text-[11px] text-muted-foreground">
                         {step.parameters.map((p) => (
                           <div key={p.key}>
                             {p.label}
@@ -604,10 +604,10 @@ function ProductionLineCard({
               </div>
               {def.params.packagingFormats && (
                 <div className="mt-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Formats emballage</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Formats emballage</p>
                   <div className="mt-1 flex flex-wrap gap-1">
                     {def.params.packagingFormats.map((fmt) => (
-                      <Badge key={fmt} variant="outline" className="rounded-full text-[10px]">
+                      <Badge key={fmt} variant="outline" className="rounded-full text-[11px]">
                         <Package className="mr-1 h-2.5 w-2.5" />{fmt}
                       </Badge>
                     ))}
@@ -615,23 +615,23 @@ function ProductionLineCard({
                 </div>
               )}
               {def.params.notes && (
-                <p className="rounded-lg bg-muted/40 px-3 py-2 text-[10px] text-muted-foreground">
+                <p className="rounded-lg bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
                   {def.params.notes}
                 </p>
               )}
               <div className="flex items-center gap-1.5 rounded-lg bg-muted/30 px-3 py-1.5">
                 <Leaf className="h-3 w-3 text-emerald-600" />
-                <p className="text-[10px] text-foreground">
+                <p className="text-[11px] text-foreground">
                   <span className="font-medium">Destination :</span> {def.balance.destination}
                 </p>
               </div>
               {def.fedBy && def.fedBy.length > 0 && (
-                <p className="text-[10px] text-muted-foreground">
+                <p className="text-[11px] text-muted-foreground">
                   Alimenté par :{' '}
                   {def.fedBy.map((f) => (
                     <Badge
                       key={f}
-                      className="ml-1 rounded-md px-1.5 py-0 text-[9px] font-bold text-white"
+                      className="ml-1 rounded-md px-1.5 py-0 text-[11px] font-bold text-white"
                       style={{ backgroundColor: PRODUCTION_LINE_DEFINITIONS[f].color }}
                     >
                       {f}
@@ -684,10 +684,10 @@ function CommonTrunk() {
                 >
                   <step.icon className="h-4 w-4" />
                 </div>
-                <p className="text-[10px] font-semibold text-foreground">{step.label}</p>
-                <p className="max-w-[80px] text-center text-[9px] text-muted-foreground">{step.desc}</p>
+                <p className="text-[11px] font-semibold text-foreground">{step.label}</p>
+                <p className="max-w-[80px] text-center text-[11px] text-muted-foreground">{step.desc}</p>
                 {step.ccp && (
-                  <Badge className="rounded-full bg-red-600 px-1.5 py-0 text-[8px] font-bold text-white">CCP1</Badge>
+                  <Badge className="rounded-full bg-red-600 px-1.5 py-0 text-[11px] font-bold text-white">CCP1</Badge>
                 )}
               </div>
               {i < steps.length - 1 && <div className="mx-2 mb-6 h-px w-8 bg-border" />}
@@ -730,17 +730,17 @@ function FilterBar({ mode, onChange }: { mode: FilterMode; onChange: (m: FilterM
 
 function StepLegend() {
   return (
-    <div className="flex flex-wrap items-center gap-4 text-[11px] text-muted-foreground">
+    <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
       <span className="flex items-center gap-1.5">
-        <div className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-red-400 bg-red-50 text-[9px] font-bold text-red-700">n</div>
+        <div className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-red-400 bg-red-50 text-[11px] font-bold text-red-700">n</div>
         CCP (point critique)
       </span>
       <span className="flex items-center gap-1.5">
-        <div className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-amber-300 bg-amber-50 text-[9px] font-bold text-amber-700">n</div>
+        <div className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-amber-300 bg-amber-50 text-[11px] font-bold text-amber-700">n</div>
         Contrôle qualité requis
       </span>
       <span className="flex items-center gap-1.5">
-        <div className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-border bg-muted text-[9px] font-bold text-muted-foreground">n</div>
+        <div className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-border bg-muted text-[11px] font-bold text-muted-foreground">n</div>
         Étape opérationnelle
       </span>
     </div>

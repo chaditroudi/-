@@ -172,7 +172,7 @@ export const ProductionOrderDialog = ({ open, onOpenChange, receptions }: Produc
                   ))}
                 </SelectContent>
               </Select>
-              <p className="mt-1 text-[10px] text-muted-foreground">
+              <p className="mt-1 text-[11px] text-muted-foreground">
                 Référence : Cartographie complète des flux de production v3.0
               </p>
             </div>
@@ -230,7 +230,7 @@ export const ProductionOrderDialog = ({ open, onOpenChange, receptions }: Produc
               <Label>
                 {t('production.linkedReception')}
                 {v2Selectable.length > 0 && (
-                  <Badge variant="outline" className="ml-2 text-[10px] py-0 px-1.5">
+                  <Badge variant="outline" className="ml-2 text-[11px] py-0 px-1.5">
                     {v2Selectable.length} libéré{v2Selectable.length > 1 ? 's' : ''}
                   </Badge>
                 )}
@@ -247,7 +247,7 @@ export const ProductionOrderDialog = ({ open, onOpenChange, receptions }: Produc
                     </SelectItem>
                   )}
                   {v2Selectable.length > 0 && (
-                    <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                    <div className="px-2 py-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
                       Réceptions V2 — Libérées
                     </div>
                   )}
@@ -257,7 +257,7 @@ export const ProductionOrderDialog = ({ open, onOpenChange, receptions }: Produc
                     </SelectItem>
                   ))}
                   {v1Selectable.filter((r) => !v2Ids.has(r.id)).length > 0 && (
-                    <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                    <div className="px-2 py-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
                       Réceptions classiques — Acceptées
                     </div>
                   )}

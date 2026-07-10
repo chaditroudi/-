@@ -111,7 +111,7 @@ export function StockStoragePanel({ period }: { period: Period }) {
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{z.name}</span>
-                      <Badge className="text-[10px] h-4 px-1" style={{ background: occupancyColor(z.occupancy) }}>
+                      <Badge className="text-[11px] h-4 px-1" style={{ background: occupancyColor(z.occupancy) }}>
                         {occupancyLabel(z.occupancy)}
                       </Badge>
                     </div>
@@ -132,7 +132,7 @@ export function StockStoragePanel({ period }: { period: Period }) {
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div className="h-2 rounded-full transition-all" style={{ width: `${Math.min(z.occupancy, 100)}%`, background: occupancyColor(z.occupancy) }} />
                   </div>
-                  <div className="flex justify-between text-[10px] text-muted-foreground">
+                  <div className="flex justify-between text-[11px] text-muted-foreground">
                     <span>{z.current >= 1000 ? `${(z.current / 1000).toFixed(2)} t` : `${z.current.toFixed(0)} kg`} occupé</span>
                     <span>capacité: {z.capacity >= 1000 ? `${(z.capacity / 1000).toFixed(1)} t` : `${z.capacity.toFixed(0)} kg`}</span>
                   </div>

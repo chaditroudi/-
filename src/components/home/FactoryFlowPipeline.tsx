@@ -181,7 +181,7 @@ export function FactoryFlowPipeline({ metrics, accessibleTabs, onNavigate }: Pro
     <section className="surface-card overflow-hidden rounded-[30px] border-border/70 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.98),rgba(248,244,236,0.92)_38%,rgba(255,255,255,0.94)_100%)]">
       <div className="flex flex-col gap-4 border-b border-border/50 px-4 py-4 sm:px-5 sm:py-5 lg:flex-row lg:items-end lg:justify-between lg:px-6">
         <div className="max-w-2xl space-y-2">
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
             <Sparkles className="h-3.5 w-3.5" />
             Flux de travail
           </div>
@@ -195,12 +195,12 @@ export function FactoryFlowPipeline({ metrics, accessibleTabs, onNavigate }: Pro
 
         <div className="grid w-full gap-3 sm:grid-cols-2 lg:w-auto lg:min-w-[360px]">
           <div className="rounded-2xl border border-primary/10 bg-white/80 px-4 py-3 shadow-sm">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Charge globale</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Charge globale</p>
             <p className="mt-1 text-3xl font-semibold text-foreground">{totalFlowItems}</p>
             <p className="mt-1 text-xs text-muted-foreground">éléments visibles dans le flux actuellement</p>
           </div>
           <div className="rounded-2xl border border-border/70 bg-white/70 px-4 py-3 shadow-sm">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Point chaud</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Point chaud</p>
             <p className="mt-1 text-base font-semibold text-foreground">{highlightedStep?.label ?? "Aucun"}</p>
             <p className="mt-1 text-xs text-muted-foreground">
               {highlightedStep ? `${highlightedStep.count} ${highlightedStep.countSuffix}` : "Le flux est calme"}
@@ -233,22 +233,22 @@ export function FactoryFlowPipeline({ metrics, accessibleTabs, onNavigate }: Pro
                     <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl", step.palette.icon)}>
                       <Icon className="h-4.5 w-4.5" />
                     </div>
-                    <span className="rounded-full bg-white/70 px-2 py-1 text-[10px] font-mono text-muted-foreground shadow-sm">
+                    <span className="rounded-full bg-white/70 px-2 py-1 text-[11px] font-mono text-muted-foreground shadow-sm">
                       Etape {idx + 1}
                     </span>
                   </div>
 
                   <div>
                     <p className="text-sm font-semibold leading-tight">{step.label}</p>
-                    <p className="mt-1 text-[11px] text-muted-foreground">{step.sublabel}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{step.sublabel}</p>
                   </div>
 
                   <div className="space-y-2">
-                    <div className={cn("inline-flex items-baseline gap-1 self-start rounded-full px-2.5 py-1 text-[11px] font-semibold", step.palette.badge)}>
+                    <div className={cn("inline-flex items-baseline gap-1 self-start rounded-full px-2.5 py-1 text-xs font-semibold", step.palette.badge)}>
                       <span className="text-sm font-bold">{step.count}</span>
                       <span className="font-normal opacity-80">{step.countSuffix}</span>
                     </div>
-                    <div className="flex items-center justify-between text-[11px] font-medium text-muted-foreground">
+                    <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
                       <span>{step.flow || "Fin du flux"}</span>
                       <span className="inline-flex items-center gap-1 text-primary">
                         Ouvrir
@@ -272,12 +272,12 @@ export function FactoryFlowPipeline({ metrics, accessibleTabs, onNavigate }: Pro
         </div>
       </div>
 
-      <div className="flex flex-col items-start gap-2 border-t border-border/50 bg-muted/20 px-4 py-3 text-[11px] text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:gap-y-2 sm:px-5 lg:px-6">
+      <div className="flex flex-col items-start gap-2 border-t border-border/50 bg-muted/20 px-4 py-3 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:gap-y-2 sm:px-5 lg:px-6">
         <span className="font-semibold text-foreground">Lecture rapide :</span>
         <span>
           Réception → QC → Stock matière → Phase 2 → Conditionnement → Stock PF → Expédition
         </span>
-        <span className="rounded-full bg-white/70 px-3 py-1 text-[10px] font-medium shadow-sm sm:ml-auto">
+        <span className="rounded-full bg-white/70 px-3 py-1 text-[11px] font-medium shadow-sm sm:ml-auto">
           Cliquer sur une étape pour ouvrir le module associé
         </span>
       </div>

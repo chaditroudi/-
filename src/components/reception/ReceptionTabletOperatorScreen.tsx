@@ -425,20 +425,20 @@ export const ReceptionTabletOperatorScreen = () => {
               <BrandLogo className="h-12 w-12" imgClassName="h-full w-full object-contain" alt={companyName} />
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] uppercase tracking-[0.24em] text-white/62">{companyShortName}</p>
+              <p className="text-xs uppercase tracking-[0.24em] text-white/62">{companyShortName}</p>
               <p className="truncate text-lg font-semibold">Poste tablette réception</p>
               <p className="truncate text-sm text-white/72">{companyName} · Traçabilité d’entrée et pesée pont-bascule</p>
             </div>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/8 px-4 py-3">
-            <p className="text-[11px] uppercase tracking-[0.24em] text-white/62">Date & heure</p>
+            <p className="text-xs uppercase tracking-[0.24em] text-white/62">Date & heure</p>
             <p className="mt-2 text-3xl font-semibold tabular-nums">{format(clock, 'HH:mm:ss')}</p>
             <p className="mt-1 text-sm text-white/72">{format(clock, 'EEEE dd MMMM yyyy', { locale: fr })}</p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/8 px-4 py-3">
-            <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-white/62">
+            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-white/62">
               <UserRound className="h-4 w-4" />
               Opérateur connecté
             </div>
@@ -448,7 +448,7 @@ export const ReceptionTabletOperatorScreen = () => {
 
           <div className="rounded-3xl border border-emerald-300/25 bg-black/12 px-4 py-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-white/62">
+              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-white/62">
                 <Scale className="h-4 w-4" />
                 Lecture pont-bascule
               </div>

@@ -124,8 +124,8 @@ export function LotSelector(props: Props | MultiProps) {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="font-mono text-xs font-semibold">{lot.reception_number}</span>
-                        {lot.qc_grade && <Badge variant="outline" className="text-[10px] h-4 px-1">Grade {lot.qc_grade}</Badge>}
-                        {lot.is_bio && <Badge variant="outline" className="text-[10px] h-4 px-1 text-green-700">BIO</Badge>}
+                        {lot.qc_grade && <Badge variant="outline" className="text-[11px] h-4 px-1">Grade {lot.qc_grade}</Badge>}
+                        {lot.is_bio && <Badge variant="outline" className="text-[11px] h-4 px-1 text-green-700">BIO</Badge>}
                       </div>
                       <div className="text-xs text-muted-foreground flex gap-2">
                         {lot.variety && <span>{lot.variety}</span>}

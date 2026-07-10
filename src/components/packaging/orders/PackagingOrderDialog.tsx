@@ -311,14 +311,14 @@ export function PackagingOrderDialog({ open, onOpenChange, order, currentUser = 
                   {palettes.map((pal) => (
                     <div key={pal.id} className="flex items-center gap-2 text-xs">
                       <span className="font-mono font-semibold">{pal.palette_number}</span>
-                      <Badge className={`text-[10px] px-1 ${pal.status === 'SCELLE' ? 'bg-green-100 text-green-700' : pal.status === 'EXPEDIE' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>
+                      <Badge className={`text-[11px] px-1 ${pal.status === 'SCELLE' ? 'bg-green-100 text-green-700' : pal.status === 'EXPEDIE' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>
                         {pal.status}
                       </Badge>
                       <span className="text-muted-foreground">{pal.box_count} boîtes · {pal.gross_weight_kg} kg</span>
-                      {pal.sscc && <span className="font-mono text-[10px] text-muted-foreground">SSCC: {pal.sscc}</span>}
+                      {pal.sscc && <span className="font-mono text-[11px] text-muted-foreground">SSCC: {pal.sscc}</span>}
                       <div className="ml-auto flex gap-1">
                         {pal.status === 'EN_COURS' && sealingId !== pal.id && (
-                          <Button size="sm" variant="outline" className="h-6 px-2 text-[10px]" onClick={() => setSealingId(pal.id)}>
+                          <Button size="sm" variant="outline" className="h-6 px-2 text-[11px]" onClick={() => setSealingId(pal.id)}>
                             <ShieldCheck className="h-3 w-3 mr-1" />
                             Sceller
                           </Button>
@@ -327,7 +327,7 @@ export function PackagingOrderDialog({ open, onOpenChange, order, currentUser = 
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-6 px-2 text-[10px]"
+                            className="h-6 px-2 text-[11px]"
                             onClick={() => printPaletteLabel(pal, order, activeBOM)}
                           >
                             <Printer className="h-3 w-3" />

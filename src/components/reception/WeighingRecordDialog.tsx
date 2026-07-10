@@ -41,12 +41,12 @@ function WeighingSummary({ weighings }: { weighings: WeighingRecord[] }) {
       <div className={`rounded-lg p-3 ${gross ? 'bg-emerald-50 border border-emerald-200' : 'bg-muted/40 border border-dashed'}`}>
         <p className="text-xs text-muted-foreground uppercase tracking-wide">Brut</p>
         <p className="font-bold text-base mt-1 text-emerald-700">{fmt(gross?.weight_kg)}</p>
-        {gross && <p className="text-[10px] text-muted-foreground mt-0.5">{gross.source}</p>}
+        {gross && <p className="text-[11px] text-muted-foreground mt-0.5">{gross.source}</p>}
       </div>
       <div className={`rounded-lg p-3 ${tare ? 'bg-blue-50 border border-blue-200' : 'bg-muted/40 border border-dashed'}`}>
         <p className="text-xs text-muted-foreground uppercase tracking-wide">Tare</p>
         <p className="font-bold text-base mt-1 text-blue-700">{fmt(tare?.weight_kg)}</p>
-        {tare && <p className="text-[10px] text-muted-foreground mt-0.5">{tare.source}</p>}
+        {tare && <p className="text-[11px] text-muted-foreground mt-0.5">{tare.source}</p>}
       </div>
       <div className={`rounded-lg p-3 ${
         net != null && net > 0 ? 'bg-purple-50 border border-purple-200' :
@@ -59,7 +59,7 @@ function WeighingSummary({ weighings }: { weighings: WeighingRecord[] }) {
           net != null ? 'text-red-600' : 'text-muted-foreground'
         }`}>{fmt(net)}</p>
         {net != null && net <= 0 && (
-          <p className="text-[10px] text-red-600 mt-0.5 font-semibold">Invalide ≤ 0</p>
+          <p className="text-[11px] text-red-600 mt-0.5 font-semibold">Invalide ≤ 0</p>
         )}
       </div>
     </div>
@@ -155,13 +155,13 @@ export function WeighingRecordDialog({
               <TabsTrigger value="GROSS" className="flex-1 gap-2">
                 Poids brut
                 {existingGross && (
-                  <Badge className="bg-emerald-600 text-white text-[10px] px-1.5 py-0">✓</Badge>
+                  <Badge className="bg-emerald-600 text-white text-[11px] px-1.5 py-0">✓</Badge>
                 )}
               </TabsTrigger>
               <TabsTrigger value="TARE" className="flex-1 gap-2">
                 Tare
                 {existingTare && (
-                  <Badge className="bg-blue-600 text-white text-[10px] px-1.5 py-0">✓</Badge>
+                  <Badge className="bg-blue-600 text-white text-[11px] px-1.5 py-0">✓</Badge>
                 )}
               </TabsTrigger>
             </TabsList>

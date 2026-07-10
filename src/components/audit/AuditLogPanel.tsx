@@ -144,7 +144,7 @@ export const AuditLogPanel = () => {
                 type="button"
                 onClick={() => setActiveCategory(key)}
                 className={cn(
-                  'flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-all',
+                  'flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold transition-all',
                   activeCategory === key
                     ? 'border-primary bg-primary text-primary-foreground'
                     : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
@@ -187,11 +187,11 @@ export const AuditLogPanel = () => {
 
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <Badge variant="outline" className={cn('px-1.5 py-0 text-[10px]', aColor)}>
+                        <Badge variant="outline" className={cn('px-1.5 py-0 text-[11px]', aColor)}>
                           {aLabel}
                         </Badge>
                         {log.module && (
-                          <span className="text-[11px] font-semibold text-muted-foreground">
+                          <span className="text-xs font-semibold text-muted-foreground">
                             {log.module}
                           </span>
                         )}
@@ -199,7 +199,7 @@ export const AuditLogPanel = () => {
                       <p className="mt-0.5 truncate text-[13px] font-medium leading-tight text-foreground">
                         {log.message ?? '—'}
                       </p>
-                      <div className="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                      <div className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
                         <User className="h-3 w-3 shrink-0" />
                         <span className="max-w-[140px] truncate">{by}</span>
                         <span>·</span>

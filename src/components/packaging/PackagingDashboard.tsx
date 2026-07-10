@@ -53,7 +53,7 @@ export function PackagingDashboard({ currentUser = 'Utilisateur' }: Props) {
             <ClipboardList className="h-3.5 w-3.5" />
             OF Conditionnement
             {(kpis?.active_orders ?? 0) > 0 && (
-              <Badge className="ml-1 h-4 min-w-4 px-1 text-[10px] bg-blue-500 text-white">
+              <Badge className="ml-1 h-4 min-w-4 px-1 text-[11px] bg-blue-500 text-white">
                 {kpis!.active_orders}
               </Badge>
             )}
@@ -70,7 +70,7 @@ export function PackagingDashboard({ currentUser = 'Utilisateur' }: Props) {
             <Layers className="h-3.5 w-3.5" />
             Palettes
             {(kpis?.palettes_sealed_today ?? 0) > 0 && (
-              <Badge className="ml-1 h-4 min-w-4 px-1 text-[10px] bg-green-600 text-white">
+              <Badge className="ml-1 h-4 min-w-4 px-1 text-[11px] bg-green-600 text-white">
                 {kpis!.palettes_sealed_today}
               </Badge>
             )}

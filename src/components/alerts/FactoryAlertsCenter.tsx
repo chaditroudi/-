@@ -230,7 +230,7 @@ export const FactoryAlertsCenter = () => {
                    <div key={notification.id} className="rounded-lg border bg-background px-3 py-2">
                      <div className="flex items-center justify-between gap-2">
                        <span className="truncate text-sm font-medium">{notification.title}</span>
-                       <Badge variant="outline" className="shrink-0 text-[10px]">
+                       <Badge variant="outline" className="shrink-0 text-[11px]">
                          {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale: getLocale() })}
                        </Badge>
                      </div>

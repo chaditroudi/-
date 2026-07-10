@@ -322,7 +322,7 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
             {item.badge > 0 && (
               <Badge
                 variant={activeView === item.value ? 'secondary' : 'destructive'}
-                className={cn('rounded-full px-1.5 py-0 text-[10px]', activeView === item.value && 'bg-white/90 text-foreground')}
+                className={cn('rounded-full px-1.5 py-0 text-[11px]', activeView === item.value && 'bg-white/90 text-foreground')}
               >
                 {item.badge}
               </Badge>
@@ -372,7 +372,7 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
                     <tab.icon className={cn('h-4 w-4 shrink-0 transition-colors', active ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground')} />
                     {tab.label}
                     {tab.badge != null && (
-                      <span className={cn('flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold leading-none', tab.badgeClass)}>
+                      <span className={cn('flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold leading-none', tab.badgeClass)}>
                         {tab.badge}
                       </span>
                     )}
@@ -440,7 +440,7 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-1.5">
                             <span className="font-mono text-sm font-semibold">{item.reception.reception_number}</span>
-                            <Badge className={cn('text-[10px] px-1.5 py-px', item.urgencyClassName)}>{item.urgencyLabel}</Badge>
+                            <Badge className={cn('text-[11px] px-1.5 py-px', item.urgencyClassName)}>{item.urgencyLabel}</Badge>
                           </div>
                           <p className="mt-0.5 truncate text-xs text-muted-foreground">
                             {item.reception.supplier?.name || item.reception.supplier_name_snapshot || '—'} • {item.reception.quantity_total} {item.reception.unit}
@@ -536,7 +536,7 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
                       { label: 'Bloqués', value: blockedReceptions.length },
                     ].map((stat) => (
                       <div key={stat.label} className="rounded-2xl bg-muted/35 p-2.5 text-center">
-                        <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{stat.label}</p>
+                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{stat.label}</p>
                         <p className="mt-0.5 text-xl font-semibold">{stat.value}</p>
                       </div>
                     ))}
@@ -775,7 +775,7 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
                     { status: 'BLOQUE',        label: 'Bloqué — décision requise' },
                     { status: 'REJETE',        label: 'Rejeté' },
                   ].map(({ status, label }) => (
-                    <span key={status} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                    <span key={status} className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <span className={cn('inline-block h-2.5 w-2.5 rounded-full', receptionStatusColors[status as keyof typeof receptionStatusColors])} />
                       {label}
                     </span>
@@ -812,15 +812,15 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
                               <div className="min-w-0">
                                 <div className="flex flex-wrap items-center gap-1.5">
                                   <span className="font-mono text-sm font-semibold">{reception.reception_number}</span>
-                                  <Badge variant="outline" className="text-[10px] px-1.5">{reception.reception_type}</Badge>
+                                  <Badge variant="outline" className="text-[11px] px-1.5">{reception.reception_type}</Badge>
                                   {reception.variety && (
-                                    <Badge className="bg-secondary text-secondary-foreground hover:bg-secondary text-[10px] px-1.5">{reception.variety}</Badge>
+                                    <Badge className="bg-secondary text-secondary-foreground hover:bg-secondary text-[11px] px-1.5">{reception.variety}</Badge>
                                   )}
                                 </div>
                                 <p className="mt-0.5 text-sm font-medium">
                                   {reception.supplier?.name || reception.supplier_name_snapshot || 'Fournisseur non renseigné'} • {reception.quantity_total} {reception.unit}
                                 </p>
-                                <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
+                                <div className="mt-1 flex flex-wrap gap-2 text-xs text-muted-foreground">
                                   <span>BL: {reception.delivery_note_number || '-'}</span>
                                   <span>{format(new Date(reception.created_at), 'dd/MM HH:mm', { locale: getLocale() })}</span>
                                   {reception.storage_zone_code && <span>Zone {reception.storage_zone_code}</span>}
@@ -843,13 +843,13 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
                                   completed:   'bg-green-100 text-green-700 border-green-300',
                                 };
                                 return (
-                                  <Badge variant="outline" className={cn('text-[10px] px-1.5 border', STAGE_STYLE[p2.stage] ?? 'bg-gray-100 text-gray-600')}>
+                                  <Badge variant="outline" className={cn('text-[11px] px-1.5 border', STAGE_STYLE[p2.stage] ?? 'bg-gray-100 text-gray-600')}>
                                     {p2.label}
                                   </Badge>
                                 );
                               })()}
                               {isDelayed && (
-                                <Badge className={cn('text-[10px] px-1.5', isCriticalDelay ? 'bg-red-600 text-white' : 'bg-amber-500 text-white')}>
+                                <Badge className={cn('text-[11px] px-1.5', isCriticalDelay ? 'bg-red-600 text-white' : 'bg-amber-500 text-white')}>
                                   <Clock3 className="mr-0.5 h-2.5 w-2.5" />
                                   {Math.round(ageHours)}h
                                 </Badge>

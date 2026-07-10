@@ -264,7 +264,7 @@ export default function SupplierPortal() {
           </div>
           <div className="flex flex-col items-end gap-1">
             <Badge className={getSupplierStatusClassName(status)}>{getSupplierStatusLabel(status)}</Badge>
-            <span className="text-[10px] text-muted-foreground">Portail fournisseur — lecture seule</span>
+            <span className="text-[11px] text-muted-foreground">Portail fournisseur — lecture seule</span>
           </div>
         </div>
         <div className="max-w-2xl mx-auto px-4 pb-3 flex flex-wrap gap-2">

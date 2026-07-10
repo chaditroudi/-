@@ -92,18 +92,18 @@ export function SupplierScorecard({ period }: { period: Period }) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-sm truncate">{s.name}</div>
-                    <div className="text-[10px] text-muted-foreground">{s.deliveries} livraison{s.deliveries > 1 ? 's' : ''}</div>
+                    <div className="text-[11px] text-muted-foreground">{s.deliveries} livraison{s.deliveries > 1 ? 's' : ''}</div>
                   </div>
                   <div className="text-right shrink-0">
                     <div className="font-bold text-sm">
                       {s.kgReceived >= 1000 ? `${(s.kgReceived / 1000).toFixed(2)} t` : `${s.kgReceived.toFixed(0)} kg`}
                     </div>
-                    <div className="text-[10px] text-muted-foreground">
+                    <div className="text-[11px] text-muted-foreground">
                       {totalKg > 0 ? `${((s.kgReceived / totalKg) * 100).toFixed(1)}% du total` : ''}
                     </div>
                   </div>
                   <div className="shrink-0">
-                    <Badge className="text-[10px] h-5 px-1.5" style={{ background: acceptColor(s.acceptanceRate) }}>
+                    <Badge className="text-[11px] h-5 px-1.5" style={{ background: acceptColor(s.acceptanceRate) }}>
                       {s.acceptanceRate.toFixed(0)}% — {acceptLabel(s.acceptanceRate)}
                     </Badge>
                   </div>

@@ -458,12 +458,12 @@ export function WorkflowNavigation({
                   <p className="truncate text-[13px] font-semibold leading-tight text-foreground">
                     {profileName?.split(" ")[0] ?? workspaceLabel}
                   </p>
-                  <span className="hidden shrink-0 items-center gap-1 rounded-full border border-primary/20 bg-primary/7 px-2 py-0.5 text-[10px] font-semibold text-primary sm:inline-flex">
+                  <span className="hidden shrink-0 items-center gap-1 rounded-full border border-primary/20 bg-primary/7 px-2 py-0.5 text-[11px] font-semibold text-primary sm:inline-flex">
                     <ShieldCheck className="h-2.5 w-2.5" />
                     {userMode === "employeur" ? "Employeur" : "Assistant"}
                   </span>
                 </div>
-                <p className="mt-0.5 truncate text-[11px] leading-tight text-muted-foreground/65">
+                <p className="mt-0.5 truncate text-xs leading-tight text-muted-foreground/65">
                   {roleLabel}
                   {roleDepartment ? <span className="text-border/80"> · </span> : null}
                   {roleDepartment ? <span className="hidden sm:inline">{roleDepartment}</span> : null}
@@ -477,7 +477,7 @@ export function WorkflowNavigation({
               {metrics.activeAlertsCount > 0 && (
                 <div className="flex items-center gap-1.5 rounded-full border border-red-200/80 bg-red-50 px-2.5 py-1.5">
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-500" />
-                  <span className="text-[11px] font-bold tabular-nums text-red-600">
+                  <span className="text-xs font-bold tabular-nums text-red-600">
                     {metrics.activeAlertsCount}
                   </span>
                   <AlertTriangle className="h-3 w-3 text-red-500" />
@@ -487,7 +487,7 @@ export function WorkflowNavigation({
               {/* Pending receptions */}
               {metrics.pendingReceptions > 0 && (
                 <div className="hidden items-center gap-1.5 rounded-full border border-amber-200/80 bg-amber-50 px-2.5 py-1.5 sm:flex">
-                  <span className="text-[11px] font-semibold tabular-nums text-amber-700">
+                  <span className="text-xs font-semibold tabular-nums text-amber-700">
                     {metrics.pendingReceptions}
                   </span>
                   <Truck className="h-3 w-3 text-amber-600" />
@@ -497,7 +497,7 @@ export function WorkflowNavigation({
               {/* In-progress orders */}
               {metrics.inProgressOrders > 0 && (
                 <div className="hidden items-center gap-1.5 rounded-full border border-violet-200/80 bg-violet-50 px-2.5 py-1.5 md:flex">
-                  <span className="text-[11px] font-semibold tabular-nums text-violet-700">
+                  <span className="text-xs font-semibold tabular-nums text-violet-700">
                     {metrics.inProgressOrders}
                   </span>
                   <Factory className="h-3 w-3 text-violet-600" />
@@ -511,10 +511,10 @@ export function WorkflowNavigation({
             {/* Row: section label + dot indicator */}
             <div className="mb-3 flex items-center justify-between gap-4">
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
                   Flux de travail
                 </p>
-                <p className="mt-0.5 text-[11px] text-muted-foreground/55">
+                <p className="mt-0.5 text-xs text-muted-foreground/55">
                   Glissez · Touchez pour naviguer
                 </p>
               </div>
@@ -578,7 +578,7 @@ export function WorkflowNavigation({
                       </div>
                       <span
                         className={cn(
-                          "rounded-full border px-2 py-0.5 text-[10px] font-semibold transition-colors",
+                          "rounded-full border px-2 py-0.5 text-[11px] font-semibold transition-colors",
                           isActive
                             ? card.accent
                             : "border-border/50 bg-muted/40 text-muted-foreground",
@@ -613,12 +613,12 @@ export function WorkflowNavigation({
 
                     {/* Helper + CTA */}
                     <div className="mt-3 flex items-center justify-between gap-2">
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/50">
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/50">
                         {card.helper}
                       </span>
                       <span
                         className={cn(
-                          "text-[11px] font-semibold transition-colors",
+                          "text-xs font-semibold transition-colors",
                           isActive ? "text-primary" : "text-muted-foreground/40",
                         )}
                       >
@@ -689,13 +689,13 @@ export function WorkflowNavigation({
                   <span className="relative">
                     <meta.icon className={cn("h-5 w-5 transition-transform duration-200", isActive && "scale-110")} />
                     {hasBadge && (
-                      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white badge-pulse">
+                      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[11px] font-bold text-white badge-pulse">
                         {metrics.activeAlertsCount > 9 ? "9+" : metrics.activeAlertsCount}
                       </span>
                     )}
                   </span>
                   <span className={cn(
-                    "truncate text-[11px] font-semibold transition-all duration-200",
+                    "truncate text-xs font-semibold transition-all duration-200",
                     isActive ? "text-primary" : "text-muted-foreground",
                   )}>
                     {meta.shortLabel}
@@ -718,7 +718,7 @@ export function WorkflowNavigation({
               )}
               <Grid2x2 className={cn("h-5 w-5 transition-transform duration-200", isOverflowActive && "scale-110")} />
               <span className={cn(
-                "truncate text-[11px] font-semibold",
+                "truncate text-xs font-semibold",
                 isOverflowActive ? "text-primary" : "text-muted-foreground",
               )}>
                 Plus
@@ -768,7 +768,7 @@ export function WorkflowNavigation({
                     <div className="flex items-center gap-2">
                       <p className="truncate text-sm font-semibold text-foreground">{meta.label}</p>
                       {tab === "alerts" && metrics.activeAlertsCount > 0 && (
-                        <Badge variant="destructive" className="rounded-full px-1.5 text-[10px] badge-pulse">
+                        <Badge variant="destructive" className="rounded-full px-1.5 text-[11px] badge-pulse">
                           {metrics.activeAlertsCount}
                         </Badge>
                       )}

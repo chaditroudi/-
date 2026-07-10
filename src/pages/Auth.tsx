@@ -82,7 +82,7 @@ export default function Auth() {
           <div>
             <div className="mb-1.5 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/7 px-3 py-0.5">
               <ShieldCheck className="h-3 w-3 text-primary/70" />
-              <span className="text-[10.5px] font-bold uppercase tracking-[0.18em] text-primary/65">
+              <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-primary/65">
                 {companyShortName} · MES
               </span>
             </div>
@@ -200,7 +200,7 @@ export default function Auth() {
         {/* Below-card trust line */}
         <div className="mt-5 flex items-center justify-center gap-2">
           <ShieldCheck className="h-3.5 w-3.5 text-muted-foreground/35" />
-          <p className="text-[11px] text-muted-foreground/45">
+          <p className="text-xs text-muted-foreground/45">
             {i18n.language.startsWith('ar')
               ? `دخول آمن لفرق ${companyName}`
               : i18n.language.startsWith('fr')
@@ -212,7 +212,7 @@ export default function Auth() {
 
       {/* ── Footer ── */}
       <footer className="absolute bottom-0 inset-x-0 border-t border-border/30 bg-white/50 py-3 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-[900px] items-center justify-between gap-3 px-5 text-[10.5px] text-muted-foreground/40">
+        <div className="mx-auto flex max-w-[900px] items-center justify-between gap-3 px-5 text-[11px] text-muted-foreground/40">
           <span>© {new Date().getFullYear()} {companyName}</span>
           <span className="hidden sm:inline">Manufacturing Execution System</span>
           <span className="rounded-full border border-primary/16 bg-primary/5 px-2 py-0.5 font-bold tracking-wide text-primary/50">

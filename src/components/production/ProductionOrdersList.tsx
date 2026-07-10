@@ -85,7 +85,7 @@ export const ProductionOrdersList = ({ orders, receptions }: ProductionOrdersLis
                     <TableCell className="hidden sm:table-cell">
                       {order.flux_code ? (
                         <Badge
-                          className="rounded-md px-2 py-0.5 text-[11px] font-bold text-white"
+                          className="rounded-md px-2 py-0.5 text-xs font-bold text-white"
                           style={{ backgroundColor: fluxCodeColors[order.flux_code!] }}
                         >
                           {order.flux_code}

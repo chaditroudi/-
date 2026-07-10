@@ -164,7 +164,7 @@ export const HomePage = ({ onNavigate, accessibleTabs, metrics }: HomePageProps)
       {/* ── Page header ─────────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/50 pb-4">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/60">Accueil</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60">Accueil</p>
           <h1 className="mt-0.5 text-2xl font-semibold text-foreground">Priorités du jour</h1>
         </div>
         {PrimaryActionIcon && (

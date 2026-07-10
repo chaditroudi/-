@@ -95,8 +95,8 @@ export const TopHeader = ({
           />
         </div>
         <div className="min-w-0 hidden md:block">
-          <p className="text-[11px] font-bold leading-tight text-foreground/90">{companyShortName}</p>
-          <p className="max-w-[130px] truncate text-[9.5px] font-medium text-muted-foreground/65">{companyName}</p>
+          <p className="text-xs font-bold leading-tight text-foreground/90">{companyShortName}</p>
+          <p className="max-w-[130px] truncate text-[11px] font-medium text-muted-foreground/65">{companyName}</p>
         </div>
       </div>
 
@@ -104,7 +104,7 @@ export const TopHeader = ({
       <div className="order-3 flex min-w-0 basis-full items-center gap-2.5 pb-1.5 sm:order-none sm:basis-auto sm:pb-0">
         <div className="min-w-0">
           {sectionLabel && (
-            <p className="hidden truncate text-[10.5px] font-bold uppercase tracking-[0.18em] text-muted-foreground/55 sm:block">
+            <p className="hidden truncate text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground/55 sm:block">
               {sectionLabel}
             </p>
           )}
@@ -120,7 +120,7 @@ export const TopHeader = ({
 
         {/* Role badge */}
         {roleLabel && (
-          <span className="hidden shrink-0 items-center gap-1.5 rounded-full border border-primary/22 bg-primary/9 px-2.5 py-0.5 text-[10.5px] font-semibold text-primary/75 lg:inline-flex">
+          <span className="hidden shrink-0 items-center gap-1.5 rounded-full border border-primary/22 bg-primary/9 px-2.5 py-0.5 text-[11px] font-semibold text-primary/75 lg:inline-flex">
             <ShieldCheck className="h-3 w-3 shrink-0" />
             {roleLabel}
           </span>
@@ -131,7 +131,7 @@ export const TopHeader = ({
       <div className="ml-auto flex shrink-0 items-center gap-1.5">
 
         {/* Date chip — desktop only */}
-        <span className="hidden items-center gap-1.5 rounded-full border border-primary/18 bg-primary/8 px-2.5 py-1 text-[11.5px] font-semibold text-primary/80 xl:inline-flex">
+        <span className="hidden items-center gap-1.5 rounded-full border border-primary/18 bg-primary/8 px-2.5 py-1 text-xs font-semibold text-primary/80 xl:inline-flex">
           <CalendarDays className="h-3.5 w-3.5 shrink-0" />
           {todayLabel}
         </span>
@@ -218,7 +218,7 @@ export const TopHeader = ({
                 <div className="hidden items-center gap-2.5 lg:flex">
                   <Avatar className="h-7 w-7 border border-border/70 shadow-xs">
                     <AvatarImage src={profile?.avatar_url || undefined} alt={identityLabel} />
-                    <AvatarFallback className="bg-primary text-[10px] font-bold text-primary-foreground">
+                    <AvatarFallback className="bg-primary text-[11px] font-bold text-primary-foreground">
                       {userInitials}
                     </AvatarFallback>
                   </Avatar>
@@ -227,7 +227,7 @@ export const TopHeader = ({
                       {identityLabel}
                     </p>
                     {roleLabel && (
-                      <p className="flex max-w-[90px] items-center gap-1 truncate text-[10px] text-muted-foreground/60 xl:max-w-[140px]">
+                      <p className="flex max-w-[90px] items-center gap-1 truncate text-[11px] text-muted-foreground/60 xl:max-w-[140px]">
                         <BriefcaseBusiness className="h-2.5 w-2.5 shrink-0" />
                         {roleLabel}
                       </p>

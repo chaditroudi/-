@@ -198,7 +198,7 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
           {typeof item.badge === "number" && item.badge > 0 && (
             <Badge
               variant="destructive"
-              className="ml-auto shrink-0 rounded-full px-1.5 py-0 text-[10px] leading-4 group-data-[collapsible=icon]:hidden"
+              className="ml-auto shrink-0 rounded-full px-1.5 py-0 text-[11px] leading-4 group-data-[collapsible=icon]:hidden"
             >
               {item.badge}
             </Badge>
@@ -230,7 +230,7 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
 
           {/* Name */}
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.24em] text-emerald-400/70">
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.24em] text-emerald-400/70">
               {companyShortName}
             </p>
             <p className="truncate text-[14px] font-semibold leading-snug text-white/92">
@@ -255,7 +255,7 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
                 onClick={() => toggleSection(section.key)}
                 className="group-data-[collapsible=icon]:hidden mb-0.5 flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 transition-colors hover:bg-white/4"
               >
-                <span className="text-[10.5px] font-extrabold uppercase tracking-[0.2em] text-white/45">
+                <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-white/45">
                   {section.label}
                 </span>
                 <ChevronDown
@@ -332,7 +332,7 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
               <span className="animate-ping-slow absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-55" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-400" />
             </span>
-            <p className="text-[11px] font-semibold text-amber-300/85">
+            <p className="text-xs font-semibold text-amber-300/85">
               {activeAlertsCount} alerte{activeAlertsCount > 1 ? "s" : ""} active{activeAlertsCount > 1 ? "s" : ""}
             </p>
           </div>
@@ -348,7 +348,7 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
             style={{ boxShadow: "0 0 12px -3px rgba(52,211,153,0.25)" }}
           >
             <AvatarImage src={profile?.avatar_url || undefined} alt={identityLabel} />
-            <AvatarFallback className="bg-emerald-700/60 text-[11px] font-bold text-white">
+            <AvatarFallback className="bg-emerald-700/60 text-xs font-bold text-white">
               {userInitials}
             </AvatarFallback>
           </Avatar>
@@ -358,7 +358,7 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
               {identityLabel}
             </p>
             {roleLabel && (
-              <p className="truncate text-[10px] leading-tight text-white/32">
+              <p className="truncate text-[11px] leading-tight text-white/32">
                 {roleLabel}
               </p>
             )}

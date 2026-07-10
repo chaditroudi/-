@@ -180,7 +180,7 @@ const KpiTile = ({ label, value, sub, icon: Icon, tone = "default" }: {
     <Card className="rounded-2xl border-border/60">
       <CardContent className="flex items-center justify-between gap-3 p-4">
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
           <p className="mt-1.5 truncate text-2xl font-bold text-foreground">{value}</p>
           <p className="mt-0.5 truncate text-xs text-muted-foreground">{sub}</p>
         </div>
@@ -519,7 +519,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
           <div className="flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
             <Zap className="h-3 w-3 text-emerald-600" />
-            <span className="text-[11px] font-semibold text-emerald-700">
+            <span className="text-xs font-semibold text-emerald-700">
               Temps réel · {fmtRelative(lastSyncAt)}
             </span>
           </div>
@@ -675,13 +675,13 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                             </div>
                             <div className="min-w-0">
                               <p className="truncate text-sm font-semibold text-foreground">{z.code}</p>
-                              <p className="truncate text-[11px] text-muted-foreground">{familyLabel[z.storage_family] ?? z.storage_family}</p>
+                              <p className="truncate text-xs text-muted-foreground">{familyLabel[z.storage_family] ?? z.storage_family}</p>
                             </div>
                           </div>
                           <span className="shrink-0 text-lg font-bold text-foreground">{pct}%</span>
                         </div>
                         <OccupancyBar pct={pct} />
-                        <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
                           {(z.capacity_palettes ?? 0) > 0 && (z.current_load_palettes ?? 0) > 0
                             ? <span>{fmtNum(z.current_load_palettes)} / {fmtNum(z.capacity_palettes)} pal.</span>
                             : <span>{fmtNum(zoneLoadsKg.get(z.code) ?? z.current_load_kg, " kg")} / {fmtNum(z.capacity_kg, " kg")}</span>
@@ -737,7 +737,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                           {m.destination_zone_code && <> → {m.destination_zone_code}</>}
                         </p>
                       </div>
-                      <span className="shrink-0 text-[11px] text-muted-foreground">{fmt(m.movement_date)}</span>
+                      <span className="shrink-0 text-xs text-muted-foreground">{fmt(m.movement_date)}</span>
                     </div>
                   ))}
                 </div>
@@ -816,21 +816,21 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                   <div key={key} className={cn("flex flex-col gap-2 rounded-xl border p-3.5", color.split(" ").slice(2).join(" "))}>
                     <div className="flex items-center gap-2">
                       <Icon className={cn("h-4 w-4 shrink-0", color.split(" ").slice(1, 2).join(" "))} />
-                      <span className={cn("text-[11px] font-semibold uppercase tracking-[0.15em]", color.split(" ").slice(1, 2).join(" "))}>{label}</span>
+                      <span className={cn("text-xs font-semibold uppercase tracking-[0.15em]", color.split(" ").slice(1, 2).join(" "))}>{label}</span>
                     </div>
                     <p className={cn("text-2xl font-bold", color.split(" ").slice(1, 2).join(" "))}>{lots.length}</p>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {lots.reduce((s, l) => s + (l.quantity ?? 0), 0).toLocaleString("fr-FR")} kg
                     </p>
                     {lots.length > 0 && (
                       <div className="space-y-1 border-t border-current/10 pt-2">
                         {lots.slice(0, 3).map(l => (
-                          <p key={l.id} className="truncate text-[11px] text-muted-foreground">
+                          <p key={l.id} className="truncate text-xs text-muted-foreground">
                             {l.lot_internal ?? l.lot_supplier ?? l.id?.slice(-6)} · {fmtNum(l.quantity, " kg")}
                           </p>
                         ))}
                         {lots.length > 3 && (
-                          <p className="text-[11px] font-medium text-muted-foreground">+{lots.length - 3} autres</p>
+                          <p className="text-xs font-medium text-muted-foreground">+{lots.length - 3} autres</p>
                         )}
                       </div>
                     )}
@@ -918,7 +918,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                             )}
                           </TableCell>
                           <TableCell>
-                            <Badge className={cn("rounded-full text-[11px]", stockStatusCls[lot.stock_status ?? ""] ?? "border-slate-200 bg-slate-50 text-slate-600")}>
+                            <Badge className={cn("rounded-full text-xs", stockStatusCls[lot.stock_status ?? ""] ?? "border-slate-200 bg-slate-50 text-slate-600")}>
                               {stockStatusLabel[lot.stock_status ?? ""] ?? lot.stock_status ?? "—"}
                             </Badge>
                           </TableCell>
@@ -997,7 +997,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                           <p className="text-xs text-muted-foreground">{familyLabel[z.storage_family] ?? z.storage_family}</p>
                         </div>
                       </div>
-                      <Badge className={cn("rounded-full text-[11px]", conditionCls(z.condition_status))}>
+                      <Badge className={cn("rounded-full text-xs", conditionCls(z.condition_status))}>
                         {z.condition_status === "critical" ? "Critique" : z.condition_status === "warning" ? "À surveiller" : "Normal"}
                       </Badge>
                     </div>
@@ -1009,7 +1009,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                         <span className="font-semibold text-foreground">{pct}%</span>
                       </div>
                       <OccupancyBar pct={pct} />
-                      <div className="flex justify-between text-[11px] text-muted-foreground">
+                      <div className="flex justify-between text-xs text-muted-foreground">
                         {(z.capacity_palettes ?? 0) > 0 && (z.current_load_palettes ?? 0) > 0
                           ? <span>{fmtNum(z.current_load_palettes)} / {fmtNum(z.capacity_palettes)} palettes</span>
                           : <span>{fmtNum(zoneLoadsKg.get(z.code) ?? z.current_load_kg, " kg")} / {fmtNum(z.capacity_kg, " kg")}</span>
@@ -1077,7 +1077,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                             <TableCell className="font-mono text-xs font-semibold">{loc.code}</TableCell>
                             <TableCell className="text-xs text-muted-foreground">{loc.zone_code}</TableCell>
                             <TableCell>
-                              <Badge className={cn("rounded-full text-[11px]", locationStatusCls(loc.location_status))}>
+                              <Badge className={cn("rounded-full text-xs", locationStatusCls(loc.location_status))}>
                                 {locationStatusLabel[loc.location_status]}
                               </Badge>
                             </TableCell>
@@ -1283,7 +1283,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                             <TableCell className="font-mono text-xs">{m.movement_number?.slice(-6) ?? "—"}</TableCell>
                             <TableCell className="text-xs text-muted-foreground">{fmt(m.movement_date)}</TableCell>
                             <TableCell>
-                              <Badge className="rounded-full text-[11px] border-border/60 bg-muted/40 text-muted-foreground">
+                              <Badge className="rounded-full text-xs border-border/60 bg-muted/40 text-muted-foreground">
                                 {storageMovementTypeLabels[m.movement_type as StorageMovementType] ?? m.movement_type}
                               </Badge>
                             </TableCell>
@@ -1424,7 +1424,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                               <TableCell className="text-right text-xs">{fmtNum(r.humidity_percent, "%")}</TableCell>
                               <TableCell className="text-right text-xs">{fmtNum(r.gas_ppm)}</TableCell>
                               <TableCell>
-                                <Badge className={cn("rounded-full text-[11px]", conditionCls(r.condition_status))}>
+                                <Badge className={cn("rounded-full text-xs", conditionCls(r.condition_status))}>
                                   {r.condition_status === "critical" ? "Critique" : r.condition_status === "warning" ? "Alerte" : "Normal"}
                                 </Badge>
                               </TableCell>
@@ -1451,7 +1451,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                       {doorEvents.slice(0, 20).map(e => (
                         <div key={e.id} className="flex items-center gap-3 px-4 py-2.5">
                           <span className={cn(
-                            "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
+                            "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold",
                             e.event_type === "OPEN"
                               ? "bg-amber-100 text-amber-700"
                               : "bg-emerald-100 text-emerald-700",
@@ -1462,7 +1462,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                             {e.event_type === "OPEN" ? "Ouverture" : "Fermeture"}
                             <span className="ml-2 font-normal text-muted-foreground">· {e.zone_code ?? "—"}</span>
                           </span>
-                          <span className="text-[11px] text-muted-foreground">{fmt(e.event_at)}</span>
+                          <span className="text-xs text-muted-foreground">{fmt(e.event_at)}</span>
                         </div>
                       ))}
                     </div>
@@ -1640,7 +1640,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                               <TableCell className="text-right text-xs">{fmtNum(l.capacity_palettes, " pal.")}</TableCell>
                               <TableCell className="text-right text-xs">{l.capacity_kg ? fmtNum(l.capacity_kg, " kg") : "—"}</TableCell>
                               <TableCell>
-                                <Badge className={cn("rounded-full text-[11px]", locationStatusCls(l.location_status))}>
+                                <Badge className={cn("rounded-full text-xs", locationStatusCls(l.location_status))}>
                                   {locationStatusLabel[l.location_status]}
                                 </Badge>
                               </TableCell>

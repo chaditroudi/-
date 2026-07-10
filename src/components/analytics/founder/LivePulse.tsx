@@ -38,7 +38,7 @@ export function LivePulse() {
           <div>
             <div className="flex items-center gap-2">
               <span className="font-bold text-lg">Usine en temps réel</span>
-              <span className="flex items-center gap-1 text-[10px] bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-full px-2 py-0.5 font-semibold uppercase tracking-wider">
+              <span className="flex items-center gap-1 text-[11px] bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-full px-2 py-0.5 font-semibold uppercase tracking-wider">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 LIVE
               </span>
@@ -74,7 +74,7 @@ export function LivePulse() {
                 <span className="text-xs font-medium text-muted-foreground">{label}</span>
               </div>
               <div className={`text-3xl font-black ${count > 0 ? text : 'text-muted-foreground/50'}`}>{isLoading ? '—' : count}</div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">{count > 0 ? 'cycle(s) actif(s)' : 'aucun actif'}</div>
+              <div className="text-[11px] text-muted-foreground mt-0.5">{count > 0 ? 'cycle(s) actif(s)' : 'aucun actif'}</div>
             </div>
           );
         })}
@@ -102,13 +102,13 @@ export function LivePulse() {
                     <div key={key} className="space-y-1">
                       <div className="flex items-center gap-1.5">
                         <Icon className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-[10px] text-muted-foreground font-medium">{label}</span>
+                        <span className="text-[11px] text-muted-foreground font-medium">{label}</span>
                       </div>
                       <div className={`text-xl font-black ${color}`}>{yld.toFixed(1)}%</div>
                       <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                         <div className={`h-1.5 rounded-full ${barColor}`} style={{ width: `${Math.min(yld, 100)}%` }} />
                       </div>
-                      <div className="text-[10px] text-muted-foreground">
+                      <div className="text-[11px] text-muted-foreground">
                         {kgIn >= 1000 ? `${(kgIn / 1000).toFixed(1)} t` : `${kgIn.toFixed(0)} kg`} entrants
                       </div>
                     </div>
@@ -147,8 +147,8 @@ export function LivePulse() {
             <div className={`text-xs font-semibold uppercase tracking-wide mb-1 ${(data?.alerts.critique ?? 0) > 0 ? 'text-red-600' : (data?.alerts.avertissement ?? 0) > 0 ? 'text-amber-600' : 'text-green-600'}`}>Alertes actives</div>
             <div className={`text-3xl font-black ${(data?.alerts.critique ?? 0) > 0 ? 'text-red-700' : (data?.alerts.avertissement ?? 0) > 0 ? 'text-amber-700' : 'text-green-700'}`}>{data?.alerts.total ?? '—'}</div>
             <div className="flex gap-1 mt-1 flex-wrap">
-              {(data?.alerts.critique ?? 0) > 0 && <Badge className="text-[10px] h-4 bg-red-500 text-white px-1">{data!.alerts.critique} critique</Badge>}
-              {(data?.alerts.avertissement ?? 0) > 0 && <Badge className="text-[10px] h-4 bg-amber-500 text-white px-1">{data!.alerts.avertissement} avert.</Badge>}
+              {(data?.alerts.critique ?? 0) > 0 && <Badge className="text-[11px] h-4 bg-red-500 text-white px-1">{data!.alerts.critique} critique</Badge>}
+              {(data?.alerts.avertissement ?? 0) > 0 && <Badge className="text-[11px] h-4 bg-amber-500 text-white px-1">{data!.alerts.avertissement} avert.</Badge>}
             </div>
           </CardContent>
         </Card>
@@ -164,7 +164,7 @@ export function LivePulse() {
                 const pct = o.target_units > 0 ? Math.round((o.produced_units / o.target_units) * 100) : 0;
                 return (
                   <div key={o.id} className="py-2 flex items-center gap-3">
-                    <Badge variant="outline" className="text-[10px] shrink-0">{o.line}</Badge>
+                    <Badge variant="outline" className="text-[11px] shrink-0">{o.line}</Badge>
                     <span className="font-mono text-xs font-semibold">{o.order_number}</span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">

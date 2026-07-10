@@ -154,7 +154,7 @@ export function UserManagementPanel() {
                       <span className="font-medium text-sm">{u.full_name ?? u.email}</span>
                       <Badge
                         variant={u.is_active ? 'default' : 'secondary'}
-                        className="text-[10px] h-4"
+                        className="text-[11px] h-4"
                       >
                         {u.is_active ? 'Actif' : 'Inactif'}
                       </Badge>
@@ -162,7 +162,7 @@ export function UserManagementPanel() {
                     <div className="text-xs text-muted-foreground mt-0.5">{u.email}</div>
                     <div className="flex gap-1 mt-1 flex-wrap">
                       {u.roles.map((r) => (
-                        <Badge key={r} variant="outline" className="text-[10px] h-4 px-1.5">
+                        <Badge key={r} variant="outline" className="text-[11px] h-4 px-1.5">
                           {ROLE_CONFIG[r as keyof typeof ROLE_CONFIG]?.label ?? r}
                         </Badge>
                       ))}
@@ -294,7 +294,7 @@ export function UserManagementPanel() {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              <p className="text-[11px] text-muted-foreground">Ce mot de passe sera communiqué à l'employé pour sa première connexion.</p>
+              <p className="text-xs text-muted-foreground">Ce mot de passe sera communiqué à l'employé pour sa première connexion.</p>
             </div>
 
             {/* Role */}
@@ -320,7 +320,7 @@ export function UserManagementPanel() {
               </div>
               {/* Role description preview */}
               {ROLE_CONFIG[newRole] && (
-                <p className="text-[11px] text-muted-foreground rounded-lg border bg-muted/40 px-2.5 py-1.5">
+                <p className="text-xs text-muted-foreground rounded-lg border bg-muted/40 px-2.5 py-1.5">
                   {ROLE_CONFIG[newRole].description}
                 </p>
               )}

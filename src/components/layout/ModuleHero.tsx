@@ -37,7 +37,7 @@ export const ModuleHero = ({
     <div className={cn("flex flex-wrap items-center justify-between gap-3 border-b border-border/50 pb-4", className)}>
       <div className="min-w-0">
         {kicker && (
-          <p className="text-[10.5px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/50">
             {kicker}
           </p>
         )}

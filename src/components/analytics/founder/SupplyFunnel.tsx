@@ -75,7 +75,7 @@ function KpiBenchmarkCard({
                 />
               </div>
               <div
-                className={`text-[10px] font-semibold ${
+                className={`text-[11px] font-semibold ${
                   onTarget ? 'text-green-600' : 'text-amber-600'
                 }`}
               >
@@ -85,7 +85,7 @@ function KpiBenchmarkCard({
               </div>
             </div>
           ) : (
-            <div className="text-[10px] text-muted-foreground">Cible : ≥ {target}%</div>
+            <div className="text-[11px] text-muted-foreground">Cible : ≥ {target}%</div>
           )}
         </div>
       </CardContent>
@@ -124,7 +124,7 @@ function FunnelStage({
         }}
       >
         {isEmpty ? (
-          <span className="text-[11px] text-gray-400 font-normal">non démarré</span>
+          <span className="text-xs text-gray-400 font-normal">non démarré</span>
         ) : (
           <>
             <span className="text-white">
@@ -137,7 +137,7 @@ function FunnelStage({
       {!isLast && (
         <div className="flex flex-col items-center">
           <div className="w-0.5 h-4 bg-border" />
-          <Badge variant="outline" className="text-[10px] px-1.5 h-5">
+          <Badge variant="outline" className="text-[11px] px-1.5 h-5">
             {pctOfFirst > 0 ? `${pctOfFirst.toFixed(1)}%` : '—'}
           </Badge>
         </div>
@@ -183,7 +183,7 @@ export function SupplyFunnel({ period }: { period: Period }) {
             <div className="text-2xl font-black text-emerald-700">
               {(data?.palettesKg ?? 0) > 0 ? fmtKg(data!.palettesKg) : '—'}
             </div>
-            <div className="text-[10px] text-muted-foreground mt-1">poids brut palettes</div>
+            <div className="text-[11px] text-muted-foreground mt-1">poids brut palettes</div>
           </CardContent>
         </Card>
       </div>

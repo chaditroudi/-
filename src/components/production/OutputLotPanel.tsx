@@ -174,7 +174,7 @@ function GenealogyRow({
       <div className="flex items-start gap-3 flex-wrap">
         {/* Input MP lots */}
         <div className="space-y-1.5 min-w-0">
-          <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Lots MP (entrée)</p>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Lots MP (entrée)</p>
           {parents.map((p) => (
             <div key={p.reception_lot_id} className="rounded-lg border border-border bg-muted/30 px-2.5 py-2 text-xs">
               <p className="font-mono font-semibold">{p.lot_internal ?? p.lot_supplier}</p>
@@ -191,7 +191,7 @@ function GenealogyRow({
 
         {/* Production order (OF) node */}
         <div className="min-w-0">
-          <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide mb-1.5">OF</p>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">OF</p>
           <div className="rounded-lg border border-primary/30 bg-primary/5 px-2.5 py-2 text-xs">
             <p className="font-mono font-semibold text-primary">
               {outputLot.lot_pf_number.replace(/^PF-/, '').replace(/-\d{3}$/, '')}
@@ -209,7 +209,7 @@ function GenealogyRow({
 
         {/* Output PF lot */}
         <div className="min-w-0">
-          <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide mb-1.5">Lot PF (sortie)</p>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">Lot PF (sortie)</p>
           <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-2.5 py-2 text-xs">
             <div className="flex items-center gap-1.5 mb-0.5">
               <Package className="h-3 w-3 text-emerald-700" />

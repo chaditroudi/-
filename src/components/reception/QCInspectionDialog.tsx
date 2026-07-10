@@ -498,7 +498,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
                             type="button"
                             variant="outline"
                             size="sm"
-                            className="h-9 rounded-lg px-2.5 text-[11px]"
+                            className="h-9 rounded-lg px-2.5 text-xs"
                             disabled={!caliberFillValue}
                             onClick={() => {
                               const v = Number(caliberFillValue);
@@ -513,7 +513,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
                     <CardContent className="grid grid-cols-5 gap-2">
                       {calibers.map((value, index) => (
                         <div key={index} className="space-y-1">
-                          <Label className="text-[11px] text-muted-foreground">L{index + 1}</Label>
+                          <Label className="text-xs text-muted-foreground">L{index + 1}</Label>
                           <Input
                             type="number"
                             min="20"
@@ -596,7 +596,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
                                 </button>
                               ))}
                             </div>
-                            <p className="text-center text-[10px] text-muted-foreground">{current}/5</p>
+                            <p className="text-center text-[11px] text-muted-foreground">{current}/5</p>
                           </div>
                         );
                       })}
@@ -718,7 +718,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
                         >
                           {decision}
                           {decision === score.recommendedDecision && (
-                            <span className="ml-1 text-[10px] opacity-60">auto</span>
+                            <span className="ml-1 text-[11px] opacity-60">auto</span>
                           )}
                         </Button>
                       ))}

@@ -42,11 +42,11 @@ export function Phase2Performance({ period }: { period: Period }) {
                   <span className="text-xs font-medium">{label}</span>
                 </div>
                 <div className={`text-3xl font-black ${yieldColor(y)}`}>{m?.done > 0 ? `${y.toFixed(1)}%` : '—'}</div>
-                <div className="text-[10px] text-muted-foreground mt-0.5">rendement moyen</div>
+                <div className="text-[11px] text-muted-foreground mt-0.5">rendement moyen</div>
                 {m?.done > 0 && <Progress value={y} className="h-1 mt-2" indicatorClassName={yieldBg(y)} />}
                 <div className="flex items-center justify-between mt-1">
-                  <span className="text-[10px] text-muted-foreground">{m?.done ?? 0} cycle(s)</span>
-                  {extra && <span className="text-[10px] text-muted-foreground">{extra}</span>}
+                  <span className="text-[11px] text-muted-foreground">{m?.done ?? 0} cycle(s)</span>
+                  {extra && <span className="text-[11px] text-muted-foreground">{extra}</span>}
                 </div>
               </CardContent>
             </Card>

@@ -95,7 +95,7 @@ export function Phase2Dashboard({ currentUser = 'Utilisateur', defaultModule = '
             <GitMerge className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Pipeline</span>
             {pipeline.waiting.length > 0 && (
-              <span className="ml-1 text-[10px] bg-amber-100 text-amber-700 rounded-full px-1 py-0.5 leading-none">
+              <span className="ml-1 text-[11px] bg-amber-100 text-amber-700 rounded-full px-1 py-0.5 leading-none">
                 {pipeline.waiting.length}
               </span>
             )}
@@ -120,7 +120,7 @@ export function Phase2Dashboard({ currentUser = 'Utilisateur', defaultModule = '
             <Bell className="h-3.5 w-3.5" />
             Alertes
             {kpis.total > 0 && (
-              <span className="ml-1 text-[10px] bg-red-100 text-red-700 rounded-full px-1 leading-none py-0.5">
+              <span className="ml-1 text-[11px] bg-red-100 text-red-700 rounded-full px-1 leading-none py-0.5">
                 {kpis.total}
               </span>
             )}

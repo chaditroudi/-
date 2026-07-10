@@ -156,7 +156,7 @@ export const PhotoCapture = ({
             >
               {/* Slot number badge */}
               <div className={cn(
-                'absolute left-1.5 top-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold',
+                'absolute left-1.5 top-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold',
                 hasPhoto ? 'bg-black/40 text-white' : 'bg-muted-foreground/15 text-muted-foreground',
               )}>
                 {index + 1}
@@ -194,7 +194,7 @@ export const PhotoCapture = ({
           <span
             key={i}
             className={cn(
-              'rounded-lg border px-2 py-0.5 text-[10px] font-medium transition-colors',
+              'rounded-lg border px-2 py-0.5 text-[11px] font-medium transition-colors',
               photos[i]
                 ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
                 : 'border-border text-muted-foreground/60',

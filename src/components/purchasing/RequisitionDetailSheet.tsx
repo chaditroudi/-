@@ -122,7 +122,7 @@ export const RequisitionDetailSheet = ({
           {/* Identity grid */}
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-xl border bg-muted/30 p-3 space-y-1">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Préparée par</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Préparée par</p>
               <p className="font-semibold text-sm text-foreground flex items-center gap-1.5">
                 <User className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                 {requisition.requester_name}
@@ -132,7 +132,7 @@ export const RequisitionDetailSheet = ({
               )}
             </div>
             <div className="rounded-xl border bg-muted/30 p-3 space-y-1">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Site / Échéance</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Site / Échéance</p>
               <p className="font-semibold text-sm text-foreground flex items-center gap-1.5">
                 <Building2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                 {meta.site || 'Non précisé'}
@@ -148,7 +148,7 @@ export const RequisitionDetailSheet = ({
 
           {/* Article */}
           <div className="rounded-xl border p-4 space-y-3">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Article demandé</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Article demandé</p>
             <div className="flex items-start gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
                 <Package className="h-5 w-5" />
@@ -180,7 +180,7 @@ export const RequisitionDetailSheet = ({
           {/* Justification */}
           {requisition.justification && (
             <div className="space-y-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Justification</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Justification</p>
               <div className="rounded-xl border bg-amber-50/60 p-3 text-sm text-foreground leading-relaxed">
                 {requisition.justification}
               </div>
@@ -190,7 +190,7 @@ export const RequisitionDetailSheet = ({
           {/* Rejection */}
           {requisition.status === 'rejected' && requisition.rejection_reason && (
             <div className="rounded-xl border border-red-200 bg-red-50 p-3 space-y-1">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-red-600 flex items-center gap-1.5">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-red-600 flex items-center gap-1.5">
                 <XCircle className="h-3.5 w-3.5" />
                 Motif du refus
               </p>
@@ -238,7 +238,7 @@ export const RequisitionDetailSheet = ({
 
           {/* Timeline */}
           <div className="space-y-3">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Historique</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Historique</p>
             <div className="relative space-y-3 pl-5">
               <div className="absolute left-[7px] top-1 bottom-1 w-px bg-border/60" />
               {timeline.map((event, i) => (
@@ -261,7 +261,7 @@ export const RequisitionDetailSheet = ({
           {/* Notes */}
           {plainNotes && (
             <div className="space-y-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Notes</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Notes</p>
               <p className="text-sm text-muted-foreground leading-relaxed">{plainNotes}</p>
             </div>
           )}

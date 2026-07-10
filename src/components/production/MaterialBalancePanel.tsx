@@ -68,11 +68,11 @@ function BalanceRow({
   return (
     <div className="flex items-center gap-3 py-2">
       {/* Rank */}
-      <span className="w-4 text-right text-[10px] font-semibold text-muted-foreground">{index + 1}</span>
+      <span className="w-4 text-right text-[11px] font-semibold text-muted-foreground">{index + 1}</span>
 
       {/* Code badge */}
       <Badge
-        className="w-8 shrink-0 justify-center rounded-md px-1.5 py-0.5 text-[10px] font-bold text-white"
+        className="w-8 shrink-0 justify-center rounded-md px-1.5 py-0.5 text-[11px] font-bold text-white"
         style={{ backgroundColor: color }}
       >
         {code}
@@ -81,7 +81,7 @@ function BalanceRow({
       {/* Label + destination */}
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-foreground">{label}</p>
-        <p className="truncate text-[10px] text-muted-foreground">{destination}</p>
+        <p className="truncate text-[11px] text-muted-foreground">{destination}</p>
       </div>
 
       {/* Bar */}
@@ -128,18 +128,18 @@ function SupportFlowCard({ code }: { code: SupportFlowCode }) {
       </div>
       <div className="min-w-0">
         <div className="flex items-center gap-1.5">
-          <Badge variant="outline" className="rounded-full px-1.5 py-0 text-[9px] font-bold">
+          <Badge variant="outline" className="rounded-full px-1.5 py-0 text-[11px] font-bold">
             {def.code}
           </Badge>
           <span className="text-xs font-semibold text-foreground">{def.label}</span>
         </div>
-        <p className="mt-0.5 text-[10px] text-muted-foreground">{def.description}</p>
+        <p className="mt-0.5 text-[11px] text-muted-foreground">{def.description}</p>
         {def.controlPoints && def.controlPoints.length > 0 && (
           <div className="mt-1 flex flex-wrap gap-1">
             {def.controlPoints.map((cp) => (
               <span
                 key={cp}
-                className="inline-flex items-center gap-0.5 rounded-full border border-amber-200 bg-amber-50 px-1.5 py-0 text-[9px] text-amber-700"
+                className="inline-flex items-center gap-0.5 rounded-full border border-amber-200 bg-amber-50 px-1.5 py-0 text-[11px] text-amber-700"
               >
                 {cp}
               </span>
@@ -170,7 +170,7 @@ function RealBalanceRow({
   return (
     <div className="flex items-center gap-3 py-1.5">
       <Badge
-        className="w-8 shrink-0 justify-center rounded-md px-1.5 py-0.5 text-[10px] font-bold text-white"
+        className="w-8 shrink-0 justify-center rounded-md px-1.5 py-0.5 text-[11px] font-bold text-white"
         style={{ backgroundColor: color }}
       >
         {code}
@@ -180,7 +180,7 @@ function RealBalanceRow({
           <span className="text-muted-foreground">{inputKg.toLocaleString('fr-FR')} kg →</span>
           <span className="font-semibold text-foreground">{outputKg.toLocaleString('fr-FR')} kg</span>
         </div>
-        <p className="text-[10px] text-muted-foreground">{runs} prod. enregistrée{runs > 1 ? 's' : ''}</p>
+        <p className="text-[11px] text-muted-foreground">{runs} prod. enregistrée{runs > 1 ? 's' : ''}</p>
       </div>
       {yieldPct && (
         <span className="text-xs font-bold" style={{ color }}>
@@ -229,7 +229,7 @@ export function MaterialBalancePanel() {
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest">
+              <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-widest">
                 Bilan matière indicatif
               </Badge>
               <CardTitle className="mt-2 text-base font-semibold">
@@ -241,7 +241,7 @@ export function MaterialBalancePanel() {
             </div>
             <div className="shrink-0 text-right">
               <div className="text-2xl font-bold text-foreground">&gt; 95 %</div>
-              <div className="text-[10px] text-muted-foreground">Taux de valorisation matière</div>
+              <div className="text-[11px] text-muted-foreground">Taux de valorisation matière</div>
             </div>
           </div>
         </CardHeader>
@@ -265,20 +265,20 @@ export function MaterialBalancePanel() {
 
             {/* Losses row */}
             <div className="flex items-center gap-3 py-2 opacity-60">
-              <span className="w-4 text-right text-[10px] font-semibold text-muted-foreground">—</span>
-              <Badge variant="outline" className="w-8 justify-center rounded-md px-1.5 py-0.5 text-[10px]">
+              <span className="w-4 text-right text-[11px] font-semibold text-muted-foreground">—</span>
+              <Badge variant="outline" className="w-8 justify-center rounded-md px-1.5 py-0.5 text-[11px]">
                 ⊘
               </Badge>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-foreground">Pertes & corps étrangers</p>
-                <p className="text-[10px] text-muted-foreground">Élimination / compostage</p>
+                <p className="text-[11px] text-muted-foreground">Élimination / compostage</p>
               </div>
               <span className="w-16 text-right text-xs font-semibold text-muted-foreground">&lt; 3 %</span>
             </div>
           </div>
 
           {/* Flow diagram hint */}
-          <div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl bg-muted/30 px-4 py-3 text-[11px] text-muted-foreground">
+          <div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl bg-muted/30 px-4 py-3 text-xs text-muted-foreground">
             <BarChart3 className="h-3.5 w-3.5 text-primary" />
             <span>
               F1–F4 : lignes principales (dattes entières) ·
@@ -297,7 +297,7 @@ export function MaterialBalancePanel() {
           <CardHeader className="pb-3">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest">
+                <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-widest">
                   Bilan réel
                 </Badge>
                 <CardTitle className="mt-2 text-base font-semibold">
@@ -310,7 +310,7 @@ export function MaterialBalancePanel() {
               {realValorisation && (
                 <div className="shrink-0 text-right">
                   <div className="text-2xl font-bold text-foreground">{realValorisation} %</div>
-                  <div className="text-[10px] text-muted-foreground">Valorisation réelle</div>
+                  <div className="text-[11px] text-muted-foreground">Valorisation réelle</div>
                 </div>
               )}
             </div>
@@ -336,7 +336,7 @@ export function MaterialBalancePanel() {
       <Card className="surface-card border-border">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest">
+            <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-widest">
               Flux supports
             </Badge>
             <CardTitle className="text-base font-semibold">

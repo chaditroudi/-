@@ -100,8 +100,8 @@ const fmtDate = (v: unknown) => {
 const DetailRow = ({ label, value }: { label: string; value: string | number | null | undefined }) =>
   value != null && value !== '' ? (
     <div className="flex justify-between gap-2 py-1 border-b border-gray-100 last:border-0">
-      <span className="text-[11px] text-muted-foreground shrink-0">{label}</span>
-      <span className="text-[11px] font-medium text-right break-all">{String(value)}</span>
+      <span className="text-xs text-muted-foreground shrink-0">{label}</span>
+      <span className="text-xs font-medium text-right break-all">{String(value)}</span>
     </div>
   ) : null;
 
@@ -122,12 +122,12 @@ const NodeDetail = ({ node }: { node: GenealogyNode }) => {
         </div>
         <div className="min-w-0">
           <p className={cn('text-xs font-bold truncate', s.text)}>{node.label}</p>
-          <p className="text-[10px] text-muted-foreground">{s.label}</p>
+          <p className="text-[11px] text-muted-foreground">{s.label}</p>
         </div>
       </div>
 
       {node.status && (
-        <span className={cn('inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold', STATUS_BADGE[node.status] ?? 'bg-gray-100 text-gray-600')}>
+        <span className={cn('inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold', STATUS_BADGE[node.status] ?? 'bg-gray-100 text-gray-600')}>
           {node.status}
         </span>
       )}
@@ -141,7 +141,7 @@ const NodeDetail = ({ node }: { node: GenealogyNode }) => {
           />
         ))}
         {detailRows.length === 0 && (
-          <p className="text-[11px] text-muted-foreground py-2 text-center">Aucune donnée supplémentaire</p>
+          <p className="text-xs text-muted-foreground py-2 text-center">Aucune donnée supplémentaire</p>
         )}
       </div>
     </div>
@@ -269,16 +269,16 @@ const NodeCard = ({ node, isActive, onClick }: NodeCardProps) => {
           <Icon className={cn('h-3.5 w-3.5', s.text)} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className={cn('text-[11px] font-bold truncate leading-tight', s.text)}>{node.label}</p>
+          <p className={cn('text-xs font-bold truncate leading-tight', s.text)}>{node.label}</p>
           {node.sublabel && (
-            <p className="text-[9px] text-muted-foreground truncate leading-tight">{node.sublabel}</p>
+            <p className="text-[11px] text-muted-foreground truncate leading-tight">{node.sublabel}</p>
           )}
         </div>
       </div>
       <div className="px-2.5 pb-2 flex items-center justify-between">
-        <span className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/60">{s.label}</span>
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">{s.label}</span>
         {node.status && (
-          <span className={cn('text-[9px] px-1.5 py-0.5 rounded-full font-semibold', STATUS_BADGE[node.status] ?? 'bg-gray-100 text-gray-500')}>
+          <span className={cn('text-[11px] px-1.5 py-0.5 rounded-full font-semibold', STATUS_BADGE[node.status] ?? 'bg-gray-100 text-gray-500')}>
             {node.status.replace(/_/g, ' ')}
           </span>
         )}
@@ -312,7 +312,7 @@ const ColumnHeaders = ({ positioned }: { positioned: PositionedNode[] }) => {
         return (
           <div
             key={col}
-            className="absolute text-[10px] font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap"
+            className="absolute text-[11px] font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap"
             style={{ left: x, top: 8, width: NODE_W, textAlign: 'center' }}
           >
             {COL_LABELS[col] ?? `Col ${col}`}
@@ -492,22 +492,22 @@ export const LotGenealogyTree = ({ lotNumber, open, onOpenChange }: LotGenealogy
 
         {/* Legend */}
         <div className="px-5 py-2.5 border-t bg-slate-50/80 shrink-0 flex items-center gap-3 flex-wrap">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Légende</span>
+          <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Légende</span>
           {(Object.entries(NODE_STYLE) as [GenealogyNodeType, NodeStyle][])
             .filter(([type]) => positioned.some((n) => n.type === type))
             .map(([type, s]) => (
               <div key={type} className="flex items-center gap-1.5">
                 <span className={cn('h-2.5 w-2.5 rounded-full', s.dot)} />
-                <span className="text-[10px] text-muted-foreground">{s.label}</span>
+                <span className="text-[11px] text-muted-foreground">{s.label}</span>
               </div>
             ))}
           <div className="flex items-center gap-1.5 ml-2">
             <svg width="20" height="6"><line x1="0" y1="3" x2="20" y2="3" stroke="#94a3b8" strokeWidth="1.5" markerEnd="url(#arrowhead)" /></svg>
-            <span className="text-[10px] text-muted-foreground">Flux</span>
+            <span className="text-[11px] text-muted-foreground">Flux</span>
           </div>
           <div className="flex items-center gap-1.5">
             <svg width="20" height="6"><line x1="0" y1="3" x2="20" y2="3" stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="4,2" /></svg>
-            <span className="text-[10px] text-muted-foreground">Sortie</span>
+            <span className="text-[11px] text-muted-foreground">Sortie</span>
           </div>
         </div>
       </DialogContent>

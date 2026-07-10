@@ -137,24 +137,24 @@ export const ProductionStepCard = ({ step, isActive, allSteps }: ProductionStepC
           <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em]">
+                <Badge variant="outline" className="rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.12em]">
                   Etape {step.sequence_order}
                 </Badge>
-                <Badge className={cn('rounded-full border px-2.5 py-1 text-[11px] font-semibold', STEP_BADGE[step.status])}>
+                <Badge className={cn('rounded-full border px-2.5 py-1 text-xs font-semibold', STEP_BADGE[step.status])}>
                   {stepStatusLabels[step.status]}
                 </Badge>
                 {isActive && !isCompleted && !isFailed && (
-                  <Badge variant="outline" className="rounded-full border-primary/20 bg-primary/5 px-2.5 py-1 text-[11px] font-semibold text-primary">
+                  <Badge variant="outline" className="rounded-full border-primary/20 bg-primary/5 px-2.5 py-1 text-xs font-semibold text-primary">
                     {statusHint}
                   </Badge>
                 )}
                 {requiresQualityCheck && (
-                  <Badge variant="outline" className="rounded-full border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700">
+                  <Badge variant="outline" className="rounded-full border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
                     QC requis
                   </Badge>
                 )}
                 {existingChecks.length > 0 && (
-                  <Badge variant="outline" className="rounded-full border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
+                  <Badge variant="outline" className="rounded-full border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
                     {existingChecks.length} controle{existingChecks.length > 1 ? 's' : ''}
                   </Badge>
                 )}

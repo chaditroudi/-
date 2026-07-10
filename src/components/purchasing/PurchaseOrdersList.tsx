@@ -137,7 +137,7 @@ export const PurchaseOrdersList = ({
                             <span className="font-mono text-sm">{order.order_number}</span>
                             {order.order_type && (
                               <div>
-                                <Badge className={`${orderTypeColors[order.order_type]} text-white text-[10px] py-0`}>
+                                <Badge className={`${orderTypeColors[order.order_type]} text-white text-[11px] py-0`}>
                                   {orderTypeLabels[order.order_type]}
                                 </Badge>
                               </div>
@@ -193,12 +193,12 @@ export const PurchaseOrdersList = ({
                             </Badge>
                             <div className="flex flex-wrap gap-1">
                               {order.receipt_status && order.receipt_status !== 'not_received' && (
-                                <Badge variant="outline" className={`text-[10px] py-0 ${purchaseOrderReceiptStatusColors[order.receipt_status]}`}>
+                                <Badge variant="outline" className={`text-[11px] py-0 ${purchaseOrderReceiptStatusColors[order.receipt_status]}`}>
                                   {purchaseOrderReceiptStatusLabels[order.receipt_status]}
                                 </Badge>
                               )}
                               {order.invoice_status && order.invoice_status !== 'not_invoiced' && (
-                                <Badge variant="outline" className={`text-[10px] py-0 ${purchaseOrderInvoiceStatusColors[order.invoice_status]}`}>
+                                <Badge variant="outline" className={`text-[11px] py-0 ${purchaseOrderInvoiceStatusColors[order.invoice_status]}`}>
                                   {purchaseOrderInvoiceStatusLabels[order.invoice_status]}
                                 </Badge>
                               )}

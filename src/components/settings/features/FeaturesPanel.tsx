@@ -53,7 +53,7 @@ export function FeaturesPanel({ settings }: Props) {
                   {meta.label}
                 </Label>
                 <p className="text-xs text-muted-foreground">{meta.description}</p>
-                <Badge variant="secondary" className="text-[10px] h-4 mt-1">tab: {meta.tab}</Badge>
+                <Badge variant="secondary" className="text-[11px] h-4 mt-1">tab: {meta.tab}</Badge>
               </div>
               <Switch
                 id={key}

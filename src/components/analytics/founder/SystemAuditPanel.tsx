@@ -58,27 +58,27 @@ function LogRow({ log }: { log: AuditLog }) {
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <Badge className={`text-[10px] h-4 px-1.5 ${ac.bg} ${ac.text}`}>
+          <Badge className={`text-[11px] h-4 px-1.5 ${ac.bg} ${ac.text}`}>
             {ACTION_LABEL[log.action] ?? log.action}
           </Badge>
           <span className="text-xs font-medium text-foreground truncate">{log.module}</span>
-          {log.table && <span className="text-[10px] text-muted-foreground font-mono">{log.table}</span>}
+          {log.table && <span className="text-[11px] text-muted-foreground font-mono">{log.table}</span>}
         </div>
-        <div className="text-[11px] text-muted-foreground mt-0.5 truncate">{log.message}</div>
+        <div className="text-xs text-muted-foreground mt-0.5 truncate">{log.message}</div>
         <div className="flex items-center gap-2 mt-0.5 flex-wrap">
           {(log.user_name || log.user_email) && (
-            <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+            <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
               <User className="h-3 w-3" />
               {log.user_name ?? log.user_email}
             </span>
           )}
           {log.ip_address && (
-            <span className="text-[10px] text-muted-foreground font-mono">{log.ip_address}</span>
+            <span className="text-[11px] text-muted-foreground font-mono">{log.ip_address}</span>
           )}
           <SeverityDot sev={log.severity} />
         </div>
       </div>
-      <div className="text-[10px] text-muted-foreground shrink-0 text-right">
+      <div className="text-[11px] text-muted-foreground shrink-0 text-right">
         {log.created_at ? formatDistanceToNow(new Date(log.created_at), { locale: fr, addSuffix: true }) : '—'}
       </div>
     </div>
@@ -129,12 +129,12 @@ export function SystemAuditPanel() {
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-primary" />
           <span className="font-bold">Journal d'audit système</span>
-          <span className="flex items-center gap-1 text-[10px] bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-full px-2 py-0.5 font-semibold uppercase tracking-wider">
+          <span className="flex items-center gap-1 text-[11px] bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-full px-2 py-0.5 font-semibold uppercase tracking-wider">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
             LIVE
           </span>
         </div>
-        <div className="text-[10px] text-muted-foreground flex items-center gap-1">
+        <div className="text-[11px] text-muted-foreground flex items-center gap-1">
           <RefreshCw className="h-3 w-3" />
           {dataUpdatedAt ? `Mis à jour ${formatDistanceToNow(new Date(dataUpdatedAt), { locale: fr, addSuffix: true })}` : ''}
         </div>
@@ -227,7 +227,7 @@ export function SystemAuditPanel() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium truncate">{u.name ?? u.email}</div>
-                      {u.name && <div className="text-[10px] text-muted-foreground truncate">{u.email}</div>}
+                      {u.name && <div className="text-[11px] text-muted-foreground truncate">{u.email}</div>}
                     </div>
                     <Badge variant="outline" className="text-xs shrink-0">{u.count} actions</Badge>
                   </div>
@@ -290,7 +290,7 @@ export function SystemAuditPanel() {
             </div>
           )}
           {logsData && (
-            <div className="text-[10px] text-muted-foreground text-center mt-3">
+            <div className="text-[11px] text-muted-foreground text-center mt-3">
               {filtered.length} entrées affichées sur {logsData.total} au total
             </div>
           )}

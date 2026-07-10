@@ -174,9 +174,9 @@ export function BOMPanel({ currentUser = 'Utilisateur' }: { currentUser?: string
                     </div>
                     <div className="flex gap-1 shrink-0">
                       {bom.is_private_label && (
-                        <Badge variant="outline" className="text-[10px] h-4 px-1 text-purple-700">PL</Badge>
+                        <Badge variant="outline" className="text-[11px] h-4 px-1 text-purple-700">PL</Badge>
                       )}
-                      <Badge className={`text-[10px] h-4 px-1 ${bom.is_active ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                      <Badge className={`text-[11px] h-4 px-1 ${bom.is_active ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
                         {bom.is_active ? 'Actif' : 'Inactif'}
                       </Badge>
                     </div>

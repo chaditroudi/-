@@ -128,7 +128,7 @@ export function Phase2AlertsPanel() {
               <Badge
                 variant="outline"
                 className={cn(
-                  'rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em]',
+                  'rounded-full border px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.14em]',
                   highestLevel === 'URGENCE' && 'border-red-200 bg-red-50 text-red-700',
                   highestLevel === 'CRITIQUE' && 'border-red-100 bg-red-50 text-red-700',
                   highestLevel === 'IMPORTANT' && 'border-amber-200 bg-amber-50 text-amber-700',
@@ -138,7 +138,7 @@ export function Phase2AlertsPanel() {
                 Centre d'alertes phase 2
               </Badge>
               {moduleFilter !== 'Tous' && (
-                <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[11px]">
+                <Badge variant="outline" className="rounded-full px-2.5 py-1 text-xs">
                   Filtre: {moduleFilter}
                 </Badge>
               )}
@@ -232,7 +232,7 @@ export function Phase2AlertsPanel() {
                     )}
                   >
                     <span>{module}</span>
-                    <span className={cn('rounded-full px-1.5 py-0.5 text-[10px]', isActive ? 'bg-white/16 text-primary-foreground' : 'bg-muted text-foreground')}>
+                    <span className={cn('rounded-full px-1.5 py-0.5 text-[11px]', isActive ? 'bg-white/16 text-primary-foreground' : 'bg-muted text-foreground')}>
                       {count}
                     </span>
                   </button>
@@ -247,13 +247,13 @@ export function Phase2AlertsPanel() {
             <TabsList className="h-auto rounded-xl border border-border bg-muted/40 p-1">
               <TabsTrigger value="active" className="rounded-lg px-3 py-2 text-xs sm:text-sm">
                 Actives
-                <span className="ml-2 rounded-full bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-700">
+                <span className="ml-2 rounded-full bg-red-100 px-1.5 py-0.5 text-[11px] font-semibold text-red-700">
                   {filteredActive.length}
                 </span>
               </TabsTrigger>
               <TabsTrigger value="history" className="rounded-lg px-3 py-2 text-xs sm:text-sm">
                 Historique
-                <span className="ml-2 rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-foreground">
+                <span className="ml-2 rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-foreground">
                   {filteredAcknowledged.length}
                 </span>
               </TabsTrigger>
@@ -432,13 +432,13 @@ function AlertRow({
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-sm font-semibold text-foreground">{alert.title}</p>
-            <Badge className={cn('rounded-full border px-2 py-0.5 text-[10px] font-semibold', LEVEL_BADGE[level])}>
+            <Badge className={cn('rounded-full border px-2 py-0.5 text-[11px] font-semibold', LEVEL_BADGE[level])}>
               {level}
             </Badge>
-            <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[10px]">
+            <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[11px]">
               {catalog.module}
             </Badge>
-            <span className="font-mono text-[11px] text-muted-foreground">{notificationCode}</span>
+            <span className="font-mono text-xs text-muted-foreground">{notificationCode}</span>
           </div>
 
           <p className="mt-2 text-sm text-muted-foreground">{alert.message}</p>

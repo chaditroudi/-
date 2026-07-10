@@ -56,7 +56,7 @@ const TabLoader = () => (
       <div className="absolute inset-0 animate-spin rounded-full border-2 border-primary/10 border-t-primary" />
       <div className="absolute inset-[5px] animate-spin rounded-full border-2 border-transparent border-b-primary/40" style={{ animationDirection: 'reverse', animationDuration: '0.7s' }} />
     </div>
-    <p className="text-[11.5px] font-semibold tracking-wider text-muted-foreground/40 animate-pulse uppercase">
+    <p className="text-xs font-semibold tracking-wider text-muted-foreground/40 animate-pulse uppercase">
       Chargement
     </p>
   </div>
@@ -352,7 +352,7 @@ const Index = () => {
                 </span>
                 <button
                   onClick={handleGoToProduction}
-                  className="shrink-0 rounded-lg border border-amber-300/60 bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-700 transition-colors hover:bg-amber-200 hover:text-amber-900"
+                  className="shrink-0 rounded-lg border border-amber-300/60 bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700 transition-colors hover:bg-amber-200 hover:text-amber-900"
                 >
                   Production →
                 </button>
@@ -432,14 +432,14 @@ const Index = () => {
             <div className="flex h-[18px] w-[18px] items-center justify-center opacity-35">
               <BrandLogo className="h-full w-full" imgClassName="h-full w-full object-contain" alt={companyName} />
             </div>
-            <span className="text-[10.5px] font-medium text-muted-foreground/40">
+            <span className="text-[11px] font-medium text-muted-foreground/40">
               © {new Date().getFullYear()} {companyName}
             </span>
           </div>
-          <div className="flex items-center gap-2 text-[10.5px] text-muted-foreground/32">
+          <div className="flex items-center gap-2 text-[11px] text-muted-foreground/32">
             <span className="hidden sm:inline font-medium">MES Royal Palm</span>
             <span className="hidden h-2.5 w-px bg-border/50 sm:block" />
-            <span className="rounded-full border border-primary/18 bg-primary/5 px-2 py-0.5 text-[9.5px] font-bold tracking-wide text-primary/55">
+            <span className="rounded-full border border-primary/18 bg-primary/5 px-2 py-0.5 text-[11px] font-bold tracking-wide text-primary/55">
               v2.0
             </span>
           </div>

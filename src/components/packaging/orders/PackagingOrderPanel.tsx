@@ -90,7 +90,7 @@ export function PackagingOrderPanel({ currentUser = 'Utilisateur' }: { currentUs
                           </Badge>
                           <Badge variant="outline" className="text-xs">{order.line}</Badge>
                           {lbl && lbl.status !== 'VALIDE' && (
-                            <Badge className="text-[10px] bg-amber-100 text-amber-700">Étiq. non validée</Badge>
+                            <Badge className="text-[11px] bg-amber-100 text-amber-700">Étiq. non validée</Badge>
                           )}
                         </div>
                         <div className="text-xs text-muted-foreground mt-0.5 flex gap-3 flex-wrap">

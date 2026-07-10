@@ -623,7 +623,7 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
                       <div className={`h-0.5 flex-1 transition-all duration-500 ${index === steps.length - 1 ? 'invisible' : isCompleted ? 'bg-primary' : 'bg-border'}`} />
                     </div>
                     {/* Step label */}
-                    <span className={`mt-2.5 max-w-[80px] text-center text-[10px] font-semibold leading-tight tracking-wide transition-colors duration-200 ${
+                    <span className={`mt-2.5 max-w-[80px] text-center text-[11px] font-semibold leading-tight tracking-wide transition-colors duration-200 ${
                       isActive ? 'text-primary' : isCompleted ? 'text-emerald-600 underline-offset-2 hover:underline' : 'text-muted-foreground/50'
                     }`}>
                       {entry.label}
@@ -635,7 +635,7 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
 
             {/* Step context pill */}
             <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-xl border border-primary/10 bg-primary/5 px-4 py-2.5 text-xs">
-              <Badge variant="outline" className="border-primary/25 bg-primary/5 px-2 py-0 text-[10px] font-semibold text-primary">
+              <Badge variant="outline" className="border-primary/25 bg-primary/5 px-2 py-0 text-[11px] font-semibold text-primary">
                 Royal Palm
               </Badge>
               <span className="font-medium text-foreground">{ROYAL_PALM_RECEPTION_STEPS[step - 1]?.label}</span>
@@ -785,7 +785,7 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
                         <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Heure arrivée portail *</Label>
                         <div className="flex gap-1.5">
                           <Input className="h-10 flex-1 rounded-xl" type="datetime-local" value={gateArrivalAt} onChange={(e) => setGateArrivalAt(e.target.value)} />
-                          <Button type="button" variant="outline" size="sm" className="h-10 shrink-0 rounded-xl px-2.5 text-[11px]" title="Maintenant" onClick={() => setGateArrivalAt(toDateTimeLocal())}>
+                          <Button type="button" variant="outline" size="sm" className="h-10 shrink-0 rounded-xl px-2.5 text-xs" title="Maintenant" onClick={() => setGateArrivalAt(toDateTimeLocal())}>
                             <Clock3 className="h-3.5 w-3.5" />
                           </Button>
                         </div>
@@ -922,7 +922,7 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
                           type="button"
                           variant="outline"
                           size="sm"
-                          className="h-9 rounded-lg border-primary/30 px-2.5 text-[11px] text-primary"
+                          className="h-9 rounded-lg border-primary/30 px-2.5 text-xs text-primary"
                           onClick={() => {
                             const now = toDateTimeLocal();
                             setGrossWeightCapturedAt(now);
@@ -1267,7 +1267,7 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
                           <Badge variant="outline" className="text-[0.6rem] px-1.5 border-primary/30 text-primary">RG-R01</Badge>
                         </div>
                         <p className="break-all font-mono text-base font-bold text-primary tracking-wider">{lotIdPreview}</p>
-                        <div className="mt-2 grid grid-cols-4 gap-1 text-[10px] text-muted-foreground">
+                        <div className="mt-2 grid grid-cols-4 gap-1 text-[11px] text-muted-foreground">
                           {[
                             ['REG', selectedSupplier?.region ? selectedSupplier.region.slice(0, 3).toUpperCase() : '???'],
                             ['FOURN', selectedSupplier?.code || '????'],
@@ -1387,7 +1387,7 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
                           { ok: weighingSource === 'SCALE' || manualReason.trim().length >= 10, label: 'Pesée justifiée' },
                         ].map(({ ok, label }) => (
                           <div key={label} className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium ${ok ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-border bg-muted/30 text-muted-foreground'}`}>
-                            <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${ok ? 'bg-emerald-500 text-white' : 'bg-muted-foreground/20 text-muted-foreground'}`}>
+                            <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${ok ? 'bg-emerald-500 text-white' : 'bg-muted-foreground/20 text-muted-foreground'}`}>
                               {ok ? '✓' : '○'}
                             </span>
                             {label}

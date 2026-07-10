@@ -94,7 +94,7 @@ export const ProductionDashboard = ({ orders }: ProductionDashboardProps) => {
       <Card className="surface-card border-border">
         <CardContent className="flex flex-col gap-4 p-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
-            <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em]">
+            <Badge variant="outline" className="rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.14em]">
               Pilotage production
             </Badge>
             <h3 className="mt-3 text-xl font-semibold text-foreground">{summaryTitle}</h3>
@@ -360,7 +360,7 @@ function ProductionOrderRow({ order }: { order: ProductionOrder }) {
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <p className="font-mono text-sm font-semibold text-foreground">{order.order_number}</p>
-            <Badge className={cn('rounded-full border px-2 py-0.5 text-[10px] font-semibold', STATUS_BADGE[order.status])}>
+            <Badge className={cn('rounded-full border px-2 py-0.5 text-[11px] font-semibold', STATUS_BADGE[order.status])}>
               {orderStatusLabels[order.status]}
             </Badge>
             <PriorityBadge priority={order.priority} />
@@ -405,7 +405,7 @@ function PriorityBadge({ priority }: { priority: number }) {
     <Badge
       variant="outline"
       className={cn(
-        'rounded-full px-2 py-0.5 text-[10px] font-semibold',
+        'rounded-full px-2 py-0.5 text-[11px] font-semibold',
         priority >= 3 && 'border-red-200 bg-red-50 text-red-700',
         priority === 2 && 'border-amber-200 bg-amber-50 text-amber-700',
         priority <= 1 && 'border-border bg-muted text-muted-foreground',

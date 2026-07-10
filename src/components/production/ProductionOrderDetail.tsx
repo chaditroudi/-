@@ -105,15 +105,15 @@ export const ProductionOrderDetail = ({ open, onOpenChange, orderId }: Productio
               <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em]">
+                    <Badge variant="outline" className="rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.14em]">
                       Ordre de fabrication
                     </Badge>
-                    <Badge className={cn('rounded-full border px-2.5 py-1 text-[11px] font-semibold', STATUS_BADGE[order.status])}>
+                    <Badge className={cn('rounded-full border px-2.5 py-1 text-xs font-semibold', STATUS_BADGE[order.status])}>
                       {orderStatusLabels[order.status]}
                     </Badge>
                     {order.flux_code && (
                       <Badge
-                        className="rounded-md px-2 py-0.5 text-[11px] font-bold text-white"
+                        className="rounded-md px-2 py-0.5 text-xs font-bold text-white"
                         style={{ backgroundColor: fluxCodeColors[order.flux_code] }}
                       >
                         {order.flux_code} — {fluxCodeLabels[order.flux_code]}
@@ -378,7 +378,7 @@ function PriorityBadge({ priority }: { priority: number }) {
     <Badge
       variant="outline"
       className={cn(
-        'rounded-full px-2.5 py-1 text-[11px] font-semibold',
+        'rounded-full px-2.5 py-1 text-xs font-semibold',
         priority >= 3 && 'border-red-200 bg-red-50 text-red-700',
         priority === 2 && 'border-amber-200 bg-amber-50 text-amber-700',
         priority <= 1 && 'border-border bg-muted text-muted-foreground',

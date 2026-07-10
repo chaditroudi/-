@@ -37,7 +37,7 @@ export function AppLoader({
           <div className="rounded-[24px] border border-slate-200/70 bg-white/85 p-6 sm:p-8">
             <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
               <div className="max-w-xl space-y-5">
-                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-700">
+                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50/90 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-emerald-700">
                   <span className="h-2 w-2 rounded-full bg-emerald-500 badge-pulse" />
                   Date Harvest Hub
                 </div>

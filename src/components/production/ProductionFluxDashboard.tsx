@@ -50,7 +50,7 @@ export function ProductionFluxDashboard() {
       {/* Header strip */}
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest">
+          <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-widest">
             Dossier industriel v3.0
           </Badge>
           <span className="text-xs text-muted-foreground">
@@ -85,7 +85,7 @@ export function ProductionFluxDashboard() {
                 <Badge
                   variant="outline"
                   className={cn(
-                    'hidden rounded-full px-1.5 py-0 text-[9px] font-semibold lg:inline-flex',
+                    'hidden rounded-full px-1.5 py-0 text-[11px] font-semibold lg:inline-flex',
                     isActive && 'border-primary/30 bg-primary/10 text-primary',
                   )}
                 >

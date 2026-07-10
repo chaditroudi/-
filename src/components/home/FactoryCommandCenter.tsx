@@ -74,7 +74,7 @@ const ProcessNode = ({ label, Icon, count, subtext, isActive, colorText, colorBo
       <Icon className={cn('h-6 w-6 transition-colors duration-500', isActive ? colorText : 'text-slate-600')} />
       {isActive && count > 0 && (
         <span className={cn(
-          'absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full text-[10px] font-bold flex items-center justify-center bg-slate-950',
+          'absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full text-[11px] font-bold flex items-center justify-center bg-slate-950',
           'border-2', colorBorder, colorText,
         )}>
           {count}
@@ -82,13 +82,13 @@ const ProcessNode = ({ label, Icon, count, subtext, isActive, colorText, colorBo
       )}
     </div>
     <div className="text-center">
-      <p className={cn('text-[10px] font-bold tracking-widest uppercase transition-colors duration-500',
+      <p className={cn('text-[11px] font-bold tracking-widest uppercase transition-colors duration-500',
         isActive ? colorText : 'text-slate-600'
       )}>
         {label}
       </p>
       {subtext && (
-        <p className={cn('text-[9px] tabular-nums mt-0.5', isActive ? 'text-slate-400' : 'text-slate-700')}>
+        <p className={cn('text-[11px] tabular-nums mt-0.5', isActive ? 'text-slate-400' : 'text-slate-700')}>
           {subtext}
         </p>
       )}
@@ -143,13 +143,13 @@ const KpiCard = ({ label, value, sub, icon, accent, glow }: KpiProps) => (
   )}>
     <div className={cn('absolute inset-0 opacity-5 rounded-xl', accent)} />
     <div className="flex items-center justify-between">
-      <span className="text-[11px] font-semibold uppercase tracking-widest text-slate-500">{label}</span>
+      <span className="text-xs font-semibold uppercase tracking-widest text-slate-500">{label}</span>
       <span className={cn('h-8 w-8 rounded-lg flex items-center justify-center', accent + '/20')}>
         <span className={cn('text-current', accent.replace('bg-', 'text-'))}>{icon}</span>
       </span>
     </div>
     <p className="text-3xl font-black tabular-nums text-white tracking-tight leading-none">{value}</p>
-    {sub && <p className="text-[11px] text-slate-500">{sub}</p>}
+    {sub && <p className="text-xs text-slate-500">{sub}</p>}
   </div>
 );
 
@@ -157,7 +157,7 @@ const KpiCard = ({ label, value, sub, icon, accent, glow }: KpiProps) => (
 
 const YieldRow = ({ label, kgIn, yieldPct, colorClass }: { label: string; kgIn: number; yieldPct: number; colorClass: string }) => (
   <div className="space-y-1">
-    <div className="flex items-center justify-between text-[11px]">
+    <div className="flex items-center justify-between text-xs">
       <span className="text-slate-400">{label}</span>
       <div className="flex items-center gap-3">
         <span className="text-slate-500 tabular-nums">{fmtKg(kgIn)}</span>
@@ -326,7 +326,7 @@ export const FactoryCommandCenter = () => {
               <Activity className="h-5 w-5 text-emerald-400" />
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Royal Palm · Tozeur</p>
+              <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-slate-500">Royal Palm · Tozeur</p>
               <p className="text-base font-bold text-white leading-tight">Centre de Commande Usine</p>
             </div>
           </div>
@@ -335,7 +335,7 @@ export const FactoryCommandCenter = () => {
             {/* LIVE badge */}
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-red-500/30 bg-red-500/10">
               <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-              <span className="text-[11px] font-bold text-red-400 tracking-widest">EN DIRECT</span>
+              <span className="text-xs font-bold text-red-400 tracking-widest">EN DIRECT</span>
             </div>
 
             {/* Clock */}
@@ -343,7 +343,7 @@ export const FactoryCommandCenter = () => {
               <p className="text-xl font-mono font-bold text-white tabular-nums">
                 {clock.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
               </p>
-              <p className="text-[10px] text-slate-500 capitalize">
+              <p className="text-[11px] text-slate-500 capitalize">
                 {clock.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}
               </p>
             </div>
@@ -382,7 +382,7 @@ export const FactoryCommandCenter = () => {
               {critiques > 0 ? `${critiques} alerte${critiques > 1 ? 's' : ''} critique${critiques > 1 ? 's' : ''}` : ''}
             </span>
             {warnings > 0 && (
-              <span className="text-[11px] text-amber-400 ml-1">· {warnings} avertissement{warnings > 1 ? 's' : ''}</span>
+              <span className="text-xs text-amber-400 ml-1">· {warnings} avertissement{warnings > 1 ? 's' : ''}</span>
             )}
           </div>
         )}
@@ -398,9 +398,9 @@ export const FactoryCommandCenter = () => {
           {/* ── Process flow ───────────────────────────────────────────────── */}
           <div className="bg-slate-900/60 rounded-xl border border-slate-800 p-5">
             <div className="flex items-center gap-2 mb-5">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Flux de production</span>
+              <span className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Flux de production</span>
               {lf && (
-                <span className="text-[10px] text-slate-600">
+                <span className="text-[11px] text-slate-600">
                   · {active?.total ?? 0} processus actif{(active?.total ?? 0) !== 1 ? 's' : ''}
                 </span>
               )}
@@ -465,11 +465,11 @@ export const FactoryCommandCenter = () => {
             <div className="bg-slate-900/60 rounded-xl border border-slate-800 p-4 space-y-3">
               <div className="flex items-center gap-2">
                 <Package className="h-3.5 w-3.5 text-orange-400" />
-                <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
                   Lignes conditionnement
                 </span>
                 {packagingDetail.length > 0 && (
-                  <span className="ml-auto text-[11px] px-2 py-0.5 rounded-full bg-orange-500/15 text-orange-400 font-semibold border border-orange-500/20">
+                  <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-orange-500/15 text-orange-400 font-semibold border border-orange-500/20">
                     {packagingDetail.length} active{packagingDetail.length > 1 ? 's' : ''}
                   </span>
                 )}
@@ -487,16 +487,16 @@ export const FactoryCommandCenter = () => {
                           <div className="flex items-center gap-2">
                             <span className="h-1.5 w-1.5 rounded-full bg-orange-400 animate-pulse" />
                             <span className="text-xs font-mono font-semibold text-orange-300">{p.order_number}</span>
-                            {p.line && <span className="text-[10px] text-slate-500">· {p.line}</span>}
+                            {p.line && <span className="text-[11px] text-slate-500">· {p.line}</span>}
                           </div>
-                          <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                          <div className="flex items-center gap-2 text-xs text-slate-400">
                             <span className="tabular-nums">{fmtN(p.produced_units)}/{fmtN(p.target_units)} u.</span>
                             {p.started_at && <span className="text-slate-600">{elapsed(p.started_at)}</span>}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <Progress value={pct} className="h-1.5 flex-1 bg-slate-700 [&>*]:bg-orange-500" />
-                          <span className="text-[10px] font-bold text-orange-400 tabular-nums w-9 text-right">
+                          <span className="text-[11px] font-bold text-orange-400 tabular-nums w-9 text-right">
                             {pct.toFixed(0)}%
                           </span>
                         </div>
@@ -511,11 +511,11 @@ export const FactoryCommandCenter = () => {
             <div className="bg-slate-900/60 rounded-xl border border-slate-800 p-4 space-y-3">
               <div className="flex items-center gap-2">
                 <Zap className="h-3.5 w-3.5 text-emerald-400" />
-                <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
                   Rendements du jour
                 </span>
                 {today?.avgYield != null && (
-                  <span className="ml-auto text-[11px] font-bold text-emerald-400 tabular-nums">
+                  <span className="ml-auto text-xs font-bold text-emerald-400 tabular-nums">
                     Moy. {fmtPct(today.avgYield)}
                   </span>
                 )}
@@ -532,7 +532,7 @@ export const FactoryCommandCenter = () => {
 
                   {today.totalKgProcessed > 0 && (
                     <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
-                      <span className="text-[11px] text-slate-500">Total traité aujourd'hui</span>
+                      <span className="text-xs text-slate-500">Total traité aujourd'hui</span>
                       <span className="text-sm font-bold text-white tabular-nums">{fmtKg(today.totalKgProcessed)}</span>
                     </div>
                   )}
@@ -542,9 +542,9 @@ export const FactoryCommandCenter = () => {
               {/* Alert type breakdown */}
               {alertData?.topTypes && alertData.topTypes.length > 0 && (
                 <div className="pt-3 border-t border-slate-800 space-y-1.5">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-600">Alertes par type</p>
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-slate-600">Alertes par type</p>
                   {alertData.topTypes.slice(0, 3).map((t) => (
-                    <div key={t.code} className="flex items-center justify-between text-[11px]">
+                    <div key={t.code} className="flex items-center justify-between text-xs">
                       <span className="text-slate-400 font-mono">{t.code}</span>
                       <span className="text-amber-400 font-bold tabular-nums">{t.count}</span>
                     </div>
@@ -555,7 +555,7 @@ export const FactoryCommandCenter = () => {
           </div>
 
           {/* ── Footer ─────────────────────────────────────────────────────── */}
-          <div className="flex items-center justify-between text-[10px] text-slate-700 pt-1">
+          <div className="flex items-center justify-between text-[11px] text-slate-700 pt-1">
             <span>Royal Palm MES · Groupe Ennour Investissement · Tozeur, Tunisie</span>
             {lastUpdateStr && <span>Dernière actualisation : {lastUpdateStr}</span>}
           </div>

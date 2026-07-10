@@ -136,7 +136,7 @@ export const AlertAnalyticsPanel = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className={cn('font-bold', meta.text)}>{count}</span>
-                      <Badge variant="outline" className="text-[10px] px-1">{pct}%</Badge>
+                      <Badge variant="outline" className="text-[11px] px-1">{pct}%</Badge>
                     </div>
                   </div>
                   <Progress value={pct} className="h-1.5" />
@@ -174,7 +174,7 @@ export const AlertAnalyticsPanel = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="font-bold">{count}</span>
-                          <Badge variant="outline" className="text-[10px] px-1">{pct}%</Badge>
+                          <Badge variant="outline" className="text-[11px] px-1">{pct}%</Badge>
                         </div>
                       </div>
                       <Progress value={pct} className="h-1.5" />

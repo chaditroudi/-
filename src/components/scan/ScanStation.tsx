@@ -118,7 +118,7 @@ const PROD_STATUS: Record<string, string> = {
 
 const Kv = ({ label, value, mono }: { label: string; value?: React.ReactNode; mono?: boolean }) => (
   <div>
-    <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">{label}</p>
+    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">{label}</p>
     <p className={cn('text-sm font-semibold mt-0.5', mono && 'font-mono')}>{value ?? '—'}</p>
   </div>
 );
@@ -138,7 +138,7 @@ const SectionCard = ({ title, icon: Icon, children, className }: {
 );
 
 const StepBadge = ({ ok, label }: { ok: boolean | null | undefined; label: string }) => (
-  <span className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border',
+  <span className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border',
     ok === true  ? 'bg-emerald-50 text-emerald-700 border-emerald-300' :
     ok === false ? 'bg-red-50 text-red-700 border-red-300' :
                    'bg-gray-50 text-gray-500 border-gray-200',
@@ -160,7 +160,7 @@ const ChainNode = ({ done, active, label, Icon }: { done: boolean; active?: bool
     )}>
       <Icon className="h-4 w-4" />
     </div>
-    <span className={cn('text-[9px] font-semibold text-center leading-tight uppercase tracking-wide',
+    <span className={cn('text-[11px] font-semibold text-center leading-tight uppercase tracking-wide',
       done ? 'text-emerald-700' : active ? 'text-blue-600' : 'text-gray-300',
     )}>{label}</span>
   </div>
@@ -248,7 +248,7 @@ const QualiteTab = ({ data }: { data: LotTraceabilityData }) => {
             {insp.nonconformity_codes && insp.nonconformity_codes.length > 0 && (
               <div className="mb-3 flex flex-wrap gap-1">
                 {insp.nonconformity_codes.map(c => (
-                  <span key={c} className="text-[11px] px-2 py-0.5 rounded bg-red-50 border border-red-200 text-red-700 font-mono">{c}</span>
+                  <span key={c} className="text-xs px-2 py-0.5 rounded bg-red-50 border border-red-200 text-red-700 font-mono">{c}</span>
                 ))}
               </div>
             )}
@@ -257,8 +257,8 @@ const QualiteTab = ({ data }: { data: LotTraceabilityData }) => {
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <p className="text-xs font-semibold text-muted-foreground">Points de contrôle ({myChecks.length})</p>
-                  {passed > 0 && <span className="text-[11px] text-emerald-600 font-medium">{passed} ✓</span>}
-                  {failed > 0 && <span className="text-[11px] text-red-600 font-medium">{failed} ✗</span>}
+                  {passed > 0 && <span className="text-xs text-emerald-600 font-medium">{passed} ✓</span>}
+                  {failed > 0 && <span className="text-xs text-red-600 font-medium">{failed} ✗</span>}
                 </div>
                 <div className="space-y-1">
                   {myChecks.map((ck) => (
@@ -629,7 +629,7 @@ const StockTab = ({ data }: { data: LotTraceabilityData }) => {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-gray-100 border">{m.movement_type}</span>
+                    <span className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-gray-100 border">{m.movement_type}</span>
                     <span className="font-medium">{fmtKg(m.quantity)} {m.unit || 'kg'}</span>
                     {m.performed_by && <span className="text-muted-foreground">· {m.performed_by}</span>}
                   </div>
@@ -725,11 +725,11 @@ const HistoriqueTab = ({ data, liveAt }: { data: LotTraceabilityData; liveAt: st
                 <div className="pb-2 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-xs font-semibold">{ev.title}</span>
-                    <span className="text-[10px] text-muted-foreground">{fmtDT(ev.timestamp)}</span>
-                    {ev.stage && <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 border font-mono">{ev.stage}</span>}
+                    <span className="text-[11px] text-muted-foreground">{fmtDT(ev.timestamp)}</span>
+                    {ev.stage && <span className="text-[11px] px-1.5 py-0.5 rounded bg-gray-100 border font-mono">{ev.stage}</span>}
                   </div>
                   {ev.detail && <p className="text-xs text-muted-foreground mt-0.5">{ev.detail}</p>}
-                  {ev.actor && <p className="text-[10px] text-muted-foreground">👤 {ev.actor}{ev.document_number ? ` · ${ev.document_number}` : ''}</p>}
+                  {ev.actor && <p className="text-[11px] text-muted-foreground">👤 {ev.actor}{ev.document_number ? ` · ${ev.document_number}` : ''}</p>}
                 </div>
               </div>
             ))}
@@ -740,7 +740,7 @@ const HistoriqueTab = ({ data, liveAt }: { data: LotTraceabilityData; liveAt: st
       {/* Audit logs */}
       <SectionCard title={`Journal d'audit (${audits.length} entrées)`} icon={History}>
         {liveAt && (
-          <p className="text-[11px] text-green-600 mb-2 flex items-center gap-1">
+          <p className="text-xs text-green-600 mb-2 flex items-center gap-1">
             <Zap className="h-3 w-3" /> Dernière mise à jour live : {fmtDT(liveAt)}
           </p>
         )}
@@ -757,7 +757,7 @@ const HistoriqueTab = ({ data, liveAt }: { data: LotTraceabilityData; liveAt: st
                   {log.module && <span className="text-muted-foreground"> · [{log.module}]</span>}
                   <p className="text-muted-foreground">{fmtDT(log.performed_at)}</p>
                   {log.changed_fields && log.changed_fields.length > 0 && (
-                    <p className="text-[10px] text-muted-foreground font-mono">Champs : {log.changed_fields.join(', ')}</p>
+                    <p className="text-[11px] text-muted-foreground font-mono">Champs : {log.changed_fields.join(', ')}</p>
                   )}
                 </div>
               </div>
@@ -919,7 +919,7 @@ const LotPassport = ({ lotCode, onClose }: { lotCode: string; onClose: () => voi
             { label: 'Pays origine', value: lot.origin_country },
           ].map(({ label, value, mono }) => (
             <div key={label} className="rounded-lg bg-white/70 border px-2.5 py-2 backdrop-blur-sm">
-              <p className="text-[9px] text-muted-foreground uppercase tracking-wide font-medium">{label}</p>
+              <p className="text-[11px] text-muted-foreground uppercase tracking-wide font-medium">{label}</p>
               <p className={cn('text-sm font-bold truncate mt-0.5', mono && 'font-mono', !value && 'text-muted-foreground')}>
                 {value || '—'}
               </p>
@@ -941,7 +941,7 @@ const LotPassport = ({ lotCode, onClose }: { lotCode: string; onClose: () => voi
         {/* Process chain */}
         {trace && (
           <div className="bg-white/60 rounded-lg border p-3">
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">Chaîne de transformation</p>
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">Chaîne de transformation</p>
             <ProcessBar data={trace} />
           </div>
         )}
@@ -987,7 +987,7 @@ const LotPassport = ({ lotCode, onClose }: { lotCode: string; onClose: () => voi
                 <Icon className="h-3.5 w-3.5" />
                 {label}
                 {count > 0 && (
-                  <span className="ml-1 inline-flex items-center justify-center h-4 min-w-[16px] px-1 rounded-full bg-primary/15 text-[10px] font-bold">
+                  <span className="ml-1 inline-flex items-center justify-center h-4 min-w-[16px] px-1 rounded-full bg-primary/15 text-[11px] font-bold">
                     {count}
                   </span>
                 )}
@@ -1129,7 +1129,7 @@ export const ScanStation = () => {
 
           {history.length > 0 && (
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[11px] text-muted-foreground shrink-0 font-medium">Récents :</span>
+              <span className="text-xs text-muted-foreground shrink-0 font-medium">Récents :</span>
               {history.map((h) => (
                 <button
                   key={h.code}
@@ -1147,7 +1147,7 @@ export const ScanStation = () => {
               ))}
               <button
                 onClick={() => setHistory([])}
-                className="text-[11px] text-muted-foreground hover:text-destructive ml-auto"
+                className="text-xs text-muted-foreground hover:text-destructive ml-auto"
               >
                 Effacer
               </button>
@@ -1270,7 +1270,7 @@ export const ScanStation = () => {
                         <TableCell className="py-2.5">
                           {lot.stock_status ? (
                             <span className={cn(
-                              'inline-flex px-2 py-0.5 rounded-full text-[11px] font-medium border',
+                              'inline-flex px-2 py-0.5 rounded-full text-xs font-medium border',
                               statusColor[lot.stock_status] ?? 'bg-gray-100 text-gray-600 border-gray-200',
                             )}>
                               {statusLabel[lot.stock_status] ?? lot.stock_status}
@@ -1280,7 +1280,7 @@ export const ScanStation = () => {
                         <TableCell className="py-2.5">
                           {lot.storage_zone_code
                             ? <span className="text-xs font-mono text-muted-foreground">{lot.storage_zone_code}</span>
-                            : <span className="text-[11px] text-amber-500 font-medium">Non placé</span>
+                            : <span className="text-xs text-amber-500 font-medium">Non placé</span>
                           }
                         </TableCell>
                         <TableCell className="py-2.5">

@@ -313,7 +313,7 @@ export const AlertsDashboard = () => {
             <Bell className="h-3.5 w-3.5" />
             Actives
             {active.length > 0 && (
-              <Badge variant="destructive" className="rounded-full px-1.5 py-0 text-[10px]">
+              <Badge variant="destructive" className="rounded-full px-1.5 py-0 text-[11px]">
                 {active.length}
               </Badge>
             )}
@@ -322,7 +322,7 @@ export const AlertsDashboard = () => {
             <Check className="h-3.5 w-3.5" />
             En traitement
             {acked.length > 0 && (
-              <Badge variant="secondary" className="rounded-full px-1.5 py-0 text-[10px]">
+              <Badge variant="secondary" className="rounded-full px-1.5 py-0 text-[11px]">
                 {acked.length}
               </Badge>
             )}
@@ -483,11 +483,11 @@ function AlertList({
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-1.5">
                   <p className="text-sm font-semibold text-foreground leading-tight">{alert.title}</p>
-                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 rounded-sm">
+                  <Badge variant="outline" className="text-[11px] px-1.5 py-0 rounded-sm">
                     {alert.alert_type}
                   </Badge>
                   <Badge
-                    className={`text-[10px] px-1.5 py-0 rounded-sm ${
+                    className={`text-[11px] px-1.5 py-0 rounded-sm ${
                       alert.source === 'batch'
                         ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300'
                         : 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300'
@@ -501,7 +501,7 @@ function AlertList({
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{alert.message}</p>
-                <div className="flex flex-wrap items-center gap-3 mt-1.5 text-[11px] text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
                     {formatDistanceToNow(new Date(alert.created_at), { addSuffix: true, locale: fr })}

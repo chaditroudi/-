@@ -300,7 +300,7 @@ export const RequisitionsList = ({
                           >
                             {req.requisition_number}
                           </button>
-                          <p className="text-[11px] text-muted-foreground">
+                          <p className="text-xs text-muted-foreground">
                             {format(new Date(req.created_at), 'dd/MM/yyyy', { locale: fr })}
                           </p>
                         </TableCell>
@@ -332,7 +332,7 @@ export const RequisitionsList = ({
                             {requisitionStatusLabels[req.status]}
                           </Badge>
                           {req.approved_by && (
-                            <p className="text-[11px] text-muted-foreground mt-0.5">
+                            <p className="text-xs text-muted-foreground mt-0.5">
                               par {req.approved_by}
                             </p>
                           )}

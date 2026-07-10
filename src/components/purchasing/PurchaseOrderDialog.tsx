@@ -252,7 +252,7 @@ export const PurchaseOrderDialog = ({
 
           {/* Bloc 1: Identification */}
           <div className="space-y-1">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Identification</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Identification</p>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Fournisseur *</Label>
@@ -299,7 +299,7 @@ export const PurchaseOrderDialog = ({
 
           {/* Bloc 2: Produit */}
           <div className="rounded-xl border bg-muted/20 p-4 space-y-3">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Produit</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Produit</p>
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label>Variété</Label>
@@ -329,7 +329,7 @@ export const PurchaseOrderDialog = ({
                   {...register('tolerance_pct')}
                   className="font-mono"
                 />
-                <p className="text-[10px] text-muted-foreground">
+                <p className="text-[11px] text-muted-foreground">
                   {watchedOrderType === 'sur_pied' ? 'Sur pied → 15 % (RG-ACH12)' : 'Défaut 5 % pour commande ferme'}
                 </p>
               </div>
@@ -351,7 +351,7 @@ export const PurchaseOrderDialog = ({
 
           {/* Bloc 3: Prix & Paiement */}
           <div className="space-y-1">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Prix &amp; Paiement</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Prix &amp; Paiement</p>
             <div className="grid grid-cols-4 gap-4">
               <div className="space-y-2">
                 <Label>Devise</Label>
@@ -399,7 +399,7 @@ export const PurchaseOrderDialog = ({
 
           {/* Bloc 4: Livraison */}
           <div className="space-y-1">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Livraison</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Livraison</p>
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label>Site de livraison</Label>

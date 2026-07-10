@@ -316,7 +316,7 @@ export const SupplierDetailSheet = ({ supplier, open, onOpenChange, onEdit }: Pr
                     <Line type="monotone" dataKey="rejet" stroke="#ef4444" strokeWidth={1.5} dot={false} strokeDasharray="4 2" />
                   </LineChart>
                 </ResponsiveContainer>
-                <div className="flex gap-4 mt-1 text-[10px] text-muted-foreground justify-center">
+                <div className="flex gap-4 mt-1 text-[11px] text-muted-foreground justify-center">
                   <span className="flex items-center gap-1"><span className="inline-block h-0.5 w-4 bg-emerald-600" />Score qualité</span>
                   <span className="flex items-center gap-1"><span className="inline-block h-0.5 w-4 bg-red-500 border-dashed border-t border-red-500" />Taux rejet %</span>
                 </div>
