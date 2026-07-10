@@ -983,7 +983,7 @@ const LotPassport = ({ lotCode, onClose }: { lotCode: string; onClose: () => voi
               { value: 'expedition', label: 'Expédition',     count: shipCount,   Icon: Truck       },
               { value: 'historique', label: 'Historique',     count: histCount,   Icon: History     },
             ].map(({ value, label, count, Icon }) => (
-              <TabsTrigger key={value} value={value} className="flex items-center gap-1.5 text-xs h-8 flex-1 min-w-[100px]">
+              <TabsTrigger key={value} value={value} className="flex items-center gap-1.5 h-8 flex-1 min-w-[100px]">
                 <Icon className="h-3.5 w-3.5" />
                 {label}
                 {count > 0 && (

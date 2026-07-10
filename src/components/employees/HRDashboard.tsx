@@ -1000,11 +1000,11 @@ export function HRDashboard() {
     <div className="space-y-4">
       <Tabs defaultValue="pointages">
         <TabsList className="h-auto">
-          <TabsTrigger value="pointages" className="text-xs gap-1.5">
+          <TabsTrigger value="pointages" className="gap-1.5">
             <Clock className="h-3.5 w-3.5" />
             Pointages
           </TabsTrigger>
-          <TabsTrigger value="taches" className="text-xs gap-1.5">
+          <TabsTrigger value="taches" className="gap-1.5">
             <ClipboardList className="h-3.5 w-3.5" />
             Tâches
             {(urgentTasks > 0 || pendingCount > 0) && (

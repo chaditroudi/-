@@ -88,7 +88,7 @@ export function Phase2Dashboard({ currentUser = 'Utilisateur', defaultModule = '
 
       <Tabs value={activeModule} onValueChange={(v) => setActiveModule(v as typeof defaultModule)}>
         <TabsList className="flex h-auto w-full justify-start gap-1 overflow-x-auto rounded-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:max-w-3xl">
-          <TabsTrigger value="pipeline" className="relative shrink-0 gap-1.5 text-xs">
+          <TabsTrigger value="pipeline" className="relative shrink-0 gap-1.5">
             <GitMerge className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Pipeline</span>
             {pipeline.waiting.length > 0 && (
@@ -97,23 +97,23 @@ export function Phase2Dashboard({ currentUser = 'Utilisateur', defaultModule = '
               </span>
             )}
           </TabsTrigger>
-          <TabsTrigger value="fumigation" className="shrink-0 gap-1.5 text-xs">
+          <TabsTrigger value="fumigation" className="shrink-0 gap-1.5">
             <Flame className="h-3.5 w-3.5" />
             Fumigation
           </TabsTrigger>
-          <TabsTrigger value="nettoyage" className="shrink-0 gap-1.5 text-xs">
+          <TabsTrigger value="nettoyage" className="shrink-0 gap-1.5">
             <Droplets className="h-3.5 w-3.5" />
             Nettoyage
           </TabsTrigger>
-          <TabsTrigger value="hydratation" className="shrink-0 gap-1.5 text-xs">
+          <TabsTrigger value="hydratation" className="shrink-0 gap-1.5">
             <Wind className="h-3.5 w-3.5" />
             Hydratation
           </TabsTrigger>
-          <TabsTrigger value="triage" className="shrink-0 gap-1.5 text-xs">
+          <TabsTrigger value="triage" className="shrink-0 gap-1.5">
             <Scissors className="h-3.5 w-3.5" />
             Triage
           </TabsTrigger>
-          <TabsTrigger value="alertes" className="relative shrink-0 gap-1.5 text-xs">
+          <TabsTrigger value="alertes" className="relative shrink-0 gap-1.5">
             <Bell className="h-3.5 w-3.5" />
             Alertes
             {kpis.total > 0 && (

@@ -228,44 +228,44 @@ export function FounderAnalyticsDashboard() {
       {/* Main tabs */}
       <Tabs value={tab} onValueChange={setTab} className="space-y-4">
         <TabsList className="grid grid-cols-3 lg:grid-cols-9 gap-1 h-auto p-1 rounded-xl">
-          <TabsTrigger value="live" className="gap-1.5 text-xs py-2">
+          <TabsTrigger value="live" className="gap-1.5 py-2">
             <Activity className="h-3.5 w-3.5" />
             <span>Live</span>
           </TabsTrigger>
-          <TabsTrigger value="funnel" className="gap-1.5 text-xs py-2">
+          <TabsTrigger value="funnel" className="gap-1.5 py-2">
             <GitBranch className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Flux global</span>
             <span className="sm:hidden">Flux</span>
           </TabsTrigger>
-          <TabsTrigger value="reception" className="gap-1.5 text-xs py-2">
+          <TabsTrigger value="reception" className="gap-1.5 py-2">
             <Truck className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Réception & QC</span>
             <span className="sm:hidden">Récep.</span>
           </TabsTrigger>
-          <TabsTrigger value="stock" className="gap-1.5 text-xs py-2">
+          <TabsTrigger value="stock" className="gap-1.5 py-2">
             <Warehouse className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Stock & Stockage</span>
             <span className="sm:hidden">Stock</span>
           </TabsTrigger>
-          <TabsTrigger value="phase2" className="gap-1.5 text-xs py-2">
+          <TabsTrigger value="phase2" className="gap-1.5 py-2">
             <Flame className="h-3.5 w-3.5" />
             <span>Phase 2</span>
           </TabsTrigger>
-          <TabsTrigger value="packaging" className="gap-1.5 text-xs py-2">
+          <TabsTrigger value="packaging" className="gap-1.5 py-2">
             <Package className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Conditionnement</span>
             <span className="sm:hidden">Cond.</span>
           </TabsTrigger>
-          <TabsTrigger value="alerts" className="gap-1.5 text-xs py-2">
+          <TabsTrigger value="alerts" className="gap-1.5 py-2">
             <Bell className="h-3.5 w-3.5" />
             <span>Alertes</span>
           </TabsTrigger>
-          <TabsTrigger value="suppliers" className="gap-1.5 text-xs py-2">
+          <TabsTrigger value="suppliers" className="gap-1.5 py-2">
             <Users className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Fournisseurs</span>
             <span className="sm:hidden">Four.</span>
           </TabsTrigger>
-          <TabsTrigger value="audit" className="gap-1.5 text-xs py-2">
+          <TabsTrigger value="audit" className="gap-1.5 py-2">
             <ScrollText className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Audit système</span>
             <span className="sm:hidden">Audit</span>

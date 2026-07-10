@@ -49,7 +49,7 @@ export function PackagingDashboard({ currentUser = 'Utilisateur' }: Props) {
 
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="h-auto flex flex-wrap gap-1">
-          <TabsTrigger value="orders" className="text-xs gap-1.5">
+          <TabsTrigger value="orders" className="gap-1.5">
             <ClipboardList className="h-3.5 w-3.5" />
             OF Conditionnement
             {(kpis?.active_orders ?? 0) > 0 && (
@@ -58,15 +58,15 @@ export function PackagingDashboard({ currentUser = 'Utilisateur' }: Props) {
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="bom" className="text-xs gap-1.5">
+          <TabsTrigger value="bom" className="gap-1.5">
             <Package className="h-3.5 w-3.5" />
             Nomenclatures
           </TabsTrigger>
-          <TabsTrigger value="labels" className="text-xs gap-1.5">
+          <TabsTrigger value="labels" className="gap-1.5">
             <Tag className="h-3.5 w-3.5" />
             Étiquettes
           </TabsTrigger>
-          <TabsTrigger value="palettes" className="text-xs gap-1.5">
+          <TabsTrigger value="palettes" className="gap-1.5">
             <Layers className="h-3.5 w-3.5" />
             Palettes
             {(kpis?.palettes_sealed_today ?? 0) > 0 && (

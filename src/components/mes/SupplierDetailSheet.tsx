@@ -190,24 +190,24 @@ export const SupplierDetailSheet = ({ supplier, open, onOpenChange, onEdit }: Pr
         {/* Tabs */}
         <Tabs defaultValue="performance" className="mt-4">
           <TabsList className="w-full flex flex-wrap h-auto gap-0.5">
-            <TabsTrigger value="performance" className="text-xs py-1.5 flex-1 min-w-[5rem]">Performance</TabsTrigger>
-            <TabsTrigger value="identite" className="text-xs py-1.5 flex-1 min-w-[4rem]">Identité</TabsTrigger>
-            <TabsTrigger value="livraisons" className="text-xs py-1.5 flex-1 min-w-[4rem]">
+            <TabsTrigger value="performance" className="py-1.5 flex-1 min-w-[5rem]">Performance</TabsTrigger>
+            <TabsTrigger value="identite" className="py-1.5 flex-1 min-w-[4rem]">Identité</TabsTrigger>
+            <TabsTrigger value="livraisons" className="py-1.5 flex-1 min-w-[4rem]">
               <Truck className="h-3 w-3 mr-1" />Lots
             </TabsTrigger>
-            <TabsTrigger value="commandes" className="text-xs py-1.5 flex-1 min-w-[5rem]">
+            <TabsTrigger value="commandes" className="py-1.5 flex-1 min-w-[5rem]">
               <ShoppingCart className="h-3 w-3 mr-1" />Commandes
             </TabsTrigger>
-            <TabsTrigger value="paiements" className="text-xs py-1.5 flex-1 min-w-[5rem]">
+            <TabsTrigger value="paiements" className="py-1.5 flex-1 min-w-[5rem]">
               <CreditCard className="h-3 w-3 mr-1" />Paiements
             </TabsTrigger>
-            <TabsTrigger value="documents" className="text-xs py-1.5 flex-1 min-w-[3.5rem]">
+            <TabsTrigger value="documents" className="py-1.5 flex-1 min-w-[3.5rem]">
               <FileText className="h-3 w-3 mr-1" />Docs
             </TabsTrigger>
-            <TabsTrigger value="historique" className="text-xs py-1.5 flex-1 min-w-[3rem]">
+            <TabsTrigger value="historique" className="py-1.5 flex-1 min-w-[3rem]">
               <ClipboardList className="h-3 w-3 mr-1" />Log
             </TabsTrigger>
-            <TabsTrigger value="alertes" className="text-xs py-1.5 flex-1 min-w-[4rem]">
+            <TabsTrigger value="alertes" className="py-1.5 flex-1 min-w-[4rem]">
               Alertes
               {alerts.length > 0 && (
                 <span className="ml-1 rounded-full bg-red-500 text-white text-[0.6rem] px-1 py-0.5 leading-none">
@@ -215,7 +215,7 @@ export const SupplierDetailSheet = ({ supplier, open, onOpenChange, onEdit }: Pr
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="actions" className="text-xs py-1.5 flex-1 min-w-[4rem]">Actions</TabsTrigger>
+            <TabsTrigger value="actions" className="py-1.5 flex-1 min-w-[4rem]">Actions</TabsTrigger>
           </TabsList>
 
           {/* ── Performance ─────────────────────────────────────────────── */}
