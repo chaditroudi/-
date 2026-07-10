@@ -163,9 +163,21 @@
   }
 
   /* Density settings */
-  :root[data-ui-density='compact']    { font-size: 14.5px; }
-  :root[data-ui-density='comfortable']{ font-size: 15.5px; }
-  :root[data-ui-density='spacious']   { font-size: 16.5px; }
+  :root[data-ui-density='compact']    { font-size: 15px; }
+  :root[data-ui-density='comfortable']{ font-size: 16px; }
+  :root[data-ui-density='spacious']   { font-size: 17px; }
+
+  /* Touch devices: guarantee comfortable hit areas on small toggle controls */
+  @media (pointer: coarse) {
+    [role='checkbox'], [role='radio'], [role='switch'] {
+      position: relative;
+    }
+    [role='checkbox']::after, [role='radio']::after, [role='switch']::after {
+      content: '';
+      position: absolute;
+      inset: -10px;
+    }
+  }
 
   /* Reduce motion */
   :root[data-ui-animations='off'] *,
