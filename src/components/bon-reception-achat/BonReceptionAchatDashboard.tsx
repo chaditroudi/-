@@ -88,15 +88,15 @@ export function BonReceptionAchatDashboard() {
       {/* ── Top bar ── */}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 min-w-48">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            className="pl-9 h-10 text-sm"
+            className="pl-10"
             placeholder="Chercher par fournisseur, N° bon ou N° lot…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <Button onClick={openCreate} className="h-10 gap-2 text-sm">
+        <Button onClick={openCreate} className="gap-2">
           <Plus className="h-4 w-4" /> Nouveau bon
         </Button>
       </div>
@@ -163,36 +163,36 @@ export function BonReceptionAchatDashboard() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-9 gap-1.5 rounded-xl text-xs text-emerald-700 border-emerald-300 hover:bg-emerald-50"
+                      className="gap-1.5 rounded-xl text-emerald-700 border-emerald-300 hover:bg-emerald-50"
                       onClick={() => handleCreateLot(b)}
                       disabled={createBatch.isPending}
                     >
-                      <ClipboardPlus className="h-3.5 w-3.5" />
+                      <ClipboardPlus className="h-4 w-4" />
                       Créer lot
                     </Button>
                   )}
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-9 gap-1.5 rounded-xl text-xs"
+                    className="gap-1.5 rounded-xl"
                     onClick={() => printBonReceptionAchat(b)}
                   >
-                    <Printer className="h-3.5 w-3.5" />
+                    <Printer className="h-4 w-4" />
                     Imprimer
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-9 gap-1.5 rounded-xl text-xs"
+                    className="gap-1.5 rounded-xl"
                     onClick={() => openEdit(b)}
                   >
-                    <Pencil className="h-3.5 w-3.5" />
+                    <Pencil className="h-4 w-4" />
                     Modifier
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-9 w-9 rounded-xl p-0 text-destructive hover:bg-destructive/10"
+                    className="h-10 w-10 rounded-xl p-0 text-destructive hover:bg-destructive/10"
                     onClick={() => setDeleteTarget(b)}
                     aria-label="Supprimer"
                   >
@@ -213,7 +213,7 @@ export function BonReceptionAchatDashboard() {
               {editing ? `Modifier · ${editing.numero_bon}` : "Nouveau bon de réception achat"}
             </SheetTitle>
           </SheetHeader>
-          <div className="flex-1 overflow-hidden px-6 pt-4">
+          <div className="flex-1 overflow-hidden px-6 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
             <BonReceptionAchatForm
               initial={editing ?? undefined}
               onSubmit={handleSubmit}
