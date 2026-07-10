@@ -123,7 +123,7 @@ const BranchSection = ({
                 placeholder="—"
                 value={(value[field as keyof BranchLine] as number | null) ?? ""}
                 onChange={(e) => set(field, e.target.value)}
-                className="h-8 text-sm"
+                className="mt-1"
               />
             </div>
           );
@@ -132,7 +132,7 @@ const BranchSection = ({
       {withPaletteAjout ? (
         <div className="flex gap-3">
           <div className="flex-1">
-            <Label htmlFor={`${sectionId}-ajout`} className="text-xs">Palette ajout (+)</Label>
+            <Label htmlFor={`${sectionId}-ajout`} className="text-[13px]">Palette ajout (+)</Label>
             <Input
               id={`${sectionId}-ajout`}
               type="number"
@@ -142,7 +142,7 @@ const BranchSection = ({
             />
           </div>
           <div className="flex-1">
-            <Label htmlFor={`${sectionId}-retrait`} className="text-xs">Palette retrait (−)</Label>
+            <Label htmlFor={`${sectionId}-retrait`} className="text-[13px]">Palette retrait (−)</Label>
             <Input
               id={`${sectionId}-retrait`}
               type="number"
@@ -152,7 +152,7 @@ const BranchSection = ({
             />
           </div>
           <div className="flex-1">
-            <Label htmlFor={`${sectionId}-obs`} className="text-xs">Observation</Label>
+            <Label htmlFor={`${sectionId}-obs`} className="text-[13px]">Observation</Label>
             <Input
               id={`${sectionId}-obs`}
               value={value.observation ?? ""}
@@ -164,7 +164,7 @@ const BranchSection = ({
       ) : (
         <div className="flex gap-3">
           <div className="flex-1">
-            <Label htmlFor={`${sectionId}-palette`} className="text-xs">Nbre palette</Label>
+            <Label htmlFor={`${sectionId}-palette`} className="text-[13px]">Nbre palette</Label>
             <Input
               id={`${sectionId}-palette`}
               type="number"
@@ -174,7 +174,7 @@ const BranchSection = ({
             />
           </div>
           <div className="flex-[2]">
-            <Label htmlFor={`${sectionId}-obs`} className="text-xs">Observation</Label>
+            <Label htmlFor={`${sectionId}-obs`} className="text-[13px]">Observation</Label>
             <Input
               id={`${sectionId}-obs`}
               value={value.observation ?? ""}
@@ -284,9 +284,9 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
     if (step === 0) return (
       <div className="space-y-4">
         <div>
-          <Label htmlFor="f-fournisseur" className="text-xs">Fournisseur</Label>
+          <Label htmlFor="f-fournisseur" className="text-[13px]">Fournisseur</Label>
           <Select value={fournisseurId} onValueChange={setFournisseurId}>
-            <SelectTrigger id="f-fournisseur" className="h-10 text-sm mt-1">
+            <SelectTrigger id="f-fournisseur" className="mt-1">
               <SelectValue placeholder="Choisir un fournisseur…" />
             </SelectTrigger>
             <SelectContent>
@@ -299,17 +299,17 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <Label htmlFor="f-date" className="text-xs">Date de réception</Label>
-            <Input id="f-date" type="date" value={dateReception} onChange={(e) => setDateReception(e.target.value)} className="h-10 text-sm mt-1" />
+            <Label htmlFor="f-date" className="text-[13px]">Date de réception</Label>
+            <Input id="f-date" type="date" value={dateReception} onChange={(e) => setDateReception(e.target.value)} className="mt-1" />
           </div>
           <div>
-            <Label htmlFor="f-lot" className="text-xs">N° de Lot</Label>
-            <Input id="f-lot" value={numeroLot} onChange={(e) => setNumeroLot(e.target.value)} className="h-10 text-sm mt-1" />
+            <Label htmlFor="f-lot" className="text-[13px]">N° de Lot</Label>
+            <Input id="f-lot" value={numeroLot} onChange={(e) => setNumeroLot(e.target.value)} className="mt-1" />
           </div>
           <div>
-            <Label htmlFor="f-region" className="text-xs">Région</Label>
+            <Label htmlFor="f-region" className="text-[13px]">Région</Label>
             <Select value={region} onValueChange={setRegion}>
-              <SelectTrigger id="f-region" className="h-10 text-sm mt-1"><SelectValue /></SelectTrigger>
+              <SelectTrigger id="f-region" className="mt-1"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="el_jirid">El Jirid</SelectItem>
                 <SelectItem value="kebilli">Kebilli</SelectItem>
@@ -318,9 +318,9 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
             </Select>
           </div>
           <div>
-            <Label htmlFor="f-statut" className="text-xs">Statut</Label>
+            <Label htmlFor="f-statut" className="text-[13px]">Statut</Label>
             <Select value={statut} onValueChange={setStatut}>
-              <SelectTrigger id="f-statut" className="h-10 text-sm mt-1"><SelectValue /></SelectTrigger>
+              <SelectTrigger id="f-statut" className="mt-1"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="brouillon">Brouillon</SelectItem>
                 <SelectItem value="valide">Validé</SelectItem>
@@ -341,12 +341,12 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
           <CollapsibleContent className="space-y-3 pt-3">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label htmlFor="f-annee" className="text-xs">Année</Label>
-                <Input id="f-annee" value={annee} onChange={(e) => setAnnee(e.target.value)} className="h-8 text-sm mt-1" />
+                <Label htmlFor="f-annee" className="text-[13px]">Année</Label>
+                <Input id="f-annee" value={annee} onChange={(e) => setAnnee(e.target.value)} className="mt-1" />
               </div>
               <div>
-                <Label htmlFor="f-heure" className="text-xs">Heure arrivée</Label>
-                <Input id="f-heure" type="time" value={heureArrivee} onChange={(e) => setHeureArrivee(e.target.value)} className="h-8 text-sm mt-1" />
+                <Label htmlFor="f-heure" className="text-[13px]">Heure arrivée</Label>
+                <Input id="f-heure" type="time" value={heureArrivee} onChange={(e) => setHeureArrivee(e.target.value)} className="mt-1" />
               </div>
             </div>
             <div className="flex gap-6">
@@ -361,44 +361,44 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label htmlFor="f-expedition" className="text-xs">N° Bon d&apos;expédition</Label>
-                <Input id="f-expedition" value={numeroExpedition} onChange={(e) => setNumeroExpedition(e.target.value)} className="h-8 text-sm mt-1" />
+                <Label htmlFor="f-expedition" className="text-[13px]">N° Bon d&apos;expédition</Label>
+                <Input id="f-expedition" value={numeroExpedition} onChange={(e) => setNumeroExpedition(e.target.value)} className="mt-1" />
               </div>
               <div>
-                <Label htmlFor="f-lieu-exp" className="text-xs">Lieu expédition</Label>
-                <Input id="f-lieu-exp" value={lieuExpedition} onChange={(e) => setLieuExpedition(e.target.value)} className="h-8 text-sm mt-1" />
+                <Label htmlFor="f-lieu-exp" className="text-[13px]">Lieu expédition</Label>
+                <Input id="f-lieu-exp" value={lieuExpedition} onChange={(e) => setLieuExpedition(e.target.value)} className="mt-1" />
               </div>
               <div>
-                <Label htmlFor="f-fournisseur-nom" className="text-xs">Nom fournisseur (libre)</Label>
-                <Input id="f-fournisseur-nom" value={fournisseurNom} onChange={(e) => setFournisseurNom(e.target.value)} className="h-8 text-sm mt-1" />
+                <Label htmlFor="f-fournisseur-nom" className="text-[13px]">Nom fournisseur (libre)</Label>
+                <Input id="f-fournisseur-nom" value={fournisseurNom} onChange={(e) => setFournisseurNom(e.target.value)} className="mt-1" />
               </div>
               <div>
-                <Label htmlFor="f-facture" className="text-xs">N° Facture</Label>
-                <Input id="f-facture" value={numeroFacture} onChange={(e) => setNumeroFacture(e.target.value)} className="h-8 text-sm mt-1" />
+                <Label htmlFor="f-facture" className="text-[13px]">N° Facture</Label>
+                <Input id="f-facture" value={numeroFacture} onChange={(e) => setNumeroFacture(e.target.value)} className="mt-1" />
               </div>
               <div>
-                <Label htmlFor="f-camion" className="text-xs">N° Camion</Label>
-                <Input id="f-camion" value={numeroCamion} onChange={(e) => setNumeroCamion(e.target.value)} placeholder="ex. 71 74 9032" className="h-8 text-sm mt-1" />
+                <Label htmlFor="f-camion" className="text-[13px]">N° Camion</Label>
+                <Input id="f-camion" value={numeroCamion} onChange={(e) => setNumeroCamion(e.target.value)} placeholder="ex. 71 74 9032" className="mt-1" />
               </div>
               <div>
-                <Label htmlFor="f-chauffeur" className="text-xs">Chauffeur</Label>
-                <Input id="f-chauffeur" value={nomChauffeur} onChange={(e) => setNomChauffeur(e.target.value)} className="h-8 text-sm mt-1" />
+                <Label htmlFor="f-chauffeur" className="text-[13px]">Chauffeur</Label>
+                <Input id="f-chauffeur" value={nomChauffeur} onChange={(e) => setNomChauffeur(e.target.value)} className="mt-1" />
               </div>
               <div>
-                <Label htmlFor="f-lieu-rec" className="text-xs">Lieu de réception</Label>
-                <Input id="f-lieu-rec" value={lieuReception} onChange={(e) => setLieuReception(e.target.value)} className="h-8 text-sm mt-1" />
+                <Label htmlFor="f-lieu-rec" className="text-[13px]">Lieu de réception</Label>
+                <Input id="f-lieu-rec" value={lieuReception} onChange={(e) => setLieuReception(e.target.value)} className="mt-1" />
               </div>
               <div>
-                <Label htmlFor="f-responsable" className="text-xs">Responsable réception</Label>
-                <Input id="f-responsable" value={responsableReception} onChange={(e) => setResponsableReception(e.target.value)} className="h-8 text-sm mt-1" />
+                <Label htmlFor="f-responsable" className="text-[13px]">Responsable réception</Label>
+                <Input id="f-responsable" value={responsableReception} onChange={(e) => setResponsableReception(e.target.value)} className="mt-1" />
               </div>
               <div>
-                <Label htmlFor="f-qcr" className="text-xs">N° Rapport QCR</Label>
-                <Input id="f-qcr" value={numeroRapportQcr} onChange={(e) => setNumeroRapportQcr(e.target.value)} className="h-8 text-sm mt-1" />
+                <Label htmlFor="f-qcr" className="text-[13px]">N° Rapport QCR</Label>
+                <Input id="f-qcr" value={numeroRapportQcr} onChange={(e) => setNumeroRapportQcr(e.target.value)} className="mt-1" />
               </div>
               <div>
-                <Label htmlFor="f-palette" className="text-xs">N° Fiche palette</Label>
-                <Input id="f-palette" value={numeroFichePalette} onChange={(e) => setNumeroFichePalette(e.target.value)} className="h-8 text-sm mt-1" />
+                <Label htmlFor="f-palette" className="text-[13px]">N° Fiche palette</Label>
+                <Input id="f-palette" value={numeroFichePalette} onChange={(e) => setNumeroFichePalette(e.target.value)} className="mt-1" />
               </div>
             </div>
           </CollapsibleContent>
@@ -446,7 +446,7 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
           {casse.map((row) => (
             <div key={row._key} className="flex items-end gap-2">
               <div className="flex-1">
-                <Label htmlFor={`casse-nature-${row._key}`} className="text-xs">Nature</Label>
+                <Label htmlFor={`casse-nature-${row._key}`} className="text-[13px]">Nature</Label>
                 <Input
                   id={`casse-nature-${row._key}`}
                   value={row.nature}
@@ -455,7 +455,7 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
                 />
               </div>
               <div className="w-28">
-                <Label htmlFor={`casse-qty-${row._key}`} className="text-xs">Quantité</Label>
+                <Label htmlFor={`casse-qty-${row._key}`} className="text-[13px]">Quantité</Label>
                 <Input
                   id={`casse-qty-${row._key}`}
                   type="number"
