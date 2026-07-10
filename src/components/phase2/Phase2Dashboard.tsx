@@ -47,20 +47,17 @@ export function Phase2Dashboard({ currentUser = 'Utilisateur', defaultModule = '
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
-        <div>
-          <h2 className="text-lg font-bold">Traitement & Préparation — Phase 2</h2>
-        </div>
-        <span className="text-xs text-muted-foreground border rounded px-2 py-0.5">MES Royal Palm</span>
+        <h2 className="text-lg font-bold">Traitement & Préparation — Phase 2</h2>
         {pipeline.waiting.length > 0 && (
           <button
             onClick={() => setActiveModule('pipeline')}
-            className="text-xs bg-amber-100 text-amber-700 border border-amber-300 rounded-full px-2 py-0.5 font-semibold hover:bg-amber-200 transition-colors"
+            className="min-h-[36px] rounded-full border border-amber-300 bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 transition-colors hover:bg-amber-200"
           >
             {pipeline.waiting.length} lot(s) en attente Phase 1 →
           </button>
         )}
         {(kpis.urgence > 0 || kpis.critique > 0) && (
-          <span className="text-xs bg-red-100 text-red-700 border border-red-300 rounded-full px-2 py-0.5 animate-pulse font-semibold">
+          <span className="animate-pulse rounded-full border border-red-300 bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
             {kpis.urgence + kpis.critique} alerte(s) critique(s)
           </span>
         )}
@@ -68,22 +65,22 @@ export function Phase2Dashboard({ currentUser = 'Utilisateur', defaultModule = '
           <Button
             size="sm"
             variant="outline"
-            className="h-9 flex-1 text-xs sm:flex-none"
+            className="flex-1 sm:flex-none"
             onClick={() => printPhase2DailyReport({ fumigation: allFum, cleaning: allNet, hydration: allHyd, triage: allTri })}
           >
-            <Printer className="h-3.5 w-3.5 mr-1.5" />
+            <Printer className="h-4 w-4 mr-1.5" />
             Rapport J
           </Button>
-          <div className="flex flex-1 gap-1 sm:flex-none">
+          <div className="flex flex-1 gap-1.5 sm:flex-none">
             <Input
               placeholder="N° lot…"
               value={traceabilityLot}
               onChange={(e) => setTraceabilityLot(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && traceabilityLot && openTraceability()}
-              className="h-8 w-full text-xs sm:w-36"
+              className="h-9 w-full sm:w-40"
             />
-            <Button size="sm" variant="outline" className="h-9 px-2" onClick={openTraceability} disabled={!traceabilityLot.trim()}>
-              <Search className="h-3.5 w-3.5" />
+            <Button size="sm" variant="outline" className="px-2.5" onClick={openTraceability} disabled={!traceabilityLot.trim()}>
+              <Search className="h-4 w-4" />
             </Button>
           </div>
         </div>
