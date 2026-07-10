@@ -99,7 +99,7 @@ const NotificationItem = ({ notification, onSelect, onMarkRead, locale }: Notifi
           <button
             type="button"
             aria-label="Marquer comme lu"
-            className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-muted-foreground/50 transition-colors hover:bg-muted hover:text-foreground"
+            className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground/50 transition-colors hover:bg-muted hover:text-foreground"
             onClick={(e) => { e.stopPropagation(); onMarkRead(notification.id); }}
           >
             <Check className="h-3.5 w-3.5" />
@@ -171,9 +171,9 @@ const NotificationDetailView = ({
           type="button"
           onClick={onBack}
           aria-label="Retour à la liste"
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-background/80 text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-background/80 text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
         >
-          <ArrowLeft className="h-3.5 w-3.5" />
+          <ArrowLeft className="h-4 w-4" />
         </button>
 
         <div className={cn('flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border', cfg.border)}>
@@ -373,11 +373,11 @@ export const NotificationCenter = () => {
           size="icon"
           aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} non lues)` : ''}`}
           className={cn(
-            'relative h-7 w-7 rounded-[9px] text-muted-foreground/65 hover:bg-card hover:text-foreground hover:shadow-xs',
+            'relative h-9 w-9 rounded-[9px] text-muted-foreground/70 hover:bg-card hover:text-foreground hover:shadow-xs',
             livePulseActive && 'border-primary/40 bg-primary/5',
           )}
         >
-          <Bell className="h-3.5 w-3.5" />
+          <Bell className="h-4 w-4" />
           {livePulseActive && (
             <span className="absolute inset-0 rounded-[9px] border border-primary/30 animate-pulse" />
           )}
@@ -390,7 +390,7 @@ export const NotificationCenter = () => {
       </PopoverTrigger>
 
       {/* ── Panel ── */}
-      <PopoverContent className="w-[400px] p-0 shadow-xl" align="end" sideOffset={8}>
+      <PopoverContent className="w-[min(400px,calc(100vw-1rem))] p-0 shadow-xl" align="end" sideOffset={8}>
 
         {selectedNotification ? (
           // ── Detail view ──────────────────────────────────────────────────
@@ -440,9 +440,9 @@ export const NotificationCenter = () => {
                   type="button"
                   aria-label="Fermer"
                   onClick={() => setOpen(false)}
-                  className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground/60 transition-colors hover:bg-muted hover:text-foreground"
+                  className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground/60 transition-colors hover:bg-muted hover:text-foreground"
                 >
-                  <X className="h-3.5 w-3.5" />
+                  <X className="h-4 w-4" />
                 </button>
               </div>
             </div>

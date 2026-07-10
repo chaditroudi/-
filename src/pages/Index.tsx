@@ -4,6 +4,7 @@ import { WorkflowNavigation } from "@/components/layout/WorkflowNavigation";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { BrandLogo } from "@/components/branding/BrandLogo";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 // HomePage is always the default tab — keep eager so it renders without a Suspense flash.
 import { HomePage } from "@/components/home/HomePage";
 import { useSuppliers } from "@/hooks/useSuppliers";
@@ -306,19 +307,34 @@ const Index = () => {
       case 'alerts':
         return <AlertsDashboard />;
       case 'production':
+        // Sub-tabs instead of stacking 4 dashboards in one endless scroll.
         return (
-          <div className="space-y-6">
+          <Tabs defaultValue={features.phase2_enabled ? 'phase2' : 'overview'} className="w-full">
+            <TabsList className="mb-4 h-auto w-full flex-wrap justify-start gap-1 sm:w-auto">
+              {features.phase2_enabled && <TabsTrigger value="phase2">Phase 2</TabsTrigger>}
+              <TabsTrigger value="overview">Vue d&apos;ensemble</TabsTrigger>
+              <TabsTrigger value="flux">Flux</TabsTrigger>
+              <TabsTrigger value="orders">Ordres de fabrication</TabsTrigger>
+            </TabsList>
             {features.phase2_enabled && (
-              <Phase2Dashboard
-                currentUser={profile?.full_name ?? workspaceProfile.workspaceLabel}
-                defaultModule={phase2PreselectedLot ? 'pipeline' : 'fumigation'}
-                preSelectedLot={phase2PreselectedLot}
-              />
+              <TabsContent value="phase2">
+                <Phase2Dashboard
+                  currentUser={profile?.full_name ?? workspaceProfile.workspaceLabel}
+                  defaultModule={phase2PreselectedLot ? 'pipeline' : 'fumigation'}
+                  preSelectedLot={phase2PreselectedLot}
+                />
+              </TabsContent>
             )}
-            <ProductionDashboard orders={productionOrders} />
-            <ProductionFluxDashboard />
-            <ProductionOrdersList orders={productionOrders} receptions={receptions} />
-          </div>
+            <TabsContent value="overview">
+              <ProductionDashboard orders={productionOrders} />
+            </TabsContent>
+            <TabsContent value="flux">
+              <ProductionFluxDashboard />
+            </TabsContent>
+            <TabsContent value="orders">
+              <ProductionOrdersList orders={productionOrders} receptions={receptions} />
+            </TabsContent>
+          </Tabs>
         );
       case 'packaging':
         return (
