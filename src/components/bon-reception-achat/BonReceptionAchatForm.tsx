@@ -47,17 +47,17 @@ const StepIndicator = ({ current }: { current: number }) => (
           <div className="flex flex-col items-center gap-1">
             <div
               className={cn(
-                "flex h-7 w-7 items-center justify-center rounded-full border-2 text-xs font-bold transition-all",
+                "flex h-9 w-9 items-center justify-center rounded-full border-2 text-sm font-bold transition-all",
                 done   && "border-emerald-500 bg-emerald-500 text-white",
                 active && "border-primary bg-primary text-white",
                 !done && !active && "border-border bg-background text-muted-foreground",
               )}
             >
-              {done ? <Check className="h-3.5 w-3.5" /> : i + 1}
+              {done ? <Check className="h-4 w-4" /> : i + 1}
             </div>
             <span
               className={cn(
-                "text-[10px] font-medium whitespace-nowrap",
+                "text-xs font-medium whitespace-nowrap",
                 active ? "text-primary" : done ? "text-emerald-600" : "text-muted-foreground",
               )}
             >
@@ -68,7 +68,7 @@ const StepIndicator = ({ current }: { current: number }) => (
           {!isLast && (
             <div
               className={cn(
-                "mx-2 mb-4 h-0.5 w-10 transition-colors sm:w-16",
+                "mx-2 mb-5 h-0.5 w-10 transition-colors sm:w-16",
                 i < current ? "bg-emerald-400" : "bg-border",
               )}
             />
@@ -108,17 +108,18 @@ const BranchSection = ({
   return (
     <div className="space-y-3">
       <h4 className="text-sm font-semibold text-foreground">{title}</h4>
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
         {(["gc", "rp", "gcm", "l", "poid_brut", "poid_net"] as const).map((field) => {
           const inputId = `${sectionId}-${field}`;
           return (
             <div key={field}>
-              <Label htmlFor={inputId} className="text-xs font-medium text-muted-foreground">
+              <Label htmlFor={inputId} className="text-[13px] font-medium text-muted-foreground">
                 {BRANCH_FIELD_LABELS[field]}
               </Label>
               <Input
                 id={inputId}
                 type="number"
+                inputMode="decimal"
                 step="0.01"
                 placeholder="—"
                 value={(value[field as keyof BranchLine] as number | null) ?? ""}
@@ -333,8 +334,8 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
         {/* Optional admin details */}
         <Collapsible open={showDetails} onOpenChange={setShowDetails}>
           <CollapsibleTrigger asChild>
-            <button type="button" className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors mt-1">
-              <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", showDetails && "rotate-180")} />
+            <button type="button" className="flex min-h-[44px] items-center gap-1.5 text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors mt-1">
+              <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", showDetails && "rotate-180")} />
               {showDetails ? "Masquer les détails" : "Ajouter des détails administratifs"}
             </button>
           </CollapsibleTrigger>
@@ -436,8 +437,8 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <h4 className="text-sm font-semibold">Casse</h4>
-            <Button variant="outline" size="sm" onClick={addCasse} className="h-7 gap-1 text-xs">
-              <Plus className="h-3 w-3" /> Ajouter
+            <Button variant="outline" size="sm" onClick={addCasse} className="gap-1.5">
+              <Plus className="h-4 w-4" /> Ajouter
             </Button>
           </div>
           {casse.length === 0 && (
@@ -468,10 +469,10 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
                 variant="ghost"
                 size="sm"
                 onClick={() => removeCasse(row._key)}
-                className="h-8 w-8 p-0 text-destructive"
+                className="h-11 w-11 p-0 text-destructive"
                 aria-label="Supprimer cette ligne"
               >
-                <Trash2 className="h-3.5 w-3.5" />
+                <Trash2 className="h-4 w-4" />
               </Button>
             </div>
           ))}
