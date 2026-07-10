@@ -164,11 +164,11 @@ export const HomePage = ({ onNavigate, accessibleTabs, metrics }: HomePageProps)
       {/* ── Page header ─────────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/50 pb-4">
         <div>
-          <p className="text-[10.5px] font-semibold uppercase tracking-widest text-muted-foreground/50">Accueil</p>
-          <h1 className="mt-0.5 text-xl font-semibold text-foreground">Priorités du jour</h1>
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/60">Accueil</p>
+          <h1 className="mt-0.5 text-2xl font-semibold text-foreground">Priorités du jour</h1>
         </div>
         {PrimaryActionIcon && (
-          <Button onClick={() => onNavigate(primaryActionTab)} className="h-9 gap-1.5 rounded-xl">
+          <Button onClick={() => onNavigate(primaryActionTab)} className="gap-2 rounded-xl">
             <PrimaryActionIcon className="h-4 w-4" />
             {APP_TAB_META[primaryActionTab]?.label}
           </Button>
@@ -238,12 +238,12 @@ export const HomePage = ({ onNavigate, accessibleTabs, metrics }: HomePageProps)
                   type="button"
                   onClick={() => onNavigate(link.id)}
                   className={cn(
-                    "flex flex-col gap-1.5 rounded-2xl border p-3 text-left transition-all hover:-translate-y-0.5 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    "flex min-h-[76px] flex-col gap-1.5 rounded-2xl border p-3.5 text-left transition-all hover:-translate-y-0.5 hover:shadow-sm active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     link.bg,
                   )}
                 >
                   <div className="flex items-center justify-between">
-                    <link.icon className={cn("h-4 w-4", link.accent)} />
+                    <link.icon className={cn("h-5 w-5", link.accent)} />
                     {link.count !== null && link.count > 0 && (
                       <span className="text-lg font-semibold text-foreground">{link.count}</span>
                     )}
