@@ -32,7 +32,6 @@ const emptyBranchSeche = (): BranchSeche => ({
 
 const toNum = (v: string) => (v === "" ? null : Number(v));
 
-// ── Step indicator ────────────────────────────────────────────────────────────
 
 const STEPS = ["Qui & Quand", "Quantités reçues", "Terminer"] as const;
 
