@@ -158,10 +158,10 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
           isActive={isActive}
           tooltip={item.title}
           className={cn(
-            "group/item relative h-9 gap-2.5 rounded-xl px-2.5 text-[12.5px] font-medium transition-all duration-200",
+            "group/item relative h-11 gap-3 rounded-xl px-2.5 text-[13.5px] font-medium transition-all duration-200",
             isActive
               ? "bg-white/12 text-white"
-              : "text-white/45 hover:bg-white/7 hover:text-white/90",
+              : "text-white/65 hover:bg-white/7 hover:text-white",
           )}
         >
           {/* Glowing left indicator */}
@@ -175,12 +175,12 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
           {/* Icon container */}
           <span
             className={cn(
-              "flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-xl border transition-all duration-200",
+              "flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-xl border transition-all duration-200",
               isActive
                 ? "border-emerald-500/30 bg-emerald-500/16 text-emerald-300"
                 : cn(
-                    "border-white/7 text-white/38",
-                    "group-hover/item:border-white/14 group-hover/item:bg-white/8 group-hover/item:text-white/90",
+                    "border-white/7 text-white/60",
+                    "group-hover/item:border-white/14 group-hover/item:bg-white/8 group-hover/item:text-white",
                   ),
               isAlerts && hasAlerts && !isActive && "border-amber-400/25 text-amber-300/90",
             )}
@@ -190,7 +190,7 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
                 : undefined
             }
           >
-            <item.icon className="h-[15px] w-[15px] transition-transform duration-200 group-hover/item:scale-110" />
+            <item.icon className="h-[17px] w-[17px] transition-transform duration-200 group-hover/item:scale-110" />
           </span>
 
           <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
@@ -230,10 +230,10 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
 
           {/* Name */}
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
-            <p className="text-[9px] font-extrabold uppercase tracking-[0.28em] text-emerald-400/50">
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.24em] text-emerald-400/70">
               {companyShortName}
             </p>
-            <p className="truncate text-[13px] font-semibold leading-snug text-white/88">
+            <p className="truncate text-[14px] font-semibold leading-snug text-white/92">
               {companyName}
             </p>
           </div>
@@ -255,12 +255,12 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
                 onClick={() => toggleSection(section.key)}
                 className="group-data-[collapsible=icon]:hidden mb-0.5 flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 transition-colors hover:bg-white/4"
               >
-                <span className="text-[9px] font-extrabold uppercase tracking-[0.26em] text-white/22">
+                <span className="text-[10.5px] font-extrabold uppercase tracking-[0.2em] text-white/45">
                   {section.label}
                 </span>
                 <ChevronDown
                   className={cn(
-                    "h-3 w-3 text-white/18 transition-transform duration-200",
+                    "h-3.5 w-3.5 text-white/40 transition-transform duration-200",
                     !isOpen && "-rotate-90",
                   )}
                 />
@@ -296,21 +296,21 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
                   isActive={activeTab === "settings"}
                   tooltip="Paramètres"
                   className={cn(
-                    "group/item h-9 gap-2.5 rounded-xl px-2.5 text-[12.5px] font-medium transition-all duration-200",
+                    "group/item h-11 gap-3 rounded-xl px-2.5 text-[13.5px] font-medium transition-all duration-200",
                     activeTab === "settings"
                       ? "bg-white/12 text-white"
-                      : "text-white/45 hover:bg-white/7 hover:text-white/90",
+                      : "text-white/65 hover:bg-white/7 hover:text-white",
                   )}
                 >
                   <span
                     className={cn(
-                      "flex h-[30px] w-[30px] items-center justify-center rounded-xl border transition-all duration-200",
+                      "flex h-[34px] w-[34px] items-center justify-center rounded-xl border transition-all duration-200",
                       activeTab === "settings"
                         ? "border-emerald-500/30 bg-emerald-500/16 text-emerald-300"
-                        : "border-white/7 text-white/38 group-hover/item:border-white/14 group-hover/item:bg-white/8 group-hover/item:text-white/90",
+                        : "border-white/7 text-white/60 group-hover/item:border-white/14 group-hover/item:bg-white/8 group-hover/item:text-white",
                     )}
                   >
-                    <Settings className="h-[15px] w-[15px] transition-transform duration-200 group-hover/item:scale-110" />
+                    <Settings className="h-[17px] w-[17px] transition-transform duration-200 group-hover/item:scale-110" />
                   </span>
                   <span className="group-data-[collapsible=icon]:hidden">Paramètres</span>
                 </SidebarMenuButton>

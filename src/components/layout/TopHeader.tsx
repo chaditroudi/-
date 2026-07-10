@@ -72,18 +72,18 @@ export const TopHeader = ({
 
   return (
     <header
-      className="sticky top-0 z-40 flex min-h-[52px] flex-wrap items-center gap-2 border-b border-border/60 bg-card/95 px-3 py-1.5 backdrop-blur-xl sm:flex-nowrap sm:px-4 sm:py-0 lg:px-5"
+      className="sticky top-0 z-40 flex min-h-[60px] flex-wrap items-center gap-2 border-b border-border/60 bg-card/95 px-3 py-1.5 backdrop-blur-xl sm:flex-nowrap sm:px-4 sm:py-0 lg:px-5"
       style={{
         boxShadow: "0 1px 0 0 hsl(var(--border) / 0.7), 0 4px 24px -4px hsl(220 26% 10% / 0.07)",
       }}
     >
       {/* Sidebar toggle */}
-      <SidebarTrigger className="h-8 w-8 shrink-0 rounded-lg text-muted-foreground/60 hover:bg-muted hover:text-foreground" />
+      <SidebarTrigger className="h-10 w-10 shrink-0 rounded-lg text-muted-foreground/70 hover:bg-muted hover:text-foreground [&_svg]:h-5 [&_svg]:w-5" />
 
       <Separator orientation="vertical" className="hidden h-4 bg-border/50 sm:block" />
 
-      {/* Brand chip */}
-      <div className="flex items-center gap-2 rounded-xl border border-border/60 bg-background/80 px-2 py-1.5 backdrop-blur-sm shadow-xs">
+      {/* Brand chip — mobile/tablet only; the sidebar already carries the brand on desktop */}
+      <div className="flex items-center gap-2 rounded-xl border border-border/60 bg-background/80 px-2 py-1.5 backdrop-blur-sm shadow-xs lg:hidden">
         <div
           className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-primary/18 bg-card p-1"
           style={{ boxShadow: "0 0 10px -2px hsl(var(--primary) / 0.22)" }}
@@ -104,15 +104,15 @@ export const TopHeader = ({
       <div className="order-3 flex min-w-0 basis-full items-center gap-2.5 pb-1.5 sm:order-none sm:basis-auto sm:pb-0">
         <div className="min-w-0">
           {sectionLabel && (
-            <p className="hidden truncate text-[9.5px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40 sm:block">
+            <p className="hidden truncate text-[10.5px] font-bold uppercase tracking-[0.18em] text-muted-foreground/55 sm:block">
               {sectionLabel}
             </p>
           )}
-          <h2 className="truncate text-[14.5px] font-semibold leading-tight tracking-[-0.015em] text-foreground sm:text-[15px]">
+          <h2 className="truncate text-[16px] font-semibold leading-tight tracking-[-0.015em] text-foreground sm:text-[17px]">
             {pageTitle}
           </h2>
           {pageSubtitle && !sectionLabel && (
-            <p className="hidden truncate text-[11px] text-muted-foreground/55 sm:block">
+            <p className="hidden truncate text-[12.5px] text-muted-foreground/70 sm:block">
               {pageSubtitle}
             </p>
           )}
@@ -130,13 +130,11 @@ export const TopHeader = ({
       {/* ── Right zone ── */}
       <div className="ml-auto flex shrink-0 items-center gap-1.5">
 
-        {/* Date chip */}
-        <span className="hidden items-center gap-1.5 rounded-full border border-primary/18 bg-primary/8 px-2.5 py-1 text-[10.5px] font-semibold text-primary/72 sm:inline-flex">
-          <CalendarDays className="h-3 w-3 shrink-0" />
+        {/* Date chip — desktop only */}
+        <span className="hidden items-center gap-1.5 rounded-full border border-primary/18 bg-primary/8 px-2.5 py-1 text-[11.5px] font-semibold text-primary/80 xl:inline-flex">
+          <CalendarDays className="h-3.5 w-3.5 shrink-0" />
           {todayLabel}
         </span>
-
-        <Separator orientation="vertical" className="hidden h-4 bg-border/45 sm:block" />
 
         {/* Utility action pill */}
         <div className="flex items-center gap-0.5 rounded-xl border border-border/55 bg-muted/50 p-0.5">
