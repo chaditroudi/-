@@ -999,7 +999,7 @@ export function HRDashboard() {
   return (
     <div className="space-y-4">
       <Tabs defaultValue="pointages">
-        <TabsList className="h-9">
+        <TabsList className="h-auto">
           <TabsTrigger value="pointages" className="text-xs gap-1.5">
             <Clock className="h-3.5 w-3.5" />
             Pointages

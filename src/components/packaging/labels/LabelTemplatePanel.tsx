@@ -143,7 +143,7 @@ export function LabelTemplatePanel({ currentUser = 'Utilisateur' }: { currentUse
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <Tabs value={activeView} onValueChange={(v) => setActiveView(v as typeof activeView)}>
-          <TabsList className="h-8">
+          <TabsList className="h-auto">
             <TabsTrigger value="labels" className="text-xs h-7">
               <Tag className="h-3 w-3 mr-1.5" />
               Modèles d'étiquettes

@@ -48,7 +48,7 @@ export function PackagingDashboard({ currentUser = 'Utilisateur' }: Props) {
       )}
 
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="h-9 flex flex-wrap gap-0">
+        <TabsList className="h-auto flex flex-wrap gap-1">
           <TabsTrigger value="orders" className="text-xs gap-1.5">
             <ClipboardList className="h-3.5 w-3.5" />
             OF Conditionnement
