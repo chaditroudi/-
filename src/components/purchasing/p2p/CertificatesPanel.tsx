@@ -159,7 +159,7 @@ export const CertificatesPanel = ({ suppliers }: Props) => {
       <div className="flex items-center gap-2 flex-wrap">
         <h3 className="font-semibold text-base flex-1">Certificats fournisseurs</h3>
         <Select value={filterSupplierId} onValueChange={setFilterSupplierId}>
-          <SelectTrigger className="w-48 h-8 text-xs">
+          <SelectTrigger className="w-48 h-10 text-xs">
             <SelectValue placeholder="Tous les fournisseurs" />
           </SelectTrigger>
           <SelectContent>

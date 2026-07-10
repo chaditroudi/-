@@ -299,7 +299,7 @@ function ActiveRunBadge({ run }: { run: FluxRun }) {
           <div className="flex gap-1.5">
             <Button
               size="sm"
-              className="h-7 rounded-lg px-2 text-[11px] bg-emerald-600 hover:bg-emerald-700"
+              className="h-9 rounded-lg px-2 text-[11px] bg-emerald-600 hover:bg-emerald-700"
               onClick={() => setCompleteOpen(true)}
             >
               <CheckCircle2 className="mr-1 h-3 w-3" />
@@ -308,7 +308,7 @@ function ActiveRunBadge({ run }: { run: FluxRun }) {
             <Button
               size="sm"
               variant="ghost"
-              className="h-7 rounded-lg px-2 text-[11px] text-red-500 hover:bg-red-50 hover:text-red-700"
+              className="h-9 rounded-lg px-2 text-[11px] text-red-500 hover:bg-red-50 hover:text-red-700"
               onClick={() => cancel.mutate(run.id)}
               disabled={cancel.isPending}
             >
@@ -498,7 +498,7 @@ function ProductionLineCard({
               {!activeRun && (
                 <Button
                   size="sm"
-                  className="h-7 rounded-lg px-2.5 text-[11px]"
+                  className="h-9 rounded-lg px-2.5 text-[11px]"
                   style={{ backgroundColor: def.color }}
                   onClick={() => setStartOpen(true)}
                   disabled={isLoading}

@@ -356,7 +356,7 @@ export const RequisitionsList = ({
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                                  className="h-9 w-9 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                                   onClick={() => handleApproveClick(req)}
                                   title="Valider"
                                 >
@@ -365,7 +365,7 @@ export const RequisitionsList = ({
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                                  className="h-9 w-9 text-red-500 hover:text-red-600 hover:bg-red-50"
                                   onClick={() => handleRejectClick(req)}
                                   title="Refuser"
                                 >
@@ -379,7 +379,7 @@ export const RequisitionsList = ({
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                className="h-9 w-9 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                                 onClick={() => onCreateOrder(req)}
                                 title="Créer Bon de Commande"
                               >
@@ -392,7 +392,7 @@ export const RequisitionsList = ({
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8"
+                                className="h-9 w-9"
                                 onClick={() => onEdit(req)}
                                 title="Modifier"
                               >
@@ -405,7 +405,7 @@ export const RequisitionsList = ({
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8"
+                                className="h-9 w-9"
                                 onClick={() => setDeleteTarget(req)}
                                 title="Supprimer"
                               >

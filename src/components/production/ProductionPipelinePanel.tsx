@@ -64,7 +64,7 @@ function LotCard({ lot, stage, onLaunch }: { lot: AvailableLot; stage: Phase2Sta
         <Button
           size="sm"
           variant="outline"
-          className="h-7 text-[11px] shrink-0 gap-1 opacity-0 group-hover:opacity-100 transition-opacity border-orange-300 text-orange-700 hover:bg-orange-50"
+          className="h-9 text-[11px] shrink-0 gap-1 opacity-0 group-hover:opacity-100 transition-opacity border-orange-300 text-orange-700 hover:bg-orange-50"
           onClick={onLaunch}
         >
           <Flame className="h-3 w-3" />

@@ -68,7 +68,7 @@ export function Phase2Dashboard({ currentUser = 'Utilisateur', defaultModule = '
           <Button
             size="sm"
             variant="outline"
-            className="h-8 flex-1 text-xs sm:flex-none"
+            className="h-9 flex-1 text-xs sm:flex-none"
             onClick={() => printPhase2DailyReport({ fumigation: allFum, cleaning: allNet, hydration: allHyd, triage: allTri })}
           >
             <Printer className="h-3.5 w-3.5 mr-1.5" />
@@ -82,7 +82,7 @@ export function Phase2Dashboard({ currentUser = 'Utilisateur', defaultModule = '
               onKeyDown={(e) => e.key === 'Enter' && traceabilityLot && openTraceability()}
               className="h-8 w-full text-xs sm:w-36"
             />
-            <Button size="sm" variant="outline" className="h-8 px-2" onClick={openTraceability} disabled={!traceabilityLot.trim()}>
+            <Button size="sm" variant="outline" className="h-9 px-2" onClick={openTraceability} disabled={!traceabilityLot.trim()}>
               <Search className="h-3.5 w-3.5" />
             </Button>
           </div>

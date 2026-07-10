@@ -254,7 +254,7 @@ export function SystemAuditPanel() {
                 />
               </div>
               <Select value={moduleFilter} onValueChange={setModuleFilter}>
-                <SelectTrigger className="h-8 w-36 text-xs">
+                <SelectTrigger className="h-10 w-36 text-xs">
                   <SelectValue placeholder="Tous modules" />
                 </SelectTrigger>
                 <SelectContent>
@@ -265,7 +265,7 @@ export function SystemAuditPanel() {
                 </SelectContent>
               </Select>
               <Select value={eventFilter} onValueChange={setEventFilter}>
-                <SelectTrigger className="h-8 w-36 text-xs">
+                <SelectTrigger className="h-10 w-36 text-xs">
                   <SelectValue placeholder="Tous types" />
                 </SelectTrigger>
                 <SelectContent>

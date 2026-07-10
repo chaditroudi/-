@@ -393,14 +393,14 @@ export const LotGenealogyTree = ({ lotNumber, open, onOpenChange }: LotGenealogy
             </div>
 
             <div className="flex items-center gap-1.5">
-              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setZoom((z) => Math.min(z + 0.15, 2))} title="Zoom +">
+              <Button size="icon" variant="ghost" className="h-9 w-9" onClick={() => setZoom((z) => Math.min(z + 0.15, 2))} title="Zoom +">
                 <ZoomIn className="h-3.5 w-3.5" />
               </Button>
               <span className="text-xs text-muted-foreground w-10 text-center tabular-nums">{Math.round(zoom * 100)}%</span>
-              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setZoom((z) => Math.max(z - 0.15, 0.3))} title="Zoom -">
+              <Button size="icon" variant="ghost" className="h-9 w-9" onClick={() => setZoom((z) => Math.max(z - 0.15, 0.3))} title="Zoom -">
                 <ZoomOut className="h-3.5 w-3.5" />
               </Button>
-              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={resetView} title="Réinitialiser">
+              <Button size="icon" variant="ghost" className="h-9 w-9" onClick={resetView} title="Réinitialiser">
                 <RotateCcw className="h-3.5 w-3.5" />
               </Button>
             </div>

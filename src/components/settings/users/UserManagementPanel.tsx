@@ -172,7 +172,7 @@ export function UserManagementPanel() {
                     {u.created_at ? format(new Date(u.created_at), 'd MMM yyyy', { locale: fr }) : '—'}
                   </div>
                   <div className="flex gap-1 shrink-0">
-                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEdit(u)}>
+                    <Button size="icon" variant="ghost" className="h-9 w-9" onClick={() => openEdit(u)}>
                       <Edit2 className="h-3.5 w-3.5" />
                     </Button>
                     <Button

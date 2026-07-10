@@ -93,7 +93,7 @@ export const DateRangeFilter = ({ dateRange, onDateRangeChange }: DateRangeFilte
               key={preset.label}
               variant="ghost"
               size="sm"
-              className="h-7 text-xs rounded-full px-3 hover:bg-primary/10 hover:text-primary"
+              className="h-9 text-xs rounded-full px-3 hover:bg-primary/10 hover:text-primary"
               onClick={() => handlePresetClick(preset)}
             >
               {preset.label}
@@ -129,7 +129,7 @@ export const DateRangeFilter = ({ dateRange, onDateRangeChange }: DateRangeFilte
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+              className="h-9 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
               onClick={() => {
                 onDateRangeChange(undefined);
                 setIsOpen(false);

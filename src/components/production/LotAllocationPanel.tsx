@@ -94,7 +94,7 @@ export const LotAllocationPanel = ({
           </Badge>
         </div>
         {!isReadOnly && (
-          <Button size="sm" variant="outline" className="h-7 gap-1.5 text-xs" onClick={() => setAddOpen((v) => !v)}>
+          <Button size="sm" variant="outline" className="h-9 gap-1.5 text-xs" onClick={() => setAddOpen((v) => !v)}>
             <Plus className="h-3.5 w-3.5" />
             Ajouter un lot
           </Button>
@@ -126,7 +126,7 @@ export const LotAllocationPanel = ({
             <div className="space-y-1.5">
               <Label className="text-xs">Lot libéré *</Label>
               <Select value={selectedLotId} onValueChange={setSelectedLotId}>
-                <SelectTrigger className="h-8 text-sm">
+                <SelectTrigger className="h-10 text-sm">
                   <SelectValue placeholder="Sélectionner un lot" />
                 </SelectTrigger>
                 <SelectContent>
@@ -180,12 +180,12 @@ export const LotAllocationPanel = ({
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => { setAddOpen(false); setSelectedLotId(''); setQty(''); }}>
+              <Button size="sm" variant="ghost" className="h-9 text-xs" onClick={() => { setAddOpen(false); setSelectedLotId(''); setQty(''); }}>
                 Annuler
               </Button>
               <Button
                 size="sm"
-                className="h-7 text-xs"
+                className="h-9 text-xs"
                 onClick={handleAdd}
                 disabled={!selectedLotId || !qty || parseFloat(qty) <= 0 || allocate.isPending}
               >

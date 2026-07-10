@@ -103,7 +103,7 @@ export function PackagingOrderPanel({ currentUser = 'Utilisateur' }: { currentUs
                           )}
                         </div>
                       </div>
-                      <Button size="sm" variant="outline" className="h-7 px-3 text-xs shrink-0" onClick={() => setSelectedOrder(order)}>
+                      <Button size="sm" variant="outline" className="h-9 px-3 text-xs shrink-0" onClick={() => setSelectedOrder(order)}>
                         Gérer
                       </Button>
                     </div>

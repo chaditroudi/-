@@ -285,7 +285,7 @@ export const AlertsDashboard = () => {
                   key={s}
                   size="sm"
                   variant={sevFilter === s ? 'default' : 'outline'}
-                  className="h-8 text-xs"
+                  className="h-9 text-xs"
                   onClick={() => setSevFilter(s)}
                 >
                   {s === 'all' ? 'Tout' : SEV_CONFIG[s].label}
@@ -295,7 +295,7 @@ export const AlertsDashboard = () => {
             <Button
               size="sm"
               variant="ghost"
-              className="h-8 gap-1.5 text-xs"
+              className="h-9 gap-1.5 text-xs"
               onClick={handleRefresh}
               disabled={isLoading}
             >
@@ -519,7 +519,7 @@ function AlertList({
                 <Button
                   size="sm"
                   variant={actionVariant ?? 'outline'}
-                  className="h-7 shrink-0 text-xs"
+                  className="h-9 shrink-0 text-xs"
                   onClick={() => onAction(alert)}
                 >
                   {actionLabel}

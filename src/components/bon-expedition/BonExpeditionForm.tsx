@@ -108,7 +108,7 @@ export function BonExpeditionForm({ initial, onSubmit, isSaving }: Props) {
           <div>
             <Label className="text-xs">Statut</Label>
             <Select value={statut} onValueChange={setStatut}>
-              <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="h-10 text-sm"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="brouillon">Brouillon</SelectItem>
                 <SelectItem value="valide">Validé</SelectItem>
@@ -122,7 +122,7 @@ export function BonExpeditionForm({ initial, onSubmit, isSaving }: Props) {
         <div>
           <Label className="text-xs">Commande export liée</Label>
           <Select value={exportOrderRef || "none"} onValueChange={(v) => setExportOrderRef(v === "none" ? "" : v)}>
-            <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Aucune commande liée" /></SelectTrigger>
+            <SelectTrigger className="h-10 text-sm"><SelectValue placeholder="Aucune commande liée" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="none">Aucune</SelectItem>
               {exportOrders
@@ -162,7 +162,7 @@ export function BonExpeditionForm({ initial, onSubmit, isSaving }: Props) {
           <div>
             <Label className="text-xs">Fournisseur (liste)</Label>
             <Select value={fournisseurId} onValueChange={setFournisseurId}>
-              <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Choisir..." /></SelectTrigger>
+              <SelectTrigger className="h-10 text-sm"><SelectValue placeholder="Choisir..." /></SelectTrigger>
               <SelectContent>
                 {(suppliers as Supplier[]).map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
               </SelectContent>

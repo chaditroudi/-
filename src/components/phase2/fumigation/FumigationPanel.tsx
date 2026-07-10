@@ -219,13 +219,13 @@ function CycleRow({
           <Button
             size="sm"
             variant="ghost"
-            className="h-7 px-2"
+            className="h-9 px-2"
             onClick={(e) => { e.stopPropagation(); printFumigationCertificate(cycle); }}
           >
             <Printer className="h-3.5 w-3.5" />
           </Button>
         )}
-        <Button size="sm" variant="outline" className="h-7 px-3 text-xs" onClick={onOpen}>
+        <Button size="sm" variant="outline" className="h-9 px-3 text-xs" onClick={onOpen}>
           Ouvrir
         </Button>
       </div>

@@ -521,7 +521,7 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="mt-2 h-7 rounded-xl text-xs"
+                      className="mt-2 h-9 rounded-xl text-xs"
                       onClick={() => setActiveView('alerts')}
                     >
                       Voir les alertes
@@ -640,7 +640,7 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
                           <span className="font-mono text-sm font-semibold">{r.reception_number}</span>
                           <span className="ml-2 text-xs text-muted-foreground">{r.supplier?.name || r.supplier_name_snapshot || '—'} • {r.quantity_total} {r.unit}</span>
                         </div>
-                        <Button type="button" size="sm" className="h-7 rounded-xl text-xs" onClick={(e) => { e.stopPropagation(); handleStartQC(r); }}>
+                        <Button type="button" size="sm" className="h-9 rounded-xl text-xs" onClick={(e) => { e.stopPropagation(); handleStartQC(r); }}>
                           <Shield className="mr-1 h-3 w-3" />
                           Lancer QC
                         </Button>
@@ -676,7 +676,7 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
                             type="button"
                             size="sm"
                             variant="outline"
-                            className="h-7 rounded-xl text-xs border-sky-300 text-sky-700 hover:bg-sky-50 shrink-0"
+                            className="h-9 rounded-xl text-xs border-sky-300 text-sky-700 hover:bg-sky-50 shrink-0"
                             onClick={() => {
                               setSelectedReception(rec);
                               setSelectedInspection(insp as QCInspection);
@@ -752,7 +752,7 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
                         type="button"
                         variant={statusFilter === filter.value ? 'secondary' : 'ghost'}
                         size="sm"
-                        className="h-8 rounded-2xl text-xs"
+                        className="h-9 rounded-2xl text-xs"
                         onClick={() => updateStatusFilter(filter.value)}
                       >
                         {filter.label}
@@ -859,7 +859,7 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
                                   type="button"
                                   size="sm"
                                   variant="outline"
-                                  className="h-7 rounded-xl bg-white text-xs"
+                                  className="h-9 rounded-xl bg-white text-xs"
                                   onClick={(e) => { e.stopPropagation(); handleStartQC(reception); }}
                                 >
                                   <Shield className="mr-1 h-3 w-3" />
@@ -870,7 +870,7 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
                                 <Button
                                   type="button"
                                   size="sm"
-                                  className="h-7 rounded-xl bg-sky-600 hover:bg-sky-700 text-xs"
+                                  className="h-9 rounded-xl bg-sky-600 hover:bg-sky-700 text-xs"
                                   onClick={(e) => { e.stopPropagation(); handleStartQC(reception); }}
                                 >
                                   <Shield className="mr-1 h-3 w-3" />

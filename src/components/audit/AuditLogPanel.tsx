@@ -210,7 +210,7 @@ export const AuditLogPanel = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7 shrink-0"
+                      className="h-9 w-9 shrink-0"
                       onClick={() => setSelectedLog(log)}
                     >
                       <Eye className="h-3.5 w-3.5" />

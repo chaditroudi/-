@@ -394,18 +394,18 @@ export function ExportDashboard() {
                               </Button>
                             )}
                             {!hasContract && (
-                              <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1"
+                              <Button variant="ghost" size="sm" className="h-9 px-2 text-xs gap-1"
                                 onClick={() => handleGenerateContract(order)}
                                 disabled={createContract.isPending}
                                 title="Générer contrat">
                                 <FileText className="h-3.5 w-3.5" /> Contrat
                               </Button>
                             )}
-                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0"
+                            <Button variant="ghost" size="sm" className="h-9 w-9 p-0"
                               onClick={() => { setEditingOrder(order); setOrderDialogOpen(true); }} title="Modifier">
                               <Pencil className="h-3.5 w-3.5" />
                             </Button>
-                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                            <Button variant="ghost" size="sm" className="h-9 w-9 p-0 text-destructive hover:text-destructive"
                               onClick={() => setDeleteOrderTarget(order)} title="Supprimer">
                               <Trash2 className="h-3.5 w-3.5" />
                             </Button>
@@ -474,18 +474,18 @@ export function ExportDashboard() {
                         </td>
                         <td className="px-4 py-2.5">
                           <div className="flex justify-end gap-1">
-                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0"
+                            <Button variant="ghost" size="sm" className="h-9 w-9 p-0"
                               onClick={() => order && printExportContract(order, contract)} title="Imprimer">
                               <Printer className="h-3.5 w-3.5" />
                             </Button>
                             {!isLocked && (
-                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-emerald-600"
+                              <Button variant="ghost" size="sm" className="h-9 w-9 p-0 text-emerald-600"
                                 onClick={() => setApproveTarget(contract)} title="Approuver & Verrouiller">
                                 <Lock className="h-3.5 w-3.5" />
                               </Button>
                             )}
                             {isLocked && (
-                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-blue-600"
+                              <Button variant="ghost" size="sm" className="h-9 w-9 p-0 text-blue-600"
                                 onClick={() => setRegenTarget(contract)} title="Régénérer (nouvelle version)">
                                 <RefreshCw className="h-3.5 w-3.5" />
                               </Button>
@@ -569,15 +569,15 @@ export function ExportDashboard() {
                         </td>
                         <td className="px-4 py-2.5">
                           <div className="flex justify-end gap-1">
-                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0"
+                            <Button variant="ghost" size="sm" className="h-9 w-9 p-0"
                               onClick={() => printCOA(coa)} title="Imprimer COA">
                               <Printer className="h-3.5 w-3.5" />
                             </Button>
-                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0"
+                            <Button variant="ghost" size="sm" className="h-9 w-9 p-0"
                               onClick={() => { setEditingCOA(coa); setCoaDialogOpen(true); }} title="Modifier">
                               <Pencil className="h-3.5 w-3.5" />
                             </Button>
-                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                            <Button variant="ghost" size="sm" className="h-9 w-9 p-0 text-destructive hover:text-destructive"
                               onClick={() => setDeleteCOATarget(coa)} title="Supprimer">
                               <Trash2 className="h-3.5 w-3.5" />
                             </Button>

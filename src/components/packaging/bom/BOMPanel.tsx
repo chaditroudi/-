@@ -203,14 +203,14 @@ export function BOMPanel({ currentUser = 'Utilisateur' }: { currentUser?: string
                     </div>
                   )}
                   <div className="flex gap-2 pt-1">
-                    <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => openEdit(bom)}>
+                    <Button size="sm" variant="outline" className="h-9 px-2 text-xs" onClick={() => openEdit(bom)}>
                       <Pencil className="h-3 w-3 mr-1" />
                       Modifier
                     </Button>
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="h-7 px-2 text-xs"
+                      className="h-9 px-2 text-xs"
                       onClick={() => toggleActive.mutate({ id: bom.id, is_active: bom.is_active })}
                     >
                       {bom.is_active

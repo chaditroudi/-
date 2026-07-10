@@ -74,7 +74,7 @@ export const OutputLotPanel = ({
           </Badge>
         </div>
         {canRecord && !isReadOnly && (
-          <Button size="sm" variant="outline" className="h-7 gap-1.5 text-xs" onClick={() => setAddOpen((v) => !v)}>
+          <Button size="sm" variant="outline" className="h-9 gap-1.5 text-xs" onClick={() => setAddOpen((v) => !v)}>
             <Plus className="h-3.5 w-3.5" />
             Enregistrer un lot PF
           </Button>
@@ -125,12 +125,12 @@ export const OutputLotPanel = ({
               </div>
             </div>
             <div className="flex justify-end gap-2">
-              <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => { setAddOpen(false); setQty(''); setVariety(''); }}>
+              <Button size="sm" variant="ghost" className="h-9 text-xs" onClick={() => { setAddOpen(false); setQty(''); setVariety(''); }}>
                 Annuler
               </Button>
               <Button
                 size="sm"
-                className="h-7 text-xs"
+                className="h-9 text-xs"
                 onClick={handleRecord}
                 disabled={!qty || parseFloat(qty) <= 0 || recordOutput.isPending}
               >

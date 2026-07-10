@@ -922,7 +922,7 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
                           type="button"
                           variant="outline"
                           size="sm"
-                          className="h-7 rounded-lg border-primary/30 px-2.5 text-[11px] text-primary"
+                          className="h-9 rounded-lg border-primary/30 px-2.5 text-[11px] text-primary"
                           onClick={() => {
                             const now = toDateTimeLocal();
                             setGrossWeightCapturedAt(now);
@@ -1199,7 +1199,7 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
                               type="button"
                               variant="ghost"
                               size="sm"
-                              className="h-7 rounded-lg text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
+                              className="h-9 rounded-lg text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
                               onClick={() => removeLot(index)}
                               disabled={lots.length === 1}
                             >

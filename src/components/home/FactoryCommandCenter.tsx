@@ -353,7 +353,7 @@ export const FactoryCommandCenter = () => {
               <Button
                 size="icon"
                 variant="ghost"
-                className="h-8 w-8 text-slate-500 hover:text-white hover:bg-slate-800"
+                className="h-9 w-9 text-slate-500 hover:text-white hover:bg-slate-800"
                 onClick={() => void refetch()}
                 disabled={isFetching}
                 title="Actualiser"
@@ -363,7 +363,7 @@ export const FactoryCommandCenter = () => {
               <Button
                 size="icon"
                 variant="ghost"
-                className="h-8 w-8 text-slate-500 hover:text-white hover:bg-slate-800"
+                className="h-9 w-9 text-slate-500 hover:text-white hover:bg-slate-800"
                 onClick={toggleFs}
                 title={isFs ? 'Quitter le plein écran' : 'Plein écran'}
               >

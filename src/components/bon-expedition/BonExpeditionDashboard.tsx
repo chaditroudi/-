@@ -145,15 +145,15 @@ export function BonExpeditionDashboard() {
                     </td>
                     <td className="px-4 py-2.5">
                       <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0"
+                        <Button variant="ghost" size="sm" className="h-9 w-9 p-0"
                           onClick={() => printBonExpedition(b)} title="Imprimer">
                           <Printer className="h-3.5 w-3.5" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0"
+                        <Button variant="ghost" size="sm" className="h-9 w-9 p-0"
                           onClick={() => openEdit(b)} title="Modifier">
                           <Pencil className="h-3.5 w-3.5" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                        <Button variant="ghost" size="sm" className="h-9 w-9 p-0 text-destructive hover:text-destructive"
                           onClick={() => setDeleteTarget(b)} title="Supprimer">
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>

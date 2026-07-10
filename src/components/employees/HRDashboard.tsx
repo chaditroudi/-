@@ -799,7 +799,7 @@ function TachesPanel() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-36 h-8 text-xs">
+            <SelectTrigger className="w-36 h-10 text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -811,7 +811,7 @@ function TachesPanel() {
             </SelectContent>
           </Select>
           <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-            <SelectTrigger className="w-36 h-8 text-xs">
+            <SelectTrigger className="w-36 h-10 text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

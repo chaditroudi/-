@@ -498,7 +498,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
                             type="button"
                             variant="outline"
                             size="sm"
-                            className="h-7 rounded-lg px-2.5 text-[11px]"
+                            className="h-9 rounded-lg px-2.5 text-[11px]"
                             disabled={!caliberFillValue}
                             onClick={() => {
                               const v = Number(caliberFillValue);

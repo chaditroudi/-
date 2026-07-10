@@ -158,7 +158,7 @@ export function ExportOrderDialog({ open, onOpenChange, initial, onSubmit, isSav
             <div>
               <Label className="text-xs">Sélectionner un client enregistré</Label>
               <Select value={selectedCustomerId || 'none'} onValueChange={handleCustomerSelect}>
-                <SelectTrigger className="h-8 text-sm mt-1">
+                <SelectTrigger className="h-10 text-sm mt-1">
                   <SelectValue placeholder="Choisir un client (optionnel)..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -255,7 +255,7 @@ export function ExportOrderDialog({ open, onOpenChange, initial, onSubmit, isSav
           <div>
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs font-semibold uppercase text-muted-foreground">Lignes de produits</p>
-              <Button type="button" variant="outline" size="sm" onClick={addLine} className="gap-1 h-7 text-xs">
+              <Button type="button" variant="outline" size="sm" onClick={addLine} className="gap-1 h-9 text-xs">
                 <Plus className="h-3 w-3" /> Ajouter ligne
               </Button>
             </div>

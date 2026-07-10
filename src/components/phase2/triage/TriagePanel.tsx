@@ -478,14 +478,14 @@ function SessionRow({
           </div>
         </div>
         <div className="flex gap-1.5 shrink-0 flex-wrap justify-end">
-          <Button size="sm" variant="ghost" className="h-7 px-2" onClick={onPauseResume}>
+          <Button size="sm" variant="ghost" className="h-9 px-2" onClick={onPauseResume}>
             {session.status === 'EN_COURS' ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
           </Button>
-          <Button size="sm" variant="ghost" className="h-7 px-2" onClick={onQC} title="Contrôle qualité">
+          <Button size="sm" variant="ghost" className="h-9 px-2" onClick={onQC} title="Contrôle qualité">
             <CheckSquare className="h-3.5 w-3.5" />
           </Button>
-          <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={onOpen}>Poids</Button>
-          <Button size="sm" className="h-7 px-2 text-xs" onClick={onClose}>Clôturer</Button>
+          <Button size="sm" variant="outline" className="h-9 px-2 text-xs" onClick={onOpen}>Poids</Button>
+          <Button size="sm" className="h-9 px-2 text-xs" onClick={onClose}>Clôturer</Button>
         </div>
       </div>
 

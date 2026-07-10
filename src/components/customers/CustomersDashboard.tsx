@@ -146,7 +146,7 @@ export default function CustomersDashboard() {
           <option value="inactive">Inactifs</option>
         </select>
 
-        <Button size="sm" className="h-8 gap-1" onClick={() => { setEditing(null); setDialogOpen(true); }}>
+        <Button size="sm" className="h-9 gap-1" onClick={() => { setEditing(null); setDialogOpen(true); }}>
           <Plus className="h-3.5 w-3.5" /> Nouveau client
         </Button>
       </div>
@@ -221,11 +221,11 @@ export default function CustomersDashboard() {
                 </td>
                 <td className="px-4 py-2.5">
                   <div className="flex justify-end gap-1">
-                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0"
+                    <Button variant="ghost" size="sm" className="h-9 w-9 p-0"
                       onClick={() => { setEditing(c); setDialogOpen(true); }} title="Modifier">
                       <Pencil className="h-3.5 w-3.5" />
                     </Button>
-                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                    <Button variant="ghost" size="sm" className="h-9 w-9 p-0 text-destructive hover:text-destructive"
                       onClick={() => setDeleteTarget(c)} title="Supprimer">
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>

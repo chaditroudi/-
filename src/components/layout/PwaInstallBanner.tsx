@@ -64,7 +64,7 @@ export const PwaInstallBanner = () => {
             </p>
           )}
           {!isIos && (
-            <Button size="sm" className="mt-2 h-8 rounded-xl px-4 text-xs" onClick={handleInstall}>
+            <Button size="sm" className="mt-2 h-9 rounded-xl px-4 text-xs" onClick={handleInstall}>
               Installer
             </Button>
           )}

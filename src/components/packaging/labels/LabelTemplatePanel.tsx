@@ -176,7 +176,7 @@ export function LabelTemplatePanel({ currentUser = 'Utilisateur' }: { currentUse
                 key={s}
                 size="sm"
                 variant={statusFilter === s ? 'default' : 'outline'}
-                className="h-7 text-xs"
+                className="h-9 text-xs"
                 onClick={() => setStatusFilter(s)}
               >
                 {s === 'TOUS' ? `Tous (${templates.length})` : s}
@@ -232,13 +232,13 @@ export function LabelTemplatePanel({ currentUser = 'Utilisateur' }: { currentUse
                     <div className="flex gap-2 pt-1 flex-wrap">
                       {tpl.status === 'BROUILLON' && (
                         <>
-                          <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => openEdit(tpl)}>
+                          <Button size="sm" variant="outline" className="h-9 px-2 text-xs" onClick={() => openEdit(tpl)}>
                             <Pencil className="h-3 w-3 mr-1" />
                             Modifier
                           </Button>
                           <Button
                             size="sm"
-                            className="h-7 px-2 text-xs bg-green-600 hover:bg-green-700 text-white"
+                            className="h-9 px-2 text-xs bg-green-600 hover:bg-green-700 text-white"
                             onClick={() => approveTemplate.mutate({ id: tpl.id, approved_by: currentUser })}
                             disabled={approveTemplate.isPending}
                           >
@@ -251,7 +251,7 @@ export function LabelTemplatePanel({ currentUser = 'Utilisateur' }: { currentUse
                         <Button
                           size="sm"
                           variant="outline"
-                          className="h-7 px-2 text-xs"
+                          className="h-9 px-2 text-xs"
                           onClick={() => archiveTemplate.mutate(tpl.id)}
                           disabled={archiveTemplate.isPending}
                         >
@@ -297,7 +297,7 @@ export function LabelTemplatePanel({ currentUser = 'Utilisateur' }: { currentUse
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-7 px-2 text-xs"
+                    className="h-9 px-2 text-xs"
                     onClick={() => toggleClient.mutate({ id: c.id, active: c.active })}
                   >
                     {c.active ? <ToggleRight className="h-4 w-4" /> : <ToggleLeft className="h-4 w-4" />}

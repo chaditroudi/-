@@ -71,7 +71,7 @@ export function PalettePanel({ currentUser = 'Utilisateur' }: { currentUser?: st
             key={s}
             size="sm"
             variant={statusFilter === s ? 'default' : 'outline'}
-            className="h-7 text-xs"
+            className="h-9 text-xs"
             onClick={() => setStatusFilter(s)}
           >
             {s === 'TOUS' ? `Toutes (${palettes.length})` : `${STATUS_LABELS[s as PaletteStatus]} (${palettes.filter((p) => p.status === s).length})`}
@@ -125,7 +125,7 @@ export function PalettePanel({ currentUser = 'Utilisateur' }: { currentUser?: st
                     <Button
                       size="sm"
                       variant="outline"
-                      className="h-7 px-2 text-xs"
+                      className="h-9 px-2 text-xs"
                       onClick={() => {
                         setSealingPalette(pal);
                         setSealForm({ seal_number: '', sealed_by: currentUser });
@@ -139,7 +139,7 @@ export function PalettePanel({ currentUser = 'Utilisateur' }: { currentUser?: st
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="h-7 px-2 text-xs"
+                      className="h-9 px-2 text-xs"
                       onClick={() => printPaletteLabel(pal, order, bom)}
                     >
                       <Printer className="h-3 w-3 mr-1" />

@@ -265,7 +265,7 @@ export function PackagingOrderDialog({ open, onOpenChange, order, currentUser = 
               <div className="flex items-center justify-between">
                 <div className="text-xs font-semibold text-muted-foreground uppercase">Palettes ({palettes.length})</div>
                 {order.status === 'EN_COURS' && (
-                  <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setShowPaletteCreate(true)}>
+                  <Button size="sm" variant="outline" className="h-9 text-xs" onClick={() => setShowPaletteCreate(true)}>
                     <Plus className="h-3 w-3 mr-1" />
                     Palette
                   </Button>

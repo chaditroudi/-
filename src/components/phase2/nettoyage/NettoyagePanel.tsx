@@ -143,7 +143,7 @@ export function NettoyagePanel({ currentUser = 'Utilisateur' }: { currentUser?: 
                       <span>Démarré: {format(new Date(c.started_at), 'HH:mm', { locale: fr })}</span>
                     </div>
                   </div>
-                  <Button size="sm" variant="outline" className="h-7 px-3 text-xs shrink-0" onClick={() => setClosingId(c.id)}>
+                  <Button size="sm" variant="outline" className="h-9 px-3 text-xs shrink-0" onClick={() => setClosingId(c.id)}>
                     Clôturer
                   </Button>
                 </div>

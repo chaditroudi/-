@@ -121,7 +121,7 @@ export const TareCalculator = ({
             <div className="space-y-1.5">
               <Label className="text-xs">Type de contenant</Label>
               <Select value={containerType} onValueChange={(v) => onContainerTypeChange(v as ContainerType)}>
-                <SelectTrigger className="h-9">
+                <SelectTrigger className="h-10">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -144,7 +144,7 @@ export const TareCalculator = ({
               <div className="space-y-1.5">
                 <Label className="text-xs">Type de caisse *</Label>
                 <Select value={crateType} onValueChange={(v) => onCrateTypeChange(v as CrateType)}>
-                  <SelectTrigger className="h-9">
+                  <SelectTrigger className="h-10">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -165,7 +165,7 @@ export const TareCalculator = ({
                 value={crateModel || ''} 
                 onValueChange={(v) => onCrateModelChange(v as CrateModel)}
               >
-                <SelectTrigger className="h-9">
+                <SelectTrigger className="h-10">
                   <SelectValue placeholder="Sélectionner un modèle..." />
                 </SelectTrigger>
                 <SelectContent>

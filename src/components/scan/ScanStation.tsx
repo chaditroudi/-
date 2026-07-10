@@ -896,13 +896,13 @@ const LotPassport = ({ lotCode, onClose }: { lotCode: string; onClose: () => voi
             )}
           </div>
           <div className="flex items-center gap-1 shrink-0">
-            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => void refetch()} title="Actualiser">
+            <Button size="icon" variant="ghost" className="h-9 w-9" onClick={() => void refetch()} title="Actualiser">
               <RefreshCw className="h-3.5 w-3.5" />
             </Button>
-            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => window.print()} title="Imprimer">
+            <Button size="icon" variant="ghost" className="h-9 w-9" onClick={() => window.print()} title="Imprimer">
               <Printer className="h-3.5 w-3.5" />
             </Button>
-            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={onClose}>
+            <Button size="icon" variant="ghost" className="h-9 w-9" onClick={onClose}>
               <X className="h-3.5 w-3.5" />
             </Button>
           </div>
@@ -1293,7 +1293,7 @@ export const ScanStation = () => {
                             <Button
                               size="sm"
                               variant={isActive ? 'default' : 'outline'}
-                              className="h-7 px-2.5 text-xs gap-1.5"
+                              className="h-9 px-2.5 text-xs gap-1.5"
                               onClick={() => loadLot(code)}
                             >
                               <Search className="h-3 w-3" />
@@ -1302,7 +1302,7 @@ export const ScanStation = () => {
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="h-7 w-7 p-0"
+                              className="h-9 w-9 p-0"
                               title="Scanner via caméra"
                               onClick={() => { loadLot(code); setScanOpen(false); }}
                             >

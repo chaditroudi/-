@@ -240,7 +240,7 @@ export const TopHeader = ({
                   size="sm"
                   variant="ghost"
                   onClick={signOut}
-                  className="h-8 rounded-lg px-2 text-[12px] text-muted-foreground/65 hover:bg-destructive/8 hover:text-destructive sm:px-3"
+                  className="h-9 rounded-lg px-2 text-[12px] text-muted-foreground/65 hover:bg-destructive/8 hover:text-destructive sm:px-3"
                 >
                   <LogOut className="h-3.5 w-3.5 sm:me-1.5" />
                   <span className="hidden sm:inline">{t("auth.logout")}</span>

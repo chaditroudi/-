@@ -183,13 +183,13 @@ export function HydratationPanel({ currentUser = 'Utilisateur' }: { currentUser?
                   </div>
                   <div className="flex gap-2 shrink-0">
                     {c.humidity_out_avg == null && (
-                      <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => { setExitCycleId(c.id); setExitForm({ h1: '', h2: '', h3: '', inspector: currentUser }); }}>
+                      <Button size="sm" variant="outline" className="h-9 px-2 text-xs" onClick={() => { setExitCycleId(c.id); setExitForm({ h1: '', h2: '', h3: '', inspector: currentUser }); }}>
                         <Thermometer className="h-3.5 w-3.5 mr-1" />
                         Mesures
                       </Button>
                     )}
                     {c.humidity_out_avg != null && (
-                      <Button size="sm" className="h-7 px-2 text-xs" onClick={() => setClosingCycle(c)}>
+                      <Button size="sm" className="h-9 px-2 text-xs" onClick={() => setClosingCycle(c)}>
                         Clôturer
                       </Button>
                     )}
