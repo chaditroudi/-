@@ -126,7 +126,7 @@ export default function Auth() {
                   required
                   autoComplete="email"
                   className={cn(
-                    'h-11 rounded-xl border-border/60 ps-11 text-[13.5px]',
+                    'h-12 rounded-xl border-border/60 ps-11',
                     'placeholder:text-muted-foreground/40',
                     'focus-visible:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/15',
                     'transition-all duration-150',
@@ -151,7 +151,7 @@ export default function Auth() {
                   required
                   autoComplete="current-password"
                   className={cn(
-                    'h-11 rounded-xl border-border/60 ps-11 pe-11 text-[13.5px]',
+                    'h-12 rounded-xl border-border/60 ps-11 pe-12',
                     'placeholder:text-muted-foreground/40',
                     'focus-visible:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/15',
                     'transition-all duration-150',
@@ -160,7 +160,7 @@ export default function Auth() {
                 <button
                   type="button"
                   onClick={() => setShowPwd((v) => !v)}
-                  className="absolute end-3.5 top-1/2 -translate-y-1/2 rounded-md p-0.5 text-muted-foreground/50 transition-colors hover:text-foreground"
+                  className="absolute end-1.5 top-1/2 -translate-y-1/2 rounded-lg p-2.5 text-muted-foreground/50 transition-colors hover:bg-muted/60 hover:text-foreground"
                   aria-label={showPwd ? 'Hide' : 'Show'}
                 >
                   {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -174,7 +174,7 @@ export default function Auth() {
               size="lg"
               disabled={pending}
               className={cn(
-                'mt-2 h-11 w-full rounded-xl text-[13.5px] font-semibold',
+                'mt-2 h-12 w-full rounded-xl text-[15px] font-semibold',
                 'bg-gradient-to-r from-primary to-emerald-500',
                 'shadow-[0_4px_16px_-4px_hsl(142_68%_27%_/_0.45)]',
                 'hover:opacity-92 hover:shadow-[0_6px_20px_-4px_hsl(142_68%_27%_/_0.55)]',
