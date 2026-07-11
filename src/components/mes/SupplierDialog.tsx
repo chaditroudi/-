@@ -395,6 +395,12 @@ export const SupplierDialog = ({ open, onOpenChange, supplier, onSave, isLoading
     setFormData((current) => ({ ...current, [field]: value }));
   };
 
+  // One section at a time — the fiche has 6 dense sections that overwhelm as a single scroll
+  const [dlgSection, setDlgSection] = useState<
+    'identite' | 'qualification' | 'oasis' | 'commercial' | 'conformite' | 'performance'
+  >('identite');
+  const sectionClass = (key: typeof dlgSection) => (dlgSection === key ? 'space-y-4' : 'hidden');
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl">
@@ -403,7 +409,32 @@ export const SupplierDialog = ({ open, onOpenChange, supplier, onSave, isLoading
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <ScrollArea className="h-[70vh] pr-5">
+          {/* Section switcher */}
+          <div className="flex w-full flex-wrap gap-1 rounded-xl bg-muted p-1">
+            {([
+              ['identite', 'Identité'],
+              ['qualification', 'Qualification'],
+              ['oasis', 'Oasis'],
+              ['commercial', 'Commercial'],
+              ['conformite', 'Conformité'],
+              ['performance', 'Performance'],
+            ] as const).map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setDlgSection(key)}
+                className={`min-h-[40px] flex-1 whitespace-nowrap rounded-lg px-3 text-sm font-medium transition-colors ${
+                  dlgSection === key
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          <ScrollArea className="h-[62vh] pr-5">
             <div className="space-y-6">
               <section className="space-y-4">
                 <div className="flex items-center justify-between">
