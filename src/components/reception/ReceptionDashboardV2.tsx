@@ -451,7 +451,7 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
                             <Button
                               type="button"
                               size="sm"
-                              className={cn('h-7 rounded-xl px-2 text-xs', item.reception.status === 'EN_QC' && 'bg-sky-600 hover:bg-sky-700')}
+                              className={cn('h-9 rounded-xl px-2.5 text-xs', item.reception.status === 'EN_QC' && 'bg-sky-600 hover:bg-sky-700')}
                               variant={item.reception.status === 'EN_QC' ? 'default' : 'outline'}
                               onClick={(e) => { e.stopPropagation(); handleStartQC(item.reception); }}
                             >
