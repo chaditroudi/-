@@ -227,7 +227,7 @@ export function FounderAnalyticsDashboard() {
 
       {/* Main tabs */}
       <Tabs value={tab} onValueChange={setTab} className="space-y-4">
-        <TabsList className="grid grid-cols-3 lg:grid-cols-9 gap-1 h-auto p-1 rounded-xl">
+        <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-xl p-1">
           <TabsTrigger value="live" className="gap-1.5 py-2">
             <Activity className="h-3.5 w-3.5" />
             <span>Live</span>
@@ -271,7 +271,6 @@ export function FounderAnalyticsDashboard() {
             <span className="sm:hidden">Audit</span>
           </TabsTrigger>
         </TabsList>
-fix
         <TabsContent value="live"><LivePulse /></TabsContent>
         <TabsContent value="funnel"><SupplyFunnel period={period} /></TabsContent>
         <TabsContent value="reception"><ReceptionPhase1Panel period={period} /></TabsContent>
