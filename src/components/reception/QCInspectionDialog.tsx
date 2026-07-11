@@ -555,6 +555,9 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
                     </CardContent>
                   </Card>
 
+                  </div>
+
+                  <div className={qcSection === 'defauts' ? 'space-y-4' : 'hidden'}>
                   <Card>
                     <CardHeader className="pb-3">
                       <CardTitle className="text-base">Défauts visuels (%)</CardTitle>
@@ -629,6 +632,9 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
                     </CardContent>
                   </Card>
 
+                  </div>
+
+                  <div className={qcSection === 'labo' ? 'space-y-4' : 'hidden'}>
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-base flex items-center gap-2">
@@ -669,6 +675,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
                       )}
                     </CardContent>
                   </Card>
+                  </div>
                 </div>
 
                 <div className="space-y-4">
@@ -859,7 +866,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
               </div>
 
               {/* ── RQC — Rapport Contrôle Qualité Réception Achat ── */}
-              <Card>
+              <Card className={qcSection === 'rqc' ? '' : 'hidden'}>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base flex items-center gap-2">
                     <Shield className="h-4 w-4" />
