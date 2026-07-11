@@ -436,7 +436,7 @@ export const SupplierDialog = ({ open, onOpenChange, supplier, onSave, isLoading
 
           <ScrollArea className="h-[62vh] pr-5">
             <div className="space-y-6">
-              <section className="space-y-4">
+              <section className={sectionClass('identite')}>
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-semibold">Identite</h3>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -543,7 +543,7 @@ export const SupplierDialog = ({ open, onOpenChange, supplier, onSave, isLoading
                 </div>
               </section>
 
-              <section className="space-y-4">
+              <section className={sectionClass('qualification')}>
                 <h3 className="text-sm font-semibold">Identification et qualification initiale</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
@@ -580,7 +580,7 @@ export const SupplierDialog = ({ open, onOpenChange, supplier, onSave, isLoading
                 </div>
               </section>
 
-              <section className="space-y-4">
+              <section className={sectionClass('oasis')}>
                 <h3 className="text-sm font-semibold">Oasis et production</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
@@ -672,7 +672,7 @@ export const SupplierDialog = ({ open, onOpenChange, supplier, onSave, isLoading
                 </div>
               </section>
 
-              <section className="space-y-4">
+              <section className={sectionClass('commercial')}>
                 <h3 className="text-sm font-semibold">Commercial et contractuel</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
@@ -803,7 +803,7 @@ export const SupplierDialog = ({ open, onOpenChange, supplier, onSave, isLoading
                 </div>
               </section>
 
-              <section className="space-y-4">
+              <section className={sectionClass('conformite')}>
                 <h3 className="text-sm font-semibold">Agrement, risque et conformite</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
@@ -882,7 +882,7 @@ export const SupplierDialog = ({ open, onOpenChange, supplier, onSave, isLoading
                 </div>
               </section>
 
-              <section className="space-y-4">
+              <section className={sectionClass('performance')}>
                 <h3 className="text-sm font-semibold">Performance suivie</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
