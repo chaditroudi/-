@@ -52,6 +52,8 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
   const { user, isAdmin, profile } = useAuth();
   const { data: calibration } = useCalibrationStatus();
   const [caliberFillValue, setCaliberFillValue] = useState("");
+  // Inspection form is split into numbered sections so operators do one thing at a time
+  const [qcSection, setQcSection] = useState<'mesures' | 'defauts' | 'labo' | 'rqc'>('mesures');
   const [phase, setPhase] = useState<"start" | "inspection" | "confirmed">("start");
   const [inspectorName, setInspectorName] = useState("");
   const [secondaryInspectorName, setSecondaryInspectorName] = useState("");
@@ -451,8 +453,32 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
 
           {phase === "inspection" && (
             <div className="space-y-4 p-2">
-              <div className="grid grid-cols-1 xl:grid-cols-[1.2fr_0.8fr] gap-4">
-                <div className="space-y-4">
+              {/* Section switcher — one clear step at a time */}
+              <div className="flex w-full flex-wrap gap-1 rounded-xl bg-muted p-1">
+                {([
+                  ['mesures', '1 · Mesures'],
+                  ['defauts', '2 · Défauts & Goût'],
+                  ['labo', '3 · Laboratoire'],
+                  ['rqc', '4 · Grille RQC'],
+                ] as const).map(([key, label]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setQcSection(key)}
+                    className={`min-h-[40px] flex-1 whitespace-nowrap rounded-lg px-3 text-sm font-medium transition-colors ${
+                      qcSection === key
+                        ? 'bg-background text-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              <div className={qcSection === 'rqc' ? 'hidden' : 'grid grid-cols-1 xl:grid-cols-[1.2fr_0.8fr] gap-4'}>
+                <div className="min-w-0 space-y-4">
+                  <div className={qcSection === 'mesures' ? 'space-y-4' : 'hidden'}>
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-base">Humidite</CardTitle>
