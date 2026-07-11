@@ -652,6 +652,35 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
                   </div>
                 )}
 
+                {/* In-progress QC mini-list — interrupted inspections stay findable here */}
+                {inQc.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Inspections en cours ({inQc.length})
+                    </p>
+                    {inQc.slice(0, 4).map((r) => (
+                      <button
+                        key={r.id}
+                        type="button"
+                        onClick={() => handleStartQC(r)}
+                        className="flex w-full items-center justify-between gap-3 rounded-2xl border border-sky-200 bg-sky-50/60 px-4 py-3 text-left hover:bg-sky-50 transition-colors"
+                      >
+                        <div>
+                          <span className="font-mono text-sm font-semibold">{r.reception_number}</span>
+                          <span className="ml-2 text-xs text-muted-foreground">{r.supplier?.name || r.supplier_name_snapshot || '—'} • {r.quantity_total} {r.unit}</span>
+                        </div>
+                        <Button type="button" size="sm" className="h-9 rounded-xl bg-sky-600 text-xs hover:bg-sky-700" onClick={(e) => { e.stopPropagation(); handleStartQC(r); }}>
+                          <Shield className="mr-1 h-3 w-3" />
+                          Reprendre
+                        </Button>
+                      </button>
+                    ))}
+                    {inQc.length > 4 && (
+                      <p className="text-center text-xs text-muted-foreground">+ {inQc.length - 4} autres dans le registre</p>
+                    )}
+                  </div>
+                )}
+
                 {/* Lab pending results — RG-Q07 */}
                 {labPendingInspections.length > 0 && (
                   <div className="space-y-2 pt-1">
