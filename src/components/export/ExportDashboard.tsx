@@ -384,7 +384,7 @@ export function ExportDashboard() {
                             {NEXT_STATUS[order.status] && (
                               <Button
                                 variant="ghost" size="sm"
-                                className={cn('h-7 px-2 text-xs gap-1', NEXT_STATUS[order.status]!.cls)}
+                                className={cn('h-9 px-2.5 text-xs gap-1', NEXT_STATUS[order.status]!.cls)}
                                 onClick={() => updateOrder.mutateAsync({ id: order.id, status: NEXT_STATUS[order.status]!.status as any })}
                                 disabled={updateOrder.isPending}
                                 title={NEXT_STATUS[order.status]!.label}
