@@ -82,8 +82,8 @@ export const TopHeader = ({
 
       <Separator orientation="vertical" className="hidden h-4 bg-border/50 sm:block" />
 
-      {/* Brand chip — mobile/tablet only; the sidebar already carries the brand on desktop */}
-      <div className="flex items-center gap-2 rounded-xl border border-border/60 bg-background/80 px-2 py-1.5 backdrop-blur-sm shadow-xs lg:hidden">
+      {/* Brand chip — phone only; the sidebar carries the brand from md up */}
+      <div className="flex items-center gap-2 rounded-xl border border-border/60 bg-background/80 px-2 py-1.5 backdrop-blur-sm shadow-xs md:hidden">
         <div
           className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-primary/18 bg-card p-1"
           style={{ boxShadow: "0 0 10px -2px hsl(var(--primary) / 0.22)" }}

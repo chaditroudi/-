@@ -665,7 +665,7 @@ export function WorkflowNavigation({
       {/* Bottom nav rendered via portal to document.body so position:fixed is
           always relative to the viewport — no ancestor CSS can trap it. */}
       {createPortal(
-        <div className="fixed inset-x-0 bottom-0 z-[9999] border-t border-border/60 bg-background/96 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-8px_32px_-8px_rgba(15,23,42,0.12)] backdrop-blur-xl lg:hidden">
+        <div className="fixed inset-x-0 bottom-0 z-[9999] border-t border-border/60 bg-background/96 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-8px_32px_-8px_rgba(15,23,42,0.12)] backdrop-blur-xl md:hidden">
           <div className="mx-auto flex max-w-[1800px] items-stretch justify-between gap-0.5 px-2 sm:px-4">
             {mobileTabs.map((tab) => {
               const meta = APP_TAB_META[tab];
