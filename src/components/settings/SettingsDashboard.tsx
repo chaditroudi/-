@@ -30,7 +30,7 @@ export function SettingsDashboard() {
       </div>
 
       <Tabs defaultValue="branding">
-        <TabsList className="flex h-auto w-full justify-start gap-1 overflow-x-auto rounded-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-2xl">
           <TabsTrigger value="branding" className="shrink-0 gap-1.5">
             <Palette className="h-3.5 w-3.5" />
             Marque & Couleurs
