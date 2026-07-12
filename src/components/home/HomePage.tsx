@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import {
   AlertTriangle,
   ArrowRight,
-  BarChart3,
   CheckCircle2,
   ClipboardCheck,
   Factory,
-  ShoppingCart,
+  PackageCheck,
+  QrCode,
+  Ship,
   Truck,
   Warehouse,
 } from "lucide-react";
