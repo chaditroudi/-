@@ -1,6 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { TopHeader } from "@/components/layout/TopHeader";
 import { WorkflowNavigation } from "@/components/layout/WorkflowNavigation";
+import { FlowStepper } from "@/components/layout/FlowStepper";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { BrandLogo } from "@/components/branding/BrandLogo";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
@@ -435,6 +436,13 @@ const Index = () => {
 
         <main className="flex-1 min-w-0 overflow-x-hidden overflow-y-auto">
           <div className="mx-auto w-full max-w-[1800px] px-3 py-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-5 md:pb-8 lg:px-6 lg:py-6">
+            <div className="mb-4 empty:hidden">
+              <FlowStepper
+                activeTab={activeTab}
+                accessibleTabs={accessibleTabs}
+                onNavigate={handleNavigate}
+              />
+            </div>
             <div key={activeTab} className="animate-page-enter w-full">
               <Suspense fallback={<TabLoader />}>
                 {renderContent()}
