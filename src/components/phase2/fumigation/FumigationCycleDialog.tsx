@@ -174,6 +174,83 @@ function CreateForm({ onCreated, currentUser }: { onCreated: () => void; current
   );
 }
 
+// ─── Read-only summary (always visible — historical cycles have no actions) ─
+
+function CycleSummary({ cycle }: { cycle: FumigationCycle }) {
+  const fmt = (iso: string | null | undefined) =>
+    iso ? new Date(iso).toLocaleString('fr-FR') : '—';
+  const durationH =
+    cycle.duration_minutes != null ? Math.round((cycle.duration_minutes / 60) * 10) / 10 : null;
+
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
+        <div className="bg-muted/40 rounded-lg p-2.5">
+          <div className="text-xs text-muted-foreground">Poids total</div>
+          <div className="font-semibold">{cycle.total_weight_kg.toLocaleString('fr-TN')} kg</div>
+        </div>
+        <div className="bg-muted/40 rounded-lg p-2.5">
+          <div className="text-xs text-muted-foreground">Remplissage</div>
+          <div className="font-semibold">{cycle.fill_rate_percent}%</div>
+        </div>
+        <div className="bg-muted/40 rounded-lg p-2.5">
+          <div className="text-xs text-muted-foreground">Début (T0)</div>
+          <div className="font-semibold text-xs">{fmt(cycle.t0_start)}</div>
+        </div>
+        <div className="bg-muted/40 rounded-lg p-2.5">
+          <div className="text-xs text-muted-foreground">Fin réelle</div>
+          <div className="font-semibold text-xs">{fmt(cycle.t_end_real)}</div>
+        </div>
+      </div>
+
+      <div className="text-xs text-muted-foreground flex gap-4 flex-wrap">
+        {durationH != null && (
+          <span>
+            Durée: <strong>{durationH}h</strong> / {Math.round(cycle.minimum_duration_minutes / 60)}h min
+            {cycle.duration_compliant != null && (
+              <span className={cycle.duration_compliant ? 'text-green-600 ml-1' : 'text-red-600 ml-1'}>
+                {cycle.duration_compliant ? '✓' : '✗ non conforme'}
+              </span>
+            )}
+          </span>
+        )}
+        {cycle.dose_applied_g != null && <span>Dose: <strong>{cycle.dose_applied_g} g</strong></span>}
+        {cycle.product_lot_number && <span>Produit: {cycle.product_lot_number}</span>}
+        {cycle.residual_concentration_ppm != null && (
+          <span>
+            Résiduel: <strong>{cycle.residual_concentration_ppm} ppm</strong>
+            {cycle.residual_tlv_compliant != null && (
+              <span className={cycle.residual_tlv_compliant ? 'text-green-600 ml-1' : 'text-red-600 ml-1'}>
+                {cycle.residual_tlv_compliant ? '✓ TLV' : '✗ TLV'}
+              </span>
+            )}
+          </span>
+        )}
+        {cycle.operator_signed_at && <span>Signé opérateur: {cycle.operator_name}</span>}
+        {cycle.quality_signed_at && <span>Signé qualité: {cycle.quality_inspector_name}</span>}
+      </div>
+
+      {cycle.lot_refs.length > 0 && (
+        <div className="space-y-1">
+          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            Lots ({cycle.lot_refs.length})
+          </div>
+          <div className="border rounded-lg divide-y max-h-40 overflow-y-auto">
+            {cycle.lot_refs.map((lot) => (
+              <div key={lot.reception_id} className="flex items-center gap-2 px-3 py-1.5 text-sm">
+                <span className="font-mono text-xs">{lot.lot_number}</span>
+                <span className="text-muted-foreground text-xs">{lot.variety}</span>
+                {lot.is_bio && <Badge variant="outline" className="text-xs text-green-700">BIO</Badge>}
+                <span className="ml-auto text-xs">{lot.weight_kg.toLocaleString('fr-TN')} kg</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── View / manage existing cycle ──────────────────────────────────────────
 
 function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser: string }) {
