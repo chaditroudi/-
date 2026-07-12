@@ -47,6 +47,8 @@ interface RequisitionsListProps {
   canDelete?: boolean;
   canCreateOrder?: boolean;
   workflowMessage?: string;
+  /** Utilisateur connecté — signataire des approbations/rejets (SoD RG-VAL-02). */
+  currentUser?: string;
 }
 
 export const RequisitionsList = ({
@@ -65,6 +67,7 @@ export const RequisitionsList = ({
   canDelete = true,
   canCreateOrder = true,
   workflowMessage,
+  currentUser = '',
 }: RequisitionsListProps) => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<RequisitionStatus | 'all'>('all');
