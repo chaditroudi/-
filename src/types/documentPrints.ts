@@ -158,6 +158,7 @@ export type DocumentFormData =
   | BonExpeditionFormData
   | RapportQCFormData
   | ReclamationFormData
+  | BonReclamationFormData
   | FichePaletteFormData;
 
 export interface DocumentPrint {
