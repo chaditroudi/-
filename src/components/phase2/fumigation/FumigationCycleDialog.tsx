@@ -181,6 +181,7 @@ function CycleSummary({ cycle }: { cycle: FumigationCycle }) {
     iso ? new Date(iso).toLocaleString('fr-FR') : '—';
   const durationH =
     cycle.duration_minutes != null ? Math.round((cycle.duration_minutes / 60) * 10) / 10 : null;
+  const lots = cycle.lot_refs ?? [];
 
   return (
     <div className="space-y-3">
