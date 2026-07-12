@@ -203,6 +203,8 @@ export interface PurchaseOrder {
   invoice_date?: string | null;
   invoice_amount?: number | null;
   invoice_status?: PurchaseOrderInvoiceStatus | null;
+  /** Tolérance de rapprochement 3 voies pour ce BC (RG-PAY-01). */
+  invoice_tolerance_pct?: number | null;
   receipt_status?: PurchaseOrderReceiptStatus | null;
   matching_status?: PurchaseOrderMatchStatus | null;
   goods_receipt_count?: number | null;
