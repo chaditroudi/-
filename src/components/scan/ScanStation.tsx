@@ -1003,6 +1003,18 @@ const LotPassport = ({ lotCode, onClose }: { lotCode: string; onClose: () => voi
           <TabsContent value="expedition" className="mt-3"><ExpeditionTab     data={trace} /></TabsContent>
           <TabsContent value="historique" className="mt-3"><HistoriqueTab     data={trace} liveAt={lastLiveUpdateAt} /></TabsContent>
         </Tabs>
+      ) : traceError ? (
+        <Card>
+          <CardContent className="p-6 flex flex-wrap items-center gap-3">
+            <AlertTriangle className="h-5 w-5 text-red-500 shrink-0" />
+            <span className="text-sm text-red-700">
+              La traçabilité complète n'a pas pu être chargée.
+            </span>
+            <Button size="sm" variant="outline" onClick={() => refetch()}>
+              Réessayer
+            </Button>
+          </CardContent>
+        </Card>
       ) : (
         <Card>
           <CardContent className="p-6 flex items-center gap-3 text-muted-foreground">
