@@ -70,9 +70,12 @@ export async function buildLotTraceabilityDossier(lotNumber) {
         throw badRequest("LOT_NUMBER_REQUIRED", "Le numero de lot est requis.");
     }
     const lotRegex = new RegExp(escapeRegex(normalizedLotNumber), "i");
+    // Chaque élément passé à Promise.all doit être une promesse : un `await`
+    // écrit dans le tableau sérialise les requêtes (25 allers-retours Atlas ≈ 9s).
+    const runQuery = async (query) => sanitizeDocument(await query.exec());
     const [receptionExact, receptionLotExact, stockLotExact, subLotExact, outputLotExact, receptionFuzzy, receptionLotsDirect, stockLotsDirect, subLotsDirect, outputLotsDirect,] = await Promise.all([
-        sanitizeDocument(await Receptions().findOne({ reception_number: normalizedLotNumber }).lean().exec()),
-        sanitizeDocument(await ReceptionLots()
+        runQuery(Receptions().findOne({ reception_number: normalizedLotNumber }).lean()),
+        runQuery(ReceptionLots()
             .findOne({
             $or: [
                 { id: normalizedLotNumber },
@@ -82,9 +85,8 @@ export async function buildLotTraceabilityDossier(lotNumber) {
                 { rfid_tag: normalizedLotNumber },
             ],
         })
-            .lean()
-            .exec()),
-        sanitizeDocument(await StockLots()
+            .lean()),
+        runQuery(StockLots()
             .findOne({
             $or: [
                 { id: normalizedLotNumber },
@@ -94,9 +96,8 @@ export async function buildLotTraceabilityDossier(lotNumber) {
                 { reception_lot_id: normalizedLotNumber },
             ],
         })
-            .lean()
-            .exec()),
-        sanitizeDocument(await TriageSublots()
+            .lean()),
+        runQuery(TriageSublots()
             .findOne({
             $or: [
                 { id: normalizedLotNumber },
@@ -104,9 +105,8 @@ export async function buildLotTraceabilityDossier(lotNumber) {
                 { parent_lot_number: normalizedLotNumber },
             ],
         })
-            .lean()
-            .exec()),
-        sanitizeDocument(await ProductionOutputLots()
+            .lean()),
+        runQuery(ProductionOutputLots()
             .findOne({
             $or: [
                 { id: normalizedLotNumber },
@@ -116,14 +116,12 @@ export async function buildLotTraceabilityDossier(lotNumber) {
                 { "parent_lots_snapshot.reception_number": normalizedLotNumber },
             ],
         })
-            .lean()
-            .exec()),
-        sanitizeDocument(await Receptions()
+            .lean()),
+        runQuery(Receptions()
             .findOne({ reception_number: { $regex: lotRegex } })
             .sort({ actual_arrival_date: -1 })
-            .lean()
-            .exec()),
-        sanitizeDocument(await ReceptionLots()
+            .lean()),
+        runQuery(ReceptionLots()
             .find({
             $or: [
                 { lot_internal: { $regex: lotRegex } },
@@ -134,9 +132,8 @@ export async function buildLotTraceabilityDossier(lotNumber) {
         })
             .sort({ created_at: -1 })
             .limit(50)
-            .lean()
-            .exec()),
-        sanitizeDocument(await StockLots()
+            .lean()),
+        runQuery(StockLots()
             .find({
             $or: [
                 { lot_number: { $regex: lotRegex } },
@@ -146,9 +143,8 @@ export async function buildLotTraceabilityDossier(lotNumber) {
         })
             .sort({ created_at: -1 })
             .limit(50)
-            .lean()
-            .exec()),
-        sanitizeDocument(await TriageSublots()
+            .lean()),
+        runQuery(TriageSublots()
             .find({
             $or: [
                 { lot_number: { $regex: lotRegex } },
@@ -157,9 +153,8 @@ export async function buildLotTraceabilityDossier(lotNumber) {
         })
             .sort({ created_at: -1 })
             .limit(50)
-            .lean()
-            .exec()),
-        sanitizeDocument(await ProductionOutputLots()
+            .lean()),
+        runQuery(ProductionOutputLots()
             .find({
             $or: [
                 { lot_pf_number: { $regex: lotRegex } },
@@ -170,8 +165,7 @@ export async function buildLotTraceabilityDossier(lotNumber) {
         })
             .sort({ recorded_at: -1 })
             .limit(50)
-            .lean()
-            .exec()),
+            .lean()),
     ]);
     const initialReceptionIds = uniqueStrings([
         receptionExact?.id,
