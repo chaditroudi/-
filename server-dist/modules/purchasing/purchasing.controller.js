@@ -35,6 +35,21 @@ let PurchasingController = class PurchasingController {
     async listRequisitions(status) {
         return { data: await this.purchasingService.listRequisitions(status) };
     }
+    async listReplenishmentNeeds() {
+        return { data: await this.purchasingService.listReplenishmentNeeds() };
+    }
+    async generateReplenishment(req) {
+        const data = await this.purchasingService.generateReplenishmentRequisitions(req.auth?.user || null);
+        publishRealtimeDbChange({
+            type: "purchase_requisition_created",
+            table: "purchase_requisitions",
+            action: "INSERT",
+            rows: data.requisitions ?? [],
+            rowIds: (data.requisitions ?? []).map((row) => String(row?.id || "")).filter(Boolean),
+            relatedTables: ["purchasing_stats"],
+        });
+        return { data };
+    }
     async getRequisition(id) {
         return { data: await this.purchasingService.getRequisitionById(id) };
     }
@@ -252,6 +267,22 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], PurchasingController.prototype, "listRequisitions", null);
+__decorate([
+    Get("replenishment-needs"),
+    Roles(...REQUISITION_ROLES),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], PurchasingController.prototype, "listReplenishmentNeeds", null);
+__decorate([
+    Post("requisitions/auto-replenish"),
+    Roles(...REQUISITION_ROLES),
+    HttpCode(201),
+    __param(0, Req()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], PurchasingController.prototype, "generateReplenishment", null);
 __decorate([
     Get("requisitions/:id"),
     Roles(...REQUISITION_ROLES),

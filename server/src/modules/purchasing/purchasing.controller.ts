@@ -41,6 +41,30 @@ export class PurchasingController {
     return { data: await this.purchasingService.listRequisitions(status) };
   }
 
+  @Get("replenishment-needs")
+  @Roles(...REQUISITION_ROLES)
+  async listReplenishmentNeeds() {
+    return { data: await this.purchasingService.listReplenishmentNeeds() };
+  }
+
+  @Post("requisitions/auto-replenish")
+  @Roles(...REQUISITION_ROLES)
+  @HttpCode(201)
+  async generateReplenishment(@Req() req: any) {
+    const data = await this.purchasingService.generateReplenishmentRequisitions(
+      req.auth?.user || null,
+    );
+    publishRealtimeDbChange({
+      type: "purchase_requisition_created",
+      table: "purchase_requisitions",
+      action: "INSERT",
+      rows: (data.requisitions as any[]) ?? [],
+      rowIds: ((data.requisitions as any[]) ?? []).map((row) => String(row?.id || "")).filter(Boolean),
+      relatedTables: ["purchasing_stats"],
+    });
+    return { data };
+  }
+
   @Get("requisitions/:id")
   @Roles(...REQUISITION_ROLES)
   async getRequisition(@Param("id") id: string) {
