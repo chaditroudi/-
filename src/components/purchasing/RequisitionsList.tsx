@@ -39,6 +39,8 @@ interface RequisitionsListProps {
   onEdit: (req: PurchaseRequisition) => void;
   onDelete: (id: string) => void;
   onApprove: (id: string, approverName: string) => void;
+  /** Signature d'un niveau intermédiaire de la matrice (statut inchangé). */
+  onSignLevel?: (id: string, approvals: RequisitionApproval[]) => void;
   onReject: (id: string, reason: string, rejectorName: string) => void;
   onCreateOrder: (req: PurchaseRequisition) => void;
   onView: (req: PurchaseRequisition) => void;
@@ -59,6 +61,7 @@ export const RequisitionsList = ({
   onEdit,
   onDelete,
   onApprove,
+  onSignLevel,
   onReject,
   onCreateOrder,
   onView,
