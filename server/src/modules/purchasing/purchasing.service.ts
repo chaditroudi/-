@@ -510,6 +510,18 @@ export class PurchasingService {
       throw badRequest("APPROVER_REQUIRED", "approverName is required.");
     }
 
+    // RG-VAL-02 — séparation des tâches : le demandeur ne valide pas sa propre DA.
+    const requisition = await PurchaseRequisitions().findOne({ id: requisitionId }).lean().exec() as
+      | { requester_name?: string }
+      | null;
+    const requester = readString(requisition?.requester_name).toLowerCase();
+    if (requester && requester === readString(approverName).toLowerCase()) {
+      throw badRequest(
+        "SOD_VIOLATION",
+        "RG-VAL-02 — Un demandeur ne peut pas valider sa propre demande d'achat.",
+      );
+    }
+
     return this.updateRequisition(requisitionId, {
       status: "approved",
       approved_by: approverName,
