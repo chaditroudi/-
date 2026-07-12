@@ -791,6 +791,7 @@ const LotPassport = ({ lotCode, onClose }: { lotCode: string; onClose: () => voi
   const {
     data: trace,
     isLoading: traceLoading,
+    isError: traceError,
     refetch,
     recentChanges,
     lastLiveUpdateAt,
