@@ -113,7 +113,22 @@ export const MaterialsList = ({ materials, canManage = true }: MaterialsListProp
                         ) : '-'}
                       </TableCell>
                       <TableCell>{material.unit}</TableCell>
-                      <TableCell>{material.min_stock}</TableCell>
+                      <TableCell>
+                        {(() => {
+                          const current = material.current_stock ?? 0;
+                          const isBelow = material.min_stock > 0 && current < material.min_stock;
+                          return (
+                            <div className="flex items-center gap-2">
+                              <span className={isBelow ? 'font-semibold text-amber-700' : undefined}>
+                                {current} / {material.min_stock}
+                              </span>
+                              {isBelow && (
+                                <Badge className="bg-amber-500 text-white text-[11px]">Sous seuil</Badge>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </TableCell>
                       <TableCell className="text-end">
                         {canManage && (
                           <div className="flex justify-end gap-1">
