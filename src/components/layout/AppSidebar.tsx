@@ -88,33 +88,33 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
       key: "operations",
       label: "Opérations",
       items: [
-        { id: "home",       title: t("nav.home"),       icon: Home },
-        { id: "live",       title: "Centre de Commande", icon: Activity },
-        { id: "scan",       title: "Scan & Traçabilité", icon: QrCode },
-        { id: "receptions", title: t("nav.receptions"), icon: ClipboardList },
-        { id: "production", title: t("nav.production"), icon: Factory },
-        { id: "alerts",     title: t("nav.alerts"),     icon: Bell, badge: activeAlertsCount },
+        { id: "home",   title: t("nav.home"),        icon: Home },
+        { id: "live",   title: "Centre de Commande", icon: Activity },
+        { id: "scan",   title: "Scan & Traçabilité", icon: QrCode },
+        { id: "alerts", title: t("nav.alerts"),      icon: Bell, badge: activeAlertsCount },
       ],
     },
     {
-      key: "quality",
-      label: "Qualité & Stock",
+      key: "flux",
+      label: "Flux usine",
       items: [
-        { id: "batches",   title: "Lots Qualité",      icon: Scale },
-        { id: "storage",   title: "Entrepôt & Stock",  icon: Warehouse },
-        { id: "packaging", title: "Conditionnement",   icon: PackageCheck },
-        { id: "quality",   title: "Qualité & CAPA",    icon: CheckCircle },
+        { id: "receptions", title: `1. ${t("nav.receptions")}`, icon: ClipboardList },
+        { id: "batches",    title: "2. Lots Qualité",           icon: Scale },
+        { id: "storage",    title: "3. Entrepôt & Stock",       icon: Warehouse },
+        { id: "production", title: `4. ${t("nav.production")}`, icon: Factory },
+        { id: "packaging",  title: "5. Conditionnement",        icon: PackageCheck },
+        { id: "logistics",  title: `6. ${t("nav.logistics")}`,  icon: Truck },
       ],
     },
     {
       key: "gestion",
       label: "Gestion",
       items: [
-        { id: "suppliers", title: t("nav.suppliers"),         icon: Building2 },
-        { id: "materials", title: t("nav.materials"),         icon: Package },
-        { id: "purchasing",title: t("nav.purchasing"),        icon: ShoppingCart },
-        { id: "logistics", title: t("nav.logistics"),         icon: Truck },
-        { id: "hr",        title: "Ressources Humaines",      icon: Users },
+        { id: "suppliers", title: t("nav.suppliers"),    icon: Building2 },
+        { id: "materials", title: t("nav.materials"),    icon: Package },
+        { id: "purchasing",title: t("nav.purchasing"),   icon: ShoppingCart },
+        { id: "quality",   title: "Qualité & CAPA",      icon: CheckCircle },
+        { id: "hr",        title: "Ressources Humaines", icon: Users },
       ],
     },
     {
@@ -131,7 +131,8 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
     const active = TAB_SECTION[activeTab] ?? "operations";
     return {
       operations: active === "operations",
-      quality:    active === "quality",
+      // Le flux usine est la navigation principale — toujours visible au départ.
+      flux:       true,
       gestion:    active === "gestion",
       pilotage:   active === "pilotage",
     };
