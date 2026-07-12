@@ -45,6 +45,7 @@ import { BonReceptionDialog } from './BonReceptionDialog';
 import { BonExpeditionDialog } from './BonExpeditionDialog';
 import { RapportQCDialog } from './RapportQCDialog';
 import { ReclamationFournisseurDialog } from './ReclamationFournisseurDialog';
+import { BonReclamationDialog } from './BonReclamationDialog';
 import { QCInspectionDialog } from './QCInspectionDialog';
 import { StorageAssignment } from './StorageAssignment';
 import { UnitsManagement } from './UnitsManagement';
@@ -77,6 +78,7 @@ export const ReceptionDetailV2 = ({ open, onOpenChange, receptionId }: Reception
   const [expeditionDialogOpen, setExpeditionDialogOpen] = useState(false);
   const [rapportQCOpen, setRapportQCOpen] = useState(false);
   const [reclamationOpen, setReclamationOpen] = useState(false);
+  const [bonReclamationOpen, setBonReclamationOpen] = useState(false);
   const [qcDialogOpen, setQcDialogOpen] = useState(false);
   const [selectedUnitForLabel, setSelectedUnitForLabel] = useState<ReceptionUnit | null>(null);
   const [selectedLotForLabel, setSelectedLotForLabel] = useState<ReceptionLot | null>(null);
@@ -528,19 +530,32 @@ export const ReceptionDetailV2 = ({ open, onOpenChange, receptionId }: Reception
                           </div>
                         </Button>
                         {(inspections.some(i => i.decision === 'REJETE') || (reception.weight_gap_percent != null && Math.abs(reception.weight_gap_percent) > 2)) && (
-                          <Button
-                            variant="outline"
-                            className="w-full justify-start gap-2 text-sm border-red-200"
-                            onClick={() => setReclamationOpen(true)}
-                          >
-                            <AlertTriangle className="h-4 w-4 text-red-600" />
-                            <div className="text-left">
-                              <div className="font-medium text-red-700">Réclamation Fournisseur</div>
-                              <div className="text-xs text-muted-foreground">
-                                {inspections.some(i => i.decision === 'REJETE') ? 'QC rejeté' : `Écart poids : ${reception.weight_gap_percent?.toFixed(1)}%`}
+                          <>
+                            <Button
+                              variant="outline"
+                              className="w-full justify-start gap-2 text-sm border-red-200"
+                              onClick={() => setReclamationOpen(true)}
+                            >
+                              <AlertTriangle className="h-4 w-4 text-red-600" />
+                              <div className="text-left">
+                                <div className="font-medium text-red-700">Réclamation Fournisseur</div>
+                                <div className="text-xs text-muted-foreground">
+                                  {inspections.some(i => i.decision === 'REJETE') ? 'QC rejeté' : `Écart poids : ${reception.weight_gap_percent?.toFixed(1)}%`}
+                                </div>
                               </div>
-                            </div>
-                          </Button>
+                            </Button>
+                            <Button
+                              variant="outline"
+                              className="w-full justify-start gap-2 text-sm border-red-200"
+                              onClick={() => setBonReclamationOpen(true)}
+                            >
+                              <AlertTriangle className="h-4 w-4 text-red-600" />
+                              <div className="text-left">
+                                <div className="font-medium text-red-700">Bon de Réclamation Fournisseur</div>
+                                <div className="text-xs text-muted-foreground">Écart de poids, déclassement, conclusion qualité, prix</div>
+                              </div>
+                            </Button>
+                          </>
                         )}
                       </>
                     ) : (
@@ -591,6 +606,13 @@ export const ReceptionDetailV2 = ({ open, onOpenChange, receptionId }: Reception
       <ReclamationFournisseurDialog
         open={reclamationOpen}
         onOpenChange={setReclamationOpen}
+        reception={reception}
+        lots={lots}
+        inspection={inspections[0] ?? null}
+      />
+      <BonReclamationDialog
+        open={bonReclamationOpen}
+        onOpenChange={setBonReclamationOpen}
         reception={reception}
         lots={lots}
         inspection={inspections[0] ?? null}
