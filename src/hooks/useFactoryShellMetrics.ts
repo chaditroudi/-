@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { useAlerts, useBatches } from "@/hooks/useBatches";
+import { useAlerts } from "@/hooks/useBatches";
+import { useAllReceptionLots } from "@/hooks/useStock";
 import { useProductionOrders } from "@/hooks/useProduction";
 import { useReceptionAlerts, useReceptionsV2 } from "@/hooks/useReceptionsV2";
 import { usePhase2Pipeline } from "@/hooks/usePhase2Pipeline";
@@ -7,7 +8,6 @@ import { useListStockLotsQuery, useListShipmentsQuery } from "@/store/api/stockA
 import { usePackagingOrders } from "@/hooks/usePackaging";
 import type { AvailableLot } from "@/hooks/useAvailableLotsForPhase2";
 
-const QUALITY_BATCH_STATUSES = new Set(["pending_inspection", "in_inspection", "quarantine"]);
 const ACTIVE_BATCH_ALERT_STATUSES = new Set(["active", "ACTIVE"]);
 
 type FactoryShellMetricOptions = {
