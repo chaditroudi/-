@@ -357,8 +357,8 @@ export const RequisitionsList = ({
                               <Eye className="h-4 w-4" />
                             </Button>
 
-                            {/* Approve / Reject */}
-                            {req.status === 'pending_approval' && canApprove && canReject && (
+                            {/* Approve / Reject — RG-VAL-02 : pas de validation de sa propre DA */}
+                            {req.status === 'pending_approval' && canApprove && canReject && !isOwnRequisition(req) && (
                               <>
                                 <Button
                                   variant="ghost"
