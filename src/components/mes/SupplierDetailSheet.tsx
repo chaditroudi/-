@@ -117,6 +117,7 @@ export const SupplierDetailSheet = ({ supplier, open, onOpenChange, onEdit }: Pr
   const approveMutation = useApproveSupplier();
   const blockMutation   = useBlockSupplier();
   const archiveMutation = useArchiveSupplier();
+  const updateSupplier  = useUpdateSupplier();
 
   if (!supplier) return null;
 
@@ -125,17 +126,30 @@ export const SupplierDetailSheet = ({ supplier, open, onOpenChange, onEdit }: Pr
   const alerts        = computeSupplierAlerts(supplier);
   const isBioValid    = hasValidBioCertification(supplier);
 
-  const handleApprove = () =>
-    approveMutation.mutate(supplier.id, { onSuccess: () => onOpenChange(false) });
+  // Bloquer/archiver sont des changements de statut réversibles : action
+  // immédiate + toast « Annuler » qui restaure le statut précédent.
+  const undoStatusChange = () =>
+    updateSupplier.mutateAsync({
+      id: supplier.id,
+      supplier_status: status,
+      is_active: supplier.is_active,
+    } as Partial<Supplier> & { id: string });
 
-  const handleBlock = () => {
-    if (confirm(`Bloquer ${supplier.name} ? Le fournisseur passera en statut Bloqué.`))
-      blockMutation.mutate(supplier.id, { onSuccess: () => onOpenChange(false) });
+  const handleApprove = async () => {
+    await approveMutation.mutateAsync(supplier.id);
+    onOpenChange(false);
   };
 
-  const handleArchive = () => {
-    if (confirm(`Archiver ${supplier.name} ? Action conforme à RG-F06.`))
-      archiveMutation.mutate(supplier.id, { onSuccess: () => onOpenChange(false) });
+  const handleBlock = async () => {
+    await blockMutation.mutateAsync(supplier.id);
+    onOpenChange(false);
+    toast(`${supplier.name} bloqué`, { action: { label: 'Annuler', onClick: undoStatusChange } });
+  };
+
+  const handleArchive = async () => {
+    await archiveMutation.mutateAsync(supplier.id);
+    onOpenChange(false);
+    toast(`${supplier.name} archivé (RG-F06)`, { action: { label: 'Annuler', onClick: undoStatusChange } });
   };
 
   // Grade colour
