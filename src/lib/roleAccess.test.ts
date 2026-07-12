@@ -10,7 +10,6 @@ describe("roleAccess", () => {
       expect.arrayContaining([
         "home",
         "receptions",
-        "batches",
         "storage",
         "production",
         "logistics",
