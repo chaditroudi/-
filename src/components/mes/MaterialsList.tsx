@@ -30,21 +30,14 @@ export const MaterialsList = ({ materials, canManage = true }: MaterialsListProp
     m.code.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleSave = (data: Omit<Material, 'id' | 'created_at' | 'updated_at'>) => {
+  const handleSave = async (data: Omit<Material, 'id' | 'created_at' | 'updated_at'>) => {
     if (selectedMaterial) {
-      updateMutation.mutate({ id: selectedMaterial.id, ...data }, {
-        onSuccess: () => {
-          setDialogOpen(false);
-          setSelectedMaterial(null);
-        }
-      });
+      await updateMutation.mutateAsync({ id: selectedMaterial.id, ...data });
+      setSelectedMaterial(null);
     } else {
-      createMutation.mutate(data, {
-        onSuccess: () => {
-          setDialogOpen(false);
-        }
-      });
+      await createMutation.mutateAsync(data);
     }
+    setDialogOpen(false);
   };
 
   const handleEdit = (material: Material) => {
@@ -54,7 +47,7 @@ export const MaterialsList = ({ materials, canManage = true }: MaterialsListProp
 
   const handleDelete = (id: string) => {
     if (confirm(t('messages.deleteConfirm'))) {
-      deleteMutation.mutate(id);
+      void deleteMutation.mutateAsync(id);
     }
   };
 
