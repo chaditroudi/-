@@ -454,13 +454,19 @@ export const RequisitionsList = ({
                 )}
               </div>
               <div className="space-y-2">
-                <Label>Votre nom (valideur) *</Label>
+                <Label>Valideur</Label>
                 <Input
                   value={approverName}
                   onChange={(e) => setApproverName(e.target.value)}
                   placeholder="Nom complet du valideur"
-                  autoFocus
+                  readOnly={!!currentUser}
+                  className={currentUser ? 'bg-muted/50' : undefined}
                 />
+                {currentUser && (
+                  <p className="text-xs text-muted-foreground">
+                    Signé avec votre compte connecté (traçabilité RG-VAL-02).
+                  </p>
+                )}
               </div>
             </div>
           )}
@@ -488,11 +494,13 @@ export const RequisitionsList = ({
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Votre nom (valideur) *</Label>
+              <Label>Valideur</Label>
               <Input
                 value={rejectorName}
                 onChange={(e) => setRejectorName(e.target.value)}
                 placeholder="Nom du valideur"
+                readOnly={!!currentUser}
+                className={currentUser ? 'bg-muted/50' : undefined}
               />
             </div>
             <div className="space-y-2">
