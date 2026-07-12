@@ -54,9 +54,10 @@ export const useFactoryShellMetrics = (options?: FactoryShellMetricOptions) => {
     const pendingReceptions = draftReceptions + waitingQcReceptions + inQcReceptions;
 
     const inProgressOrders = productionOrders.filter((o) => o.status === "in_progress").length;
-    const qualityLots = batches.filter((b) => QUALITY_BATCH_STATUSES.has(b.status)).length;
-    const quarantinedLots = batches.filter((b) => b.status === "quarantine").length;
-    const storedLots = batches.filter((b) => b.status === "stored").length;
+    // File qualité réelle = réceptions en attente/en cours de QC.
+    const qualityLots = waitingQcReceptions + inQcReceptions;
+    const quarantinedLots = receptionLots.filter((l) => l.stock_status === "EN_QUARANTAINE").length;
+    const storedLots = receptionLots.filter((l) => l.stock_status === "STOCK_LIBERE").length;
     const activeAlertsCount =
       receptionAlerts.length +
       batchAlerts.filter((a) => ACTIVE_BATCH_ALERT_STATUSES.has(String(a.status))).length;
@@ -86,5 +87,5 @@ export const useFactoryShellMetrics = (options?: FactoryShellMetricOptions) => {
       activePackagingOrders,
       pendingShipments,
     };
-  }, [batchAlerts, batches, productionOrders, receptionAlerts, receptions, pipeline, pfLots, packagingOrders, shipments]);
+  }, [batchAlerts, receptionLots, productionOrders, receptionAlerts, receptions, pipeline, pfLots, packagingOrders, shipments]);
 };
