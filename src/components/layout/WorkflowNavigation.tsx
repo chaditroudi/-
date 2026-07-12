@@ -68,7 +68,7 @@ const getUserMode = (roles: ActorRole[]) => {
 
 const getPrimaryRole = (roles: ActorRole[]) => roles[0];
 
-const getWorkflowCards = (roles: ActorRole[], metrics: WorkflowNavigationProps["metrics"]) => {
+const getWorkflowCards = (roles: ActorRole[], metrics: WorkflowNavigationProps["metrics"]): WorkflowCardConfig[] => {
   const primaryRole = getPrimaryRole(roles);
   const department = primaryRole ? ROLE_CONFIG[primaryRole]?.department : "";
 
