@@ -81,7 +81,33 @@ export type OrderLineInsert = {
   notes?: string | null;
 };
 
+/** Matière sous son point de commande (§4.1). */
+export interface ReplenishmentNeed {
+  material_id: string;
+  material_name: string;
+  code: string;
+  unit: string;
+  min_stock: number;
+  current_stock: number;
+  suggested_quantity: number;
+  preferred_supplier_id: string | null;
+  already_requested: boolean;
+}
+
 export const purchasingApi = {
+  listReplenishmentNeeds: async () => {
+    const response = await apiRequest<ApiEnvelope<ReplenishmentNeed[]>>('/purchasing/replenishment-needs');
+    return response.data || [];
+  },
+
+  generateReplenishment: async () => {
+    const response = await apiRequest<ApiEnvelope<{ created_count: number; requisitions: PurchaseRequisition[] }>>(
+      '/purchasing/requisitions/auto-replenish',
+      { method: 'POST' },
+    );
+    return response.data;
+  },
+
   listRequisitions: async (status?: RequisitionStatus) => {
     const params = new URLSearchParams();
     if (status) params.set('status', status);
