@@ -3,6 +3,7 @@ import { NestFactory } from "@nestjs/core";
 import { getDatabaseStatus, isDatabaseConnected } from "./db/mongoose.js";
 import { requestContextMiddleware } from "./middleware/request-context.js";
 import { decodeAuthToken } from "./middleware/auth.js";
+import { auditTrailMiddleware } from "./middleware/security-audit.js";
 import { AppExceptionFilter } from "./nest/app-exception.filter.js";
 import { AppModule } from "./nest/app.module.js";
 const readToken = (req) => {
@@ -46,6 +47,7 @@ export const createApp = async () => {
         req.auth = decodeAuthToken(readToken(req));
         next();
     });
+    app.use(auditTrailMiddleware);
     app.use((req, res, next) => {
         if (req.path === "/health" || req.path === "/api/health") {
             next();

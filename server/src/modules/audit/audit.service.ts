@@ -1,8 +1,32 @@
 import { Injectable } from "@nestjs/common";
 
 import { getCollectionModel } from "../../db/dynamic-model.js";
-  
+
 const col = () => getCollectionModel("system_audit_logs");
+const receptionCol = () => getCollectionModel("reception_audit_logs_v2");
+
+// Piste d'audit réception historique (schéma propre) → forme AuditLog commune.
+const mapReceptionLog = (doc: any) => ({
+  id: doc.id ?? String(doc._id ?? ""),
+  event_type: "DATA_CHANGE",
+  severity: "info",
+  action: doc.action ?? "UPDATE",
+  module: "Réception",
+  table: doc.entity_type === "LOT" ? "reception_lots" : "receptions_v2",
+  message: `${doc.action ?? "ACTION"} — Réception${doc.entity_id ? ` (${doc.entity_id})` : ""}`,
+  user_id: null,
+  user_email: null,
+  user_name: doc.performed_by ?? null,
+  user_roles: [],
+  ip_address: null,
+  affected_ids: doc.entity_id ? [doc.entity_id] : [],
+  after_snapshot: doc.new_state ? [doc.new_state] : null,
+  before_snapshot: doc.previous_state ? [doc.previous_state] : null,
+  created_at: doc.created_at ?? null,
+  performed_by: doc.performed_by ?? null,
+  performed_at: doc.performed_at ?? doc.created_at ?? null,
+  entity_type: doc.entity_type ?? null,
+});
 
 @Injectable()
 export class AuditService {
@@ -39,7 +63,33 @@ export class AuditService {
 
     const total = await col().countDocuments(filter).exec();
 
-    return { logs: docs, total };
+    // Fusionner la piste réception historique quand aucun filtre spécifique
+    // system_audit_logs n'est demandé (ou quand le module Réception est visé).
+    const includeReceptionTrail = !userId && !eventType && !table && (!mod || mod === "Réception");
+    if (!includeReceptionTrail) {
+      return { logs: docs, total };
+    }
+
+    const receptionFilter: Record<string, any> = {};
+    if (from || to) {
+      receptionFilter.created_at = {};
+      if (from) receptionFilter.created_at.$gte = from;
+      if (to) receptionFilter.created_at.$lte = to;
+    }
+
+    const receptionDocs = await receptionCol()
+      .find(receptionFilter)
+      .sort({ created_at: -1 })
+      .limit(limit)
+      .lean()
+      .exec();
+    const receptionTotal = await receptionCol().countDocuments(receptionFilter).exec();
+
+    const merged = [...(docs as any[]), ...(receptionDocs as any[]).map(mapReceptionLog)]
+      .sort((a, b) => String(b.created_at ?? "").localeCompare(String(a.created_at ?? "")))
+      .slice(0, limit);
+
+    return { logs: merged, total: total + receptionTotal };
   }
 
   async getStats(from?: string) {
