@@ -483,6 +483,7 @@ export const PurchasingDashboard = ({ onNavigate }: { onNavigate?: (tab: string,
              onView={(req) => setDetailReq(req)}
              onDelete={(id) => deleteReq.mutate(id)}
              onApprove={(id, name) => approveReq.mutate({ id, approverName: name })}
+             onSignLevel={(id, approvals) => updateReq.mutate({ id, approvals })}
              onReject={(id, reason, name) => rejectReq.mutate({ id, reason, rejectorName: name })}
              onCreateOrder={handleCreateOrderFromReq}
              canCreate={canManageRequisitions}
