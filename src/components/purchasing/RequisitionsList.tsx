@@ -103,9 +103,13 @@ export const RequisitionsList = ({
   });
 
   // ── Handlers ────────────────────────────────────────
+  // RG-VAL-02 — séparation des tâches : un demandeur ne valide pas sa propre DA.
+  const isOwnRequisition = (req: PurchaseRequisition) =>
+    !!currentUser && req.requester_name.trim().toLowerCase() === currentUser.trim().toLowerCase();
+
   const handleApproveClick = (req: PurchaseRequisition) => {
     setReqToApprove(req);
-    setApproverName('');
+    setApproverName(currentUser);
     setApproveDialogOpen(true);
   };
 
@@ -120,7 +124,7 @@ export const RequisitionsList = ({
   const handleRejectClick = (req: PurchaseRequisition) => {
     setSelectedReq(req);
     setRejectReason('');
-    setRejectorName('');
+    setRejectorName(currentUser);
     setRejectDialogOpen(true);
   };
 
