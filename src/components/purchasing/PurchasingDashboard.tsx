@@ -492,6 +492,7 @@ export const PurchasingDashboard = ({ onNavigate }: { onNavigate?: (tab: string,
              canDelete={canManageRequisitions}
              canCreateOrder={canManagePurchaseOrders}
              workflowMessage={workflowMessage}
+             currentUser={currentUser}
            />
          </TabsContent>
 
