@@ -208,7 +208,7 @@ export async function buildLotTraceabilityDossier(lotNumber) {
     const receptionLotIds = uniqueStrings(receptionLots.map((row) => row.id));
     const receptionNumbers = uniqueStrings([reception?.reception_number]);
     const [qcInspections, fumigationCycles, cleaningCycles, hydrationCycles, triageSessions, subLots] = await Promise.all([
-        sanitizeDocument(await QcInspections()
+        runQuery(QcInspections()
             .find({
             $or: [
                 ...(receptionIds.length > 0 ? [{ reception_id: { $in: receptionIds } }] : []),
@@ -216,9 +216,8 @@ export async function buildLotTraceabilityDossier(lotNumber) {
             ],
         })
             .sort({ started_at: -1 })
-            .lean()
-            .exec()),
-        sanitizeDocument(await FumigationCycles()
+            .lean()),
+        runQuery(FumigationCycles()
             .find({
             $or: [
                 ...(receptionIds.length > 0 ? [{ "lot_refs.reception_id": { $in: receptionIds } }] : []),
@@ -226,9 +225,8 @@ export async function buildLotTraceabilityDossier(lotNumber) {
             ],
         })
             .sort({ created_at: -1 })
-            .lean()
-            .exec()),
-        sanitizeDocument(await CleaningCycles()
+            .lean()),
+        runQuery(CleaningCycles()
             .find({
             $or: [
                 ...(receptionIds.length > 0 ? [{ reception_id: { $in: receptionIds } }] : []),
@@ -236,9 +234,8 @@ export async function buildLotTraceabilityDossier(lotNumber) {
             ],
         })
             .sort({ created_at: -1 })
-            .lean()
-            .exec()),
-        sanitizeDocument(await HydrationCycles()
+            .lean()),
+        runQuery(HydrationCycles()
             .find({
             $or: [
                 ...(receptionIds.length > 0 ? [{ "lot_refs.reception_id": { $in: receptionIds } }] : []),
@@ -246,9 +243,8 @@ export async function buildLotTraceabilityDossier(lotNumber) {
             ],
         })
             .sort({ created_at: -1 })
-            .lean()
-            .exec()),
-        sanitizeDocument(await TriageSessions()
+            .lean()),
+        runQuery(TriageSessions()
             .find({
             $or: [
                 ...(receptionIds.length > 0 ? [{ parent_reception_id: { $in: receptionIds } }] : []),
@@ -256,9 +252,8 @@ export async function buildLotTraceabilityDossier(lotNumber) {
             ],
         })
             .sort({ created_at: -1 })
-            .lean()
-            .exec()),
-        sanitizeDocument(await TriageSublots()
+            .lean()),
+        runQuery(TriageSublots()
             .find({
             $or: [
                 ...(receptionIds.length > 0 ? [{ parent_reception_id: { $in: receptionIds } }] : []),
@@ -267,8 +262,7 @@ export async function buildLotTraceabilityDossier(lotNumber) {
             ],
         })
             .sort({ created_at: -1 })
-            .lean()
-            .exec()),
+            .lean()),
     ]);
     const qcInspectionIds = uniqueStrings(qcInspections.map((row) => row.id));
     const triageSessionIds = uniqueStrings(triageSessions.map((row) => row.id));
