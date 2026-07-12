@@ -378,11 +378,23 @@ let PurchasingService = class PurchasingService {
         if (!readString(approverName)) {
             throw badRequest("APPROVER_REQUIRED", "approverName is required.");
         }
-        // RG-VAL-02 — séparation des tâches : le demandeur ne valide pas sa propre DA.
+        // RG-VAL-02 — séparation des tâches : le demandeur ne valide pas sa propre DA,
+        // et un même valideur ne signe pas deux niveaux du circuit d'approbation.
         const requisition = await PurchaseRequisitions().findOne({ id: requisitionId }).lean().exec();
+        const approver = readString(approverName).toLowerCase();
         const requester = readString(requisition?.requester_name).toLowerCase();
-        if (requester && requester === readString(approverName).toLowerCase()) {
+        if (requester && requester === approver) {
             throw badRequest("SOD_VIOLATION", "RG-VAL-02 — Un demandeur ne peut pas valider sa propre demande d'achat.");
+        }
+        const priorApprovals = Array.isArray(requisition?.approvals) ? requisition.approvals : [];
+        // Le dernier niveau est signé par l'appelant courant : on ignore une éventuelle
+        // signature identique déjà enregistrée à l'instant par le même utilisateur.
+        const otherSigners = priorApprovals
+            .slice(0, -1)
+            .map((entry) => readString(entry?.approved_by).toLowerCase())
+            .filter(Boolean);
+        if (otherSigners.includes(approver)) {
+            throw badRequest("SOD_VIOLATION", "Séparation des tâches — un même valideur ne peut pas signer deux niveaux du circuit.");
         }
         return this.updateRequisition(requisitionId, {
             status: "approved",
