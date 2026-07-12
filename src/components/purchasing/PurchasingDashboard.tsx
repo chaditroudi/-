@@ -35,7 +35,9 @@ import {
   useSavePurchaseOrderThreeWayMatch,
   useDeletePurchaseOrder,
   useClosePurchaseOrder,
-  usePurchasingStats
+  usePurchasingStats,
+  useReplenishmentNeeds,
+  useGenerateReplenishment
 } from '@/hooks/usePurchasing';
 import { useSuppliers } from '@/hooks/useSuppliers';
 import { useMaterials } from '@/hooks/useMaterials';
@@ -157,6 +159,12 @@ export const PurchasingDashboard = ({ onNavigate }: { onNavigate?: (tab: string,
   const { data: stats } = usePurchasingStats({
     enabled: hasPurchasingAccess,
   });
+  const { data: replenishmentNeeds = [] } = useReplenishmentNeeds({
+    enabled: canManageRequisitions,
+  });
+  const generateReplenishment = useGenerateReplenishment();
+  // Matières sous seuil pour lesquelles aucune DA n'est encore ouverte.
+  const pendingReplenishment = replenishmentNeeds.filter((need) => !need.already_requested);
 
   // Mutations
   const createReq = useCreateRequisition();
