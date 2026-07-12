@@ -52,13 +52,13 @@ type NavItem = { id: string; title: string; icon: typeof Home; badge?: number };
 type NavSection = { key: string; label: string; items: NavItem[] };
 
 const TAB_SECTION: Record<string, string> = {
-  home: "operations", live: "operations", scan: "operations",
-  receptions: "operations", production: "operations", alerts: "operations",
-  batches: "quality", storage: "quality", packaging: "quality", quality: "quality",
-  "stock-dashboard": "quality", "stock-lots": "quality",
-  "stock-products": "quality", "stock-movements": "quality",
+  home: "operations", live: "operations", scan: "operations", alerts: "operations",
+  receptions: "flux", batches: "flux", storage: "flux",
+  production: "flux", packaging: "flux", logistics: "flux",
+  "stock-dashboard": "flux", "stock-lots": "flux",
+  "stock-products": "flux", "stock-movements": "flux",
   suppliers: "gestion", materials: "gestion", purchasing: "gestion",
-  logistics: "gestion", hr: "gestion",
+  quality: "gestion", hr: "gestion",
   analytics: "pilotage", "sage-operations": "pilotage",
 };
 
