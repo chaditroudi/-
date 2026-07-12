@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import {
   PurchaseRequisition,
+  RequisitionApproval,
   RequisitionStatus,
   UrgencyLevel,
   requisitionStatusLabels,
@@ -19,6 +20,7 @@ import {
   urgencyLabels,
   urgencyColors,
 } from '@/types/purchasing';
+import { useSettingsContext } from '@/contexts/SettingsContext';
 import {
   Dialog,
   DialogContent,
