@@ -386,6 +386,12 @@ export const RequisitionsList = ({
                           <Badge className={cn(requisitionStatusColors[req.status], 'text-white text-xs')}>
                             {requisitionStatusLabels[req.status]}
                           </Badge>
+                          {req.status === 'pending_approval' && getRequiredSteps(req).length > 1 && (
+                            <p className="mt-0.5 text-xs text-amber-700">
+                              Circuit {getSignedApprovals(req).length}/{getRequiredSteps(req).length}
+                              {getNextStep(req) ? ` · ${getNextStep(req)!.label}` : ''}
+                            </p>
+                          )}
                           {req.approved_by && (
                             <p className="text-xs text-muted-foreground mt-0.5">
                               par {req.approved_by}
