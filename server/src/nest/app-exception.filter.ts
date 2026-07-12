@@ -1,4 +1,4 @@
-import { ArgumentsHost, Catch, ExceptionFilter } from "@nestjs/common";
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from "@nestjs/common";
 
 import { AppError } from "../core/app-error.js";
 import { appendDeniedAccessAudit } from "../middleware/security-audit.js";
@@ -14,9 +14,21 @@ export class AppExceptionFilter implements ExceptionFilter {
       return;
     }
 
-    const statusCode = error instanceof AppError ? error.statusCode : 500;
-    const code = error instanceof AppError ? error.code : "INTERNAL_SERVER_ERROR";
-    const message = error instanceof AppError ? error.message : "Unexpected server error.";
+    // Les HttpException NestJS (404 route inconnue, 400 validation…) gardent
+    // leur statut au lieu d'être aplaties en 500.
+    const statusCode = error instanceof AppError
+      ? error.statusCode
+      : error instanceof HttpException
+        ? error.getStatus()
+        : 500;
+    const code = error instanceof AppError
+      ? error.code
+      : error instanceof HttpException
+        ? error.constructor.name.replace(/Exception$/, "").replace(/([a-z])([A-Z])/g, "$1_$2").toUpperCase()
+        : "INTERNAL_SERVER_ERROR";
+    const message = error instanceof AppError || error instanceof HttpException
+      ? error.message
+      : "Unexpected server error.";
 
     if (statusCode >= 500) {
       console.error(
