@@ -3,6 +3,7 @@ export type DocumentType =
   | 'BON_EXPEDITION'
   | 'RAPPORT_QC'
   | 'RECLAMATION'
+  | 'BON_RECLAMATION'
   | 'FICHE_PALETTE';
 
 export interface BonReceptionFormData {
@@ -88,6 +89,52 @@ export interface ReclamationFormData {
   responsable_reception_nom: string;
   responsable_achat_nom: string;
   date_cloture: string;
+}
+
+// ── Bon de réclamation fournisseur (V02-2023) ──────────────────────────────
+
+export interface BonReclamationEcartRow {
+  articule: string;
+  qte_fournisseur: string;
+  qte_reception: string;
+  ecart: string;
+}
+
+export interface BonReclamationDeclassementRow {
+  articule: string;
+  qte: string;
+  classe_fournisseur: string;
+  classe_reception: string;
+}
+
+export interface BonReclamationConclusionRow {
+  articule: string;
+  taux_tombe_branche: string;
+  taux_dechets: string;
+  taux_dattes_seches: string;
+  action: string;
+}
+
+export interface BonReclamationPrixRow {
+  articule: string;
+  prix_fournisseur: string;
+  prix_definitif: string;
+}
+
+export interface BonReclamationFormData {
+  document_date: string;
+  numero_facture_fournisseur: string;
+  numero_bon_expedition: string;
+  numero_rapport_qualite: string;
+  ecarts: BonReclamationEcartRow[];
+  ecart_nb: string; // ligne NB sous le tableau écart (ex: "75 GCRP + 9 GCM Branche sèche")
+  declassements: BonReclamationDeclassementRow[];
+  conclusions: BonReclamationConclusionRow[];
+  prix: BonReclamationPrixRow[];
+  observation: string;
+  responsable_reception_nom: string;
+  responsable_achat_nom: string;
+  fournisseur_nom: string;
 }
 
 export interface FichePaletteFormData {
