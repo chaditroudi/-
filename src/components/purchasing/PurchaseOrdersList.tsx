@@ -129,23 +129,40 @@ export const PurchaseOrdersList = ({
                     const receptionPct = totalOrdered > 0 ? Math.min(100, (totalReceived / totalOrdered) * 100) : 0;
                     const needsApproval = Boolean(order.approval_required ?? Number(order.total_amount || 0) >= 50000);
                     const isApproved = Boolean(order.approved_by);
+                    // Alerte retard : date de livraison dépassée sans réception complète
+                    // sur un BC encore ouvert (envoyé/confirmé/partiel).
+                    const isOpenForDelivery = ['sent', 'confirmed', 'partially_received'].includes(order.status);
+                    const lateDays = isOpenForDelivery && order.expected_delivery_date && receptionPct < 100
+                      ? Math.floor((Date.now() - new Date(order.expected_delivery_date).getTime()) / 86_400_000)
+                      : 0;
+                    const isLate = lateDays > 0;
 
                     return (
-                      <TableRow key={order.id}>
+                      <TableRow key={order.id} className={isLate ? 'bg-red-50/50' : undefined}>
                         <TableCell>
                           <div className="space-y-1">
                             <span className="font-mono text-sm">{order.order_number}</span>
-                            {order.order_type && (
-                              <div>
+                            <div className="flex flex-wrap gap-1">
+                              {order.order_type && (
                                 <Badge className={`${orderTypeColors[order.order_type]} text-white text-[11px] py-0`}>
                                   {orderTypeLabels[order.order_type]}
                                 </Badge>
-                              </div>
-                            )}
+                              )}
+                              {isLate && (
+                                <Badge className="bg-red-600 text-white text-[11px] py-0">
+                                  Retard {lateDays} j
+                                </Badge>
+                              )}
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell className="text-sm">
-                          {format(new Date(order.order_date), 'dd/MM/yyyy', { locale: fr })}
+                          <div>{format(new Date(order.order_date), 'dd/MM/yyyy', { locale: fr })}</div>
+                          {order.expected_delivery_date && (
+                            <div className={`text-xs ${isLate ? 'font-semibold text-red-600' : 'text-muted-foreground'}`}>
+                              Livraison : {format(new Date(order.expected_delivery_date), 'dd/MM', { locale: fr })}
+                            </div>
+                          )}
                         </TableCell>
                         <TableCell>
                           <div>
