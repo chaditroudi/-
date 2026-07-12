@@ -175,14 +175,14 @@ const ProcessBar = ({ data }: { data: LotTraceabilityData }) => {
   const pk = data.packaging_orders;
   const s = data.shipments;
 
-  const fumDone = f.some(x => x.status === 'COMPLETED');
-  const fumActive = f.some(x => x.status === 'IN_PROGRESS');
-  const cleanDone = c.some(x => x.status === 'COMPLETED');
-  const cleanActive = c.some(x => x.status === 'IN_PROGRESS' || x.status === 'in_progress');
-  const hydDone = h.some(x => x.status === 'COMPLETED' || x.status === 'completed');
-  const hydActive = h.some(x => x.status === 'IN_PROGRESS' || x.status === 'in_progress');
-  const triDone = t.some(x => x.status === 'COMPLETED' || x.status === 'completed');
-  const triActive = t.some(x => x.status === 'IN_PROGRESS' || x.status === 'in_progress');
+  const fumDone = f.some(x => x.status === 'TERMINE');
+  const fumActive = f.some(x => ['CHARGEMENT', 'EN_COURS', 'VENTILATION', 'VALIDATION'].includes(x.status));
+  const cleanDone = c.some(x => x.status === 'TERMINE');
+  const cleanActive = c.some(x => x.status === 'EN_COURS');
+  const hydDone = h.some(x => x.status === 'TERMINE');
+  const hydActive = h.some(x => x.status === 'EN_COURS');
+  const triDone = t.some(x => x.status === 'TERMINE');
+  const triActive = t.some(x => x.status === 'EN_COURS' || x.status === 'PAUSE');
   const prodDone = p.some(x => x.status === 'completed');
   const prodActive = p.some(x => x.status === 'in_progress');
   const packDone = pk.some(x => x.status === 'completed');
