@@ -51,6 +51,7 @@ export const MaterialDialog = ({ open, onOpenChange, material, onSave, isLoading
         unit: material.unit,
         category: material.category || "",
         min_stock: material.min_stock,
+        current_stock: material.current_stock ?? 0,
         caisse_type: "",
       });
     } else {
@@ -61,6 +62,7 @@ export const MaterialDialog = ({ open, onOpenChange, material, onSave, isLoading
         unit: "kg",
         category: "",
         min_stock: 0,
+        current_stock: 0,
         caisse_type: "",
       });
     }
