@@ -1,0 +1,1 @@
+import{dh as a,di as i}from"./index-oFdiF8MM.js";import{L as s}from"./Line-F4KAePBZ.js";import{X as r,Y as o}from"./YAxis-DNBM12O5.js";var m=a({chartName:"LineChart",GraphicalChild:s,axisComponents:[{axisType:"xAxis",AxisComp:r},{axisType:"yAxis",AxisComp:o}],formatAxisMap:i});export{m as L};
