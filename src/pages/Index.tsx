@@ -67,14 +67,14 @@ const TabLoader = () => (
 // ── Static lookup tables (module-level — never recreated) ─────────────────────
 
 const TAB_SECTION_LABEL: Partial<Record<AppTab, string>> = {
-  live: "Opérations", scan: "Opérations", receptions: "Opérations",
-  production: "Opérations", alerts: "Opérations",
-  batches: "Qualité & Stock", storage: "Qualité & Stock", packaging: "Qualité & Stock",
-  quality: "Qualité & Stock",
-  "stock-dashboard": "Qualité & Stock", "stock-lots": "Qualité & Stock",
-  "stock-products": "Qualité & Stock", "stock-movements": "Qualité & Stock",
+  live: "Opérations", scan: "Opérations", alerts: "Opérations",
+  receptions: "Flux usine — Étape 1", batches: "Flux usine — Étape 2",
+  storage: "Flux usine — Étape 3", production: "Flux usine — Étape 4",
+  packaging: "Flux usine — Étape 5", logistics: "Flux usine — Étape 6",
+  "stock-dashboard": "Flux usine — Étape 3", "stock-lots": "Flux usine — Étape 3",
+  "stock-products": "Flux usine — Étape 3", "stock-movements": "Flux usine — Étape 3",
   suppliers: "Gestion", materials: "Gestion", purchasing: "Gestion",
-  logistics: "Gestion", hr: "Gestion",
+  quality: "Gestion", hr: "Gestion",
   analytics: "Pilotage", "sage-operations": "Pilotage", export: "Pilotage", customers: "Pilotage",
   settings: "Administration",
 };
