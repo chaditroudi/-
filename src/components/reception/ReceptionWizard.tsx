@@ -115,6 +115,9 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
 
   const [viewMode, setViewMode] = useState<'form' | 'ledger'>('form');
   const [step, setStep] = useState(1);
+  // Les 4 horodatages détaillés sont auto-remplis à "maintenant" — masqués par
+  // défaut, ajustables via le toggle (progressive disclosure).
+  const [showTimestamps, setShowTimestamps] = useState(false);
   const [submitResult, setSubmitResult] = useState<{ receptionNumber: string; lotCount: number; zone: string } | null>(null);
 
   const [supplierId, setSupplierId] = useState('');
@@ -204,7 +207,16 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
       origin_farm: lot.origin_farm || selectedSupplier.oasis_name || '',
       variety: lot.variety || variety,
     })));
-  }, [selectedSupplier, variety]);
+    // Même fournisseur → souvent même camion/chauffeur : préremplir depuis sa
+    // dernière réception (modifiable, jamais écrasé si déjà saisi).
+    const lastReception = receptions
+      .filter((r) => r.supplier_id === selectedSupplier.id)
+      .sort((a, b) => (b.created_at ?? '').localeCompare(a.created_at ?? ''))[0];
+    if (lastReception) {
+      setVehicleNumber((current) => current || lastReception.vehicle_number || '');
+      setDriverName((current) => current || lastReception.driver_name || '');
+    }
+  }, [selectedSupplier, variety, receptions]);
 
   useEffect(() => {
     if (!selectedPurchaseOrder) {
@@ -340,6 +352,7 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
   const resetForm = () => {
     setViewMode('form');
     setStep(1);
+    setShowTimestamps(false);
     setSubmitResult(null);
     setSupplierId('');
     setPurchaseOrderId('');
@@ -911,68 +924,88 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
                           </SelectContent>
                         </Select>
                       </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Motif manuel</Label>
-                        <Input className="h-10 rounded-xl" value={manualReason} onChange={(e) => setManualReason(e.target.value)} placeholder="Obligatoire si saisie manuelle" />
-                      </div>
-
-                      <div className="col-span-2 flex items-center justify-between rounded-xl border border-primary/15 bg-primary/5 px-3 py-2">
-                        <p className="text-xs font-semibold text-muted-foreground">Horodatages réception</p>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="h-9 rounded-lg border-primary/30 px-2.5 text-xs text-primary"
-                          onClick={() => {
-                            const now = toDateTimeLocal();
-                            setGrossWeightCapturedAt(now);
-                            setUnloadingStartedAt(now);
-                            setUnloadingCompletedAt(now);
-                            setTareWeightCapturedAt(now);
-                          }}
-                        >
-                          <Clock3 className="mr-1 h-3 w-3" />
-                          Horodater tout maintenant
-                        </Button>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Horodatage poids brut</Label>
-                        <div className="flex gap-1.5">
-                          <Input className="h-10 flex-1 rounded-xl" type="datetime-local" value={grossWeightCapturedAt} onChange={(e) => setGrossWeightCapturedAt(e.target.value)} />
-                          <Button type="button" variant="outline" size="sm" className="h-10 shrink-0 rounded-xl px-2.5" title="Maintenant" onClick={() => setGrossWeightCapturedAt(toDateTimeLocal())}>
-                            <Clock3 className="h-3.5 w-3.5" />
-                          </Button>
+                      {weighingSource !== 'SCALE' && (
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Motif manuel *</Label>
+                          <Input className="h-10 rounded-xl" value={manualReason} onChange={(e) => setManualReason(e.target.value)} placeholder="Obligatoire si saisie manuelle" />
                         </div>
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Début déchargement</Label>
-                        <div className="flex gap-1.5">
-                          <Input className="h-10 flex-1 rounded-xl" type="datetime-local" value={unloadingStartedAt} onChange={(e) => setUnloadingStartedAt(e.target.value)} />
-                          <Button type="button" variant="outline" size="sm" className="h-10 shrink-0 rounded-xl px-2.5" title="Maintenant" onClick={() => setUnloadingStartedAt(toDateTimeLocal())}>
-                            <Clock3 className="h-3.5 w-3.5" />
+                      )}
+
+                      <div className="col-span-2 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/15 bg-primary/5 px-3 py-2">
+                        <p className="text-xs font-semibold text-muted-foreground">
+                          Horodatages réception
+                          <span className="ml-1.5 font-normal text-muted-foreground/70">auto-remplis à maintenant</span>
+                        </p>
+                        <div className="flex items-center gap-1.5">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="h-9 rounded-lg border-primary/30 px-2.5 text-xs text-primary"
+                            onClick={() => {
+                              const now = toDateTimeLocal();
+                              setGrossWeightCapturedAt(now);
+                              setUnloadingStartedAt(now);
+                              setUnloadingCompletedAt(now);
+                              setTareWeightCapturedAt(now);
+                            }}
+                          >
+                            <Clock3 className="mr-1 h-3 w-3" />
+                            Horodater tout maintenant
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-9 rounded-lg px-2.5 text-xs text-muted-foreground"
+                            onClick={() => setShowTimestamps((v) => !v)}
+                          >
+                            {showTimestamps ? 'Masquer' : 'Ajuster…'}
                           </Button>
                         </div>
                       </div>
 
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Fin déchargement</Label>
-                        <div className="flex gap-1.5">
-                          <Input className="h-10 flex-1 rounded-xl" type="datetime-local" value={unloadingCompletedAt} onChange={(e) => setUnloadingCompletedAt(e.target.value)} />
-                          <Button type="button" variant="outline" size="sm" className="h-10 shrink-0 rounded-xl px-2.5" title="Maintenant" onClick={() => setUnloadingCompletedAt(toDateTimeLocal())}>
-                            <Clock3 className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Horodatage tare</Label>
-                        <div className="flex gap-1.5">
-                          <Input className="h-10 flex-1 rounded-xl" type="datetime-local" value={tareWeightCapturedAt} onChange={(e) => setTareWeightCapturedAt(e.target.value)} />
-                          <Button type="button" variant="outline" size="sm" className="h-10 shrink-0 rounded-xl px-2.5" title="Maintenant" onClick={() => setTareWeightCapturedAt(toDateTimeLocal())}>
-                            <Clock3 className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                      </div>
+                      {showTimestamps && (
+                        <>
+                          <div className="space-y-1.5">
+                            <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Horodatage poids brut</Label>
+                            <div className="flex gap-1.5">
+                              <Input className="h-10 flex-1 rounded-xl" type="datetime-local" value={grossWeightCapturedAt} onChange={(e) => setGrossWeightCapturedAt(e.target.value)} />
+                              <Button type="button" variant="outline" size="sm" className="h-10 shrink-0 rounded-xl px-2.5" title="Maintenant" onClick={() => setGrossWeightCapturedAt(toDateTimeLocal())}>
+                                <Clock3 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Début déchargement</Label>
+                            <div className="flex gap-1.5">
+                              <Input className="h-10 flex-1 rounded-xl" type="datetime-local" value={unloadingStartedAt} onChange={(e) => setUnloadingStartedAt(e.target.value)} />
+                              <Button type="button" variant="outline" size="sm" className="h-10 shrink-0 rounded-xl px-2.5" title="Maintenant" onClick={() => setUnloadingStartedAt(toDateTimeLocal())}>
+                                <Clock3 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Fin déchargement</Label>
+                            <div className="flex gap-1.5">
+                              <Input className="h-10 flex-1 rounded-xl" type="datetime-local" value={unloadingCompletedAt} onChange={(e) => setUnloadingCompletedAt(e.target.value)} />
+                              <Button type="button" variant="outline" size="sm" className="h-10 shrink-0 rounded-xl px-2.5" title="Maintenant" onClick={() => setUnloadingCompletedAt(toDateTimeLocal())}>
+                                <Clock3 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Horodatage tare</Label>
+                            <div className="flex gap-1.5">
+                              <Input className="h-10 flex-1 rounded-xl" type="datetime-local" value={tareWeightCapturedAt} onChange={(e) => setTareWeightCapturedAt(e.target.value)} />
+                              <Button type="button" variant="outline" size="sm" className="h-10 shrink-0 rounded-xl px-2.5" title="Maintenant" onClick={() => setTareWeightCapturedAt(toDateTimeLocal())}>
+                                <Clock3 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </CardContent>
                   </Card>
 
