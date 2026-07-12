@@ -98,6 +98,14 @@ export const normalizePurchaseOrderLineStatus = (
   }
 };
 
+/** Signature d'un niveau de la matrice d'approbation (§5.1 cahier P2P). */
+export interface RequisitionApproval {
+  level: string;
+  label: string;
+  approved_by: string;
+  approved_at: string;
+}
+
 export interface PurchaseRequisition {
   id: string;
   requisition_number: string;
@@ -113,6 +121,8 @@ export interface PurchaseRequisition {
   estimated_cost: number | null;
   preferred_supplier_id: string | null;
   status: RequisitionStatus;
+  /** Niveaux déjà signés (matrice d'approbation par seuils). */
+  approvals?: RequisitionApproval[] | null;
   approved_by: string | null;
   approved_at: string | null;
   rejection_reason: string | null;
