@@ -90,63 +90,78 @@ export const HomePage = ({ onNavigate, accessibleTabs, metrics }: HomePageProps)
   const primaryActionTab = (accessibleTabs.includes("receptions") ? "receptions" : accessibleTabs[0] ?? "home") as AppTab;
   const PrimaryActionIcon = APP_TAB_META[primaryActionTab]?.icon;
 
-  // ── Action queue ───────────────────────────────────────────────────────────
+  // ── Action queue — uniquement ce qui demande une action maintenant ──────────
+  const qcQueue = waitingQcReceptions + inQcReceptions;
+  const plural = (n: number) => (n > 1 ? "s" : "");
   const queueItems = [
     {
-      title: waitingQcReceptions > 0
-        ? `${waitingQcReceptions} réception${waitingQcReceptions > 1 ? "s" : ""} en attente QC`
-        : "Contrôle qualité",
-      description: waitingQcReceptions > 0
-        ? "Des arrivages attendent le contrôle qualité entrant."
-        : "Aucun contrôle qualité en attente.",
-      badge: waitingQcReceptions > 0 ? "À traiter" : "OK",
-      badgeClassName: waitingQcReceptions > 0 ? "bg-amber-500 text-white" : "bg-emerald-600 text-white",
+      count: activeAlertsCount,
+      title: `${activeAlertsCount} alerte${plural(activeAlertsCount)} active${plural(activeAlertsCount)}`,
+      description: "Des alertes demandent une décision.",
+      badge: "Urgent",
+      badgeClassName: "bg-red-600 text-white",
+      ctaLabel: "Alertes",
+      tab: "alerts",
+    },
+    {
+      count: qcQueue,
+      title: `${qcQueue} réception${plural(qcQueue)} à contrôler`,
+      description: waitingQcReceptions > 0 && inQcReceptions > 0
+        ? `${waitingQcReceptions} en attente QC, ${inQcReceptions} inspection${plural(inQcReceptions)} à reprendre.`
+        : inQcReceptions > 0
+          ? "Des inspections QC commencées attendent d'être terminées."
+          : "Des arrivages attendent le contrôle qualité entrant.",
+      badge: "À traiter",
+      badgeClassName: "bg-amber-500 text-white",
       ctaLabel: "Réceptions",
       tab: "receptions",
     },
     {
-      title: quarantinedLots > 0
-        ? `${quarantinedLots} lot${quarantinedLots > 1 ? "s" : ""} en quarantaine`
-        : "Stock sous contrôle",
-      description: quarantinedLots > 0
-        ? "Des lots sensibles doivent être sécurisés avant expédition ou production."
-        : "Aucune quarantaine majeure en cours.",
-      badge: quarantinedLots > 0 ? "Vigilance" : "RAS",
-      badgeClassName: quarantinedLots > 0 ? "bg-orange-500 text-white" : "bg-slate-600 text-white",
+      count: draftReceptions,
+      title: `${draftReceptions} réception${plural(draftReceptions)} en brouillon`,
+      description: "Des saisies de réception n'ont pas été finalisées.",
+      badge: "À finaliser",
+      badgeClassName: "bg-slate-600 text-white",
+      ctaLabel: "Réceptions",
+      tab: "receptions",
+    },
+    {
+      count: quarantinedLots,
+      title: `${quarantinedLots} lot${plural(quarantinedLots)} en quarantaine`,
+      description: "Des lots bloqués attendent une décision qualité (libérer ou rejeter).",
+      badge: "Vigilance",
+      badgeClassName: "bg-orange-500 text-white",
       ctaLabel: "Stock",
       tab: "storage",
     },
     {
-      title: phase2Waiting > 0
-        ? `${phase2Waiting} lot${phase2Waiting > 1 ? "s" : ""} en attente Phase 2`
-        : inProgressOrders > 0
-          ? `${inProgressOrders} ordre${inProgressOrders > 1 ? "s" : ""} en cours`
-          : "Production",
-      description: phase2Waiting > 0
-        ? "Des lots attendent fumigation, nettoyage, hydratation ou triage."
-        : inProgressOrders > 0
-          ? "Des ordres de fabrication sont en cours."
-          : "Aucun ordre actif pour le moment.",
-      badge: phase2Waiting > 0 ? "En attente" : inProgressOrders > 0 ? "En cours" : "Calme",
-      badgeClassName: phase2Waiting > 0
-        ? "bg-violet-600 text-white"
-        : inProgressOrders > 0 ? "bg-sky-600 text-white" : "bg-emerald-600 text-white",
+      count: phase2Waiting,
+      title: `${phase2Waiting} lot${plural(phase2Waiting)} en attente de traitement`,
+      description: "Des lots libérés attendent fumigation, nettoyage, hydratation ou triage.",
+      badge: "En attente",
+      badgeClassName: "bg-violet-600 text-white",
       ctaLabel: "Production",
       tab: "production",
     },
     {
-      title: activeAlertsCount > 0
-        ? `${activeAlertsCount} alerte${activeAlertsCount > 1 ? "s" : ""} active${activeAlertsCount > 1 ? "s" : ""}`
-        : "Aucune alerte critique",
-      description: activeAlertsCount > 0
-        ? "Des alertes demandent une décision."
-        : "Aucune urgence signalée.",
-      badge: activeAlertsCount > 0 ? "Urgent" : "Calme",
-      badgeClassName: activeAlertsCount > 0 ? "bg-red-600 text-white" : "bg-emerald-600 text-white",
-      ctaLabel: "Alertes",
-      tab: "alerts",
+      count: validatedPFLots,
+      title: `${validatedPFLots} lot${plural(validatedPFLots)} PF prêt${plural(validatedPFLots)} à conditionner`,
+      description: "Des produits finis validés attendent un ordre de conditionnement.",
+      badge: "Prêt",
+      badgeClassName: "bg-sky-600 text-white",
+      ctaLabel: "Conditionnement",
+      tab: "packaging",
     },
-  ].filter((item) => accessibleTabs.includes(item.tab as AppTab));
+    {
+      count: pendingShipments,
+      title: `${pendingShipments} expédition${plural(pendingShipments)} à préparer`,
+      description: "Des préparations d'expédition sont planifiées.",
+      badge: "Logistique",
+      badgeClassName: "bg-cyan-600 text-white",
+      ctaLabel: "Expédition",
+      tab: "logistics",
+    },
+  ].filter((item) => item.count > 0 && accessibleTabs.includes(item.tab as AppTab));
 
   // ── Quick access — ordre du flux physique, compteurs réels ─────────────────
   const quickLinks = [
