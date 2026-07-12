@@ -132,6 +132,34 @@ export const useRequisitions = (status?: RequisitionStatus, options?: QueryOptio
     enabled: options?.enabled ?? true,
   });
 
+/** §4.1 — matières sous leur point de commande. */
+export const useReplenishmentNeeds = (options?: QueryOptions) =>
+  useQuery<ReplenishmentNeed[]>({
+    queryKey: ['replenishment-needs'],
+    queryFn: async () => purchasingApi.listReplenishmentNeeds(),
+    enabled: options?.enabled ?? true,
+  });
+
+/** RG-DA-01 — génère les DA de réappro en brouillon (confirmation humaine requise). */
+export const useGenerateReplenishment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => purchasingApi.generateReplenishment(),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['requisitions'] });
+      queryClient.invalidateQueries({ queryKey: ['replenishment-needs'] });
+      const count = data?.created_count ?? 0;
+      toast.success(
+        count > 0
+          ? `${count} demande${count > 1 ? 's' : ''} d'achat créée${count > 1 ? 's' : ''} en brouillon`
+          : 'Aucune nouvelle demande à créer',
+      );
+    },
+    onError: () => toast.error('Erreur lors de la génération des demandes'),
+  });
+};
+
 export const useRequisition = (id: string) =>
   useQuery({
     queryKey: ['requisition', id],
