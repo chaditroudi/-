@@ -5,7 +5,6 @@ export type AppTab =
   | 'live'
   | 'scan'
   | 'receptions'
-  | 'batches'
   | 'storage'
   | 'production'
   | 'packaging'
@@ -62,7 +61,6 @@ export interface RoleWorkspaceProfile {
 const ALL_APP_TABS: AppTab[] = [
   'home',
   'receptions',
-  'batches',
   'storage',
   'production',
   'packaging',
@@ -132,7 +130,7 @@ const ROLE_WORKSPACES: Record<ActorRole, RoleWorkspaceProfile> = {
     interfaceLabel: 'Dashboard production web',
     workspaceLabel: 'Supervision production',
     defaultTab: 'production',
-    primaryTabs: ['production', 'packaging', 'storage', 'alerts', 'batches', 'home'],
+    primaryTabs: ['production', 'packaging', 'storage', 'alerts', 'home'],
     quickTabs: ['sage-operations', 'analytics', 'hr'],
     actions: ['production_supervision'],
   },
@@ -140,8 +138,8 @@ const ROLE_WORKSPACES: Record<ActorRole, RoleWorkspaceProfile> = {
     role: 'responsable_qualite',
     interfaceLabel: 'Dashboard qualité web',
     workspaceLabel: 'Pilotage qualité',
-    defaultTab: 'batches',
-    primaryTabs: ['batches', 'quality', 'receptions', 'alerts', 'storage', 'home'],
+    defaultTab: 'receptions',
+    primaryTabs: ['receptions', 'quality', 'alerts', 'storage', 'home'],
     quickTabs: ['sage-operations', 'analytics', 'hr'],
     actions: ['quality_supervision', 'qc_entry_scan', 'production_supervision'],
   },
@@ -149,8 +147,8 @@ const ROLE_WORKSPACES: Record<ActorRole, RoleWorkspaceProfile> = {
     role: 'inspecteur_qualite',
     interfaceLabel: 'Tablette terrain',
     workspaceLabel: 'Inspection qualité terrain',
-    defaultTab: 'batches',
-    primaryTabs: ['batches', 'receptions', 'alerts'],
+    defaultTab: 'receptions',
+    primaryTabs: ['receptions', 'alerts'],
     quickTabs: ['home', 'storage'],
     actions: ['qc_entry_scan'],
   },
@@ -195,7 +193,7 @@ const ROLE_WORKSPACES: Record<ActorRole, RoleWorkspaceProfile> = {
     interfaceLabel: 'Écran grand format + tablette',
     workspaceLabel: 'Triage IA',
     defaultTab: 'production',
-    primaryTabs: ['production', 'alerts', 'batches'],
+    primaryTabs: ['production', 'alerts'],
     quickTabs: ['home'],
     actions: ['sorting_override'],
   },
