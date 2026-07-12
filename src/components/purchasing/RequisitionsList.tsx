@@ -491,46 +491,101 @@ export const RequisitionsList = ({
           <DialogHeader>
             <DialogTitle>Valider la demande</DialogTitle>
           </DialogHeader>
-          {reqToApprove && (
-            <div className="space-y-4">
-              <div className="rounded-xl border bg-muted/30 p-3 text-sm space-y-1">
-                <p><span className="text-muted-foreground">DA :</span> <strong>{reqToApprove.requisition_number}</strong></p>
-                <p><span className="text-muted-foreground">Article :</span> {reqToApprove.material_name}</p>
-                <p><span className="text-muted-foreground">Préparée par :</span> {reqToApprove.requester_name}</p>
-                {reqToApprove.estimated_cost != null && (
-                  <p><span className="text-muted-foreground">Budget estimé :</span> <strong>{reqToApprove.estimated_cost.toLocaleString('fr-FR')} TND</strong></p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label>Valideur</Label>
-                <Input
-                  value={approverName}
-                  onChange={(e) => setApproverName(e.target.value)}
-                  placeholder="Nom complet du valideur"
-                  readOnly={!!currentUser}
-                  className={currentUser ? 'bg-muted/50' : undefined}
-                />
-                {currentUser && (
-                  <p className="text-xs text-muted-foreground">
-                    Signé avec votre compte connecté (traçabilité RG-VAL-02).
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setApproveDialogOpen(false)}>
-              Annuler
-            </Button>
-            <Button
-              onClick={handleApproveConfirm}
-              disabled={!approverName.trim()}
-              className="bg-emerald-600 hover:bg-emerald-700"
-            >
-              <Check className="h-4 w-4 mr-2" />
-              Confirmer la validation
-            </Button>
-          </DialogFooter>
+          {reqToApprove && (() => {
+            const requiredSteps = getRequiredSteps(reqToApprove);
+            const signed = getSignedApprovals(reqToApprove);
+            const nextStep = getNextStep(reqToApprove);
+            const alreadySigned = hasAlreadySigned(reqToApprove);
+            const isFinal = requiredSteps.filter(
+              (s) => !signed.some((a) => a.level === s.level),
+            ).length <= 1;
+
+            return (
+              <>
+                <div className="space-y-4">
+                  <div className="rounded-xl border bg-muted/30 p-3 text-sm space-y-1">
+                    <p><span className="text-muted-foreground">DA :</span> <strong>{reqToApprove.requisition_number}</strong></p>
+                    <p><span className="text-muted-foreground">Article :</span> {reqToApprove.material_name}</p>
+                    <p><span className="text-muted-foreground">Préparée par :</span> {reqToApprove.requester_name}</p>
+                    {reqToApprove.estimated_cost != null && (
+                      <p><span className="text-muted-foreground">Budget estimé :</span> <strong>{reqToApprove.estimated_cost.toLocaleString('fr-FR')} TND</strong></p>
+                    )}
+                  </div>
+
+                  {/* Circuit d'approbation par seuils (§5.1) */}
+                  {requiredSteps.length > 0 && (
+                    <div className="space-y-1.5">
+                      <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+                        Circuit d'approbation ({signed.length}/{requiredSteps.length})
+                      </Label>
+                      <div className="rounded-xl border divide-y">
+                        {requiredSteps.map((step) => {
+                          const sig = signed.find((a) => a.level === step.level);
+                          const isNext = !sig && nextStep?.level === step.level;
+                          return (
+                            <div key={step.level} className="flex items-center gap-2.5 px-3 py-2 text-sm">
+                              <span className={cn(
+                                'flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold',
+                                sig ? 'bg-emerald-600 text-white' : isNext ? 'bg-amber-500 text-white' : 'bg-muted text-muted-foreground',
+                              )}>
+                                {sig ? '✓' : '•'}
+                              </span>
+                              <span className={cn('flex-1', sig && 'text-muted-foreground')}>{step.label}</span>
+                              {sig ? (
+                                <span className="text-xs text-muted-foreground">
+                                  {sig.approved_by} · {format(new Date(sig.approved_at), 'dd/MM HH:mm', { locale: fr })}
+                                </span>
+                              ) : isNext ? (
+                                <Badge className="bg-amber-500 text-white text-[11px]">À signer</Badge>
+                              ) : (
+                                <span className="text-xs text-muted-foreground/60">En attente</span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {alreadySigned && (
+                    <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                      Vous avez déjà signé un niveau de cette DA — le niveau suivant doit être
+                      validé par une autre personne (séparation des tâches).
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <Label>Valideur</Label>
+                    <Input
+                      value={approverName}
+                      onChange={(e) => setApproverName(e.target.value)}
+                      placeholder="Nom complet du valideur"
+                      readOnly={!!currentUser}
+                      className={currentUser ? 'bg-muted/50' : undefined}
+                    />
+                    {currentUser && (
+                      <p className="text-xs text-muted-foreground">
+                        Signé avec votre compte connecté (traçabilité RG-VAL-02).
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setApproveDialogOpen(false)}>
+                    Annuler
+                  </Button>
+                  <Button
+                    onClick={handleApproveConfirm}
+                    disabled={!approverName.trim() || alreadySigned}
+                    className="bg-emerald-600 hover:bg-emerald-700"
+                  >
+                    <Check className="h-4 w-4 mr-2" />
+                    {isFinal ? 'Confirmer la validation' : `Signer — ${nextStep?.label ?? ''}`}
+                  </Button>
+                </DialogFooter>
+              </>
+            );
+          })()}
         </DialogContent>
       </Dialog>
 
