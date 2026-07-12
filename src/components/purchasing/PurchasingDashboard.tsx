@@ -475,7 +475,34 @@ export const PurchasingDashboard = ({ onNavigate }: { onNavigate?: (tab: string,
           )}
         </TabsList>
 
-         <TabsContent value="requisitions" className="mt-4">
+         <TabsContent value="requisitions" className="mt-4 space-y-3">
+           {/* §4.1 — Seuil de stock : proposition de réapprovisionnement */}
+           {canManageRequisitions && pendingReplenishment.length > 0 && (
+             <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+               <Package className="h-5 w-5 shrink-0 text-amber-600" />
+               <div className="min-w-0 flex-1">
+                 <p className="text-sm font-semibold text-amber-900">
+                   {pendingReplenishment.length} matière{pendingReplenishment.length > 1 ? 's' : ''} sous
+                   le point de commande
+                 </p>
+                 <p className="truncate text-xs text-amber-700">
+                   {pendingReplenishment
+                     .slice(0, 4)
+                     .map((need) => `${need.material_name} (${need.current_stock}/${need.min_stock} ${need.unit})`)
+                     .join(' · ')}
+                   {pendingReplenishment.length > 4 ? ` +${pendingReplenishment.length - 4}` : ''}
+                 </p>
+               </div>
+               <Button
+                 size="sm"
+                 className="shrink-0 bg-amber-600 hover:bg-amber-700"
+                 onClick={() => generateReplenishment.mutate()}
+                 disabled={generateReplenishment.isPending}
+               >
+                 Générer les demandes d'achat
+               </Button>
+             </div>
+           )}
            <RequisitionsList
              requisitions={requisitions}
              onNew={handleNewReq}
