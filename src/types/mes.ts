@@ -120,6 +120,10 @@ export interface Material {
   unit: string;
   category: string | null;
   min_stock: number;
+  /** Stock disponible — pilote la génération auto des DA (RG-DA-01). */
+  current_stock?: number;
+  /** Fournisseur proposé par défaut sur les DA de réapprovisionnement. */
+  preferred_supplier_id?: string | null;
   created_at: string;
   updated_at: string;
 }
