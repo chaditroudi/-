@@ -172,12 +172,25 @@ export const MaterialDialog = ({ open, onOpenChange, material, onSave, isLoading
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="min_stock">Stock Minimum</Label>
+              <Label htmlFor="min_stock">Point de commande</Label>
               <Input
                 id="min_stock"
                 type="number"
                 value={formData.min_stock}
                 onChange={(e) => setFormData({ ...formData, min_stock: Number(e.target.value) })}
+                min={0}
+              />
+              <p className="text-xs text-muted-foreground">
+                En dessous de ce seuil, une demande d'achat est proposée.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="current_stock">Stock disponible</Label>
+              <Input
+                id="current_stock"
+                type="number"
+                value={formData.current_stock}
+                onChange={(e) => setFormData({ ...formData, current_stock: Number(e.target.value) })}
                 min={0}
               />
             </div>
