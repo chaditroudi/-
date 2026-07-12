@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import {
   Truck,
-  ClipboardCheck,
   Warehouse,
   Factory,
   PackageCheck,
@@ -30,19 +29,11 @@ interface FlowStep {
 const FLOW_STEPS: FlowStep[] = [
   {
     key: "reception",
-    label: "Réception",
-    hint: "Pesée, lots d'entrée, documents fournisseur",
+    label: "Réception & QC",
+    hint: "Pesée, lots d'entrée, contrôle qualité entrant, documents fournisseur",
     icon: Truck,
     targetTab: "receptions",
     tabs: ["receptions"],
-  },
-  {
-    key: "qualite",
-    label: "Qualité",
-    hint: "Inspections, grades et décisions QC",
-    icon: ClipboardCheck,
-    targetTab: "batches",
-    tabs: ["batches", "quality"],
   },
   {
     key: "stockage",
