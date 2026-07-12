@@ -91,7 +91,7 @@ export const MaterialsList = ({ materials, canManage = true }: MaterialsListProp
                   <TableHead>{t('materials.name')}</TableHead>
                   <TableHead>{t('materials.category')}</TableHead>
                   <TableHead>{t('materials.unit')}</TableHead>
-                  <TableHead>{t('materials.minStock')}</TableHead>
+                  <TableHead>Stock / Seuil</TableHead>
                   <TableHead className="text-end">{t('common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
