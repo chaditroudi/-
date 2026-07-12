@@ -231,13 +231,13 @@ function CycleSummary({ cycle }: { cycle: FumigationCycle }) {
         {cycle.quality_signed_at && <span>Signé qualité: {cycle.quality_inspector_name}</span>}
       </div>
 
-      {cycle.lot_refs.length > 0 && (
+      {lots.length > 0 && (
         <div className="space-y-1">
           <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-            Lots ({cycle.lot_refs.length})
+            Lots ({lots.length})
           </div>
           <div className="border rounded-lg divide-y max-h-40 overflow-y-auto">
-            {cycle.lot_refs.map((lot) => (
+            {lots.map((lot) => (
               <div key={lot.reception_id} className="flex items-center gap-2 px-3 py-1.5 text-sm">
                 <span className="font-mono text-xs">{lot.lot_number}</span>
                 <span className="text-muted-foreground text-xs">{lot.variety}</span>
