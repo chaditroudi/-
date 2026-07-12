@@ -235,8 +235,9 @@ export const HomePage = ({ onNavigate, accessibleTabs, metrics }: HomePageProps)
                 />
               ))
             ) : (
-              <div className="rounded-2xl border border-border/70 bg-background/80 p-4 text-sm text-muted-foreground">
-                Aucune action urgente pour votre profil.
+              <div className="flex items-center gap-2.5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
+                <CheckCircle2 className="h-4 w-4 shrink-0" />
+                Tout est à jour — aucune action en attente pour votre profil.
               </div>
             )}
           </CardContent>
