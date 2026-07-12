@@ -150,7 +150,7 @@ export const HomePage = ({ onNavigate, accessibleTabs, metrics }: HomePageProps)
   // ── Quick access ───────────────────────────────────────────────────────────
   const quickLinks = [
     { id: "receptions", label: "Réceptions", icon: Truck,          accent: "text-amber-600",   bg: "bg-amber-50 border-amber-200",   count: pendingReceptions },
-    { id: "batches",    label: "Qualité",    icon: ClipboardCheck,  accent: "text-sky-600",     bg: "bg-sky-50 border-sky-200",       count: qualityLots },
+    { id: "quality",    label: "Qualité",    icon: ClipboardCheck,  accent: "text-sky-600",     bg: "bg-sky-50 border-sky-200",       count: qualityLots },
     { id: "storage",    label: "Stock",      icon: Warehouse,        accent: "text-emerald-600", bg: "bg-emerald-50 border-emerald-200", count: storedLots },
     { id: "production", label: "Production", icon: Factory,          accent: "text-violet-600",  bg: "bg-violet-50 border-violet-200", count: inProgressOrders },
     { id: "purchasing", label: "Achats",     icon: ShoppingCart,     accent: "text-stone-600",   bg: "bg-stone-50 border-stone-200",   count: null },
