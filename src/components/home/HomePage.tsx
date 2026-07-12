@@ -75,13 +75,13 @@ export const HomePage = ({ onNavigate, accessibleTabs, metrics }: HomePageProps)
     inQcReceptions,
     pendingReceptions,
     inProgressOrders,
-    qualityLots,
     quarantinedLots,
     storedLots,
     activeAlertsCount,
     phase2Active = 0,
     phase2Waiting = 0,
     validatedPFLots = 0,
+    activePackagingOrders = 0,
     pendingShipments = 0,
   } = metrics;
 
