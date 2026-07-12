@@ -499,6 +499,11 @@ export async function buildLotTraceabilityDossier(lotNumber: string) {
 
   const lotRegex = new RegExp(escapeRegex(normalizedLotNumber), "i");
 
+  // Chaque élément passé à Promise.all doit être une promesse : un `await`
+  // écrit dans le tableau sérialise les requêtes (25 allers-retours Atlas ≈ 9s).
+  const runQuery = async <T>(query: { exec(): Promise<unknown> }): Promise<T> =>
+    sanitizeDocument(await query.exec()) as T;
+
   const [
     receptionExact,
     receptionLotExact,
@@ -511,9 +516,9 @@ export async function buildLotTraceabilityDossier(lotNumber: string) {
     subLotsDirect,
     outputLotsDirect,
   ] = await Promise.all([
-    sanitizeDocument(await Receptions().findOne({ reception_number: normalizedLotNumber }).lean().exec()) as ReceptionRow | null,
-    sanitizeDocument(
-      await ReceptionLots()
+    runQuery<ReceptionRow | null>(Receptions().findOne({ reception_number: normalizedLotNumber }).lean()),
+    runQuery<ReceptionLotRow | null>(
+      ReceptionLots()
         .findOne({
           $or: [
             { id: normalizedLotNumber },
@@ -523,11 +528,10 @@ export async function buildLotTraceabilityDossier(lotNumber: string) {
             { rfid_tag: normalizedLotNumber },
           ],
         })
-        .lean()
-        .exec(),
-    ) as ReceptionLotRow | null,
-    sanitizeDocument(
-      await StockLots()
+        .lean(),
+    ),
+    runQuery<StockLotRow | null>(
+      StockLots()
         .findOne({
           $or: [
             { id: normalizedLotNumber },
@@ -537,11 +541,10 @@ export async function buildLotTraceabilityDossier(lotNumber: string) {
             { reception_lot_id: normalizedLotNumber },
           ],
         })
-        .lean()
-        .exec(),
-    ) as StockLotRow | null,
-    sanitizeDocument(
-      await TriageSublots()
+        .lean(),
+    ),
+    runQuery<TriageSubLotRow | null>(
+      TriageSublots()
         .findOne({
           $or: [
             { id: normalizedLotNumber },
@@ -549,11 +552,10 @@ export async function buildLotTraceabilityDossier(lotNumber: string) {
             { parent_lot_number: normalizedLotNumber },
           ],
         })
-        .lean()
-        .exec(),
-    ) as TriageSubLotRow | null,
-    sanitizeDocument(
-      await ProductionOutputLots()
+        .lean(),
+    ),
+    runQuery<ProductionOutputLotRow | null>(
+      ProductionOutputLots()
         .findOne({
           $or: [
             { id: normalizedLotNumber },
@@ -563,18 +565,16 @@ export async function buildLotTraceabilityDossier(lotNumber: string) {
             { "parent_lots_snapshot.reception_number": normalizedLotNumber },
           ],
         })
-        .lean()
-        .exec(),
-    ) as ProductionOutputLotRow | null,
-    sanitizeDocument(
-      await Receptions()
+        .lean(),
+    ),
+    runQuery<ReceptionRow | null>(
+      Receptions()
         .findOne({ reception_number: { $regex: lotRegex } })
         .sort({ actual_arrival_date: -1 })
-        .lean()
-        .exec(),
-    ) as ReceptionRow | null,
-    sanitizeDocument(
-      await ReceptionLots()
+        .lean(),
+    ),
+    runQuery<ReceptionLotRow[]>(
+      ReceptionLots()
         .find({
           $or: [
             { lot_internal: { $regex: lotRegex } },
@@ -585,11 +585,10 @@ export async function buildLotTraceabilityDossier(lotNumber: string) {
         })
         .sort({ created_at: -1 })
         .limit(50)
-        .lean()
-        .exec(),
-    ) as ReceptionLotRow[],
-    sanitizeDocument(
-      await StockLots()
+        .lean(),
+    ),
+    runQuery<StockLotRow[]>(
+      StockLots()
         .find({
           $or: [
             { lot_number: { $regex: lotRegex } },
@@ -599,11 +598,10 @@ export async function buildLotTraceabilityDossier(lotNumber: string) {
         })
         .sort({ created_at: -1 })
         .limit(50)
-        .lean()
-        .exec(),
-    ) as StockLotRow[],
-    sanitizeDocument(
-      await TriageSublots()
+        .lean(),
+    ),
+    runQuery<TriageSubLotRow[]>(
+      TriageSublots()
         .find({
           $or: [
             { lot_number: { $regex: lotRegex } },
@@ -612,11 +610,10 @@ export async function buildLotTraceabilityDossier(lotNumber: string) {
         })
         .sort({ created_at: -1 })
         .limit(50)
-        .lean()
-        .exec(),
-    ) as TriageSubLotRow[],
-    sanitizeDocument(
-      await ProductionOutputLots()
+        .lean(),
+    ),
+    runQuery<ProductionOutputLotRow[]>(
+      ProductionOutputLots()
         .find({
           $or: [
             { lot_pf_number: { $regex: lotRegex } },
@@ -627,9 +624,8 @@ export async function buildLotTraceabilityDossier(lotNumber: string) {
         })
         .sort({ recorded_at: -1 })
         .limit(50)
-        .lean()
-        .exec(),
-    ) as ProductionOutputLotRow[],
+        .lean(),
+    ),
   ]);
 
   const initialReceptionIds = uniqueStrings([
