@@ -361,6 +361,72 @@ let PurchasingService = class PurchasingService {
         await PurchaseRequisitions().create([requisition]);
         return this.getRequisitionById(String(requisition.id));
     }
+    /**
+     * §4.1 — Matières sous leur point de commande (stock disponible < min_stock).
+     * Lecture seule : sert à afficher l'alerte avant de générer les DA.
+     */
+    async listReplenishmentNeeds() {
+        const materials = sanitizeDocument(await Materials().find({}).lean().exec());
+        const below = materials.filter((material) => {
+            const minStock = readNumber(material.min_stock);
+            if (minStock <= 0)
+                return false;
+            return readNumber(material.current_stock) < minStock;
+        });
+        // DA de réappro déjà ouvertes → on ne redemande pas la même matière.
+        const openRequisitions = sanitizeDocument(await PurchaseRequisitions()
+            .find({ status: { $in: ["draft", "pending_approval", "approved"] } })
+            .lean()
+            .exec());
+        const alreadyRequested = new Set(openRequisitions.map((requisition) => readString(requisition.material_id)).filter(Boolean));
+        return below.map((material) => {
+            const minStock = readNumber(material.min_stock);
+            const currentStock = readNumber(material.current_stock);
+            return {
+                material_id: readString(material.id),
+                material_name: readString(material.name),
+                code: readString(material.code),
+                unit: readString(material.unit) || "kg",
+                min_stock: minStock,
+                current_stock: currentStock,
+                // Réappro jusqu'à 2× le point de commande (pratique standard).
+                suggested_quantity: roundQuantity(Math.max(minStock * 2 - currentStock, minStock)),
+                preferred_supplier_id: readString(material.preferred_supplier_id) || null,
+                already_requested: alreadyRequested.has(readString(material.id)),
+            };
+        });
+    }
+    /**
+     * RG-DA-01 — Génère les DA de réapprovisionnement en statut Brouillon.
+     * Elles exigent une confirmation humaine avant de poursuivre le circuit.
+     */
+    async generateReplenishmentRequisitions(actor) {
+        const needs = (await this.listReplenishmentNeeds()).filter((need) => !need.already_requested);
+        const created = [];
+        for (const need of needs) {
+            const requisition = await prepareInsertDocument("purchase_requisitions", {
+                requester_id: actor?.id ?? null,
+                requester_name: "Réapprovisionnement automatique",
+                department: "Magasin",
+                material_id: need.material_id,
+                material_name: need.material_name,
+                quantity: need.suggested_quantity,
+                unit: need.unit,
+                urgency: need.current_stock <= 0 ? "critical" : "normal",
+                justification: `Seuil de stock atteint — disponible ${need.current_stock} ${need.unit} ` +
+                    `< point de commande ${need.min_stock} ${need.unit}.`,
+                estimated_cost: null,
+                preferred_supplier_id: need.preferred_supplier_id,
+                // RG-DA-01 : brouillon, confirmation humaine obligatoire.
+                status: "draft",
+                source: "AUTO_REORDER",
+                notes: null,
+            });
+            await PurchaseRequisitions().create([requisition]);
+            created.push(await this.getRequisitionById(String(requisition.id)));
+        }
+        return { created_count: created.length, requisitions: created };
+    }
     async updateRequisition(requisitionId, payload) {
         const existing = await PurchaseRequisitions().findOne({ id: requisitionId }).lean().exec();
         if (!existing) {
