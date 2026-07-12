@@ -18,6 +18,9 @@ let AppExceptionFilter = class AppExceptionFilter {
         const statusCode = error instanceof AppError ? error.statusCode : 500;
         const code = error instanceof AppError ? error.code : "INTERNAL_SERVER_ERROR";
         const message = error instanceof AppError ? error.message : "Unexpected server error.";
+        if (statusCode >= 500) {
+            console.error(`[500] ${req.method} ${req.originalUrl || req.path} (req ${req.requestId || "?"})`, error instanceof Error ? error.stack : error);
+        }
         if (statusCode === 403) {
             try {
                 await appendDeniedAccessAudit(req, error);
