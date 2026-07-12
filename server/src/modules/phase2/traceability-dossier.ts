@@ -756,27 +756,33 @@ export async function buildLotTraceabilityDossier(lotNumber: string) {
   const subLotIds = uniqueStrings(subLots.map((row) => row.id));
   const subLotNumbers = uniqueStrings(subLots.map((row) => row.lot_number));
 
-  const [qcCheckResults, triageQualityChecks, receptionStockMovements] = await Promise.all([
+  // ── Vague A : tout ce qui ne dépend que des ids déjà connus ────────────────
+  const [
+    qcCheckResults,
+    triageQualityChecks,
+    receptionStockMovements,
+    stockLotsRaw,
+    productionAllocations,
+    packagingOrders,
+  ] = await Promise.all([
     qcInspectionIds.length > 0
-      ? sanitizeDocument(
-        await QcCheckResults()
+      ? runQuery<QcCheckResultRow[]>(
+        QcCheckResults()
           .find({ inspection_id: { $in: qcInspectionIds } })
           .sort({ checked_at: -1 })
-          .lean()
-          .exec(),
-      ) as QcCheckResultRow[]
-      : [],
+          .lean(),
+      )
+      : Promise.resolve([] as QcCheckResultRow[]),
     triageSessionIds.length > 0
-      ? sanitizeDocument(
-        await TriageQualityChecks()
+      ? runQuery<TriageQualityCheckRow[]>(
+        TriageQualityChecks()
           .find({ session_id: { $in: triageSessionIds } })
           .sort({ checked_at: -1 })
-          .lean()
-          .exec(),
-      ) as TriageQualityCheckRow[]
-      : [],
-    sanitizeDocument(
-      await ReceptionStockMovements()
+          .lean(),
+      )
+      : Promise.resolve([] as TriageQualityCheckRow[]),
+    runQuery<ReceptionStockMovementRow[]>(
+      ReceptionStockMovements()
         .find({
           $or: [
             ...(receptionIds.length > 0 ? [{ reception_id: { $in: receptionIds } }] : []),
@@ -784,14 +790,10 @@ export async function buildLotTraceabilityDossier(lotNumber: string) {
           ],
         })
         .sort({ performed_at: -1 })
-        .lean()
-        .exec(),
-    ) as ReceptionStockMovementRow[],
-  ]);
-
-  const stockLots = sortByDateDesc(
-    sanitizeDocument(
-      await StockLots()
+        .lean(),
+    ),
+    runQuery<StockLotRow[]>(
+      StockLots()
         .find({
           $or: [
             ...(receptionIds.length > 0 ? [{ source_reception_id: { $in: receptionIds } }] : []),
@@ -802,29 +804,10 @@ export async function buildLotTraceabilityDossier(lotNumber: string) {
             { source_lot_supplier: { $regex: lotRegex } },
           ],
         })
-        .lean()
-        .exec(),
-    ) as StockLotRow[],
-    "created_at",
-  );
-
-  const stockLotIds = uniqueStrings(stockLots.map((row) => row.id));
-  const stockMovements = stockLotIds.length > 0
-    ? sortByDateDesc(
-      sanitizeDocument(
-        await StockMovements()
-          .find({ lot_id: { $in: stockLotIds } })
-          .sort({ movement_date: -1 })
-          .lean()
-          .exec(),
-      ) as StockMovementRow[],
-      "movement_date",
-    )
-    : [];
-
-  const productionAllocations = sortByDateDesc(
-    sanitizeDocument(
-      await ProductionLotAllocations()
+        .lean(),
+    ),
+    runQuery<ProductionAllocationRow[]>(
+      ProductionLotAllocations()
         .find({
           $or: [
             ...(receptionLotIds.length > 0 ? [{ reception_lot_id: { $in: receptionLotIds } }] : []),
@@ -833,77 +816,10 @@ export async function buildLotTraceabilityDossier(lotNumber: string) {
             { "lot.reception_number": { $regex: lotRegex } },
           ],
         })
-        .lean()
-        .exec(),
-    ) as ProductionAllocationRow[],
-    "allocated_at",
-  );
-
-  const productionOrderIds = uniqueStrings([
-    outputLotExact?.production_order_id,
-    ...productionAllocations.map((row) => row.production_order_id),
-  ]);
-
-  const productionOrders = sortByDateDesc(
-    sanitizeDocument(
-      await ProductionOrders()
-        .find({
-          $or: [
-            ...(productionOrderIds.length > 0 ? [{ id: { $in: productionOrderIds } }] : []),
-            ...(receptionIds.length > 0 ? [{ reception_id: { $in: receptionIds } }] : []),
-          ],
-        })
-        .lean()
-        .exec(),
-    ) as ProductionOrderRow[],
-    "created_at",
-  );
-
-  const finalProductionOrderIds = uniqueStrings(productionOrders.map((row) => row.id));
-  const [productionSteps, outputLots] = await Promise.all([
-    finalProductionOrderIds.length > 0
-      ? sanitizeDocument(
-        await ProductionSteps()
-          .find({ production_order_id: { $in: finalProductionOrderIds } })
-          .sort({ sequence_order: 1, started_at: -1 })
-          .lean()
-          .exec(),
-      ) as ProductionStepRow[]
-      : [],
-    sortByDateDesc(
-      sanitizeDocument(
-        await ProductionOutputLots()
-          .find({
-            $or: [
-              ...(finalProductionOrderIds.length > 0 ? [{ production_order_id: { $in: finalProductionOrderIds } }] : []),
-              ...(receptionLotIds.length > 0 ? [{ parent_lot_ids: { $in: receptionLotIds } }] : []),
-              { lot_pf_number: { $regex: lotRegex } },
-              { "parent_lots_snapshot.lot_internal": { $regex: lotRegex } },
-              { "parent_lots_snapshot.lot_supplier": { $regex: lotRegex } },
-              ...(receptionNumbers.length > 0 ? [{ "parent_lots_snapshot.reception_number": { $in: receptionNumbers } }] : []),
-            ],
-          })
-          .lean()
-          .exec(),
-      ) as ProductionOutputLotRow[],
-      "recorded_at",
-    ),
-  ]);
-
-  const productionStepIds = uniqueStrings(productionSteps.map((row) => row.id));
-  const productionQualityChecks = productionStepIds.length > 0
-    ? sanitizeDocument(
-      await ProductionQualityChecks()
-        .find({ production_step_id: { $in: productionStepIds } })
-        .sort({ checked_at: -1, created_at: -1 })
-        .lean()
-        .exec(),
-    ) as ProductionQualityCheckRow[]
-    : [];
-
-  const packagingOrders = sortByDateDesc(
-    sanitizeDocument(
-      await PackagingOrders()
+        .lean(),
+    ).then((rows) => sortByDateDesc(rows, "allocated_at")),
+    runQuery<PackagingOrderRow[]>(
+      PackagingOrders()
         .find({
           $or: [
             ...(subLotIds.length > 0 ? [{ source_sublot_id: { $in: subLotIds } }] : []),
@@ -911,78 +827,125 @@ export async function buildLotTraceabilityDossier(lotNumber: string) {
             { source_lot_number: { $regex: lotRegex } },
           ],
         })
-        .lean()
-        .exec(),
-    ) as PackagingOrderRow[],
-    "created_at",
-  );
+        .lean(),
+    ).then((rows) => sortByDateDesc(rows, "created_at")),
+  ]);
 
+  const stockLots = sortByDateDesc(stockLotsRaw, "created_at");
+  const stockLotIds = uniqueStrings(stockLots.map((row) => row.id));
   const packagingOrderIds = uniqueStrings(packagingOrders.map((row) => row.id));
-  const packagingPalettes = packagingOrderIds.length > 0
-    ? sortByDateDesc(
-      sanitizeDocument(
-        await PackagingPalettes()
-          .find({ order_id: { $in: packagingOrderIds } })
-          .lean()
-          .exec(),
-      ) as PackagingPaletteRow[],
-      "created_at",
-    )
-    : [];
+  const productionOrderIds = uniqueStrings([
+    outputLotExact?.production_order_id,
+    ...productionAllocations.map((row) => row.production_order_id),
+  ]);
 
-  const shipmentLines = stockLotIds.length > 0
-    ? sortByDateDesc(
-      sanitizeDocument(
-        await ShipmentLines()
+  // ── Vague B : dépend des lots stock / allocations / ordres cond. ───────────
+  const [stockMovements, productionOrders, shipmentLines, packagingPalettes, receptionsByLots] = await Promise.all([
+    stockLotIds.length > 0
+      ? runQuery<StockMovementRow[]>(
+        StockMovements()
           .find({ lot_id: { $in: stockLotIds } })
-          .lean()
-          .exec(),
-      ) as ShipmentLineRow[],
-      "picked_at",
-    )
-    : [];
+          .sort({ movement_date: -1 })
+          .lean(),
+      ).then((rows) => sortByDateDesc(rows, "movement_date"))
+      : Promise.resolve([] as StockMovementRow[]),
+    runQuery<ProductionOrderRow[]>(
+      ProductionOrders()
+        .find({
+          $or: [
+            ...(productionOrderIds.length > 0 ? [{ id: { $in: productionOrderIds } }] : []),
+            ...(receptionIds.length > 0 ? [{ reception_id: { $in: receptionIds } }] : []),
+          ],
+        })
+        .lean(),
+    ).then((rows) => sortByDateDesc(rows, "created_at")),
+    stockLotIds.length > 0
+      ? runQuery<ShipmentLineRow[]>(
+        ShipmentLines()
+          .find({ lot_id: { $in: stockLotIds } })
+          .lean(),
+      ).then((rows) => sortByDateDesc(rows, "picked_at"))
+      : Promise.resolve([] as ShipmentLineRow[]),
+    packagingOrderIds.length > 0
+      ? runQuery<PackagingPaletteRow[]>(
+        PackagingPalettes()
+          .find({ order_id: { $in: packagingOrderIds } })
+          .lean(),
+      ).then((rows) => sortByDateDesc(rows, "created_at"))
+      : Promise.resolve([] as PackagingPaletteRow[]),
+    !reception && receptionIds.length > 0
+      ? runQuery<ReceptionRow[]>(
+        Receptions()
+          .find({ id: { $in: receptionIds } })
+          .sort({ actual_arrival_date: -1 })
+          .lean(),
+      )
+      : Promise.resolve([] as ReceptionRow[]),
+  ]);
 
-  const shipmentIds = uniqueStrings(shipmentLines.map((row) => row.shipment_id));
-  const shipments = shipmentIds.length > 0
-    ? sortByDateDesc(
-      sanitizeDocument(
-        await ShipmentPreparations()
-          .find({ id: { $in: shipmentIds } })
-          .lean()
-          .exec(),
-      ) as ShipmentPreparationRow[],
-      "created_at",
-    )
-    : [];
-
-  if (!reception && receptionIds.length > 0) {
-    const receptionsByLots = sanitizeDocument(
-      await Receptions()
-        .find({ id: { $in: receptionIds } })
-        .sort({ actual_arrival_date: -1 })
-        .lean()
-        .exec(),
-    ) as ReceptionRow[];
+  if (!reception && receptionsByLots.length > 0) {
     reception = pickLatestByDate(receptionsByLots, "actual_arrival_date");
   }
 
+  const finalProductionOrderIds = uniqueStrings(productionOrders.map((row) => row.id));
+  const shipmentIds = uniqueStrings(shipmentLines.map((row) => row.shipment_id));
   const supplierIds = uniqueStrings([
     reception?.supplier_id,
     ...stockLots.map((row) => row.supplier_id),
   ]);
-  const supplierMap = supplierIds.length > 0
-    ? new Map(
-      (
-        sanitizeDocument(
-          await Suppliers()
-            .find({ id: { $in: supplierIds } })
-            .select("id name")
-            .lean()
-            .exec(),
-        ) as SupplierRow[]
-      ).map((row) => [readString(row.id), row]),
+
+  // ── Vague C : étapes production, sorties, expéditions, fournisseurs ────────
+  const [productionSteps, outputLots, shipments, supplierRows] = await Promise.all([
+    finalProductionOrderIds.length > 0
+      ? runQuery<ProductionStepRow[]>(
+        ProductionSteps()
+          .find({ production_order_id: { $in: finalProductionOrderIds } })
+          .sort({ sequence_order: 1, started_at: -1 })
+          .lean(),
+      )
+      : Promise.resolve([] as ProductionStepRow[]),
+    runQuery<ProductionOutputLotRow[]>(
+      ProductionOutputLots()
+        .find({
+          $or: [
+            ...(finalProductionOrderIds.length > 0 ? [{ production_order_id: { $in: finalProductionOrderIds } }] : []),
+            ...(receptionLotIds.length > 0 ? [{ parent_lot_ids: { $in: receptionLotIds } }] : []),
+            { lot_pf_number: { $regex: lotRegex } },
+            { "parent_lots_snapshot.lot_internal": { $regex: lotRegex } },
+            { "parent_lots_snapshot.lot_supplier": { $regex: lotRegex } },
+            ...(receptionNumbers.length > 0 ? [{ "parent_lots_snapshot.reception_number": { $in: receptionNumbers } }] : []),
+          ],
+        })
+        .lean(),
+    ).then((rows) => sortByDateDesc(rows, "recorded_at")),
+    shipmentIds.length > 0
+      ? runQuery<ShipmentPreparationRow[]>(
+        ShipmentPreparations()
+          .find({ id: { $in: shipmentIds } })
+          .lean(),
+      ).then((rows) => sortByDateDesc(rows, "created_at"))
+      : Promise.resolve([] as ShipmentPreparationRow[]),
+    supplierIds.length > 0
+      ? runQuery<SupplierRow[]>(
+        Suppliers()
+          .find({ id: { $in: supplierIds } })
+          .select("id name")
+          .lean(),
+      )
+      : Promise.resolve([] as SupplierRow[]),
+  ]);
+
+  const supplierMap = new Map(supplierRows.map((row) => [readString(row.id), row]));
+
+  const productionStepIds = uniqueStrings(productionSteps.map((row) => row.id));
+  const productionQualityChecks = productionStepIds.length > 0
+    ? await runQuery<ProductionQualityCheckRow[]>(
+      ProductionQualityChecks()
+        .find({ production_step_id: { $in: productionStepIds } })
+        .sort({ checked_at: -1, created_at: -1 })
+        .lean(),
     )
-    : new Map<string, SupplierRow>();
+    : [];
 
   const auditEntityIds = uniqueStrings([
     normalizedLotNumber,
