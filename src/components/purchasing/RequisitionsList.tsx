@@ -107,10 +107,34 @@ export const RequisitionsList = ({
     );
   });
 
+  // ── Matrice d'approbation (§5.1) ─────────────────────
+  const { settings } = useSettingsContext();
+  const approvalMatrix = [...(settings.p2p?.approval_matrix ?? [])].sort(
+    (a, b) => a.threshold_gte - b.threshold_gte,
+  );
+
+  /** Niveaux exigés par le montant estimé de la DA. */
+  const getRequiredSteps = (req: PurchaseRequisition) =>
+    approvalMatrix.filter((step) => (req.estimated_cost ?? 0) >= step.threshold_gte);
+
+  const getSignedApprovals = (req: PurchaseRequisition): RequisitionApproval[] => req.approvals ?? [];
+
+  const getNextStep = (req: PurchaseRequisition) => {
+    const signed = new Set(getSignedApprovals(req).map((a) => a.level));
+    return getRequiredSteps(req).find((step) => !signed.has(step.level)) ?? null;
+  };
+
   // ── Handlers ────────────────────────────────────────
   // RG-VAL-02 — séparation des tâches : un demandeur ne valide pas sa propre DA.
   const isOwnRequisition = (req: PurchaseRequisition) =>
     !!currentUser && req.requester_name.trim().toLowerCase() === currentUser.trim().toLowerCase();
+
+  // Un même utilisateur ne signe pas deux niveaux de la même DA.
+  const hasAlreadySigned = (req: PurchaseRequisition) =>
+    !!currentUser &&
+    getSignedApprovals(req).some(
+      (a) => a.approved_by.trim().toLowerCase() === currentUser.trim().toLowerCase(),
+    );
 
   const handleApproveClick = (req: PurchaseRequisition) => {
     setReqToApprove(req);
@@ -119,11 +143,30 @@ export const RequisitionsList = ({
   };
 
   const handleApproveConfirm = () => {
-    if (reqToApprove && approverName.trim()) {
+    if (!reqToApprove || !approverName.trim()) return;
+
+    const nextStep = getNextStep(reqToApprove);
+    const signature: RequisitionApproval = {
+      level: nextStep?.level ?? 'final',
+      label: nextStep?.label ?? 'Validation',
+      approved_by: approverName.trim(),
+      approved_at: new Date().toISOString(),
+    };
+    const allApprovals = [...getSignedApprovals(reqToApprove), signature];
+    const remaining = getRequiredSteps(reqToApprove).filter(
+      (step) => !allApprovals.some((a) => a.level === step.level),
+    );
+
+    if (remaining.length > 0 && onSignLevel) {
+      // Niveau intermédiaire signé — la DA reste en attente des niveaux suivants.
+      onSignLevel(reqToApprove.id, allApprovals);
+    } else {
+      // Dernier niveau — approbation finale.
+      if (onSignLevel) onSignLevel(reqToApprove.id, allApprovals);
       onApprove(reqToApprove.id, approverName.trim());
-      setApproveDialogOpen(false);
-      setReqToApprove(null);
     }
+    setApproveDialogOpen(false);
+    setReqToApprove(null);
   };
 
   const handleRejectClick = (req: PurchaseRequisition) => {
