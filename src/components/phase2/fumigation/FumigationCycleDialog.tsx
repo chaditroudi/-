@@ -271,6 +271,10 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
   const canStart = cycle.status === 'CHARGEMENT';
   const canSign = cycle.status === 'VALIDATION';
   const canPrint = cycle.status === 'TERMINE';
+  const canAbort = ['EN_COURS', 'CHARGEMENT', 'PREPARATION'].includes(cycle.status);
+  const hasActions =
+    canAdvance || canStart || canPrint || canAbort ||
+    cycle.status === 'EN_COURS' || cycle.status === 'VENTILATION';
 
   const advance = async () => {
     const nextStatus: Record<string, FumigationCycleStatus> = {
@@ -336,6 +340,8 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
         <FumigationCCPMonitor cycle={cycle} />
       ) : (
         <>
+          <CycleSummary cycle={cycle} />
+
           {/* Phase-specific content */}
           {(cycle.status === 'PREPARATION' || cycle.status === 'CHARGEMENT') && (
             <div className="space-y-3">
@@ -482,7 +488,7 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
             </>
           )}
 
-          <Separator />
+          {hasActions && <Separator />}
 
           {/* Action buttons */}
           <div className="flex flex-wrap gap-2">
@@ -518,7 +524,7 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
                 Imprimer certificat
               </Button>
             )}
-            {['EN_COURS', 'CHARGEMENT', 'PREPARATION'].includes(cycle.status) && (
+            {canAbort && (
               <Button
                 size="sm"
                 variant="destructive"
