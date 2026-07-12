@@ -166,6 +166,132 @@ export const appendActionAudit = async (
   });
 };
 
+// ── Global request audit trail ───────────────────────────────────────────────
+// Les modules NestJS dédiés écrivent directement en base sans passer par les
+// endpoints génériques /db/* : ce middleware journalise donc toute requête
+// mutante (POST/PUT/PATCH/DELETE) dans system_audit_logs, quel que soit le
+// module. Fire-and-forget — ne bloque jamais la réponse.
+
+const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+
+// Segments déjà audités ailleurs (auth, /db/*) ou sans valeur métier.
+const SKIP_SEGMENTS = new Set(["auth", "audit", "db", "realtime", "health", "rpc"]);
+
+const METHOD_ACTION: Record<string, string> = {
+  POST: "INSERT",
+  PUT: "UPDATE",
+  PATCH: "UPDATE",
+  DELETE: "DELETE",
+};
+
+const ROUTE_MODULE: [RegExp, string][] = [
+  [/^receptions?(-v2)?$|^reception-/, "Réception"],
+  [/^qc(-|$)/, "Contrôle Qualité"],
+  [/^capa-tickets$|^inbound-notices$|^non-conformities$/, "Qualité"],
+  [/^phase2$/, "Phase 2"],
+  [/^production$|^flux$/, "Production"],
+  [/^packaging$/, "Conditionnement"],
+  [/^stock$/, "Stock"],
+  [/^storage$/, "Stockage"],
+  [/^suppliers$/, "Fournisseurs"],
+  [/^purchasing$|^p2p$|^material-receptions$/, "Achats"],
+  [/^materials$/, "Matières"],
+  [/^transport$/, "Transport"],
+  [/^export-|^coa-documents$|^bon-expeditions$/, "Expédition / Export"],
+  [/^customers$/, "Clients"],
+  [/^employees$|^timesheets$|^employee-tasks$/, "RH"],
+  [/^notifications$/, "Alertes"],
+  [/^settings$/, "Paramètres"],
+  [/^document-prints$|^bon-receptions-achat$/, "Documents"],
+  [/^batches$|^batch-/, "Lots"],
+];
+
+// Sous-modules Phase 2 pour un libellé plus précis.
+const PHASE2_SUBMODULE: Record<string, string> = {
+  fumigation: "Phase 2 · Fumigation",
+  nettoyage: "Phase 2 · Nettoyage",
+  cleaning: "Phase 2 · Nettoyage",
+  hydratation: "Phase 2 · Hydratation",
+  hydration: "Phase 2 · Hydratation",
+  triage: "Phase 2 · Triage",
+};
+
+const resolveRouteModule = (segments: string[]): string => {
+  const seg = segments[0] ?? "";
+  if (seg === "phase2") {
+    return PHASE2_SUBMODULE[segments[1] ?? ""] ?? "Phase 2";
+  }
+  for (const [pattern, module] of ROUTE_MODULE) {
+    if (pattern.test(seg)) return module;
+  }
+  return "Système";
+};
+
+export const auditTrailMiddleware = (req: any, res: any, next: any) => {
+  if (!MUTATING_METHODS.has(req.method)) {
+    next();
+    return;
+  }
+
+  const path = String(req.path || req.originalUrl || "");
+  const segments = path.replace(/^\/?api\/?/, "").split("/").filter(Boolean);
+  const seg = segments[0] ?? "";
+  if (!seg || SKIP_SEGMENTS.has(seg)) {
+    next();
+    return;
+  }
+
+  // Capture le corps de la réponse pour extraire ids et libellés.
+  let captured: any = null;
+  const originalJson = typeof res.json === "function" ? res.json.bind(res) : null;
+  if (originalJson) {
+    res.json = (body: any) => {
+      captured = body;
+      return originalJson(body);
+    };
+  }
+
+  res.on("finish", () => {
+    if (res.statusCode >= 400) return;
+
+    const payload = captured?.data ?? captured;
+    const rows = Array.isArray(payload)
+      ? payload
+      : payload && typeof payload === "object"
+        ? [payload]
+        : [];
+    const snapshot = toSnapshot(rows);
+    const label = snapshot.find((r) => r.label)?.label ?? null;
+
+    const module = resolveRouteModule(segments);
+    const action = METHOD_ACTION[req.method] ?? req.method;
+    const metadata = req.auth?.user?.user_metadata || {};
+
+    void writeAuditEntry({
+      event_type: "DATA_CHANGE",
+      severity: "info",
+      action,
+      module,
+      table: seg,
+      message: `${action} — ${module}${label ? ` (${label})` : ""} · ${req.method} ${path}`,
+      request_id: req.requestId || null,
+      method: req.method || null,
+      route: req.originalUrl || path || null,
+      ip_address: req.ip || null,
+      user_agent: req.headers?.["user-agent"] || null,
+      user_id: req.auth?.user?.id || null,
+      user_email: req.auth?.user?.email || null,
+      user_name: metadata?.name || null,
+      user_roles: extractUserRolesFromMetadata(metadata),
+      affected_ids: rows.map((r: any) => r?.id).filter(Boolean).slice(0, 10),
+      after_snapshot: snapshot,
+      before_snapshot: null,
+    });
+  });
+
+  next();
+};
+
 export const appendAuthAudit = async (
   event_type: "AUTH_LOGIN" | "AUTH_SIGNUP" | "AUTH_LOGOUT" | "AUTH_FAILED",
   userId: string | null,
