@@ -183,7 +183,10 @@ function CycleRow({
   const durationH = durationMs != null ? Math.floor(durationMs / 3_600_000) : null;
 
   return (
-    <div className="py-3 flex items-start gap-3">
+    <div
+      className="py-3 flex items-start gap-3 -mx-2 px-2 rounded-lg cursor-pointer transition-colors hover:bg-muted/40"
+      onClick={onOpen}
+    >
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="font-mono text-sm font-semibold">{cycle.cycle_number}</span>

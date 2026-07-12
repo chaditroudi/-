@@ -66,6 +66,15 @@ function CreateForm({ onCreated, currentUser }: { onCreated: () => void; current
 
   const proto = FUMIGATION_PROTOCOL_CONFIG[protocol];
 
+  // Lot BIO sélectionné + protocole incompatible → bascule automatique vers
+  // CO2 (autorisé bio) au lieu de demander à l'opérateur de corriger lui-même.
+  const handleLotsChange = (lots: AvailableLot[]) => {
+    setSelectedLots(lots);
+    if (lots.some((l) => l.is_bio) && !FUMIGATION_PROTOCOL_CONFIG[protocol].allows_bio) {
+      setProtocol('FUM-CO2-96');
+    }
+  };
+
   const handleCreate = async () => {
     const totalKg = selectedLots.reduce((s, l) => s + (l.quantity_total ?? 0), 0);
     // Rough chamber capacity estimate: FU-01/FU-02 ~10T each
@@ -148,7 +157,7 @@ function CreateForm({ onCreated, currentUser }: { onCreated: () => void; current
         <LotSelector
           multi
           value={selectedLots.map((l) => l.id)}
-          onChange={setSelectedLots}
+          onChange={handleLotsChange}
           placeholder="Sélectionner les lots…"
           maxItems={10}
         />
