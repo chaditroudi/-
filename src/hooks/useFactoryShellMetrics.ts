@@ -31,7 +31,9 @@ export const useFactoryShellMetrics = (options?: FactoryShellMetricOptions) => {
   const { data: receptions = [] } = useReceptionsV2({ enabled: options?.enableReceptions ?? true });
   const { data: receptionAlerts = [] } = useReceptionAlerts({ enabled: options?.enableReceptionAlerts ?? true });
   const { data: productionOrders = [] } = useProductionOrders({ enabled: options?.enableProduction ?? true });
-  const { data: batches = [] } = useBatches({ enabled: options?.enableBatches ?? true });
+  // Lots réels de l'usine (vue unifiée réception→stock) — remplace l'ancienne
+  // collection legacy `batches` dont les compteurs étaient toujours faux.
+  const { data: receptionLots = [] } = useAllReceptionLots();
   const { data: batchAlerts = [] } = useAlerts({ enabled: options?.enableBatchAlerts ?? true });
   const pipeline = usePhase2Pipeline({ enabled: enablePhase2 });
 
