@@ -303,7 +303,7 @@ const TransformationTab = ({ data }: { data: LotTraceabilityData }) => {
       {data.fumigation_cycles.map((f) => (
         <SectionCard key={f.id} title={`Fumigation ${f.cycle_number}`} icon={Wind}>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
-            <Kv label="Statut" value={<StepBadge ok={f.status === 'COMPLETED'} label={FUM_STATUS[f.status] || f.status} />} />
+            <Kv label="Statut" value={<StepBadge ok={f.status === 'TERMINE'} label={FUM_STATUS[f.status] || f.status} />} />
             <Kv label="Chambre" value={f.chamber} mono />
             <Kv label="Protocole" value={f.protocol} mono />
             <Kv label="Poids traité" value={f.total_weight_kg ? `${fmtKg(f.total_weight_kg)} kg` : undefined} />
