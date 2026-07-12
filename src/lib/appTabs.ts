@@ -60,13 +60,6 @@ export const APP_TAB_META: Record<AppTab, AppTabMeta> = {
     pageTitle: "Lots Réception",
     pageSubtitle: "Lots d'entrée — pesée, création, QC entrant et orientation usine.",
   },
-  batches: {
-    label: "Lots Qualité",
-    shortLabel: "Lots QC",
-    icon: ClipboardCheck,
-    pageTitle: "Lots Qualité",
-    pageSubtitle: "Lots post-réception — inspections, grades et décisions qualité.",
-  },
   storage: {
     label: "Stockage",
     shortLabel: "Stock",

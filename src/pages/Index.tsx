@@ -68,11 +68,11 @@ const TabLoader = () => (
 
 const TAB_SECTION_LABEL: Partial<Record<AppTab, string>> = {
   live: "Opérations", scan: "Opérations", alerts: "Opérations",
-  receptions: "Flux usine — Étape 1", batches: "Flux usine — Étape 2",
-  storage: "Flux usine — Étape 3", production: "Flux usine — Étape 4",
-  packaging: "Flux usine — Étape 5", logistics: "Flux usine — Étape 6",
-  "stock-dashboard": "Flux usine — Étape 3", "stock-lots": "Flux usine — Étape 3",
-  "stock-products": "Flux usine — Étape 3", "stock-movements": "Flux usine — Étape 3",
+  receptions: "Flux usine — Étape 1",
+  storage: "Flux usine — Étape 2", production: "Flux usine — Étape 3",
+  packaging: "Flux usine — Étape 4", logistics: "Flux usine — Étape 5",
+  "stock-dashboard": "Flux usine — Étape 2", "stock-lots": "Flux usine — Étape 2",
+  "stock-products": "Flux usine — Étape 2", "stock-movements": "Flux usine — Étape 2",
   suppliers: "Gestion", materials: "Gestion", purchasing: "Gestion",
   quality: "Gestion", hr: "Gestion",
   analytics: "Pilotage", "sage-operations": "Pilotage", export: "Pilotage", customers: "Pilotage",
@@ -97,8 +97,8 @@ const TAB_FEATURE_MAP: Partial<Record<AppTab, keyof SiteFeatures>> = {
   'sage-operations': 'sage_enabled',
 };
 
-const SUPPLIER_TABS = ['suppliers', 'purchasing', 'batches'] as const;
-const MATERIAL_TABS = ['materials', 'purchasing', 'batches'] as const;
+const SUPPLIER_TABS = ['suppliers', 'purchasing', 'receptions'] as const;
+const MATERIAL_TABS = ['materials', 'purchasing', 'receptions'] as const;
 
 // ── Component ─────────────────────────────────────────────────────────────────
 

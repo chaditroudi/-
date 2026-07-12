@@ -53,7 +53,7 @@ type NavSection = { key: string; label: string; items: NavItem[] };
 
 const TAB_SECTION: Record<string, string> = {
   home: "operations", live: "operations", scan: "operations", alerts: "operations",
-  receptions: "flux", batches: "flux", storage: "flux",
+  receptions: "flux", storage: "flux",
   production: "flux", packaging: "flux", logistics: "flux",
   "stock-dashboard": "flux", "stock-lots": "flux",
   "stock-products": "flux", "stock-movements": "flux",
@@ -99,11 +99,10 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
       label: "Flux usine",
       items: [
         { id: "receptions", title: `1. ${t("nav.receptions")}`, icon: ClipboardList },
-        { id: "batches",    title: "2. Lots Qualité",           icon: Scale },
-        { id: "storage",    title: "3. Entrepôt & Stock",       icon: Warehouse },
-        { id: "production", title: `4. ${t("nav.production")}`, icon: Factory },
-        { id: "packaging",  title: "5. Conditionnement",        icon: PackageCheck },
-        { id: "logistics",  title: `6. ${t("nav.logistics")}`,  icon: Truck },
+        { id: "storage",    title: "2. Entrepôt & Stock",       icon: Warehouse },
+        { id: "production", title: `3. ${t("nav.production")}`, icon: Factory },
+        { id: "packaging",  title: "4. Conditionnement",        icon: PackageCheck },
+        { id: "logistics",  title: `5. ${t("nav.logistics")}`,  icon: Truck },
       ],
     },
     {
