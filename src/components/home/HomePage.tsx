@@ -147,15 +147,16 @@ export const HomePage = ({ onNavigate, accessibleTabs, metrics }: HomePageProps)
     },
   ].filter((item) => accessibleTabs.includes(item.tab as AppTab));
 
-  // ── Quick access ───────────────────────────────────────────────────────────
+  // ── Quick access — ordre du flux physique, compteurs réels ─────────────────
   const quickLinks = [
-    { id: "receptions", label: "Réceptions", icon: Truck,          accent: "text-amber-600",   bg: "bg-amber-50 border-amber-200",   count: pendingReceptions },
-    { id: "quality",    label: "Qualité",    icon: ClipboardCheck,  accent: "text-sky-600",     bg: "bg-sky-50 border-sky-200",       count: qualityLots },
-    { id: "storage",    label: "Stock",      icon: Warehouse,        accent: "text-emerald-600", bg: "bg-emerald-50 border-emerald-200", count: storedLots },
-    { id: "production", label: "Production", icon: Factory,          accent: "text-violet-600",  bg: "bg-violet-50 border-violet-200", count: inProgressOrders },
-    { id: "purchasing", label: "Achats",     icon: ShoppingCart,     accent: "text-stone-600",   bg: "bg-stone-50 border-stone-200",   count: null },
-    { id: "analytics",  label: "Rapports",   icon: BarChart3,        accent: "text-slate-600",   bg: "bg-slate-50 border-slate-200",   count: null },
-    { id: "alerts",     label: "Alertes",    icon: AlertTriangle,    accent: activeAlertsCount > 0 ? "text-red-600" : "text-emerald-600", bg: activeAlertsCount > 0 ? "bg-red-50 border-red-200" : "bg-emerald-50 border-emerald-200", count: activeAlertsCount || null },
+    { id: "receptions", label: "Réception & QC",  icon: Truck,          accent: "text-amber-600",   bg: "bg-amber-50 border-amber-200",     count: pendingReceptions },
+    { id: "storage",    label: "Stock",            icon: Warehouse,       accent: "text-emerald-600", bg: "bg-emerald-50 border-emerald-200", count: storedLots },
+    { id: "production", label: "Production",       icon: Factory,         accent: "text-violet-600",  bg: "bg-violet-50 border-violet-200",   count: phase2Active + inProgressOrders },
+    { id: "packaging",  label: "Conditionnement",  icon: PackageCheck,    accent: "text-sky-600",     bg: "bg-sky-50 border-sky-200",         count: activePackagingOrders },
+    { id: "logistics",  label: "Expédition",       icon: Ship,            accent: "text-cyan-700",    bg: "bg-cyan-50 border-cyan-200",       count: pendingShipments },
+    { id: "scan",       label: "Scan lot",         icon: QrCode,          accent: "text-slate-600",   bg: "bg-slate-50 border-slate-200",     count: null },
+    { id: "quality",    label: "Qualité & CAPA",   icon: ClipboardCheck,  accent: "text-stone-600",   bg: "bg-stone-50 border-stone-200",     count: null },
+    { id: "alerts",     label: "Alertes",          icon: AlertTriangle,   accent: activeAlertsCount > 0 ? "text-red-600" : "text-emerald-600", bg: activeAlertsCount > 0 ? "bg-red-50 border-red-200" : "bg-emerald-50 border-emerald-200", count: activeAlertsCount || null },
   ].filter((l) => accessibleTabs.includes(l.id as AppTab));
 
   return (
