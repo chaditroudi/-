@@ -39,7 +39,7 @@ import {
 } from '@/hooks/usePurchasing';
 import { useSuppliers } from '@/hooks/useSuppliers';
 import { useMaterials } from '@/hooks/useMaterials';
-import { PurchaseRequisition, PurchaseOrder, normalizePurchaseOrderStatus } from '@/types/purchasing';
+import { PurchaseRequisition, PurchaseOrder, RequisitionStatus, normalizePurchaseOrderStatus } from '@/types/purchasing';
 import { useAuthContext } from '@/contexts/AuthContext';
 import type { ActorRole } from '@/types/roles';
 
