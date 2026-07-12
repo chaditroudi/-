@@ -80,7 +80,7 @@ type RequisitionSaveData = {
   estimated_cost: number | null;
   preferred_supplier_id: string | null;
   notes: string | null;
-  status: string;
+  status: RequisitionStatus;
 };
 
 type OrderLineSaveData = {
