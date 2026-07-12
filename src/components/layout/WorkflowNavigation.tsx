@@ -84,15 +84,6 @@ const getWorkflowCards = (roles: ActorRole[], metrics: WorkflowNavigationProps["
         accent: "border-amber-200 bg-amber-50 text-amber-700",
       },
       {
-        id: "batches",
-        title: "Lots Qualité",
-        description: "Retrouver rapidement les lots post-réception en attente d'inspection ou de décision.",
-        helper: "File qualité terrain",
-        metric: `${metrics.qualityQueueCount} à vérifier`,
-        icon: ClipboardCheck,
-        accent: "border-sky-200 bg-sky-50 text-sky-700",
-      },
-      {
         id: "storage",
         title: "Stock",
         description: "Contrôler les zones, suivre les lots sensibles et éviter les blocages après réception.",

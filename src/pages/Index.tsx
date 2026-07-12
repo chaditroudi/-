@@ -12,7 +12,6 @@ import { useSuppliers } from "@/hooks/useSuppliers";
 import { useMaterials } from "@/hooks/useMaterials";
 import { useReceptions } from "@/hooks/useReceptions";
 import { useProductionOrders } from "@/hooks/useProduction";
-import { useBatches } from "@/hooks/useBatches";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { ROLE_CONFIG } from "@/types/roles";
 import { canPerformAction, getAccessibleTabs, getRoleWorkspaceProfile, type AppTab } from "@/lib/roleAccess";
@@ -31,7 +30,6 @@ import type { SiteFeatures } from "@/types/settings";
 const ReceptionDashboardV2   = lazy(() => import('@/components/reception').then(m => ({ default: m.ReceptionDashboardV2 })));
 const SuppliersList          = lazy(() => import('@/components/mes/SuppliersList').then(m => ({ default: m.SuppliersList })));
 const MaterialsList          = lazy(() => import('@/components/mes/MaterialsList').then(m => ({ default: m.MaterialsList })));
-const BatchesList            = lazy(() => import('@/components/batches/BatchesList').then(m => ({ default: m.BatchesList })));
 const AlertsDashboard        = lazy(() => import('@/components/batches/AlertsDashboard').then(m => ({ default: m.AlertsDashboard })));
 const StorageZonesOverview   = lazy(() => import('@/components/batches/StorageZonesOverview').then(m => ({ default: m.StorageZonesOverview })));
 const Phase2Dashboard        = lazy(() => import('@/components/phase2/Phase2Dashboard').then(m => ({ default: m.Phase2Dashboard })));
@@ -136,16 +134,16 @@ const Index = () => {
   // ── Permission flags ──────────────────────────────────────────────────────
 
   const {
-    canReadSuppliers, canReadMaterials, canReadProduction, canReadBatches,
+    canReadSuppliers, canReadMaterials, canReadProduction,
     canReadReceptionsMetrics, canReadBatchMetrics, canReadAlertsMetrics,
     canManagePurchasingData, canManageStorageZones,
   } = useMemo(() => ({
     canReadSuppliers:         accessibleTabs.some(t => (SUPPLIER_TABS as readonly string[]).includes(t)),
     canReadMaterials:         accessibleTabs.some(t => (MATERIAL_TABS as readonly string[]).includes(t)),
     canReadProduction:        accessibleTabs.includes('production'),
-    canReadBatches:           accessibleTabs.includes('batches'),
     canReadReceptionsMetrics: accessibleTabs.includes('receptions'),
-    canReadBatchMetrics:      accessibleTabs.includes('batches'),
+    // La file qualité vit sous Réception depuis la suppression de l'onglet Lots Qualité.
+    canReadBatchMetrics:      accessibleTabs.includes('receptions') || accessibleTabs.includes('quality'),
     canReadAlertsMetrics:     accessibleTabs.includes('alerts'),
     canManagePurchasingData:  isAdmin || canPerformAction(roles, 'purchasing_management'),
     canManageStorageZones:    isAdmin || canPerformAction(roles, 'warehouse_operations'),
@@ -164,7 +162,6 @@ const Index = () => {
   const { data: materials = [], refetch: refetchMaterials } = useMaterials({ enabled: canReadMaterials });
   const { data: receptions = [] } = useReceptions({ enabled: canReadProduction });
   const { data: productionOrders = [] } = useProductionOrders({ enabled: canReadProduction });
-  const { data: batches = [] } = useBatches({ enabled: canReadBatches });
 
   const features = settings.features;
 
@@ -303,8 +300,6 @@ const Index = () => {
         return <StorageZonesOverview canManage={canManageStorageZones} defaultTab="movements" />;
       case 'storage':
         return <StorageZonesOverview canManage={canManageStorageZones} />;
-      case 'batches':
-        return <BatchesList batches={batches} suppliers={suppliers} materials={materials} />;
       case 'alerts':
         return <AlertsDashboard />;
       case 'production':
