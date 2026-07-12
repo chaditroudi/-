@@ -106,21 +106,21 @@ const getWorkflowCards = (roles: ActorRole[], metrics: WorkflowNavigationProps["
     ],
     "Qualité": [
       {
-        id: "batches",
-        title: "Lots Qualité",
-        description: "Ouvrir la file des lots post-réception en inspection, en attente de grade ou bloqués.",
-        helper: "Grades et décisions QC",
+        id: "receptions",
+        title: "Réception & QC",
+        description: "Ouvrir la file des lots d'entrée en attente d'inspection, de grade ou de décision qualité.",
+        helper: "File qualité terrain",
         metric: `${metrics.qualityQueueCount} à vérifier`,
         icon: ClipboardCheck,
         accent: "border-sky-200 bg-sky-50 text-sky-700",
       },
       {
-        id: "receptions",
-        title: "Lots Réception",
-        description: "Revenir aux lots d'entrée qui attendent une validation qualité ou une reprise de contrôle.",
-        helper: "Lots dock en attente QC",
-        metric: `${metrics.pendingReceptions} en cours`,
-        icon: Truck,
+        id: "quality",
+        title: "Qualité & CAPA",
+        description: "CAPA, journal d'audit et pilotage qualité transverse usine.",
+        helper: "Qualité transverse",
+        metric: "Accès direct",
+        icon: ShieldCheck,
         accent: "border-amber-200 bg-amber-50 text-amber-700",
       },
       {
@@ -171,9 +171,9 @@ const getWorkflowCards = (roles: ActorRole[], metrics: WorkflowNavigationProps["
         accent: "border-red-200 bg-red-50 text-red-700",
       },
       {
-        id: "batches",
-        title: "Lots Qualité",
-        description: "Retrouver les lots qualité sensibles à suivre pendant la transformation et le contrôle terrain.",
+        id: "receptions",
+        title: "Réception & QC",
+        description: "Retrouver les lots d'entrée et les contrôles qualité à suivre pendant la transformation.",
         helper: "Lots QC en cours",
         metric: `${metrics.qualityQueueCount} lots sensibles`,
         icon: Boxes,
@@ -346,7 +346,7 @@ const getMetricForTab = (tab: AppTab, metrics: WorkflowNavigationProps["metrics"
       return metrics.activeAlertsCount > 0 ? `${metrics.activeAlertsCount} alertes` : "Stable";
     case "receptions":
       return `${metrics.pendingReceptions} à traiter`;
-    case "batches":
+    case "quality":
       return `${metrics.qualityQueueCount} à vérifier`;
     case "production":
       return `${metrics.inProgressOrders} en cours`;
