@@ -228,7 +228,7 @@ function CycleRow({
             <Printer className="h-3.5 w-3.5" />
           </Button>
         )}
-        <Button size="sm" variant="outline" className="h-9 px-3 text-xs" onClick={onOpen}>
+        <Button size="sm" variant="outline" className="h-9 px-3 text-xs" onClick={(e) => { e.stopPropagation(); onOpen(); }}>
           Ouvrir
         </Button>
       </div>
