@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Plus, Search, Pencil, Trash2, Globe, Mail, Phone,
   Users, UserCheck, UserX,
@@ -125,26 +126,24 @@ export default function CustomersDashboard() {
             value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
 
-        <select
-          className="h-8 rounded-md border bg-background px-2 text-sm"
-          value={filterCountry}
-          onChange={(e) => setFilterCountry(e.target.value)}
-        >
-          <option value="all">Tous pays</option>
-          <option value="EU">🇪🇺 EU</option>
-          <option value="USA">🇺🇸 USA</option>
-          <option value="SA">🇸🇦 SA</option>
-        </select>
+        <Select value={filterCountry} onValueChange={setFilterCountry}>
+          <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tous pays</SelectItem>
+            <SelectItem value="EU">🇪🇺 EU</SelectItem>
+            <SelectItem value="USA">🇺🇸 USA</SelectItem>
+            <SelectItem value="SA">🇸🇦 SA</SelectItem>
+          </SelectContent>
+        </Select>
 
-        <select
-          className="h-8 rounded-md border bg-background px-2 text-sm"
-          value={filterActive}
-          onChange={(e) => setFilterActive(e.target.value as any)}
-        >
-          <option value="all">Tous</option>
-          <option value="active">Actifs</option>
-          <option value="inactive">Inactifs</option>
-        </select>
+        <Select value={filterActive} onValueChange={(v) => setFilterActive(v as typeof filterActive)}>
+          <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tous</SelectItem>
+            <SelectItem value="active">Actifs</SelectItem>
+            <SelectItem value="inactive">Inactifs</SelectItem>
+          </SelectContent>
+        </Select>
 
         <Button size="sm" className="h-9 gap-1" onClick={() => { setEditing(null); setDialogOpen(true); }}>
           <Plus className="h-3.5 w-3.5" /> Nouveau client
