@@ -5,43 +5,60 @@ const ADMIN_ROLES = new Set([
     "directeur_general",
     "directeur_usine",
 ]);
+// Business/domain aliases → concrete application roles.
+// Kept in sync with the frontend BUSINESS_ROLE_TO_APP_ROLES (src/hooks/useAuth.ts)
+// so a token minted from either side resolves to the same effective roles.
 const ROLE_ALIASES = {
     achat: ["responsable_achats", "directeur_achat"],
     achats: ["responsable_achats", "directeur_achat"],
     responsable_achat: ["responsable_achats", "directeur_achat"],
+    directeur_achats: ["directeur_achat"],
     reception: ["responsable_reception", "chef_reception", "operateur_reception"],
     qualite: ["responsable_qualite", "inspecteur_qualite", "resp_management_qualite", "resp_qualite_haccp"],
+    quality: ["responsable_qualite", "inspecteur_qualite", "resp_management_qualite", "resp_qualite_haccp"],
     magasin: ["responsable_stock", "magasinier_wms"],
     stock: ["responsable_stock", "magasinier_wms"],
     production: ["responsable_production"],
     export: ["responsable_logistique", "partenaire_client_export"],
+    logistique: ["responsable_logistique", "partenaire_client_export"],
+    logistics: ["responsable_logistique", "partenaire_client_export"],
     maintenance: ["responsable_maintenance", "technicien_maintenance"],
     direction: ["directeur_general", "directeur_usine"],
+    direction_usine: ["directeur_usine"],
+    direction_generale: ["directeur_general"],
+    dg: ["directeur_general"],
+    du: ["directeur_usine"],
     admin: ["administrateur_systeme", "admin"],
+    administrateur: ["administrateur_systeme", "admin"],
+    audit: ["auditeur_externe"],
+    supplier_portal: ["fournisseur_externe"],
+    client_portal: ["client_externe"],
+    // Generic shop-floor operator default (used by signUp): grant reception intake.
+    operateur: ["operateur_reception"],
 };
-const RECEPTION_ROLES = [
+export const RECEPTION_ROLES = [
     "responsable_reception",
     "chef_reception",
     "operateur_reception",
     "responsable_qualite",
     "inspecteur_qualite",
 ];
-const QUALITY_ROLES = [
+export const QUALITY_ROLES = [
     "responsable_qualite",
     "inspecteur_qualite",
     "resp_management_qualite",
     "resp_qualite_haccp",
 ];
-const STOCK_ROLES = [
+export const STOCK_ROLES = [
     "responsable_stock",
     "magasinier_wms",
     "responsable_logistique",
 ];
-const PURCHASING_ROLES = [
+export const PURCHASING_ROLES = [
     "responsable_achats",
     "directeur_achat",
 ];
-const PRODUCTION_ROLES = [
+export const PRODUCTION_ROLES = [
     "responsable_production",
     "operateur_nettoyage",
     "operateur_fumigation",
@@ -49,7 +66,16 @@ const PRODUCTION_ROLES = [
     "operateur_conditionnement",
     "operateur_emballage",
 ];
-const HR_ROLES = [
+export const LOGISTICS_ROLES = [
+    "responsable_logistique",
+    "technico_commercial",
+    "partenaire_client_export",
+];
+export const DIRECTION_ROLES = [
+    "directeur_general",
+    "directeur_usine",
+];
+export const HR_ROLES = [
     "directeur_general",
     "directeur_usine",
     "administrateur_systeme",
@@ -120,6 +146,7 @@ export const tableWritePolicy = {
     auth_users: [...HR_ROLES],
     system_notifications: [...HR_ROLES, ...QUALITY_ROLES, ...RECEPTION_ROLES, ...STOCK_ROLES],
     system_audit_logs: [...HR_ROLES],
+    lot_events: [...HR_ROLES, ...QUALITY_ROLES],
     counters: [...HR_ROLES],
 };
 export const restrictedReadTables = new Set([
@@ -140,15 +167,51 @@ const normalizeRoles = (rawRoles) => {
     });
     return Array.from(normalized);
 };
-export const getRequestRoles = (req) => {
-    const metadata = req.auth?.user?.user_metadata || {};
+/**
+ * Resolve effective roles from a decoded JWT `user_metadata` object.
+ * Single source of truth used by both the HTTP request path (getRequestRoles)
+ * and the SSE handshake (realtime.controller) so alias expansion never drifts.
+ */
+export const normalizeRolesFromMetadata = (metadata) => {
+    const meta = metadata || {};
     const rawRoles = [
-        ...(Array.isArray(metadata.roles) ? metadata.roles : []),
-        ...(Array.isArray(metadata.domains) ? metadata.domains : []),
-        metadata.role,
+        ...(Array.isArray(meta.roles) ? meta.roles : []),
+        ...(Array.isArray(meta.domains) ? meta.domains : []),
+        meta.role,
     ].filter(Boolean);
     return normalizeRoles(rawRoles);
 };
+export const getRequestRoles = (req) => normalizeRolesFromMetadata(req.auth?.user?.user_metadata);
+/**
+ * Notification "spaces" (aligned with the frontend AppTab espaces) → the roles
+ * that own that space. Used to target realtime notifications to the right actors.
+ * An empty list means "broadcast to everyone".
+ */
+export const SPACE_ROLES = {
+    receptions: Array.from(new Set([...RECEPTION_ROLES, ...QUALITY_ROLES])),
+    quality: [...QUALITY_ROLES],
+    stock: [...STOCK_ROLES],
+    storage: Array.from(new Set([...STOCK_ROLES, "responsable_maintenance", "technicien_maintenance"])),
+    logistics: [...LOGISTICS_ROLES],
+    export: Array.from(new Set([...LOGISTICS_ROLES, "technico_commercial"])),
+    production: Array.from(new Set([...PRODUCTION_ROLES, ...QUALITY_ROLES])),
+    packaging: Array.from(new Set([...PRODUCTION_ROLES, ...STOCK_ROLES])),
+    purchasing: [...PURCHASING_ROLES],
+    suppliers: Array.from(new Set([...PURCHASING_ROLES, ...RECEPTION_ROLES])),
+    hr: [...HR_ROLES],
+    alerts: [],
+    system: [],
+};
+export const rolesForSpace = (space) => {
+    if (!space)
+        return [];
+    return SPACE_ROLES[space] ?? [];
+};
+/**
+ * Directors, factory managers and admins have oversight of every space, so they
+ * receive/see all notifications regardless of targeting.
+ */
+export const notificationSeesAll = (roles) => roles.some((role) => ADMIN_ROLES.has(role) || DIRECTION_ROLES.includes(role));
 export const isAdmin = (req) => {
     const roles = getRequestRoles(req);
     return roles.some((role) => ADMIN_ROLES.has(role));

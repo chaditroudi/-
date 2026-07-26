@@ -3,7 +3,7 @@ import { apiRequest } from '@/integrations/mongodb/client';
 import { useToast } from '@/hooks/use-toast';
 
 export type WeighingType = 'GROSS' | 'TARE';
-export type WeighingSource = 'MANUAL' | 'SCALE';
+export type WeighingSource = 'MANUAL' | 'SCALE' | 'DEVICE';
 
 export interface WeighingRecord {
   id: string;
@@ -66,8 +66,10 @@ export interface RecordWeighingInput {
   weight_kg: number;
   source?: WeighingSource;
   device_ref?: string | null;
+  reading_id?: string | null;
   supervisor?: string | null;
   notes?: string | null;
+  manual_reason?: string | null;
 }
 
 export function useRecordWeighing() {

@@ -47,6 +47,10 @@ export const syncReceptionLotsToStock = async (lots, options) => {
         const payload = {
             product_id: lot.product_id || options?.reception?.product_id || fallbackProductId,
             reception_lot_id: lot.id,
+            // W0 identity: stock lot projects the reception entry lot; keep both codes.
+            entry_lot_id: lot.id,
+            entry_lot_code: lot.lot_internal || null,
+            lot_number: existing?.lot_number || lot.lot_internal || undefined,
             source_reception_id: lot.reception_id || options?.reception?.id || null,
             source_reception_number: options?.reception?.reception_number || null,
             source_lot_internal: lot.lot_internal || null,
@@ -63,6 +67,7 @@ export const syncReceptionLotsToStock = async (lots, options) => {
             initial_quantity: Number(existing?.initial_quantity ?? lot.quantity ?? 0),
             current_quantity: Number(existing?.current_quantity ?? lot.quantity ?? 0),
             unit: lot.unit || "kg",
+            category: existing?.category || "MP",
             status: lot.stock_status === "STOCK_LIBERE"
                 ? "VALIDATED"
                 : lot.stock_status === "STOCK_REJETE"

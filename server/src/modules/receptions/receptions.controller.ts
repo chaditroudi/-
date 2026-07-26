@@ -14,6 +14,7 @@ import {
 import { Roles } from "../../nest/route-metadata.js";
 import { RequireAuthGuard, RolesGuard } from "../../nest/route-guards.js";
 import { publishRealtimeDbChange } from "../realtime/realtime.bus.js";
+import { IdempotencyService } from "../trust/idempotency.service.js";
 import { ReceptionsService } from "./receptions.service.js";
 
 const RECEPTION_READ_ROLES = [
@@ -36,7 +37,10 @@ const compactIds = (...values: unknown[]) =>
 @Controller("api")
 @UseGuards(RequireAuthGuard, RolesGuard)
 export class ReceptionsController {
-  constructor(private readonly receptionsService: ReceptionsService) {}
+  constructor(
+    private readonly receptionsService: ReceptionsService,
+    private readonly idempotency: IdempotencyService,
+  ) {}
 
   @Get("receptions")
   @Roles(...RECEPTION_READ_ROLES)
@@ -165,7 +169,15 @@ export class ReceptionsController {
   @HttpCode(201)
   @Roles(...RECEPTION_WRITE_ROLES)
   async intake(@Req() req: any, @Body() body: any) {
-    const data = await this.receptionsService.intake(body || {}, req.auth?.user || null);
+    const result = await this.idempotency.execute({
+      scope: "reception_intake",
+      key: body?.client_request_id,
+      actorId: req.auth?.user?.id || null,
+      run: () => this.receptionsService.intake(body || {}, req.auth?.user || null),
+    });
+    const data = result.data;
+    if (result.replayed) return { data, meta: { replayed: true } };
+
     publishRealtimeDbChange({
       type: "reception_intake",
       table: "receptions_v2",
@@ -173,7 +185,7 @@ export class ReceptionsController {
       actorId: req.auth?.user?.id || null,
       rowIds: compactIds((data as any).reception?.id),
       rows: [(data as any).reception].filter(Boolean),
-      relatedTables: ["reception_lots", "reception_units", "stock_lots", "stock_summary", "system_notifications", "reception_alerts"],
+      relatedTables: ["reception_lots", "reception_units", "stock_lots", "stock_summary", "reception_alerts"],
     });
     return { data };
   }

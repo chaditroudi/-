@@ -14,6 +14,7 @@ import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query, Req, UseGua
 import { Roles } from "../../nest/route-metadata.js";
 import { RequireAuthGuard, RolesGuard } from "../../nest/route-guards.js";
 import { publishRealtimeDbChange } from "../realtime/realtime.bus.js";
+import { IdempotencyService } from "../trust/idempotency.service.js";
 import { ReceptionsService } from "./receptions.service.js";
 const RECEPTION_READ_ROLES = [
     "responsable_reception", "chef_reception", "operateur_reception",
@@ -31,8 +32,10 @@ const STORAGE_MOVE_ROLES = [
 const compactIds = (...values) => values.map((value) => String(value || "")).filter(Boolean);
 let ReceptionsController = class ReceptionsController {
     receptionsService;
-    constructor(receptionsService) {
+    idempotency;
+    constructor(receptionsService, idempotency) {
         this.receptionsService = receptionsService;
+        this.idempotency = idempotency;
     }
     async list() {
         const data = await this.receptionsService.listReceptions();
@@ -111,7 +114,15 @@ let ReceptionsController = class ReceptionsController {
         return { data };
     }
     async intake(req, body) {
-        const data = await this.receptionsService.intake(body || {}, req.auth?.user || null);
+        const result = await this.idempotency.execute({
+            scope: "reception_intake",
+            key: body?.client_request_id,
+            actorId: req.auth?.user?.id || null,
+            run: () => this.receptionsService.intake(body || {}, req.auth?.user || null),
+        });
+        const data = result.data;
+        if (result.replayed)
+            return { data, meta: { replayed: true } };
         publishRealtimeDbChange({
             type: "reception_intake",
             table: "receptions_v2",
@@ -119,7 +130,7 @@ let ReceptionsController = class ReceptionsController {
             actorId: req.auth?.user?.id || null,
             rowIds: compactIds(data.reception?.id),
             rows: [data.reception].filter(Boolean),
-            relatedTables: ["reception_lots", "reception_units", "stock_lots", "stock_summary", "system_notifications", "reception_alerts"],
+            relatedTables: ["reception_lots", "reception_units", "stock_lots", "stock_summary", "reception_alerts"],
         });
         return { data };
     }
@@ -417,6 +428,7 @@ __decorate([
 ReceptionsController = __decorate([
     Controller("api"),
     UseGuards(RequireAuthGuard, RolesGuard),
-    __metadata("design:paramtypes", [ReceptionsService])
+    __metadata("design:paramtypes", [ReceptionsService,
+        IdempotencyService])
 ], ReceptionsController);
 export { ReceptionsController };

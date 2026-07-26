@@ -11,6 +11,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query, Req, UseGuards } from "@nestjs/common";
+import { getRequestRoles } from "../../middleware/authorization.js";
 import { Roles } from "../../nest/route-metadata.js";
 import { RequireAuthGuard, RolesGuard } from "../../nest/route-guards.js";
 import { publishRealtimeDbChange } from "../realtime/realtime.bus.js";
@@ -105,10 +106,10 @@ let StorageController = class StorageController {
             action: "INSERT",
             rows: [data?.reading].filter(Boolean),
             rowIds: compactIds(data?.reading?.id),
-            relatedTables: ["storage_zones", "module3-storage-readings", "alerts", "system_notifications"],
+            relatedTables: ["storage_zones", "module3-storage-readings", "alerts"],
         });
-        publishRows(data?.alerts || [], "alerts", "INSERT", req.auth?.user?.id || null, "storage_alert_created", ["system_notifications"]);
-        publishRows(data?.notifications || [], "system_notifications", "INSERT", req.auth?.user?.id || null, "storage_notification_created");
+        publishRows(data?.alerts || [], "alerts", "INSERT", req.auth?.user?.id || null, "storage_alert_created");
+        // Notification INSERT publish is owned by notification-emitter (role-targeted).
         return { data };
     }
     async recordDoorEvent(req, body) {
@@ -119,10 +120,9 @@ let StorageController = class StorageController {
             action: "INSERT",
             rows: [data?.event].filter(Boolean),
             rowIds: compactIds(data?.event?.id),
-            relatedTables: ["storage_zones", "module3-storage-door-events", "alerts", "system_notifications"],
+            relatedTables: ["storage_zones", "module3-storage-door-events", "alerts"],
         });
-        publishRows(data?.alerts || [], "alerts", "INSERT", req.auth?.user?.id || null, "storage_alert_created", ["system_notifications"]);
-        publishRows(data?.notifications || [], "system_notifications", "INSERT", req.auth?.user?.id || null, "storage_notification_created");
+        publishRows(data?.alerts || [], "alerts", "INSERT", req.auth?.user?.id || null, "storage_alert_created");
         return { data };
     }
     async suggestLocation(body) {
@@ -139,25 +139,25 @@ let StorageController = class StorageController {
             type: "storage_rules_evaluated",
             table: "alerts",
             action: "SYNC",
-            relatedTables: ["stock_lots", "stock_summary", "alerts", "system_notifications", "storage_cycle_counts"],
+            relatedTables: ["stock_lots", "stock_summary", "alerts", "storage_cycle_counts"],
         });
-        publishRows(data?.alerts || [], "alerts", "INSERT", null, "storage_alert_created", ["system_notifications"]);
-        publishRows(data?.notifications || [], "system_notifications", "INSERT", null, "storage_notification_created");
+        publishRows(data?.alerts || [], "alerts", "INSERT", null, "storage_alert_created");
         publishRows(data?.cycleCounts || [], "storage_cycle_counts", "INSERT", null, "storage_cycle_count_created");
         return { data };
     }
     async moveStock(req, body) {
-        const data = await this.storageService.moveStock(body || {}, req.auth?.user || null);
+        const roles = getRequestRoles(req);
+        const allowOverride = roles.some((role) => ["responsable_stock", "directeur_usine", "directeur_general", "administrateur_systeme"].includes(role));
+        const data = await this.storageService.moveStock(body || {}, req.auth?.user || null, { source: "OPERATOR", allowOverride });
         publishRealtimeDbChange({
             type: "stock_moved",
             table: "stock_movements",
             action: "INSERT",
             rows: [data?.movement].filter(Boolean),
             rowIds: compactIds(data?.movement?.id),
-            relatedTables: ["stock_lots", "stock_locations", "stock_summary", "storage_location_movements", "module3-storage-location-movements", "alerts", "system_notifications"],
+            relatedTables: ["stock_lots", "stock_locations", "stock_summary", "storage_location_movements", "module3-storage-location-movements", "alerts"],
         });
-        publishRows(data?.alerts || [], "alerts", "INSERT", req.auth?.user?.id || null, "storage_alert_created", ["system_notifications"]);
-        publishRows(data?.notifications || [], "system_notifications", "INSERT", req.auth?.user?.id || null, "storage_notification_created");
+        publishRows(data?.alerts || [], "alerts", "INSERT", req.auth?.user?.id || null, "storage_alert_created");
         return { data };
     }
 };

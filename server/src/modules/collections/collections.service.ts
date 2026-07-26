@@ -6,6 +6,10 @@ import { prepareInsertDocument } from "../../db/defaults.js";
 import { buildMongoFilter, buildSort } from "../../db/query.js";
 import { removeReceptionLotsFromStock, syncReceptionLotsToStock } from "../receptions/reception-stock-sync.js";
 import { appendSupplierPerformanceSnapshot, normalizeSupplierDocument } from "../suppliers/supplier-domain.js";
+import { gateRulesService } from "../trust/gate-rules.service.js";
+import { lotLedgerService } from "../trust/lot-ledger.service.js";
+import { isRegulatedCollection } from "../trust/regulated-collections.js";
+import { assertCoreSchema, assertGenericDbMutationAllowed } from "../trust/write-guard.js";
 
 const findRows = async (collection: string, filter: Record<string, unknown>, orderBy?: any, limit?: number) => {
   const Model = getCollectionModel(collection);
@@ -15,8 +19,6 @@ const findRows = async (collection: string, filter: Record<string, unknown>, ord
   if (limit) query = query.limit(Number(limit));
   return sanitizeDocument(await query.exec());
 };
-
-const immutableCollections = new Set(["storage_location_movements", "stock_movements"]);
 
 const syncCollectionSideEffects = async (collection: string, rows: any[], action: "insert" | "update" | "delete") => {
   if (collection === "reception_lots") {
@@ -32,6 +34,53 @@ const syncCollectionSideEffects = async (collection: string, rows: any[], action
       const reception = sanitizeDocument(await Receptions.findOne({ id: receptionId }).lean().exec());
       const lots = sanitizeDocument(await getCollectionModel("reception_lots").find({ reception_id: receptionId }).lean().exec());
       await syncReceptionLotsToStock(lots, { reception, actorId: null });
+    }
+  }
+};
+
+const appendLedgerSafe = async (
+  collection: string,
+  action: "INSERT" | "UPDATE" | "DELETE",
+  rows: any[],
+  actorId?: string | null,
+) => {
+  if (!isRegulatedCollection(collection) || collection === "lot_events") return;
+  if (!rows?.length) return;
+  try {
+    await lotLedgerService.appendForMutation({ collection, action, rows, actorId });
+  } catch (error) {
+    // Ledger must not silently fail for regulated writes — rethrow.
+    throw error;
+  }
+};
+
+const assertDomainGates = async (
+  table: string,
+  action: "insert" | "update",
+  docs: Record<string, unknown>[],
+  beforeRows: Record<string, unknown>[] = [],
+) => {
+  if (table === "production_orders") {
+    for (const doc of docs) {
+      await gateRulesService.assertProductionOrderWritable(doc);
+    }
+  }
+
+  if (table === "shipment_preparations") {
+    for (let i = 0; i < docs.length; i += 1) {
+      const before = beforeRows[i] || beforeRows[0] || null;
+      await gateRulesService.assertShipmentWritable(before, docs[i]);
+    }
+  }
+
+  if (table === "production_lot_allocations") {
+    for (const doc of docs) {
+      const lotId = String(doc.lot_id || "");
+      if (!lotId) continue;
+      await gateRulesService.assertProductionOrderWritable({
+        status: "RELEASED",
+        input_lot_ids: [lotId],
+      });
     }
   }
 };
@@ -78,17 +127,23 @@ export class CollectionsService {
     const table = String(payload.table || "");
     if (!table) throw badRequest("TABLE_REQUIRED", "Table is required.");
 
+    assertGenericDbMutationAllowed(table, "insert", { trustedInternal: Boolean(payload.trustedInternal) });
+
     const values = Array.isArray(payload.values) ? payload.values : [payload.values];
     const prepared = [];
     for (const value of values) {
       prepared.push(await prepareInsertDocument(table, value || {}));
     }
 
+    assertCoreSchema(table, prepared);
+    await assertDomainGates(table, "insert", prepared);
+
     if (table === "suppliers") await assertUniqueSuppliers(prepared);
 
     if (prepared.length > 0) await getCollectionModel(table).insertMany(prepared);
 
     await syncCollectionSideEffects(table, prepared, "insert");
+    await appendLedgerSafe(table, "INSERT", prepared, payload.actorId || null);
     return sanitizeDocument(prepared);
   }
 
@@ -96,7 +151,7 @@ export class CollectionsService {
     const table = String(payload.table || "");
     if (!table) throw badRequest("TABLE_REQUIRED", "Table is required.");
 
-    if (immutableCollections.has(table)) throw badRequest("IMMUTABLE_LOG", "This history log is immutable and cannot be deleted.");
+    assertGenericDbMutationAllowed(table, "update", { trustedInternal: Boolean(payload.trustedInternal) });
 
     const query = buildMongoFilter(payload.filters || []);
     const Model = getCollectionModel(table);
@@ -135,6 +190,10 @@ export class CollectionsService {
     delete updateValues.id;
     delete updateValues.created_at;
 
+    const projectedAfter = before.map((row: any) => sanitizeDocument({ ...row, ...updateValues }));
+    assertCoreSchema(table, projectedAfter);
+    await assertDomainGates(table, "update", projectedAfter, before);
+
     await Model.updateMany(query, { $set: updateValues }).exec();
 
     const ids = before.map((row: any) => row.id).filter(Boolean);
@@ -143,12 +202,15 @@ export class CollectionsService {
       : [];
 
     await syncCollectionSideEffects(table, after, "update");
+    await appendLedgerSafe(table, "UPDATE", after, payload.actorId || null);
     return { before, after };
   }
 
   async remove(payload: any) {
     const table = String(payload.table || "");
     if (!table) throw badRequest("TABLE_REQUIRED", "Table is required.");
+
+    assertGenericDbMutationAllowed(table, "delete", { trustedInternal: Boolean(payload.trustedInternal) });
 
     const query = buildMongoFilter(payload.filters || []);
     const Model = getCollectionModel(table);
@@ -157,6 +219,7 @@ export class CollectionsService {
 
     await Model.deleteMany(query).exec();
     await syncCollectionSideEffects(table, rows, "delete");
+    await appendLedgerSafe(table, "DELETE", rows, payload.actorId || null);
     return rows;
   }
 }

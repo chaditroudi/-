@@ -29,6 +29,19 @@ export const prepareInsertDocument = async (collection, rawInput) => {
     doc.id = String(doc.id || randomUUID());
     doc.created_at = String(doc.created_at || now);
     doc.updated_at = now;
+    if (collection === "lot_events") {
+        doc.lot_id = String(doc.lot_id || "");
+        doc.event_type = doc.event_type || "GENERIC_MUTATION";
+        doc.collection = doc.collection || "unknown";
+        doc.action = doc.action || "INSERT";
+        doc.actor_id = doc.actor_id ?? null;
+        doc.payload = doc.payload && typeof doc.payload === "object" ? doc.payload : {};
+        doc.related_ids = Array.isArray(doc.related_ids) ? doc.related_ids : [];
+        doc.prev_hash = doc.prev_hash ?? null;
+        doc.hash = String(doc.hash || "");
+        doc.sequence = Number(doc.sequence ?? 0);
+        doc.at = String(doc.at || now);
+    }
     if (collection === "profiles") {
         doc.avatar_url = doc.avatar_url ?? null;
         doc.phone = doc.phone ?? null;
@@ -97,11 +110,47 @@ export const prepareInsertDocument = async (collection, rawInput) => {
         doc.reception_id = doc.reception_id ?? null;
         doc.type = doc.type || "GROSS"; // GROSS | TARE
         doc.weight_kg = Number(doc.weight_kg ?? 0);
-        doc.source = doc.source || "MANUAL"; // MANUAL | SCALE
+        doc.source = doc.source || "MANUAL"; // MANUAL | SCALE | DEVICE
         doc.device_ref = doc.device_ref ?? null;
+        doc.reading_id = doc.reading_id ?? null;
+        doc.device_id = doc.device_id ?? null;
+        doc.stable = doc.stable ?? null;
+        doc.captured_at = doc.captured_at ?? null;
+        doc.calibration_valid_until = doc.calibration_valid_until ?? null;
+        doc.signature_verified = doc.signature_verified ?? false;
+        doc.manual_reason = doc.manual_reason ?? null;
         doc.supervisor = doc.supervisor ?? null;
         doc.recorded_by = doc.recorded_by ?? null;
         doc.notes = doc.notes ?? null;
+    }
+    if (collection === "weighbridge_devices") {
+        doc.device_code = String(doc.device_code || "");
+        doc.status = doc.status || "ACTIVE";
+        doc.protocol = doc.protocol || "HTTP_PUSH";
+        doc.unit = doc.unit || "kg";
+        doc.last_seen_at = doc.last_seen_at ?? null;
+    }
+    if (collection === "ccp_sensor_devices") {
+        doc.device_code = String(doc.device_code || "");
+        doc.kind = String(doc.kind || "").toUpperCase() || "FUMIGATION";
+        doc.status = doc.status || "ACTIVE";
+        doc.protocol = doc.protocol || "HTTP_PUSH";
+        doc.zone_code = doc.zone_code ?? null;
+        doc.last_seen_at = doc.last_seen_at ?? null;
+        doc.calibration_valid_until = doc.calibration_valid_until ?? null;
+    }
+    if (collection === "weighbridge_readings") {
+        doc.reading_key = String(doc.reading_key || "");
+        doc.reading_id = String(doc.reading_id || "");
+        doc.device_id = doc.device_id ?? null;
+        doc.device_code = String(doc.device_code || "");
+        doc.captured_at = doc.captured_at || now;
+        doc.received_at = doc.received_at || now;
+        doc.weight_kg = Number(doc.weight_kg ?? 0);
+        doc.unit = doc.unit || "kg";
+        doc.stable = doc.stable === true;
+        doc.consumed = doc.consumed === true;
+        doc.consumed_by_weighing_id = doc.consumed_by_weighing_id ?? null;
     }
     if (collection === "epcis_events") {
         doc.event_type = doc.event_type || "ObjectEvent";
@@ -181,6 +230,13 @@ export const prepareInsertDocument = async (collection, rawInput) => {
         doc.reading_at = doc.reading_at || now;
         doc.condition_status = doc.condition_status || "normal";
         doc.messages = Array.isArray(doc.messages) ? doc.messages : [];
+        doc.source = doc.source || "MANUAL";
+        doc.signature_verified = doc.signature_verified === true;
+        if (doc.reading_key == null || doc.reading_key === "")
+            delete doc.reading_key;
+        else
+            doc.reading_key = String(doc.reading_key);
+        doc.device_code = doc.device_code ?? null;
     }
     if (collection === "storage_location_movements") {
         doc.movement_number = doc.movement_number || (await nextStorageMovementNumber());
@@ -421,6 +477,13 @@ export const prepareInsertDocument = async (collection, rawInput) => {
         doc.external_leak_ppm = doc.external_leak_ppm ?? null;
         doc.door_locked = doc.door_locked ?? true;
         doc.created_by = doc.created_by ?? "system";
+        doc.source = doc.source || "MANUAL";
+        doc.signature_verified = doc.signature_verified === true;
+        if (doc.reading_key == null || doc.reading_key === "")
+            delete doc.reading_key;
+        else
+            doc.reading_key = String(doc.reading_key);
+        doc.device_code = doc.device_code ?? null;
     }
     if (collection === "cleaning_cycles") {
         doc.status = doc.status || "EN_COURS";
@@ -596,6 +659,19 @@ export const prepareInsertDocument = async (collection, rawInput) => {
         doc.metadata = doc.metadata ?? null;
         doc.severity = doc.severity || "info";
         doc.action_url = doc.action_url || "/";
+        // Realtime targeting. Empty arrays + null space preserve legacy global behavior.
+        doc.target_roles = Array.isArray(doc.target_roles) ? doc.target_roles : [];
+        doc.target_user_ids = Array.isArray(doc.target_user_ids) ? doc.target_user_ids : [];
+        doc.space = doc.space ?? null;
+    }
+    if (collection === "scan_events") {
+        doc.scan_token = String(doc.scan_token || "");
+        doc.raw_value = String(doc.raw_value || "");
+        doc.parsed_kind = doc.parsed_kind || "UNKNOWN";
+        doc.actor_id = doc.actor_id ?? null;
+        doc.scanned_at = doc.scanned_at || now;
+        doc.expires_at = doc.expires_at || now;
+        doc.consumed_at = doc.consumed_at ?? null;
     }
     if (collection === "alerts" || collection === "reception_alerts") {
         doc.status = doc.status || "ACTIVE";

@@ -6,6 +6,28 @@ const API_BASE_URL = import.meta.env.VITE_API_URL ||
     : "/api");
 const AUTH_STORAGE_KEY = "date-harvest-hub-session";
 
+export class ApiRequestError extends Error {
+  status: number | null;
+  code: string | null;
+  isNetworkError: boolean;
+  details: unknown;
+
+  constructor(input: {
+    message: string;
+    status?: number | null;
+    code?: string | null;
+    isNetworkError?: boolean;
+    details?: unknown;
+  }) {
+    super(input.message);
+    this.name = "ApiRequestError";
+    this.status = input.status ?? null;
+    this.code = input.code ?? null;
+    this.isNetworkError = input.isNetworkError ?? false;
+    this.details = input.details;
+  }
+}
+
 export const axiosClient = axios.create({
   baseURL: API_BASE_URL,
   headers: { "Content-Type": "application/json" },
@@ -35,6 +57,12 @@ axiosClient.interceptors.response.use(
       (error.response?.status === 403
         ? "You do not have permission to perform this action."
         : `Request failed: ${error.response?.status ?? "network error"}`);
-    throw new Error(message);
+    throw new ApiRequestError({
+      message,
+      status: error.response?.status ?? null,
+      code: data?.error?.code ?? error.code ?? null,
+      isNetworkError: !error.response,
+      details: data?.error?.details,
+    });
   },
 );

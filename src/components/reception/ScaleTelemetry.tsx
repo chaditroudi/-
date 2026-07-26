@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { useLatestWeighbridgeReading } from '@/hooks/useWeighbridge';
 
 /** Weighing modes:
  *  SCALE        — live Modbus telemetry (currently simulated / mocked)
@@ -19,7 +20,8 @@ interface ScaleTelemetryProps {
   onWeightValidated: (payload: {
     weight: number;
     supervisor: string;
-    source: 'SCALE' | 'MANUAL';
+    source: 'DEVICE' | 'MANUAL';
+    readingId?: string | null;
     manualReason?: string | null;
     /** RG-R08: present only when mode === PANNE_BASCULE */
     witness1?: string | null;
@@ -31,7 +33,7 @@ interface ScaleTelemetryProps {
     weight: number;
     supervisor: string;
     time: string;
-    source: 'SCALE' | 'MANUAL';
+    source: 'DEVICE' | 'MANUAL';
     manualReason?: string | null;
     witness1?: string | null;
     witness2?: string | null;
@@ -39,7 +41,6 @@ interface ScaleTelemetryProps {
 }
 
 export const ScaleTelemetry = ({
-  targetWeight,
   onWeightValidated,
   onWeightReset,
   isValidated,
@@ -47,7 +48,6 @@ export const ScaleTelemetry = ({
 }: ScaleTelemetryProps) => {
   const [liveWeight, setLiveWeight] = useState(0);
   const [isStable, setIsStable] = useState(false);
-  const [stabilityCounter, setStabilityCounter] = useState(0);
   const [weightMode, setWeightMode] = useState<WeighingMode>('SCALE');
   const [manualWeight, setManualWeight] = useState('');
   const [manualReason, setManualReason] = useState('');
@@ -56,30 +56,15 @@ export const ScaleTelemetry = ({
   const [witness1, setWitness1] = useState('');
   const [witness2, setWitness2] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const { reading, connected } = useLatestWeighbridgeReading(
+    !isValidated && weightMode === 'SCALE',
+  );
 
-  // Simulate live scale weight — MOCK (no real Modbus connection)
   useEffect(() => {
-    if (isValidated || weightMode !== 'SCALE') return;
-
-    const interval = setInterval(() => {
-      setLiveWeight(prev => {
-        const target = targetWeight;
-        const jitter = (Math.random() - 0.5) * 0.4;
-
-        if (Math.abs(prev - target) < 0.2) {
-          setStabilityCounter(c => Math.min(c + 1, 10));
-          if (stabilityCounter > 5) setIsStable(true);
-          return target + (Math.random() - 0.5) * 0.05;
-        }
-
-        setIsStable(false);
-        setStabilityCounter(0);
-        return prev + (target - prev) * 0.15 + jitter;
-      });
-    }, 80);
-
-    return () => clearInterval(interval);
-  }, [targetWeight, stabilityCounter, weightMode, isValidated]);
+    if (!reading || weightMode !== 'SCALE') return;
+    setLiveWeight(Number(reading.weight_kg));
+    setIsStable(reading.stable && reading.signature_verified);
+  }, [reading, weightMode]);
 
   const currentWeight = isValidated && validationMeta
     ? validationMeta.weight
@@ -90,8 +75,8 @@ export const ScaleTelemetry = ({
       setError("Nom du superviseur requis");
       return;
     }
-    if (weightMode === 'SCALE' && !isStable) {
-      setError("Attendre la stabilisation du poids bascule");
+    if (weightMode === 'SCALE' && (!connected || !isStable || !reading)) {
+      setError("Aucune lecture bascule stable et vérifiée");
       return;
     }
     if (currentWeight <= 0) {
@@ -126,7 +111,8 @@ export const ScaleTelemetry = ({
     onWeightValidated({
       weight: currentWeight,
       supervisor: supervisorName,
-      source: weightMode === 'SCALE' ? 'SCALE' : 'MANUAL',
+      source: weightMode === 'SCALE' ? 'DEVICE' : 'MANUAL',
+      readingId: weightMode === 'SCALE' ? reading?.reading_id : null,
       manualReason: weightMode !== 'SCALE' ? manualReason.trim() : null,
       witness1: weightMode === 'PANNE_BASCULE' ? witness1.trim() : null,
       witness2: weightMode === 'PANNE_BASCULE' ? witness2.trim() : null,
@@ -142,9 +128,8 @@ export const ScaleTelemetry = ({
             <div className="flex items-center gap-2">
               <Scale className="h-5 w-5 text-primary" />
               <span className="font-semibold">Télémétrie Pont-Bascule</span>
-              {/* Modbus mock indicator */}
-              <Badge variant="outline" className="text-[0.6rem] px-1.5 border-amber-300 bg-amber-50 text-amber-700">
-                MOCK — simulation Modbus
+              <Badge variant="outline" className="text-[0.6rem] px-1.5">
+                {connected ? `LIVE — ${reading?.device_code || 'bascule'}` : 'HORS LIGNE'}
               </Badge>
             </div>
             <div className="flex gap-1">

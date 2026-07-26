@@ -12,6 +12,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 import { Controller, Get, Req, Res } from "@nestjs/common";
 import { decodeAuthToken } from "../../middleware/auth.js";
+import { normalizeRolesFromMetadata, notificationSeesAll } from "../../middleware/authorization.js";
 import { addRealtimeClient, createRealtimeClientId, getRealtimeClientCount, removeRealtimeClient, } from "./realtime.bus.js";
 const readRealtimeToken = (req) => {
     const queryToken = typeof req.query?.token === "string" ? req.query.token : "";
@@ -28,6 +29,8 @@ let RealtimeController = class RealtimeController {
             return;
         }
         const clientId = createRealtimeClientId();
+        const roles = normalizeRolesFromMetadata(auth.user.user_metadata);
+        const seesAll = notificationSeesAll(roles);
         res.writeHead(200, {
             "Content-Type": "text/event-stream",
             "Cache-Control": "no-cache, no-transform",
@@ -38,7 +41,7 @@ let RealtimeController = class RealtimeController {
             res.write(`event: ${eventName}\n`);
             res.write(`data: ${JSON.stringify(payload)}\n\n`);
         };
-        addRealtimeClient({ id: clientId, userId: auth.user.id, write, end: () => res.end() });
+        addRealtimeClient({ id: clientId, userId: auth.user.id, roles, seesAll, write, end: () => res.end() });
         write("connected", {
             clientId,
             connectedClients: getRealtimeClientCount(),

@@ -20,6 +20,14 @@ import { materialsApi } from '@/store/api/materialsApi';
 import { stockApi } from '@/store/api/stockApi';
 import { storageApi } from '@/store/api/storageApi';
 import { notificationsApi } from '@/store/api/notificationsApi';
+import type { ServerRealtimeEvent } from '@/integrations/mongodb/client';
+
+export const shouldRefetchNotificationsForEvent = (
+  event: ServerRealtimeEvent,
+  table = event.table,
+) =>
+  table !== 'system_notifications'
+  && (event.relatedTables || []).includes('system_notifications');
 
 // ── resource → RTK Query tag invalidations ────────────────────────────────────
 // Keys match the `resource` field emitted by the NestJS realtime bus.
@@ -38,7 +46,7 @@ const RESOURCE_TAGS: Record<string, TagGroup[]> = {
     { api: 'materials', tags: ['Material'] },
   ],
   stock: [
-    { api: 'stock', tags: ['StockLot', 'StockMovement', 'StockSummary', 'StockLocation'] },
+    { api: 'stock', tags: ['StockLot', 'StockMovement', 'StockSummary', 'StockLocation', 'StockProduct'] },
   ],
   storage: [
     { api: 'storage', tags: ['StorageZone', 'StorageLocation', 'StorageReading', 'StorageDoorEvent', 'StorageMovement', 'StorageDlcAlert'] },
@@ -68,6 +76,10 @@ export const useBackendRealtimeSync = () => {
     const sse = getSseConnection();
 
     return sse.subscribe((msg) => {
+      if (msg.eventName === 'connected') {
+        window.dispatchEvent(new Event('backend-sse-connected'));
+        return;
+      }
       if (msg.eventName !== 'db_change') return;
 
       const { id, resource, relatedResources = [] } = msg.payload;

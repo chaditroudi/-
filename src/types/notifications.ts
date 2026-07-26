@@ -15,6 +15,12 @@ export interface SystemNotification {
   expires_at: string | null;
   metadata: Record<string, unknown> | null;
   status?: string | null;
+  /** Espace (AppTab-aligned) the notification belongs to. */
+  space?: string | null;
+  /** Roles this notification targets; empty/absent means broadcast. */
+  target_roles?: string[] | null;
+  /** Specific users this notification targets, in addition to roles. */
+  target_user_ids?: string[] | null;
 }
 
 export interface NotificationStats {

@@ -69,7 +69,9 @@ export const QrScannerDialog = ({ open, onOpenChange, onDetected }: QrScannerDia
       }
 
       try {
-        detectorRef.current = new window.BarcodeDetector({ formats: ['qr_code'] });
+        detectorRef.current = new window.BarcodeDetector({
+          formats: ['qr_code', 'code_128', 'data_matrix'],
+        });
 
         const stream = await navigator.mediaDevices.getUserMedia({
           video: {

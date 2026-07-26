@@ -31,6 +31,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useBranding } from '@/hooks/useBranding';
 import { useReceptionsV2 } from '@/hooks/useReceptionsV2';
 import { useModule3StorageZones } from '@/hooks/useStorageModule3';
+import { useLatestWeighbridgeReading } from '@/hooks/useWeighbridge';
 import { getReceptionIntakeZones, suggestReceptionStorageZone } from '@/lib/receptionStorageZones';
 
 type WeightMode = 'SCALE' | 'MANUAL';
@@ -87,9 +88,10 @@ export const ReceptionTabletOperatorScreen = () => {
   const [manualReason, setManualReason] = useState('');
   const [liveWeightKg, setLiveWeightKg] = useState(0);
   const [isStable, setIsStable] = useState(false);
-  const [stabilityCounter, setStabilityCounter] = useState(0);
   const [grossWeightKg, setGrossWeightKg] = useState<number | null>(null);
   const [tareWeightKg, setTareWeightKg] = useState<number | null>(null);
+  const [grossReadingId, setGrossReadingId] = useState<string | null>(null);
+  const [tareReadingId, setTareReadingId] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [arrivalPhotos, setArrivalPhotos] = useState<string[]>([]);
   const [lots, setLots] = useState<TabletLot[]>([createEmptyLot('Deglet Nour')]);
@@ -130,6 +132,8 @@ export const ReceptionTabletOperatorScreen = () => {
   );
   const unitCount = Math.max(1, parseInt(form.unit_count || '1', 10));
   const declaredWeightKg = parseNumber(form.declared_weight_kg);
+  const { reading: scaleReading, connected: scaleConnected } =
+    useLatestWeighbridgeReading(weightMode === 'SCALE');
   const netWeightKg = grossWeightKg != null && tareWeightKg != null
     ? Math.max(0, Number((grossWeightKg - tareWeightKg).toFixed(2)))
     : 0;
@@ -148,18 +152,6 @@ export const ReceptionTabletOperatorScreen = () => {
       return nextLots;
     });
   }, [form.variety, netWeightKg]);
-
-  const liveWeightTarget = (() => {
-    if (weightMode === 'MANUAL') {
-      return parseNumber(manualWeight);
-    }
-
-    if (weightStage === 'GROSS') {
-      return Math.max(1500, declaredWeightKg + Math.max(1200, unitCount * 28));
-    }
-
-    return Math.max(950, grossWeightKg ? grossWeightKg * 0.32 : declaredWeightKg * 0.35 || 1200);
-  })();
 
   useEffect(() => {
     setForm((current) => {
@@ -185,30 +177,14 @@ export const ReceptionTabletOperatorScreen = () => {
   }, [availableStorageZones, suggestedStorageZone]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setLiveWeightKg((previous) => {
-        const target = liveWeightTarget || 0;
-        const jitter = (Math.random() - 0.5) * (weightMode === 'SCALE' ? 2.2 : 0.4);
-        const next = target > 0
-          ? previous + (target - previous) * 0.18 + jitter
-          : 0;
-
-        if (Math.abs(next - target) < 1.2) {
-          setStabilityCounter((count) => Math.min(count + 1, 10));
-        } else {
-          setStabilityCounter(0);
-        }
-
-        return Number(Math.max(0, next).toFixed(2));
-      });
-    }, 180);
-
-    return () => clearInterval(interval);
-  }, [liveWeightTarget, weightMode]);
-
-  useEffect(() => {
-    setIsStable(stabilityCounter >= 5 || weightMode === 'MANUAL');
-  }, [stabilityCounter, weightMode]);
+    if (weightMode === 'MANUAL') {
+      setLiveWeightKg(parseNumber(manualWeight));
+      setIsStable(true);
+      return;
+    }
+    setLiveWeightKg(Number(scaleReading?.weight_kg || 0));
+    setIsStable(Boolean(scaleConnected && scaleReading?.stable && scaleReading?.signature_verified));
+  }, [manualWeight, scaleConnected, scaleReading, weightMode]);
 
   const weightGapPercent = declaredWeightKg > 0 && netWeightKg > 0
     ? Number((Math.abs(netWeightKg - declaredWeightKg) / declaredWeightKg * 100).toFixed(2))
@@ -275,10 +251,12 @@ export const ReceptionTabletOperatorScreen = () => {
 
     if (weightStage === 'GROSS') {
       setGrossWeightKg(capturedWeight);
+      setGrossReadingId(weightMode === 'SCALE' ? scaleReading?.reading_id || null : null);
       setWeightStage('TARE');
       setSubmitMessage('Poids brut capturé. Procéder maintenant à la tare après déchargement.');
     } else {
       setTareWeightKg(capturedWeight);
+      setTareReadingId(weightMode === 'SCALE' ? scaleReading?.reading_id || null : null);
       setSubmitMessage('Poids tare capturé. Le poids net a été recalculé.');
     }
 
@@ -288,10 +266,11 @@ export const ReceptionTabletOperatorScreen = () => {
   const resetWeighing = () => {
     setGrossWeightKg(null);
     setTareWeightKg(null);
+    setGrossReadingId(null);
+    setTareReadingId(null);
     setWeightStage('GROSS');
     setManualWeight('');
     setManualReason('');
-    setStabilityCounter(0);
     setIsStable(false);
     setSubmitMessage('Pesée réinitialisée.');
   };
@@ -380,6 +359,8 @@ export const ReceptionTabletOperatorScreen = () => {
         remarks: form.remarks.trim() || null,
         gross_weight_kg: grossWeightKg || 0,
         tare_weight_kg: tareWeightKg || 0,
+        gross_reading_id: grossReadingId,
+        tare_reading_id: tareReadingId,
         declared_weight_kg: declaredWeightKg || null,
         variety: form.variety,
         maturity_stage: form.maturity_stage,

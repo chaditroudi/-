@@ -35,18 +35,6 @@ const PHASE2_ROLES = [
     "direction",
 ];
 const compactIds = (...values) => values.flat().map((value) => String(value || "")).filter(Boolean);
-const publishNotificationRows = (rows, action, actorId, type) => {
-    if (!Array.isArray(rows) || rows.length === 0)
-        return;
-    publishRealtimeDbChange({
-        type,
-        table: "system_notifications",
-        action,
-        actorId,
-        rowIds: compactIds(rows.map((row) => row?.id)),
-        rows,
-    });
-};
 let Phase2Controller = class Phase2Controller {
     phase2Service;
     constructor(phase2Service) {
@@ -123,7 +111,6 @@ let Phase2Controller = class Phase2Controller {
             rows: [result.data].filter(Boolean),
             relatedTables: ["fumigation_cycles"],
         });
-        publishNotificationRows(result.notifications, "INSERT", req.auth?.user?.id || null, "phase2_fumigation_alert_created");
         return { data: result.data };
     }
     async getFumigationKpis() {
@@ -157,7 +144,6 @@ let Phase2Controller = class Phase2Controller {
             rowIds: compactIds(id),
             rows: result.cycle ? [result.cycle] : [],
         });
-        publishNotificationRows(result.notifications, "INSERT", req.auth?.user?.id || null, "phase2_cleaning_alert_created");
         return { data: result.data };
     }
     async updateCleaningCycle(req, id, body) {
@@ -203,7 +189,6 @@ let Phase2Controller = class Phase2Controller {
             rowIds: compactIds(id),
             rows: result.cycle ? [result.cycle] : [],
         });
-        publishNotificationRows(result.notifications, "INSERT", req.auth?.user?.id || null, "phase2_hydration_alert_created");
         return { data: result.data };
     }
     async closeHydrationCycle(req, id, body) {
@@ -267,7 +252,6 @@ let Phase2Controller = class Phase2Controller {
             rowIds: compactIds(id),
             rows: result.session ? [result.session] : [],
         });
-        publishNotificationRows(result.notifications, "INSERT", req.auth?.user?.id || null, "phase2_triage_alert_created");
         return { data: result.data };
     }
     async addTriageQualityCheck(req, id, body) {
@@ -281,7 +265,6 @@ let Phase2Controller = class Phase2Controller {
             rows: [result.data].filter(Boolean),
             relatedTables: ["triage_sessions"],
         });
-        publishNotificationRows(result.notifications, "INSERT", req.auth?.user?.id || null, "phase2_triage_quality_alert_created");
         return { data: result.data };
     }
     async closeTriageSession(req, id) {
@@ -320,12 +303,31 @@ let Phase2Controller = class Phase2Controller {
     }
     async acknowledgePhase2Alert(req, id, body) {
         const data = await this.phase2Service.acknowledgePhase2Alert(id, String(body?.read_by || body?.readBy || req.auth?.user?.email || "operator"));
-        publishNotificationRows([data].filter(Boolean), "UPDATE", req.auth?.user?.id || null, "phase2_alert_acknowledged");
+        // Emitter owns INSERT publishes; acknowledge is an UPDATE — broadcast read-state.
+        if (data) {
+            publishRealtimeDbChange({
+                type: "phase2_alert_acknowledged",
+                table: "system_notifications",
+                action: "UPDATE",
+                actorId: req.auth?.user?.id || null,
+                rowIds: compactIds(data?.id),
+                rows: [data],
+            });
+        }
         return { data };
     }
     async acknowledgeAllPhase2Alerts(req, body) {
         const result = await this.phase2Service.acknowledgeAllPhase2Alerts(String(body?.read_by || body?.readBy || req.auth?.user?.email || "operator"));
-        publishNotificationRows(result.notifications, "UPDATE", req.auth?.user?.id || null, "phase2_alerts_acknowledged_all");
+        if (Array.isArray(result.notifications) && result.notifications.length > 0) {
+            publishRealtimeDbChange({
+                type: "phase2_alerts_acknowledged_all",
+                table: "system_notifications",
+                action: "UPDATE",
+                actorId: req.auth?.user?.id || null,
+                rowIds: compactIds(result.notifications.map((row) => row?.id)),
+                rows: result.notifications,
+            });
+        }
         return { data: result.data };
     }
 };

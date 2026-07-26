@@ -16,6 +16,15 @@ const COLLECTION_TO_RESOURCE = {
     stock_movements: "stock",
     stock_summary: "stock",
     stock_locations: "stock",
+    stock_alerts: "stock",
+    inventory_counts: "stock",
+    shipment_preparations: "stock",
+    shipment_lines: "stock",
+    products: "stock",
+    bon_expeditions: "stock",
+    scan_events: "stock",
+    weighing_records: "receptions",
+    weighbridge_readings: "receptions",
     storage_zones: "storage",
     storage_locations: "storage",
     storage_condition_readings: "storage",
@@ -37,8 +46,18 @@ const COLLECTION_TO_RESOURCE = {
     triage_quality_checks: "production",
     system_notifications: "notifications",
     system_audit_logs: "notifications",
+    lot_events: "batches",
 };
 const resolveResource = (table, explicitResource) => explicitResource || COLLECTION_TO_RESOURCE[table] || table;
+const clientMatchesTarget = (client, targetRoles, targetUserIds) => {
+    if (targetRoles.length === 0 && targetUserIds.length === 0)
+        return true;
+    if (client.seesAll)
+        return true;
+    if (client.userId && targetUserIds.includes(client.userId))
+        return true;
+    return client.roles.some((role) => targetRoles.includes(role));
+};
 const clients = new Map();
 let sequence = 0;
 const nextEventId = () => {
@@ -66,6 +85,8 @@ export const publishRealtimeDbChange = (event) => {
     const resource = resolveResource(event.table, event.resource);
     // relatedResources: deduplicate resource names for all related tables
     const relatedResources = Array.from(new Set((event.relatedTables ?? []).map((t) => resolveResource(t)))).filter((r) => r !== resource);
+    const targetRoles = Array.from(new Set((event.targetRoles ?? []).map((r) => String(r || "").toLowerCase()).filter(Boolean)));
+    const targetUserIds = Array.from(new Set((event.targetUserIds ?? []).map((u) => String(u || "")).filter(Boolean)));
     const payload = {
         id: nextEventId(),
         type: event.type || "db_change",
@@ -78,6 +99,8 @@ export const publishRealtimeDbChange = (event) => {
         rows: event.rows || [],
     };
     for (const client of clients.values()) {
+        if (!clientMatchesTarget(client, targetRoles, targetUserIds))
+            continue;
         client.write("db-change", payload);
     }
 };

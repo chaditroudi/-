@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useModule3StorageLocations, useMoveStorageStock } from '@/hooks/useStorageModule3';
 import { StockLot } from '@/types/stock';
 import { storageMovementReasonLabels, type StorageMovementReason } from '@/types/storage';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, QrCode } from 'lucide-react';
+import { QrScannerDialog } from '@/components/reception/QrScannerDialog';
+import { scanApi } from '@/lib/api/scan';
 
 interface TransferDialogProps {
   open: boolean;
@@ -19,6 +22,8 @@ interface TransferDialogProps {
 export const TransferDialog = ({ open, onOpenChange, lot }: TransferDialogProps) => {
   const { data: locations = [] } = useModule3StorageLocations();
   const moveStorageStock = useMoveStorageStock();
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [scanToken, setScanToken] = useState('');
 
   const [formData, setFormData] = useState({
     destination_location_id: '',
@@ -43,7 +48,9 @@ export const TransferDialog = ({ open, onOpenChange, lot }: TransferDialogProps)
       quantityPalettes: formData.quantity_palettes,
       quantityKg: formData.quantity_kg,
       reason: formData.reason,
-      notes: formData.notes || undefined
+      notes: formData.notes || undefined,
+      requestId: crypto.randomUUID(),
+      scanProof: { lotToken: scanToken },
     });
     
     onOpenChange(false);
@@ -63,6 +70,13 @@ export const TransferDialog = ({ open, onOpenChange, lot }: TransferDialogProps)
             <p className="text-sm text-muted-foreground">
               {(lot.product as any)?.name} • {lot.current_quantity} {lot.unit}
             </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button type="button" variant={scanToken ? 'secondary' : 'outline'} onClick={() => setScannerOpen(true)}>
+              <QrCode className="mr-2 h-4 w-4" />
+              {scanToken ? 'Lot vérifié par scan' : 'Scanner le lot'}
+            </Button>
+            {!scanToken && <span className="text-xs text-muted-foreground">Scan obligatoire avant transfert</span>}
           </div>
 
           {/* Transfert */}
@@ -159,12 +173,29 @@ export const TransferDialog = ({ open, onOpenChange, lot }: TransferDialogProps)
             </Button>
             <Button 
               type="submit" 
-              disabled={moveStorageStock.isPending || !formData.destination_location_id || formData.quantity_palettes <= 0}
+              disabled={moveStorageStock.isPending || !scanToken || !formData.destination_location_id || formData.quantity_palettes <= 0}
             >
               {moveStorageStock.isPending ? 'Transfert...' : 'Confirmer le transfert'}
             </Button>
           </DialogFooter>
         </form>
+        <QrScannerDialog
+          open={scannerOpen}
+          onOpenChange={setScannerOpen}
+          onDetected={async (rawValue) => {
+            try {
+              const resolved = await scanApi.resolve(rawValue);
+              if (String(resolved.stockLot?.id || '') !== String(lot.id)) {
+                throw new Error('Le lot scanné ne correspond pas au lot à transférer.');
+              }
+              setScanToken(resolved.scanToken);
+              setScannerOpen(false);
+              toast.success('Lot vérifié');
+            } catch (error) {
+              toast.error(error instanceof Error ? error.message : 'Scan invalide');
+            }
+          }}
+        />
       </DialogContent>
     </Dialog>
   );

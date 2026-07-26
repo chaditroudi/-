@@ -166,7 +166,6 @@ let PackagingController = class PackagingController {
             action: "UPDATE",
             rows: data ? [data] : [],
             rowIds: [String(data?.id || id)].filter(Boolean),
-            relatedTables: ["system_notifications"],
         });
         return { data };
     }
@@ -178,7 +177,6 @@ let PackagingController = class PackagingController {
             action: "UPDATE",
             rows: data ? [data] : [],
             rowIds: [String(data?.id || id)].filter(Boolean),
-            relatedTables: ["system_notifications"],
         });
         return { data };
     }
@@ -200,7 +198,6 @@ let PackagingController = class PackagingController {
             action: "UPDATE",
             rows: data ? [data] : [],
             rowIds: [String(data?.id || id)].filter(Boolean),
-            relatedTables: ["system_notifications"],
         });
         return { data };
     }
@@ -228,7 +225,7 @@ let PackagingController = class PackagingController {
             table: "packaging_palettes",
             action: "UPDATE",
             rowIds: [id],
-            relatedTables: ["stock_lots", "stock_movements", "system_notifications"],
+            relatedTables: ["stock_lots", "stock_movements"],
         });
         return { data };
     }

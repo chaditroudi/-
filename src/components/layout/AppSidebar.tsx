@@ -121,7 +121,7 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
       label: "Pilotage",
       items: [
         { id: "analytics",      title: t("nav.analytics"), icon: BarChart3 },
-        { id: "sage-operations",title: "SAGE Hub",          icon: Landmark },
+        { id: "sage-operations",title: "Chaîne Hub",          icon: Landmark },
       ],
     },
   ];

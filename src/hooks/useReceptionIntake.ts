@@ -2,6 +2,11 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import { apiRequest } from '@/integrations/mongodb/client';
+import { ApiRequestError } from '@/lib/axiosClient';
+import {
+  discardOutboxItem,
+  enqueueReceptionIntake,
+} from '@/lib/offline/outbox';
 import { useAppDispatch } from '@/store/hooks';
 import { fetchReceptions, receptionUpserted } from '@/store/slices/receptionsSlice';
 import { ReceptionLot, ReceptionUnit, ReceptionV2 } from '@/types/reception';
@@ -22,6 +27,7 @@ export interface ReceptionIntakeLotInput {
 }
 
 export interface ReceptionIntakePayload {
+  client_request_id?: string;
   supplier_id: string;
   purchase_order_id?: string | null;
   purchase_order_line_id?: string | null;
@@ -39,6 +45,8 @@ export interface ReceptionIntakePayload {
   remarks?: string | null;
   gross_weight_kg: number;
   tare_weight_kg: number;
+  gross_reading_id?: string | null;
+  tare_reading_id?: string | null;
   declared_weight_kg?: number | null;
   variety: string;
   maturity_stage: string;
@@ -76,6 +84,8 @@ export interface ReceptionIntakeResponse {
   units: ReceptionUnit[];
   alerts: Array<Record<string, unknown>>;
   notifications: Array<Record<string, unknown>>;
+  offline_queued?: boolean;
+  queue_id?: string;
 }
 
 export const useCreateReceptionIntake = () => {
@@ -84,14 +94,51 @@ export const useCreateReceptionIntake = () => {
 
   return useMutation({
     mutationFn: async (payload: ReceptionIntakePayload) => {
-      const response = await apiRequest<{ data: ReceptionIntakeResponse }>('/receptions/intake', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      });
+      const queued = await enqueueReceptionIntake(payload as unknown as Record<string, unknown>);
+      try {
+        const response = await apiRequest<{ data: ReceptionIntakeResponse }>('/receptions/intake', {
+          method: 'POST',
+          body: JSON.stringify(queued.payload),
+        });
+        return response.data;
+      } catch (error) {
+        const temporary = !(error instanceof ApiRequestError)
+          || error.isNetworkError
+          || error.status === 409
+          || (error.status ?? 500) >= 500;
+        if (!temporary) {
+          await discardOutboxItem(queued.id);
+          throw error;
+        }
 
-      return response.data;
+        return {
+          reception: {
+            id: queued.id,
+            reception_number: 'EN ATTENTE DE SYNCHRONISATION',
+            storage_zone_code: payload.storage_zone_code,
+            created_at: queued.createdAt,
+          } as ReceptionV2,
+          lots: payload.lots.map((lot, index) => ({
+            id: `${queued.id}-lot-${index + 1}`,
+            reception_id: queued.id,
+            lot_internal: 'Attribué après synchronisation',
+            ...lot,
+          })) as ReceptionLot[],
+          units: [],
+          alerts: [],
+          notifications: [],
+          offline_queued: true,
+          queue_id: queued.id,
+        };
+      }
     },
     onSuccess: (data) => {
+      if (data.offline_queued) {
+        toast.warning('Réception enregistrée hors ligne', {
+          description: 'Le numéro officiel et les étiquettes seront disponibles après synchronisation.',
+        });
+        return;
+      }
       dispatch(receptionUpserted(data.reception));
       void dispatch(fetchReceptions());
       queryClient.invalidateQueries({ queryKey: ['receptions-v2'] });

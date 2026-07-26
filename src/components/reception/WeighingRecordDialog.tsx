@@ -90,7 +90,8 @@ export function WeighingRecordDialog({
   const handleSave = async (type: WeighingType, meta: {
     weight: number;
     supervisor: string;
-    source: 'SCALE' | 'MANUAL';
+    source: 'DEVICE' | 'MANUAL';
+    readingId?: string | null;
     manualReason?: string | null;
     witness1?: string | null;
     witness2?: string | null;
@@ -101,7 +102,9 @@ export function WeighingRecordDialog({
         type,
         weight_kg: meta.weight,
         source: meta.source,
+        reading_id: meta.readingId || null,
         supervisor: meta.supervisor || null,
+        manual_reason: meta.manualReason || null,
         notes: meta.manualReason
           ? `Saisie manuelle — motif : ${meta.manualReason}${meta.witness1 ? ` | Témoin 1 : ${meta.witness1}` : ''}${meta.witness2 ? ` | Témoin 2 : ${meta.witness2}` : ''}`
           : null,

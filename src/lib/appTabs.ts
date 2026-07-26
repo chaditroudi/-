@@ -166,11 +166,11 @@ export const APP_TAB_META: Record<AppTab, AppTabMeta> = {
     pageSubtitle: "Journal des entrées, transferts, sorties et ajustements d'entrepôt.",
   },
   "sage-operations": {
-    label: "SAGE Hub",
-    shortLabel: "SAGE",
+    label: "Chaîne Hub",
+    shortLabel: "Chaîne",
     icon: Landmark,
-    pageTitle: "SAGE Hub",
-    pageSubtitle: "Pont entre operations terrain, stock, qualite et logistique.",
+    pageTitle: "Chaîne Hub",
+    pageSubtitle: "Cockpit conformité — opérations, stock, qualité et logistique (système de record MES).",
   },
   export: {
     label: "Export",

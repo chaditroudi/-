@@ -17,7 +17,14 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "smoke:notifications": "node --env-file=.env scripts/smoke-notifications.mjs",
+    "seed:actors": "node --env-file=.env scripts/seed-test-actors.mjs",
+    "weighbridge:sim": "node --env-file=.env scripts/weighbridge-simulator.mjs",
+    "ccp:sim": "node --env-file=.env scripts/ccp-sensor-simulator.mjs",
+    "smoke:w3": "node --env-file=.env scripts/smoke-w3.mjs",
+    "demo:golden-thread": "node --env-file=.env scripts/demo-golden-thread.mjs",
+    "smoke:wave-a": "node --env-file=.env scripts/smoke-wave-a.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

@@ -1,28 +1,35 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
-import { RequireAuthGuard } from "../../nest/route-guards.js";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from "@nestjs/common";
+import { Roles } from "../../nest/route-metadata.js";
+import { RequireAuthGuard, RolesGuard } from "../../nest/route-guards.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
 import { CollectionsService } from "../collections/collections.service.js";
+import { publishRealtimeDbChange } from "../realtime/realtime.bus.js";
+import { scanService } from "../trust/scan.service.js";
+
+const compactIds = (...values: unknown[]) =>
+  values.flat().map((value) => String(value || "")).filter(Boolean);
+
+const STOCK_ACCESS_ROLES = [
+  "responsable_stock", "magasinier_wms", "responsable_logistique",
+  "responsable_reception", "chef_reception", "responsable_qualite",
+  "administrateur_systeme", "directeur_usine", "directeur_general",
+];
 
 @Controller("api/stock")
-@UseGuards(RequireAuthGuard)
+@UseGuards(RequireAuthGuard, RolesGuard)
+@Roles(...STOCK_ACCESS_ROLES)
 export class StockController {
   constructor(private readonly cs: CollectionsService) {}
 
   // ── Summary ───────────────────────────────────────────────────────────────
-  // Reads reception_lots (always populated) instead of the separate stock_lots
-  // collection which requires an explicit sync step.
+  // W0: stock_lots is the warehouse projection of reception_lots (linked by
+  // reception_lot_id). Prefer stock_lots; fall back to reception_lots when
+  // projection is empty so dashboards never go blank mid-migration.
 
   @Get("summary")
   async getStockSummary() {
     const cutoff48h = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
-
-    const rawLots = await getCollectionModel("reception_lots")
-      .find({ stock_status: { $in: ["EN_QUARANTAINE", "STOCK_LIBERE", "STOCK_REJETE"] } })
-      .lean()
-      .exec();
-
-    const lots = sanitizeDocument(rawLots) as Record<string, unknown>[];
 
     type CatStat = { total: number; inQuarantine: number; alertsMin: number; alertsSecurity: number };
     const summary: Record<string, CatStat> = {
@@ -31,6 +38,45 @@ export class StockController {
       PF:  { total: 0, inQuarantine: 0, alertsMin: 0, alertsSecurity: 0 },
       EMB: { total: 0, inQuarantine: 0, alertsMin: 0, alertsSecurity: 0 },
     };
+
+    const stockLots = sanitizeDocument(
+      await getCollectionModel("stock_lots").find({}).lean().exec(),
+    ) as Record<string, unknown>[];
+
+    if (stockLots.length > 0) {
+      for (const lot of stockLots) {
+        const qty = Number(lot.current_quantity ?? lot.initial_quantity ?? 0);
+        const status = String(lot.status ?? "").toUpperCase();
+        const createdAt = String(lot.created_at ?? lot.reception_date ?? "");
+        const category = String(lot.category || "MP").toUpperCase();
+        const bucket = summary[category] ? category : "MP";
+
+        if (status === "VALIDATED" || status === "RELEASED") {
+          summary[bucket].total += qty;
+        } else if (status === "QUARANTINE" || status === "HOLD") {
+          summary[bucket].inQuarantine += qty;
+          if (createdAt && createdAt < cutoff48h) summary[bucket].alertsMin++;
+        } else if (status === "BLOCKED" || status === "REJECTED") {
+          summary[bucket].alertsSecurity++;
+        }
+      }
+
+      return {
+        data: summary,
+        meta: {
+          source: "stock_lots",
+          identity: "reception_lot_id",
+          lotCount: stockLots.length,
+        },
+      };
+    }
+
+    const rawLots = await getCollectionModel("reception_lots")
+      .find({ stock_status: { $in: ["EN_QUARANTAINE", "STOCK_LIBERE", "STOCK_REJETE"] } })
+      .lean()
+      .exec();
+
+    const lots = sanitizeDocument(rawLots) as Record<string, unknown>[];
 
     for (const lot of lots) {
       const qty = Number(lot.quantity ?? 0);
@@ -41,15 +87,20 @@ export class StockController {
         summary.MP.total += qty;
       } else if (status === "EN_QUARANTAINE") {
         summary.MP.inQuarantine += qty;
-        // Lots stuck in quarantine > 48 h → min-stock warning
         if (createdAt && createdAt < cutoff48h) summary.MP.alertsMin++;
       } else if (status === "STOCK_REJETE") {
-        // Rejected lots still present → security alert
         summary.MP.alertsSecurity++;
       }
     }
 
-    return { data: summary };
+    return {
+      data: summary,
+      meta: {
+        source: "reception_lots_fallback",
+        identity: "reception_lots.id → stock_lots.reception_lot_id",
+        lotCount: lots.length,
+      },
+    };
   }
 
   // ── Reception Lots (unified view across all receptions) ──────────────────
@@ -79,14 +130,30 @@ export class StockController {
   }
 
   @Post("products")
-  async createProduct(@Body() body: any) {
+  async createProduct(@Req() req: any, @Body() body: any) {
     const data = await this.cs.insert({ table: "products", values: body });
+    publishRealtimeDbChange({
+      type: "stock_product_created",
+      table: "products",
+      action: "INSERT",
+      actorId: req.auth?.user?.id || null,
+      rows: [data[0]].filter(Boolean),
+      rowIds: compactIds(data[0]?.id),
+    });
     return { data: data[0] };
   }
 
   @Patch("products/:id")
-  async updateProduct(@Param("id") id: string, @Body() body: any) {
+  async updateProduct(@Req() req: any, @Param("id") id: string, @Body() body: any) {
     const { after } = await this.cs.update({ table: "products", filters: [{ type: "eq", column: "id", value: id }], values: body });
+    publishRealtimeDbChange({
+      type: "stock_product_updated",
+      table: "products",
+      action: "UPDATE",
+      actorId: req.auth?.user?.id || null,
+      rows: [after[0]].filter(Boolean),
+      rowIds: compactIds(id),
+    });
     return { data: after[0] };
   }
 
@@ -101,14 +168,32 @@ export class StockController {
   }
 
   @Post("lots")
-  async createLot(@Body() body: any) {
+  async createLot(@Req() req: any, @Body() body: any) {
     const data = await this.cs.insert({ table: "stock_lots", values: body });
+    publishRealtimeDbChange({
+      type: "stock_lot_created",
+      table: "stock_lots",
+      action: "INSERT",
+      actorId: req.auth?.user?.id || null,
+      rows: [data[0]].filter(Boolean),
+      rowIds: compactIds(data[0]?.id),
+      relatedTables: ["stock_summary"],
+    });
     return { data: data[0] };
   }
 
   @Patch("lots/:id")
-  async updateLot(@Param("id") id: string, @Body() body: any) {
+  async updateLot(@Req() req: any, @Param("id") id: string, @Body() body: any) {
     const { after } = await this.cs.update({ table: "stock_lots", filters: [{ type: "eq", column: "id", value: id }], values: body });
+    publishRealtimeDbChange({
+      type: "stock_lot_updated",
+      table: "stock_lots",
+      action: "UPDATE",
+      actorId: req.auth?.user?.id || null,
+      rows: [after[0]].filter(Boolean),
+      rowIds: compactIds(id),
+      relatedTables: ["stock_summary"],
+    });
     return { data: after[0] };
   }
 
@@ -121,8 +206,16 @@ export class StockController {
   }
 
   @Patch("locations/:id")
-  async updateLocation(@Param("id") id: string, @Body() body: any) {
+  async updateLocation(@Req() req: any, @Param("id") id: string, @Body() body: any) {
     const { after } = await this.cs.update({ table: "stock_locations", filters: [{ type: "eq", column: "id", value: id }], values: body });
+    publishRealtimeDbChange({
+      type: "stock_location_updated",
+      table: "stock_locations",
+      action: "UPDATE",
+      actorId: req.auth?.user?.id || null,
+      rows: [after[0]].filter(Boolean),
+      rowIds: compactIds(id),
+    });
     return { data: after[0] };
   }
 
@@ -137,8 +230,38 @@ export class StockController {
   }
 
   @Post("movements")
-  async createMovement(@Body() body: any) {
-    const data = await this.cs.insert({ table: "stock_movements", values: body });
+  async createMovement(@Req() req: any, @Body() body: any) {
+    const requestId = String(body?.request_id || body?.requestId || "").trim();
+    if (requestId) {
+      const existing = await this.cs.query({
+        table: "stock_movements",
+        filters: [{ type: "eq", column: "request_id", value: requestId }],
+        limit: 1,
+      });
+      if (existing[0]) return { data: existing[0], meta: { replayed: true } };
+      body.request_id = requestId;
+    }
+    await scanService.consumeMoveProof({
+      token: body?.scan_proof?.lotToken || body?.scanProof?.lotToken,
+      actorId: String(req.auth?.user?.id || ""),
+      expectedStockLotId: String(body?.lot_id || ""),
+      collection: "stock_movements",
+    });
+    const data = await this.cs.insert({
+      table: "stock_movements",
+      values: body,
+      actorId: req.auth?.user?.id || null,
+      trustedInternal: true,
+    });
+    publishRealtimeDbChange({
+      type: "stock_movement_created",
+      table: "stock_movements",
+      action: "INSERT",
+      actorId: req.auth?.user?.id || null,
+      rows: [data[0]].filter(Boolean),
+      rowIds: compactIds(data[0]?.id),
+      relatedTables: ["stock_lots", "stock_summary"],
+    });
     return { data: data[0] };
   }
 
@@ -195,8 +318,16 @@ export class StockController {
   }
 
   @Patch("alerts/:id")
-  async updateAlert(@Param("id") id: string, @Body() body: any) {
+  async updateAlert(@Req() req: any, @Param("id") id: string, @Body() body: any) {
     const { after } = await this.cs.update({ table: "stock_alerts", filters: [{ type: "eq", column: "id", value: id }], values: body });
+    publishRealtimeDbChange({
+      type: "stock_alert_updated",
+      table: "stock_alerts",
+      action: "UPDATE",
+      actorId: req.auth?.user?.id || null,
+      rows: [after[0]].filter(Boolean),
+      rowIds: compactIds(id),
+    });
     return { data: after[0] };
   }
 
@@ -209,8 +340,16 @@ export class StockController {
   }
 
   @Post("inventory-counts")
-  async createInventoryCount(@Body() body: any) {
+  async createInventoryCount(@Req() req: any, @Body() body: any) {
     const data = await this.cs.insert({ table: "inventory_counts", values: body });
+    publishRealtimeDbChange({
+      type: "inventory_count_created",
+      table: "inventory_counts",
+      action: "INSERT",
+      actorId: req.auth?.user?.id || null,
+      rows: [data[0]].filter(Boolean),
+      rowIds: compactIds(data[0]?.id),
+    });
     return { data: data[0] };
   }
 
@@ -223,14 +362,30 @@ export class StockController {
   }
 
   @Post("shipments")
-  async createShipment(@Body() body: any) {
+  async createShipment(@Req() req: any, @Body() body: any) {
     const data = await this.cs.insert({ table: "shipment_preparations", values: body });
+    publishRealtimeDbChange({
+      type: "shipment_created",
+      table: "shipment_preparations",
+      action: "INSERT",
+      actorId: req.auth?.user?.id || null,
+      rows: [data[0]].filter(Boolean),
+      rowIds: compactIds(data[0]?.id),
+    });
     return { data: data[0] };
   }
 
   @Patch("shipments/:id")
-  async updateShipment(@Param("id") id: string, @Body() body: any) {
+  async updateShipment(@Req() req: any, @Param("id") id: string, @Body() body: any) {
     const { after } = await this.cs.update({ table: "shipment_preparations", filters: [{ type: "eq", column: "id", value: id }], values: body });
+    publishRealtimeDbChange({
+      type: "shipment_updated",
+      table: "shipment_preparations",
+      action: "UPDATE",
+      actorId: req.auth?.user?.id || null,
+      rows: [after[0]].filter(Boolean),
+      rowIds: compactIds(id),
+    });
     return { data: after[0] };
   }
 
@@ -245,31 +400,64 @@ export class StockController {
   }
 
   @Post("shipment-lines")
-  async createShipmentLine(@Body() body: any) {
+  async createShipmentLine(@Req() req: any, @Body() body: any) {
     const data = await this.cs.insert({ table: "shipment_lines", values: body });
+    publishRealtimeDbChange({
+      type: "shipment_line_created",
+      table: "shipment_lines",
+      action: "INSERT",
+      actorId: req.auth?.user?.id || null,
+      rows: [data[0]].filter(Boolean),
+      rowIds: compactIds(data[0]?.id),
+      relatedTables: ["shipment_preparations"],
+    });
     return { data: data[0] };
   }
 
   @Patch("shipment-lines/:id")
-  async updateShipmentLine(@Param("id") id: string, @Body() body: any) {
+  async updateShipmentLine(@Req() req: any, @Param("id") id: string, @Body() body: any) {
     const { after } = await this.cs.update({ table: "shipment_lines", filters: [{ type: "eq", column: "id", value: id }], values: body });
+    publishRealtimeDbChange({
+      type: "shipment_line_updated",
+      table: "shipment_lines",
+      action: "UPDATE",
+      actorId: req.auth?.user?.id || null,
+      rows: [after[0]].filter(Boolean),
+      rowIds: compactIds(id),
+      relatedTables: ["shipment_preparations"],
+    });
     return { data: after[0] };
   }
 
   @Delete("shipment-lines/:id")
-  async deleteShipmentLine(@Param("id") id: string) {
+  async deleteShipmentLine(@Req() req: any, @Param("id") id: string) {
     const data = await this.cs.remove({ table: "shipment_lines", filters: [{ type: "eq", column: "id", value: id }] });
+    publishRealtimeDbChange({
+      type: "shipment_line_deleted",
+      table: "shipment_lines",
+      action: "DELETE",
+      actorId: req.auth?.user?.id || null,
+      rows: [data[0]].filter(Boolean),
+      rowIds: compactIds(id),
+      relatedTables: ["shipment_preparations"],
+    });
     return { data: data[0] };
   }
 
   // ── Expedition (multi-table transaction) ──────────────────────────────────
 
   @Post("expedition")
-  async expedition(@Body() body: any) {
-    const { shipmentId, pickedLines, status } = body as {
+  async expedition(@Req() req: any, @Body() body: any) {
+    const { shipmentId, pickedLines, status, requestId } = body as {
       shipmentId: string;
-      pickedLines: { lot_id: string; quantity: number; product_id?: string | null }[];
+      pickedLines: {
+        lot_id: string;
+        quantity: number;
+        product_id?: string | null;
+        scan_token?: string | null;
+      }[];
       status: string;
+      requestId?: string;
     };
 
     const now = new Date().toISOString();
@@ -290,6 +478,20 @@ export class StockController {
       if (lot.status !== "VALIDATED") {
         throw new Error(`Le lot ${lot.lot_number ?? line.lot_id} n'est pas libéré (statut: ${lot.status}).`);
       }
+    }
+
+    for (const line of pickedLines) {
+      await scanService.consumeMoveProof({
+        token: line.scan_token,
+        actorId: String(req.auth?.user?.id || ""),
+        expectedStockLotId: line.lot_id,
+        collection: "stock_movements",
+      });
+    }
+
+    for (const line of pickedLines) {
+      const lot = lotMap.get(line.lot_id);
+      if (!lot) continue;
       const newQty = Math.max(0, Number(lot.current_quantity) - Number(line.quantity));
       await Lots.updateOne(
         { id: line.lot_id },
@@ -306,6 +508,10 @@ export class StockController {
           quantity: line.quantity,
           unit: "kg",
           movement_date: now,
+          request_id: requestId ? `${requestId}:${line.lot_id}` : null,
+          scan_token: line.scan_token || null,
+          scan_verified: Boolean(line.scan_token),
+          movement_source: "OPERATOR",
         }),
       ),
     );
@@ -315,6 +521,16 @@ export class StockController {
       table: "shipment_preparations",
       filters: [{ type: "eq", column: "id", value: shipmentId }],
       values: { status },
+    });
+
+    publishRealtimeDbChange({
+      type: "stock_expedition",
+      table: "stock_movements",
+      action: "INSERT",
+      actorId: req.auth?.user?.id || null,
+      rows: movementDocs,
+      rowIds: compactIds(...movementDocs.map((doc) => doc.id), shipmentId, ...lotIds),
+      relatedTables: ["stock_lots", "stock_summary", "shipment_preparations"],
     });
 
     return { data: after[0] };

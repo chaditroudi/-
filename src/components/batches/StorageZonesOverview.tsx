@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   Activity,
   AlertTriangle,
@@ -39,6 +40,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { QrScannerDialog } from "@/components/reception/QrScannerDialog";
+import { scanApi } from "@/lib/api/scan";
 import {
   useCreateStorageReading,
   useCreateZone,
@@ -216,6 +218,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
   const [selectedZoneId, setSelectedZoneId] = useState("all");
   const [locationSearch, setLocationSearch] = useState("");
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [lotScanToken, setLotScanToken] = useState("");
   const [lastSyncAt, setLastSyncAt] = useState<Date>(new Date());
 
   // ── Assign lot dialog ─────────────────────────────────────────────────────
@@ -468,7 +471,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
   }, [refetchZones, refetchLocations, refetchMovements, refetchLots]);
 
   const handleMovementSubmit = useCallback(async () => {
-    if (!mvtForm.lotCode || !mvtForm.destinationLocationId) return;
+    if (!mvtForm.lotCode || !lotScanToken || !mvtForm.destinationLocationId) return;
     await moveStock.mutateAsync({
       sourceLocationId: mvtForm.sourceLocationId === "none" ? undefined : mvtForm.sourceLocationId,
       destinationLocationId: mvtForm.destinationLocationId,
@@ -480,10 +483,13 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
       movementType: mvtForm.movementType,
       reason: mvtForm.reason,
       notes: mvtForm.notes || undefined,
+      requestId: crypto.randomUUID(),
+      scanProof: { lotToken: lotScanToken },
     } as any);
     setMvtForm(f => ({ ...f, lotCode: "", variety: "", quantityPalettes: "1", quantityKg: "", notes: "" }));
+    setLotScanToken("");
     setLastSyncAt(new Date());
-  }, [mvtForm, moveStock]);
+  }, [lotScanToken, mvtForm, moveStock]);
 
   const handleReadingSubmit = useCallback(async () => {
     if (!readingForm.storageZoneId || !readingForm.temperatureC) return;
@@ -1142,9 +1148,9 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                     <Label>Code du lot <span className="text-destructive">*</span></Label>
                     <div className="flex gap-2">
                       <Input
-                        placeholder="LOT-2024-001"
+                        placeholder="Scanner le QR/SSCC du lot"
                         value={mvtForm.lotCode}
-                        onChange={e => setMvtForm(f => ({ ...f, lotCode: e.target.value }))}
+                        readOnly
                         className="rounded-xl"
                       />
                       <Button
@@ -1240,7 +1246,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
 
                   <Button
                     className="w-full rounded-xl"
-                    disabled={!mvtForm.lotCode || !mvtForm.destinationLocationId || moveStock.isPending}
+                    disabled={!mvtForm.lotCode || !lotScanToken || !mvtForm.destinationLocationId || moveStock.isPending}
                     onClick={handleMovementSubmit}
                   >
                     {moveStock.isPending ? "Enregistrement…" : "Enregistrer le mouvement"}
@@ -1749,9 +1755,21 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
       <QrScannerDialog
         open={scannerOpen}
         onOpenChange={setScannerOpen}
-        onDetected={v => {
-          setMvtForm(f => ({ ...f, lotCode: normalizeQr(v) }));
-          setScannerOpen(false);
+        onDetected={async v => {
+          try {
+            const resolved = await scanApi.resolve(v);
+            const code = String(
+              resolved.stockLot?.lot_number
+              || resolved.stockLot?.source_lot_internal
+              || normalizeQr(v),
+            );
+            setMvtForm(f => ({ ...f, lotCode: code }));
+            setLotScanToken(resolved.scanToken);
+            setScannerOpen(false);
+            toast.success(`Lot scanné : ${code}`);
+          } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Scan invalide");
+          }
         }}
       />
 

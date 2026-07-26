@@ -3,6 +3,8 @@ import { randomUUID } from "node:crypto";
 type RealtimeClient = {
   id: string;
   userId: string | null;
+  roles: string[];
+  seesAll: boolean;
   write: (eventName: string, payload: unknown) => void;
   end: () => void;
 };
@@ -28,6 +30,15 @@ const COLLECTION_TO_RESOURCE: Record<string, string> = {
   stock_movements: "stock",
   stock_summary: "stock",
   stock_locations: "stock",
+  stock_alerts: "stock",
+  inventory_counts: "stock",
+  shipment_preparations: "stock",
+  shipment_lines: "stock",
+  products: "stock",
+  bon_expeditions: "stock",
+  scan_events: "stock",
+  weighing_records: "receptions",
+  weighbridge_readings: "receptions",
 
   storage_zones: "storage",
   storage_locations: "storage",
@@ -53,6 +64,7 @@ const COLLECTION_TO_RESOURCE: Record<string, string> = {
 
   system_notifications: "notifications",
   system_audit_logs: "notifications",
+  lot_events: "batches",
 };
 
 const resolveResource = (table: string, explicitResource?: string): string =>
@@ -69,6 +81,24 @@ export type RealtimeDbChangeEvent = {
   before?: unknown[];
   relatedTables?: string[];
   at?: string;
+  /**
+   * When non-empty, the event is delivered only to clients whose roles
+   * intersect targetRoles, or whose userId is in targetUserIds (directors/admins
+   * always receive it). Empty/omitted → broadcast to everyone (legacy behavior).
+   */
+  targetRoles?: string[];
+  targetUserIds?: string[];
+};
+
+const clientMatchesTarget = (
+  client: RealtimeClient,
+  targetRoles: string[],
+  targetUserIds: string[],
+): boolean => {
+  if (targetRoles.length === 0 && targetUserIds.length === 0) return true;
+  if (client.seesAll) return true;
+  if (client.userId && targetUserIds.includes(client.userId)) return true;
+  return client.roles.some((role) => targetRoles.includes(role));
 };
 
 const clients = new Map<string, RealtimeClient>();
@@ -106,6 +136,9 @@ export const publishRealtimeDbChange = (event: RealtimeDbChangeEvent) => {
     new Set((event.relatedTables ?? []).map((t) => resolveResource(t)))
   ).filter((r) => r !== resource);
 
+  const targetRoles = Array.from(new Set((event.targetRoles ?? []).map((r) => String(r || "").toLowerCase()).filter(Boolean)));
+  const targetUserIds = Array.from(new Set((event.targetUserIds ?? []).map((u) => String(u || "")).filter(Boolean)));
+
   const payload = {
     id: nextEventId(),
     type: event.type || "db_change",
@@ -119,6 +152,7 @@ export const publishRealtimeDbChange = (event: RealtimeDbChangeEvent) => {
   };
 
   for (const client of clients.values()) {
+    if (!clientMatchesTarget(client, targetRoles, targetUserIds)) continue;
     client.write("db-change", payload);
   }
 };

@@ -39,23 +39,6 @@ const PHASE2_ROLES = [
 const compactIds = (...values: unknown[]) =>
   values.flat().map((value) => String(value || "")).filter(Boolean);
 
-const publishNotificationRows = (
-  rows: unknown[],
-  action: "INSERT" | "UPDATE",
-  actorId: string | null,
-  type: string,
-) => {
-  if (!Array.isArray(rows) || rows.length === 0) return;
-  publishRealtimeDbChange({
-    type,
-    table: "system_notifications",
-    action,
-    actorId,
-    rowIds: compactIds(rows.map((row: any) => row?.id)),
-    rows,
-  });
-};
-
 @Controller("api/phase2")
 @UseGuards(RequireAuthGuard, RolesGuard)
 export class Phase2Controller {
@@ -160,12 +143,6 @@ export class Phase2Controller {
       rows: [result.data].filter(Boolean),
       relatedTables: ["fumigation_cycles"],
     });
-    publishNotificationRows(
-      result.notifications,
-      "INSERT",
-      req.auth?.user?.id || null,
-      "phase2_fumigation_alert_created",
-    );
     return { data: result.data };
   }
 
@@ -215,12 +192,6 @@ export class Phase2Controller {
       rowIds: compactIds(id),
       rows: result.cycle ? [result.cycle] : [],
     });
-    publishNotificationRows(
-      result.notifications,
-      "INSERT",
-      req.auth?.user?.id || null,
-      "phase2_cleaning_alert_created",
-    );
     return { data: result.data };
   }
 
@@ -285,12 +256,6 @@ export class Phase2Controller {
       rowIds: compactIds(id),
       rows: result.cycle ? [result.cycle] : [],
     });
-    publishNotificationRows(
-      result.notifications,
-      "INSERT",
-      req.auth?.user?.id || null,
-      "phase2_hydration_alert_created",
-    );
     return { data: result.data };
   }
 
@@ -382,12 +347,6 @@ export class Phase2Controller {
       rowIds: compactIds(id),
       rows: result.session ? [result.session] : [],
     });
-    publishNotificationRows(
-      result.notifications,
-      "INSERT",
-      req.auth?.user?.id || null,
-      "phase2_triage_alert_created",
-    );
     return { data: result.data };
   }
 
@@ -405,12 +364,6 @@ export class Phase2Controller {
       rows: [result.data].filter(Boolean),
       relatedTables: ["triage_sessions"],
     });
-    publishNotificationRows(
-      result.notifications,
-      "INSERT",
-      req.auth?.user?.id || null,
-      "phase2_triage_quality_alert_created",
-    );
     return { data: result.data };
   }
 
@@ -470,12 +423,17 @@ export class Phase2Controller {
       id,
       String(body?.read_by || body?.readBy || req.auth?.user?.email || "operator"),
     );
-    publishNotificationRows(
-      [data].filter(Boolean),
-      "UPDATE",
-      req.auth?.user?.id || null,
-      "phase2_alert_acknowledged",
-    );
+    // Emitter owns INSERT publishes; acknowledge is an UPDATE — broadcast read-state.
+    if (data) {
+      publishRealtimeDbChange({
+        type: "phase2_alert_acknowledged",
+        table: "system_notifications",
+        action: "UPDATE",
+        actorId: req.auth?.user?.id || null,
+        rowIds: compactIds((data as any)?.id),
+        rows: [data],
+      });
+    }
     return { data };
   }
 
@@ -485,12 +443,16 @@ export class Phase2Controller {
     const result = await this.phase2Service.acknowledgeAllPhase2Alerts(
       String(body?.read_by || body?.readBy || req.auth?.user?.email || "operator"),
     );
-    publishNotificationRows(
-      result.notifications,
-      "UPDATE",
-      req.auth?.user?.id || null,
-      "phase2_alerts_acknowledged_all",
-    );
+    if (Array.isArray(result.notifications) && result.notifications.length > 0) {
+      publishRealtimeDbChange({
+        type: "phase2_alerts_acknowledged_all",
+        table: "system_notifications",
+        action: "UPDATE",
+        actorId: req.auth?.user?.id || null,
+        rowIds: compactIds(result.notifications.map((row: any) => row?.id)),
+        rows: result.notifications,
+      });
+    }
     return { data: result.data };
   }
 }

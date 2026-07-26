@@ -379,8 +379,8 @@ export const FEATURE_META: Record<keyof SiteFeatures, { label: string; descripti
     tab: 'alerts',
   },
   sage_enabled: {
-    label: 'SAGE Hub',
-    description: 'Pont entre opérations, finance, achats et contrôle',
+    label: 'Chaîne Hub',
+    description: 'Cockpit conformité MES — opérations, achats, stock et contrôle (remplace l’ancien hub SAGE)',
     tab: 'sage-operations',
   },
 };

@@ -96,10 +96,9 @@ export const getNotificationTarget = (notification: SystemNotification): string 
   const entityType = notification.entity_type?.toLowerCase().trim();
   const category = notification.category?.toLowerCase().trim();
 
-  // For error/warning, prefer entity-specific route before generic alerts tab
+  // Critical notifications must land in the alerts workspace so the operator
+  // sees acknowledgement/escalation controls, regardless of source module.
   if (notification.severity === 'error' || notification.severity === 'warning') {
-    if (entityType && entityRouteMap[entityType]) return entityRouteMap[entityType];
-    if (category && categoryRouteMap[category]) return categoryRouteMap[category];
     return buildTabRoute('alerts');
   }
 

@@ -1,5 +1,13 @@
 # Royal Palm - Logique lot vs lot de stock
 
+## Regle d'identite W0 (MES trustworthy)
+
+- `reception_lots.id` = identite du **lot d'entree**
+- `stock_lots.reception_lot_id` / `stock_lots.entry_lot_id` = lien obligatoire vers ce lot d'entree
+- `stock_lots` = projection magasin (quantite restante, emplacement, FIFO/FEFO)
+- Le resume stock (`GET /api/stock/summary`) lit d'abord `stock_lots`, avec repli sur `reception_lots` si la projection est vide
+- Toute mutation regulee append un evenement hash-chaine dans `lot_events` (API `GET /api/trust/lots/:lotId/verify`)
+
 ## Definition simple
 
 Dans la logique usine Royal Palm, il faut distinguer deux objets differents:

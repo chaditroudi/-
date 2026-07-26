@@ -31,6 +31,7 @@ import {
   RefreshCw,
   Search,
   Ship,
+  ShieldAlert,
   Snowflake,
   ThumbsDown,
   ThumbsUp,
@@ -58,6 +59,7 @@ import { QrScannerDialog } from '@/components/reception/QrScannerDialog';
 import { LotTraceabilityDialog } from '@/components/phase2/LotTraceabilityDialog';
 import { LotGenealogyTree } from '@/components/scan/LotGenealogyTree';
 import { receptionsApi } from '@/lib/api/receptions';
+import { trustApi } from '@/lib/api/trust';
 import { useLiveLotTraceability } from '@/hooks/useLotTraceability';
 import { getSseConnection } from '@/lib/sseClient';
 import type {
@@ -821,6 +823,14 @@ const LotPassport = ({ lotCode, onClose }: { lotCode: string; onClose: () => voi
   const status = lot?.stock_status ?? 'NON_STOCKE';
   const statusMeta = STATUS_META[status] ?? STATUS_META.NON_STOCKE;
 
+  const lotId = lot?.id || '';
+  const { data: trustState } = useQuery({
+    queryKey: ['trust-lot-state', lotId],
+    queryFn: () => trustApi.getLotState(lotId),
+    enabled: Boolean(lotId),
+    refetchInterval: 15_000,
+  });
+
   if (lookupErr) {
     return (
       <Card className="border-red-200 bg-red-50">
@@ -885,6 +895,20 @@ const LotPassport = ({ lotCode, onClose }: { lotCode: string; onClose: () => voi
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 border border-green-300 text-green-700 text-xs font-semibold animate-pulse">
                   <Zap className="h-3 w-3" />
                   {recentChanges.length} mise(s) à jour live
+                </span>
+              )}
+              {trustState && (
+                <span
+                  className={cn(
+                    'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border',
+                    trustState.valid
+                      ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                      : 'bg-red-50 border-red-300 text-red-700',
+                  )}
+                >
+                  {trustState.valid ? <BadgeCheck className="h-3 w-3" /> : <ShieldAlert className="h-3 w-3" />}
+                  Fil d'or {trustState.progress?.percent ?? 0}%
+                  {trustState.goldenThreadComplete ? ' · Complet' : ''}
                 </span>
               )}
             </div>
@@ -957,6 +981,16 @@ const LotPassport = ({ lotCode, onClose }: { lotCode: string; onClose: () => voi
             <TrendingUp className="h-4 w-4" />
             Arbre généalogique
           </Button>
+          {lot.id && (
+            <Button
+              variant="outline"
+              className="gap-1.5"
+              onClick={() => window.open(`#/passport/${encodeURIComponent(lot.lot_internal || lot.id)}`, '_blank')}
+            >
+              <ExternalLink className="h-4 w-4" />
+              Passeport public
+            </Button>
+          )}
           {lot.stock_status === 'STOCK_LIBERE' && !storageZoneCode && (
             <Button variant="outline" className="gap-1.5 border-amber-400 text-amber-800 hover:bg-amber-50">
               <MapPin className="h-4 w-4" />

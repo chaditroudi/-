@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Activity, Thermometer, Droplets, ShieldAlert } from 'lucide-react';
+import { Activity, Thermometer, Droplets, ShieldAlert, BadgeCheck } from 'lucide-react';
 
 interface Props {
   cycle: FumigationCycle;
@@ -35,6 +35,11 @@ export function FumigationCCPMonitor({ cycle }: Props) {
 
   const leakWarning = latest?.external_leak_ppm != null && latest.external_leak_ppm > 0.3;
   const doorOpen = latest ? !latest.door_locked : false;
+  const deviceVerifiedCount = readings.filter(
+    (r) => String(r.source || '').toUpperCase() === 'DEVICE' && r.signature_verified === true,
+  ).length;
+  const latestDeviceOk =
+    String(latest?.source || '').toUpperCase() === 'DEVICE' && latest?.signature_verified === true;
 
   return (
     <div className="space-y-4">
@@ -74,9 +79,34 @@ export function FumigationCCPMonitor({ cycle }: Props) {
                 />
               </div>
             </div>
-            <Badge variant={progressPct >= 100 ? 'default' : 'secondary'} className="shrink-0">
-              {progressPct >= 100 ? 'Durée OK' : `${100 - progressPct}% restant`}
-            </Badge>
+            <div className="flex flex-col items-end gap-1 shrink-0">
+              <Badge variant={progressPct >= 100 ? 'default' : 'secondary'}>
+                {progressPct >= 100 ? 'Durée OK' : `${100 - progressPct}% restant`}
+              </Badge>
+              <Badge
+                variant="outline"
+                className={
+                  latestDeviceOk
+                    ? 'border-emerald-600 text-emerald-800 bg-emerald-50'
+                    : 'border-amber-500 text-amber-800 bg-amber-50'
+                }
+              >
+                {latestDeviceOk ? (
+                  <span className="inline-flex items-center gap-1">
+                    <BadgeCheck className="h-3 w-3" />
+                    Capteur HMAC
+                  </span>
+                ) : (
+                  'Saisie manuelle'
+                )}
+              </Badge>
+              {deviceVerifiedCount > 0 && (
+                <span className="text-[11px] text-muted-foreground">
+                  {deviceVerifiedCount} lecture{deviceVerifiedCount > 1 ? 's' : ''} appareil
+                  {latest?.device_code ? ` · ${latest.device_code}` : ''}
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Current readings */}

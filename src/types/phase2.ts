@@ -57,6 +57,10 @@ export interface FumigationSensorReading {
   external_leak_ppm: number | null;
   door_locked: boolean;
   created_by: string; // system/IoT gateway
+  source?: "MANUAL" | "DEVICE" | string | null;
+  signature_verified?: boolean | null;
+  device_code?: string | null;
+  reading_key?: string | null;
 }
 
 export interface FumigationCycle {

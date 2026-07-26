@@ -1,6 +1,7 @@
 import { Controller, Get, Req, Res } from "@nestjs/common";
 
 import { decodeAuthToken } from "../../middleware/auth.js";
+import { normalizeRolesFromMetadata, notificationSeesAll } from "../../middleware/authorization.js";
 import {
   addRealtimeClient,
   createRealtimeClientId,
@@ -26,6 +27,8 @@ export class RealtimeController {
     }
 
     const clientId = createRealtimeClientId();
+    const roles = normalizeRolesFromMetadata(auth.user.user_metadata);
+    const seesAll = notificationSeesAll(roles);
 
     res.writeHead(200, {
       "Content-Type": "text/event-stream",
@@ -39,7 +42,7 @@ export class RealtimeController {
       res.write(`data: ${JSON.stringify(payload)}\n\n`);
     };
 
-    addRealtimeClient({ id: clientId, userId: auth.user.id, write, end: () => res.end() });
+    addRealtimeClient({ id: clientId, userId: auth.user.id, roles, seesAll, write, end: () => res.end() });
 
     write("connected", {
       clientId,

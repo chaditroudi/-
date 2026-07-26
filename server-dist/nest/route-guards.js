@@ -11,9 +11,19 @@ import { Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { badRequest, forbidden, unauthorized } from "../core/app-error.js";
 import { canAccessRpc, canReadTable, canWriteTable, hasAnyRole } from "../middleware/authorization.js";
-import { DB_ACTION_KEY, ROLES_KEY } from "./route-metadata.js";
+import { DB_ACTION_KEY, IS_PUBLIC_KEY, ROLES_KEY } from "./route-metadata.js";
 let RequireAuthGuard = class RequireAuthGuard {
+    reflector;
+    constructor(reflector) {
+        this.reflector = reflector;
+    }
     canActivate(context) {
+        const isPublic = this.reflector.getAllAndOverride(IS_PUBLIC_KEY, [
+            context.getHandler(),
+            context.getClass(),
+        ]);
+        if (isPublic)
+            return true;
         const req = context.switchToHttp().getRequest();
         if (!req.auth?.user?.id) {
             throw unauthorized();
@@ -22,7 +32,8 @@ let RequireAuthGuard = class RequireAuthGuard {
     }
 };
 RequireAuthGuard = __decorate([
-    Injectable()
+    Injectable(),
+    __metadata("design:paramtypes", [Reflector])
 ], RequireAuthGuard);
 export { RequireAuthGuard };
 let RolesGuard = class RolesGuard {

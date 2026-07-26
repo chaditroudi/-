@@ -11,28 +11,32 @@ interface AuthState {
   isAdmin: boolean;
 }
 
+// Business/domain aliases → concrete application roles.
+// Kept in sync with the backend ROLE_ALIASES (server/src/middleware/authorization.ts)
+// so a token minted from either side resolves to the same effective espaces.
 const BUSINESS_ROLE_TO_APP_ROLES: Record<string, ActorRole[]> = {
   // Achats
-  achat: ['responsable_achats'],
-  achats: ['responsable_achats'],
-  responsable_achat: ['responsable_achats'],
+  achat: ['responsable_achats', 'directeur_achat'],
+  achats: ['responsable_achats', 'directeur_achat'],
+  responsable_achat: ['responsable_achats', 'directeur_achat'],
+  directeur_achats: ['directeur_achat'],
   // Réception
-  reception: ['responsable_reception'],
+  reception: ['responsable_reception', 'chef_reception', 'operateur_reception'],
   chef_reception: ['chef_reception'],
   // Qualité
-  qualite: ['responsable_qualite'],
-  quality: ['responsable_qualite'],
+  qualite: ['responsable_qualite', 'inspecteur_qualite', 'resp_management_qualite', 'resp_qualite_haccp'],
+  quality: ['responsable_qualite', 'inspecteur_qualite', 'resp_management_qualite', 'resp_qualite_haccp'],
   // Stock / Magasin
-  magasin: ['responsable_stock'],
-  stock: ['responsable_stock'],
+  magasin: ['responsable_stock', 'magasinier_wms'],
+  stock: ['responsable_stock', 'magasinier_wms'],
   // Production
   production: ['responsable_production'],
   // Logistique
-  export: ['responsable_logistique'],
-  logistique: ['responsable_logistique'],
-  logistics: ['responsable_logistique'],
+  export: ['responsable_logistique', 'partenaire_client_export'],
+  logistique: ['responsable_logistique', 'partenaire_client_export'],
+  logistics: ['responsable_logistique', 'partenaire_client_export'],
   // Maintenance
-  maintenance: ['responsable_maintenance'],
+  maintenance: ['responsable_maintenance', 'technicien_maintenance'],
   // Externes
   audit: ['auditeur_externe'],
   supplier_portal: ['fournisseur_externe'],
@@ -46,8 +50,8 @@ const BUSINESS_ROLE_TO_APP_ROLES: Record<string, ActorRole[]> = {
   // Admin
   admin: ['administrateur_systeme'],
   administrateur: ['administrateur_systeme'],
-  // Achats direction
-  directeur_achats: ['directeur_achat'],
+  // Opérateur générique (défaut signUp) → saisie réception
+  operateur: ['operateur_reception'],
 };
 
 const toActorRoles = (roles: string[]): ActorRole[] => {

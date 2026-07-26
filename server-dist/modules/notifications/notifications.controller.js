@@ -11,6 +11,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query, Req, UseGuards, } from "@nestjs/common";
+import { getRequestRoles } from "../../middleware/authorization.js";
 import { RequireAuthGuard } from "../../nest/route-guards.js";
 import { publishRealtimeDbChange } from "../realtime/realtime.bus.js";
 import { NotificationsService } from "./notifications.service.js";
@@ -21,15 +22,19 @@ let NotificationsController = class NotificationsController {
     constructor(notificationsService) {
         this.notificationsService = notificationsService;
     }
-    async listNotifications(unreadOnly, limit) {
+    async listNotifications(req, unreadOnly, limit) {
         return {
             data: await this.notificationsService.listNotifications({
                 unreadOnly: unreadOnly === "true",
                 limit: limit ? Number(limit) : undefined,
+                roles: getRequestRoles(req),
+                userId: req.auth?.user?.id || null,
             }),
         };
     }
     async createNotification(req, body) {
+        // The service delegates to the central emitter, which performs the targeted
+        // realtime publish itself — no extra publish here (would double-broadcast).
         const data = await this.notificationsService.createNotification({
             notificationType: body?.notification_type || body?.notificationType,
             category: body?.category,
@@ -42,14 +47,10 @@ let NotificationsController = class NotificationsController {
             status: body?.status,
             metadata: body?.metadata,
             expiresAt: body?.expires_at || body?.expiresAt,
-        });
-        publishRealtimeDbChange({
-            type: "notification_created",
-            table: "system_notifications",
-            action: "INSERT",
+            space: body?.space,
+            targetRoles: body?.target_roles || body?.targetRoles,
+            targetUserIds: body?.target_user_ids || body?.targetUserIds,
             actorId: req.auth?.user?.id || null,
-            rowIds: compactIds(data?.id),
-            rows: [data].filter(Boolean),
         });
         return { data };
     }
@@ -66,7 +67,7 @@ let NotificationsController = class NotificationsController {
         return { data };
     }
     async markAllNotificationsRead(req, body) {
-        const result = await this.notificationsService.markAllNotificationsRead(actorNameFromRequest(req, body?.read_by || body?.readBy));
+        const result = await this.notificationsService.markAllNotificationsRead(actorNameFromRequest(req, body?.read_by || body?.readBy), { roles: getRequestRoles(req), userId: req.auth?.user?.id || null });
         publishRealtimeDbChange({
             type: "notifications_marked_all_read",
             table: "system_notifications",
@@ -105,10 +106,11 @@ let NotificationsController = class NotificationsController {
 };
 __decorate([
     Get(),
-    __param(0, Query("unreadOnly")),
-    __param(1, Query("limit")),
+    __param(0, Req()),
+    __param(1, Query("unreadOnly")),
+    __param(2, Query("limit")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [Object, String, String]),
     __metadata("design:returntype", Promise)
 ], NotificationsController.prototype, "listNotifications", null);
 __decorate([

@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import { useSageOperations } from '@/hooks/useSageOperations';
 import { ModuleHero } from '@/components/layout/ModuleHero';
+import { GoldenThreadPanel } from '@/components/home/GoldenThreadPanel';
+import { RecallDrillPanel } from '@/components/home/RecallDrillPanel';
 import type { AppTab } from '@/lib/roleAccess';
 import { APP_TAB_META } from '@/lib/appTabs';
 
@@ -36,7 +38,7 @@ export const SageOperationsHub = ({ onNavigate, accessibleTabs }: SageOperations
     return (
       <Card>
         <CardContent className="p-6 text-sm text-muted-foreground">
-          Chargement du cockpit SAGE...
+          Chargement du cockpit Chaîne Hub...
         </CardContent>
       </Card>
     );
@@ -46,7 +48,7 @@ export const SageOperationsHub = ({ onNavigate, accessibleTabs }: SageOperations
     return (
       <Card>
         <CardContent className="p-6 space-y-3">
-          <div className="text-sm text-red-600 font-medium">Impossible de charger le cockpit SAGE.</div>
+          <div className="text-sm text-red-600 font-medium">Impossible de charger le cockpit Chaîne Hub.</div>
           <div className="text-xs text-muted-foreground">
             {error instanceof Error ? error.message : 'Erreur inconnue'}
           </div>
@@ -107,8 +109,8 @@ export const SageOperationsHub = ({ onNavigate, accessibleTabs }: SageOperations
     <div className="space-y-6">
       <ModuleHero
         kicker="Hub • Orchestration"
-        title="SAGE Operations Hub"
-        description="Vue transverse pour suivre les flux entre achats, reception, qualite, stock, production et logistique depuis un seul cockpit."
+        title="Chaîne Hub"
+        description="Vue transverse MES pour suivre les flux entre achats, réception, qualité, stock, production et logistique — système de record usine."
         stats={[
           { label: 'Blocages', value: blockers.length },
           { label: 'Flux QC', value: flow.receptionsWaitingQc + flow.receptionsBlocked },
@@ -150,10 +152,13 @@ export const SageOperationsHub = ({ onNavigate, accessibleTabs }: SageOperations
         </CardContent>
       </Card>
 
+      <GoldenThreadPanel onOpenScan={() => onNavigate('scan')} />
+      <RecallDrillPanel />
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card className="surface-card">
           <CardHeader>
-            <CardTitle className="text-base">Conformité SAGE</CardTitle>
+            <CardTitle className="text-base">Conformité Chaîne</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <div className="flex items-center justify-between">

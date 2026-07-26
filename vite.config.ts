@@ -196,6 +196,8 @@ export default defineConfig(async ({ mode }) => {
         workbox: {
           skipWaiting: true,
           clientsClaim: true,
+          navigateFallback: "index.html",
+          navigateFallbackDenylist: [/^\/api\//],
           // Cache JS/CSS/HTML bundles for offline use
           globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
           maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,

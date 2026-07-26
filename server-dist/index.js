@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import { env } from "./config/env.js";
+import { ensureTrustIndexes } from "./db/indexes.js";
 import { connectToDatabase, setNextDatabaseRetry } from "./db/mongoose.js";
 import { createApp } from "./app.js";
 import { seedDatabase } from "./seed.js";
@@ -8,6 +9,7 @@ let lastDatabaseErrorLog = "";
 const connectAndSeedDatabase = async () => {
     try {
         await connectToDatabase();
+        await ensureTrustIndexes();
         await seedDatabase();
         console.log(`Mongo database connected: ${env.mongoDbName}`);
     }

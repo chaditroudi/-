@@ -60,7 +60,7 @@ export function OperationsPanel({ settings }: Props) {
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="home">Accueil</SelectItem>
-                  <SelectItem value="sage-operations">SAGE Hub</SelectItem>
+                  <SelectItem value="sage-operations">Chaîne Hub</SelectItem>
                   <SelectItem value="production">Production</SelectItem>
                   <SelectItem value="receptions">Réceptions</SelectItem>
                   <SelectItem value="analytics">Analytics</SelectItem>

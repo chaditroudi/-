@@ -65,6 +65,9 @@ export type MoveStorageStockInput = {
   reason?: StorageMovementReason;
   fefoOverrideReason?: string;
   notes?: string;
+  requestId?: string;
+  scanProof?: { lotToken: string };
+  manualOverrideReason?: string;
 };
 
 export type CreateStorageReadingResult = {

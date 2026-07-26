@@ -11,6 +11,7 @@ import {
   UseGuards,
 } from "@nestjs/common";
 
+import { getRequestRoles } from "../../middleware/authorization.js";
 import { RequireAuthGuard } from "../../nest/route-guards.js";
 import { publishRealtimeDbChange } from "../realtime/realtime.bus.js";
 import { NotificationsService } from "./notifications.service.js";
@@ -28,6 +29,7 @@ export class NotificationsController {
 
   @Get()
   async listNotifications(
+    @Req() req: any,
     @Query("unreadOnly") unreadOnly?: string,
     @Query("limit") limit?: string,
   ) {
@@ -35,6 +37,8 @@ export class NotificationsController {
       data: await this.notificationsService.listNotifications({
         unreadOnly: unreadOnly === "true",
         limit: limit ? Number(limit) : undefined,
+        roles: getRequestRoles(req),
+        userId: req.auth?.user?.id || null,
       }),
     };
   }
@@ -42,6 +46,8 @@ export class NotificationsController {
   @Post()
   @HttpCode(201)
   async createNotification(@Req() req: any, @Body() body: any) {
+    // The service delegates to the central emitter, which performs the targeted
+    // realtime publish itself — no extra publish here (would double-broadcast).
     const data = await this.notificationsService.createNotification({
       notificationType: body?.notification_type || body?.notificationType,
       category: body?.category,
@@ -54,15 +60,10 @@ export class NotificationsController {
       status: body?.status,
       metadata: body?.metadata,
       expiresAt: body?.expires_at || body?.expiresAt,
-    });
-
-    publishRealtimeDbChange({
-      type: "notification_created",
-      table: "system_notifications",
-      action: "INSERT",
+      space: body?.space,
+      targetRoles: body?.target_roles || body?.targetRoles,
+      targetUserIds: body?.target_user_ids || body?.targetUserIds,
       actorId: req.auth?.user?.id || null,
-      rowIds: compactIds(data?.id),
-      rows: [data].filter(Boolean),
     });
 
     return { data };
@@ -92,6 +93,7 @@ export class NotificationsController {
   async markAllNotificationsRead(@Req() req: any, @Body() body: any) {
     const result = await this.notificationsService.markAllNotificationsRead(
       actorNameFromRequest(req, body?.read_by || body?.readBy),
+      { roles: getRequestRoles(req), userId: req.auth?.user?.id || null },
     );
 
     publishRealtimeDbChange({

@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useBackendRealtimeSync } from "@/hooks/useBackendRealtimeSync";
 import { useRealtimeNotifications } from "@/hooks/useNotifications";
 import { PwaInstallBanner } from "@/components/layout/PwaInstallBanner";
+import { OfflineSyncStatus } from "@/components/layout/OfflineSyncStatus";
 import { store } from "@/store";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
@@ -16,6 +17,7 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import AlertsCenter from "./pages/AlertsCenter";
 import SupplierPortal from "./pages/SupplierPortal";
+import PassportPage from "./pages/PassportPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -53,9 +55,11 @@ const App = () => (
             <TooltipProvider>
               <Toaster />
               <PwaInstallBanner />
+              <OfflineSyncStatus />
               <Routes>
                 <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/passport/:lotId" element={<PassportPage />} />
                 <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                 <Route path="/alerts" element={<ProtectedRoute><AlertsCenter /></ProtectedRoute>} />
                 <Route path="/portail" element={<ProtectedRoute><SupplierPortal /></ProtectedRoute>} />

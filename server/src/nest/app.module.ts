@@ -30,12 +30,18 @@ import { SettingsModule } from "../modules/settings/settings.module.js";
 import { StockModule } from "../modules/stock/stock.module.js";
 import { StorageModule } from "../modules/storage/storage.module.js";
 import { SuppliersModule } from "../modules/suppliers/suppliers.module.js";
+import { TrustModule } from "../modules/trust/trust.module.js";
+import { WeighbridgeModule } from "../modules/weighbridge/weighbridge.module.js";
+import { CcpSensorsModule } from "../modules/ccp-sensors/ccp-sensors.module.js";
 import { AppController } from "./app.controller.js";
 import { GuardsModule } from "./guards.module.js";
 
 @Module({
   imports: [
     GuardsModule,
+    TrustModule,
+    WeighbridgeModule,
+    CcpSensorsModule,
     AuthModule,
     BonReceptionAchatModule,
     BonExpeditionModule,

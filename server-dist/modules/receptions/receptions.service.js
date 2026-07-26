@@ -11,6 +11,10 @@ import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js"
 import { prepareInsertDocument } from "../../db/defaults.js";
 import { applyPurchaseOrderQcDecision, registerReceptionAgainstPurchaseOrder, resolvePurchaseOrderReceiptTarget, } from "../purchasing/purchase-order-domain.js";
 import { syncReceptionLotsToStock, loadReceptionLots } from "./reception-stock-sync.js";
+import { lotLifecycleService } from "../trust/lot-lifecycle.service.js";
+import { lotLedgerService } from "../trust/lot-ledger.service.js";
+import { emitNotification } from "../notifications/notification-emitter.js";
+import { scanService } from "../trust/scan.service.js";
 // ── Supplier business-rule helpers ────────────────────────────────────────────
 const Suppliers = () => getCollectionModel("suppliers");
 const gradeQualityScore = (grade) => {
@@ -93,9 +97,17 @@ const recalculateSupplierMetrics = async (supplierId, actorId) => {
         });
     }
     if (notifs.length > 0) {
-        const Notifications = getCollectionModel("system_notifications");
-        const prepared = await Promise.all(notifs.map((n) => prepareInsertDocument("system_notifications", n)));
-        await Notifications.insertMany(prepared);
+        await Promise.all(notifs.map((n) => emitNotification({
+            notificationType: String(n.notification_type),
+            category: String(n.category || "supplier"),
+            space: "suppliers",
+            title: String(n.title),
+            message: String(n.message),
+            severity: String(n.severity || "warning"),
+            entityType: n.entity_type ?? null,
+            entityId: n.entity_id ?? null,
+            metadata: n.metadata ?? null,
+        })));
     }
     console.log(`[RG] Supplier ${supplier.code} metrics updated — score=${qualityScore}, rejection=${rejectionRate}%, status=${newStatus}`);
 };
@@ -127,17 +139,17 @@ export const checkSupplierContractExpirations = async () => {
         }).lean().exec();
         if (existing)
             continue;
-        const prepared = await prepareInsertDocument("system_notifications", {
-            notification_type: "SUPPLIER_CONTRACT_EXPIRY",
+        await emitNotification({
+            notificationType: "SUPPLIER_CONTRACT_EXPIRY",
             category: "supplier",
+            space: "suppliers",
             title: `Contrat expirant bientôt — ${supplier.name}`,
             message: `RG-F05 : le contrat du fournisseur ${supplier.code} expire le ${supplier.contract_end_date}. Renouvellement requis.`,
             severity: "warning",
-            entity_type: "suppliers",
-            entity_id: String(supplier.id || supplier._id),
+            entityType: "suppliers",
+            entityId: String(supplier.id || supplier._id),
             metadata: { supplier_code: supplier.code, contract_end_date: supplier.contract_end_date },
         });
-        await Notifications.create([prepared]);
         sent++;
     }
     return { checked: expiring.length, notificationsSent: sent };
@@ -445,6 +457,27 @@ let ReceptionsService = class ReceptionsService {
         };
     }
     async intake(payload, actor) {
+        const clientRequestId = readString(payload?.client_request_id);
+        if (clientRequestId) {
+            const existingReception = sanitizeDocument(await Receptions().findOne({ client_request_id: clientRequestId }).lean().exec());
+            if (existingReception?.id) {
+                const receptionId = String(existingReception.id);
+                const existingLots = sanitizeDocument(await ReceptionLots().find({ reception_id: receptionId }).lean().exec());
+                const lotIds = existingLots.map((row) => String(row.id || "")).filter(Boolean);
+                const [existingUnits, existingAlerts, existingNotifications] = await Promise.all([
+                    ReceptionUnits().find({ reception_lot_id: { $in: lotIds } }).lean().exec(),
+                    ReceptionAlerts().find({ reception_id: receptionId }).lean().exec(),
+                    Notifications().find({ entity_id: receptionId }).lean().exec(),
+                ]);
+                return {
+                    reception: existingReception,
+                    lots: existingLots,
+                    units: sanitizeDocument(existingUnits),
+                    alerts: sanitizeDocument(existingAlerts),
+                    notifications: sanitizeDocument(existingNotifications),
+                };
+            }
+        }
         if (!payload?.supplier_id) {
             throw badRequest("SUPPLIER_REQUIRED", "supplier_id is required.");
         }
@@ -472,12 +505,33 @@ let ReceptionsService = class ReceptionsService {
             : null;
         const now = new Date().toISOString();
         const lots = payload.lots || [];
+        const grossReadingId = readString(payload.gross_reading_id);
+        const tareReadingId = readString(payload.tare_reading_id);
+        if ((grossReadingId || tareReadingId) && (!grossReadingId || !tareReadingId || lots.length !== 1)) {
+            throw badRequest("DEVICE_WEIGHING_PAIR_REQUIRED", "Verified device intake requires gross and tare reading IDs and exactly one intake lot.");
+        }
+        const readingRows = grossReadingId && tareReadingId
+            ? sanitizeDocument(await getCollectionModel("weighbridge_readings").find({
+                reading_id: { $in: [grossReadingId, tareReadingId] },
+                consumed: { $ne: true },
+                stable: true,
+                signature_verified: true,
+            }).lean().exec())
+            : [];
+        if (grossReadingId && readingRows.length !== 2) {
+            throw badRequest("WEIGHBRIDGE_READING_UNAVAILABLE", "Gross or tare reading is unavailable or unverified.");
+        }
+        const grossReading = readingRows.find((row) => String(row.reading_id) === grossReadingId);
+        const tareReading = readingRows.find((row) => String(row.reading_id) === tareReadingId);
+        const grossWeight = grossReading ? Number(grossReading.weight_kg) : Number(payload.gross_weight_kg ?? 0);
+        const tareWeight = tareReading ? Number(tareReading.weight_kg) : Number(payload.tare_weight_kg ?? 0);
         const quantityTotal = Number(payload.quantity_total ?? lots.reduce((sum, lot) => sum + Number(lot.quantity || 0), 0));
         const declaredWeightKg = payload.declared_weight_kg ?? payload.declaredWeightKg ?? null;
-        const netWeight = Number(payload.gross_weight_kg ?? 0) - Number(payload.tare_weight_kg ?? 0);
+        const netWeight = grossWeight - tareWeight;
         const weightGapPercent = declaredWeightKg && Number(declaredWeightKg) > 0 ? round(((netWeight - Number(declaredWeightKg)) / Number(declaredWeightKg)) * 100) : null;
         const reception = await prepareInsertDocument("receptions_v2", {
             ...payload,
+            client_request_id: clientRequestId || null,
             supplier_id: supplier.id || payload.supplier_id,
             purchase_order_id: purchaseOrderId || null,
             purchase_order_line_id: receiptResolution?.line?.id || purchaseOrderLineId || null,
@@ -488,6 +542,11 @@ let ReceptionsService = class ReceptionsService {
             quantity_total: quantityTotal,
             unit: payload.unit || "kg",
             declared_weight_kg: declaredWeightKg,
+            gross_weight_kg: grossWeight,
+            tare_weight_kg: tareWeight,
+            gross_reading_id: grossReadingId || null,
+            tare_reading_id: tareReadingId || null,
+            weighing_verified_device: Boolean(grossReading && tareReading),
             weight_gap_percent: weightGapPercent,
             status: "EN_ATTENTE_QC",
             created_by: actor?.id || payload.created_by || null,
@@ -504,11 +563,14 @@ let ReceptionsService = class ReceptionsService {
             variety: lot.variety || payload.variety || null,
             maturity_stage: lot.maturity_stage || payload.maturity_stage || null,
             article_ref: lot.article_ref || null,
-            qr_code_payload: lot.qr_code_payload || `${reception.reception_number}-LOT-${index + 1}`,
+            qr_code_payload: lot.qr_code_payload || `passport:${reception.reception_number}-LOT-${index + 1}`,
         }));
         const createdLots = [];
         for (const lotInput of lotInputs) {
             const prepared = await prepareInsertDocument("reception_lots", lotInput);
+            // W2: buyer QR points at public digital passport (HashRouter).
+            const passportCode = String(prepared.lot_internal || prepared.id);
+            prepared.qr_code_payload = `/#/passport/${encodeURIComponent(passportCode)}`;
             createdLots.push(prepared);
         }
         await ReceptionLots().insertMany(createdLots);
@@ -533,6 +595,39 @@ let ReceptionsService = class ReceptionsService {
             reception,
             actorId: actor?.id || null,
         });
+        for (const lot of createdLots) {
+            await lotLifecycleService.recordStageSafe({
+                lotId: String(lot.id),
+                toStage: "SUPPLIER_INTAKE",
+                collection: "reception_lots",
+                actorId: actor?.id || null,
+                payload: {
+                    lot_internal: lot.lot_internal ?? null,
+                    variety: lot.variety ?? null,
+                    quantity: lot.quantity ?? null,
+                    route_product: "Deglet Nour premium whole",
+                },
+                relatedIds: [String(reception.id)],
+                route: "PREMIUM_WHOLE",
+            });
+        }
+        if (grossReadingId && tareReadingId && createdLots[0]?.id) {
+            const linkedLotId = String(createdLots[0].id);
+            await this.recordWeighing(linkedLotId, {
+                type: "GROSS",
+                weight_kg: grossWeight,
+                source: "DEVICE",
+                reading_id: grossReadingId,
+                supervisor: readString(payload.weighing_supervisor) || null,
+            }, actor);
+            await this.recordWeighing(linkedLotId, {
+                type: "TARE",
+                weight_kg: tareWeight,
+                source: "DEVICE",
+                reading_id: tareReadingId,
+                supervisor: readString(payload.weighing_supervisor) || null,
+            }, actor);
+        }
         if (receiptResolution) {
             await registerReceptionAgainstPurchaseOrder({
                 resolution: receiptResolution,
@@ -558,25 +653,25 @@ let ReceptionsService = class ReceptionsService {
         if (alerts.length > 0) {
             await ReceptionAlerts().insertMany(alerts);
         }
-        const notification = await prepareInsertDocument("system_notifications", {
-            notification_type: "RECEPTION_CREATED",
+        const notification = await emitNotification({
+            notificationType: "RECEPTION_CREATED",
             category: "reception",
+            space: "receptions",
             title: `Nouvelle reception ${reception.reception_number}`,
             message: `Reception ${reception.reception_number} enregistree et en attente QC.`,
             severity: "info",
-            entity_type: "receptions_v2",
-            entity_id: reception.id,
+            entityType: "receptions_v2",
+            entityId: String(reception.id),
             metadata: {
                 supplier_id: reception.supplier_id,
             },
         });
-        await Notifications().create([notification]);
         return {
             reception: sanitizeDocument(reception),
             lots: sanitizeDocument(createdLots),
             units: sanitizeDocument(createdUnits),
             alerts: sanitizeDocument(alerts),
-            notifications: sanitizeDocument([notification]),
+            notifications: [notification].filter(Boolean),
         };
     }
     async startQcInspection(payload, actor) {
@@ -720,17 +815,42 @@ let ReceptionsService = class ReceptionsService {
             recalculateSupplierMetrics(String(updatedReception.supplier_id), actor?.id ?? null).catch((err) => console.error("[RG] supplier metric recalc failed:", err));
         }
         // ── RG-R07: notify QC inspector that a new lot awaits inspection ─────────
-        const qcNotification = await prepareInsertDocument("system_notifications", {
-            notification_type: "QC_DECISION_RECORDED",
+        await emitNotification({
+            notificationType: "QC_DECISION_RECORDED",
             category: "quality",
+            space: "quality",
             title: `Décision QC enregistrée — ${updatedReception?.reception_number ?? inspectionId}`,
             message: `Décision ${decision} enregistrée pour la réception ${updatedReception?.reception_number ?? ""}. Grade: ${payload.qualitySummary?.grade ?? "—"}.`,
-            severity: decision === "REJETE" ? "critical" : decision === "QUARANTAINE" ? "warning" : "info",
-            entity_type: "receptions_v2",
-            entity_id: String(inspection.reception_id),
+            severity: decision === "REJETE" ? "error" : decision === "QUARANTAINE" ? "warning" : "info",
+            entityType: "receptions_v2",
+            entityId: String(inspection.reception_id),
             metadata: { decision, grade: payload.qualitySummary?.grade ?? null },
         });
-        await Notifications().create([qcNotification]);
+        for (const lot of updatedLots) {
+            const lotId = String(lot.id || "");
+            if (!lotId)
+                continue;
+            if (decision === "REJETE") {
+                await lotLifecycleService.recordStageSafe({
+                    lotId,
+                    toStage: "REJECTED",
+                    collection: "qc_inspections",
+                    actorId: actor?.id || null,
+                    payload: { decision, inspection_id: inspectionId, rejected: true },
+                    route: "PREMIUM_WHOLE",
+                });
+            }
+            else if (decision === "ACCEPTE") {
+                await lotLifecycleService.recordStageSafe({
+                    lotId,
+                    toStage: "QC_DECIDED",
+                    collection: "qc_inspections",
+                    actorId: actor?.id || null,
+                    payload: { decision, inspection_id: inspectionId },
+                    route: "PREMIUM_WHOLE",
+                });
+            }
+        }
         return storedInspection;
     }
     async markUnitPrinted(unitId, actor) {
@@ -776,10 +896,10 @@ let ReceptionsService = class ReceptionsService {
         await ReceptionUnits().create([unit]);
         return sanitizeDocument(unit);
     }
-    async moveReceptionLotToStorage(payload, _actor) {
+    async moveReceptionLotToStorage(payload, actor) {
         const lotId = readString(payload.lotId);
         const targetZone = readString(payload.targetZone);
-        const performedBy = readString(payload.performedBy);
+        const performedBy = readString(actor?.id);
         if (!lotId) {
             throw badRequest("RECEPTION_LOT_REQUIRED", "lotId is required.");
         }
@@ -787,12 +907,19 @@ let ReceptionsService = class ReceptionsService {
             throw badRequest("TARGET_ZONE_REQUIRED", "targetZone is required.");
         }
         if (!performedBy) {
-            throw badRequest("PERFORMED_BY_REQUIRED", "performedBy is required.");
+            throw badRequest("PERFORMED_BY_REQUIRED", "An authenticated actor is required.");
         }
         const lot = sanitizeDocument(await ReceptionLots().findOne({ id: lotId }).lean().exec());
         if (!lot) {
             throw notFound("RECEPTION_LOT_NOT_FOUND", "Reception lot not found.");
         }
+        const stockLot = sanitizeDocument(await StockLots().findOne({ reception_lot_id: lotId }).lean().exec());
+        await scanService.consumeMoveProof({
+            token: payload.scanProof?.lotToken,
+            actorId: performedBy,
+            expectedStockLotId: stockLot?.id ? String(stockLot.id) : null,
+            collection: "reception_stock_movements",
+        });
         const nextStatus = resolveZoneStatus(targetZone, String(lot.stock_status || "NON_STOCKE"));
         const now = new Date().toISOString();
         const notes = readString(payload.notes);
@@ -856,6 +983,16 @@ let ReceptionsService = class ReceptionsService {
             performed_by: performedBy,
         });
         await ReceptionAuditLogs().create([auditLog]);
+        if (nextStatus === "STOCK_LIBERE") {
+            await lotLifecycleService.recordStageSafe({
+                lotId,
+                toStage: "COLD_STORE",
+                collection: "reception_stock_movements",
+                actorId: performedBy,
+                payload: { zone: targetZone, position: position || null },
+                route: "PREMIUM_WHOLE",
+            });
+        }
         const updatedLot = sanitizeDocument(await ReceptionLots().findOne({ id: lotId }).lean().exec());
         return {
             movement: sanitizeDocument(movement),
@@ -874,7 +1011,28 @@ let ReceptionsService = class ReceptionsService {
         if (!lotId)
             throw badRequest("LOT_REQUIRED", "lotId is required.");
         const weighType = payload.type === "TARE" ? "TARE" : "GROSS";
-        const weightKg = Number(payload.weight_kg);
+        let weightKg = Number(payload.weight_kg);
+        let source = payload.source || "MANUAL";
+        let deviceReading = null;
+        if (payload.reading_id) {
+            deviceReading = sanitizeDocument(await getCollectionModel("weighbridge_readings")
+                .findOne({ reading_id: String(payload.reading_id) })
+                .lean()
+                .exec());
+            if (!deviceReading)
+                throw notFound("WEIGHBRIDGE_READING_NOT_FOUND", "Weighbridge reading not found.");
+            if (deviceReading.consumed)
+                throw badRequest("WEIGHBRIDGE_READING_CONSUMED", "Weighbridge reading was already consumed.");
+            if (!deviceReading.stable || !deviceReading.signature_verified) {
+                throw badRequest("WEIGHBRIDGE_READING_UNVERIFIED", "Weighbridge reading is not stable and signature-verified.");
+            }
+            if (deviceReading.calibration_valid_until
+                && String(deviceReading.calibration_valid_until) < new Date().toISOString()) {
+                throw badRequest("WEIGHBRIDGE_CALIBRATION_EXPIRED", "Weighbridge calibration has expired.");
+            }
+            weightKg = Number(deviceReading.weight_kg);
+            source = "DEVICE";
+        }
         if (isNaN(weightKg) || weightKg < 0) {
             throw badRequest("INVALID_WEIGHT", "weight_kg must be ≥ 0.");
         }
@@ -887,15 +1045,35 @@ let ReceptionsService = class ReceptionsService {
             reception_id: lot.reception_id || null,
             type: weighType,
             weight_kg: weightKg,
-            source: payload.source || "MANUAL",
-            device_ref: payload.device_ref || null,
+            source,
+            device_ref: deviceReading?.device_code || payload.device_ref || null,
+            reading_id: deviceReading?.reading_id || null,
+            device_id: deviceReading?.device_id || null,
+            stable: deviceReading?.stable ?? null,
+            captured_at: deviceReading?.captured_at || null,
+            calibration_valid_until: deviceReading?.calibration_valid_until || null,
+            signature_verified: deviceReading?.signature_verified === true,
             supervisor: payload.supervisor || null,
             recorded_by: actor?.id || null,
             notes: payload.notes || null,
+            manual_reason: payload.manual_reason || null,
         });
+        if (deviceReading) {
+            const claimed = await getCollectionModel("weighbridge_readings").updateOne({ id: deviceReading.id, consumed: { $ne: true } }, {
+                $set: {
+                    consumed: true,
+                    consumed_by_weighing_id: weighing.id,
+                    lot_id: lotId,
+                    updated_at: new Date().toISOString(),
+                },
+            }).exec();
+            if (Number(claimed.modifiedCount || 0) !== 1) {
+                throw badRequest("WEIGHBRIDGE_READING_CONSUMED", "Weighbridge reading was consumed concurrently.");
+            }
+        }
         await WeighingRecords().create([weighing]);
         // Re-fetch all weighings to compute net
-        const allWeighings = sanitizeDocument(await WeighingRecords().find({ lot_id: lotId }).sort({ created_at: -1 }).lean().exec());
+        const allWeighings = sanitizeDocument(await WeighingRecords().find({ lot_id: lotId }).sort({ captured_at: -1, created_at: -1 }).lean().exec());
         const latestGross = allWeighings.find((w) => w.type === "GROSS");
         const latestTare = allWeighings.find((w) => w.type === "TARE");
         const now = new Date().toISOString();
@@ -924,10 +1102,44 @@ let ReceptionsService = class ReceptionsService {
             entity_id: lotId,
             action: `WEIGHING_${weighType}`,
             actor_id: actor?.id || null,
-            new_state: { weight_kg: weightKg, type: weighType, source: payload.source || "MANUAL" },
+            new_state: { weight_kg: weightKg, type: weighType, source, reading_id: deviceReading?.reading_id || null },
             performed_by: actor?.id || "system",
         });
         await ReceptionAuditLogs().create([auditLog]);
+        if (latestGross && latestTare) {
+            const provenance = {
+                gross_kg: Number(latestGross.weight_kg),
+                tare_kg: Number(latestTare.weight_kg),
+                net_kg: Number(lotUpdate.net_weight_kg ?? 0),
+                source,
+                device_code: deviceReading?.device_code ?? null,
+                reading_id: deviceReading?.reading_id ?? null,
+                calibration_valid_until: deviceReading?.calibration_valid_until ?? null,
+                signature_verified: deviceReading?.signature_verified === true,
+            };
+            const chain = await lotLedgerService.getChain(lotId);
+            if (chain.some((event) => event.event_type === "LOT_WEIGHED")) {
+                await lotLedgerService.append({
+                    lotId,
+                    eventType: "WEIGHING_AMENDED",
+                    collection: "weighing_records",
+                    action: "INSERT",
+                    actorId: actor?.id || null,
+                    payload: provenance,
+                    relatedIds: [String(weighing.id)],
+                });
+            }
+            else {
+                await lotLifecycleService.recordStageSafe({
+                    lotId,
+                    toStage: "WEIGHED",
+                    collection: "weighing_records",
+                    actorId: actor?.id || null,
+                    payload: provenance,
+                    route: "PREMIUM_WHOLE",
+                });
+            }
+        }
         // EPCIS ObjectEvent
         await writeEpcisObjectEvent({
             bizStep: "urn:epcglobal:cbv:bizstep:receiving",
@@ -936,7 +1148,7 @@ let ReceptionsService = class ReceptionsService {
             actorId: actor?.id || null,
             entityType: "reception_lots",
             entityId: lotId,
-            metadata: { weighing_type: weighType, weight_kg: weightKg, source: payload.source || "MANUAL" },
+            metadata: { weighing_type: weighType, weight_kg: weightKg, source, reading_id: deviceReading?.reading_id || null },
         });
         const updatedLot = sanitizeDocument(await ReceptionLots().findOne({ id: lotId }).lean().exec());
         return { weighing: sanitizeDocument(weighing), lot: updatedLot };

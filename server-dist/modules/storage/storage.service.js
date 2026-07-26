@@ -9,6 +9,11 @@ import mongoose from "mongoose";
 import { badRequest, conflict, notFound } from "../../core/app-error.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
+import { emitNotification } from "../notifications/notification-emitter.js";
+import { scanService } from "../trust/scan.service.js";
+import { lotLifecycleService } from "../trust/lot-lifecycle.service.js";
+import { lotLedgerService } from "../trust/lot-ledger.service.js";
+import { evaluateColdChain } from "../trust/ccp-evidence.js";
 import { ROYAL_PALM_MODULE3_ZONES, STORAGE_MOVEMENT_REASONS, STORAGE_MOVEMENT_TYPES, assertValidLocationCode, buildLocationSeedsForZone, computeDlcAlertLevel, computeConditionStatus, computeLocationStatus, evaluateDoorRule, evaluateTemperatureRule, isRawStorageDelayed, sortLocationsForSuggestion, sortLotsForFefo, } from "./storage-domain.js";
 const nowIso = () => new Date().toISOString();
 const asNumber = (value, fallback = 0) => {
@@ -181,16 +186,15 @@ const createNotificationForStorageAlert = async (alert) => {
             return existing;
     }
     const entity = mapStorageAlertEntity(alert);
-    const notification = await prepareInsertDocument("system_notifications", {
-        notification_type: mapStorageAlertNotificationType(alert),
+    const row = await emitNotification({
+        notificationType: mapStorageAlertNotificationType(alert),
         category: "stockage",
+        space: "storage",
         title: String(alert.title || "Alerte stockage"),
         message: String(alert.message || "Une alerte stockage a ete detectee."),
         severity: mapNotificationSeverity(alert.severity),
-        entity_type: entity.entity_type,
-        entity_id: entity.entity_id,
-        status: "ACTIVE",
-        is_read: false,
+        entityType: entity.entity_type,
+        entityId: entity.entity_id,
         metadata: sanitizeDocument({
             alert_id: alert.id || null,
             alert_key: alert.alert_key || null,
@@ -201,8 +205,7 @@ const createNotificationForStorageAlert = async (alert) => {
             lot_id: alert.lot_id || null,
         }),
     });
-    await SystemNotifications().insertMany([notification]);
-    return sanitizeDocument(notification);
+    return (row || null);
 };
 const ensureAlert = async (payload) => {
     const alertKey = String(payload.alert_key || "");
@@ -851,7 +854,10 @@ let StorageService = class StorageService {
         const Readings = getCollectionModel("storage_condition_readings");
         const zoneCode = payload.zoneCode ? String(payload.zoneCode).trim().toUpperCase() : "";
         const zoneId = payload.storageZoneId ? String(payload.storageZoneId) : "";
-        const zone = sanitizeDocument(await Zones.findOne(zoneId ? { id: zoneId } : { code: zoneCode }).lean().exec());
+        const zoneQuery = zoneId
+            ? { $or: [this.buildIdFilter(zoneId), ...(zoneCode ? [{ code: zoneCode }] : [])] }
+            : { code: zoneCode };
+        const zone = sanitizeDocument(await Zones.findOne(zoneQuery).lean().exec());
         if (!zone) {
             throw notFound("STORAGE_ZONE_NOT_FOUND", "Storage zone was not found.");
         }
@@ -891,6 +897,10 @@ let StorageService = class StorageService {
             ...reading,
             condition_status: result.status,
             messages: result.messages,
+            source: String(payload.source || "MANUAL"),
+            signature_verified: payload.signature_verified === true,
+            reading_key: payload.reading_key || null,
+            device_code: payload.device_code || null,
         });
         await Readings.insertMany([prepared]);
         const recentReadings = sanitizeDocument(await Readings.find({
@@ -943,15 +953,57 @@ let StorageService = class StorageService {
             createdAlerts.push(...alertResult.alerts);
             createdNotifications.push(...alertResult.notifications);
         }
+        const coldEvidence = evaluateColdChain({
+            readings: [...recentReadings, prepared],
+            temperatureMaxC: Number(zone.temperature_max ?? 8),
+            temperatureMinC: Number(zone.temperature_min ?? -2),
+        });
+        const lotIdsPresent = Array.isArray(location?.lot_ids_present)
+            ? location.lot_ids_present.map(String)
+            : [];
+        const stockLots = lotIdsPresent.length
+            ? sanitizeDocument(await getCollectionModel("stock_lots").find({
+                $or: [
+                    { lot_number: { $in: lotIdsPresent } },
+                    { source_lot_internal: { $in: lotIdsPresent } },
+                    { id: { $in: lotIdsPresent } },
+                ],
+            }).lean().exec())
+            : [];
+        for (const stockLot of stockLots) {
+            const receptionLotId = String(stockLot.reception_lot_id || stockLot.id || "");
+            if (!receptionLotId)
+                continue;
+            const eventType = coldEvidence.intact ? "COLD_CHAIN_ATTESTED" : "COLD_CHAIN_BREACH";
+            await lotLedgerService.append({
+                lotId: receptionLotId,
+                eventType,
+                collection: "storage_condition_readings",
+                action: "INSERT",
+                actorId: user?.id || null,
+                payload: {
+                    zone_code: zone.code,
+                    temperature_c: reading.temperature_c,
+                    condition_status: result.status,
+                    intact: coldEvidence.intact,
+                    excursion_count: coldEvidence.excursionCount,
+                    max_deviation_c: coldEvidence.maxDeviationC,
+                    readings_digest: coldEvidence.readingsDigest,
+                    source: String(prepared.source || "MANUAL"),
+                },
+                relatedIds: [String(prepared.id || "")].filter(Boolean),
+            }).catch(() => undefined);
+        }
         return sanitizeDocument({
             reading: prepared,
             status: result.status,
             messages: result.messages,
             alerts: createdAlerts,
             notifications: createdNotifications,
+            coldChain: coldEvidence,
         });
     }
-    async moveStock(rawPayload, user) {
+    async moveStock(rawPayload, user, options = {}) {
         const payload = rawPayload;
         const Locations = getCollectionModel("storage_locations");
         const Movements = getCollectionModel("storage_location_movements");
@@ -961,11 +1013,45 @@ let StorageService = class StorageService {
         const quantityKg = asNumber(payload.quantityKg, 0);
         const lotRef = String(payload.lotId || payload.lotCode || "").trim();
         const lot = await resolveStockLotByRef({ lotId: payload.lotId, lotCode: payload.lotCode });
+        const requestId = String(payload.requestId || "").trim();
+        if (requestId) {
+            const existing = sanitizeDocument(await Movements.findOne({ request_id: requestId }).lean().exec());
+            if (existing)
+                return { movement: existing, locations: [], alerts: [], notifications: [], replayed: true };
+        }
         if (!lotRef) {
             throw badRequest("LOT_ID_REQUIRED", "LOT-ID is required and should come from a QR scan or selection.");
         }
         if (!lot) {
             throw notFound("LOT_NOT_FOUND", "Scanned LOT-ID was not found in stock lots.");
+        }
+        let movementSource = options.source || "OPERATOR";
+        let scanResult = null;
+        if (movementSource === "SYSTEM") {
+            scanResult = { exempt: true, reason: options.scanExemptReason || "trusted_internal" };
+        }
+        else if (payload.manualOverrideReason && options.allowOverride) {
+            movementSource = "MANUAL_OVERRIDE";
+            scanResult = { exempt: true, reason: payload.manualOverrideReason };
+            await emitNotification({
+                notificationType: "STOCK_SCAN_OVERRIDE",
+                category: "stockage",
+                space: "stock",
+                title: "Dérogation scan mouvement stock",
+                message: `Dérogation utilisée pour le lot ${String(lot.lot_number || lot.id)}.`,
+                severity: "warning",
+                entityType: "stock_lots",
+                entityId: String(lot.id || ""),
+                metadata: { reason: payload.manualOverrideReason, actor_id: user?.id || null },
+            });
+        }
+        else {
+            scanResult = await scanService.consumeMoveProof({
+                token: payload.scanProof?.lotToken,
+                actorId: String(user?.id || ""),
+                expectedStockLotId: String(lot.id || ""),
+                collection: "storage_location_movements",
+            });
         }
         const lotIdentifiers = getLotIdentifiers(payload, lot);
         const movementLotId = String(lot.id || payload.lotId || "");
@@ -1074,6 +1160,11 @@ let StorageService = class StorageService {
             destination_suggested_by_system: !payload.destinationLocationId && !payload.destinationLocationCode && !!destination,
             performed_by: user?.id || null,
             notes: payload.notes || null,
+            request_id: requestId || null,
+            movement_source: movementSource,
+            scan_verified: scanResult?.verified === true,
+            scan_token: payload.scanProof?.lotToken || null,
+            scan_exempt_reason: movementSource === "OPERATOR" ? null : String(scanResult?.reason || ""),
         });
         await Movements.insertMany([preparedMovement]);
         await syncLotMovementHistory(payload, lot, source, destination, quantityKg, movementDate, movementType, user?.id || null);
@@ -1106,6 +1197,30 @@ let StorageService = class StorageService {
                         { lot_supplier: movementLotCode },
                     ],
                 }, { $set: receptionLotUpdate }).exec();
+            }
+            const destinationZone = destination?.storage_zone_id
+                ? sanitizeDocument(await getCollectionModel("storage_zones")
+                    .findOne({ id: destination.storage_zone_id })
+                    .lean()
+                    .exec())
+                : null;
+            const isColdDestination = String(destinationZone?.storage_family || "").toLowerCase() === "cold"
+                || String(destination?.zone_code || "").toUpperCase().startsWith("CF");
+            if (isColdDestination) {
+                const receptionLotId = String(lot.reception_lot_id || movementLotId);
+                await lotLifecycleService.recordStageSafe({
+                    lotId: receptionLotId,
+                    toStage: "COLD_STORE",
+                    collection: "storage_location_movements",
+                    actorId: user?.id || null,
+                    payload: {
+                        zone_code: destination?.zone_code || destinationZone?.code || null,
+                        location_code: destination?.code || null,
+                        movement_id: preparedMovement.id || null,
+                        source: "STORAGE_MOVE",
+                    },
+                    route: "PREMIUM_WHOLE",
+                });
             }
         }
         const updatedRows = sanitizeDocument(await Locations.find({

@@ -10,6 +10,7 @@ import { ReceptionUnit, ReceptionV2, ReceptionLot, stockStatusLabels, unitTypeLa
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useMarkReceptionUnitPrinted } from '@/hooks/useReceptionsV2';
+import { buildLotPassportUrl } from '@/lib/passportUrl';
 
 interface LabelPrintDialogProps {
   open: boolean;
@@ -20,14 +21,14 @@ interface LabelPrintDialogProps {
 }
 
 const buildQrPayloadFallback = (unit: ReceptionUnit, reception: ReceptionV2, lot: ReceptionLot) =>
-  JSON.stringify({
-    lot_id: lot.lot_internal || lot.id,
-    reception_number: reception.reception_number,
-    unit_barcode: unit.barcode,
-    quantity: unit.quantity,
-    unit: unit.unit,
-    storage_zone_code: reception.storage_zone_code || null,
-  });
+  buildLotPassportUrl(lot.lot_internal || lot.id);
+
+const resolveQrPayload = (unit: ReceptionUnit, reception: ReceptionV2, lot: ReceptionLot | null) => {
+  if (!lot) return unit.qr_code_payload?.trim() || unit.barcode || '';
+  const stored = unit.qr_code_payload?.trim() || lot.qr_code_payload?.trim();
+  if (stored && (stored.includes('/passport/') || stored.startsWith('http'))) return stored;
+  return buildLotPassportUrl(lot.lot_internal || lot.id);
+};
 
 const formatQrPayloadPreview = (qrPayload: string) => {
   try {
@@ -50,11 +51,7 @@ export const LabelPrintDialog = ({ open, onOpenChange, unit, reception, lot }: L
 
   if (!unit || !lot) return null;
 
-  const qrPayload =
-    unit.qr_code_payload?.trim() ||
-    unit.qr_label_text?.trim() ||
-    lot.qr_code_payload?.trim() ||
-    buildQrPayloadFallback(unit, reception, lot);
+  const qrPayload = resolveQrPayload(unit, reception, lot);
   const qrPayloadPreview = formatQrPayloadPreview(qrPayload);
   const qrCaption = unit.qr_label_text?.trim() || `${unit.barcode} | ${unit.quantity} ${unit.unit}`;
   const receptionDate = format(new Date(reception.actual_arrival_date), 'dd/MM/yyyy', { locale: fr });

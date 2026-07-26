@@ -5,6 +5,14 @@ import { prepareInsertDocument } from "../../db/defaults.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
 import { buildLotTraceabilityDossier } from "./traceability-dossier.js";
 import { buildGenealogyFromDossier } from "./genealogy-builder.js";
+import { lotLifecycleService } from "../trust/lot-lifecycle.service.js";
+import { lotLedgerService } from "../trust/lot-ledger.service.js";
+import { ccpGateMode, evaluateFumigationCcp } from "../trust/ccp-evidence.js";
+import { emitNotification } from "../notifications/notification-emitter.js";
+
+const pushNotif = (arr: NotificationRow[], row: NotificationRow | null) => {
+  if (row) arr.push(row);
+};
 
 type FumigationChamber = "FU-01" | "FU-02";
 type FumigationProtocol = "FUM-PH3-72" | "FUM-CO2-96" | "FUM-THERM-04";
@@ -123,6 +131,8 @@ type FumigationSensorReadingRow = Record<string, unknown> & {
   external_leak_ppm?: number | null;
   door_locked?: boolean | null;
   created_by?: string | null;
+  source?: string | null;
+  signature_verified?: boolean | null;
 };
 
 type CleaningCycleRow = Record<string, unknown> & {
@@ -393,21 +403,18 @@ const createPhase2Notification = async (input: {
   entityId?: string | null;
   metadata?: Record<string, unknown> | null;
 }) => {
-  const notification = await prepareInsertDocument("system_notifications", {
-    notification_type: input.code,
-    type: input.code,
+  const row = await emitNotification({
+    notificationType: input.code,
     category: "phase2",
+    space: "production",
     title: input.title,
     message: input.message,
     severity: input.severity,
-    entity_type: input.entityType ?? null,
-    entity_id: input.entityId ?? null,
+    entityType: input.entityType ?? null,
+    entityId: input.entityId ?? null,
     metadata: input.metadata ?? null,
-    status: "ACTIVE",
-    is_read: false,
   });
-  await Notifications().create([notification]);
-  return sanitizeDocument(notification) as NotificationRow;
+  return (row || null) as NotificationRow | null;
 };
 
 @Injectable()
@@ -590,7 +597,6 @@ export class Phase2Service {
     const current = sanitizeDocument(
       await FumigationCycles()
         .findOne({ id })
-        .select("status operator_signed_at quality_signed_at")
         .lean()
         .exec(),
     ) as FumigationCycleRow | null;
@@ -628,10 +634,78 @@ export class Phase2Service {
 
     const refreshed = sanitizeDocument(await FumigationCycles().findOne({ id }).lean().exec()) as FumigationCycleRow | null;
     if (refreshed?.operator_signed_at && refreshed?.quality_signed_at) {
+      const readings = sanitizeDocument(
+        await FumigationSensorReadings().find({ cycle_id: id }).sort({ read_at: 1 }).lean().exec(),
+      ) as FumigationSensorReadingRow[];
+      const protocol = String(refreshed.protocol || "") as FumigationProtocol;
+      const evidence = evaluateFumigationCcp({
+        protocol,
+        t0Start: refreshed.t0_start ? String(refreshed.t0_start) : null,
+        readings,
+        protocolConfig: FUMIGATION_PROTOCOL_CONFIG[protocol]
+          ? {
+              min_duration_min: FUMIGATION_PROTOCOL_CONFIG[protocol].min_duration_min,
+              min_avg_concentration_gm3: protocol === "FUM-THERM-04" ? 0.1 : 0.5,
+              max_external_leak_ppm: 0.3,
+            }
+          : null,
+        now,
+      });
+
+      const gate = ccpGateMode();
+      if (!evidence.compliant) {
+        const message = `CCP evidence insufficient: ${evidence.missing.join(", ") || "duration/concentration/leak"}.`;
+        if (gate === "enforce") {
+          throw badRequest("CCP_EVIDENCE_INSUFFICIENT", message, evidence);
+        }
+        if (gate === "warn") {
+          console.warn(`[ccp-gate] ${message}`, evidence);
+        }
+      }
+
       await FumigationCycles().updateOne(
         { id },
-        { $set: { status: "TERMINE", updated_at: now } },
+        {
+          $set: {
+            status: "TERMINE",
+            duration_compliant: evidence.durationCompliant,
+            parameters_compliant: evidence.parametersCompliant,
+            residual_tlv_compliant: evidence.residualCompliant,
+            updated_at: now,
+          },
+        },
       ).exec();
+
+      const lotRefs = Array.isArray(refreshed.lot_refs) ? refreshed.lot_refs : [];
+      for (const ref of lotRefs) {
+        const lotId = await lotLifecycleService.resolveReceptionLotId({
+          lotNumber: readString((ref as Phase2LotRef)?.lot_number),
+          receptionId: readString((ref as Phase2LotRef)?.reception_id),
+        });
+        if (!lotId) continue;
+        await lotLifecycleService.recordStageSafe({
+          lotId,
+          toStage: "FUMIGATION_CCP",
+          collection: "fumigation_cycles",
+          actorId: signerId,
+          payload: {
+            cycle_id: id,
+            cycle_number: refreshed.cycle_number ?? null,
+            protocol: refreshed.protocol ?? null,
+            dual_signed: true,
+            evidence_compliant: evidence.compliant,
+            ct_product: evidence.ctProduct,
+            min_concentration_gm3: evidence.minConcentrationGm3,
+            avg_concentration_gm3: evidence.avgConcentrationGm3,
+            duration_minutes: evidence.durationMinutes,
+            reading_count: evidence.readingCount,
+            device_verified_count: evidence.deviceVerifiedCount,
+            readings_digest: evidence.readingsDigest,
+            evidence_source: evidence.deviceVerifiedCount > 0 ? "DEVICE" : "MANUAL",
+          },
+          route: "PREMIUM_WHOLE",
+        });
+      }
     }
 
     return sanitizeDocument(await FumigationCycles().findOne({ id }).lean().exec()) as FumigationCycleRow | null;
@@ -651,6 +725,10 @@ export class Phase2Service {
       cycle_id: cycleId,
       read_at: readString(payload.read_at) || nowIso(),
       created_by: readString(payload.created_by) || "system",
+      source: readString(payload.source) || "MANUAL",
+      signature_verified: payload.signature_verified === true,
+      reading_key: readString(payload.reading_key) || null,
+      device_code: readString(payload.device_code, payload.deviceCode) || null,
     });
 
     await FumigationSensorReadings().create([reading]);
@@ -662,7 +740,7 @@ export class Phase2Service {
       && readNullableNumber(sanitizedReading.external_leak_ppm) != null
       && readNumber(sanitizedReading.external_leak_ppm) > 0.3
     ) {
-      notifications.push(await createPhase2Notification({
+      pushNotif(notifications, await createPhase2Notification({
         code: "AL-FUM-03",
         title: "Fuite gaz externe détectée",
         message: `Cycle ${cycleId} — fuite externe: ${readNumber(sanitizedReading.external_leak_ppm)} ppm > seuil 0.3 ppm. Evacuation immédiate.`,
@@ -671,6 +749,34 @@ export class Phase2Service {
         entityId: cycleId,
         metadata: { external_leak_ppm: readNumber(sanitizedReading.external_leak_ppm) },
       }));
+    }
+
+    const liveCycle = sanitizeDocument(
+      await FumigationCycles().findOne({ id: cycleId }).lean().exec(),
+    ) as FumigationCycleRow | null;
+    const lotRefs = Array.isArray(liveCycle?.lot_refs) ? liveCycle.lot_refs : [];
+    for (const ref of lotRefs) {
+      const lotId = await lotLifecycleService.resolveReceptionLotId({
+        lotNumber: readString((ref as Phase2LotRef)?.lot_number),
+        receptionId: readString((ref as Phase2LotRef)?.reception_id),
+      });
+      if (!lotId) continue;
+      await lotLedgerService.append({
+        lotId,
+        eventType: "CCP_SENSOR_ATTESTED",
+        collection: "fumigation_sensor_readings",
+        action: "INSERT",
+        actorId: readString(payload.created_by) || null,
+        payload: {
+          cycle_id: cycleId,
+          reading_id: sanitizedReading.id ?? null,
+          concentration_avg_gm3: sanitizedReading.concentration_avg_gm3 ?? null,
+          external_leak_ppm: sanitizedReading.external_leak_ppm ?? null,
+          source: sanitizedReading.source ?? "MANUAL",
+          signature_verified: sanitizedReading.signature_verified === true,
+        },
+        relatedIds: [cycleId],
+      }).catch(() => undefined);
     }
 
     return {
@@ -809,7 +915,7 @@ export class Phase2Service {
     const notifications: NotificationRow[] = [];
 
     if (yieldPercent != null && yieldPercent < 92) {
-      notifications.push(await createPhase2Notification({
+      pushNotif(notifications, await createPhase2Notification({
         code: "AL-NET-01",
         title: "Rendement nettoyage < 92%",
         message: `Cycle ${readString(existing.cycle_number, id)} — rendement: ${yieldPercent}% (seuil: 92%). Verifier reglage tapis.`,
@@ -822,7 +928,7 @@ export class Phase2Service {
 
     const turbidity = readNullableNumber(payload.turbidity_ntu);
     if (turbidity != null && turbidity > 200) {
-      notifications.push(await createPhase2Notification({
+      pushNotif(notifications, await createPhase2Notification({
         code: "AL-NET-02",
         title: "Turbidite eau excessive",
         message: `Cycle ${readString(existing.cycle_number, id)} — turbidite: ${turbidity} NTU > 200 NTU. Changer l'eau.`,
@@ -835,7 +941,7 @@ export class Phase2Service {
 
     const phWater = readNullableNumber(payload.ph_water);
     if (phWater != null && (phWater < 6.5 || phWater > 8.5)) {
-      notifications.push(await createPhase2Notification({
+      pushNotif(notifications, await createPhase2Notification({
         code: "AL-NET-03",
         title: "pH eau hors plage",
         message: `Cycle ${readString(existing.cycle_number, id)} — pH: ${phWater} (plage autorisee: 6.5–8.5).`,
@@ -1009,7 +1115,7 @@ export class Phase2Service {
     const notifications: NotificationRow[] = [];
 
     if (conformity === "ROUGE") {
-      notifications.push(await createPhase2Notification({
+      pushNotif(notifications, await createPhase2Notification({
         code: "AL-HYD-01",
         title: "Humidite sortie hors plage critique",
         message: `Cycle ${readString(existing.cycle_number, id)} — humidite moy: ${avg}% (plage: 20–26%). Action requise.`,
@@ -1247,7 +1353,7 @@ export class Phase2Service {
     const notifications: NotificationRow[] = [];
 
     if (rejectPercent > 10 && total > 50) {
-      notifications.push(await createPhase2Notification({
+      pushNotif(notifications, await createPhase2Notification({
         code: "AL-TRI-01",
         title: "Taux de rejet > 10%",
         message: `Session ${readString(existing.session_number, id)} — rejet: ${rejectPercent}% (${weightRejectKg} kg). Verifier calibrage tapis.`,
@@ -1309,7 +1415,7 @@ export class Phase2Service {
 
     const notifications: NotificationRow[] = [];
     if (errorRatePercent < 90) {
-      notifications.push(await createPhase2Notification({
+      pushNotif(notifications, await createPhase2Notification({
         code: "AL-TRI-03",
         title: "Score qualite triage < 90%",
         message: `Session ${readString(session.session_number, sessionId)} — score: ${errorRatePercent}%. Pause et re-calibrage requis.`,
@@ -1432,6 +1538,26 @@ export class Phase2Service {
 
     if (stockMovements.length > 0) {
       await StockMovements().create(stockMovements);
+    }
+
+    const parentLotId = await lotLifecycleService.resolveReceptionLotId({
+      lotNumber: readString(session.parent_lot_number),
+      receptionId: readString(session.parent_reception_id),
+    });
+    if (parentLotId) {
+      await lotLifecycleService.recordStageSafe({
+        lotId: parentLotId,
+        toStage: "TRIAGE",
+        collection: "triage_sessions",
+        actorId: readString(session.created_by) || null,
+        payload: {
+          session_id: id,
+          session_number: readString(session.session_number, id),
+          sub_lots: subLots.map((row) => row.lot_number),
+        },
+        relatedIds: stockLots.map((row) => String(row.id || "")).filter(Boolean),
+        route: "PREMIUM_WHOLE",
+      });
     }
 
     return {

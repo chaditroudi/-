@@ -8,6 +8,8 @@ import { Injectable } from "@nestjs/common";
 import { badRequest, notFound } from "../../core/app-error.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
+import { lotLifecycleService } from "../trust/lot-lifecycle.service.js";
+import { emitNotification } from "../notifications/notification-emitter.js";
 const PackagingBoms = () => getCollectionModel("packaging_bom");
 const LabelTemplates = () => getCollectionModel("label_templates");
 const PrivateLabelClients = () => getCollectionModel("private_label_clients");
@@ -16,7 +18,6 @@ const PackagingPalettes = () => getCollectionModel("packaging_palettes");
 const TriageSublots = () => getCollectionModel("triage_sublots");
 const StockLots = () => getCollectionModel("stock_lots");
 const StockMovements = () => getCollectionModel("stock_movements");
-const Notifications = () => getCollectionModel("system_notifications");
 const readNumber = (value, fallback = 0) => {
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : fallback;
@@ -60,24 +61,17 @@ const nextPaletteNumber = async () => {
     return `PAL-${todayCompact()}-${String(seq).padStart(3, "0")}`;
 };
 const createPackagingNotification = async (input) => {
-    try {
-        const notification = await prepareInsertDocument("system_notifications", {
-            notification_type: input.notification_type,
-            category: "packaging",
-            title: input.title,
-            message: input.message,
-            severity: input.severity,
-            entity_type: input.entity_type ?? null,
-            entity_id: input.entity_id ?? null,
-            metadata: input.metadata ?? null,
-            status: "ACTIVE",
-            is_read: false,
-        });
-        await Notifications().create([notification]);
-    }
-    catch (error) {
-        console.error("[Packaging] failed to create system notification:", error);
-    }
+    await emitNotification({
+        notificationType: input.notification_type,
+        category: "packaging",
+        space: "packaging",
+        title: input.title,
+        message: input.message,
+        severity: input.severity,
+        entityType: input.entity_type ?? null,
+        entityId: input.entity_id ?? null,
+        metadata: input.metadata ?? null,
+    });
 };
 const cleanPatch = (patch, blocked = []) => {
     const next = {};
@@ -514,6 +508,39 @@ let PackagingService = class PackagingService {
         }
         catch (error) {
             console.error("[Packaging] finished goods stock sync failed after sealing palette:", error);
+        }
+        try {
+            const order = sanitizeDocument(await PackagingOrders().findOne({ id: orderId }).lean().exec());
+            const sourceLotNumber = readString(order?.source_lot_number);
+            let parentLotId = null;
+            if (order?.source_sublot_id) {
+                const sublot = sanitizeDocument(await TriageSublots().findOne({ id: order.source_sublot_id }).lean().exec());
+                parentLotId = await lotLifecycleService.resolveReceptionLotId({
+                    lotNumber: readString(sublot?.parent_lot_number, sourceLotNumber),
+                    receptionId: readString(sublot?.parent_reception_id),
+                });
+            }
+            else if (sourceLotNumber) {
+                parentLotId = await lotLifecycleService.resolveReceptionLotId({ lotNumber: sourceLotNumber });
+            }
+            if (parentLotId) {
+                await lotLifecycleService.recordStageSafe({
+                    lotId: parentLotId,
+                    toStage: "PACKED",
+                    collection: "packaging_palettes",
+                    actorId: sealedBy || null,
+                    payload: {
+                        palette_id: id,
+                        palette_number: paletteNumber,
+                        sscc,
+                        seal_number: sealNumber || null,
+                    },
+                    route: "PREMIUM_WHOLE",
+                });
+            }
+        }
+        catch (error) {
+            console.error("[W1] packaging golden-thread stage failed:", error);
         }
         return { sscc, palette_number: paletteNumber };
     }
