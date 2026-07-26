@@ -11,6 +11,7 @@ import { AuthModule } from "../modules/auth/auth.module.js";
 import { BatchesModule } from "../modules/batches/batches.module.js";
 import { CollectionsModule } from "../modules/collections/collections.module.js";
 import { HrModule } from "../modules/hr/hr.module.js";
+import { MaintenanceModule } from "../modules/maintenance/maintenance.module.js";
 import { MaterialReceptionsModule } from "../modules/material-receptions/material-receptions.module.js";
 import { MaterialsModule } from "../modules/materials/materials.module.js";
 import { QualityExtModule } from "../modules/quality-ext/quality-ext.module.js";
@@ -69,6 +70,7 @@ import { GuardsModule } from "./guards.module.js";
     ReceptionsExtModule,
     MaterialReceptionsModule,
     HrModule,
+    MaintenanceModule,
     TransportMgmtModule,
     QualityExtModule,
     DocumentPrintsModule,

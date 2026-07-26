@@ -80,6 +80,10 @@ export const HR_ROLES = [
     "directeur_usine",
     "administrateur_systeme",
 ];
+export const MAINTENANCE_ROLES = [
+    "responsable_maintenance",
+    "technicien_maintenance",
+];
 export const tableWritePolicy = {
     suppliers: [...PURCHASING_ROLES, ...RECEPTION_ROLES],
     materials: [...PURCHASING_ROLES],
@@ -93,6 +97,18 @@ export const tableWritePolicy = {
         "responsable_logistique",
         "responsable_reception",
         "chef_reception",
+        "directeur_general",
+        "directeur_usine",
+        "administrateur_systeme",
+    ],
+    maintenance_requests: [
+        ...MAINTENANCE_ROLES,
+        ...PRODUCTION_ROLES,
+        ...QUALITY_ROLES,
+        ...STOCK_ROLES,
+        "responsable_reception",
+        "chef_reception",
+        "responsable_achats",
         "directeur_general",
         "directeur_usine",
         "administrateur_systeme",
@@ -211,6 +227,7 @@ export const SPACE_ROLES = {
     packaging: Array.from(new Set([...PRODUCTION_ROLES, ...STOCK_ROLES])),
     purchasing: [...PURCHASING_ROLES],
     suppliers: Array.from(new Set([...PURCHASING_ROLES, ...RECEPTION_ROLES])),
+    maintenance: Array.from(new Set([...MAINTENANCE_ROLES, ...PRODUCTION_ROLES])),
     hr: [...HR_ROLES],
     alerts: [],
     system: [],

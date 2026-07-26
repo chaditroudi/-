@@ -61,6 +61,7 @@ const CATEGORY_TO_SPACE: Record<string, string> = {
   export: "export",
   purchasing: "purchasing",
   achats: "purchasing",
+  maintenance: "maintenance",
   system: "alerts",
 };
 

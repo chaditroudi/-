@@ -1,0 +1,135 @@
+/**
+ * Maintenance-request workflow — second consumer of the reusable approval
+ * engine (approval-engine.ts). Reuses org membership for permissions and the
+ * shared transition/history primitives.
+ *
+ * DRAFT → SUBMITTED → MAINTENANCE_REVIEW → FINANCE_APPROVAL (by threshold)
+ *   → APPROVED → COMPLETED
+ * Branches: REJECTED | RETURNED_FOR_CHANGES | CANCELLED
+ *
+ * Routing intent: the requester's own department manager first authorises the
+ * need, then the Maintenance manager accepts the work; expensive interventions
+ * additionally require finance (DAF) sign-off.
+ */
+import { normalizeDepartment } from "../org/departments.js";
+import { canDepartmentApprove, canFinanceApprove } from "../org/membership.js";
+import { approveWorkflow, cancelWorkflow, manualTransitionWorkflow, normalizeStatus, rejectWorkflow, returnWorkflow, submitWorkflow, } from "./approval-engine.js";
+export const MAINTENANCE_REQUEST_STATUSES = [
+    "DRAFT",
+    "SUBMITTED",
+    "MAINTENANCE_REVIEW",
+    "FINANCE_APPROVAL",
+    "APPROVED",
+    "COMPLETED",
+    "REJECTED",
+    "RETURNED_FOR_CHANGES",
+    "CANCELLED",
+];
+export const MAINTENANCE_FINANCE_THRESHOLD = 5000;
+const LEGACY_STATUS_MAP = {
+    draft: "DRAFT",
+    submitted: "SUBMITTED",
+    pending_approval: "SUBMITTED",
+    maintenance_review: "MAINTENANCE_REVIEW",
+    finance_approval: "FINANCE_APPROVAL",
+    approved: "APPROVED",
+    scheduled: "APPROVED",
+    completed: "COMPLETED",
+    done: "COMPLETED",
+    closed: "COMPLETED",
+    rejected: "REJECTED",
+    returned_for_changes: "RETURNED_FOR_CHANGES",
+    cancelled: "CANCELLED",
+    canceled: "CANCELLED",
+};
+const requesterDepartment = (state) => normalizeDepartment(state.department);
+const deptManagerLevel = {
+    level: "dept_manager",
+    threshold_gte: 0,
+    label: "Responsable du département demandeur",
+    pendingStatus: "SUBMITTED",
+    department: (state) => requesterDepartment(state),
+    canApprove: (membership, department) => canDepartmentApprove(membership, department),
+    forbiddenMessage: (department) => `Seul le responsable du département ${department || "demandeur"} peut valider cette demande.`,
+};
+const maintenanceManagerLevel = {
+    level: "maintenance_manager",
+    threshold_gte: 0,
+    label: "Responsable Maintenance",
+    pendingStatus: "MAINTENANCE_REVIEW",
+    department: () => "maintenance",
+    canApprove: (membership) => canDepartmentApprove(membership, "maintenance"),
+    forbiddenMessage: () => "Seul le responsable Maintenance peut valider cette étape.",
+};
+const financeLevel = {
+    level: "daf",
+    threshold_gte: MAINTENANCE_FINANCE_THRESHOLD,
+    label: "DAF",
+    pendingStatus: "FINANCE_APPROVAL",
+    department: () => "finance",
+    canApprove: (membership) => canFinanceApprove(membership, "daf"),
+    forbiddenMessage: () => "Seul le DAF peut valider ce niveau de dépense.",
+};
+export const MAINTENANCE_WORKFLOW = {
+    key: "maintenance_request",
+    entityType: "maintenance_requests",
+    entityLabel: "demande de maintenance",
+    entityShort: "DM",
+    statuses: MAINTENANCE_REQUEST_STATUSES,
+    legacyStatusMap: LEGACY_STATUS_MAP,
+    initialStatus: "DRAFT",
+    approvedStatus: "APPROVED",
+    rejectedStatus: "REJECTED",
+    returnedStatus: "RETURNED_FOR_CHANGES",
+    cancelledStatus: "CANCELLED",
+    submittableFrom: ["DRAFT", "RETURNED_FOR_CHANGES"],
+    actionableStatuses: ["SUBMITTED", "MAINTENANCE_REVIEW", "FINANCE_APPROVAL"],
+    nonCancellableStatuses: ["COMPLETED", "CANCELLED", "REJECTED"],
+    amountOf: (state) => {
+        const parsed = Number(state.estimated_cost);
+        return Number.isFinite(parsed) ? parsed : 0;
+    },
+    requesterDepartment,
+    resolveLevels: (state) => {
+        const department = requesterDepartment(state);
+        const levels = [];
+        // When the requester already belongs to Maintenance, the maintenance
+        // manager sign-off covers the departmental authorisation — skip the
+        // duplicate dept-manager level (which would also deadlock SoD).
+        if (department && department !== "maintenance") {
+            levels.push(deptManagerLevel);
+        }
+        levels.push(maintenanceManagerLevel);
+        levels.push(financeLevel);
+        return levels;
+    },
+};
+export const normalizeMaintenanceRequestStatus = (value) => normalizeStatus(MAINTENANCE_WORKFLOW, value);
+export const isMaintenanceRequestPending = (value) => MAINTENANCE_WORKFLOW.actionableStatuses.includes(normalizeMaintenanceRequestStatus(value));
+export const isMaintenanceRequestOpen = (value) => {
+    const status = normalizeMaintenanceRequestStatus(value);
+    return (status === "DRAFT" ||
+        status === "RETURNED_FOR_CHANGES" ||
+        status === "APPROVED" ||
+        MAINTENANCE_WORKFLOW.actionableStatuses.includes(status));
+};
+export const submitMaintenanceRequest = (state, actor, options) => submitWorkflow(MAINTENANCE_WORKFLOW, state, actor, options);
+export const approveMaintenanceRequest = (state, actor, options) => approveWorkflow(MAINTENANCE_WORKFLOW, state, actor, options);
+export const rejectMaintenanceRequest = (state, actor, reason) => rejectWorkflow(MAINTENANCE_WORKFLOW, state, actor, reason);
+export const returnMaintenanceRequest = (state, actor, reason) => returnWorkflow(MAINTENANCE_WORKFLOW, state, actor, reason);
+export const cancelMaintenanceRequest = (state, actor, reason) => cancelWorkflow(MAINTENANCE_WORKFLOW, state, actor, reason);
+export const completeMaintenanceRequest = (state, actor, reason) => manualTransitionWorkflow(MAINTENANCE_WORKFLOW, state, actor, {
+    action: "complete",
+    toStatus: "COMPLETED",
+    allowedFrom: ["APPROVED"],
+    reason,
+    canPerform: (membership) => canDepartmentApprove(membership, "maintenance") ||
+        membership.mesRoles.some((role) => [
+            "responsable_maintenance",
+            "technicien_maintenance",
+            "administrateur_systeme",
+            "directeur_general",
+            "directeur_usine",
+        ].includes(role)),
+    forbiddenMessage: "Seule l'équipe Maintenance peut clôturer l'intervention.",
+});

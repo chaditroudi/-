@@ -10,6 +10,7 @@ export type AppTab =
   | 'packaging'
   | 'logistics'
   | 'purchasing'
+  | 'maintenance'
   | 'analytics'
   | 'alerts'
   | 'suppliers'
@@ -66,6 +67,7 @@ const ALL_APP_TABS: AppTab[] = [
   'packaging',
   'logistics',
   'purchasing',
+  'maintenance',
   'analytics',
   'alerts',
   'suppliers',
@@ -113,7 +115,7 @@ const ROLE_WORKSPACES: Record<ActorRole, RoleWorkspaceProfile> = {
     workspaceLabel: 'Pilotage global usine',
     defaultTab: 'home',
     primaryTabs: ['home', 'production', 'packaging', 'receptions', 'storage', 'alerts', 'analytics', 'export', 'customers', 'sage-operations'],
-    quickTabs: ['quality', 'suppliers', 'purchasing', 'logistics', 'hr', 'settings'],
+    quickTabs: ['quality', 'suppliers', 'purchasing', 'logistics', 'maintenance', 'hr', 'settings'],
     actions: ['executive_dashboard', 'production_supervision', 'quality_supervision', 'shipping_planning', 'purchasing_management'],
   },
   directeur_general: {
@@ -122,7 +124,7 @@ const ROLE_WORKSPACES: Record<ActorRole, RoleWorkspaceProfile> = {
     workspaceLabel: 'Direction et arbitrage',
     defaultTab: 'home',
     primaryTabs: ['home', 'analytics', 'alerts', 'export', 'customers', 'sage-operations', 'production', 'packaging', 'receptions'],
-    quickTabs: ['quality', 'purchasing', 'logistics', 'suppliers', 'storage', 'hr', 'settings'],
+    quickTabs: ['quality', 'purchasing', 'logistics', 'suppliers', 'storage', 'maintenance', 'hr', 'settings'],
     actions: ['executive_dashboard', 'production_supervision', 'quality_supervision', 'shipping_planning', 'purchasing_management', 'user_permissions_admin'],
   },
   responsable_production: {
@@ -131,7 +133,7 @@ const ROLE_WORKSPACES: Record<ActorRole, RoleWorkspaceProfile> = {
     workspaceLabel: 'Supervision production',
     defaultTab: 'production',
     primaryTabs: ['production', 'packaging', 'storage', 'alerts', 'home'],
-    quickTabs: ['sage-operations', 'analytics', 'hr'],
+    quickTabs: ['maintenance', 'sage-operations', 'analytics', 'hr'],
     actions: ['production_supervision'],
   },
   responsable_qualite: {
@@ -140,7 +142,7 @@ const ROLE_WORKSPACES: Record<ActorRole, RoleWorkspaceProfile> = {
     workspaceLabel: 'Pilotage qualité',
     defaultTab: 'receptions',
     primaryTabs: ['receptions', 'quality', 'alerts', 'storage', 'home'],
-    quickTabs: ['sage-operations', 'analytics', 'hr'],
+    quickTabs: ['maintenance', 'sage-operations', 'analytics', 'hr'],
     actions: ['quality_supervision', 'qc_entry_scan', 'production_supervision'],
   },
   inspecteur_qualite: {
@@ -246,8 +248,8 @@ const ROLE_WORKSPACES: Record<ActorRole, RoleWorkspaceProfile> = {
     role: 'responsable_maintenance',
     interfaceLabel: 'Application mobile',
     workspaceLabel: 'Supervision maintenance',
-    defaultTab: 'alerts',
-    primaryTabs: ['alerts', 'home'],
+    defaultTab: 'maintenance',
+    primaryTabs: ['maintenance', 'alerts', 'home'],
     quickTabs: ['production', 'hr'],
     actions: ['maintenance_management'],
   },
@@ -255,8 +257,8 @@ const ROLE_WORKSPACES: Record<ActorRole, RoleWorkspaceProfile> = {
     role: 'technicien_maintenance',
     interfaceLabel: 'Tablette terrain',
     workspaceLabel: 'Interventions maintenance',
-    defaultTab: 'alerts',
-    primaryTabs: ['alerts', 'home'],
+    defaultTab: 'maintenance',
+    primaryTabs: ['maintenance', 'alerts', 'home'],
     quickTabs: ['production'],
     actions: ['maintenance_interventions'],
   },
@@ -347,7 +349,7 @@ const ROLE_WORKSPACES: Record<ActorRole, RoleWorkspaceProfile> = {
     workspaceLabel: 'Responsable stock',
     defaultTab: 'storage',
     primaryTabs: ['storage', 'alerts', 'purchasing', 'home'],
-    quickTabs: ['hr'],
+    quickTabs: ['maintenance', 'hr'],
     actions: ['warehouse_operations'],
   },
   partenaire_client_export: {

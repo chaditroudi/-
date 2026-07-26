@@ -41,6 +41,7 @@ const QualityDashboard       = lazy(() => import('@/components/quality/QualityDa
 const SettingsDashboard      = lazy(() => import('@/components/settings/SettingsDashboard').then(m => ({ default: m.SettingsDashboard })));
 const AnalyticsDashboard     = lazy(() => import('@/components/analytics').then(m => ({ default: m.AnalyticsDashboard })));
 const PurchasingDashboard    = lazy(() => import('@/components/purchasing').then(m => ({ default: m.PurchasingDashboard })));
+const MaintenanceDashboard   = lazy(() => import('@/components/maintenance').then(m => ({ default: m.MaintenanceDashboard })));
 const LogisticsDashboard     = lazy(() => import('@/components/logistics').then(m => ({ default: m.LogisticsDashboard })));
 const HRDashboard            = lazy(() => import('@/components/employees').then(m => ({ default: m.HRDashboard })));
 const ScanStation            = lazy(() => import('@/components/scan/ScanStation').then(m => ({ default: m.ScanStation })));
@@ -72,7 +73,7 @@ const TAB_SECTION_LABEL: Partial<Record<AppTab, string>> = {
   "stock-dashboard": "Flux usine — Étape 2", "stock-lots": "Flux usine — Étape 2",
   "stock-products": "Flux usine — Étape 2", "stock-movements": "Flux usine — Étape 2",
   suppliers: "Gestion", materials: "Gestion", purchasing: "Gestion",
-  quality: "Gestion", hr: "Gestion",
+  maintenance: "Gestion", quality: "Gestion", hr: "Gestion",
   analytics: "Pilotage", "sage-operations": "Pilotage", export: "Pilotage", customers: "Pilotage",
   settings: "Administration",
 };
@@ -379,6 +380,8 @@ const Index = () => {
         return <MaterialsList materials={materials} canManage={canManagePurchasingData} />;
       case 'purchasing':
         return <PurchasingDashboard onNavigate={handleNavigate} />;
+      case 'maintenance':
+        return <MaintenanceDashboard />;
       case 'logistics':
         return <LogisticsDashboard />;
       case 'hr':

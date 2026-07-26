@@ -26,7 +26,8 @@
     "smoke:w3": "node --env-file=.env scripts/smoke-w3.mjs",
     "demo:golden-thread": "node --env-file=.env scripts/demo-golden-thread.mjs",
     "smoke:wave-a": "node --env-file=.env scripts/smoke-wave-a.mjs",
-    "smoke:pr-workflow": "node --env-file=.env scripts/smoke-pr-workflow.mjs"
+    "smoke:pr-workflow": "node --env-file=.env scripts/smoke-pr-workflow.mjs",
+    "smoke:maintenance-workflow": "node --env-file=.env scripts/smoke-maintenance-workflow.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

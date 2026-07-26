@@ -19,6 +19,7 @@ import {
   Warehouse,
   FileSignature,
   BookUser,
+  Wrench,
   type LucideIcon,
 } from "lucide-react";
 import type { AppTab } from "@/lib/roleAccess";
@@ -94,6 +95,13 @@ export const APP_TAB_META: Record<AppTab, AppTabMeta> = {
     icon: ShoppingCart,
     pageTitle: "Achats",
     pageSubtitle: "Demandes, commandes et engagements fournisseurs.",
+  },
+  maintenance: {
+    label: "Maintenance",
+    shortLabel: "Mainten.",
+    icon: Wrench,
+    pageTitle: "Maintenance",
+    pageSubtitle: "Demandes d'intervention — circuit de validation département → Maintenance → DAF.",
   },
   analytics: {
     label: "Analytics",

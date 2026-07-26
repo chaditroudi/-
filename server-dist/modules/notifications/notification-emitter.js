@@ -23,6 +23,7 @@ const CATEGORY_TO_SPACE = {
     export: "export",
     purchasing: "purchasing",
     achats: "purchasing",
+    maintenance: "maintenance",
     system: "alerts",
 };
 const normalizeSeverity = (value) => {

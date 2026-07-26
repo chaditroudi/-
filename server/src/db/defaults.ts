@@ -294,6 +294,19 @@ export const prepareInsertDocument = async (collection: string, rawInput: Record
     doc.status = doc.status || "DRAFT";
   }
 
+  if (collection === "maintenance_requests") {
+    doc.request_number = doc.request_number || (await nextDailyNumber("DM"));
+    doc.status = doc.status || "DRAFT";
+    doc.priority = doc.priority || "normal";
+    doc.approvals = Array.isArray(doc.approvals) ? doc.approvals : [];
+    doc.workflow_history = Array.isArray(doc.workflow_history) ? doc.workflow_history : [];
+    doc.current_approval_level = doc.current_approval_level ?? null;
+    doc.approved_by = doc.approved_by ?? null;
+    doc.approved_at = doc.approved_at ?? null;
+    doc.rejection_reason = doc.rejection_reason ?? null;
+    doc.completed_at = doc.completed_at ?? null;
+  }
+
   if (collection === "purchase_orders") {
     doc.order_number = doc.order_number || (await nextDailyNumber("BC"));
     doc.status = doc.status || "draft";

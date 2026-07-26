@@ -22,6 +22,8 @@ const ACTORS = [
   ["responsable_stock", "Sami Resp. Stock", ["magasin"], ["stock"], "stock", ["employee", "department_manager"]],
   ["responsable_logistique", "Lotfi Logistique", ["logistique"], ["logistics"], "logistics", ["employee", "department_manager"]],
   ["responsable_production", "Pauline Resp. Prod", ["production"], ["production"], "production", ["employee", "department_manager"]],
+  ["responsable_maintenance", "Nabil Resp. Maintenance", ["maintenance"], ["maintenance"], "maintenance", ["employee", "department_manager"]],
+  ["technicien_maintenance", "Talel Technicien Maint.", ["maintenance"], ["maintenance"], "maintenance", ["employee"]],
   ["responsable_achats", "Amira Acheteuse", ["achat"], ["purchasing"], "purchasing", ["employee", "purchasing_officer"]],
   ["directeur_achat", "Karim Dir. Achats", ["achat"], ["purchasing"], "purchasing", ["employee", "purchasing_manager"]],
   ["directeur_usine", "Driss Directeur Usine", ["direction"], ["direction"], "direction", ["employee", "finance_director"]],

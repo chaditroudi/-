@@ -93,6 +93,11 @@ export const HR_ROLES = [
   "administrateur_systeme",
 ];
 
+export const MAINTENANCE_ROLES = [
+  "responsable_maintenance",
+  "technicien_maintenance",
+];
+
 export const tableWritePolicy: Record<string, string[]> = {
   suppliers: [...PURCHASING_ROLES, ...RECEPTION_ROLES],
   materials: [...PURCHASING_ROLES],
@@ -106,6 +111,18 @@ export const tableWritePolicy: Record<string, string[]> = {
     "responsable_logistique",
     "responsable_reception",
     "chef_reception",
+    "directeur_general",
+    "directeur_usine",
+    "administrateur_systeme",
+  ],
+  maintenance_requests: [
+    ...MAINTENANCE_ROLES,
+    ...PRODUCTION_ROLES,
+    ...QUALITY_ROLES,
+    ...STOCK_ROLES,
+    "responsable_reception",
+    "chef_reception",
+    "responsable_achats",
     "directeur_general",
     "directeur_usine",
     "administrateur_systeme",
@@ -237,6 +254,7 @@ export const SPACE_ROLES: Record<string, string[]> = {
   packaging: Array.from(new Set([...PRODUCTION_ROLES, ...STOCK_ROLES])),
   purchasing: [...PURCHASING_ROLES],
   suppliers: Array.from(new Set([...PURCHASING_ROLES, ...RECEPTION_ROLES])),
+  maintenance: Array.from(new Set([...MAINTENANCE_ROLES, ...PRODUCTION_ROLES])),
   hr: [...HR_ROLES],
   alerts: [],
   system: [],
