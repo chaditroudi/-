@@ -52,10 +52,10 @@ const assertActor = (actor) => {
     }
     return membership;
 };
-const assertNotSelfApprove = (state, membership) => {
+const assertNotSelfApprove = (def, state, membership) => {
     const requesterId = readString(state.requester_id);
     if (requesterId && requesterId === membership.userId) {
-        throw badRequest("SOD_VIOLATION", "RG-VAL-02 — Un demandeur ne peut pas valider sa propre demande.");
+        throw badRequest("SOD_VIOLATION", `RG-VAL-02 — Un demandeur ne peut pas valider sa propre ${def.entityLabel}.`);
     }
 };
 const assertNotDoubleSign = (state, membership) => {
@@ -71,11 +71,11 @@ export const submitWorkflow = (def, state, actor, options) => {
     const membership = assertActor(actor);
     const from = normalizeStatus(def, state.status);
     if (!def.submittableFrom.includes(from)) {
-        throw badRequest("INVALID_TRANSITION", `Impossible de soumettre depuis le statut ${from}.`);
+        throw badRequest("INVALID_TRANSITION", `Impossible de soumettre une ${def.entityLabel} en statut ${from}.`);
     }
     const department = def.requesterDepartment(state) || membership.primaryDepartment;
     if (!department) {
-        throw badRequest("DEPARTMENT_REQUIRED", "Un département est requis pour la soumission.");
+        throw badRequest("DEPARTMENT_REQUIRED", `Un département est requis pour soumettre une ${def.entityLabel}.`);
     }
     const stateWithDept = { ...state, department };
     const required = requiredLevels(def, stateWithDept);
@@ -109,7 +109,7 @@ export const submitWorkflow = (def, state, actor, options) => {
 };
 export const approveWorkflow = (def, state, actor, options) => {
     const membership = assertActor(actor);
-    assertNotSelfApprove(state, membership);
+    assertNotSelfApprove(def, state, membership);
     assertNotDoubleSign(state, membership);
     const from = normalizeStatus(def, state.status);
     const required = requiredLevels(def, state);
@@ -118,7 +118,7 @@ export const approveWorkflow = (def, state, actor, options) => {
     if (!nextStep) {
         throw badRequest("NO_PENDING_APPROVAL", "Aucun niveau d'approbation en attente.");
     }
-    if (from !== nextStep.pendingStatus) {
+    if (from !== nextStep.pendingStatus && !(nextStep.acceptFrom ?? []).includes(from)) {
         throw badRequest("INVALID_TRANSITION", `Approbation « ${nextStep.level} » invalide depuis le statut ${from}.`);
     }
     const department = departmentForLevel(def, nextStep, state);
@@ -162,7 +162,7 @@ export const approveWorkflow = (def, state, actor, options) => {
 };
 export const rejectWorkflow = (def, state, actor, reason) => {
     const membership = assertActor(actor);
-    assertNotSelfApprove(state, membership);
+    assertNotSelfApprove(def, state, membership);
     if (!readString(reason)) {
         throw badRequest("REJECTION_REASON_REQUIRED", "Un motif de rejet est requis.");
     }
@@ -195,7 +195,7 @@ export const rejectWorkflow = (def, state, actor, reason) => {
 };
 export const returnWorkflow = (def, state, actor, reason) => {
     const membership = assertActor(actor);
-    assertNotSelfApprove(state, membership);
+    assertNotSelfApprove(def, state, membership);
     if (!readString(reason)) {
         throw badRequest("RETURN_REASON_REQUIRED", "Un motif de retour est requis.");
     }
@@ -238,7 +238,7 @@ export const cancelWorkflow = (def, state, actor, reason) => {
     const adminRoles = def.adminCancelRoles ?? DEFAULT_ADMIN_CANCEL_ROLES;
     const isAdmin = membership.mesRoles.some((role) => adminRoles.includes(role));
     if (!isRequester && !isAdmin) {
-        throw forbidden("Seul le demandeur (ou un administrateur) peut annuler cette demande.");
+        throw forbidden(`Seul le demandeur (ou un administrateur) peut annuler cette ${def.entityLabel}.`);
     }
     const to = def.cancelledStatus;
     const transition = buildTransitionRecord({

@@ -54,6 +54,11 @@ export type ApprovalLevel = {
   label: string;
   /** Status the record sits in while awaiting this level. */
   pendingStatus: string;
+  /**
+   * Extra from-statuses accepted for this level beyond `pendingStatus`, for
+   * records written by an earlier version of the circuit.
+   */
+  acceptFrom?: string[];
   /** Department to attribute/check for this level; defaults to requester dept. */
   department?: (state: GenericWorkflowState) => DepartmentCode | null;
   /** Whether the acting membership may sign this level. */
@@ -147,12 +152,16 @@ const assertActor = (actor: ActorIdentity): OrgMembership => {
   return membership;
 };
 
-const assertNotSelfApprove = (state: GenericWorkflowState, membership: OrgMembership) => {
+const assertNotSelfApprove = (
+  def: WorkflowDefinition,
+  state: GenericWorkflowState,
+  membership: OrgMembership,
+) => {
   const requesterId = readString(state.requester_id);
   if (requesterId && requesterId === membership.userId) {
     throw badRequest(
       "SOD_VIOLATION",
-      "RG-VAL-02 — Un demandeur ne peut pas valider sa propre demande.",
+      `RG-VAL-02 — Un demandeur ne peut pas valider sa propre ${def.entityLabel}.`,
     );
   }
 };
@@ -187,12 +196,18 @@ export const submitWorkflow = (
   const membership = assertActor(actor);
   const from = normalizeStatus(def, state.status);
   if (!def.submittableFrom.includes(from)) {
-    throw badRequest("INVALID_TRANSITION", `Impossible de soumettre depuis le statut ${from}.`);
+    throw badRequest(
+      "INVALID_TRANSITION",
+      `Impossible de soumettre une ${def.entityLabel} en statut ${from}.`,
+    );
   }
 
   const department = def.requesterDepartment(state) || membership.primaryDepartment;
   if (!department) {
-    throw badRequest("DEPARTMENT_REQUIRED", "Un département est requis pour la soumission.");
+    throw badRequest(
+      "DEPARTMENT_REQUIRED",
+      `Un département est requis pour soumettre une ${def.entityLabel}.`,
+    );
   }
 
   const stateWithDept: GenericWorkflowState = { ...state, department };
@@ -235,7 +250,7 @@ export const approveWorkflow = (
   options?: { reason?: string | null },
 ): WorkflowDecision => {
   const membership = assertActor(actor);
-  assertNotSelfApprove(state, membership);
+  assertNotSelfApprove(def, state, membership);
   assertNotDoubleSign(state, membership);
 
   const from = normalizeStatus(def, state.status);
@@ -246,7 +261,7 @@ export const approveWorkflow = (
   if (!nextStep) {
     throw badRequest("NO_PENDING_APPROVAL", "Aucun niveau d'approbation en attente.");
   }
-  if (from !== nextStep.pendingStatus) {
+  if (from !== nextStep.pendingStatus && !(nextStep.acceptFrom ?? []).includes(from)) {
     throw badRequest(
       "INVALID_TRANSITION",
       `Approbation « ${nextStep.level} » invalide depuis le statut ${from}.`,
@@ -304,7 +319,7 @@ export const rejectWorkflow = (
   reason: string,
 ): WorkflowDecision => {
   const membership = assertActor(actor);
-  assertNotSelfApprove(state, membership);
+  assertNotSelfApprove(def, state, membership);
 
   if (!readString(reason)) {
     throw badRequest("REJECTION_REASON_REQUIRED", "Un motif de rejet est requis.");
@@ -347,7 +362,7 @@ export const returnWorkflow = (
   reason: string,
 ): WorkflowDecision => {
   const membership = assertActor(actor);
-  assertNotSelfApprove(state, membership);
+  assertNotSelfApprove(def, state, membership);
 
   if (!readString(reason)) {
     throw badRequest("RETURN_REASON_REQUIRED", "Un motif de retour est requis.");
@@ -401,7 +416,9 @@ export const cancelWorkflow = (
   const adminRoles = def.adminCancelRoles ?? DEFAULT_ADMIN_CANCEL_ROLES;
   const isAdmin = membership.mesRoles.some((role) => adminRoles.includes(role));
   if (!isRequester && !isAdmin) {
-    throw forbidden("Seul le demandeur (ou un administrateur) peut annuler cette demande.");
+    throw forbidden(
+      `Seul le demandeur (ou un administrateur) peut annuler cette ${def.entityLabel}.`,
+    );
   }
 
   const to = def.cancelledStatus;

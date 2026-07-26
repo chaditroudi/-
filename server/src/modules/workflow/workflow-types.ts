@@ -44,7 +44,7 @@ export const PURCHASE_REQUISITION_STATUSES = [
 
 export type PurchaseRequisitionWorkflowStatus = (typeof PURCHASE_REQUISITION_STATUSES)[number];
 
-const LEGACY_STATUS_MAP: Record<string, PurchaseRequisitionWorkflowStatus> = {
+export const PR_LEGACY_STATUS_MAP: Record<string, PurchaseRequisitionWorkflowStatus> = {
   draft: "DRAFT",
   pending_approval: "SUBMITTED",
   submitted: "SUBMITTED",
@@ -66,7 +66,7 @@ export const normalizePurchaseRequisitionStatus = (
   if (!raw) return "DRAFT";
   const upper = raw.toUpperCase() as PurchaseRequisitionWorkflowStatus;
   if ((PURCHASE_REQUISITION_STATUSES as readonly string[]).includes(upper)) return upper;
-  return LEGACY_STATUS_MAP[raw.toLowerCase()] ?? "DRAFT";
+  return PR_LEGACY_STATUS_MAP[raw.toLowerCase()] ?? "DRAFT";
 };
 
 /** Statuses still waiting on an approval action. */

@@ -20,7 +20,7 @@ export const PURCHASE_REQUISITION_STATUSES = [
     "RETURNED_FOR_CHANGES",
     "CANCELLED",
 ];
-const LEGACY_STATUS_MAP = {
+export const PR_LEGACY_STATUS_MAP = {
     draft: "DRAFT",
     pending_approval: "SUBMITTED",
     submitted: "SUBMITTED",
@@ -41,7 +41,7 @@ export const normalizePurchaseRequisitionStatus = (value) => {
     const upper = raw.toUpperCase();
     if (PURCHASE_REQUISITION_STATUSES.includes(upper))
         return upper;
-    return LEGACY_STATUS_MAP[raw.toLowerCase()] ?? "DRAFT";
+    return PR_LEGACY_STATUS_MAP[raw.toLowerCase()] ?? "DRAFT";
 };
 /** Statuses still waiting on an approval action. */
 export const isPurchaseRequisitionPending = (status) => {
