@@ -61,30 +61,42 @@ export const createInMemoryModel = (
   };
   const select = (filter?: TestRow) => rows().filter((row) => matchesFilter(row, filter));
 
+  const runUpdate = (filter?: TestRow, update?: { $set?: TestRow }) => {
+    const run = async () => {
+      const row = select(filter)[0];
+      if (row && update?.$set) Object.assign(row, update.$set);
+      return { acknowledged: true, modifiedCount: row ? 1 : 0 };
+    };
+    const promise = run();
+    return Object.assign(promise, { exec: () => promise });
+  };
+
+  const runUpdateMany = (filter?: TestRow, update?: { $set?: TestRow }) => {
+    const run = async () => {
+      const matched = select(filter);
+      if (update?.$set) matched.forEach((row) => Object.assign(row, update.$set as TestRow));
+      return { acknowledged: true, modifiedCount: matched.length };
+    };
+    const promise = run();
+    return Object.assign(promise, { exec: () => promise });
+  };
+
   return {
     find: (filter?: TestRow) => buildQuery(select(filter), false),
     findOne: (filter?: TestRow) => buildQuery(select(filter), true),
     create: async (incoming: TestRow[]) => insert(incoming),
     insertMany: async (incoming: TestRow[]) => insert(incoming),
-    updateOne: (filter?: TestRow, update?: { $set?: TestRow }) => ({
-      exec: async () => {
-        const row = select(filter)[0];
-        if (row && update?.$set) Object.assign(row, update.$set);
-        return { acknowledged: true };
-      },
-    }),
-    updateMany: (filter?: TestRow, update?: { $set?: TestRow }) => ({
-      exec: async () => {
-        if (update?.$set) select(filter).forEach((row) => Object.assign(row, update.$set as TestRow));
-        return { acknowledged: true };
-      },
-    }),
+    updateOne: runUpdate,
+    updateMany: runUpdateMany,
     deleteMany: (filter?: TestRow) => ({
       exec: async () => {
         const removed = select(filter);
         store[collection] = rows().filter((row) => !removed.includes(row));
         return { acknowledged: true, deletedCount: removed.length };
       },
+    }),
+    countDocuments: (filter?: TestRow) => ({
+      exec: async () => select(filter).length,
     }),
   };
 };

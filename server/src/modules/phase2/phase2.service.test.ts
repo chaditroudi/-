@@ -88,11 +88,13 @@ describe("phase2Service golden-thread stages", () => {
         status: "EN_COURS",
         parent_lot_number: "LOT-TRI",
         parent_reception_id: "rec-1",
+        parent_weight_kg: 175,
         session_number: "TRI-1",
         weight_extra_kg: 100,
         weight_cat1_kg: 50,
         weight_cat2_kg: 20,
         weight_reject_kg: 5,
+        total_sorted_kg: 175,
         created_by: "user-1",
         started_at: "2026-07-26T08:00:00.000Z",
       },
@@ -103,5 +105,28 @@ describe("phase2Service golden-thread stages", () => {
     const events = (store.lot_events || []) as unknown as LotEventRecord[];
     expect(events.map((event) => event.event_type)).toContain("TRANSFORMED");
     expect(verifyLotEventChain(events).valid).toBe(true);
+  });
+
+  it("blocks triage close when grade splits do not reconcile under enforce", async () => {
+    vi.stubEnv("TRUST_MASS_BALANCE_GATE", "enforce");
+    store.triage_sessions = [
+      {
+        id: "session-unbalanced",
+        status: "EN_COURS",
+        parent_lot_number: "LOT-BAD",
+        parent_reception_id: "rec-1",
+        parent_weight_kg: 1000,
+        session_number: "TRI-BAD",
+        weight_extra_kg: 100,
+        weight_cat1_kg: 50,
+        weight_cat2_kg: 20,
+        weight_reject_kg: 5,
+        started_at: "2026-07-26T08:00:00.000Z",
+      },
+    ];
+
+    await expect(phase2Service.closeTriageSession("session-unbalanced")).rejects.toMatchObject({
+      code: "MASS_BALANCE_UNBALANCED",
+    });
   });
 });

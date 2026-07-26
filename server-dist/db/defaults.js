@@ -409,6 +409,10 @@ export const prepareInsertDocument = async (collection, rawInput) => {
         doc.target_units = Number(doc.target_units ?? 0);
         doc.produced_units = Number(doc.produced_units ?? 0);
         doc.rejected_units = Number(doc.rejected_units ?? 0);
+        doc.source_weight_kg = Number(doc.source_weight_kg ?? 0);
+        doc.produced_kg = Number(doc.produced_kg ?? 0);
+        doc.waste_kg = Number(doc.waste_kg ?? 0);
+        doc.mass_balance_variance_pct = doc.mass_balance_variance_pct ?? null;
         doc.checkweigher_count = Number(doc.checkweigher_count ?? 0);
         doc.checkweigher_failures = Number(doc.checkweigher_failures ?? 0);
         doc.metal_detector_failures = Number(doc.metal_detector_failures ?? 0);
@@ -499,6 +503,7 @@ export const prepareInsertDocument = async (collection, rawInput) => {
         doc.ph_water = doc.ph_water ?? null;
         doc.waste_weight_kg = doc.waste_weight_kg ?? null;
         doc.waste_category = doc.waste_category ?? null;
+        doc.mass_balance_variance_pct = doc.mass_balance_variance_pct ?? null;
         doc.waste_photo_urls = Array.isArray(doc.waste_photo_urls) ? doc.waste_photo_urls : [];
         doc.ended_at = doc.ended_at ?? null;
     }
@@ -539,6 +544,7 @@ export const prepareInsertDocument = async (collection, rawInput) => {
         doc.reject_percent = Number(doc.reject_percent ?? 0);
         doc.yield_kg_per_hour = doc.yield_kg_per_hour ?? null;
         doc.quality_score_percent = doc.quality_score_percent ?? null;
+        doc.mass_balance_variance_pct = doc.mass_balance_variance_pct ?? null;
         doc.ended_at = doc.ended_at ?? null;
         doc.duration_minutes = doc.duration_minutes ?? null;
     }
@@ -792,7 +798,9 @@ export const prepareInsertDocument = async (collection, rawInput) => {
         doc.actual_end_at = doc.actual_end_at ?? null;
         doc.target_output_kg = Number(doc.target_output_kg ?? 0);
         doc.actual_output_kg = Number(doc.actual_output_kg ?? 0);
+        doc.waste_kg = Number(doc.waste_kg ?? 0);
         doc.actual_yield_pct = doc.actual_yield_pct ?? null;
+        doc.mass_balance_variance_pct = doc.mass_balance_variance_pct ?? null;
         doc.input_lot_ids = Array.isArray(doc.input_lot_ids) ? doc.input_lot_ids : [];
         doc.created_by = doc.created_by ?? null;
         doc.notes = doc.notes ?? null;

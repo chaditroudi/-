@@ -65,6 +65,7 @@ const siteSettingsSchema = new mongoose.Schema(
       recall_coordinator: { type: String, default: null },
       allergen_tracking_enabled: { type: Boolean, default: false },
       cold_chain_monitoring_enabled: { type: Boolean, default: false },
+      mass_balance_tolerance_pct: { type: Number, default: 2 },
     },
     documents: {
       reception_prefix: { type: String, default: "REC" },

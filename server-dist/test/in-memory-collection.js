@@ -53,32 +53,42 @@ export const createInMemoryModel = (collection, store, options = {}) => {
         options.onInsert?.(incoming);
     };
     const select = (filter) => rows().filter((row) => matchesFilter(row, filter));
+    const runUpdate = (filter, update) => {
+        const run = async () => {
+            const row = select(filter)[0];
+            if (row && update?.$set)
+                Object.assign(row, update.$set);
+            return { acknowledged: true, modifiedCount: row ? 1 : 0 };
+        };
+        const promise = run();
+        return Object.assign(promise, { exec: () => promise });
+    };
+    const runUpdateMany = (filter, update) => {
+        const run = async () => {
+            const matched = select(filter);
+            if (update?.$set)
+                matched.forEach((row) => Object.assign(row, update.$set));
+            return { acknowledged: true, modifiedCount: matched.length };
+        };
+        const promise = run();
+        return Object.assign(promise, { exec: () => promise });
+    };
     return {
         find: (filter) => buildQuery(select(filter), false),
         findOne: (filter) => buildQuery(select(filter), true),
         create: async (incoming) => insert(incoming),
         insertMany: async (incoming) => insert(incoming),
-        updateOne: (filter, update) => ({
-            exec: async () => {
-                const row = select(filter)[0];
-                if (row && update?.$set)
-                    Object.assign(row, update.$set);
-                return { acknowledged: true };
-            },
-        }),
-        updateMany: (filter, update) => ({
-            exec: async () => {
-                if (update?.$set)
-                    select(filter).forEach((row) => Object.assign(row, update.$set));
-                return { acknowledged: true };
-            },
-        }),
+        updateOne: runUpdate,
+        updateMany: runUpdateMany,
         deleteMany: (filter) => ({
             exec: async () => {
                 const removed = select(filter);
                 store[collection] = rows().filter((row) => !removed.includes(row));
                 return { acknowledged: true, deletedCount: removed.length };
             },
+        }),
+        countDocuments: (filter) => ({
+            exec: async () => select(filter).length,
         }),
     };
 };

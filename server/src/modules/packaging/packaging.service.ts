@@ -4,6 +4,10 @@ import { badRequest, notFound } from "../../core/app-error.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
 import { lotLifecycleService } from "../trust/lot-lifecycle.service.js";
+import {
+  assertMassBalanceClosed,
+  resolveMassBalanceTolerancePct,
+} from "../trust/mass-balance.js";
 import { emitNotification } from "../notifications/notification-emitter.js";
 
 type LabelStatus = "BROUILLON" | "VALIDE" | "ARCHIVE";
@@ -394,26 +398,53 @@ export class PackagingService {
       ) as Record<string, unknown> | null;
 
       if (stockLot?.id) {
+        const consumeKg = readNumber(order.source_weight_kg);
+        const availableKg = readNumber(stockLot.current_quantity);
+        if (consumeKg <= 0) {
+          throw badRequest(
+            "SOURCE_WEIGHT_REQUIRED",
+            "source_weight_kg doit être > 0 pour consommer le lot triage.",
+          );
+        }
+        if (consumeKg > availableKg + 0.001) {
+          throw badRequest(
+            "INSUFFICIENT_STOCK",
+            `Poids demandé (${consumeKg} kg) supérieur au stock disponible (${availableKg} kg) sur ${order.source_lot_number}.`,
+            { consumeKg, availableKg, lotId: stockLot.id },
+          );
+        }
+
+        const remainingKg = Number(Math.max(0, availableKg - consumeKg).toFixed(3));
         await StockLots().updateOne(
           { id: stockLot.id },
-          { $set: { status: "CONSUMED", updated_at: now } },
+          {
+            $set: {
+              current_quantity: remainingKg,
+              status: remainingKg <= 0 ? "CONSUMED" : stockLot.status || "QUARANTINE",
+              updated_at: now,
+            },
+          },
         ).exec();
 
         const movement = await prepareInsertDocument("stock_movements", {
           movement_type: "CONSOMMATION",
           lot_id: stockLot.id,
           product_id: null,
-          quantity: readNumber(stockLot.current_quantity),
+          quantity: consumeKg,
           unit: stockLot.unit ?? "kg",
           document_type: "PACKAGING_ORDER",
           document_reference: order.order_number,
           performed_by: order.created_by ?? null,
-          notes: `Consommation par OF ${order.order_number}`,
+          notes: `Consommation partielle ${consumeKg} kg par OF ${order.order_number}`,
           created_at: now,
         });
         await StockMovements().create([movement]);
       }
     } catch (error) {
+      if ((error as { code?: string } | null)?.code === "INSUFFICIENT_STOCK"
+        || (error as { code?: string } | null)?.code === "SOURCE_WEIGHT_REQUIRED") {
+        throw error;
+      }
       console.error("[Packaging] triage stock consumption sync failed:", error);
     }
 
@@ -519,11 +550,42 @@ export class PackagingService {
       throw badRequest("START_TIME_REQUIRED", "started_at est requis pour clôturer l'ordre.");
     }
 
-    const producedUnits = readNumber(payload.produced_units, existing.produced_units);
-    const targetUnits = readNumber(payload.target_units, existing.target_units);
+    const producedUnits = readNumber(payload.produced_units, Number(existing.produced_units ?? 0));
+    const rejectedUnits = readNumber(payload.rejected_units, Number(existing.rejected_units ?? 0));
+    const targetUnits = readNumber(payload.target_units, Number(existing.target_units ?? 0));
     const orderNumber = readString(payload.order_number, existing.order_number, id);
+    const sourceWeightKg = readNumber(payload.source_weight_kg, Number(existing.source_weight_kg ?? 0));
+    const bomNetWeightG = readNumber(payload.bom_net_weight_g, Number(existing.bom_net_weight_g ?? 0));
     const now = new Date();
     const durationMinutes = Math.round((now.getTime() - new Date(startedAt).getTime()) / 60_000);
+
+    const palettes = sanitizeDocument(
+      await PackagingPalettes().find({ order_id: id }).lean().exec(),
+    ) as Array<Record<string, unknown>>;
+    const producedKg = palettes.reduce((sum, row) => sum + readNumber(row.net_weight_kg), 0);
+    const wasteFromRejected =
+      bomNetWeightG > 0 ? Number(((rejectedUnits * bomNetWeightG) / 1000).toFixed(3)) : 0;
+    const wasteKg = readNumber(payload.waste_kg, wasteFromRejected);
+
+    const balance = assertMassBalanceClosed(
+      {
+        inputKg: sourceWeightKg,
+        outputsKg: [producedKg],
+        wasteKg,
+      },
+      { tolerancePct: resolveMassBalanceTolerancePct(), context: `OF ${orderNumber}` },
+    );
+    if (balance.action === "warn") {
+      console.warn("[mass-balance] packaging order unbalanced:", { orderId: id, ...balance });
+      await createPackagingNotification({
+        notification_type: "MASS_BALANCE_WARN",
+        title: `Bilan matière OF ${orderNumber}`,
+        message: `Écart ${balance.variancePct}% (tolérance ±${balance.tolerancePct}%) — entrée ${balance.inputKg} kg vs produit ${balance.outputKg} kg + déchets ${balance.wasteKg} kg.`,
+        severity: "warning",
+        entity_type: "packaging_order",
+        entity_id: id,
+      });
+    }
 
     if (targetUnits > 0 && producedUnits / targetUnits < 0.95) {
       await createPackagingNotification({
@@ -541,6 +603,11 @@ export class PackagingService {
       {
         $set: {
           status: "TERMINE",
+          produced_units: producedUnits,
+          rejected_units: rejectedUnits,
+          produced_kg: producedKg,
+          waste_kg: wasteKg,
+          mass_balance_variance_pct: balance.variancePct,
           ended_at: now.toISOString(),
           duration_minutes: durationMinutes,
           updated_at: now.toISOString(),

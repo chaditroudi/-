@@ -58,6 +58,8 @@ export interface SiteQualitySettings {
   recall_coordinator: string | null;
   allergen_tracking_enabled: boolean;
   cold_chain_monitoring_enabled: boolean;
+  /** Closed mass-balance tolerance (% of input kg). Used by triage/cleaning/packaging/production. */
+  mass_balance_tolerance_pct: number;
 }
 
 export interface SiteDocumentSettings {
@@ -219,6 +221,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     recall_coordinator: null,
     allergen_tracking_enabled: false,
     cold_chain_monitoring_enabled: false,
+    mass_balance_tolerance_pct: 2,
   },
   documents: {
     reception_prefix: 'REC',

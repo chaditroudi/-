@@ -67,6 +67,7 @@ const DEFAULT_SETTINGS = {
     recall_coordinator: null,
     allergen_tracking_enabled: false,
     cold_chain_monitoring_enabled: false,
+    mass_balance_tolerance_pct: 2,
   },
   documents: {
     reception_prefix: "REC",

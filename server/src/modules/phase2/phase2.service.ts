@@ -8,6 +8,10 @@ import { buildGenealogyFromDossier } from "./genealogy-builder.js";
 import { lotLifecycleService } from "../trust/lot-lifecycle.service.js";
 import { lotLedgerService } from "../trust/lot-ledger.service.js";
 import { ccpGateMode, evaluateFumigationCcp } from "../trust/ccp-evidence.js";
+import {
+  assertMassBalanceClosed,
+  resolveMassBalanceTolerancePct,
+} from "../trust/mass-balance.js";
 import { emitNotification } from "../notifications/notification-emitter.js";
 
 const pushNotif = (arr: NotificationRow[], row: NotificationRow | null) => {
@@ -887,6 +891,14 @@ export class Phase2Service {
       throw badRequest("WASTE_REQUIRED", "Les donnees de dechets sont requises pour cloturer le cycle.");
     }
 
+    const balance = assertMassBalanceClosed(
+      { inputKg: weightInKg, outputsKg: [weightOutKg], wasteKg: wasteWeightKg },
+      { tolerancePct: resolveMassBalanceTolerancePct(), context: `nettoyage ${id}` },
+    );
+    if (balance.action === "warn") {
+      console.warn("[mass-balance] cleaning cycle unbalanced:", balance);
+    }
+
     const yieldPercent = weightInKg > 0 ? round1((weightOutKg / weightInKg) * 100) : null;
     const now = nowIso();
 
@@ -900,6 +912,7 @@ export class Phase2Service {
           yield_percent: yieldPercent,
           waste_weight_kg: wasteWeightKg,
           waste_category: wasteCategory,
+          mass_balance_variance_pct: balance.variancePct,
           water_volume_liters: readNullableNumber(payload.water_volume_liters),
           water_recycled_percent: readNullableNumber(payload.water_recycled_percent),
           water_temperature_c: readNullableNumber(payload.water_temperature_c),
@@ -1440,12 +1453,52 @@ export class Phase2Service {
       throw badRequest("TRIAGE_SESSION_NOT_CLOSABLE", "Seule une session EN_COURS ou en PAUSE peut etre cloturee.");
     }
 
+    const parentWeightKg = readNumber(session.parent_weight_kg);
+    const weightExtraKg = readNumber(session.weight_extra_kg);
+    const weightCat1Kg = readNumber(session.weight_cat1_kg);
+    const weightCat2Kg = readNumber(session.weight_cat2_kg);
+    const weightRejectKg = readNumber(session.weight_reject_kg);
+
+    if (parentWeightKg <= 0) {
+      throw badRequest(
+        "TRIAGE_PARENT_WEIGHT_REQUIRED",
+        "Le poids parent est requis pour clôturer le triage avec un bilan matière.",
+      );
+    }
+
+    const balance = assertMassBalanceClosed(
+      {
+        inputKg: parentWeightKg,
+        outputsKg: [weightExtraKg, weightCat1Kg, weightCat2Kg],
+        wasteKg: weightRejectKg,
+      },
+      { tolerancePct: resolveMassBalanceTolerancePct(), context: `triage ${id}` },
+    );
+    if (balance.action === "warn") {
+      console.warn("[mass-balance] triage session unbalanced:", {
+        sessionId: id,
+        parentLot: session.parent_lot_number,
+        ...balance,
+      });
+      await emitNotification({
+        notificationType: "MASS_BALANCE_WARN",
+        category: "traceability",
+        space: "production",
+        severity: "warning",
+        title: `Bilan matière triage hors tolérance`,
+        message: `Session ${readString(session.session_number, id)}: écart ${balance.variancePct}% (tolérance ±${balance.tolerancePct}%).`,
+        entityType: "triage_sessions",
+        entityId: id,
+        metadata: balance as unknown as Record<string, unknown>,
+      });
+    }
+
     const now = nowIso();
     const durationMinutes = session.started_at
       ? Math.round((Date.now() - new Date(session.started_at).getTime()) / 60_000)
       : 0;
     const yieldKgPerHour = durationMinutes > 0
-      ? round1(readNumber(session.total_sorted_kg) / (durationMinutes / 60))
+      ? round1(readNumber(session.total_sorted_kg, balance.accountedKg) / (durationMinutes / 60))
       : null;
 
     await TriageSessions().updateOne(
@@ -1456,16 +1509,18 @@ export class Phase2Service {
           ended_at: now,
           duration_minutes: durationMinutes,
           yield_kg_per_hour: yieldKgPerHour,
+          total_sorted_kg: readNumber(session.total_sorted_kg, balance.accountedKg),
+          mass_balance_variance_pct: balance.variancePct,
           updated_at: now,
         },
       },
     ).exec();
 
     const gradeMap: Array<{ grade: TriageGrade; weight_kg: number }> = [
-      { grade: "EXTRA", weight_kg: readNumber(session.weight_extra_kg) },
-      { grade: "CATEGORIE_I", weight_kg: readNumber(session.weight_cat1_kg) },
-      { grade: "CATEGORIE_II", weight_kg: readNumber(session.weight_cat2_kg) },
-      { grade: "REJETE", weight_kg: readNumber(session.weight_reject_kg) },
+      { grade: "EXTRA", weight_kg: weightExtraKg },
+      { grade: "CATEGORIE_I", weight_kg: weightCat1Kg },
+      { grade: "CATEGORIE_II", weight_kg: weightCat2Kg },
+      { grade: "REJETE", weight_kg: weightRejectKg },
     ];
 
     const subLots: TriageSubLotRow[] = [];
