@@ -23,7 +23,7 @@ export type RequisitionInsert = {
   justification?: string | null;
   estimated_cost?: number | null;
   preferred_supplier_id?: string | null;
-  status?: 'draft' | 'pending_approval' | 'approved' | 'rejected' | 'ordered' | 'cancelled';
+  status?: RequisitionStatus;
   notes?: string | null;
 };
 
@@ -137,19 +137,61 @@ export const purchasingApi = {
     return response.data;
   },
 
-  approveRequisition: async (id: string, approverName: string) => {
-    const response = await apiRequest<ApiEnvelope<PurchaseRequisition>>(`/purchasing/requisitions/${encodeURIComponent(id)}/approve`, {
-      method: 'POST',
-      body: JSON.stringify({ approverName }),
-    });
+  submitRequisition: async (id: string, reason?: string | null) => {
+    const response = await apiRequest<ApiEnvelope<PurchaseRequisition>>(
+      `/purchasing/requisitions/${encodeURIComponent(id)}/submit`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ reason: reason || null }),
+      },
+    );
     return response.data;
   },
 
-  rejectRequisition: async (id: string, reason: string, rejectorName: string) => {
-    const response = await apiRequest<ApiEnvelope<PurchaseRequisition>>(`/purchasing/requisitions/${encodeURIComponent(id)}/reject`, {
-      method: 'POST',
-      body: JSON.stringify({ reason, rejectorName }),
-    });
+  approveRequisition: async (id: string, options?: { reason?: string | null; approverName?: string | null }) => {
+    const response = await apiRequest<ApiEnvelope<PurchaseRequisition>>(
+      `/purchasing/requisitions/${encodeURIComponent(id)}/approve`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          reason: options?.reason || null,
+          approverName: options?.approverName || null,
+        }),
+      },
+    );
+    return response.data;
+  },
+
+  rejectRequisition: async (id: string, reason: string) => {
+    const response = await apiRequest<ApiEnvelope<PurchaseRequisition>>(
+      `/purchasing/requisitions/${encodeURIComponent(id)}/reject`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ reason }),
+      },
+    );
+    return response.data;
+  },
+
+  returnRequisition: async (id: string, reason: string) => {
+    const response = await apiRequest<ApiEnvelope<PurchaseRequisition>>(
+      `/purchasing/requisitions/${encodeURIComponent(id)}/return`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ reason }),
+      },
+    );
+    return response.data;
+  },
+
+  cancelRequisition: async (id: string, reason?: string | null) => {
+    const response = await apiRequest<ApiEnvelope<PurchaseRequisition>>(
+      `/purchasing/requisitions/${encodeURIComponent(id)}/cancel`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ reason: reason || null }),
+      },
+    );
     return response.data;
   },
 

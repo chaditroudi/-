@@ -18,16 +18,23 @@ import { publishRealtimeDbChange } from "../realtime/realtime.bus.js";
 import { PurchasingService } from "./purchasing.service.js";
 
 const PURCHASING_ROLES = ["responsable_achats", "directeur_achat", "admin", "direction"];
-const REQUISITION_ROLES = [...PURCHASING_ROLES, "responsable_stock"];
-const PURCHASING_READ_ROLES = [
+const REQUISITION_ROLES = [
   ...PURCHASING_ROLES,
   "responsable_stock",
+  "magasinier_wms",
+  "responsable_production",
+  "responsable_qualite",
+  "responsable_maintenance",
+  "responsable_logistique",
   "responsable_reception",
   "chef_reception",
-  "operateur_reception",
   "directeur_general",
   "directeur_usine",
   "administrateur_systeme",
+];
+const PURCHASING_READ_ROLES = [
+  ...REQUISITION_ROLES,
+  "operateur_reception",
 ];
 
 @Controller("api/purchasing")
@@ -87,6 +94,25 @@ export class PurchasingController {
     return { data };
   }
 
+  @Post("requisitions/:id/submit")
+  @Roles(...REQUISITION_ROLES)
+  async submitRequisition(@Req() req: any, @Param("id") id: string, @Body() body: any) {
+    const data = await this.purchasingService.submitRequisition(
+      id,
+      req.auth?.user || null,
+      body?.reason,
+    );
+    publishRealtimeDbChange({
+      type: "purchase_requisition_submitted",
+      table: "purchase_requisitions",
+      action: "UPDATE",
+      rows: data ? [data] : [],
+      rowIds: [String((data as any)?.id || id)].filter(Boolean),
+      relatedTables: ["purchasing_stats"],
+    });
+    return { data };
+  }
+
   @Patch("requisitions/:id")
   @Roles(...REQUISITION_ROLES)
   async updateRequisition(@Param("id") id: string, @Body() body: any) {
@@ -104,8 +130,11 @@ export class PurchasingController {
 
   @Post("requisitions/:id/approve")
   @Roles(...REQUISITION_ROLES)
-  async approveRequisition(@Param("id") id: string, @Body() body: any) {
-    const data = await this.purchasingService.approveRequisition(id, body?.approverName);
+  async approveRequisition(@Req() req: any, @Param("id") id: string, @Body() body: any) {
+    const data = await this.purchasingService.approveRequisition(id, req.auth?.user || null, {
+      reason: body?.reason,
+      approverName: body?.approverName,
+    });
     publishRealtimeDbChange({
       type: "purchase_requisition_approved",
       table: "purchase_requisitions",
@@ -119,10 +148,53 @@ export class PurchasingController {
 
   @Post("requisitions/:id/reject")
   @Roles(...REQUISITION_ROLES)
-  async rejectRequisition(@Param("id") id: string, @Body() body: any) {
-    const data = await this.purchasingService.rejectRequisition(id, body?.reason, body?.rejectorName);
+  async rejectRequisition(@Req() req: any, @Param("id") id: string, @Body() body: any) {
+    const data = await this.purchasingService.rejectRequisition(
+      id,
+      body?.reason,
+      req.auth?.user || null,
+      body?.rejectorName,
+    );
     publishRealtimeDbChange({
       type: "purchase_requisition_rejected",
+      table: "purchase_requisitions",
+      action: "UPDATE",
+      rows: data ? [data] : [],
+      rowIds: [String((data as any)?.id || id)].filter(Boolean),
+      relatedTables: ["purchasing_stats"],
+    });
+    return { data };
+  }
+
+  @Post("requisitions/:id/return")
+  @Roles(...REQUISITION_ROLES)
+  async returnRequisition(@Req() req: any, @Param("id") id: string, @Body() body: any) {
+    const data = await this.purchasingService.returnRequisition(
+      id,
+      body?.reason,
+      req.auth?.user || null,
+    );
+    publishRealtimeDbChange({
+      type: "purchase_requisition_returned",
+      table: "purchase_requisitions",
+      action: "UPDATE",
+      rows: data ? [data] : [],
+      rowIds: [String((data as any)?.id || id)].filter(Boolean),
+      relatedTables: ["purchasing_stats"],
+    });
+    return { data };
+  }
+
+  @Post("requisitions/:id/cancel")
+  @Roles(...REQUISITION_ROLES)
+  async cancelRequisition(@Req() req: any, @Param("id") id: string, @Body() body: any) {
+    const data = await this.purchasingService.cancelRequisition(
+      id,
+      req.auth?.user || null,
+      body?.reason,
+    );
+    publishRealtimeDbChange({
+      type: "purchase_requisition_cancelled",
       table: "purchase_requisitions",
       action: "UPDATE",
       rows: data ? [data] : [],

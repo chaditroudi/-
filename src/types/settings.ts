@@ -153,6 +153,9 @@ export interface ManagedUser {
   email: string;
   full_name: string | null;
   roles: string[];
+  departments?: string[];
+  primary_department?: string | null;
+  org_roles?: string[];
   is_active: boolean;
   created_at: string;
 }

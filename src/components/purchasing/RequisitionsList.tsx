@@ -15,6 +15,8 @@ import {
   RequisitionApproval,
   RequisitionStatus,
   UrgencyLevel,
+  isRequisitionPending,
+  normalizeRequisitionStatus,
   requisitionStatusLabels,
   requisitionStatusColors,
   urgencyLabels,
@@ -38,10 +40,11 @@ interface RequisitionsListProps {
   onNew: () => void;
   onEdit: (req: PurchaseRequisition) => void;
   onDelete: (id: string) => void;
-  onApprove: (id: string, approverName: string) => void;
-  /** Signature d'un niveau intermédiaire de la matrice (statut inchangé). */
-  onSignLevel?: (id: string, approvals: RequisitionApproval[]) => void;
-  onReject: (id: string, reason: string, rejectorName: string) => void;
+  /** Approver identity comes from the authenticated session on the server. */
+  onApprove: (id: string) => void;
+  onReject: (id: string, reason: string) => void;
+  onReturn?: (id: string, reason: string) => void;
+  onSubmit?: (id: string) => void;
   onCreateOrder: (req: PurchaseRequisition) => void;
   onView: (req: PurchaseRequisition) => void;
   canCreate?: boolean;
@@ -51,8 +54,9 @@ interface RequisitionsListProps {
   canDelete?: boolean;
   canCreateOrder?: boolean;
   workflowMessage?: string;
-  /** Utilisateur connecté — signataire des approbations/rejets (SoD RG-VAL-02). */
+  /** Utilisateur connecté — affichage + SoD côté UI (id + nom). */
   currentUser?: string;
+  currentUserId?: string | null;
 }
 
 export const RequisitionsList = ({
@@ -61,8 +65,9 @@ export const RequisitionsList = ({
   onEdit,
   onDelete,
   onApprove,
-  onSignLevel,
   onReject,
+  onReturn,
+  onSubmit,
   onCreateOrder,
   onView,
   canCreate = true,
@@ -73,27 +78,30 @@ export const RequisitionsList = ({
   canCreateOrder = true,
   workflowMessage,
   currentUser = '',
+  currentUserId = null,
 }: RequisitionsListProps) => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<RequisitionStatus | 'all'>('all');
   const [urgencyFilter, setUrgencyFilter] = useState<UrgencyLevel | 'all'>('all');
 
-  // ── Reject dialog state ──────────────────────────────
+  // ── Reject / return dialog state ─────────────────────
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [returnMode, setReturnMode] = useState(false);
   const [selectedReq, setSelectedReq] = useState<PurchaseRequisition | null>(null);
   const [rejectReason, setRejectReason] = useState('');
-  const [rejectorName, setRejectorName] = useState('');
 
   // ── Approve dialog state ─────────────────────────────
   const [approveDialogOpen, setApproveDialogOpen] = useState(false);
   const [reqToApprove, setReqToApprove] = useState<PurchaseRequisition | null>(null);
-  const [approverName, setApproverName] = useState('');
 
   // ── Delete confirm state ─────────────────────────────
   const [deleteTarget, setDeleteTarget] = useState<PurchaseRequisition | null>(null);
 
   const filtered = requisitions.filter((r) => {
-    if (statusFilter !== 'all' && r.status !== statusFilter) return false;
+    if (statusFilter !== 'all') {
+      const wanted = normalizeRequisitionStatus(statusFilter);
+      if (normalizeRequisitionStatus(r.status) !== wanted) return false;
+    }
     if (urgencyFilter !== 'all' && r.urgency !== urgencyFilter) return false;
 
     const { meta } = parseRequisitionMeta(r.notes);
@@ -121,64 +129,56 @@ export const RequisitionsList = ({
 
   const getNextStep = (req: PurchaseRequisition) => {
     const signed = new Set(getSignedApprovals(req).map((a) => a.level));
-    return getRequiredSteps(req).find((step) => !signed.has(step.level)) ?? null;
+    const fromMatrix = getRequiredSteps(req).find((step) => !signed.has(step.level)) ?? null;
+    if (fromMatrix) return fromMatrix;
+    if (
+      normalizeRequisitionStatus(req.status) === 'PURCHASING_REVIEW' &&
+      !signed.has('purchasing_officer') &&
+      !signed.has('purchasing_manager')
+    ) {
+      return { level: 'purchasing_officer', threshold_gte: 0, label: 'Acheteur' };
+    }
+    return null;
   };
 
   // ── Handlers ────────────────────────────────────────
   // RG-VAL-02 — séparation des tâches : un demandeur ne valide pas sa propre DA.
-  const isOwnRequisition = (req: PurchaseRequisition) =>
-    !!currentUser && req.requester_name.trim().toLowerCase() === currentUser.trim().toLowerCase();
+  const isOwnRequisition = (req: PurchaseRequisition) => {
+    if (currentUserId && req.requester_id) return req.requester_id === currentUserId;
+    return !!currentUser && req.requester_name.trim().toLowerCase() === currentUser.trim().toLowerCase();
+  };
 
   // Un même utilisateur ne signe pas deux niveaux de la même DA.
   const hasAlreadySigned = (req: PurchaseRequisition) =>
-    !!currentUser &&
     getSignedApprovals(req).some(
-      (a) => a.approved_by.trim().toLowerCase() === currentUser.trim().toLowerCase(),
+      (a) =>
+        (currentUserId && a.approved_by_id === currentUserId) ||
+        (!!currentUser && a.approved_by.trim().toLowerCase() === currentUser.trim().toLowerCase()),
     );
 
   const handleApproveClick = (req: PurchaseRequisition) => {
     setReqToApprove(req);
-    setApproverName(currentUser);
     setApproveDialogOpen(true);
   };
 
   const handleApproveConfirm = () => {
-    if (!reqToApprove || !approverName.trim()) return;
-
-    const nextStep = getNextStep(reqToApprove);
-    const signature: RequisitionApproval = {
-      level: nextStep?.level ?? 'final',
-      label: nextStep?.label ?? 'Validation',
-      approved_by: approverName.trim(),
-      approved_at: new Date().toISOString(),
-    };
-    const allApprovals = [...getSignedApprovals(reqToApprove), signature];
-    const remaining = getRequiredSteps(reqToApprove).filter(
-      (step) => !allApprovals.some((a) => a.level === step.level),
-    );
-
-    if (remaining.length > 0 && onSignLevel) {
-      // Niveau intermédiaire signé — la DA reste en attente des niveaux suivants.
-      onSignLevel(reqToApprove.id, allApprovals);
-    } else {
-      // Dernier niveau — approbation finale.
-      if (onSignLevel) onSignLevel(reqToApprove.id, allApprovals);
-      onApprove(reqToApprove.id, approverName.trim());
-    }
+    if (!reqToApprove) return;
+    onApprove(reqToApprove.id);
     setApproveDialogOpen(false);
     setReqToApprove(null);
   };
 
-  const handleRejectClick = (req: PurchaseRequisition) => {
+  const handleRejectClick = (req: PurchaseRequisition, asReturn = false) => {
     setSelectedReq(req);
     setRejectReason('');
-    setRejectorName(currentUser);
+    setReturnMode(asReturn);
     setRejectDialogOpen(true);
   };
 
   const handleRejectConfirm = () => {
-    if (selectedReq && rejectReason.trim() && rejectorName.trim()) {
-      onReject(selectedReq.id, rejectReason.trim(), rejectorName.trim());
+    if (selectedReq && rejectReason.trim()) {
+      if (returnMode && onReturn) onReturn(selectedReq.id, rejectReason.trim());
+      else onReject(selectedReq.id, rejectReason.trim());
       setRejectDialogOpen(false);
       setSelectedReq(null);
     }
@@ -186,10 +186,10 @@ export const RequisitionsList = ({
 
   // Status counts for summary chips
   const counts = {
-    pending: requisitions.filter((r) => r.status === 'pending_approval').length,
-    approved: requisitions.filter((r) => r.status === 'approved').length,
-    rejected: requisitions.filter((r) => r.status === 'rejected').length,
-    ordered: requisitions.filter((r) => r.status === 'ordered').length,
+    pending: requisitions.filter((r) => isRequisitionPending(r.status)).length,
+    approved: requisitions.filter((r) => normalizeRequisitionStatus(r.status) === 'APPROVED').length,
+    rejected: requisitions.filter((r) => normalizeRequisitionStatus(r.status) === 'REJECTED').length,
+    ordered: requisitions.filter((r) => normalizeRequisitionStatus(r.status) === 'ORDERED').length,
   };
 
   return (
@@ -223,25 +223,26 @@ export const RequisitionsList = ({
               {counts.pending > 0 && (
                 <button
                   type="button"
-                  onClick={() => setStatusFilter('pending_approval')}
+                  onClick={() => setStatusFilter('SUBMITTED')}
                   className={cn(
                     'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold transition-colors',
-                    statusFilter === 'pending_approval'
+                    normalizeRequisitionStatus(statusFilter === 'all' ? '' : statusFilter) === 'SUBMITTED' ||
+                      statusFilter === 'SUBMITTED'
                       ? 'border-yellow-400 bg-yellow-100 text-yellow-800'
                       : 'border-yellow-200 bg-yellow-50 text-yellow-700 hover:bg-yellow-100',
                   )}
                 >
                   <span className="h-1.5 w-1.5 rounded-full bg-yellow-500 animate-pulse" />
-                  {counts.pending} en attente
+                  {counts.pending} en circuit
                 </button>
               )}
               {counts.approved > 0 && (
                 <button
                   type="button"
-                  onClick={() => setStatusFilter('approved')}
+                  onClick={() => setStatusFilter('APPROVED')}
                   className={cn(
                     'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold transition-colors',
-                    statusFilter === 'approved'
+                    statusFilter === 'APPROVED'
                       ? 'border-emerald-400 bg-emerald-100 text-emerald-800'
                       : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100',
                   )}
@@ -252,10 +253,10 @@ export const RequisitionsList = ({
               {counts.rejected > 0 && (
                 <button
                   type="button"
-                  onClick={() => setStatusFilter('rejected')}
+                  onClick={() => setStatusFilter('REJECTED')}
                   className={cn(
                     'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold transition-colors',
-                    statusFilter === 'rejected'
+                    statusFilter === 'REJECTED'
                       ? 'border-red-400 bg-red-100 text-red-800'
                       : 'border-red-200 bg-red-50 text-red-700 hover:bg-red-100',
                   )}
@@ -287,17 +288,20 @@ export const RequisitionsList = ({
               />
             </div>
             <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as RequisitionStatus | 'all')}>
-              <SelectTrigger className="w-44">
+              <SelectTrigger className="w-52">
                 <SelectValue placeholder="Statut" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tous les statuts</SelectItem>
-                <SelectItem value="draft">Brouillon</SelectItem>
-                <SelectItem value="pending_approval">En attente</SelectItem>
-                <SelectItem value="approved">Validée</SelectItem>
-                <SelectItem value="rejected">Refusée</SelectItem>
-                <SelectItem value="ordered">Commandée</SelectItem>
-                <SelectItem value="cancelled">Annulée</SelectItem>
+                <SelectItem value="DRAFT">Brouillon</SelectItem>
+                <SelectItem value="SUBMITTED">Soumise</SelectItem>
+                <SelectItem value="PURCHASING_REVIEW">Revue Achats</SelectItem>
+                <SelectItem value="FINANCE_APPROVAL">Finance</SelectItem>
+                <SelectItem value="APPROVED">Approuvée</SelectItem>
+                <SelectItem value="ORDERED">Commandée</SelectItem>
+                <SelectItem value="RETURNED_FOR_CHANGES">Retour correction</SelectItem>
+                <SelectItem value="REJECTED">Rejetée</SelectItem>
+                <SelectItem value="CANCELLED">Annulée</SelectItem>
               </SelectContent>
             </Select>
             <Select value={urgencyFilter} onValueChange={(v) => setUrgencyFilter(v as UrgencyLevel | 'all')}>
@@ -383,16 +387,16 @@ export const RequisitionsList = ({
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge className={cn(requisitionStatusColors[req.status], 'text-white text-xs')}>
-                            {requisitionStatusLabels[req.status]}
+                          <Badge className={cn(requisitionStatusColors[req.status] || 'bg-gray-500', 'text-white text-xs')}>
+                            {requisitionStatusLabels[req.status] || req.status}
                           </Badge>
-                          {req.status === 'pending_approval' && getRequiredSteps(req).length > 1 && (
+                          {isRequisitionPending(req.status) && (
                             <p className="mt-0.5 text-xs text-amber-700">
-                              Circuit {getSignedApprovals(req).length}/{getRequiredSteps(req).length}
+                              Circuit {getSignedApprovals(req).length}/{Math.max(getRequiredSteps(req).length, 1)}
                               {getNextStep(req) ? ` · ${getNextStep(req)!.label}` : ''}
                             </p>
                           )}
-                          {req.approved_by && (
+                          {req.approved_by && normalizeRequisitionStatus(req.status) === 'APPROVED' && (
                             <p className="text-xs text-muted-foreground mt-0.5">
                               par {req.approved_by}
                             </p>
@@ -411,8 +415,25 @@ export const RequisitionsList = ({
                               <Eye className="h-4 w-4" />
                             </Button>
 
+                            {/* Submit draft */}
+                            {onSubmit &&
+                              (normalizeRequisitionStatus(req.status) === 'DRAFT' ||
+                                normalizeRequisitionStatus(req.status) === 'RETURNED_FOR_CHANGES') &&
+                              canEdit &&
+                              isOwnRequisition(req) && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-9 text-sky-700 hover:bg-sky-50"
+                                onClick={() => onSubmit(req.id)}
+                                title="Soumettre"
+                              >
+                                Soumettre
+                              </Button>
+                            )}
+
                             {/* Approve / Reject — RG-VAL-02 : pas de validation de sa propre DA */}
-                            {req.status === 'pending_approval' && canApprove && canReject && !isOwnRequisition(req) && (
+                            {isRequisitionPending(req.status) && canApprove && canReject && !isOwnRequisition(req) && (
                               <>
                                 <Button
                                   variant="ghost"
@@ -426,8 +447,17 @@ export const RequisitionsList = ({
                                 <Button
                                   variant="ghost"
                                   size="icon"
+                                  className="h-9 w-9 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                                  onClick={() => handleRejectClick(req, true)}
+                                  title="Renvoyer pour correction"
+                                >
+                                  <Edit2 className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
                                   className="h-9 w-9 text-red-500 hover:text-red-600 hover:bg-red-50"
-                                  onClick={() => handleRejectClick(req)}
+                                  onClick={() => handleRejectClick(req, false)}
                                   title="Refuser"
                                 >
                                   <X className="h-4 w-4" />
@@ -436,7 +466,7 @@ export const RequisitionsList = ({
                             )}
 
                             {/* Create BC */}
-                            {req.status === 'approved' && canCreateOrder && (
+                            {normalizeRequisitionStatus(req.status) === 'APPROVED' && canCreateOrder && (
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -448,8 +478,9 @@ export const RequisitionsList = ({
                               </Button>
                             )}
 
-                            {/* Edit — only draft or pending */}
-                            {canEdit && (req.status === 'draft' || req.status === 'pending_approval') && (
+                            {/* Edit — only draft / returned */}
+                            {canEdit &&
+                              ['DRAFT', 'RETURNED_FOR_CHANGES'].includes(normalizeRequisitionStatus(req.status)) && (
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -462,7 +493,7 @@ export const RequisitionsList = ({
                             )}
 
                             {/* Delete — only draft */}
-                            {canDelete && req.status === 'draft' && (
+                            {canDelete && normalizeRequisitionStatus(req.status) === 'DRAFT' && (
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -560,20 +591,12 @@ export const RequisitionsList = ({
                     </div>
                   )}
 
-                  <div className="space-y-2">
-                    <Label>Valideur</Label>
-                    <Input
-                      value={approverName}
-                      onChange={(e) => setApproverName(e.target.value)}
-                      placeholder="Nom complet du valideur"
-                      readOnly={!!currentUser}
-                      className={currentUser ? 'bg-muted/50' : undefined}
-                    />
-                    {currentUser && (
-                      <p className="text-xs text-muted-foreground">
-                        Signé avec votre compte connecté (traçabilité RG-VAL-02).
-                      </p>
-                    )}
+                  <div className="rounded-xl border bg-muted/20 p-3 text-sm">
+                    <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Valideur (session)</p>
+                    <p className="font-medium">{currentUser || 'Utilisateur connecté'}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      L&apos;identité est prise depuis votre session authentifiée — aucun nom saisi manuellement.
+                    </p>
                   </div>
                 </div>
                 <DialogFooter>
@@ -582,7 +605,7 @@ export const RequisitionsList = ({
                   </Button>
                   <Button
                     onClick={handleApproveConfirm}
-                    disabled={!approverName.trim() || alreadySigned}
+                    disabled={alreadySigned}
                     className="bg-emerald-600 hover:bg-emerald-700"
                   >
                     <Check className="h-4 w-4 mr-2" />
@@ -595,29 +618,27 @@ export const RequisitionsList = ({
         </DialogContent>
       </Dialog>
 
-      {/* ── Reject Dialog ──────────────────────────────── */}
+      {/* ── Reject / Return Dialog ─────────────────────── */}
       <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Refuser la demande</DialogTitle>
+            <DialogTitle>{returnMode ? 'Renvoyer pour correction' : 'Refuser la demande'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Valideur</Label>
-              <Input
-                value={rejectorName}
-                onChange={(e) => setRejectorName(e.target.value)}
-                placeholder="Nom du valideur"
-                readOnly={!!currentUser}
-                className={currentUser ? 'bg-muted/50' : undefined}
-              />
+            <div className="rounded-xl border bg-muted/20 p-3 text-sm">
+              <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Acteur (session)</p>
+              <p className="font-medium">{currentUser || 'Utilisateur connecté'}</p>
             </div>
             <div className="space-y-2">
-              <Label>Motif du refus *</Label>
+              <Label>{returnMode ? 'Motif du retour *' : 'Motif du refus *'}</Label>
               <Textarea
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
-                placeholder="Ex : Stock suffisant, hors budget, fournisseur non agréé..."
+                placeholder={
+                  returnMode
+                    ? 'Ex : Quantité à revoir, justification incomplète...'
+                    : 'Ex : Stock suffisant, hors budget, fournisseur non agréé...'
+                }
                 rows={3}
               />
             </div>
@@ -627,11 +648,11 @@ export const RequisitionsList = ({
               Annuler
             </Button>
             <Button
-              variant="destructive"
+              variant={returnMode ? 'default' : 'destructive'}
               onClick={handleRejectConfirm}
-              disabled={!rejectReason.trim() || !rejectorName.trim()}
+              disabled={!rejectReason.trim()}
             >
-              Confirmer le refus
+              {returnMode ? 'Renvoyer' : 'Confirmer le refus'}
             </Button>
           </DialogFooter>
         </DialogContent>

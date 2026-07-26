@@ -44,7 +44,13 @@ export class SettingsController {
   async updateUser(
     @Req() req: any,
     @Param("id") id: string,
-    @Body() body: { is_active?: boolean; roles?: string[] },
+    @Body() body: {
+      is_active?: boolean;
+      roles?: string[];
+      departments?: string[];
+      primary_department?: string | null;
+      org_roles?: string[];
+    },
   ) {
     requireAdminAuth(req);
     if (id === req.auth.user.id && body.is_active === false) {

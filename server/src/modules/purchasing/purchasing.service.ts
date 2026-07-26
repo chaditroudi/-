@@ -3,8 +3,31 @@ import { Injectable } from "@nestjs/common";
 import { badRequest, notFound } from "../../core/app-error.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
+import { AuthUserModel } from "../../models/auth-user.model.js";
+import { normalizeDepartment } from "../org/departments.js";
+import { membershipFromActor } from "../org/membership.js";
+import { settingsService } from "../settings/settings.service.js";
+import { notifyPurchaseRequisitionTransition } from "../workflow/purchase-requisition-notify.js";
+import {
+  approveRequisitionStep,
+  cancelRequisitionStep,
+  rejectRequisitionStep,
+  returnRequisitionForChanges,
+  submitRequisition,
+} from "../workflow/purchase-requisition-workflow.js";
+import {
+  type ApprovalMatrixStep,
+  DEFAULT_PR_APPROVAL_MATRIX,
+  isPurchaseRequisitionOpen,
+  isPurchaseRequisitionPending,
+  normalizePurchaseRequisitionStatus,
+} from "../workflow/workflow-types.js";
 
-type ActorContext = { id?: string | null } | null | undefined;
+type ActorContext = {
+  id?: string | null;
+  email?: string | null;
+  user_metadata?: Record<string, unknown> | null;
+} | null | undefined;
 type PurchaseOrderStatus =
   | "draft"
   | "submitted"
@@ -476,14 +499,112 @@ export class PurchasingService {
     return requisition || null;
   }
 
+  private async loadApprovalMatrix(): Promise<ApprovalMatrixStep[]> {
+    try {
+      const settings = await settingsService.getSettings();
+      const matrix = settings?.p2p?.approval_matrix;
+      if (Array.isArray(matrix) && matrix.length > 0) {
+        return matrix.map((step: Record<string, unknown>) => ({
+          level: String(step.level || ""),
+          threshold_gte: Number(step.threshold_gte ?? 0),
+          label: String(step.label || step.level || ""),
+        }));
+      }
+    } catch {
+      // fall through to defaults
+    }
+    return DEFAULT_PR_APPROVAL_MATRIX.map((step) => ({ ...step }));
+  }
+
+  /** Prefer live membership from DB so admin org updates apply without re-login. */
+  private async resolveActor(actor: ActorContext): Promise<ActorContext> {
+    const id = typeof actor?.id === "string" ? actor.id.trim() : "";
+    if (!id) return actor;
+    const user = (await AuthUserModel.findOne({ id })
+      .select("id email user_metadata is_active")
+      .lean()
+      .exec()) as {
+      id?: string;
+      email?: string;
+      is_active?: boolean;
+      user_metadata?: Record<string, unknown>;
+    } | null;
+    if (!user || user.is_active === false) return actor;
+    return {
+      id: user.id,
+      email: user.email,
+      user_metadata: user.user_metadata || {},
+    };
+  }
+
+  private applyWorkflowDecision(
+    decision: ReturnType<typeof submitRequisition>,
+  ): Record<string, unknown> {
+    return {
+      status: decision.status,
+      approvals: decision.approvals,
+      workflow_history: decision.workflow_history,
+      approved_by: decision.approved_by,
+      approved_at: decision.approved_at,
+      rejection_reason: decision.rejection_reason,
+      current_approval_level: decision.current_approval_level,
+    };
+  }
+
   async createRequisition(payload: Record<string, unknown>, actor: ActorContext) {
+    const membership = membershipFromActor(actor);
+    const requestedStatus = normalizePurchaseRequisitionStatus(payload.status);
+    const department =
+      normalizeDepartment(payload.department) ||
+      membership?.primaryDepartment ||
+      null;
+
     const requisition = await prepareInsertDocument("purchase_requisitions", {
       ...payload,
       requester_id: payload.requester_id ?? actor?.id ?? null,
+      requester_name:
+        payload.requester_name || membership?.fullName || null,
+      department,
+      status: requestedStatus === "SUBMITTED" ? "DRAFT" : requestedStatus,
+      approvals: Array.isArray(payload.approvals) ? payload.approvals : [],
+      workflow_history: Array.isArray(payload.workflow_history)
+        ? payload.workflow_history
+        : [],
+      current_approval_level: null,
     });
 
     await PurchaseRequisitions().create([requisition]);
+
+    // Legacy clients still create with pending_approval / SUBMITTED — auto-submit.
+    if (requestedStatus === "SUBMITTED" || String(payload.status || "").toLowerCase() === "pending_approval") {
+      return this.submitRequisition(String(requisition.id), actor);
+    }
+
     return this.getRequisitionById(String(requisition.id));
+  }
+
+  async submitRequisition(requisitionId: string, actor: ActorContext, reason?: string | null) {
+    const existing = await PurchaseRequisitions().findOne({ id: requisitionId }).lean().exec();
+    if (!existing) {
+      throw notFound("REQUISITION_NOT_FOUND", "Demande d'achat introuvable.");
+    }
+
+    const resolvedActor = await this.resolveActor(actor);
+    const decision = submitRequisition(existing as Record<string, unknown>, resolvedActor, { reason });
+    const updated = await this.updateRequisition(requisitionId, this.applyWorkflowDecision(decision));
+    await notifyPurchaseRequisitionTransition(
+      {
+        id: requisitionId,
+        requisition_number: (updated as any)?.requisition_number,
+        requester_id: (updated as any)?.requester_id,
+        requester_name: (updated as any)?.requester_name,
+        department: (updated as any)?.department,
+        material_name: (updated as any)?.material_name,
+      },
+      decision,
+      resolvedActor?.id,
+    );
+    return updated;
   }
 
   /**
@@ -503,13 +624,13 @@ export class PurchasingService {
 
     // DA de réappro déjà ouvertes → on ne redemande pas la même matière.
     const openRequisitions = sanitizeDocument(
-      await PurchaseRequisitions()
-        .find({ status: { $in: ["draft", "pending_approval", "approved"] } })
-        .lean()
-        .exec(),
+      await PurchaseRequisitions().find({}).lean().exec(),
     ) as Array<Record<string, unknown>>;
     const alreadyRequested = new Set(
-      openRequisitions.map((requisition) => readString(requisition.material_id)).filter(Boolean),
+      openRequisitions
+        .filter((requisition) => isPurchaseRequisitionOpen(requisition.status))
+        .map((requisition) => readString(requisition.material_id))
+        .filter(Boolean),
     );
 
     return below.map((material) => {
@@ -542,7 +663,7 @@ export class PurchasingService {
       const requisition = await prepareInsertDocument("purchase_requisitions", {
         requester_id: actor?.id ?? null,
         requester_name: "Réapprovisionnement automatique",
-        department: "Magasin",
+        department: "stock",
         material_id: need.material_id,
         material_name: need.material_name,
         quantity: need.suggested_quantity,
@@ -554,9 +675,12 @@ export class PurchasingService {
         estimated_cost: null,
         preferred_supplier_id: need.preferred_supplier_id,
         // RG-DA-01 : brouillon, confirmation humaine obligatoire.
-        status: "draft",
+        status: "DRAFT",
         source: "AUTO_REORDER",
         notes: null,
+        approvals: [],
+        workflow_history: [],
+        current_approval_level: null,
       });
 
       await PurchaseRequisitions().create([requisition]);
@@ -585,60 +709,118 @@ export class PurchasingService {
     return this.getRequisitionById(requisitionId);
   }
 
-  async approveRequisition(requisitionId: string, approverName: string) {
-    if (!readString(approverName)) {
-      throw badRequest("APPROVER_REQUIRED", "approverName is required.");
+  async approveRequisition(
+    requisitionId: string,
+    actor: ActorContext,
+    options?: { reason?: string | null; approverName?: string | null },
+  ) {
+    const existing = await PurchaseRequisitions().findOne({ id: requisitionId }).lean().exec();
+    if (!existing) {
+      throw notFound("REQUISITION_NOT_FOUND", "Demande d'achat introuvable.");
     }
 
-    // RG-VAL-02 — séparation des tâches : le demandeur ne valide pas sa propre DA,
-    // et un même valideur ne signe pas deux niveaux du circuit d'approbation.
-    const requisition = await PurchaseRequisitions().findOne({ id: requisitionId }).lean().exec() as
-      | { requester_name?: string; approvals?: Array<{ approved_by?: string }> }
-      | null;
-    const approver = readString(approverName).toLowerCase();
-    const requester = readString(requisition?.requester_name).toLowerCase();
-    if (requester && requester === approver) {
-      throw badRequest(
-        "SOD_VIOLATION",
-        "RG-VAL-02 — Un demandeur ne peut pas valider sa propre demande d'achat.",
-      );
-    }
+    // Identity comes from the authenticated session — not typed names.
+    // Legacy approverName is ignored for authorization (kept only for audit compatibility).
+    void options?.approverName;
 
-    const priorApprovals = Array.isArray(requisition?.approvals) ? requisition!.approvals! : [];
-    // Le dernier niveau est signé par l'appelant courant : on ignore une éventuelle
-    // signature identique déjà enregistrée à l'instant par le même utilisateur.
-    const otherSigners = priorApprovals
-      .slice(0, -1)
-      .map((entry) => readString(entry?.approved_by).toLowerCase())
-      .filter(Boolean);
-    if (otherSigners.includes(approver)) {
-      throw badRequest(
-        "SOD_VIOLATION",
-        "Séparation des tâches — un même valideur ne peut pas signer deux niveaux du circuit.",
-      );
-    }
-
-    return this.updateRequisition(requisitionId, {
-      status: "approved",
-      approved_by: approverName,
-      approved_at: new Date().toISOString(),
+    const matrix = await this.loadApprovalMatrix();
+    const resolvedActor = await this.resolveActor(actor);
+    const decision = approveRequisitionStep(existing as Record<string, unknown>, resolvedActor, {
+      reason: options?.reason,
+      matrix,
     });
+    const updated = await this.updateRequisition(requisitionId, this.applyWorkflowDecision(decision));
+    await notifyPurchaseRequisitionTransition(
+      {
+        id: requisitionId,
+        requisition_number: (updated as any)?.requisition_number,
+        requester_id: (updated as any)?.requester_id,
+        requester_name: (updated as any)?.requester_name,
+        department: (updated as any)?.department,
+        material_name: (updated as any)?.material_name,
+      },
+      decision,
+      resolvedActor?.id,
+    );
+    return updated;
   }
 
-  async rejectRequisition(requisitionId: string, reason: string, rejectorName: string) {
-    if (!readString(reason)) {
-      throw badRequest("REJECTION_REASON_REQUIRED", "reason is required.");
-    }
-    if (!readString(rejectorName)) {
-      throw badRequest("REJECTOR_REQUIRED", "rejectorName is required.");
+  async rejectRequisition(
+    requisitionId: string,
+    reason: string,
+    actor: ActorContext,
+    _rejectorName?: string | null,
+  ) {
+    void _rejectorName;
+    const existing = await PurchaseRequisitions().findOne({ id: requisitionId }).lean().exec();
+    if (!existing) {
+      throw notFound("REQUISITION_NOT_FOUND", "Demande d'achat introuvable.");
     }
 
-    return this.updateRequisition(requisitionId, {
-      status: "rejected",
-      rejection_reason: reason,
-      approved_by: rejectorName,
-      approved_at: new Date().toISOString(),
-    });
+    const resolvedActor = await this.resolveActor(actor);
+    const decision = rejectRequisitionStep(existing as Record<string, unknown>, resolvedActor, reason);
+    const updated = await this.updateRequisition(requisitionId, this.applyWorkflowDecision(decision));
+    await notifyPurchaseRequisitionTransition(
+      {
+        id: requisitionId,
+        requisition_number: (updated as any)?.requisition_number,
+        requester_id: (updated as any)?.requester_id,
+        requester_name: (updated as any)?.requester_name,
+        department: (updated as any)?.department,
+        material_name: (updated as any)?.material_name,
+      },
+      decision,
+      resolvedActor?.id,
+    );
+    return updated;
+  }
+
+  async returnRequisition(requisitionId: string, reason: string, actor: ActorContext) {
+    const existing = await PurchaseRequisitions().findOne({ id: requisitionId }).lean().exec();
+    if (!existing) {
+      throw notFound("REQUISITION_NOT_FOUND", "Demande d'achat introuvable.");
+    }
+
+    const resolvedActor = await this.resolveActor(actor);
+    const decision = returnRequisitionForChanges(existing as Record<string, unknown>, resolvedActor, reason);
+    const updated = await this.updateRequisition(requisitionId, this.applyWorkflowDecision(decision));
+    await notifyPurchaseRequisitionTransition(
+      {
+        id: requisitionId,
+        requisition_number: (updated as any)?.requisition_number,
+        requester_id: (updated as any)?.requester_id,
+        requester_name: (updated as any)?.requester_name,
+        department: (updated as any)?.department,
+        material_name: (updated as any)?.material_name,
+      },
+      decision,
+      resolvedActor?.id,
+    );
+    return updated;
+  }
+
+  async cancelRequisition(requisitionId: string, actor: ActorContext, reason?: string | null) {
+    const existing = await PurchaseRequisitions().findOne({ id: requisitionId }).lean().exec();
+    if (!existing) {
+      throw notFound("REQUISITION_NOT_FOUND", "Demande d'achat introuvable.");
+    }
+
+    const resolvedActor = await this.resolveActor(actor);
+    const decision = cancelRequisitionStep(existing as Record<string, unknown>, resolvedActor, reason);
+    const updated = await this.updateRequisition(requisitionId, this.applyWorkflowDecision(decision));
+    await notifyPurchaseRequisitionTransition(
+      {
+        id: requisitionId,
+        requisition_number: (updated as any)?.requisition_number,
+        requester_id: (updated as any)?.requester_id,
+        requester_name: (updated as any)?.requester_name,
+        department: (updated as any)?.department,
+        material_name: (updated as any)?.material_name,
+      },
+      decision,
+      resolvedActor?.id,
+    );
+    return updated;
   }
 
   async deleteRequisition(requisitionId: string) {
@@ -702,7 +884,7 @@ export class PurchasingService {
       if (preparedOrder.requisition_id) {
         await PurchaseRequisitions().updateOne(
           { id: preparedOrder.requisition_id },
-          { $set: { status: "ordered", updated_at: new Date().toISOString() } },
+          { $set: { status: "ORDERED", updated_at: new Date().toISOString() } },
         ).exec();
       }
     } catch (error) {
@@ -747,7 +929,7 @@ export class PurchasingService {
     if (orderPayload.requisition_id) {
       await PurchaseRequisitions().updateOne(
         { id: orderPayload.requisition_id },
-        { $set: { status: "ordered", updated_at: new Date().toISOString() } },
+        { $set: { status: "ORDERED", updated_at: new Date().toISOString() } },
       ).exec();
     }
 
@@ -1121,9 +1303,15 @@ export class PurchasingService {
     return {
       requisitions: {
         total: requisitions.length,
-        pending: requisitions.filter((requisition) => requisition.status === "pending_approval").length,
-        approved: requisitions.filter((requisition) => requisition.status === "approved").length,
-        rejected: requisitions.filter((requisition) => requisition.status === "rejected").length,
+        pending: requisitions.filter((requisition) =>
+          isPurchaseRequisitionPending(requisition.status),
+        ).length,
+        approved: requisitions.filter(
+          (requisition) => normalizePurchaseRequisitionStatus(requisition.status) === "APPROVED",
+        ).length,
+        rejected: requisitions.filter(
+          (requisition) => normalizePurchaseRequisitionStatus(requisition.status) === "REJECTED",
+        ).length,
       },
       orders: {
         total: normalizedOrders.length,

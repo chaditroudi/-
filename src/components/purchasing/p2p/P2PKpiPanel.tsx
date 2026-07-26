@@ -66,7 +66,7 @@ export const P2PKpiPanel = () => {
 
   // ── Approval rate (DA approved / DA submitted) ─────────────────────────────
   const submitted = requisitions.filter((r) =>
-    ['pending_approval', 'approved', 'ordered', 'rejected'].includes(r.status),
+    ['SUBMITTED', 'PURCHASING_REVIEW', 'FINANCE_APPROVAL', 'APPROVED', 'ORDERED', 'REJECTED', 'pending_approval'].includes(r.status),
   ).length;
   const approved = requisitions.filter((r) =>
     ['approved', 'ordered'].includes(r.status),
@@ -282,7 +282,11 @@ export const P2PKpiPanel = () => {
             {[
               {
                 label: 'DA en attente',
-                value: requisitions.filter((r) => r.status === 'pending_approval').length,
+                value: requisitions.filter((r) =>
+                  ['SUBMITTED', 'DEPARTMENT_APPROVED', 'PURCHASING_REVIEW', 'FINANCE_APPROVAL', 'pending_approval'].includes(
+                    r.status,
+                  ),
+                ).length,
                 color: 'text-yellow-600',
               },
               {

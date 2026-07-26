@@ -248,17 +248,33 @@ export class SettingsService {
       .lean()
       .exec();
 
-    return users.map((u: any) => ({
-      id: u.id,
-      email: u.email,
-      is_active: u.is_active ?? true,
-      full_name: u.user_metadata?.full_name ?? null,
-      roles: u.user_metadata?.roles ?? (u.user_metadata?.role ? [u.user_metadata.role] : []),
-      created_at: u.created_at,
-    }));
+    return users.map((u: any) => {
+      const metadata = u.user_metadata || {};
+      const departments = Array.isArray(metadata.departments) ? metadata.departments : [];
+      return {
+        id: u.id,
+        email: u.email,
+        is_active: u.is_active ?? true,
+        full_name: metadata.full_name ?? null,
+        roles: metadata.roles ?? (metadata.role ? [metadata.role] : []),
+        departments,
+        primary_department: metadata.primary_department ?? departments[0] ?? null,
+        org_roles: Array.isArray(metadata.org_roles) ? metadata.org_roles : [],
+        created_at: u.created_at,
+      };
+    });
   }
 
-  async updateUser(userId: string, patch: { is_active?: boolean; roles?: string[] }) {
+  async updateUser(
+    userId: string,
+    patch: {
+      is_active?: boolean;
+      roles?: string[];
+      departments?: string[];
+      primary_department?: string | null;
+      org_roles?: string[];
+    },
+  ) {
     const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
 
     if (typeof patch.is_active === "boolean") {
@@ -269,6 +285,18 @@ export class SettingsService {
       update["user_metadata.roles"] = patch.roles;
     }
 
+    if (Array.isArray(patch.departments)) {
+      update["user_metadata.departments"] = patch.departments;
+    }
+
+    if (patch.primary_department !== undefined) {
+      update["user_metadata.primary_department"] = patch.primary_department;
+    }
+
+    if (Array.isArray(patch.org_roles)) {
+      update["user_metadata.org_roles"] = patch.org_roles;
+    }
+
     await AuthUserModel.updateOne({ id: userId }, { $set: update }).exec();
 
     const updated = (await AuthUserModel.findOne({ id: userId })
@@ -276,12 +304,17 @@ export class SettingsService {
       .lean()
       .exec()) as any;
 
+    const metadata = updated.user_metadata || {};
+    const departments = Array.isArray(metadata.departments) ? metadata.departments : [];
     return {
       id: updated.id,
       email: updated.email,
       is_active: updated.is_active ?? true,
-      full_name: updated.user_metadata?.full_name ?? null,
-      roles: updated.user_metadata?.roles ?? [],
+      full_name: metadata.full_name ?? null,
+      roles: metadata.roles ?? [],
+      departments,
+      primary_department: metadata.primary_department ?? departments[0] ?? null,
+      org_roles: Array.isArray(metadata.org_roles) ? metadata.org_roles : [],
       created_at: updated.created_at,
     };
   }

@@ -204,14 +204,14 @@ export const useApproveRequisition = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, approverName }: { id: string; approverName: string }) =>
-      purchasingApi.approveRequisition(id, approverName),
+    mutationFn: async ({ id, reason }: { id: string; reason?: string | null }) =>
+      purchasingApi.approveRequisition(id, { reason }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['requisitions'] });
-      toast.success('Demande approuvée');
+      toast.success('Niveau d\'approbation enregistré');
     },
-    onError: (error) => {
-      toast.error("Erreur lors de l'approbation");
+    onError: (error: any) => {
+      toast.error(error?.message || "Erreur lors de l'approbation");
       console.error(error);
     },
   });
@@ -221,14 +221,48 @@ export const useRejectRequisition = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, reason, rejectorName }: { id: string; reason: string; rejectorName: string }) =>
-      purchasingApi.rejectRequisition(id, reason, rejectorName),
+    mutationFn: async ({ id, reason }: { id: string; reason: string }) =>
+      purchasingApi.rejectRequisition(id, reason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['requisitions'] });
       toast.success('Demande rejetée');
     },
-    onError: (error) => {
-      toast.error('Erreur lors du rejet');
+    onError: (error: any) => {
+      toast.error(error?.message || 'Erreur lors du rejet');
+      console.error(error);
+    },
+  });
+};
+
+export const useReturnRequisition = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, reason }: { id: string; reason: string }) =>
+      purchasingApi.returnRequisition(id, reason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['requisitions'] });
+      toast.success('Demande renvoyée pour correction');
+    },
+    onError: (error: any) => {
+      toast.error(error?.message || 'Erreur lors du retour');
+      console.error(error);
+    },
+  });
+};
+
+export const useSubmitRequisition = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, reason }: { id: string; reason?: string | null }) =>
+      purchasingApi.submitRequisition(id, reason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['requisitions'] });
+      toast.success('Demande soumise');
+    },
+    onError: (error: any) => {
+      toast.error(error?.message || 'Erreur lors de la soumission');
       console.error(error);
     },
   });

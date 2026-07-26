@@ -1,7 +1,60 @@
 import { Material, Supplier } from './mes';
 
 export type UrgencyLevel = 'low' | 'normal' | 'high' | 'critical';
-export type RequisitionStatus = 'draft' | 'pending_approval' | 'approved' | 'rejected' | 'ordered' | 'cancelled';
+
+/** Canonical workflow statuses (+ legacy lowercase for existing rows). */
+export type RequisitionStatus =
+  | 'DRAFT'
+  | 'SUBMITTED'
+  | 'DEPARTMENT_APPROVED'
+  | 'PURCHASING_REVIEW'
+  | 'FINANCE_APPROVAL'
+  | 'APPROVED'
+  | 'ORDERED'
+  | 'REJECTED'
+  | 'RETURNED_FOR_CHANGES'
+  | 'CANCELLED'
+  | 'draft'
+  | 'pending_approval'
+  | 'approved'
+  | 'rejected'
+  | 'ordered'
+  | 'cancelled';
+
+export const normalizeRequisitionStatus = (status?: string | null): RequisitionStatus => {
+  const raw = String(status || '').trim();
+  if (!raw) return 'DRAFT';
+  const upper = raw.toUpperCase();
+  const map: Record<string, RequisitionStatus> = {
+    DRAFT: 'DRAFT',
+    SUBMITTED: 'SUBMITTED',
+    DEPARTMENT_APPROVED: 'DEPARTMENT_APPROVED',
+    PURCHASING_REVIEW: 'PURCHASING_REVIEW',
+    FINANCE_APPROVAL: 'FINANCE_APPROVAL',
+    APPROVED: 'APPROVED',
+    ORDERED: 'ORDERED',
+    REJECTED: 'REJECTED',
+    RETURNED_FOR_CHANGES: 'RETURNED_FOR_CHANGES',
+    CANCELLED: 'CANCELLED',
+    draft: 'DRAFT',
+    pending_approval: 'SUBMITTED',
+    approved: 'APPROVED',
+    rejected: 'REJECTED',
+    ordered: 'ORDERED',
+    cancelled: 'CANCELLED',
+  };
+  return map[upper] ?? map[raw.toLowerCase()] ?? 'DRAFT';
+};
+
+export const isRequisitionPending = (status?: string | null) => {
+  const normalized = normalizeRequisitionStatus(status);
+  return (
+    normalized === 'SUBMITTED' ||
+    normalized === 'DEPARTMENT_APPROVED' ||
+    normalized === 'PURCHASING_REVIEW' ||
+    normalized === 'FINANCE_APPROVAL'
+  );
+};
 
 export type PurchaseOrderType = 'ferme' | 'sur_pied' | 'ouverte';
 export type QualiteAttendue = 'Extra' | 'Cat.I' | 'Cat.II' | 'Mixte';
@@ -103,7 +156,20 @@ export interface RequisitionApproval {
   level: string;
   label: string;
   approved_by: string;
+  approved_by_id?: string | null;
   approved_at: string;
+}
+
+export interface RequisitionWorkflowTransition {
+  from_status: string;
+  to_status: string;
+  action: string;
+  actor_id: string;
+  actor_name: string;
+  timestamp: string;
+  reason: string | null;
+  department: string | null;
+  approval_level: string | null;
 }
 
 export interface PurchaseRequisition {
@@ -123,6 +189,8 @@ export interface PurchaseRequisition {
   status: RequisitionStatus;
   /** Niveaux déjà signés (matrice d'approbation par seuils). */
   approvals?: RequisitionApproval[] | null;
+  workflow_history?: RequisitionWorkflowTransition[] | null;
+  current_approval_level?: string | null;
   approved_by: string | null;
   approved_at: string | null;
   rejection_reason: string | null;
@@ -357,7 +425,18 @@ export const urgencyColors: Record<UrgencyLevel, string> = {
   critical: 'bg-red-500',
 };
 
-export const requisitionStatusLabels: Record<RequisitionStatus, string> = {
+export const requisitionStatusLabels: Record<string, string> = {
+  DRAFT: 'Brouillon',
+  SUBMITTED: 'Soumise — validation département',
+  DEPARTMENT_APPROVED: 'Validée département',
+  PURCHASING_REVIEW: 'Revue Achats',
+  FINANCE_APPROVAL: 'Approbation finance',
+  APPROVED: 'Approuvée',
+  ORDERED: 'Commandée',
+  REJECTED: 'Rejetée',
+  RETURNED_FOR_CHANGES: 'Retour pour correction',
+  CANCELLED: 'Annulée',
+  // legacy
   draft: 'Brouillon',
   pending_approval: 'En attente validation',
   approved: 'Validée',
@@ -366,7 +445,17 @@ export const requisitionStatusLabels: Record<RequisitionStatus, string> = {
   cancelled: 'Annulée',
 };
 
-export const requisitionStatusColors: Record<RequisitionStatus, string> = {
+export const requisitionStatusColors: Record<string, string> = {
+  DRAFT: 'bg-gray-500',
+  SUBMITTED: 'bg-yellow-500',
+  DEPARTMENT_APPROVED: 'bg-amber-500',
+  PURCHASING_REVIEW: 'bg-orange-500',
+  FINANCE_APPROVAL: 'bg-purple-500',
+  APPROVED: 'bg-green-500',
+  ORDERED: 'bg-blue-500',
+  REJECTED: 'bg-red-500',
+  RETURNED_FOR_CHANGES: 'bg-amber-600',
+  CANCELLED: 'bg-gray-400',
   draft: 'bg-gray-500',
   pending_approval: 'bg-yellow-500',
   approved: 'bg-green-500',

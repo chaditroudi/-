@@ -44,7 +44,16 @@ export const useManagedUsers = () =>
 export const useUpdateManagedUser = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, patch }: { id: string; patch: { is_active?: boolean; roles?: string[] } }) => {
+    mutationFn: async ({ id, patch }: {
+      id: string;
+      patch: {
+        is_active?: boolean;
+        roles?: string[];
+        departments?: string[];
+        primary_department?: string | null;
+        org_roles?: string[];
+      };
+    }) => {
       const res = await apiRequest<{ data: ManagedUser }>(`/settings/users/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(patch),

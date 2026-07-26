@@ -258,7 +258,7 @@ export const prepareInsertDocument = async (collection, rawInput) => {
     }
     if (collection === "purchase_requisitions") {
         doc.requisition_number = doc.requisition_number || (await nextDailyNumber("DA"));
-        doc.status = doc.status || "draft";
+        doc.status = doc.status || "DRAFT";
     }
     if (collection === "purchase_orders") {
         doc.order_number = doc.order_number || (await nextDailyNumber("BC"));

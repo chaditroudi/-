@@ -16,16 +16,23 @@ import { RequireAuthGuard, RolesGuard } from "../../nest/route-guards.js";
 import { publishRealtimeDbChange } from "../realtime/realtime.bus.js";
 import { PurchasingService } from "./purchasing.service.js";
 const PURCHASING_ROLES = ["responsable_achats", "directeur_achat", "admin", "direction"];
-const REQUISITION_ROLES = [...PURCHASING_ROLES, "responsable_stock"];
-const PURCHASING_READ_ROLES = [
+const REQUISITION_ROLES = [
     ...PURCHASING_ROLES,
     "responsable_stock",
+    "magasinier_wms",
+    "responsable_production",
+    "responsable_qualite",
+    "responsable_maintenance",
+    "responsable_logistique",
     "responsable_reception",
     "chef_reception",
-    "operateur_reception",
     "directeur_general",
     "directeur_usine",
     "administrateur_systeme",
+];
+const PURCHASING_READ_ROLES = [
+    ...REQUISITION_ROLES,
+    "operateur_reception",
 ];
 let PurchasingController = class PurchasingController {
     purchasingService;
@@ -65,6 +72,18 @@ let PurchasingController = class PurchasingController {
         });
         return { data };
     }
+    async submitRequisition(req, id, body) {
+        const data = await this.purchasingService.submitRequisition(id, req.auth?.user || null, body?.reason);
+        publishRealtimeDbChange({
+            type: "purchase_requisition_submitted",
+            table: "purchase_requisitions",
+            action: "UPDATE",
+            rows: data ? [data] : [],
+            rowIds: [String(data?.id || id)].filter(Boolean),
+            relatedTables: ["purchasing_stats"],
+        });
+        return { data };
+    }
     async updateRequisition(id, body) {
         const data = await this.purchasingService.updateRequisition(id, body || {});
         publishRealtimeDbChange({
@@ -77,8 +96,11 @@ let PurchasingController = class PurchasingController {
         });
         return { data };
     }
-    async approveRequisition(id, body) {
-        const data = await this.purchasingService.approveRequisition(id, body?.approverName);
+    async approveRequisition(req, id, body) {
+        const data = await this.purchasingService.approveRequisition(id, req.auth?.user || null, {
+            reason: body?.reason,
+            approverName: body?.approverName,
+        });
         publishRealtimeDbChange({
             type: "purchase_requisition_approved",
             table: "purchase_requisitions",
@@ -89,10 +111,34 @@ let PurchasingController = class PurchasingController {
         });
         return { data };
     }
-    async rejectRequisition(id, body) {
-        const data = await this.purchasingService.rejectRequisition(id, body?.reason, body?.rejectorName);
+    async rejectRequisition(req, id, body) {
+        const data = await this.purchasingService.rejectRequisition(id, body?.reason, req.auth?.user || null, body?.rejectorName);
         publishRealtimeDbChange({
             type: "purchase_requisition_rejected",
+            table: "purchase_requisitions",
+            action: "UPDATE",
+            rows: data ? [data] : [],
+            rowIds: [String(data?.id || id)].filter(Boolean),
+            relatedTables: ["purchasing_stats"],
+        });
+        return { data };
+    }
+    async returnRequisition(req, id, body) {
+        const data = await this.purchasingService.returnRequisition(id, body?.reason, req.auth?.user || null);
+        publishRealtimeDbChange({
+            type: "purchase_requisition_returned",
+            table: "purchase_requisitions",
+            action: "UPDATE",
+            rows: data ? [data] : [],
+            rowIds: [String(data?.id || id)].filter(Boolean),
+            relatedTables: ["purchasing_stats"],
+        });
+        return { data };
+    }
+    async cancelRequisition(req, id, body) {
+        const data = await this.purchasingService.cancelRequisition(id, req.auth?.user || null, body?.reason);
+        publishRealtimeDbChange({
+            type: "purchase_requisition_cancelled",
             table: "purchase_requisitions",
             action: "UPDATE",
             rows: data ? [data] : [],
@@ -302,6 +348,16 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], PurchasingController.prototype, "createRequisition", null);
 __decorate([
+    Post("requisitions/:id/submit"),
+    Roles(...REQUISITION_ROLES),
+    __param(0, Req()),
+    __param(1, Param("id")),
+    __param(2, Body()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", Promise)
+], PurchasingController.prototype, "submitRequisition", null);
+__decorate([
     Patch("requisitions/:id"),
     Roles(...REQUISITION_ROLES),
     __param(0, Param("id")),
@@ -313,21 +369,43 @@ __decorate([
 __decorate([
     Post("requisitions/:id/approve"),
     Roles(...REQUISITION_ROLES),
-    __param(0, Param("id")),
-    __param(1, Body()),
+    __param(0, Req()),
+    __param(1, Param("id")),
+    __param(2, Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [Object, String, Object]),
     __metadata("design:returntype", Promise)
 ], PurchasingController.prototype, "approveRequisition", null);
 __decorate([
     Post("requisitions/:id/reject"),
     Roles(...REQUISITION_ROLES),
-    __param(0, Param("id")),
-    __param(1, Body()),
+    __param(0, Req()),
+    __param(1, Param("id")),
+    __param(2, Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [Object, String, Object]),
     __metadata("design:returntype", Promise)
 ], PurchasingController.prototype, "rejectRequisition", null);
+__decorate([
+    Post("requisitions/:id/return"),
+    Roles(...REQUISITION_ROLES),
+    __param(0, Req()),
+    __param(1, Param("id")),
+    __param(2, Body()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", Promise)
+], PurchasingController.prototype, "returnRequisition", null);
+__decorate([
+    Post("requisitions/:id/cancel"),
+    Roles(...REQUISITION_ROLES),
+    __param(0, Req()),
+    __param(1, Param("id")),
+    __param(2, Body()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", Promise)
+], PurchasingController.prototype, "cancelRequisition", null);
 __decorate([
     Delete("requisitions/:id"),
     Roles(...REQUISITION_ROLES),

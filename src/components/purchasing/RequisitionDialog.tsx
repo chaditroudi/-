@@ -76,7 +76,7 @@ export const RequisitionDialog = ({
       estimated_cost: '',
       preferred_supplier_id: '',
       notes: '',
-      status: 'pending_approval'
+      status: 'SUBMITTED'
     }
   });
 
@@ -116,7 +116,7 @@ export const RequisitionDialog = ({
         estimated_cost: '',
         preferred_supplier_id: '',
         notes: '',
-        status: 'pending_approval'
+        status: 'SUBMITTED'
       });
     }
   }, [requisition, reset]);
@@ -133,7 +133,7 @@ export const RequisitionDialog = ({
   }, [materialId, materials, setValue]);
 
   const onSubmit = (data: RequisitionFormValues) => {
-    const status = requisition ? requisition.status : 'pending_approval';
+    const status = requisition ? requisition.status : 'SUBMITTED';
     const notes = buildRequisitionNotes(data.notes || '', {
       site: data.site || '',
       desiredDate: data.desired_date || ''
@@ -207,9 +207,12 @@ export const RequisitionDialog = ({
                 <SelectContent>
                   <SelectItem value="production">Production</SelectItem>
                   <SelectItem value="stock">Stock</SelectItem>
-                  <SelectItem value="qualite">Qualité</SelectItem>
+                  <SelectItem value="quality">Qualité</SelectItem>
                   <SelectItem value="maintenance">Maintenance</SelectItem>
-                  <SelectItem value="logistique">Logistique</SelectItem>
+                  <SelectItem value="logistics">Logistique</SelectItem>
+                  <SelectItem value="hr">RH</SelectItem>
+                  <SelectItem value="reception">Réception</SelectItem>
+                  <SelectItem value="purchasing">Achats</SelectItem>
                 </SelectContent>
               </Select>
             </div>

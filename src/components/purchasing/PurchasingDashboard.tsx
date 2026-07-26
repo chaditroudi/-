@@ -25,6 +25,8 @@ import {
   useUpdateRequisition,
   useApproveRequisition,
   useRejectRequisition,
+  useReturnRequisition,
+  useSubmitRequisition,
   useDeleteRequisition,
   usePurchaseOrders,
   useCreatePurchaseOrder,
@@ -48,8 +50,15 @@ import type { ActorRole } from '@/types/roles';
 
 const REQUISITION_WORKFLOW_ROLES: ActorRole[] = [
   'responsable_stock',
+  'magasinier_wms',
   'responsable_achats',
   'directeur_achat',
+  'responsable_production',
+  'responsable_qualite',
+  'responsable_maintenance',
+  'responsable_logistique',
+  'responsable_reception',
+  'chef_reception',
   'directeur_general',
   'directeur_usine',
   'administrateur_systeme',
@@ -121,8 +130,9 @@ type PurchaseOrderSaveData = {
 
 export const PurchasingDashboard = ({ onNavigate }: { onNavigate?: (tab: string, prefillPOId?: string) => void }) => {
   const { t } = useTranslation();
-  const { hasAnyRole, roles, profile } = useAuthContext();
+  const { hasAnyRole, roles, profile, user } = useAuthContext();
   const currentUser = profile?.full_name ?? 'Utilisateur';
+  const currentUserId = user?.id ?? null;
   const [activeTab, setActiveTab] = useState('requisitions');
   const [reqDialogOpen, setReqDialogOpen] = useState(false);
   const [orderDialogOpen, setOrderDialogOpen] = useState(false);
@@ -172,6 +182,8 @@ export const PurchasingDashboard = ({ onNavigate }: { onNavigate?: (tab: string,
   const updateReq = useUpdateRequisition();
   const approveReq = useApproveRequisition();
   const rejectReq = useRejectRequisition();
+  const returnReq = useReturnRequisition();
+  const submitReq = useSubmitRequisition();
   const deleteReq = useDeleteRequisition();
 
   const createOrder = useCreatePurchaseOrder();
@@ -209,7 +221,7 @@ export const PurchasingDashboard = ({ onNavigate }: { onNavigate?: (tab: string,
         onSuccess: () => setReqDialogOpen(false)
       });
     } else {
-      createReq.mutate({ ...data, status: 'pending_approval' }, {
+      createReq.mutate({ ...data, status: 'SUBMITTED' }, {
         onSuccess: () => setReqDialogOpen(false)
       });
     }
@@ -518,9 +530,10 @@ export const PurchasingDashboard = ({ onNavigate }: { onNavigate?: (tab: string,
              onEdit={handleEditReq}
              onView={(req) => setDetailReq(req)}
              onDelete={(id) => deleteReq.mutate(id)}
-             onApprove={(id, name) => approveReq.mutate({ id, approverName: name })}
-             onSignLevel={(id, approvals) => updateReq.mutate({ id, approvals })}
-             onReject={(id, reason, name) => rejectReq.mutate({ id, reason, rejectorName: name })}
+             onApprove={(id) => approveReq.mutate({ id })}
+             onReject={(id, reason) => rejectReq.mutate({ id, reason })}
+             onReturn={(id, reason) => returnReq.mutate({ id, reason })}
+             onSubmit={(id) => submitReq.mutate({ id })}
              onCreateOrder={handleCreateOrderFromReq}
              canCreate={canManageRequisitions}
              canApprove={canManageRequisitions}
@@ -530,6 +543,7 @@ export const PurchasingDashboard = ({ onNavigate }: { onNavigate?: (tab: string,
              canCreateOrder={canManagePurchaseOrders}
              workflowMessage={workflowMessage}
              currentUser={currentUser}
+             currentUserId={currentUserId}
            />
          </TabsContent>
 

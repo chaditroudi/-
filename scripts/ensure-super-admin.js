@@ -87,6 +87,9 @@ if (!user) {
       role: "administrateur_systeme",
       roles,
       domains: ["admin", "direction", "achat", "reception", "qualite", "production", "magasin", "export", "maintenance"],
+      departments: ["direction", "purchasing", "stock", "production", "quality", "maintenance", "reception", "logistics"],
+      primary_department: "direction",
+      org_roles: ["employee", "department_manager", "purchasing_manager", "finance_director"],
     },
     is_active: true,
     created_at: now,
@@ -100,6 +103,9 @@ if (!user) {
     role: "administrateur_systeme",
     roles,
     domains: ["admin", "direction", "achat", "reception", "qualite", "production", "magasin", "export", "maintenance"],
+    departments: ["direction", "purchasing", "stock", "production", "quality", "maintenance", "reception", "logistics"],
+    primary_department: "direction",
+    org_roles: ["employee", "department_manager", "purchasing_manager", "finance_director"],
   };
   user.is_active = true;
   user.updated_at = now;
