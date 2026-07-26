@@ -10,9 +10,26 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 import { Injectable } from "@nestjs/common";
 import { badRequest, notFound } from "../../core/app-error.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
+import { DIRECTION_ROLES, QUALITY_ROLES, STOCK_ROLES, } from "../../middleware/authorization.js";
 import { emitNotification } from "../notifications/notification-emitter.js";
 import { LotLedgerService, lotLedgerService } from "./lot-ledger.service.js";
 import { assertCanRecordStage, GOLDEN_THREAD_STAGES, goldenThreadProgress, isGoldenThreadComplete, STAGE_EVENT, stageFromChain, stagesAchieved, } from "./lot-state-machine.js";
+/** Process-local counter of dual-run ledger stage misses. Resettable for tests. */
+let swallowedStageFailures = 0;
+export const getSwallowedStageFailureCount = () => swallowedStageFailures;
+export const resetSwallowedStageFailureCount = () => {
+    swallowedStageFailures = 0;
+};
+const LEDGER_FAILURE_ROLES = Array.from(new Set([...QUALITY_ROLES, ...STOCK_ROLES, ...DIRECTION_ROLES, "administrateur_systeme"]));
+const readErrorCode = (error) => {
+    const code = error?.code;
+    return typeof code === "string" && code.trim() ? code.trim() : "LOT_STAGE_FAILED";
+};
+const readErrorMessage = (error) => {
+    if (error instanceof Error && error.message)
+        return error.message;
+    return String(error || "Unknown ledger stage failure");
+};
 /**
  * Golden-thread stage → notification routing.
  * `space` targets the owning actors (see SPACE_ROLES in authorization.ts);
@@ -194,8 +211,61 @@ let LotLifecycleService = class LotLifecycleService {
         }
         catch (error) {
             // Never block shop-floor writes on ledger/FSM failures during dual-run —
-            // log and continue. Hard gates still live in gate-rules for production/shipment.
-            console.error("[W1] lot lifecycle recordStage failed:", error);
+            // log, surface a warn notification, and continue. Hard gates still live
+            // in gate-rules for production/shipment; flip TRUST_*_GATE=enforce only
+            // after these warnings go quiet for a shift.
+            swallowedStageFailures += 1;
+            const code = readErrorCode(error);
+            const message = readErrorMessage(error);
+            console.error("[W1] lot lifecycle recordStage failed:", {
+                lotId: input.lotId,
+                stage: input.toStage,
+                collection: input.collection,
+                code,
+                message,
+                failures: swallowedStageFailures,
+                error,
+            });
+            await emitNotification({
+                notificationType: "LOT_LEDGER_STAGE_FAILED",
+                category: "traceability",
+                space: "alerts",
+                severity: "warning",
+                title: `Étape ledger manquante — ${input.toStage}`,
+                message: `Lot ${input.lotId}: ${message}`,
+                entityType: "reception_lots",
+                entityId: input.lotId,
+                actionUrl: `/scan?lot=${encodeURIComponent(input.lotId)}`,
+                targetRoles: LEDGER_FAILURE_ROLES,
+                actorId: input.actorId,
+                metadata: {
+                    stage: input.toStage,
+                    collection: input.collection,
+                    code,
+                    dual_run: true,
+                    swallowed_count: swallowedStageFailures,
+                },
+            });
+            // Leave an auditable GATE_BLOCKED tip so passport/recall show the attempt.
+            try {
+                await this.ledger.append({
+                    lotId: input.lotId,
+                    eventType: "GATE_BLOCKED",
+                    collection: input.collection,
+                    action: "GATE",
+                    actorId: input.actorId,
+                    payload: {
+                        attempted_stage: input.toStage,
+                        code,
+                        message,
+                        dual_run: true,
+                    },
+                    relatedIds: input.relatedIds,
+                });
+            }
+            catch (appendError) {
+                console.error("[W1] GATE_BLOCKED append failed:", appendError);
+            }
             return { skipped: true, stage: input.toStage, event: null, error };
         }
     }

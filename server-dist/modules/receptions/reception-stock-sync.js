@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
+import { lotLedgerService } from "../trust/lot-ledger.service.js";
 const StockLotModel = () => getCollectionModel("stock_lots");
 const ReceptionLotModel = () => getCollectionModel("reception_lots");
 const DEFAULT_RAW_PRODUCT = {
@@ -37,6 +38,27 @@ const resolveProductId = async () => {
     const prepared = await prepareInsertDocument("products", DEFAULT_RAW_PRODUCT);
     await Product.create([prepared]);
     return String(prepared.id);
+};
+const appendStockSyncEvent = async (input) => {
+    try {
+        await lotLedgerService.append({
+            lotId: input.receptionLotId,
+            eventType: "STOCK_SYNCED",
+            collection: "stock_lots",
+            action: input.created ? "INSERT" : "UPDATE",
+            actorId: input.actorId || null,
+            payload: {
+                stock_lot_id: input.stockLotId,
+                status: input.status,
+                source_sync_reason: input.sourceSyncReason,
+            },
+            relatedIds: [input.stockLotId],
+        });
+    }
+    catch (error) {
+        // Dual-run: stock projection must not fail intake if the ledger tip races.
+        console.error("[W0] STOCK_SYNCED ledger append failed:", error);
+    }
 };
 export const syncReceptionLotsToStock = async (lots, options) => {
     const stockLotModel = StockLotModel();
@@ -87,12 +109,26 @@ export const syncReceptionLotsToStock = async (lots, options) => {
             created_by: options?.actorId || null,
             updated_at: new Date().toISOString(),
         };
+        let stockLotId;
+        const created = !existing;
         if (existing) {
+            stockLotId = String(existing.id);
             await stockLotModel.updateOne({ id: existing.id }, { $set: payload }).exec();
         }
         else {
             const prepared = await prepareInsertDocument("stock_lots", payload);
             await stockLotModel.create([prepared]);
+            stockLotId = String(prepared.id);
+        }
+        if (lot.id) {
+            await appendStockSyncEvent({
+                receptionLotId: String(lot.id),
+                stockLotId,
+                actorId: options?.actorId,
+                created,
+                status: String(payload.status),
+                sourceSyncReason: String(payload.source_sync_reason),
+            });
         }
     }
 };

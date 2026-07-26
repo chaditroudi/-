@@ -1,4 +1,14 @@
 import { badRequest } from "../../core/app-error.js";
+import { stagesAchieved } from "./lot-state-machine.js";
+export const SHIPMENT_CLOSING_STATUSES = new Set([
+    "CLOSED",
+    "SHIPPED",
+    "EXPEDIE",
+    "COMPLETED",
+    "CLOTURE",
+    "LIVRE",
+    "DELIVERED",
+]);
 const RELEASED_STOCK = new Set(["VALIDATED", "STOCK_LIBERE", "LIBERE", "RELEASED"]);
 const RELEASED_RECEPTION = new Set(["STOCK_LIBERE", "LIBERE"]);
 export const isLotReleasedForProduction = (lot) => {
@@ -56,14 +66,31 @@ export const evaluateShipmentDossier = (input) => {
         missing,
     };
 };
+/**
+ * Build export-dossier completeness from the hash-chained lot ledger — never from
+ * client-supplied booleans. Used when closing a shipment or bon d'expédition.
+ */
+export const evaluateShipmentDossierFromChain = (events, options = {}) => {
+    const types = new Set(events.map((event) => event.event_type));
+    const achieved = stagesAchieved(events);
+    const requiresCcp = options.requiresCcp !== false;
+    return evaluateShipmentDossier({
+        hasGenealogy: types.has("LOT_CREATED") || achieved.has("SUPPLIER_INTAKE"),
+        hasQcDecision: types.has("QC_DECIDED") || achieved.has("QC_DECIDED"),
+        requiresCcp,
+        hasCcpCertificate: types.has("CCP_COMPLETED") ||
+            types.has("CCP_SENSOR_ATTESTED") ||
+            achieved.has("FUMIGATION_CCP"),
+        hasPackaging: types.has("PACKAGED") || achieved.has("PACKED"),
+    });
+};
 export const assertShipmentDossierComplete = (dossier) => {
     if (dossier.missing.length > 0) {
         throw badRequest("SHIPMENT_DOSSIER_INCOMPLETE", "Shipment cannot close while the export dossier is incomplete.", { missing: dossier.missing });
     }
 };
+export const isShipmentClosingStatus = (nextStatus) => SHIPMENT_CLOSING_STATUSES.has(String(nextStatus || "").toUpperCase());
 export const assertShipmentNotClosableWhenIncomplete = (nextStatus, dossier) => {
-    const status = String(nextStatus || "").toUpperCase();
-    const closing = ["CLOSED", "SHIPPED", "EXPEDIE", "COMPLETED", "CLOTURE"].includes(status);
-    if (closing)
+    if (isShipmentClosingStatus(nextStatus))
         assertShipmentDossierComplete(dossier);
 };

@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { createInMemoryModel, type TestRow } from "../../test/in-memory-collection.js";
+import { buildLotEventRecord, verifyLotEventChain, type LotEventRecord } from "../trust/lot-ledger.js";
 import { storageService } from "./storage.service.js";
-
-type TestRow = Record<string, unknown>;
 
 const inserted: Record<string, TestRow[]> = {};
 const locations: TestRow[] = [];
@@ -59,21 +59,7 @@ vi.mock("../../db/dynamic-model.js", () => ({
       };
     }
 
-    if (collection === "storage_zones") {
-      return {
-        findOne: vi.fn(() => makeQuery(null)),
-        updateOne: vi.fn(() => ({ exec: async () => ({ acknowledged: true }) })),
-      };
-    }
-
-    return {
-      findOne: vi.fn(() => makeQuery(null)),
-      find: vi.fn(() => makeQuery([])),
-      insertMany: vi.fn(async (rows: TestRow[]) => {
-        inserted[collection] = [...(inserted[collection] || []), ...rows];
-      }),
-      updateOne: vi.fn(() => ({ exec: async () => ({ acknowledged: true }) })),
-    };
+    return createInMemoryModel(collection, inserted);
   },
 }));
 
@@ -171,6 +157,59 @@ describe("storageService.moveStock", () => {
     expect(movement.lot_id).toBe("lot-1");
     expect(movement.lot_code).toBe("STK-1");
     expect(stockLots[0].storage_location_id).toBe("dest-1");
+  });
+
+  it("records a COLD_STORE ledger event when the destination is a cold zone", async () => {
+    const lotId = "reception-lot-1";
+    const intake = buildLotEventRecord(
+      {
+        lotId,
+        eventType: "LOT_CREATED",
+        collection: "reception_lots",
+        action: "GATE",
+        actorId: "user-1",
+        payload: { stage: "SUPPLIER_INTAKE", route: "PREMIUM_WHOLE" },
+        prevHash: null,
+      },
+      1,
+    );
+    const qc = buildLotEventRecord(
+      {
+        lotId,
+        eventType: "QC_DECIDED",
+        collection: "qc_inspections",
+        action: "GATE",
+        actorId: "user-1",
+        payload: { stage: "QC_DECIDED", route: "PREMIUM_WHOLE" },
+        prevHash: intake.hash,
+      },
+      2,
+    );
+    inserted.lot_events = [intake, qc] as unknown as TestRow[];
+    stockLots.splice(0, stockLots.length, {
+      id: "lot-1",
+      lot_number: "LOT-A",
+      reception_lot_id: lotId,
+      current_quantity: 1000,
+    });
+    const destination = locations.find((row) => row.id === "dest-1");
+    if (destination) destination.zone_code = "CF-01";
+
+    await storageService.moveStock(
+      {
+        movementType: "ENTREE_ZONE",
+        lotCode: "LOT-A",
+        destinationLocationId: "dest-1",
+        reason: "RECEPTION",
+      },
+      { id: "user-1" },
+    );
+
+    const events = (inserted.lot_events || []) as unknown as LotEventRecord[];
+    expect(events).toHaveLength(3);
+    expect(events[2].event_type).toBe("STOCK_MOVED");
+    expect(events[2].payload).toMatchObject({ stage: "COLD_STORE", zone_code: "CF-01" });
+    expect(verifyLotEventChain(events).valid).toBe(true);
   });
 
   it("rejects unknown scanned LOT-ID values", async () => {

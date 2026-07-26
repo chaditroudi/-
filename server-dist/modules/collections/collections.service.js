@@ -59,10 +59,12 @@ const assertDomainGates = async (table, action, docs, beforeRows = []) => {
             await gateRulesService.assertProductionOrderWritable(doc);
         }
     }
-    if (table === "shipment_preparations") {
+    if (table === "shipment_preparations" || table === "bon_expeditions") {
         for (let i = 0; i < docs.length; i += 1) {
             const before = beforeRows[i] || beforeRows[0] || null;
-            await gateRulesService.assertShipmentWritable(before, docs[i]);
+            await gateRulesService.assertShipmentWritable(before, docs[i], {
+                collection: table,
+            });
         }
     }
     if (table === "production_lot_allocations") {

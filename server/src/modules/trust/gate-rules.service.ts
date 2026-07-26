@@ -1,13 +1,16 @@
 import { Injectable } from "@nestjs/common";
 
+import { badRequest } from "../../core/app-error.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
 import {
   assertLotsReleasedForProduction,
   assertNoOrganicConventionalMix,
-  assertShipmentNotClosableWhenIncomplete,
-  evaluateShipmentDossier,
+  assertShipmentDossierComplete,
+  evaluateShipmentDossierFromChain,
+  isShipmentClosingStatus,
   type LotReleaseStatus,
 } from "./gate-rules.js";
+import { lotLedgerService } from "./lot-ledger.service.js";
 
 const loadLotsByIds = async (ids: string[]): Promise<LotReleaseStatus[]> => {
   if (ids.length === 0) return [];
@@ -26,6 +29,66 @@ const loadLotsByIds = async (ids: string[]): Promise<LotReleaseStatus[]> => {
   ) as LotReleaseStatus[];
 
   return [...stockLots, ...receptionLots];
+};
+
+const pushId = (ids: Set<string>, value: unknown) => {
+  const id = String(value || "").trim();
+  if (id) ids.add(id);
+};
+
+const collectShipmentLotIds = (before: Record<string, unknown> | null, next: Record<string, unknown>) => {
+  const ids = new Set<string>();
+
+  for (const source of [next, before]) {
+    if (!source) continue;
+    if (Array.isArray(source.lot_ids)) {
+      for (const id of source.lot_ids) pushId(ids, id);
+    }
+    if (Array.isArray(source.lignes)) {
+      for (const ligne of source.lignes) {
+        const row = (ligne || {}) as Record<string, unknown>;
+        pushId(ids, row.lot_id);
+        pushId(ids, row.reception_lot_id);
+      }
+    }
+  }
+
+  return Array.from(ids);
+};
+
+const resolveReceptionLotId = async (lotId: string): Promise<string> => {
+  const stock = sanitizeDocument(
+    await getCollectionModel("stock_lots").findOne({ id: lotId }).lean().exec(),
+  ) as { reception_lot_id?: string; entry_lot_id?: string } | null;
+  if (stock?.reception_lot_id) return String(stock.reception_lot_id);
+  if (stock?.entry_lot_id) return String(stock.entry_lot_id);
+  return lotId;
+};
+
+const appendGateBlocked = async (input: {
+  lotId: string;
+  collection: string;
+  actorId?: string | null;
+  code: string;
+  message: string;
+  payload?: Record<string, unknown>;
+}) => {
+  try {
+    await lotLedgerService.append({
+      lotId: input.lotId,
+      eventType: "GATE_BLOCKED",
+      collection: input.collection,
+      action: "GATE",
+      actorId: input.actorId,
+      payload: {
+        code: input.code,
+        message: input.message,
+        ...(input.payload || {}),
+      },
+    });
+  } catch (error) {
+    console.error("[W0] GATE_BLOCKED append failed:", error);
+  }
 };
 
 @Injectable()
@@ -47,53 +110,68 @@ export class GateRulesService {
     }
 
     const lots = await loadLotsByIds(inputLotIds);
-    assertLotsReleasedForProduction(lots, inputLotIds);
-    assertNoOrganicConventionalMix(lots);
+    try {
+      assertLotsReleasedForProduction(lots, inputLotIds);
+      assertNoOrganicConventionalMix(lots);
+    } catch (error) {
+      const code = (error as { code?: string })?.code || "PRODUCTION_GATE_BLOCKED";
+      const message = error instanceof Error ? error.message : String(error);
+      for (const lotId of inputLotIds) {
+        await appendGateBlocked({
+          lotId,
+          collection: "production_orders",
+          code,
+          message,
+          payload: { attempted_status: status },
+        });
+      }
+      throw error;
+    }
   }
 
-  async assertShipmentWritable(before: Record<string, unknown> | null, next: Record<string, unknown>) {
-    const nextStatus = next.status ?? before?.status;
-    const enforce =
-      next.enforce_dossier === true ||
-      before?.enforce_dossier === true ||
-      [
-        "dossier_genealogy_ok",
-        "dossier_qc_ok",
-        "dossier_ccp_ok",
-        "dossier_packaging_ok",
-        "qc_complete",
-        "ccp_complete",
-        "packaging_complete",
-      ].some((key) => key in next || (before && key in before));
+  async assertShipmentWritable(
+    before: Record<string, unknown> | null,
+    next: Record<string, unknown>,
+    options: { collection?: string; actorId?: string | null } = {},
+  ) {
+    const nextStatus = next.status ?? next.statut ?? before?.status ?? before?.statut;
+    if (!isShipmentClosingStatus(typeof nextStatus === "string" ? nextStatus : null)) {
+      return;
+    }
 
-    if (!enforce) return;
-
-    const lotIds = Array.isArray(next.lot_ids)
-      ? next.lot_ids.map((id) => String(id))
-      : Array.isArray(before?.lot_ids)
-        ? (before?.lot_ids as unknown[]).map((id) => String(id))
-        : [];
-
-    const hasGenealogy = lotIds.length > 0;
-    const hasQc = Boolean(next.qc_complete ?? before?.qc_complete ?? next.has_qc ?? before?.has_qc);
+    const collection = options.collection || "shipment_preparations";
     const requiresCcp = Boolean(next.requires_ccp ?? before?.requires_ccp ?? true);
-    const hasCcp = Boolean(next.ccp_complete ?? before?.ccp_complete ?? next.has_ccp ?? before?.has_ccp);
-    const hasPackaging = Boolean(
-      next.packaging_complete ?? before?.packaging_complete ?? next.has_packaging ?? before?.has_packaging,
-    );
+    const lotIds = collectShipmentLotIds(before, next);
 
-    const dossier = evaluateShipmentDossier({
-      hasGenealogy: hasGenealogy || Boolean(next.dossier_genealogy_ok ?? before?.dossier_genealogy_ok),
-      hasQcDecision: hasQc || Boolean(next.dossier_qc_ok ?? before?.dossier_qc_ok),
-      requiresCcp,
-      hasCcpCertificate: hasCcp || Boolean(next.dossier_ccp_ok ?? before?.dossier_ccp_ok),
-      hasPackaging: hasPackaging || Boolean(next.dossier_packaging_ok ?? before?.dossier_packaging_ok),
-    });
+    if (lotIds.length === 0) {
+      throw badRequest(
+        "SHIPMENT_DOSSIER_INCOMPLETE",
+        "Shipment cannot close while the export dossier is incomplete.",
+        { missing: ["genealogy"] },
+      );
+    }
 
-    assertShipmentNotClosableWhenIncomplete(
-      typeof nextStatus === "string" ? nextStatus : null,
-      dossier,
-    );
+    for (const rawLotId of lotIds) {
+      const lotId = await resolveReceptionLotId(rawLotId);
+      const chain = await lotLedgerService.getChain(lotId);
+      const dossier = evaluateShipmentDossierFromChain(chain, { requiresCcp });
+
+      if (dossier.missing.length > 0) {
+        await appendGateBlocked({
+          lotId,
+          collection,
+          actorId: options.actorId,
+          code: "SHIPMENT_DOSSIER_INCOMPLETE",
+          message: "Shipment cannot close while the export dossier is incomplete.",
+          payload: {
+            attempted_status: nextStatus,
+            missing: dossier.missing,
+            source_lot_id: rawLotId,
+          },
+        });
+        assertShipmentDossierComplete(dossier);
+      }
+    }
   }
 }
 

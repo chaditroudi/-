@@ -43,7 +43,7 @@ export const EVENT_TO_STAGE: Partial<Record<LotEventType, LotStage>> = {
   LOT_WEIGHED: "WEIGHED",
   QC_DECIDED: "QC_DECIDED",
   STOCK_MOVED: "COLD_STORE",
-  STOCK_SYNCED: "COLD_STORE",
+  // STOCK_SYNCED is a warehouse projection sync — it must NOT advance COLD_STORE.
   CCP_COMPLETED: "FUMIGATION_CCP",
   CCP_SENSOR_ATTESTED: "FUMIGATION_CCP",
   COLD_CHAIN_ATTESTED: "COLD_STORE",

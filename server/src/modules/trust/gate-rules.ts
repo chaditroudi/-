@@ -1,4 +1,6 @@
 import { badRequest } from "../../core/app-error.js";
+import type { LotEventRecord } from "./lot-ledger.js";
+import { stagesAchieved } from "./lot-state-machine.js";
 
 export type LotReleaseStatus = {
   id: string;
@@ -17,6 +19,16 @@ export type DossierCompleteness = {
   hasPackaging: boolean;
   missing: string[];
 };
+
+export const SHIPMENT_CLOSING_STATUSES = new Set([
+  "CLOSED",
+  "SHIPPED",
+  "EXPEDIE",
+  "COMPLETED",
+  "CLOTURE",
+  "LIVRE",
+  "DELIVERED",
+]);
 
 const RELEASED_STOCK = new Set(["VALIDATED", "STOCK_LIBERE", "LIBERE", "RELEASED"]);
 const RELEASED_RECEPTION = new Set(["STOCK_LIBERE", "LIBERE"]);
@@ -98,6 +110,30 @@ export const evaluateShipmentDossier = (input: {
   };
 };
 
+/**
+ * Build export-dossier completeness from the hash-chained lot ledger — never from
+ * client-supplied booleans. Used when closing a shipment or bon d'expédition.
+ */
+export const evaluateShipmentDossierFromChain = (
+  events: LotEventRecord[],
+  options: { requiresCcp?: boolean } = {},
+): DossierCompleteness => {
+  const types = new Set(events.map((event) => event.event_type));
+  const achieved = stagesAchieved(events);
+  const requiresCcp = options.requiresCcp !== false;
+
+  return evaluateShipmentDossier({
+    hasGenealogy: types.has("LOT_CREATED") || achieved.has("SUPPLIER_INTAKE"),
+    hasQcDecision: types.has("QC_DECIDED") || achieved.has("QC_DECIDED"),
+    requiresCcp,
+    hasCcpCertificate:
+      types.has("CCP_COMPLETED") ||
+      types.has("CCP_SENSOR_ATTESTED") ||
+      achieved.has("FUMIGATION_CCP"),
+    hasPackaging: types.has("PACKAGED") || achieved.has("PACKED"),
+  });
+};
+
 export const assertShipmentDossierComplete = (dossier: DossierCompleteness) => {
   if (dossier.missing.length > 0) {
     throw badRequest(
@@ -108,11 +144,12 @@ export const assertShipmentDossierComplete = (dossier: DossierCompleteness) => {
   }
 };
 
+export const isShipmentClosingStatus = (nextStatus: string | null | undefined) =>
+  SHIPMENT_CLOSING_STATUSES.has(String(nextStatus || "").toUpperCase());
+
 export const assertShipmentNotClosableWhenIncomplete = (
   nextStatus: string | null | undefined,
   dossier: DossierCompleteness,
 ) => {
-  const status = String(nextStatus || "").toUpperCase();
-  const closing = ["CLOSED", "SHIPPED", "EXPEDIE", "COMPLETED", "CLOTURE"].includes(status);
-  if (closing) assertShipmentDossierComplete(dossier);
+  if (isShipmentClosingStatus(nextStatus)) assertShipmentDossierComplete(dossier);
 };
