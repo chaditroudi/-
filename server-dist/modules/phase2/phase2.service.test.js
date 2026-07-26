@@ -56,7 +56,17 @@ describe("phase2Service golden-thread stages", () => {
         const qc = buildLotEventRecord({ lotId, eventType: "QC_DECIDED", collection: "qc_inspections", action: "GATE", prevHash: intake.hash }, 2);
         const ccp = buildLotEventRecord({ lotId, eventType: "CCP_COMPLETED", collection: "fumigation_cycles", action: "GATE", prevHash: qc.hash }, 3);
         store.lot_events = [intake, qc, ccp];
-        store.reception_lots = [{ id: lotId, lot_internal: "LOT-TRI", reception_id: "rec-1" }];
+        store.reception_lots = [
+            {
+                id: lotId,
+                lot_internal: "LOT-TRI",
+                reception_id: "rec-1",
+                quantity: 175,
+                purchase_cost_tnd_per_kg: 10,
+                purchase_cost_tnd: 1750,
+                cost_source: "supplier.agreed_price_tnd_per_kg",
+            },
+        ];
         store.triage_sessions = [
             {
                 id: "session-1",
@@ -78,6 +88,15 @@ describe("phase2Service golden-thread stages", () => {
         const events = (store.lot_events || []);
         expect(events.map((event) => event.event_type)).toContain("TRANSFORMED");
         expect(verifyLotEventChain(events).valid).toBe(true);
+        const session = (store.triage_sessions || [])[0];
+        expect(session.status).toBe("TERMINE");
+        expect(session.input_cost_tnd).toBe(1750);
+        expect(session.mass_balance_variance_pct).toBe(0);
+        const sublots = (store.triage_sublots || []);
+        const reject = sublots.find((row) => row.grade === "REJETE");
+        const extra = sublots.find((row) => row.grade === "EXTRA");
+        expect(reject?.cost_tnd).toBe(0);
+        expect(Number(extra?.cost_tnd_per_kg)).toBeCloseTo(10.2941, 3);
     });
     it("blocks triage close when grade splits do not reconcile under enforce", async () => {
         vi.stubEnv("TRUST_MASS_BALANCE_GATE", "enforce");

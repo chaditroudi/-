@@ -13,6 +13,25 @@ export const resolveMassBalanceTolerancePct = (configured) => {
         return fromConfig;
     return DEFAULT_MASS_BALANCE_TOLERANCE_PCT;
 };
+let siteToleranceReader = null;
+/**
+ * Optional injectable reader so unit tests never hang on an unconnected
+ * mongoose SiteSettingsModel. Production wires this once at boot.
+ */
+export const setMassBalanceToleranceReader = (reader) => {
+    siteToleranceReader = reader;
+};
+/** Site setting `quality.mass_balance_tolerance_pct`, overridable by env. */
+export const loadConfiguredMassBalanceTolerancePct = async () => {
+    if (!siteToleranceReader)
+        return resolveMassBalanceTolerancePct();
+    try {
+        return resolveMassBalanceTolerancePct(await siteToleranceReader());
+    }
+    catch {
+        return resolveMassBalanceTolerancePct();
+    }
+};
 const toKg = (value) => {
     const n = Number(value);
     return Number.isFinite(n) ? n : 0;

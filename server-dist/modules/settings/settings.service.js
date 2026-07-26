@@ -7,6 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { Injectable } from "@nestjs/common";
 import { SiteSettingsModel } from "../../models/site-settings.model.js";
 import { AuthUserModel } from "../../models/auth-user.model.js";
+import { setMassBalanceToleranceReader } from "../trust/mass-balance.js";
 const DEFAULT_SETTINGS = {
     id: "global",
     company_name: "Royal Palm Dates",
@@ -203,6 +204,15 @@ const normalizeSettings = (value) => ({
     p2p: mergeP2PSettings(value?.p2p),
 });
 let SettingsService = class SettingsService {
+    onModuleInit() {
+        setMassBalanceToleranceReader(async () => {
+            const doc = (await SiteSettingsModel.findOne({ id: "global" })
+                .select("quality")
+                .lean()
+                .exec());
+            return doc?.quality?.mass_balance_tolerance_pct;
+        });
+    }
     async getSettings() {
         let doc = await SiteSettingsModel.findOne({ id: "global" }).lean().exec();
         if (!doc) {

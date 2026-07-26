@@ -8,7 +8,7 @@ import { Injectable } from "@nestjs/common";
 import { badRequest, notFound } from "../../core/app-error.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
-import { assertMassBalanceClosed, resolveMassBalanceTolerancePct, } from "../trust/mass-balance.js";
+import { assertMassBalanceClosed, loadConfiguredMassBalanceTolerancePct, } from "../trust/mass-balance.js";
 const Orders = () => getCollectionModel("production_orders");
 const Steps = () => getCollectionModel("production_steps");
 const Allocations = () => getCollectionModel("production_lot_allocations");
@@ -109,7 +109,7 @@ let ProductionService = class ProductionService {
         const totalInputKg = allocations.reduce((sum, a) => sum + Number(a.allocated_kg ?? 0), 0);
         const actualOutputKg = Number(body.actual_output_kg ?? order.actual_output_kg ?? 0);
         const wasteKg = Number(body.waste_kg ?? order.waste_kg ?? 0);
-        const balance = assertMassBalanceClosed({ inputKg: totalInputKg, outputsKg: [actualOutputKg], wasteKg }, { tolerancePct: resolveMassBalanceTolerancePct(), context: `OF production ${orderId}` });
+        const balance = assertMassBalanceClosed({ inputKg: totalInputKg, outputsKg: [actualOutputKg], wasteKg }, { tolerancePct: await loadConfiguredMassBalanceTolerancePct(), context: `OF production ${orderId}` });
         if (balance.action === "warn") {
             console.warn("[mass-balance] production order unbalanced:", { orderId, ...balance });
         }

@@ -1,7 +1,8 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, OnModuleInit } from "@nestjs/common";
 
 import { SiteSettingsModel } from "../../models/site-settings.model.js";
 import { AuthUserModel } from "../../models/auth-user.model.js";
+import { setMassBalanceToleranceReader } from "../trust/mass-balance.js";
 
 const DEFAULT_SETTINGS = {
   id: "global",
@@ -203,7 +204,17 @@ const normalizeSettings = (value?: Record<string, any> | null) => ({
 });
 
 @Injectable()
-export class SettingsService {
+export class SettingsService implements OnModuleInit {
+  onModuleInit() {
+    setMassBalanceToleranceReader(async () => {
+      const doc = (await SiteSettingsModel.findOne({ id: "global" })
+        .select("quality")
+        .lean()
+        .exec()) as { quality?: { mass_balance_tolerance_pct?: number | null } } | null;
+      return doc?.quality?.mass_balance_tolerance_pct;
+    });
+  }
+
   async getSettings() {
     let doc = await SiteSettingsModel.findOne({ id: "global" }).lean().exec();
     if (!doc) {

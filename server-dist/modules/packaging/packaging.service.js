@@ -9,7 +9,7 @@ import { badRequest, notFound } from "../../core/app-error.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
 import { lotLifecycleService } from "../trust/lot-lifecycle.service.js";
-import { assertMassBalanceClosed, resolveMassBalanceTolerancePct, } from "../trust/mass-balance.js";
+import { assertMassBalanceClosed, loadConfiguredMassBalanceTolerancePct, } from "../trust/mass-balance.js";
 import { emitNotification } from "../notifications/notification-emitter.js";
 const PackagingBoms = () => getCollectionModel("packaging_bom");
 const LabelTemplates = () => getCollectionModel("label_templates");
@@ -391,7 +391,7 @@ let PackagingService = class PackagingService {
             inputKg: sourceWeightKg,
             outputsKg: [producedKg],
             wasteKg,
-        }, { tolerancePct: resolveMassBalanceTolerancePct(), context: `OF ${orderNumber}` });
+        }, { tolerancePct: await loadConfiguredMassBalanceTolerancePct(), context: `OF ${orderNumber}` });
         if (balance.action === "warn") {
             console.warn("[mass-balance] packaging order unbalanced:", { orderId: id, ...balance });
             await createPackagingNotification({

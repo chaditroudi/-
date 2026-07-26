@@ -4,7 +4,7 @@ import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js"
 import { prepareInsertDocument } from "../../db/defaults.js";
 import {
   assertMassBalanceClosed,
-  resolveMassBalanceTolerancePct,
+  loadConfiguredMassBalanceTolerancePct,
 } from "../trust/mass-balance.js";
 
 const Orders = () => getCollectionModel("production_orders");
@@ -159,7 +159,7 @@ export class ProductionService {
     const wasteKg = Number(body.waste_kg ?? order.waste_kg ?? 0);
     const balance = assertMassBalanceClosed(
       { inputKg: totalInputKg, outputsKg: [actualOutputKg], wasteKg },
-      { tolerancePct: resolveMassBalanceTolerancePct(), context: `OF production ${orderId}` },
+      { tolerancePct: await loadConfiguredMassBalanceTolerancePct(), context: `OF production ${orderId}` },
     );
     if (balance.action === "warn") {
       console.warn("[mass-balance] production order unbalanced:", { orderId, ...balance });

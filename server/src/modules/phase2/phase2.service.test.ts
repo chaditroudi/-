@@ -81,7 +81,17 @@ describe("phase2Service golden-thread stages", () => {
       3,
     );
     store.lot_events = [intake, qc, ccp] as unknown as TestRow[];
-    store.reception_lots = [{ id: lotId, lot_internal: "LOT-TRI", reception_id: "rec-1" }];
+    store.reception_lots = [
+      {
+        id: lotId,
+        lot_internal: "LOT-TRI",
+        reception_id: "rec-1",
+        quantity: 175,
+        purchase_cost_tnd_per_kg: 10,
+        purchase_cost_tnd: 1750,
+        cost_source: "supplier.agreed_price_tnd_per_kg",
+      },
+    ];
     store.triage_sessions = [
       {
         id: "session-1",
@@ -105,6 +115,17 @@ describe("phase2Service golden-thread stages", () => {
     const events = (store.lot_events || []) as unknown as LotEventRecord[];
     expect(events.map((event) => event.event_type)).toContain("TRANSFORMED");
     expect(verifyLotEventChain(events).valid).toBe(true);
+
+    const session = (store.triage_sessions || [])[0] as TestRow;
+    expect(session.status).toBe("TERMINE");
+    expect(session.input_cost_tnd).toBe(1750);
+    expect(session.mass_balance_variance_pct).toBe(0);
+
+    const sublots = (store.triage_sublots || []) as TestRow[];
+    const reject = sublots.find((row) => row.grade === "REJETE");
+    const extra = sublots.find((row) => row.grade === "EXTRA");
+    expect(reject?.cost_tnd).toBe(0);
+    expect(Number(extra?.cost_tnd_per_kg)).toBeCloseTo(10.2941, 3);
   });
 
   it("blocks triage close when grade splits do not reconcile under enforce", async () => {

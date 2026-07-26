@@ -14,6 +14,7 @@ import { lotLifecycleService } from "../trust/lot-lifecycle.service.js";
 import { lotLedgerService } from "../trust/lot-ledger.service.js";
 import { emitNotification } from "../notifications/notification-emitter.js";
 import { scanService } from "../trust/scan.service.js";
+import { snapshotPurchaseCost } from "../costing/cost-allocation.js";
 
 // ── Supplier business-rule helpers ────────────────────────────────────────────
 
@@ -767,18 +768,27 @@ export class ReceptionsService {
 
     await Receptions().create([reception]);
 
-    const lotInputs = lots.map((lot, index) => ({
-      ...lot,
-      reception_id: reception.id,
-      quantity: Number(lot.quantity || 0),
-      unit: payload.unit || lot.unit || "kg",
-      stock_status: "EN_QUARANTAINE",
-      origin_country: lot.origin_country || payload.origin_country || "Tunisie",
-      variety: lot.variety || payload.variety || null,
-      maturity_stage: lot.maturity_stage || payload.maturity_stage || null,
-      article_ref: lot.article_ref || null,
-      qr_code_payload: lot.qr_code_payload || `passport:${reception.reception_number}-LOT-${index + 1}`,
-    }));
+    const agreedPrice = Number((supplier as Record<string, unknown>).agreed_price_tnd_per_kg);
+    const lotInputs = lots.map((lot, index) => {
+      const quantity = Number(lot.quantity || 0);
+      const costSnapshot = snapshotPurchaseCost({
+        quantityKg: quantity,
+        agreedPriceTndPerKg: Number.isFinite(agreedPrice) ? agreedPrice : null,
+      });
+      return {
+        ...lot,
+        reception_id: reception.id,
+        quantity,
+        unit: payload.unit || lot.unit || "kg",
+        stock_status: "EN_QUARANTAINE",
+        origin_country: lot.origin_country || payload.origin_country || "Tunisie",
+        variety: lot.variety || payload.variety || null,
+        maturity_stage: lot.maturity_stage || payload.maturity_stage || null,
+        article_ref: lot.article_ref || null,
+        qr_code_payload: lot.qr_code_payload || `passport:${reception.reception_number}-LOT-${index + 1}`,
+        ...costSnapshot,
+      };
+    });
 
     const createdLots = [];
     for (const lotInput of lotInputs) {

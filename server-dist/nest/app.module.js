@@ -39,6 +39,7 @@ import { SuppliersModule } from "../modules/suppliers/suppliers.module.js";
 import { TrustModule } from "../modules/trust/trust.module.js";
 import { WeighbridgeModule } from "../modules/weighbridge/weighbridge.module.js";
 import { CcpSensorsModule } from "../modules/ccp-sensors/ccp-sensors.module.js";
+import { CostingModule } from "../modules/costing/costing.module.js";
 import { AppController } from "./app.controller.js";
 import { GuardsModule } from "./guards.module.js";
 let AppModule = class AppModule {
@@ -50,6 +51,7 @@ AppModule = __decorate([
             TrustModule,
             WeighbridgeModule,
             CcpSensorsModule,
+            CostingModule,
             AuthModule,
             BonReceptionAchatModule,
             BonExpeditionModule,

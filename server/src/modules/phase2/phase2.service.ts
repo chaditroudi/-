@@ -10,8 +10,9 @@ import { lotLedgerService } from "../trust/lot-ledger.service.js";
 import { ccpGateMode, evaluateFumigationCcp } from "../trust/ccp-evidence.js";
 import {
   assertMassBalanceClosed,
-  resolveMassBalanceTolerancePct,
+  loadConfiguredMassBalanceTolerancePct,
 } from "../trust/mass-balance.js";
+import { allocateCostByWeight } from "../costing/cost-allocation.js";
 import { emitNotification } from "../notifications/notification-emitter.js";
 
 const pushNotif = (arr: NotificationRow[], row: NotificationRow | null) => {
@@ -893,7 +894,7 @@ export class Phase2Service {
 
     const balance = assertMassBalanceClosed(
       { inputKg: weightInKg, outputsKg: [weightOutKg], wasteKg: wasteWeightKg },
-      { tolerancePct: resolveMassBalanceTolerancePct(), context: `nettoyage ${id}` },
+      { tolerancePct: await loadConfiguredMassBalanceTolerancePct(), context: `nettoyage ${id}` },
     );
     if (balance.action === "warn") {
       console.warn("[mass-balance] cleaning cycle unbalanced:", balance);
@@ -1466,13 +1467,15 @@ export class Phase2Service {
       );
     }
 
+    // REJETE is a graded output stream (destination DESTRUCTION), not
+    // unaccounted waste — counting it as both would double-count for costing.
     const balance = assertMassBalanceClosed(
       {
         inputKg: parentWeightKg,
-        outputsKg: [weightExtraKg, weightCat1Kg, weightCat2Kg],
-        wasteKg: weightRejectKg,
+        outputsKg: [weightExtraKg, weightCat1Kg, weightCat2Kg, weightRejectKg],
+        wasteKg: 0,
       },
-      { tolerancePct: resolveMassBalanceTolerancePct(), context: `triage ${id}` },
+      { tolerancePct: await loadConfiguredMassBalanceTolerancePct(), context: `triage ${id}` },
     );
     if (balance.action === "warn") {
       console.warn("[mass-balance] triage session unbalanced:", {
@@ -1501,6 +1504,37 @@ export class Phase2Service {
       ? round1(readNumber(session.total_sorted_kg, balance.accountedKg) / (durationMinutes / 60))
       : null;
 
+    const parentLotId = await lotLifecycleService.resolveReceptionLotId({
+      lotNumber: readString(session.parent_lot_number),
+      receptionId: readString(session.parent_reception_id),
+    });
+    const parentLot = parentLotId
+      ? (sanitizeDocument(
+          await getCollectionModel("reception_lots").findOne({ id: parentLotId }).lean().exec(),
+        ) as Record<string, unknown> | null)
+      : null;
+    const snapshottedCost = Number(parentLot?.purchase_cost_tnd);
+    const derivedCost =
+      Number(parentLot?.purchase_cost_tnd_per_kg) * parentWeightKg;
+    const inputCostTnd =
+      Number.isFinite(snapshottedCost) && snapshottedCost > 0
+        ? snapshottedCost
+        : Number.isFinite(derivedCost) && derivedCost > 0
+          ? derivedCost
+          : 0;
+    const costAllocation = allocateCostByWeight({
+      inputCostTnd,
+      outputs: [
+        { id: "EXTRA", weightKg: weightExtraKg, valueWeight: 1 },
+        { id: "CATEGORIE_I", weightKg: weightCat1Kg, valueWeight: 1 },
+        { id: "CATEGORIE_II", weightKg: weightCat2Kg, valueWeight: 1 },
+        { id: "REJETE", weightKg: weightRejectKg, valueWeight: 0 },
+      ],
+    });
+    const costByGrade = Object.fromEntries(
+      costAllocation.streams.map((stream) => [stream.id, stream]),
+    );
+
     await TriageSessions().updateOne(
       { id },
       {
@@ -1511,6 +1545,7 @@ export class Phase2Service {
           yield_kg_per_hour: yieldKgPerHour,
           total_sorted_kg: readNumber(session.total_sorted_kg, balance.accountedKg),
           mass_balance_variance_pct: balance.variancePct,
+          input_cost_tnd: inputCostTnd > 0 ? inputCostTnd : null,
           updated_at: now,
         },
       },
@@ -1525,6 +1560,7 @@ export class Phase2Service {
 
     const subLots: TriageSubLotRow[] = [];
     for (const item of gradeMap.filter((entry) => entry.weight_kg > 0)) {
+      const allocated = costByGrade[item.grade];
       const subLot = await prepareInsertDocument("triage_sublots", {
         session_id: id,
         parent_reception_id: readString(session.parent_reception_id) || "",
@@ -1537,6 +1573,8 @@ export class Phase2Service {
           : 0,
         destination: SUBLOT_DESTINATION[item.grade],
         qr_label_url: null,
+        cost_tnd: allocated?.costTnd ?? null,
+        cost_tnd_per_kg: allocated?.costTndPerKg ?? null,
         created_at: now,
       });
       subLots.push(sanitizeDocument(subLot) as TriageSubLotRow);
@@ -1595,10 +1633,6 @@ export class Phase2Service {
       await StockMovements().create(stockMovements);
     }
 
-    const parentLotId = await lotLifecycleService.resolveReceptionLotId({
-      lotNumber: readString(session.parent_lot_number),
-      receptionId: readString(session.parent_reception_id),
-    });
     if (parentLotId) {
       await lotLifecycleService.recordStageSafe({
         lotId: parentLotId,
@@ -1609,6 +1643,8 @@ export class Phase2Service {
           session_id: id,
           session_number: readString(session.session_number, id),
           sub_lots: subLots.map((row) => row.lot_number),
+          input_cost_tnd: inputCostTnd > 0 ? inputCostTnd : null,
+          mass_balance_variance_pct: balance.variancePct,
         },
         relatedIds: stockLots.map((row) => String(row.id || "")).filter(Boolean),
         route: "PREMIUM_WHOLE",

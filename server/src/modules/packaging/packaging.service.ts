@@ -6,7 +6,7 @@ import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js"
 import { lotLifecycleService } from "../trust/lot-lifecycle.service.js";
 import {
   assertMassBalanceClosed,
-  resolveMassBalanceTolerancePct,
+  loadConfiguredMassBalanceTolerancePct,
 } from "../trust/mass-balance.js";
 import { emitNotification } from "../notifications/notification-emitter.js";
 
@@ -573,7 +573,7 @@ export class PackagingService {
         outputsKg: [producedKg],
         wasteKg,
       },
-      { tolerancePct: resolveMassBalanceTolerancePct(), context: `OF ${orderNumber}` },
+      { tolerancePct: await loadConfiguredMassBalanceTolerancePct(), context: `OF ${orderNumber}` },
     );
     if (balance.action === "warn") {
       console.warn("[mass-balance] packaging order unbalanced:", { orderId: id, ...balance });

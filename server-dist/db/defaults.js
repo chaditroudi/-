@@ -341,6 +341,11 @@ export const prepareInsertDocument = async (collection, rawInput) => {
         doc.unit = doc.unit || "kg";
         doc.qr_code_payload = doc.qr_code_payload || String(doc.lot_internal);
         doc.child_lot_ids = Array.isArray(doc.child_lot_ids) ? doc.child_lot_ids : [];
+        // Wave B — purchase cost snapshot (frozen at intake; may be null).
+        doc.purchase_cost_tnd_per_kg =
+            doc.purchase_cost_tnd_per_kg === undefined ? null : doc.purchase_cost_tnd_per_kg;
+        doc.purchase_cost_tnd = doc.purchase_cost_tnd === undefined ? null : doc.purchase_cost_tnd;
+        doc.cost_source = doc.cost_source === undefined ? null : doc.cost_source;
     }
     if (collection === "reception_units") {
         doc.barcode = doc.barcode || (await nextSerial("UNIT", "RECEPTION_UNIT"));
@@ -557,6 +562,7 @@ export const prepareInsertDocument = async (collection, rawInput) => {
         doc.yield_kg_per_hour = doc.yield_kg_per_hour ?? null;
         doc.quality_score_percent = doc.quality_score_percent ?? null;
         doc.mass_balance_variance_pct = doc.mass_balance_variance_pct ?? null;
+        doc.input_cost_tnd = doc.input_cost_tnd === undefined ? null : doc.input_cost_tnd;
         doc.ended_at = doc.ended_at ?? null;
         doc.duration_minutes = doc.duration_minutes ?? null;
     }
@@ -575,6 +581,8 @@ export const prepareInsertDocument = async (collection, rawInput) => {
         doc.percent_of_parent = Number(doc.percent_of_parent ?? 0);
         doc.destination = doc.destination ?? null;
         doc.qr_label_url = doc.qr_label_url ?? null;
+        doc.cost_tnd = doc.cost_tnd === undefined ? null : doc.cost_tnd;
+        doc.cost_tnd_per_kg = doc.cost_tnd_per_kg === undefined ? null : doc.cost_tnd_per_kg;
     }
     if (collection === "stock_lots") {
         doc.lot_number = doc.lot_number || (await nextDailyNumber("STK"));
