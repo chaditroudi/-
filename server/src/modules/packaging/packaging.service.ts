@@ -8,6 +8,8 @@ import {
   assertMassBalanceClosed,
   loadConfiguredMassBalanceTolerancePct,
 } from "../trust/mass-balance.js";
+import { absorbStandardCosts } from "../costing/cost-allocation.js";
+import { loadCostingRates } from "../costing/costing-rates.js";
 import { emitNotification } from "../notifications/notification-emitter.js";
 
 type LabelStatus = "BROUILLON" | "VALIDE" | "ARCHIVE";
@@ -598,6 +600,38 @@ export class PackagingService {
       });
     }
 
+    const sourceLot = sanitizeDocument(
+      await StockLots()
+        .findOne({
+          lot_number: readString(existing.source_lot_number),
+          source_stage: "TRIAGE",
+        })
+        .lean()
+        .exec(),
+    ) as Record<string, unknown> | null;
+    const sourceCostPerKg = readNumber(sourceLot?.cost_tnd_per_kg);
+    const materialCostTnd = Number((sourceCostPerKg * sourceWeightKg).toFixed(4));
+
+    const bom = existing.bom_id
+      ? (sanitizeDocument(
+          await PackagingBoms().findOne({ id: existing.bom_id }).lean().exec(),
+        ) as Record<string, unknown> | null)
+      : null;
+    const bomUnitCost = readNumber(bom?.unit_cost_tnd);
+    const packagingCostTnd = Number((bomUnitCost * producedUnits).toFixed(4));
+
+    const rates = await loadCostingRates();
+    const absorbed = absorbStandardCosts({
+      materialCostTnd: materialCostTnd + packagingCostTnd,
+      workerCount: readNumber(existing.worker_count),
+      durationMinutes,
+      energyKwh: 0,
+      outputKg: producedKg,
+      rates,
+    });
+    const costTndPerKg =
+      producedKg > 0 ? Number((absorbed.totalCostTnd / producedKg).toFixed(4)) : null;
+
     await PackagingOrders().updateOne(
       { id },
       {
@@ -608,6 +642,13 @@ export class PackagingService {
           produced_kg: producedKg,
           waste_kg: wasteKg,
           mass_balance_variance_pct: balance.variancePct,
+          material_cost_tnd: materialCostTnd > 0 ? materialCostTnd : null,
+          packaging_cost_tnd: packagingCostTnd > 0 ? packagingCostTnd : null,
+          labour_cost_tnd: absorbed.labourCostTnd > 0 ? absorbed.labourCostTnd : null,
+          overhead_cost_tnd: absorbed.overheadCostTnd > 0 ? absorbed.overheadCostTnd : null,
+          total_cost_tnd: absorbed.totalCostTnd > 0 ? absorbed.totalCostTnd : null,
+          cost_tnd_per_kg: costTndPerKg,
+          cost_basis: "standard",
           ended_at: now.toISOString(),
           duration_minutes: durationMinutes,
           updated_at: now.toISOString(),

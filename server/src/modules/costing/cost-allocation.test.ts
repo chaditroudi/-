@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { allocateCostByWeight, snapshotPurchaseCost } from "./cost-allocation.js";
+import { allocateCostByWeight, absorbStandardCosts, snapshotPurchaseCost } from "./cost-allocation.js";
 
 describe("allocateCostByWeight", () => {
   it("spreads cost across good grades and leaves reject at zero", () => {
@@ -42,6 +42,29 @@ describe("allocateCostByWeight", () => {
     });
     expect(result.allocatedCostTnd).toBe(0);
     expect(result.unallocatedCostTnd).toBe(100);
+  });
+});
+
+describe("absorbStandardCosts", () => {
+  it("adds labelled standard labour and overhead on top of material", () => {
+    const result = absorbStandardCosts({
+      materialCostTnd: 1750,
+      workerCount: 4,
+      durationMinutes: 120,
+      energyKwh: 0,
+      outputKg: 170,
+      rates: {
+        labourRateTndPerHour: 8,
+        energyTariffTndPerKwh: 0.4,
+        overheadTndPerKg: 0.1,
+      },
+    });
+    // 4 workers × 2 h × 8 = 64; overhead 170 × 0.1 = 17
+    expect(result.labourCostTnd).toBe(64);
+    expect(result.overheadCostTnd).toBe(17);
+    expect(result.energyCostTnd).toBe(0);
+    expect(result.totalCostTnd).toBe(1831);
+    expect(result.standardCost).toBe(true);
   });
 });
 

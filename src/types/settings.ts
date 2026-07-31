@@ -62,6 +62,14 @@ export interface SiteQualitySettings {
   mass_balance_tolerance_pct: number;
 }
 
+/** Wave B standard-cost rates (not meter/timesheet actuals). */
+export interface SiteCostingSettings {
+  labour_rate_tnd_per_hour: number;
+  energy_tariff_tnd_per_kwh: number;
+  overhead_tnd_per_kg: number;
+  target_cost_tnd_per_kg: number;
+}
+
 export interface SiteDocumentSettings {
   reception_prefix: string;
   purchase_order_prefix: string;
@@ -140,6 +148,7 @@ export interface SiteSettings {
   interface: SiteInterfacePreferences;
   operations: SiteOperationsSettings;
   quality: SiteQualitySettings;
+  costing: SiteCostingSettings;
   documents: SiteDocumentSettings;
   notifications: SiteNotificationSettings;
   integrations: SiteIntegrationSettings;
@@ -226,6 +235,12 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     cold_chain_monitoring_enabled: false,
     mass_balance_tolerance_pct: 2,
   },
+  costing: {
+    labour_rate_tnd_per_hour: 8,
+    energy_tariff_tnd_per_kwh: 0.4,
+    overhead_tnd_per_kg: 0.15,
+    target_cost_tnd_per_kg: 3,
+  },
   documents: {
     reception_prefix: 'REC',
     purchase_order_prefix: 'PO',
@@ -301,6 +316,7 @@ export const normalizeSiteSettings = (value?: Partial<SiteSettings> | null): Sit
   interface: mergeSection(DEFAULT_SETTINGS.interface, value?.interface),
   operations: mergeSection(DEFAULT_SETTINGS.operations, value?.operations),
   quality: mergeSection(DEFAULT_SETTINGS.quality, value?.quality),
+  costing: mergeSection(DEFAULT_SETTINGS.costing, value?.costing),
   documents: mergeSection(DEFAULT_SETTINGS.documents, value?.documents),
   notifications: mergeSection(DEFAULT_SETTINGS.notifications, value?.notifications),
   integrations: mergeSection(DEFAULT_SETTINGS.integrations, value?.integrations),

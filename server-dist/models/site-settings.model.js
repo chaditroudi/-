@@ -65,6 +65,12 @@ const siteSettingsSchema = new mongoose.Schema({
         cold_chain_monitoring_enabled: { type: Boolean, default: false },
         mass_balance_tolerance_pct: { type: Number, default: 2 },
     },
+    costing: {
+        labour_rate_tnd_per_hour: { type: Number, default: 8 },
+        energy_tariff_tnd_per_kwh: { type: Number, default: 0.4 },
+        overhead_tnd_per_kg: { type: Number, default: 0.15 },
+        target_cost_tnd_per_kg: { type: Number, default: 3 },
+    },
     documents: {
         reception_prefix: { type: String, default: "REC" },
         purchase_order_prefix: { type: String, default: "PO" },

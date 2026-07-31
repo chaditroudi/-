@@ -32,6 +32,7 @@ export function QualityPanel({ settings }: Props) {
         ...quality,
         default_qc_sample_percent: Number(quality.default_qc_sample_percent || 0),
         deviation_escalation_hours: Number(quality.deviation_escalation_hours || 0),
+        mass_balance_tolerance_pct: Number(quality.mass_balance_tolerance_pct || 0),
         recall_coordinator: quality.recall_coordinator || null,
       },
     });
@@ -123,6 +124,17 @@ export function QualityPanel({ settings }: Props) {
               min={1}
               value={quality.deviation_escalation_hours}
               onChange={(e) => setField('deviation_escalation_hours', Number(e.target.value || 1))}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">Tolérance bilan matière (%)</Label>
+            <Input
+              type="number"
+              min={0}
+              max={20}
+              step={0.1}
+              value={quality.mass_balance_tolerance_pct}
+              onChange={(e) => setField('mass_balance_tolerance_pct', Number(e.target.value || 0))}
             />
           </div>
           <div className="space-y-1.5">

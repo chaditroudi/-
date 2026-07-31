@@ -10,8 +10,9 @@ import { DocumentsPanel } from './documents/DocumentsPanel';
 import { NotificationsPanel } from './notifications/NotificationsPanel';
 import { IntegrationsPanel } from './integrations/IntegrationsPanel';
 import { P2PSettingsPanel } from './p2p/P2PSettingsPanel';
+import { CostingPanel } from './costing/CostingPanel';
 import { DEFAULT_SETTINGS } from '@/types/settings';
-import { Palette, ToggleLeft, Factory, Users, Settings2, ShieldCheck, FileText, BellRing, PlugZap, Receipt } from 'lucide-react';
+import { Palette, ToggleLeft, Factory, Users, Settings2, ShieldCheck, FileText, BellRing, PlugZap, Receipt, Coins } from 'lucide-react';
 
 export function SettingsDashboard() {
   const { data: settings = DEFAULT_SETTINGS, isLoading } = useSiteSettings();
@@ -51,6 +52,10 @@ export function SettingsDashboard() {
             <ShieldCheck className="h-3.5 w-3.5" />
             Qualité
           </TabsTrigger>
+          <TabsTrigger value="costing" className="shrink-0 gap-1.5">
+            <Coins className="h-3.5 w-3.5" />
+            Coûts
+          </TabsTrigger>
           <TabsTrigger value="documents" className="shrink-0 gap-1.5">
             <FileText className="h-3.5 w-3.5" />
             Documents
@@ -87,6 +92,9 @@ export function SettingsDashboard() {
         </TabsContent>
         <TabsContent value="quality" className="mt-4">
           <QualityPanel settings={settings} />
+        </TabsContent>
+        <TabsContent value="costing" className="mt-4">
+          <CostingPanel settings={settings} />
         </TabsContent>
         <TabsContent value="documents" className="mt-4">
           <DocumentsPanel settings={settings} />

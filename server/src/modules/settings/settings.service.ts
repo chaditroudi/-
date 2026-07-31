@@ -70,6 +70,12 @@ const DEFAULT_SETTINGS = {
     cold_chain_monitoring_enabled: false,
     mass_balance_tolerance_pct: 2,
   },
+  costing: {
+    labour_rate_tnd_per_hour: 8,
+    energy_tariff_tnd_per_kwh: 0.4,
+    overhead_tnd_per_kg: 0.15,
+    target_cost_tnd_per_kg: 3,
+  },
   documents: {
     reception_prefix: "REC",
     purchase_order_prefix: "PO",
@@ -197,6 +203,7 @@ const normalizeSettings = (value?: Record<string, any> | null) => ({
   interface: mergeSection(DEFAULT_SETTINGS.interface, value?.interface),
   operations: mergeSection(DEFAULT_SETTINGS.operations, value?.operations),
   quality: mergeSection(DEFAULT_SETTINGS.quality, value?.quality),
+  costing: mergeSection(DEFAULT_SETTINGS.costing, value?.costing),
   documents: mergeSection(DEFAULT_SETTINGS.documents, value?.documents),
   notifications: mergeSection(DEFAULT_SETTINGS.notifications, value?.notifications),
   integrations: mergeSection(DEFAULT_SETTINGS.integrations, value?.integrations),
@@ -235,6 +242,7 @@ export class SettingsService implements OnModuleInit {
       interface: safeUpdate.interface ? mergeSection(current.interface, safeUpdate.interface) : current.interface,
       operations: safeUpdate.operations ? mergeSection(current.operations, safeUpdate.operations) : current.operations,
       quality: safeUpdate.quality ? mergeSection(current.quality, safeUpdate.quality) : current.quality,
+      costing: safeUpdate.costing ? mergeSection(current.costing, safeUpdate.costing) : current.costing,
       documents: safeUpdate.documents ? mergeSection(current.documents, safeUpdate.documents) : current.documents,
       notifications: safeUpdate.notifications ? mergeSection(current.notifications, safeUpdate.notifications) : current.notifications,
       integrations: safeUpdate.integrations ? mergeSection(current.integrations, safeUpdate.integrations) : current.integrations,

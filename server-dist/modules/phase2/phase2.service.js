@@ -14,7 +14,8 @@ import { lotLifecycleService } from "../trust/lot-lifecycle.service.js";
 import { lotLedgerService } from "../trust/lot-ledger.service.js";
 import { ccpGateMode, evaluateFumigationCcp } from "../trust/ccp-evidence.js";
 import { assertMassBalanceClosed, loadConfiguredMassBalanceTolerancePct, } from "../trust/mass-balance.js";
-import { allocateCostByWeight } from "../costing/cost-allocation.js";
+import { allocateCostByWeight, absorbStandardCosts } from "../costing/cost-allocation.js";
+import { loadCostingRates } from "../costing/costing-rates.js";
 import { emitNotification } from "../notifications/notification-emitter.js";
 const pushNotif = (arr, row) => {
     if (row)
@@ -1088,11 +1089,21 @@ let Phase2Service = class Phase2Service {
             : null;
         const snapshottedCost = Number(parentLot?.purchase_cost_tnd);
         const derivedCost = Number(parentLot?.purchase_cost_tnd_per_kg) * parentWeightKg;
-        const inputCostTnd = Number.isFinite(snapshottedCost) && snapshottedCost > 0
+        const materialCostTnd = Number.isFinite(snapshottedCost) && snapshottedCost > 0
             ? snapshottedCost
             : Number.isFinite(derivedCost) && derivedCost > 0
                 ? derivedCost
                 : 0;
+        const rates = await loadCostingRates();
+        const absorbed = absorbStandardCosts({
+            materialCostTnd,
+            workerCount: readNumber(session.worker_count),
+            durationMinutes,
+            energyKwh: 0,
+            outputKg: weightExtraKg + weightCat1Kg + weightCat2Kg,
+            rates,
+        });
+        const inputCostTnd = absorbed.totalCostTnd;
         const costAllocation = allocateCostByWeight({
             inputCostTnd,
             outputs: [
@@ -1112,6 +1123,10 @@ let Phase2Service = class Phase2Service {
                 total_sorted_kg: readNumber(session.total_sorted_kg, balance.accountedKg),
                 mass_balance_variance_pct: balance.variancePct,
                 input_cost_tnd: inputCostTnd > 0 ? inputCostTnd : null,
+                material_cost_tnd: absorbed.materialCostTnd > 0 ? absorbed.materialCostTnd : null,
+                labour_cost_tnd: absorbed.labourCostTnd > 0 ? absorbed.labourCostTnd : null,
+                overhead_cost_tnd: absorbed.overheadCostTnd > 0 ? absorbed.overheadCostTnd : null,
+                cost_basis: "standard",
                 updated_at: now,
             },
         }).exec();
@@ -1162,6 +1177,8 @@ let Phase2Service = class Phase2Service {
                 reception_date: now.slice(0, 10),
                 location_id: null,
                 batch_id: null,
+                cost_tnd_per_kg: subLot.cost_tnd_per_kg ?? null,
+                cost_tnd: subLot.cost_tnd ?? null,
                 created_by: readString(session.created_by) || null,
                 created_at: now,
                 updated_at: now,

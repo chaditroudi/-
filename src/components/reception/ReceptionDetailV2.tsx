@@ -51,6 +51,7 @@ import { StorageAssignment } from './StorageAssignment';
 import { UnitsManagement } from './UnitsManagement';
 import { WeighingRecordDialog } from './WeighingRecordDialog';
 import { Gs1LabelPreview } from './Gs1LabelPreview';
+import { LotCostCard } from './LotCostCard';
 import { ReceptionLotStatusDialog } from './ReceptionLotStatusDialog';
 
 interface ReceptionDetailV2Props {
@@ -295,6 +296,8 @@ export const ReceptionDetailV2 = ({ open, onOpenChange, receptionId }: Reception
                             <InfoRow label="Date récolte" value={lot.harvest_date} />
                             <InfoRow label="RFID" value={lot.rfid_tag} />
                           </div>
+
+                          <LotCostCard lotId={lot.id} />
 
                           {lot.stock_status === 'EN_QUARANTAINE' && lot.quarantine_reason && (
                             <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">

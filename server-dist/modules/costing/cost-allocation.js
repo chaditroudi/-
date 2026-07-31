@@ -11,6 +11,29 @@ const toNumber = (value, fallback = 0) => {
 };
 const roundMoney = (value) => Number(value.toFixed(4));
 /**
+ * Build a total process cost from material + standard labour/energy/overhead.
+ * Labelled `standardCost: true` so callers never confuse these with actuals.
+ */
+export const absorbStandardCosts = (input) => {
+    const materialCostTnd = Math.max(0, toNumber(input.materialCostTnd));
+    const workerCount = Math.max(0, toNumber(input.workerCount));
+    const durationHours = Math.max(0, toNumber(input.durationMinutes)) / 60;
+    const energyKwh = Math.max(0, toNumber(input.energyKwh));
+    const outputKg = Math.max(0, toNumber(input.outputKg));
+    const labourCostTnd = roundMoney(workerCount * durationHours * Math.max(0, toNumber(input.rates.labourRateTndPerHour)));
+    const energyCostTnd = roundMoney(energyKwh * Math.max(0, toNumber(input.rates.energyTariffTndPerKwh)));
+    const overheadCostTnd = roundMoney(outputKg * Math.max(0, toNumber(input.rates.overheadTndPerKg)));
+    const totalCostTnd = roundMoney(materialCostTnd + labourCostTnd + energyCostTnd + overheadCostTnd);
+    return {
+        materialCostTnd: roundMoney(materialCostTnd),
+        labourCostTnd,
+        energyCostTnd,
+        overheadCostTnd,
+        totalCostTnd,
+        standardCost: true,
+    };
+};
+/**
  * Allocate `inputCostTnd` across `outputs`. Waste/reject streams pass
  * `valueWeight: 0` so they take no cost and inflate good-grade unit costs.
  */

@@ -403,6 +403,7 @@ export const prepareInsertDocument = async (collection, rawInput) => {
         doc.label_template_name = doc.label_template_name ?? null;
         doc.private_label_client_id = doc.private_label_client_id ?? null;
         doc.private_label_client_name = doc.private_label_client_name ?? null;
+        doc.unit_cost_tnd = doc.unit_cost_tnd === undefined ? null : doc.unit_cost_tnd;
     }
     if (collection === "label_templates") {
         doc.status = doc.status || "BROUILLON";
@@ -438,6 +439,13 @@ export const prepareInsertDocument = async (collection, rawInput) => {
         doc.ended_at = doc.ended_at ?? null;
         doc.duration_minutes = doc.duration_minutes ?? null;
         doc.chef_ligne = doc.chef_ligne ?? null;
+        doc.material_cost_tnd = doc.material_cost_tnd === undefined ? null : doc.material_cost_tnd;
+        doc.packaging_cost_tnd = doc.packaging_cost_tnd === undefined ? null : doc.packaging_cost_tnd;
+        doc.labour_cost_tnd = doc.labour_cost_tnd === undefined ? null : doc.labour_cost_tnd;
+        doc.overhead_cost_tnd = doc.overhead_cost_tnd === undefined ? null : doc.overhead_cost_tnd;
+        doc.total_cost_tnd = doc.total_cost_tnd === undefined ? null : doc.total_cost_tnd;
+        doc.cost_tnd_per_kg = doc.cost_tnd_per_kg === undefined ? null : doc.cost_tnd_per_kg;
+        doc.cost_basis = doc.cost_basis === undefined ? null : doc.cost_basis;
     }
     if (collection === "packaging_palettes") {
         doc.status = doc.status || "EN_COURS";
@@ -563,6 +571,10 @@ export const prepareInsertDocument = async (collection, rawInput) => {
         doc.quality_score_percent = doc.quality_score_percent ?? null;
         doc.mass_balance_variance_pct = doc.mass_balance_variance_pct ?? null;
         doc.input_cost_tnd = doc.input_cost_tnd === undefined ? null : doc.input_cost_tnd;
+        doc.material_cost_tnd = doc.material_cost_tnd === undefined ? null : doc.material_cost_tnd;
+        doc.labour_cost_tnd = doc.labour_cost_tnd === undefined ? null : doc.labour_cost_tnd;
+        doc.overhead_cost_tnd = doc.overhead_cost_tnd === undefined ? null : doc.overhead_cost_tnd;
+        doc.cost_basis = doc.cost_basis === undefined ? null : doc.cost_basis;
         doc.ended_at = doc.ended_at ?? null;
         doc.duration_minutes = doc.duration_minutes ?? null;
     }
@@ -592,6 +604,8 @@ export const prepareInsertDocument = async (collection, rawInput) => {
         doc.current_quantity = Number(doc.current_quantity ?? doc.initial_quantity ?? 0);
         doc.unit = doc.unit || "kg";
         doc.status = doc.status || "QUARANTINE";
+        doc.cost_tnd_per_kg = doc.cost_tnd_per_kg === undefined ? null : doc.cost_tnd_per_kg;
+        doc.cost_tnd = doc.cost_tnd === undefined ? null : doc.cost_tnd;
     }
     if (collection === "stock_movements") {
         doc.movement_number = doc.movement_number || (await nextDailyNumber("MOV"));

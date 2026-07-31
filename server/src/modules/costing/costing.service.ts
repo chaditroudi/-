@@ -1,8 +1,12 @@
+/**
+ * Lot cost view: purchase snapshot + grade split + standard absorption.
+ */
 import { Injectable } from "@nestjs/common";
 
 import { notFound } from "../../core/app-error.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
 import { lotLifecycleService } from "../trust/lot-lifecycle.service.js";
+import { loadCostingRates } from "./costing-rates.js";
 
 const ReceptionLots = () => getCollectionModel("reception_lots");
 const TriageSessions = () => getCollectionModel("triage_sessions");
@@ -10,10 +14,6 @@ const TriageSublots = () => getCollectionModel("triage_sublots");
 
 @Injectable()
 export class CostingService {
-  /**
-   * Lot cost view: purchase snapshot + grade split costs from the latest
-   * closed triage session for this reception lot (if any).
-   */
   async getLotCost(lotIdOrNumber: string) {
     const key = String(lotIdOrNumber || "").trim();
     if (!key) throw notFound("LOT_NOT_FOUND", "Lot introuvable.");
@@ -72,6 +72,8 @@ export class CostingService {
       cost_tnd_per_kg: row.cost_tnd_per_kg ?? null,
     }));
 
+    const rates = await loadCostingRates();
+
     return {
       lot: {
         id: lotId,
@@ -82,11 +84,22 @@ export class CostingService {
         purchase_cost_tnd: lot.purchase_cost_tnd ?? null,
         cost_source: lot.cost_source ?? null,
       },
+      rates: {
+        labour_rate_tnd_per_hour: rates.labourRateTndPerHour,
+        energy_tariff_tnd_per_kwh: rates.energyTariffTndPerKwh,
+        overhead_tnd_per_kg: rates.overheadTndPerKg,
+        target_cost_tnd_per_kg: rates.targetCostTndPerKg,
+        basis: "standard" as const,
+      },
       triage: session
         ? {
             session_id: session.id,
             session_number: session.session_number ?? null,
             input_cost_tnd: session.input_cost_tnd ?? null,
+            material_cost_tnd: session.material_cost_tnd ?? null,
+            labour_cost_tnd: session.labour_cost_tnd ?? null,
+            overhead_cost_tnd: session.overhead_cost_tnd ?? null,
+            cost_basis: session.cost_basis ?? null,
             mass_balance_variance_pct: session.mass_balance_variance_pct ?? null,
             parent_weight_kg: Number(session.parent_weight_kg || 0),
             grades,

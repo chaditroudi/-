@@ -90,13 +90,15 @@ describe("phase2Service golden-thread stages", () => {
         expect(verifyLotEventChain(events).valid).toBe(true);
         const session = (store.triage_sessions || [])[0];
         expect(session.status).toBe("TERMINE");
-        expect(session.input_cost_tnd).toBe(1750);
+        // material 1750 + overhead 170kg × 0.15 = 25.5 (default standard rates)
+        expect(session.input_cost_tnd).toBe(1775.5);
+        expect(session.material_cost_tnd).toBe(1750);
         expect(session.mass_balance_variance_pct).toBe(0);
         const sublots = (store.triage_sublots || []);
         const reject = sublots.find((row) => row.grade === "REJETE");
         const extra = sublots.find((row) => row.grade === "EXTRA");
         expect(reject?.cost_tnd).toBe(0);
-        expect(Number(extra?.cost_tnd_per_kg)).toBeCloseTo(10.2941, 3);
+        expect(Number(extra?.cost_tnd_per_kg)).toBeCloseTo(10.4441, 3);
     });
     it("blocks triage close when grade splits do not reconcile under enforce", async () => {
         vi.stubEnv("TRUST_MASS_BALANCE_GATE", "enforce");
