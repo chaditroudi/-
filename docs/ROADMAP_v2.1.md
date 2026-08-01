@@ -9,8 +9,8 @@
 
 | # | Deliverable | Why buyers care | Status |
 |---|---|---|---|
-| A1 | **Fiche CMS** — edit steps / limits / if-blocked, save to site settings | Floor SOPs match the real plant | **In progress** |
-| A2 | **Sales kit** — DEMO_RUNBOOK + UAT_CHECKLIST | Repeatable demos & acceptance | **In progress** |
+| A1 | **Fiche CMS** — edit steps / limits / if-blocked, save to site settings | Floor SOPs match the real plant | **Done** |
+| A2 | **Sales kit** — DEMO_RUNBOOK + UAT_CHECKLIST | Repeatable demos & acceptance | **Done** |
 | A3 | Product map + handoff already in v2.0 | Clarity of scope | Done |
 | A4 | `npm run product:check` | Pre-demo gate | Done |
 
@@ -23,13 +23,13 @@
 
 ## Horizon B — 6 weeks (Ops+)
 
-| # | Deliverable | Why |
-|---|---|---|
-| B1 | **Lab QC fields** linked to reception decision (humidité, défauts %) | Real QC, not only status |
-| B2 | **Recall report** timed PDF (upstream + downstream) | Audit / client export |
-| B3 | **Label templates** PF (lot, grade, net weight, QR) | Shipping floor |
-| B4 | **Fiche acknowledgment** — operator marks “lu / appliqué” per shift | Training evidence |
-| B5 | One-click **demo:season** seed (full A→Z lot story) | Sales acceleration |
+| # | Deliverable | Why | Status |
+|---|---|---|---|
+| B1 | **Lab QC fields** linked to reception decision (humidité, défauts %) | Real QC, not only status | Planned |
+| B2 | **Recall report** timed PDF (upstream + downstream) | Audit / client export | **Done** |
+| B3 | **Label templates** PF (lot, grade, net weight, QR) | Shipping floor | Planned |
+| B4 | **Fiche acknowledgment** — operator marks “lu / appliqué” per shift | Training evidence | Planned |
+| B5 | One-click **demo:season** seed (full A→Z lot story) | Sales acceleration | Planned |
 
 **Exit criteria**  
 - Recall drill demo &lt; 10 minutes with printable report  

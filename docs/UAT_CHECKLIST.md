@@ -43,6 +43,7 @@ Mark **OK** / **Fail** / **N/A**. Failures need ticket #.
 | E2 | Stock zone move | | |
 | E3 | Phase2 fumigation or triage visible | | |
 | E4 | Packaging or logistics accessible by role | | |
+| E5 | Recall drill + Rapport PDF (amont/aval) | | |
 
 ## F. Non-functional
 | # | Test | Result | Notes |

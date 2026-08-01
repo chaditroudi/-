@@ -19,6 +19,7 @@ import {
   Truck,
 } from 'lucide-react';
 import { BonExpeditionDashboard } from '@/components/bon-expedition/BonExpeditionDashboard';
+import { RecallDrillPanel } from '@/components/home/RecallDrillPanel';
 import { useAuthContext } from '@/contexts/AuthContext';
 import {
   useCreateShipment,
@@ -1266,12 +1267,13 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
           </Card>
         </TabsContent>
 
-        <TabsContent value="recall">
+        <TabsContent value="recall" className="space-y-4">
+          <RecallDrillPanel />
           <Card>
             <CardHeader>
-              <CardTitle>Exercices de rappel</CardTitle>
+              <CardTitle>Exercices de rappel (expéditions)</CardTitle>
               <CardDescription>
-                Verification rapide de l'identification lots-client selon l'objectif &lt; 4 heures du cahier des charges.
+                Vérification rapide lots ↔ client. Préférez le drill trust ci-dessus pour le rapport PDF audit.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">

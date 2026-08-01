@@ -18,12 +18,17 @@ import {
   type LotJourneyStage,
 } from '@/lib/lotJourney';
 import type { AppTab } from '@/lib/roleAccess';
+import { toast } from 'sonner';
+import { trustApi } from '@/lib/api/trust';
+import { printRecallReport } from '@/lib/printRecallReport';
+import { useBranding } from '@/hooks/useBranding';
 import {
   ArrowRight,
   BadgeCheck,
   BookOpen,
   ChevronDown,
   ExternalLink,
+  FileDown,
   FileText,
   Link2,
   Loader2,
@@ -50,13 +55,38 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
   const [showFinance, setShowFinance] = useState(!compact);
   const [ficheOpen, setFicheOpen] = useState(false);
   const [activeFiche, setActiveFiche] = useState<FicheTechnique | null>(null);
+  const [recallBusy, setRecallBusy] = useState(false);
   const { data: siteSettings } = useSiteSettings();
+  const { companyName } = useBranding();
   const ficheOverrides = siteSettings?.fiche_overrides;
 
   const openFiche = (fiche: FicheTechnique | null) => {
     if (!fiche) return;
     setActiveFiche(resolveFicheById(fiche.id, ficheOverrides) || fiche);
     setFicheOpen(true);
+  };
+
+  const runRecallReport = async () => {
+    const lot = passport.data?.lotNumber || activeLotId;
+    if (!lot) return;
+    setRecallBusy(true);
+    try {
+      const data = await trustApi.runRecall({ lotId: lot, lotNumber: lot });
+      printRecallReport(data, {
+        companyName,
+        plantName: siteSettings?.plant_name,
+        coordinator: siteSettings?.quality?.recall_coordinator,
+      });
+      toast.success(
+        data.under60s
+          ? `Rapport recall prêt (${data.elapsedMs} ms)`
+          : `Rapport généré en ${data.elapsedMs} ms (cible < 60s)`,
+      );
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Recall impossible');
+    } finally {
+      setRecallBusy(false);
+    }
   };
 
   // Keep disclosure in sync when parent toggles Simple ↔ Complet
@@ -542,6 +572,20 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
                   }
                 >
                   Passport client <ExternalLink className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="gap-2"
+                  disabled={recallBusy}
+                  onClick={() => void runRecallReport()}
+                >
+                  {recallBusy ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <FileDown className="h-4 w-4" />
+                  )}
+                  Rapport recall PDF
                 </Button>
               </div>
             </div>

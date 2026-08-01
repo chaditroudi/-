@@ -35,6 +35,7 @@ Login: `admin@ecodatte.local` / `Admin123!` → **change password after demo**.
 ### 4. Trust / production (8 min)
 - Production → Phase 2 → fumigation (CCP story).  
 - Triage → mass balance / grades mention.  
+- Parcours → **Rapport recall PDF** (amont/aval, expéditions, visas).  
 - Export → margin if role allows.
 
 ### 5. White-label (3 min)

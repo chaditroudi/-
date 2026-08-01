@@ -32,6 +32,13 @@
 - **Simple** (default home) — urgent strip + parcours + docs/fiches; modules collapsed  
 - **Complet** — pipeline + full queues + quick access  
 
+## Traceability extras
+
+| Feature | Where |
+|---|---|
+| Recall drill &lt; 60s | Sage hub · Logistique → Recall · API `POST /trust/recall` |
+| **Rapport recall PDF** | Parcours → Rapport recall PDF · bouton on drill panel |
+
 ## Deep-links (for training)
 
 - `?tab=home&view=fiches` — fiches catalog  

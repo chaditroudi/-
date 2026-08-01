@@ -22,6 +22,7 @@ const requiredFiles = [
   'src/components/fiches/FichesTechniquesHub.tsx',
   'src/components/documents/DocumentsWorkspace.tsx',
   'src/components/settings/FichesCmsPanel.tsx',
+  'src/lib/printRecallReport.ts',
 ];
 
 let failed = false;
@@ -37,7 +38,7 @@ for (const rel of requiredFiles) {
 console.log('\nRunning critical unit tests…');
 const vitest = spawnSync(
   'npm',
-  ['exec', '--', 'vitest', 'run', 'src/lib/fichesTechniques.test.ts', 'src/lib/lotJourney.test.ts', '--reporter=dot'],
+  ['exec', '--', 'vitest', 'run', 'src/lib/fichesTechniques.test.ts', 'src/lib/lotJourney.test.ts', 'src/lib/printRecallReport.test.ts', '--reporter=dot'],
   { cwd: root, stdio: 'inherit', shell: true },
 );
 
