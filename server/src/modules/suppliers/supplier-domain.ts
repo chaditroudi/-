@@ -170,6 +170,16 @@ export const normalizeSupplierDocument = (input: Record<string, unknown>, existi
   doc.irrigation_source = normalizeEnum(doc.irrigation_source, IRRIGATION_SOURCES, "puits_artesien");
   // §1.1.3 — agreed price per kg per variety + bank details
   doc.agreed_price_tnd_per_kg = nullableNumber(doc.agreed_price_tnd_per_kg);
+  const gradePricesRaw =
+    doc.grade_prices_tnd_per_kg && typeof doc.grade_prices_tnd_per_kg === "object"
+      ? (doc.grade_prices_tnd_per_kg as Record<string, unknown>)
+      : {};
+  doc.grade_prices_tnd_per_kg = {
+    EXTRA: nullableNumber(gradePricesRaw.EXTRA),
+    CATEGORIE_I: nullableNumber(gradePricesRaw.CATEGORIE_I),
+    CATEGORIE_II: nullableNumber(gradePricesRaw.CATEGORIE_II),
+    REJETE: nullableNumber(gradePricesRaw.REJETE),
+  };
   doc.bank_rib = nullableString(doc.bank_rib);
   doc.nickname = nullableString(doc.nickname);
   doc.rating = boundedNumber(doc.rating, 0, 100);
@@ -180,7 +190,6 @@ export const normalizeSupplierDocument = (input: Record<string, unknown>, existi
   doc.delivered_lots_count = boundedNumber(doc.delivered_lots_count, 0, Number.MAX_SAFE_INTEGER);
   doc.total_delivered_tons = boundedNumber(doc.total_delivered_tons, 0, Number.MAX_SAFE_INTEGER);
   doc.total_paid_amount_tnd = boundedNumber(doc.total_paid_amount_tnd, 0, Number.MAX_SAFE_INTEGER);
-  doc.agreed_price_tnd_per_kg = nullableNumber(doc.agreed_price_tnd_per_kg);
   doc.last_delivery_date = normalizeDate(doc.last_delivery_date);
   doc.contract_type = normalizeEnum(doc.contract_type, CONTRACT_TYPES, "saisonnier");
   doc.contract_start_date = requireDate(

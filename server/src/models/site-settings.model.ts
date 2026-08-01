@@ -72,6 +72,9 @@ const siteSettingsSchema = new mongoose.Schema(
       energy_tariff_tnd_per_kwh: { type: Number, default: 0.4 },
       overhead_tnd_per_kg: { type: Number, default: 0.15 },
       target_cost_tnd_per_kg: { type: Number, default: 3 },
+      fx_eur_to_tnd: { type: Number, default: 3.35 },
+      fx_usd_to_tnd: { type: Number, default: 3.1 },
+      fx_sar_to_tnd: { type: Number, default: 0.83 },
     },
     documents: {
       reception_prefix: { type: String, default: "REC" },

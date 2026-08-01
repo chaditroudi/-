@@ -4,6 +4,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 import { Injectable } from "@nestjs/common";
 import { badRequest, notFound } from "../../core/app-error.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
@@ -17,6 +20,7 @@ import { assertMassBalanceClosed, loadConfiguredMassBalanceTolerancePct, } from 
 import { allocateCostByWeight, absorbStandardCosts } from "../costing/cost-allocation.js";
 import { loadCostingRates } from "../costing/costing-rates.js";
 import { emitNotification } from "../notifications/notification-emitter.js";
+import { SettlementService } from "../settlement/settlement.service.js";
 const pushNotif = (arr, row) => {
     if (row)
         arr.push(row);
@@ -186,6 +190,10 @@ const createPhase2Notification = async (input) => {
     return (row || null);
 };
 let Phase2Service = class Phase2Service {
+    settlementService;
+    constructor(settlementService) {
+        this.settlementService = settlementService;
+    }
     async listAvailableLots() {
         const rows = sanitizeDocument(await Receptions()
             .find({ status: { $in: ELIGIBLE_PHASE2_RECEPTION_STATUSES } })
@@ -1309,16 +1317,19 @@ let Phase2Service = class Phase2Service {
                 context: `triage ${readString(session.session_number, id)}`,
             });
         }
+        const settlement = await this.settlementService.createFromTriageSafe(id, readString(session.created_by) || null);
         return {
             data: {
                 session_number: readString(session.session_number, id),
                 sub_lots_created: subLots.length,
                 duration_minutes: durationMinutes,
+                settlement_id: settlement?.id ?? null,
             },
             session: sanitizeDocument(await TriageSessions().findOne({ id }).lean().exec()),
             subLots,
             stockLots,
             stockMovements,
+            settlement,
         };
     }
     async toggleTriageRunState(id, payload) {
@@ -1422,6 +1433,7 @@ let Phase2Service = class Phase2Service {
     }
 };
 Phase2Service = __decorate([
-    Injectable()
+    Injectable(),
+    __metadata("design:paramtypes", [SettlementService])
 ], Phase2Service);
 export { Phase2Service };

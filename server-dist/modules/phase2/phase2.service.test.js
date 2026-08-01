@@ -3,7 +3,10 @@ import { createInMemoryModel } from "../../test/in-memory-collection.js";
 import { buildLotEventRecord, verifyLotEventChain } from "../trust/lot-ledger.js";
 import { Phase2Service } from "./phase2.service.js";
 const store = {};
-const phase2Service = new Phase2Service();
+const settlementServiceMock = {
+    createFromTriageSafe: vi.fn(async () => null),
+};
+const phase2Service = new Phase2Service(settlementServiceMock);
 vi.mock("../../db/dynamic-model.js", () => ({
     sanitizeDocument: (value) => value,
     getCollectionModel: (collection) => createInMemoryModel(collection, store),

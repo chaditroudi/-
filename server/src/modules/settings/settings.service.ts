@@ -75,6 +75,9 @@ const DEFAULT_SETTINGS = {
     energy_tariff_tnd_per_kwh: 0.4,
     overhead_tnd_per_kg: 0.15,
     target_cost_tnd_per_kg: 3,
+    fx_eur_to_tnd: 3.35,
+    fx_usd_to_tnd: 3.1,
+    fx_sar_to_tnd: 0.83,
   },
   documents: {
     reception_prefix: "REC",

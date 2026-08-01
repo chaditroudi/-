@@ -31,9 +31,12 @@ export function CostingPanel({ settings }: Props) {
         energy_tariff_tnd_per_kwh: Number(costing.energy_tariff_tnd_per_kwh || 0),
         overhead_tnd_per_kg: Number(costing.overhead_tnd_per_kg || 0),
         target_cost_tnd_per_kg: Number(costing.target_cost_tnd_per_kg || 0),
+        fx_eur_to_tnd: Number(costing.fx_eur_to_tnd || 0),
+        fx_usd_to_tnd: Number(costing.fx_usd_to_tnd || 0),
+        fx_sar_to_tnd: Number(costing.fx_sar_to_tnd || 0),
       },
     });
-    toast.success('Tarifs de coût standard mis à jour');
+    toast.success('Tarifs de coût et FX mis à jour');
   };
 
   return (
@@ -87,6 +90,50 @@ export function CostingPanel({ settings }: Props) {
                 step={0.1}
                 value={costing.target_cost_tnd_per_kg}
                 onChange={(e) => setField('target_cost_tnd_per_kg', Number(e.target.value || 0))}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">Taux de change → TND (Wave C)</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-xs text-muted-foreground">
+            Utilisés pour convertir le chiffre d&apos;affaires export (EUR / USD / SAR) en TND
+            et calculer la marge lot vs facture.
+          </p>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs">EUR → TND</Label>
+              <Input
+                type="number"
+                min={0}
+                step={0.01}
+                value={costing.fx_eur_to_tnd ?? 3.35}
+                onChange={(e) => setField('fx_eur_to_tnd', Number(e.target.value || 0))}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">USD → TND</Label>
+              <Input
+                type="number"
+                min={0}
+                step={0.01}
+                value={costing.fx_usd_to_tnd ?? 3.1}
+                onChange={(e) => setField('fx_usd_to_tnd', Number(e.target.value || 0))}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">SAR → TND</Label>
+              <Input
+                type="number"
+                min={0}
+                step={0.01}
+                value={costing.fx_sar_to_tnd ?? 0.83}
+                onChange={(e) => setField('fx_sar_to_tnd', Number(e.target.value || 0))}
               />
             </div>
           </div>

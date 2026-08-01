@@ -29,6 +29,7 @@ export const REGULATED_COLLECTIONS = new Set([
     "production_lot_allocations",
     "production_output_lots",
     "packaging_orders",
+    "supplier_settlements",
     "storage_location_movements",
     "weighing_records",
     "scan_events",

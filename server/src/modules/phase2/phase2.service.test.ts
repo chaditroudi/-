@@ -5,7 +5,10 @@ import { buildLotEventRecord, verifyLotEventChain, type LotEventRecord } from ".
 import { Phase2Service } from "./phase2.service.js";
 
 const store: Record<string, TestRow[]> = {};
-const phase2Service = new Phase2Service();
+const settlementServiceMock = {
+  createFromTriageSafe: vi.fn(async () => null),
+};
+const phase2Service = new Phase2Service(settlementServiceMock as any);
 
 vi.mock("../../db/dynamic-model.js", () => ({
   sanitizeDocument: <T>(value: T) => value,

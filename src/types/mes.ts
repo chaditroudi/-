@@ -83,6 +83,12 @@ export interface Supplier {
   payment_terms?: 'immediat' | '15_jours' | '30_jours' | 'avance_et_solde' | null;
   bank_rib?: string | null;
   agreed_price_tnd_per_kg?: number | null;
+  grade_prices_tnd_per_kg?: {
+    EXTRA?: number | null;
+    CATEGORIE_I?: number | null;
+    CATEGORIE_II?: number | null;
+    REJETE?: number | null;
+  } | null;
   certifications?: SupplierCertification[];
   contract_documents?: string[];
   supplier_status?: SupplierStatus;

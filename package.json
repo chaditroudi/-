@@ -27,6 +27,7 @@
     "demo:golden-thread": "node --env-file=.env scripts/demo-golden-thread.mjs",
     "smoke:wave-a": "node --env-file=.env scripts/smoke-wave-a.mjs",
     "smoke:wave-b": "node --env-file=.env scripts/smoke-wave-b.mjs",
+    "smoke:wave-c": "node --env-file=.env scripts/smoke-wave-c.mjs",
     "backfill:mass-balance": "node --env-file=.env scripts/backfill-mass-balance.mjs",
     "smoke:pr-workflow": "node --env-file=.env scripts/smoke-pr-workflow.mjs",
     "smoke:maintenance-workflow": "node --env-file=.env scripts/smoke-maintenance-workflow.mjs"

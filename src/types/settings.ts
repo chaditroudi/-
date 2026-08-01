@@ -62,12 +62,15 @@ export interface SiteQualitySettings {
   mass_balance_tolerance_pct: number;
 }
 
-/** Wave B standard-cost rates (not meter/timesheet actuals). */
+/** Wave B standard-cost rates (not meter/timesheet actuals) + Wave C FX → TND. */
 export interface SiteCostingSettings {
   labour_rate_tnd_per_hour: number;
   energy_tariff_tnd_per_kwh: number;
   overhead_tnd_per_kg: number;
   target_cost_tnd_per_kg: number;
+  fx_eur_to_tnd: number;
+  fx_usd_to_tnd: number;
+  fx_sar_to_tnd: number;
 }
 
 export interface SiteDocumentSettings {
@@ -240,6 +243,9 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     energy_tariff_tnd_per_kwh: 0.4,
     overhead_tnd_per_kg: 0.15,
     target_cost_tnd_per_kg: 3,
+    fx_eur_to_tnd: 3.35,
+    fx_usd_to_tnd: 3.1,
+    fx_sar_to_tnd: 0.83,
   },
   documents: {
     reception_prefix: 'REC',

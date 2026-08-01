@@ -19,6 +19,7 @@ import { GoodsReceiptsPanel } from './p2p/GoodsReceiptsPanel';
 import { InvoicesPanel } from './p2p/InvoicesPanel';
 import { CertificatesPanel } from './p2p/CertificatesPanel';
 import { P2PKpiPanel } from './p2p/P2PKpiPanel';
+import { SettlementsPanel } from './SettlementsPanel';
 import { 
   useRequisitions, 
   useCreateRequisition, 
@@ -494,6 +495,12 @@ export const PurchasingDashboard = ({ onNavigate }: { onNavigate?: (tab: string,
               KPIs P2P
             </TabsTrigger>
           )}
+          {canManagePurchaseOrders && (
+            <TabsTrigger value="settlements" className="gap-2">
+              <Receipt className="h-4 w-4" />
+              Règlements grades
+            </TabsTrigger>
+          )}
         </TabsList>
 
          <TabsContent value="requisitions" className="mt-4 space-y-3">
@@ -596,12 +603,17 @@ export const PurchasingDashboard = ({ onNavigate }: { onNavigate?: (tab: string,
            <CertificatesPanel suppliers={suppliers} />
          </TabsContent>
 
-         {canManagePurchaseOrders && (
+          {canManagePurchaseOrders && (
            <TabsContent value="kpis" className="mt-4">
              <P2PKpiPanel />
            </TabsContent>
-         )}
-       </Tabs>
+          )}
+          {canManagePurchaseOrders && (
+           <TabsContent value="settlements" className="mt-4">
+             <SettlementsPanel />
+           </TabsContent>
+          )}
+        </Tabs>
  
        {/* Dialogs */}
        <RequisitionDialog

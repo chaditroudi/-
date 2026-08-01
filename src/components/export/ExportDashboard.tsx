@@ -27,6 +27,8 @@ import { COADialog } from './COADialog';
 import { printExportContract, getContractHTML } from './printExportContract';
 import { printCOA } from './printCOA';
 import type { ExportOrder, ExportContract, COADocument } from '@/types/exportOrders';
+import { settlementsApi, type ExportOrderMargin } from '@/lib/api/settlements';
+import { toast } from 'sonner';
 
 // ── Status badges ─────────────────────────────────────────────────────────────
 
@@ -165,8 +167,26 @@ export function ExportDashboard() {
   // Contract actions
   const [approveTarget,    setApproveTarget]   = useState<ExportContract | null>(null);
   const [regenTarget,      setRegenTarget]     = useState<ExportContract | null>(null);
+  const [marginTarget,     setMarginTarget]    = useState<ExportOrder | null>(null);
+  const [marginData,       setMarginData]      = useState<ExportOrderMargin | null>(null);
+  const [marginLoading,    setMarginLoading]   = useState(false);
 
   const [search, setSearch] = useState('');
+
+  const openMargin = async (order: ExportOrder) => {
+    setMarginTarget(order);
+    setMarginData(null);
+    setMarginLoading(true);
+    try {
+      const data = await settlementsApi.exportMargin(order.id);
+      setMarginData(data);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Marge indisponible');
+      setMarginTarget(null);
+    } finally {
+      setMarginLoading(false);
+    }
+  };
 
   const filteredOrders = useMemo(() => {
     if (!search) return orders;
@@ -401,6 +421,11 @@ export function ExportDashboard() {
                                 <FileText className="h-3.5 w-3.5" /> Contrat
                               </Button>
                             )}
+                            <Button variant="ghost" size="sm" className="h-9 px-2 text-xs gap-1"
+                              onClick={() => openMargin(order)}
+                              title="Marge vs coût lot">
+                              <TrendingUp className="h-3.5 w-3.5" /> Marge
+                            </Button>
                             <Button variant="ghost" size="sm" className="h-9 w-9 p-0"
                               onClick={() => { setEditingOrder(order); setOrderDialogOpen(true); }} title="Modifier">
                               <Pencil className="h-3.5 w-3.5" />
@@ -674,6 +699,62 @@ export function ExportDashboard() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={!!marginTarget} onOpenChange={(o) => { if (!o) { setMarginTarget(null); setMarginData(null); } }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Marge export — {marginTarget?.order_ref}</DialogTitle>
+          </DialogHeader>
+          {marginLoading && (
+            <p className="text-sm text-muted-foreground">Calcul en cours…</p>
+          )}
+          {marginData && (
+            <div className="space-y-3 text-sm">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <p className="text-xs text-muted-foreground">CA facture</p>
+                  <p className="font-semibold">
+                    {marginData.revenue_invoice.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} {marginData.currency}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">FX → TND</p>
+                  <p className="font-semibold">× {marginData.fx_rate_to_tnd}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">CA TND</p>
+                  <p className="font-semibold">
+                    {marginData.revenue_tnd.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} TND
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Coût lots TND</p>
+                  <p className="font-semibold">
+                    {marginData.cost_tnd.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} TND
+                  </p>
+                </div>
+              </div>
+              <div className="rounded-lg border p-3">
+                <p className="text-xs text-muted-foreground">Marge</p>
+                <p className={`text-2xl font-bold ${marginData.margin_tnd >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                  {marginData.margin_tnd.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} TND
+                  <span className="ml-2 text-sm font-medium">({marginData.margin_pct.toFixed(1)}%)</span>
+                </p>
+                {marginData.missing_cost_kg > 0 && (
+                  <p className="mt-1 text-xs text-amber-700">
+                    {marginData.missing_cost_kg} kg sans coût lot résolu
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setMarginTarget(null); setMarginData(null); }}>
+              Fermer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

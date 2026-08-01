@@ -15,6 +15,7 @@ import {
 import { allocateCostByWeight, absorbStandardCosts } from "../costing/cost-allocation.js";
 import { loadCostingRates } from "../costing/costing-rates.js";
 import { emitNotification } from "../notifications/notification-emitter.js";
+import { SettlementService } from "../settlement/settlement.service.js";
 
 const pushNotif = (arr: NotificationRow[], row: NotificationRow | null) => {
   if (row) arr.push(row);
@@ -425,6 +426,7 @@ const createPhase2Notification = async (input: {
 
 @Injectable()
 export class Phase2Service {
+  constructor(private readonly settlementService: SettlementService) {}
   async listAvailableLots() {
     const rows = sanitizeDocument(
       await Receptions()
@@ -1763,16 +1765,23 @@ export class Phase2Service {
       });
     }
 
+    const settlement = await this.settlementService.createFromTriageSafe(
+      id,
+      readString(session.created_by) || null,
+    );
+
     return {
       data: {
         session_number: readString(session.session_number, id),
         sub_lots_created: subLots.length,
         duration_minutes: durationMinutes,
+        settlement_id: settlement?.id ?? null,
       },
       session: sanitizeDocument(await TriageSessions().findOne({ id }).lean().exec()) as TriageSessionRow | null,
       subLots,
       stockLots,
       stockMovements,
+      settlement,
     };
   }
 

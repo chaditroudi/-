@@ -962,6 +962,18 @@ export const prepareInsertDocument = async (collection, rawInput) => {
         doc.casse_l = doc.casse_l ?? null;
         doc.statut = doc.statut || "brouillon";
     }
+    if (collection === "supplier_settlements") {
+        doc.settlement_number = doc.settlement_number || (await nextDailyNumber("SET"));
+        doc.status = doc.status || "DRAFT";
+        doc.currency = doc.currency || "TND";
+        doc.lines = Array.isArray(doc.lines) ? doc.lines : [];
+        doc.total_weight_kg = Number(doc.total_weight_kg ?? 0);
+        doc.payable_weight_kg = Number(doc.payable_weight_kg ?? 0);
+        doc.total_amount_tnd = Number(doc.total_amount_tnd ?? 0);
+        doc.basis = doc.basis || "triage_grades";
+        doc.approved_at = doc.approved_at ?? null;
+        doc.paid_at = doc.paid_at ?? null;
+    }
     if (collection === "bon_receptions_achat") {
         doc.numero_bon = doc.numero_bon || (await nextDailyNumber("BRA"));
         doc.annee = doc.annee || new Date().getFullYear();
