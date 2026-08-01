@@ -384,8 +384,14 @@ export const getRoleWorkspaceProfile = (roles: ActorRole[]) => {
   return {
     interfaceLabel: profiles[0].interfaceLabel,
     workspaceLabel: profiles[0].workspaceLabel,
-    defaultTab: profiles[0].defaultTab,
-    primaryTabs: unique(profiles.flatMap((profile) => profile.primaryTabs)),
+    // Prefer Parcours lot when any role can see home (avoids landing in a silo for multi-role users).
+    defaultTab: profiles.some((profile) => profile.defaultTab === 'home' || profile.primaryTabs.includes('home'))
+      ? ('home' as AppTab)
+      : profiles[0].defaultTab,
+    primaryTabs: unique([
+      'home' as AppTab,
+      ...profiles.flatMap((profile) => profile.primaryTabs),
+    ]),
     quickTabs: unique(profiles.flatMap((profile) => profile.quickTabs)),
     actions: unique(profiles.flatMap((profile) => profile.actions)),
   };

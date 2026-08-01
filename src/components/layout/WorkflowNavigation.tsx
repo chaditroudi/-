@@ -303,10 +303,10 @@ const getWorkflowCards = (roles: ActorRole[], metrics: WorkflowNavigationProps["
   return [
     {
       id: "home",
-      title: "Accueil",
-      description: "Revenir aux priorités du jour et aux actions à démarrer maintenant.",
-      helper: "Point de départ",
-      metric: "Vue d'ensemble",
+      title: "Parcours lot",
+      description: "Suivre un lot A→Z : étape actuelle, prochaine action, coût et passport.",
+      helper: "Fil d'or",
+      metric: "Vue parcours",
       icon: Home,
       accent: "border-slate-200 bg-white text-slate-700",
     },

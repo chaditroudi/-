@@ -34,11 +34,11 @@ export interface AppTabMeta {
 
 export const APP_TAB_META: Record<AppTab, AppTabMeta> = {
   home: {
-    label: "Accueil",
-    shortLabel: "Accueil",
+    label: "Parcours lot",
+    shortLabel: "Parcours",
     icon: Home,
-    pageTitle: "Pilotage usine",
-    pageSubtitle: "Vue d'ensemble des flux, alertes et priorites du jour.",
+    pageTitle: "Parcours lot A→Z",
+    pageSubtitle: "Suivre un lot de la réception à l'expédition — prochaine action, coûts et passport.",
   },
   live: {
     label: "Centre de Commande",

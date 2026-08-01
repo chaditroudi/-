@@ -66,15 +66,19 @@ const TabLoader = () => (
 // ── Static lookup tables (module-level — never recreated) ─────────────────────
 
 const TAB_SECTION_LABEL: Partial<Record<AppTab, string>> = {
+  home: "Parcours lot",
   live: "Opérations", scan: "Opérations", alerts: "Opérations",
-  receptions: "Flux usine — Étape 1",
-  storage: "Flux usine — Étape 2", production: "Flux usine — Étape 3",
-  packaging: "Flux usine — Étape 4", logistics: "Flux usine — Étape 5",
-  "stock-dashboard": "Flux usine — Étape 2", "stock-lots": "Flux usine — Étape 2",
-  "stock-products": "Flux usine — Étape 2", "stock-movements": "Flux usine — Étape 2",
-  suppliers: "Gestion", materials: "Gestion", purchasing: "Gestion",
+  receptions: "Fil d'or — Réception / QC",
+  storage: "Fil d'or — Froid / Stock",
+  production: "Fil d'or — Fumigation / Triage",
+  packaging: "Fil d'or — Conditionnement",
+  logistics: "Fil d'or — Expédition",
+  export: "Fil d'or — Export / Marge",
+  "stock-dashboard": "Fil d'or — Froid / Stock", "stock-lots": "Fil d'or — Froid / Stock",
+  "stock-products": "Fil d'or — Froid / Stock", "stock-movements": "Fil d'or — Froid / Stock",
+  suppliers: "Gestion", materials: "Gestion", purchasing: "Gestion — Règlements",
   maintenance: "Gestion", quality: "Gestion", hr: "Gestion",
-  analytics: "Pilotage", "sage-operations": "Pilotage", export: "Pilotage", customers: "Pilotage",
+  analytics: "Pilotage", "sage-operations": "Pilotage", customers: "Pilotage",
   settings: "Administration",
 };
 

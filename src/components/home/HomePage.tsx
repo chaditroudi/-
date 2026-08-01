@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FactoryFlowPipeline } from "./FactoryFlowPipeline";
+import { LotJourneyHub } from "./LotJourneyHub";
 import type { AppTab } from "@/lib/roleAccess";
 import { APP_TAB_META } from "@/lib/appTabs";
 
@@ -181,34 +182,45 @@ export const HomePage = ({ onNavigate, accessibleTabs, metrics }: HomePageProps)
       {/* ── Page header ─────────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/50 pb-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60">Accueil</p>
-          <h1 className="mt-0.5 text-2xl font-semibold text-foreground">Priorités du jour</h1>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60">Parcours</p>
+          <h1 className="mt-0.5 text-2xl font-semibold text-foreground">Suivre un lot A→Z</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Le fil d&apos;or d&apos;abord — les modules métier ensuite.
+          </p>
         </div>
         {PrimaryActionIcon && (
-          <Button onClick={() => onNavigate(primaryActionTab)} className="gap-2 rounded-xl">
+          <Button onClick={() => onNavigate(primaryActionTab)} className="gap-2 rounded-xl" variant="outline">
             <PrimaryActionIcon className="h-4 w-4" />
             {APP_TAB_META[primaryActionTab]?.label}
           </Button>
         )}
       </div>
 
-      {/* ── Flow pipeline ───────────────────────────────────────────────────── */}
-      <FactoryFlowPipeline
-        metrics={{
-          pendingReceptions,
-          waitingQcReceptions,
-          inQcReceptions,
-          storedLots,
-          quarantinedLots,
-          phase2Active,
-          phase2Waiting,
-          activePackagingOrders: metrics.activePackagingOrders ?? 0,
-          validatedPFLots,
-          pendingShipments,
-        }}
-        accessibleTabs={accessibleTabs}
-        onNavigate={onNavigate}
-      />
+      {/* ── Lot journey (primary mental model) ─────────────────────────────── */}
+      <LotJourneyHub onNavigate={onNavigate} accessibleTabs={accessibleTabs} />
+
+      {/* ── Flow pipeline (department shortcuts) ───────────────────────────── */}
+      <div className="space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60">
+          Modules métier (secondaire)
+        </p>
+        <FactoryFlowPipeline
+          metrics={{
+            pendingReceptions,
+            waitingQcReceptions,
+            inQcReceptions,
+            storedLots,
+            quarantinedLots,
+            phase2Active,
+            phase2Waiting,
+            activePackagingOrders: metrics.activePackagingOrders ?? 0,
+            validatedPFLots,
+            pendingShipments,
+          }}
+          accessibleTabs={accessibleTabs}
+          onNavigate={onNavigate}
+        />
+      </div>
 
       {/* ── Main content grid ────────────────────────────────────────────────── */}
       <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
