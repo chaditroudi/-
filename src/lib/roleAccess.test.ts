@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { canAccessTab, canPerformAction, getAccessibleTabs } from "@/lib/roleAccess";
+import { canAccessTab, canPerformAction, getAccessibleTabs, getRoleWorkspaceProfile } from "@/lib/roleAccess";
 
 describe("roleAccess", () => {
   it("gives system administrators all operational tabs and actions", () => {
@@ -34,5 +34,19 @@ describe("roleAccess", () => {
     expect(canAccessTab(["responsable_stock"], "purchasing")).toBe(true);
     expect(canAccessTab(["magasinier_wms"], "purchasing")).toBe(false);
     expect(canPerformAction(["responsable_stock"], "purchasing_management")).toBe(false);
+  });
+
+  it("lands employees on Parcours lot without removing their tools", () => {
+    const reception = getRoleWorkspaceProfile(["operateur_reception"]);
+    expect(reception.defaultTab).toBe("home");
+    expect(reception.primaryTabs[0]).toBe("home");
+    expect(reception.primaryTabs).toEqual(expect.arrayContaining(["receptions", "alerts"]));
+
+    const fumigation = getRoleWorkspaceProfile(["operateur_fumigation"]);
+    expect(fumigation.defaultTab).toBe("home");
+    expect(fumigation.primaryTabs).toEqual(expect.arrayContaining(["production"]));
+
+    const portal = getRoleWorkspaceProfile(["client_externe"]);
+    expect(portal.defaultTab).toBe("logistics");
   });
 });

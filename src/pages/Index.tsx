@@ -212,6 +212,8 @@ const Index = () => {
   // ── Tab resolution ────────────────────────────────────────────────────────
 
   const preferredDefaultTab = useMemo<AppTab>(() => {
+    // Employees land on Parcours lot when available — modules stay reachable, not the landing.
+    if (accessibleTabs.includes('home')) return 'home';
     const configured = settings.interface.default_home_tab as AppTab;
     if (accessibleTabs.includes(configured)) return configured;
     if (accessibleTabs.includes(workspaceProfile.defaultTab)) return workspaceProfile.defaultTab;
@@ -247,25 +249,43 @@ const Index = () => {
   // ── Navigation callbacks ──────────────────────────────────────────────────
 
   const [phase2PreselectedLot, setPhase2PreselectedLot] = useState<string | undefined>();
+  const [phase2Module, setPhase2Module] = useState<'fumigation' | 'nettoyage' | 'hydratation' | 'triage' | 'alertes' | 'pipeline'>('fumigation');
+  const [productionView, setProductionView] = useState<string>(() =>
+    features.phase2_enabled ? 'phase2' : 'overview',
+  );
+  const [purchasingFocus, setPurchasingFocus] = useState<string | undefined>();
   const [prefillReceptionPOId, setPrefillReceptionPOId] = useState<string | undefined>();
 
-  const handleNavigate = useCallback((tab: string, prefillPOId?: string) => {
-    setPrefillReceptionPOId(tab === 'receptions' ? prefillPOId : undefined);
+  const handleNavigate = useCallback((tab: string, options?: import('@/lib/appNavigate').AppNavigateOptions | string) => {
+    const opts = typeof options === 'string' ? { prefillPOId: options } : (options || {});
+    setPrefillReceptionPOId(tab === 'receptions' ? opts.prefillPOId : undefined);
+    if (tab === 'production') {
+      if (opts.view) setProductionView(opts.view);
+      else if (features.phase2_enabled) setProductionView('phase2');
+      if (opts.module && ['fumigation', 'nettoyage', 'hydratation', 'triage', 'alertes', 'pipeline'].includes(opts.module)) {
+        setPhase2Module(opts.module as typeof phase2Module);
+      }
+      if (opts.lot) setPhase2PreselectedLot(opts.lot);
+    }
+    if (tab === 'purchasing' && opts.focus) setPurchasingFocus(opts.focus);
     const nextTab = resolveTab(tab);
     setActiveTab(nextTab);
     setSearchParams(prev => {
       const p = new URLSearchParams(prev);
       p.set('tab', nextTab);
+      if (opts.view) p.set('view', opts.view); else p.delete('view');
+      if (opts.module) p.set('module', opts.module); else p.delete('module');
+      if (opts.lot) p.set('lot', opts.lot); else p.delete('lot');
+      if (opts.focus) p.set('focus', opts.focus); else p.delete('focus');
       return p;
     }, { replace: false });
-  }, [resolveTab, setSearchParams]);
+  }, [resolveTab, setSearchParams, features.phase2_enabled]);
 
   const handleGoHome        = useCallback(() => handleNavigate('home'),       [handleNavigate]);
   const handleGoToProduction= useCallback(() => handleNavigate('production'), [handleNavigate]);
 
   const handleSendToPhase2 = useCallback((lotNumber: string) => {
-    setPhase2PreselectedLot(lotNumber);
-    handleNavigate('production');
+    handleNavigate('production', { lot: lotNumber, view: 'phase2', module: 'pipeline' });
   }, [handleNavigate]);
 
   const handleRefresh = useCallback(async () => {
@@ -310,7 +330,11 @@ const Index = () => {
       case 'production':
         // Sub-tabs instead of stacking 4 dashboards in one endless scroll.
         return (
-          <Tabs defaultValue={features.phase2_enabled ? 'phase2' : 'overview'} className="w-full">
+          <Tabs
+            value={productionView === 'phase2' && features.phase2_enabled ? 'phase2' : (['overview', 'flux', 'orders'].includes(productionView) ? productionView : (features.phase2_enabled ? 'phase2' : 'overview'))}
+            onValueChange={setProductionView}
+            className="w-full"
+          >
             <TabsList className="mb-4 h-auto w-full flex-wrap justify-start gap-1 sm:w-auto">
               {features.phase2_enabled && <TabsTrigger value="phase2">Phase 2</TabsTrigger>}
               <TabsTrigger value="overview">Vue d&apos;ensemble</TabsTrigger>
@@ -321,7 +345,7 @@ const Index = () => {
               <TabsContent value="phase2">
                 <Phase2Dashboard
                   currentUser={profile?.full_name ?? workspaceProfile.workspaceLabel}
-                  defaultModule={phase2PreselectedLot ? 'pipeline' : 'fumigation'}
+                  defaultModule={phase2Module}
                   preSelectedLot={phase2PreselectedLot}
                 />
               </TabsContent>
@@ -383,7 +407,7 @@ const Index = () => {
       case 'materials':
         return <MaterialsList materials={materials} canManage={canManagePurchasingData} />;
       case 'purchasing':
-        return <PurchasingDashboard onNavigate={handleNavigate} />;
+        return <PurchasingDashboard onNavigate={handleNavigate} initialFocus={purchasingFocus} />;
       case 'maintenance':
         return <MaintenanceDashboard />;
       case 'logistics':

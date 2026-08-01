@@ -17,7 +17,7 @@ import { Flame, Droplets, Wind, Scissors, Bell, Search, Printer, GitMerge } from
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { AvailableLot } from '@/hooks/useAvailableLotsForPhase2';
 
 interface Props {
@@ -33,6 +33,17 @@ export function Phase2Dashboard({ currentUser = 'Utilisateur', defaultModule = '
   const [traceabilityOpen, setTraceabilityOpen] = useState(!!preSelectedLot);
   const [traceabilityQuery, setTraceabilityQuery] = useState(preSelectedLot ?? '');
   const [activeModule, setActiveModule] = useState(defaultModule);
+
+  useEffect(() => {
+    if (defaultModule) setActiveModule(defaultModule);
+  }, [defaultModule]);
+
+  useEffect(() => {
+    if (!preSelectedLot) return;
+    setTraceabilityLot(preSelectedLot);
+    setTraceabilityQuery(preSelectedLot);
+    setTraceabilityOpen(true);
+  }, [preSelectedLot]);
 
   const { data: allFum = [] } = useFumigationCycles();
   const { data: allNet = [] } = useCleaningCycles();

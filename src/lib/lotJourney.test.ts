@@ -27,20 +27,24 @@ describe('resolveLotJourneyNextAction', () => {
     expect(next.nextStage).toBe('COLD_STORE');
   });
 
-  it('points to packaging after triage', () => {
+  it('points to fumigation phase2 after cold store', () => {
     const next = resolveLotJourneyNextAction({
-      completed: [
-        'SUPPLIER_INTAKE',
-        'WEIGHED',
-        'QC_DECIDED',
-        'COLD_STORE',
-        'FUMIGATION_CCP',
-        'TRIAGE',
-      ],
-      missing: ['PACKED', 'SHIPPED'],
-      stage: 'TRIAGE',
+      completed: ['SUPPLIER_INTAKE', 'WEIGHED', 'QC_DECIDED', 'COLD_STORE'],
+      missing: ['FUMIGATION_CCP', 'TRIAGE', 'PACKED', 'SHIPPED'],
+      stage: 'COLD_STORE',
     });
-    expect(next.tab).toBe('packaging');
+    expect(next.tab).toBe('production');
+    expect(next.view).toBe('phase2');
+    expect(next.module).toBe('fumigation');
+  });
+
+  it('points to triage module after fumigation', () => {
+    const next = resolveLotJourneyNextAction({
+      completed: ['SUPPLIER_INTAKE', 'WEIGHED', 'QC_DECIDED', 'COLD_STORE', 'FUMIGATION_CCP'],
+      missing: ['TRIAGE', 'PACKED', 'SHIPPED'],
+      stage: 'FUMIGATION_CCP',
+    });
+    expect(next.module).toBe('triage');
   });
 
   it('points to export when complete', () => {

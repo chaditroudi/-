@@ -129,12 +129,24 @@ type PurchaseOrderSaveData = {
   created_by: string;
 };
 
-export const PurchasingDashboard = ({ onNavigate }: { onNavigate?: (tab: string, prefillPOId?: string) => void }) => {
+export const PurchasingDashboard = ({
+  onNavigate,
+  initialFocus,
+}: {
+  onNavigate?: (tab: string, prefillPOId?: string) => void;
+  initialFocus?: string;
+}) => {
   const { t } = useTranslation();
   const { hasAnyRole, roles, profile, user } = useAuthContext();
   const currentUser = profile?.full_name ?? 'Utilisateur';
   const currentUserId = user?.id ?? null;
-  const [activeTab, setActiveTab] = useState('requisitions');
+  const [activeTab, setActiveTab] = useState(() =>
+    initialFocus === 'settlements' ? 'settlements' : 'requisitions',
+  );
+
+  useEffect(() => {
+    if (initialFocus === 'settlements') setActiveTab('settlements');
+  }, [initialFocus]);
   const [reqDialogOpen, setReqDialogOpen] = useState(false);
   const [orderDialogOpen, setOrderDialogOpen] = useState(false);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);

@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { trustApi, type GoldenThreadLotState } from '@/lib/api/trust';
 import { costingApi } from '@/lib/api/costing';
 import { settlementsApi } from '@/lib/api/settlements';
+import type { AppNavigateFn } from '@/lib/appNavigate';
 import {
   LOT_JOURNEY_STAGES,
   LOT_JOURNEY_STAGE_LABELS,
@@ -28,7 +29,7 @@ import {
 } from 'lucide-react';
 
 interface LotJourneyHubProps {
-  onNavigate: (tab: string) => void;
+  onNavigate: AppNavigateFn;
   accessibleTabs: AppTab[];
 }
 
@@ -298,13 +299,32 @@ export function LotJourneyHub({ onNavigate, accessibleTabs }: LotJourneyHubProps
               <p className="mt-1 text-sm text-muted-foreground">{next.description}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {canGo(next.tab) && (
-                  <Button className="gap-2" onClick={() => onNavigate(next.tab)}>
+                  <Button
+                    className="gap-2"
+                    onClick={() =>
+                      onNavigate(next.tab, {
+                        view: next.view,
+                        module: next.module,
+                        focus: next.focus,
+                        lot: passport.data?.lotNumber || activeLotId || undefined,
+                      })
+                    }
+                  >
                     {next.ctaLabel}
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 )}
                 {next.secondary && canGo(next.secondary.tab) && (
-                  <Button variant="outline" onClick={() => onNavigate(next.secondary!.tab)}>
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      onNavigate(next.secondary!.tab, {
+                        view: next.secondary!.view,
+                        focus: next.secondary!.focus,
+                        lot: passport.data?.lotNumber || activeLotId || undefined,
+                      })
+                    }
+                  >
                     {next.secondary.ctaLabel}
                   </Button>
                 )}
@@ -323,47 +343,71 @@ export function LotJourneyHub({ onNavigate, accessibleTabs }: LotJourneyHubProps
               </div>
             </div>
 
-            {/* Money strip */}
+            {/* Money strip — soft when role cannot read finance APIs */}
             <div className="grid gap-3 sm:grid-cols-3">
               <div className="rounded-xl border p-3">
                 <p className="text-xs text-muted-foreground">Coût lot (TND/kg)</p>
-                <p className="text-lg font-semibold">
-                  {lotCost.data?.lot.purchase_cost_tnd_per_kg != null
-                    ? Number(lotCost.data.lot.purchase_cost_tnd_per_kg).toFixed(2)
-                    : lotCost.data?.triage?.grades?.find((g) => g.cost_tnd_per_kg != null)
-                        ?.cost_tnd_per_kg != null
-                      ? Number(
-                          lotCost.data.triage.grades.find((g) => g.cost_tnd_per_kg != null)!
-                            .cost_tnd_per_kg,
-                        ).toFixed(2)
-                      : '—'}
-                </p>
-                <p className="text-[11px] text-muted-foreground">
-                  {lotCost.data?.lot.cost_source || 'snapshot / triage'}
-                </p>
+                {lotCost.isError ? (
+                  <>
+                    <p className="text-sm font-medium text-muted-foreground">Réservé Achats / Direction</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Votre rôle suit le parcours ; les chiffres coût s&apos;affichent pour les profils finance.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-lg font-semibold">
+                      {lotCost.data?.lot.purchase_cost_tnd_per_kg != null
+                        ? Number(lotCost.data.lot.purchase_cost_tnd_per_kg).toFixed(2)
+                        : lotCost.data?.triage?.grades?.find((g) => g.cost_tnd_per_kg != null)
+                            ?.cost_tnd_per_kg != null
+                          ? Number(
+                              lotCost.data.triage.grades.find((g) => g.cost_tnd_per_kg != null)!
+                                .cost_tnd_per_kg,
+                            ).toFixed(2)
+                          : lotCost.isLoading
+                            ? '…'
+                            : '—'}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {lotCost.data?.lot.cost_source || 'snapshot / triage'}
+                    </p>
+                  </>
+                )}
               </div>
               <div className="rounded-xl border p-3">
                 <p className="text-xs text-muted-foreground">Règlement grades</p>
-                <p className="text-lg font-semibold">
-                  {relatedSettlement
-                    ? `${relatedSettlement.total_amount_tnd.toLocaleString('fr-FR', {
-                        minimumFractionDigits: 0,
-                      })} TND`
-                    : '—'}
-                </p>
-                <p className="text-[11px] text-muted-foreground">
-                  {relatedSettlement
-                    ? relatedSettlement.status
-                    : progress.completed.includes('TRIAGE')
-                      ? 'Créer dans Achats → Règlements'
-                      : 'Après triage'}
-                </p>
+                {settlements.isError ? (
+                  <>
+                    <p className="text-sm font-medium text-muted-foreground">Voir avec Achats</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Après triage, le règlement est géré dans Achats → Règlements grades.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-lg font-semibold">
+                      {relatedSettlement
+                        ? `${relatedSettlement.total_amount_tnd.toLocaleString('fr-FR', {
+                            minimumFractionDigits: 0,
+                          })} TND`
+                        : '—'}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {relatedSettlement
+                        ? relatedSettlement.status
+                        : progress.completed.includes('TRIAGE')
+                          ? 'Disponible après clôture triage'
+                          : 'Après triage'}
+                    </p>
+                  </>
+                )}
                 {canGo('purchasing') && (
                   <Button
                     size="sm"
                     variant="link"
                     className="h-auto px-0 text-xs"
-                    onClick={() => onNavigate('purchasing')}
+                    onClick={() => onNavigate('purchasing', { focus: 'settlements' })}
                   >
                     Voir règlements
                   </Button>
@@ -373,7 +417,7 @@ export function LotJourneyHub({ onNavigate, accessibleTabs }: LotJourneyHubProps
                 <p className="text-xs text-muted-foreground">Marge export</p>
                 <p className="text-lg font-semibold">
                   {progress.completed.includes('PACKED') || state.goldenThreadComplete
-                    ? 'Voir export'
+                    ? 'Disponible'
                     : '—'}
                 </p>
                 <p className="text-[11px] text-muted-foreground">CA × FX − coût lot (TND)</p>

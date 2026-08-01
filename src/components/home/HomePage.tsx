@@ -16,11 +16,12 @@ import {
 import { cn } from "@/lib/utils";
 import { FactoryFlowPipeline } from "./FactoryFlowPipeline";
 import { LotJourneyHub } from "./LotJourneyHub";
+import type { AppNavigateFn } from "@/lib/appNavigate";
 import type { AppTab } from "@/lib/roleAccess";
 import { APP_TAB_META } from "@/lib/appTabs";
 
 interface HomePageProps {
-  onNavigate: (tab: string) => void;
+  onNavigate: AppNavigateFn;
   accessibleTabs: AppTab[];
   metrics: {
     draftReceptions: number;

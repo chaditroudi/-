@@ -18,6 +18,16 @@ export const LOT_JOURNEY_STAGES = [
 
 export type LotJourneyStage = (typeof LOT_JOURNEY_STAGES)[number];
 
+export type JourneyNavigateHint = {
+  tab: AppTab;
+  /** Production sub-tab: phase2 | overview | flux | orders */
+  view?: string;
+  /** Phase2 module: fumigation | triage | nettoyage | hydratation | pipeline */
+  module?: string;
+  /** Purchasing sub focus */
+  focus?: string;
+};
+
 export const LOT_JOURNEY_STAGE_LABELS: Record<LotJourneyStage, string> = {
   SUPPLIER_INTAKE: 'Réception',
   WEIGHED: 'Pesée',
@@ -36,10 +46,15 @@ export type LotJourneyNextAction = {
   description: string;
   ctaLabel: string;
   tab: AppTab;
+  view?: string;
+  module?: string;
+  focus?: string;
   /** Optional secondary CTA (e.g. export margin after ship). */
   secondary?: {
     ctaLabel: string;
     tab: AppTab;
+    view?: string;
+    focus?: string;
   };
 };
 
@@ -69,15 +84,19 @@ const NEXT_BY_COMPLETED_TIP: Record<LotJourneyStage, LotJourneyNextAction> = {
     nextStage: 'FUMIGATION_CCP',
     title: 'Fumigation CCP',
     description: 'Lancer / valider le cycle de fumigation (capteurs + double signature).',
-    ctaLabel: 'Ouvrir production',
+    ctaLabel: 'Ouvrir fumigation',
     tab: 'production',
+    view: 'phase2',
+    module: 'fumigation',
   },
   FUMIGATION_CCP: {
     nextStage: 'TRIAGE',
     title: 'Triage & grades',
     description: 'Clôturer le triage (bilan matière + coûts + règlement grades).',
-    ctaLabel: 'Ouvrir production',
+    ctaLabel: 'Ouvrir triage',
     tab: 'production',
+    view: 'phase2',
+    module: 'triage',
   },
   TRIAGE: {
     nextStage: 'PACKED',
@@ -133,11 +152,8 @@ export const resolveLotJourneyNextAction = (input: {
   );
   if (missing.length > 0) {
     const target = missing[0];
-    // Next action is to complete `target` — tip keyed by previous completed stage,
-    // or by the stage before target.
     const idx = LOT_JOURNEY_STAGES.indexOf(target);
     const previous = idx > 0 ? LOT_JOURNEY_STAGES[idx - 1] : 'SUPPLIER_INTAKE';
-    // If target is first missing and nothing completed, use SUPPLIER tip for WEIGHED etc.
     if (idx === 0) {
       return {
         nextStage: 'SUPPLIER_INTAKE',
@@ -171,10 +187,14 @@ export const journeyStageStatus = (
   if (progress.rejected) return 'rejected';
   if ((progress.completed || []).includes(stage)) return 'done';
   if (progress.current === stage) return 'current';
-  const missingFirst = (progress.completed || []).length;
-  // Prefer current from progress; else first not completed
   const firstOpen = LOT_JOURNEY_STAGES.find((s) => !(progress.completed || []).includes(s));
   if (firstOpen === stage) return 'current';
-  void missingFirst;
   return 'todo';
 };
+
+/** Roles that keep a portal-specific landing (not Parcours). */
+export const PORTAL_ONLY_ROLES = new Set([
+  'fournisseur_externe',
+  'client_externe',
+  'partenaire_client_export',
+]);
