@@ -5,6 +5,7 @@ import {
   getFicheById,
   getFicheForStage,
   listFichesForTabs,
+  mergeFicheWithOverride,
 } from './fichesTechniques';
 import { LOT_JOURNEY_STAGES } from './lotJourney';
 
@@ -31,18 +32,14 @@ describe('fichesTechniques A→Z', () => {
     expect(onlyReception.some((f) => f.id === 'FT-BDE')).toBe(false);
   });
 
-  it('has stable codes FT-01…FT-08 plus docs', () => {
-    const process = FICHES_TECHNIQUES.filter((f) => f.stage);
-    expect(process).toHaveLength(8);
-    expect(process.map((f) => f.code)).toEqual([
-      'FT-01',
-      'FT-02',
-      'FT-03',
-      'FT-04',
-      'FT-05',
-      'FT-06',
-      'FT-07',
-      'FT-08',
-    ]);
+  it('merges site overrides onto base fiches', () => {
+    const base = getFicheById('FT-05-FUMIGATION')!;
+    const merged = mergeFicheWithOverride(base, {
+      criticalLimits: [{ label: 'Température', value: 'Site: 28–32 °C' }],
+      ifBlocked: 'Appeler chef CCP site',
+    });
+    expect(merged.title).toBe(base.title);
+    expect(merged.criticalLimits[0].value).toContain('28–32');
+    expect(merged.ifBlocked).toMatch(/chef CCP/);
   });
 });

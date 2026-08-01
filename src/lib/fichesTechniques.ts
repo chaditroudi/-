@@ -323,6 +323,71 @@ export function listFichesForTabs(accessibleTabs: AppTab[]): FicheTechnique[] {
   return FICHES_TECHNIQUES.filter((f) => accessibleTabs.includes(f.navigate.tab));
 }
 
+export type FicheOverride = {
+  title?: string;
+  purpose?: string;
+  poste?: string;
+  durationMin?: number;
+  tools?: string[];
+  steps?: string[];
+  criticalLimits?: { label: string; value: string }[];
+  ifBlocked?: string;
+  documents?: string[];
+};
+
+export type FicheOverridesMap = Partial<Record<FicheId, FicheOverride>>;
+
+export function mergeFicheWithOverride(
+  base: FicheTechnique,
+  override?: FicheOverride | null,
+): FicheTechnique {
+  if (!override) return base;
+  return {
+    ...base,
+    title: override.title?.trim() || base.title,
+    purpose: override.purpose?.trim() || base.purpose,
+    poste: override.poste?.trim() || base.poste,
+    durationMin:
+      typeof override.durationMin === 'number' && override.durationMin > 0
+        ? override.durationMin
+        : base.durationMin,
+    tools: override.tools?.length ? override.tools : base.tools,
+    steps: override.steps?.length ? override.steps : base.steps,
+    criticalLimits: override.criticalLimits?.length ? override.criticalLimits : base.criticalLimits,
+    ifBlocked: override.ifBlocked?.trim() || base.ifBlocked,
+    documents: override.documents?.length ? override.documents : base.documents,
+  };
+}
+
+export function resolveFiches(overrides?: FicheOverridesMap | null): FicheTechnique[] {
+  return FICHES_TECHNIQUES.map((f) => mergeFicheWithOverride(f, overrides?.[f.id]));
+}
+
+export function resolveFicheById(
+  id: string | null | undefined,
+  overrides?: FicheOverridesMap | null,
+): FicheTechnique | null {
+  const base = getFicheById(id);
+  if (!base) return null;
+  return mergeFicheWithOverride(base, overrides?.[base.id]);
+}
+
+export function resolveFicheForStage(
+  stage: LotJourneyStage | string | null | undefined,
+  overrides?: FicheOverridesMap | null,
+): FicheTechnique | null {
+  const base = getFicheForStage(stage);
+  if (!base) return null;
+  return mergeFicheWithOverride(base, overrides?.[base.id]);
+}
+
+export function listResolvedFichesForTabs(
+  accessibleTabs: AppTab[],
+  overrides?: FicheOverridesMap | null,
+): FicheTechnique[] {
+  return resolveFiches(overrides).filter((f) => accessibleTabs.includes(f.navigate.tab));
+}
+
 export function ficheStageLabel(fiche: FicheTechnique): string {
   if (fiche.stage) return LOT_JOURNEY_STAGE_LABELS[fiche.stage];
   return fiche.poste;

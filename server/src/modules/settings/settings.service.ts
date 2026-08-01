@@ -173,6 +173,7 @@ const DEFAULT_SETTINGS = {
       { level: "general_direction", threshold_gte: 50000, label: "Direction Générale" },
     ],
   },
+  fiche_overrides: {},
   updated_by: null,
   updated_at: new Date().toISOString(),
 };
@@ -211,6 +212,10 @@ const normalizeSettings = (value?: Record<string, any> | null) => ({
   notifications: mergeSection(DEFAULT_SETTINGS.notifications, value?.notifications),
   integrations: mergeSection(DEFAULT_SETTINGS.integrations, value?.integrations),
   p2p: mergeP2PSettings(value?.p2p),
+  fiche_overrides:
+    value?.fiche_overrides && typeof value.fiche_overrides === "object"
+      ? value.fiche_overrides
+      : DEFAULT_SETTINGS.fiche_overrides,
 });
 
 @Injectable()
@@ -250,6 +255,10 @@ export class SettingsService implements OnModuleInit {
       notifications: safeUpdate.notifications ? mergeSection(current.notifications, safeUpdate.notifications) : current.notifications,
       integrations: safeUpdate.integrations ? mergeSection(current.integrations, safeUpdate.integrations) : current.integrations,
       p2p: safeUpdate.p2p ? mergeP2PSettings({ ...current.p2p, ...safeUpdate.p2p }) : current.p2p,
+      fiche_overrides:
+        safeUpdate.fiche_overrides !== undefined
+          ? safeUpdate.fiche_overrides
+          : current.fiche_overrides,
       updated_by: updatedBy,
       updated_at: new Date().toISOString(),
     });

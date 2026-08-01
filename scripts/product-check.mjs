@@ -13,11 +13,15 @@ const requiredFiles = [
   'LICENSE',
   'docs/BUYER_HANDOFF.md',
   'docs/PRODUCT_MAP.md',
+  'docs/ROADMAP_v2.1.md',
+  'docs/DEMO_RUNBOOK.md',
+  'docs/UAT_CHECKLIST.md',
   '.env.example',
   'src/lib/fichesTechniques.ts',
   'src/lib/productMeta.ts',
   'src/components/fiches/FichesTechniquesHub.tsx',
   'src/components/documents/DocumentsWorkspace.tsx',
+  'src/components/settings/FichesCmsPanel.tsx',
 ];
 
 let failed = false;

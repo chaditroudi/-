@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BookOpen, Clock3, Search } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -6,10 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import type { AppNavigateFn } from '@/lib/appNavigate';
 import type { AppTab } from '@/lib/roleAccess';
+import { useSiteSettings } from '@/hooks/useSettings';
 import {
   ficheStageLabel,
-  getFicheById,
-  listFichesForTabs,
+  listResolvedFichesForTabs,
+  resolveFicheById,
   type FicheId,
   type FicheTechnique,
 } from '@/lib/fichesTechniques';
@@ -18,7 +19,6 @@ import { FicheTechniqueSheet } from './FicheTechniqueSheet';
 interface FichesTechniquesHubProps {
   onNavigate: AppNavigateFn;
   accessibleTabs: AppTab[];
-  /** Prefill open fiche (e.g. deep-link). */
   initialFicheId?: string;
 }
 
@@ -27,10 +27,24 @@ export function FichesTechniquesHub({
   accessibleTabs,
   initialFicheId,
 }: FichesTechniquesHubProps) {
-  const fiches = useMemo(() => listFichesForTabs(accessibleTabs), [accessibleTabs]);
+  const { data: settings } = useSiteSettings();
+  const overrides = settings?.fiche_overrides;
+  const fiches = useMemo(
+    () => listResolvedFichesForTabs(accessibleTabs, overrides),
+    [accessibleTabs, overrides],
+  );
   const [query, setQuery] = useState('');
-  const [active, setActive] = useState<FicheTechnique | null>(() => getFicheById(initialFicheId));
-  const [open, setOpen] = useState(() => Boolean(getFicheById(initialFicheId)));
+  const [active, setActive] = useState<FicheTechnique | null>(null);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!initialFicheId) return;
+    const resolved = resolveFicheById(initialFicheId, overrides);
+    if (resolved) {
+      setActive(resolved);
+      setOpen(true);
+    }
+  }, [initialFicheId, overrides]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -45,7 +59,7 @@ export function FichesTechniquesHub({
   }, [fiches, query]);
 
   const openFiche = (fiche: FicheTechnique) => {
-    setActive(fiche);
+    setActive(resolveFicheById(fiche.id, overrides) || fiche);
     setOpen(true);
   };
 
@@ -123,8 +137,9 @@ export function FichesTechniquesHub({
                 variant="secondary"
                 onClick={() =>
                   openFiche(
-                    getFicheById(
+                    resolveFicheById(
                       (accessibleTabs.includes('receptions') ? 'FT-BRA' : 'FT-BDE') as FicheId,
+                      overrides,
                     )!,
                   )
                 }

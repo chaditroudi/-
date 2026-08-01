@@ -32,8 +32,9 @@ import {
   ShieldAlert,
   Truck,
 } from 'lucide-react';
-import { getFicheForStage, getFicheById, type FicheTechnique } from '@/lib/fichesTechniques';
+import { getFicheById, getFicheForStage, resolveFicheById, resolveFicheForStage, type FicheTechnique } from '@/lib/fichesTechniques';
 import { FicheTechniqueSheet } from '@/components/fiches/FicheTechniqueSheet';
+import { useSiteSettings } from '@/hooks/useSettings';
 
 interface LotJourneyHubProps {
   onNavigate: AppNavigateFn;
@@ -49,10 +50,12 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
   const [showFinance, setShowFinance] = useState(!compact);
   const [ficheOpen, setFicheOpen] = useState(false);
   const [activeFiche, setActiveFiche] = useState<FicheTechnique | null>(null);
+  const { data: siteSettings } = useSiteSettings();
+  const ficheOverrides = siteSettings?.fiche_overrides;
 
   const openFiche = (fiche: FicheTechnique | null) => {
     if (!fiche) return;
-    setActiveFiche(fiche);
+    setActiveFiche(resolveFicheById(fiche.id, ficheOverrides) || fiche);
     setFicheOpen(true);
   };
 
@@ -148,7 +151,7 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
 
   const canGo = (tab: AppTab) => accessibleTabs.includes(tab);
 
-  const nextFiche = getFicheForStage(next.nextStage);
+  const nextFiche = resolveFicheForStage(next.nextStage, ficheOverrides);
 
   return (
     <Card className="surface-card overflow-hidden rounded-[28px] border-primary/20">

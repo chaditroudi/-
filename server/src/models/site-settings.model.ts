@@ -179,6 +179,7 @@ const siteSettingsSchema = new mongoose.Schema(
         ],
       },
     },
+    fiche_overrides: { type: mongoose.Schema.Types.Mixed, default: {} },
     updated_by: { type: String, default: null },
     updated_at: { type: String, default: () => new Date().toISOString() },
   },

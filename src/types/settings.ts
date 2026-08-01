@@ -1,5 +1,6 @@
 import type { ApprovalMatrixStep, SiteCode, SiteConfig } from './p2p';
 import { APPROVAL_MATRIX, SITE_CONFIGS } from './p2p';
+import type { FicheOverridesMap } from '@/lib/fichesTechniques';
 
 export type SiteLanguage = 'fr' | 'en' | 'ar';
 export type UiDensity = 'compact' | 'comfortable' | 'spacious';
@@ -156,6 +157,8 @@ export interface SiteSettings {
   notifications: SiteNotificationSettings;
   integrations: SiteIntegrationSettings;
   p2p: SiteP2PSettings;
+  /** Site-specific SOP overrides for fiches techniques (v2.1 CMS). */
+  fiche_overrides: FicheOverridesMap;
   updated_by: string | null;
   updated_at: string;
 }
@@ -303,6 +306,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     },
     approval_matrix: APPROVAL_MATRIX.map((step) => ({ ...step })),
   },
+  fiche_overrides: {},
   updated_by: null,
   updated_at: new Date().toISOString(),
 };
@@ -347,6 +351,7 @@ export const normalizeSiteSettings = (value?: Partial<SiteSettings> | null): Sit
       value?.p2p?.approval_matrix?.map((step) => ({ ...step })) ??
       DEFAULT_SETTINGS.p2p.approval_matrix.map((step) => ({ ...step })),
   },
+  fiche_overrides: { ...(value?.fiche_overrides ?? DEFAULT_SETTINGS.fiche_overrides) },
   updated_at: value?.updated_at ?? DEFAULT_SETTINGS.updated_at,
 });
 

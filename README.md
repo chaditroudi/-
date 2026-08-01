@@ -1,6 +1,6 @@
 # Date Harvest Hub (Royal Palm MES)
 
-**Version 2.0.0 — Enterprise Traceability edition**
+**Version 2.1.0 — Enterprise Traceability edition**
 
 MES / ERP for **date manufacturing**: reception → QC → cold store → fumigation CCP → triage → packaging → export, with golden-thread lot traceability, operator fiches techniques, BRA/BDE documents, costing, and settlements.
 
@@ -18,7 +18,9 @@ MES / ERP for **date manufacturing**: reception → QC → cold store → fumiga
 | **Roles** | Plant roles + supplier / client portals |
 | **White-label** | Company name, logo, colors in Settings → Marque |
 
-See [docs/PRODUCT_MAP.md](docs/PRODUCT_MAP.md) and [docs/BUYER_HANDOFF.md](docs/BUYER_HANDOFF.md).
+See [docs/PRODUCT_MAP.md](docs/PRODUCT_MAP.md), [docs/BUYER_HANDOFF.md](docs/BUYER_HANDOFF.md), and [docs/ROADMAP_v2.1.md](docs/ROADMAP_v2.1.md).
+
+Demo: [docs/DEMO_RUNBOOK.md](docs/DEMO_RUNBOOK.md) · UAT: [docs/UAT_CHECKLIST.md](docs/UAT_CHECKLIST.md)
 
 ---
 

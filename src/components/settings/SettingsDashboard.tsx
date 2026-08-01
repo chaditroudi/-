@@ -12,6 +12,7 @@ import { IntegrationsPanel } from './integrations/IntegrationsPanel';
 import { P2PSettingsPanel } from './p2p/P2PSettingsPanel';
 import { CostingPanel } from './costing/CostingPanel';
 import { ProductAboutPanel } from './ProductAboutPanel';
+import { FichesCmsPanel } from './FichesCmsPanel';
 import { DEFAULT_SETTINGS } from '@/types/settings';
 import type { AppNavigateFn } from '@/lib/appNavigate';
 import { PRODUCT } from '@/lib/productMeta';
@@ -28,6 +29,7 @@ import {
   Receipt,
   Coins,
   Info,
+  BookOpen,
 } from 'lucide-react';
 
 export function SettingsDashboard({ onNavigate }: { onNavigate?: AppNavigateFn } = {}) {
@@ -56,6 +58,10 @@ export function SettingsDashboard({ onNavigate }: { onNavigate?: AppNavigateFn }
           <TabsTrigger value="product" className="shrink-0 gap-1.5">
             <Info className="h-3.5 w-3.5" />
             Produit
+          </TabsTrigger>
+          <TabsTrigger value="fiches" className="shrink-0 gap-1.5">
+            <BookOpen className="h-3.5 w-3.5" />
+            Fiches
           </TabsTrigger>
           <TabsTrigger value="branding" className="shrink-0 gap-1.5">
             <Palette className="h-3.5 w-3.5" />
@@ -107,6 +113,9 @@ export function SettingsDashboard({ onNavigate }: { onNavigate?: AppNavigateFn }
           <ProductAboutPanel
             onOpenFiches={onNavigate ? () => onNavigate('home', { view: 'fiches' }) : undefined}
           />
+        </TabsContent>
+        <TabsContent value="fiches" className="mt-4">
+          <FichesCmsPanel settings={settings} />
         </TabsContent>
         <TabsContent value="branding" className="mt-4">
           <BrandingPanel settings={settings} />

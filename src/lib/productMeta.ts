@@ -5,7 +5,7 @@ export const PRODUCT = {
   name: 'Date Harvest Hub',
   commercialName: 'Royal Palm MES',
   tagline: 'MES / ERP traçabilité pour fabrication de dattes — du quai à l’export.',
-  version: '2.0.0',
+  version: '2.1.0',
   edition: 'Enterprise Traceability',
   year: 2026,
   stack: 'React · NestJS · MongoDB',
