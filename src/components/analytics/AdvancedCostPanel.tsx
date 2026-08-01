@@ -46,6 +46,8 @@ export const AdvancedCostPanel = ({ period }: AdvancedCostPanelProps) => {
 
   const kpis = data?.kpis;
   const isOverBudget = (kpis?.costVariancePercent || 0) > 0;
+  const basisLabel = data?.basis === 'standard' ? 'Coûts standards (paramètres site)' : 'Coûts';
+
 
   const costPerTonData = [
     { name: 'Main-d\'œuvre', value: kpis?.laborCostPerTon || 0, icon: Users, color: 'hsl(var(--chart-1))' },
@@ -56,6 +58,10 @@ export const AdvancedCostPanel = ({ period }: AdvancedCostPanelProps) => {
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground">{basisLabel}</p>
+        <Badge variant="outline">base standard</Badge>
+      </div>
       {/* Main KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {/* Cost per Kg - Main KPI */}

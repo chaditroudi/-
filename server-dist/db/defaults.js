@@ -542,6 +542,10 @@ export const prepareInsertDocument = async (collection, rawInput) => {
         doc.air_humidity_percent = doc.air_humidity_percent ?? null;
         doc.steam_injected_kg = doc.steam_injected_kg ?? null;
         doc.energy_kwh = doc.energy_kwh ?? null;
+        doc.weight_in_kg = doc.weight_in_kg === undefined ? null : doc.weight_in_kg;
+        doc.weight_out_kg = doc.weight_out_kg === undefined ? null : doc.weight_out_kg;
+        doc.waste_kg = doc.waste_kg === undefined ? null : doc.waste_kg;
+        doc.mass_balance_variance_pct = doc.mass_balance_variance_pct ?? null;
         doc.humidity_out_1 = doc.humidity_out_1 ?? null;
         doc.humidity_out_2 = doc.humidity_out_2 ?? null;
         doc.humidity_out_3 = doc.humidity_out_3 ?? null;
@@ -858,6 +862,8 @@ export const prepareInsertDocument = async (collection, rawInput) => {
         doc.allocated_kg = Number(doc.allocated_kg ?? 0);
         doc.allocated_at = doc.allocated_at || now;
         doc.allocated_by = doc.allocated_by ?? null;
+        doc.consumed_kg = doc.consumed_kg === undefined ? null : doc.consumed_kg;
+        doc.consumed_at = doc.consumed_at === undefined ? null : doc.consumed_at;
     }
     if (collection === "production_output_lots") {
         doc.lot_number = doc.lot_number || (await nextDailyNumber("PF"));

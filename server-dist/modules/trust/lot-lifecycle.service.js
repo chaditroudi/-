@@ -289,6 +289,42 @@ let LotLifecycleService = class LotLifecycleService {
             throw notFound("RECEPTION_LOT_NOT_FOUND", `Reception lot ${lotId} not found.`);
         return lot;
     }
+    /**
+     * Append a MASS_BALANCE_CHECKED ledger tip. Does not advance golden-thread
+     * stages. Failures are swallowed during dual-run (same posture as recordStageSafe).
+     */
+    async recordMassBalanceSafe(input) {
+        if (!input.lotId)
+            return null;
+        try {
+            return await this.ledger.append({
+                lotId: input.lotId,
+                eventType: "MASS_BALANCE_CHECKED",
+                collection: input.collection,
+                action: "GATE",
+                actorId: input.actorId,
+                payload: {
+                    context: input.context || null,
+                    input_kg: input.balance.inputKg,
+                    output_kg: input.balance.outputKg,
+                    waste_kg: input.balance.wasteKg,
+                    variance_kg: input.balance.varianceKg,
+                    variance_pct: input.balance.variancePct,
+                    balanced: input.balance.balanced,
+                    tolerance_pct: input.balance.tolerancePct,
+                    action: input.balance.action || (input.balance.balanced ? "ok" : "warn"),
+                },
+            });
+        }
+        catch (error) {
+            console.error("[mass-balance] ledger append failed:", {
+                lotId: input.lotId,
+                collection: input.collection,
+                error,
+            });
+            return null;
+        }
+    }
 };
 LotLifecycleService = __decorate([
     Injectable(),

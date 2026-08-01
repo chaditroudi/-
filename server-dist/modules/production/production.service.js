@@ -9,13 +9,13 @@ import { badRequest, notFound } from "../../core/app-error.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
 import { assertMassBalanceClosed, loadConfiguredMassBalanceTolerancePct, } from "../trust/mass-balance.js";
+import { emitNotification } from "../notifications/notification-emitter.js";
+import { lotLifecycleService } from "../trust/lot-lifecycle.service.js";
 const Orders = () => getCollectionModel("production_orders");
 const Steps = () => getCollectionModel("production_steps");
 const Allocations = () => getCollectionModel("production_lot_allocations");
-const OutputLots = () => getCollectionModel("production_output_lots");
 const StepDefs = () => getCollectionModel("production_step_definitions");
 const ReceptionLots = () => getCollectionModel("reception_lots");
-const Alerts = () => getCollectionModel("alerts");
 const ALLOWED_TRANSITIONS = {
     DRAFT: ["PLANNED", "CANCELLED"],
     PLANNED: ["IN_PROGRESS", "CANCELLED"],
@@ -82,11 +82,35 @@ let ProductionService = class ProductionService {
             throw badRequest("LOT_NOT_LIBERE", `Lots non libérés : ${ids}`);
         }
         const now = new Date().toISOString();
-        await Orders().updateOne({ id: orderId }, { $set: { status: "IN_PROGRESS", actual_start_at: now, updated_at: now } });
-        // Mark allocated lots as EN_PRODUCTION
-        if (lotIds.length > 0) {
-            await ReceptionLots().updateMany({ id: { $in: lotIds } }, { $set: { stock_status: "EN_PRODUCTION", updated_at: now } });
+        // Wave B — partial consumption: decrement each lot by allocated_kg only.
+        for (const allocation of allocations) {
+            const lotId = String(allocation.lot_id || "");
+            const lot = lots.find((entry) => String(entry.id) === lotId);
+            if (!lot)
+                continue;
+            const allocatedKg = Number(allocation.allocated_kg ?? 0);
+            const availableKg = Number(lot.quantity ?? 0);
+            if (allocatedKg <= 0) {
+                throw badRequest("ALLOCATED_KG_REQUIRED", `allocated_kg doit être > 0 pour le lot ${lot.lot_internal ?? lotId}.`);
+            }
+            if (allocatedKg > availableKg + 0.001) {
+                throw badRequest("INSUFFICIENT_STOCK", `Poids alloué (${allocatedKg} kg) supérieur au stock disponible (${availableKg} kg) sur ${lot.lot_internal ?? lotId}.`, { allocatedKg, availableKg, lotId });
+            }
+            const remainingKg = Number(Math.max(0, availableKg - allocatedKg).toFixed(3));
+            await ReceptionLots()
+                .updateOne({ id: lotId }, {
+                $set: {
+                    quantity: remainingKg,
+                    stock_status: remainingKg <= 0 ? "CONSUMED" : "EN_PRODUCTION",
+                    updated_at: now,
+                },
+            })
+                .exec();
+            await Allocations()
+                .updateOne({ id: allocation.id }, { $set: { consumed_at: now, consumed_kg: allocatedKg, updated_at: now } })
+                .exec();
         }
+        await Orders().updateOne({ id: orderId }, { $set: { status: "IN_PROGRESS", actual_start_at: now, updated_at: now } });
         return sanitizeDocument(await Orders().findOne({ id: orderId }).lean().exec());
     }
     // ── Complete order: validate mandatory steps, calculate yield ─────────────
@@ -112,6 +136,17 @@ let ProductionService = class ProductionService {
         const balance = assertMassBalanceClosed({ inputKg: totalInputKg, outputsKg: [actualOutputKg], wasteKg }, { tolerancePct: await loadConfiguredMassBalanceTolerancePct(), context: `OF production ${orderId}` });
         if (balance.action === "warn") {
             console.warn("[mass-balance] production order unbalanced:", { orderId, ...balance });
+            await emitNotification({
+                notificationType: "MASS_BALANCE_WARN",
+                category: "traceability",
+                space: "production",
+                severity: "warning",
+                title: `Bilan matière OF production`,
+                message: `Ordre ${order.order_number || orderId}: écart ${balance.variancePct}% (tolérance ±${balance.tolerancePct}%).`,
+                entityType: "production_orders",
+                entityId: orderId,
+                metadata: balance,
+            });
         }
         const yieldPct = totalInputKg > 0 ? Math.round((actualOutputKg / totalInputKg) * 100 * 10) / 10 : null;
         const now = new Date().toISOString();
@@ -127,6 +162,18 @@ let ProductionService = class ProductionService {
                 updated_at: now,
             },
         });
+        for (const allocation of allocations) {
+            const lotId = String(allocation.lot_id || "");
+            if (!lotId)
+                continue;
+            await lotLifecycleService.recordMassBalanceSafe({
+                lotId,
+                collection: "production_orders",
+                actorId: actor,
+                balance,
+                context: `OF production ${String(order.order_number || orderId)}`,
+            });
+        }
         return sanitizeDocument(await Orders().findOne({ id: orderId }).lean().exec());
     }
     // ── Cancel order ──────────────────────────────────────────────────────────
@@ -139,12 +186,24 @@ let ProductionService = class ProductionService {
             throw badRequest("INVALID_TRANSITION", `Impossible d'annuler un ordre en statut ${status}`);
         }
         const now = new Date().toISOString();
-        // Release lots back to STOCK_LIBERE if order was IN_PROGRESS
+        // Restore partially consumed quantities when cancelling an in-progress OF.
         if (status === "IN_PROGRESS") {
             const allocations = sanitizeDocument(await Allocations().find({ production_order_id: orderId }).lean().exec());
-            const lotIds = allocations.map((a) => a.lot_id).filter(Boolean);
-            if (lotIds.length > 0) {
-                await ReceptionLots().updateMany({ id: { $in: lotIds } }, { $set: { stock_status: "STOCK_LIBERE", updated_at: now } });
+            for (const allocation of allocations) {
+                const lotId = String(allocation.lot_id || "");
+                if (!lotId)
+                    continue;
+                const consumedKg = Number(allocation.consumed_kg ?? allocation.allocated_kg ?? 0);
+                const lot = sanitizeDocument(await ReceptionLots().findOne({ id: lotId }).lean().exec());
+                if (!lot)
+                    continue;
+                const restored = Number((Number(lot.quantity ?? 0) + consumedKg).toFixed(3));
+                await ReceptionLots()
+                    .updateOne({ id: lotId }, { $set: { quantity: restored, stock_status: "STOCK_LIBERE", updated_at: now } })
+                    .exec();
+                await Allocations()
+                    .updateOne({ id: allocation.id }, { $set: { consumed_at: null, consumed_kg: null, updated_at: now } })
+                    .exec();
             }
         }
         await Orders().updateOne({ id: orderId }, { $set: { status: "CANCELLED", cancel_reason: reason, updated_at: now } });
@@ -177,11 +236,21 @@ let ProductionService = class ProductionService {
                 throw badRequest("LOT_ALREADY_ALLOCATED", `Lot déjà alloué à l'ordre ${existingOrder.order_number}`);
             }
         }
+        const allocatedKg = Number(body.allocated_kg ?? lot.quantity ?? 0);
+        const availableKg = Number(lot.quantity ?? 0);
+        if (allocatedKg <= 0) {
+            throw badRequest("ALLOCATED_KG_REQUIRED", "allocated_kg doit être > 0.");
+        }
+        if (allocatedKg > availableKg + 0.001) {
+            throw badRequest("INSUFFICIENT_STOCK", `Poids alloué (${allocatedKg} kg) supérieur au stock disponible (${availableKg} kg).`);
+        }
         const doc = await prepareInsertDocument("production_lot_allocations", {
             production_order_id: orderId,
             lot_id: lotId,
-            allocated_kg: Number(body.allocated_kg ?? lot.quantity ?? 0),
+            allocated_kg: allocatedKg,
             allocated_by: actor,
+            consumed_kg: null,
+            consumed_at: null,
         });
         await Allocations().insertOne(doc);
         return sanitizeDocument(await Allocations().findOne({ id: doc.id }).lean().exec());

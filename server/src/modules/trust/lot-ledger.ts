@@ -16,6 +16,7 @@ export type LotEventType =
   | "SHIPPED"
   | "GATE_BLOCKED"
   | "STATUS_CHANGED"
+  | "MASS_BALANCE_CHECKED"
   | "GENERIC_MUTATION";
 
 export type LotEventInput = {

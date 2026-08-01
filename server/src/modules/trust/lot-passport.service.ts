@@ -121,6 +121,23 @@ export class LotPassportService {
       claim("tip_hash", "Empreinte tip", state.tipHash),
     ];
 
+    const massBalanceEvent = [...chain].reverse().find((event) => event.event_type === "MASS_BALANCE_CHECKED");
+    const mbPayload = (massBalanceEvent?.payload || {}) as Record<string, unknown>;
+    if (massBalanceEvent) {
+      claims.splice(
+        claims.findIndex((entry) => entry.key === "triage") + 1,
+        0,
+        claim(
+          "mass_balance",
+          "Bilan matière",
+          mbPayload.balanced === true
+            ? `OK (Δ ${mbPayload.variance_pct ?? 0}%)`
+            : `Écart ${mbPayload.variance_pct ?? "—"}%`,
+          mbPayload.balanced === true,
+        ),
+      );
+    }
+
     return {
       wave: "W2",
       lotId,

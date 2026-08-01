@@ -10,7 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { Controller, Get, Param, UseGuards } from "@nestjs/common";
+import { Controller, Get, Param, Query, UseGuards } from "@nestjs/common";
 import { Roles } from "../../nest/route-metadata.js";
 import { RequireAuthGuard, RolesGuard } from "../../nest/route-guards.js";
 import { CostingService } from "./costing.service.js";
@@ -31,10 +31,21 @@ let CostingController = class CostingController {
     constructor(costingService) {
         this.costingService = costingService;
     }
+    async getSummary(period) {
+        return { data: await this.costingService.getSummary(period) };
+    }
     async getLotCost(lotId) {
         return { data: await this.costingService.getLotCost(lotId) };
     }
 };
+__decorate([
+    Get("summary"),
+    Roles(...COSTING_ROLES),
+    __param(0, Query("period")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], CostingController.prototype, "getSummary", null);
 __decorate([
     Get("lots/:lotId"),
     Roles(...COSTING_ROLES),

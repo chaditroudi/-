@@ -656,6 +656,21 @@ export class PackagingService {
       },
     ).exec();
 
+    const parentLotId = await lotLifecycleService.resolveReceptionLotId({
+      lotNumber:
+        readString(sourceLot?.source_lot_internal) ||
+        readString(existing.source_lot_number),
+      receptionId: readString(sourceLot?.source_reception_id),
+    });
+    if (parentLotId) {
+      await lotLifecycleService.recordMassBalanceSafe({
+        lotId: parentLotId,
+        collection: "packaging_orders",
+        balance,
+        context: `OF packaging ${orderNumber}`,
+      });
+    }
+
     return sanitizeDocument(await PackagingOrders().findOne({ id }).lean().exec());
   }
 

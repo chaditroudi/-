@@ -899,6 +899,17 @@ export class Phase2Service {
     );
     if (balance.action === "warn") {
       console.warn("[mass-balance] cleaning cycle unbalanced:", balance);
+      await emitNotification({
+        notificationType: "MASS_BALANCE_WARN",
+        category: "traceability",
+        space: "production",
+        severity: "warning",
+        title: "Bilan matière nettoyage hors tolérance",
+        message: `Cycle ${id}: écart ${balance.variancePct}% (tolérance ±${balance.tolerancePct}%).`,
+        entityType: "cleaning_cycles",
+        entityId: id,
+        metadata: balance as unknown as Record<string, unknown>,
+      });
     }
 
     const yieldPercent = weightInKg > 0 ? round1((weightOutKg / weightInKg) * 100) : null;
@@ -928,6 +939,18 @@ export class Phase2Service {
 
     const cycle = sanitizeDocument(await CleaningCycles().findOne({ id }).lean().exec()) as CleaningCycleRow | null;
     const notifications: NotificationRow[] = [];
+
+    const cleaningLotId = await lotLifecycleService.resolveReceptionLotId({
+      lotNumber: readString(existing.lot_number) || readString((existing.lot_refs as Phase2LotRef[] | null)?.[0]?.lot_number),
+    });
+    if (cleaningLotId) {
+      await lotLifecycleService.recordMassBalanceSafe({
+        lotId: cleaningLotId,
+        collection: "cleaning_cycles",
+        balance,
+        context: `nettoyage ${readString(existing.cycle_number, id)}`,
+      });
+    }
 
     if (yieldPercent != null && yieldPercent < 92) {
       pushNotif(notifications, await createPhase2Notification({
@@ -1152,7 +1175,7 @@ export class Phase2Service {
     const current = sanitizeDocument(
       await HydrationCycles()
         .findOne({ id })
-        .select("id conformity additional_cycle_count humidity_out_avg")
+        .select("id conformity additional_cycle_count humidity_out_avg lot_refs steam_injected_kg energy_kwh")
         .lean()
         .exec(),
     ) as HydrationCycleRow | null;
@@ -1179,6 +1202,47 @@ export class Phase2Service {
     const status: HydrationCycleStatus =
       isNonConform && action !== "ACCEPTER" ? "NON_CONFORME" : "TERMINE";
 
+    const weightInKg = readNumber(payload.weight_in_kg, Number.NaN);
+    const weightOutKg = readNumber(payload.weight_out_kg, Number.NaN);
+    const wasteKg = readNumber(payload.waste_kg, 0);
+    const steamKg = readNumber(
+      payload.steam_injected_kg,
+      readNumber(current.steam_injected_kg, 0),
+    );
+    const energyKwh = readNullableNumber(payload.energy_kwh);
+
+    let massBalanceVariance: number | null = null;
+    let hydrationBalance: Awaited<ReturnType<typeof assertMassBalanceClosed>> | null = null;
+    if (Number.isFinite(weightInKg) && Number.isFinite(weightOutKg) && weightInKg > 0) {
+      // Steam adds mass — count it on the input side of the closed balance.
+      hydrationBalance = assertMassBalanceClosed(
+        {
+          inputKg: weightInKg + steamKg,
+          outputsKg: [weightOutKg],
+          wasteKg,
+        },
+        {
+          tolerancePct: await loadConfiguredMassBalanceTolerancePct(),
+          context: `hydratation ${id}`,
+        },
+      );
+      massBalanceVariance = hydrationBalance.variancePct;
+      if (hydrationBalance.action === "warn") {
+        console.warn("[mass-balance] hydration cycle unbalanced:", hydrationBalance);
+        await emitNotification({
+          notificationType: "MASS_BALANCE_WARN",
+          category: "traceability",
+          space: "production",
+          severity: "warning",
+          title: "Bilan matière hydratation hors tolérance",
+          message: `Cycle ${id}: écart ${hydrationBalance.variancePct}% (tolérance ±${hydrationBalance.tolerancePct}%).`,
+          entityType: "hydration_cycles",
+          entityId: id,
+          metadata: hydrationBalance as unknown as Record<string, unknown>,
+        });
+      }
+    }
+
     await HydrationCycles().updateOne(
       { id },
       {
@@ -1188,11 +1252,35 @@ export class Phase2Service {
           additional_cycle_count: action === "REFAIRE"
             ? readNumber(current.additional_cycle_count) + 1
             : readNumber(current.additional_cycle_count),
+          weight_in_kg: Number.isFinite(weightInKg) ? weightInKg : null,
+          weight_out_kg: Number.isFinite(weightOutKg) ? weightOutKg : null,
+          waste_kg: wasteKg > 0 ? wasteKg : null,
+          steam_injected_kg: steamKg > 0 ? steamKg : current.steam_injected_kg ?? null,
+          energy_kwh: energyKwh ?? current.energy_kwh ?? null,
+          mass_balance_variance_pct: massBalanceVariance,
           ended_at: now,
           updated_at: now,
         },
       },
     ).exec();
+
+    if (hydrationBalance) {
+      const lotRefs = Array.isArray(current.lot_refs) ? current.lot_refs : [];
+      for (const ref of lotRefs) {
+        const lotId = await lotLifecycleService.resolveReceptionLotId({
+          lotNumber: readString((ref as Phase2LotRef)?.lot_number),
+          receptionId: readString((ref as Phase2LotRef)?.reception_id),
+        });
+        if (lotId) {
+          await lotLifecycleService.recordMassBalanceSafe({
+            lotId,
+            collection: "hydration_cycles",
+            balance: hydrationBalance,
+            context: `hydratation ${id}`,
+          });
+        }
+      }
+    }
 
     return sanitizeDocument(await HydrationCycles().findOne({ id }).lean().exec()) as HydrationCycleRow | null;
   }
@@ -1665,6 +1753,13 @@ export class Phase2Service {
         },
         relatedIds: stockLots.map((row) => String(row.id || "")).filter(Boolean),
         route: "PREMIUM_WHOLE",
+      });
+      await lotLifecycleService.recordMassBalanceSafe({
+        lotId: parentLotId,
+        collection: "triage_sessions",
+        actorId: readString(session.created_by) || null,
+        balance,
+        context: `triage ${readString(session.session_number, id)}`,
       });
     }
 

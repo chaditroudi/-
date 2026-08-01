@@ -24,6 +24,22 @@ vi.mock("../notifications/notification-emitter.js", () => ({
   emitNotification: vi.fn(async () => null),
 }));
 
+vi.mock("../trust/lot-lifecycle.service.js", () => ({
+  lotLifecycleService: {
+    resolveReceptionLotId: vi.fn(async () => "lot-parent-1"),
+    recordMassBalanceSafe: vi.fn(async () => null),
+  },
+}));
+
+vi.mock("../costing/costing-rates.js", () => ({
+  loadCostingRates: vi.fn(async () => ({
+    labourRateTndPerHour: 8,
+    energyTariffTndPerKwh: 0.4,
+    overheadTndPerKg: 0.15,
+    targetCostTndPerKg: 3,
+  })),
+}));
+
 describe("packagingService mass balance", () => {
   beforeEach(() => {
     Object.keys(store).forEach((key) => delete store[key]);

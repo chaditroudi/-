@@ -4,6 +4,7 @@ import { productionApi } from '@/lib/api/production';
 import { batchesApi } from '@/lib/api/batches';
 import { stockApi } from '@/lib/api/stock';
 import { phase2Api } from '@/lib/api/phase2';
+import { costingApi } from '@/lib/api/costing';
 import { startOfMonth, subMonths, format, startOfWeek, eachDayOfInterval, differenceInDays } from 'date-fns';
 import {
   ProductionKPIs,
@@ -412,62 +413,34 @@ export const useAdvancedCostAnalytics = (period: Period = 'month') => {
   return useQuery({
     queryKey: ['advanced-analytics-cost', period],
     queryFn: async () => {
-      const { startDate } = getDateRange(period);
+      const summary = await costingApi.getSummary(period);
 
-      const [allOrders, allReceptions] = await Promise.all([
-        productionApi.listOrders() as Promise<any[]>,
-        receptionsApi.list() as Promise<any[]>,
-      ]);
-      const production = allOrders.filter(
-        (o: any) => o.created_at && new Date(o.created_at) >= startDate && o.status === 'completed',
-      );
-      const periodReceptions = allReceptions.filter(
-        (r: any) => r.actual_arrival_date && new Date(r.actual_arrival_date) >= startDate,
-      );
+      const kpis: CostKPIs = { ...summary.kpis };
 
-      const totalProduced = production.reduce((sum: number, o: any) => sum + (o.actual_quantity || 0), 0);
-
-      // Real material cost from reception prices (agreed_price_tnd_per_kg per supplier)
-      const materialCost = periodReceptions.reduce((sum: number, r: any) => {
-        const pricePerKg: number = r.supplier?.agreed_price_tnd_per_kg ?? r.agreed_price_tnd_per_kg ?? 2.0;
-        return sum + (r.quantity_total || 0) * pricePerKg;
-      }, 0);
-
-      // Estimated rates per kg produced (labeled as estimates)
-      const laborCost = totalProduced * 0.5;
-      const energyCost = totalProduced * 0.3;
-      const overheadCost = totalProduced * 0.2;
-      const lossCost = totalProduced * 0.15;
-      const maintenanceCost = periodReceptions.length > 0 ? periodReceptions.length * 200 : 2000;
-
-      const totalCost = laborCost + energyCost + materialCost + overheadCost + lossCost + maintenanceCost;
-      const costPerKg = totalProduced > 0 ? totalCost / totalProduced : 0;
-      const targetCostPerKg = 3.0;
-
-      const kpis: CostKPIs = {
-        costPerKg,
-        targetCostPerKg,
-        costVariancePercent: targetCostPerKg > 0 ? ((costPerKg - targetCostPerKg) / targetCostPerKg) * 100 : 0,
-        laborCostPerTon: totalProduced > 0 ? (laborCost / totalProduced) * 1000 : 0,
-        energyCostPerTon: totalProduced > 0 ? (energyCost / totalProduced) * 1000 : 0,
-        materialCostPerTon: totalProduced > 0 ? (materialCost / totalProduced) * 1000 : 0,
-        overheadCostPerTon: totalProduced > 0 ? (overheadCost / totalProduced) * 1000 : 0,
-        lossValue: lossCost,
-        lossPercentOfRevenue: 5,
-        maintenanceCost,
-        downtimeImpact: maintenanceCost * 0.5,
+      const colorByCategory: Record<CostBreakdown['category'], string> = {
+        materials: 'hsl(var(--chart-1))',
+        labor: 'hsl(var(--chart-2))',
+        energy: 'hsl(var(--chart-3))',
+        maintenance: 'hsl(var(--chart-4))',
+        overhead: 'hsl(var(--chart-5))',
+        losses: 'hsl(var(--destructive))',
       };
 
-      const costBreakdown: CostBreakdown[] = [
-        { category: 'materials', label: 'Matières premières', amount: materialCost, percentage: totalCost > 0 ? (materialCost / totalCost) * 100 : 0, trend: 2.5, color: 'hsl(var(--chart-1))' },
-        { category: 'labor', label: 'Main-d\'œuvre', amount: laborCost, percentage: totalCost > 0 ? (laborCost / totalCost) * 100 : 0, trend: 1.2, color: 'hsl(var(--chart-2))' },
-        { category: 'energy', label: 'Énergie', amount: energyCost, percentage: totalCost > 0 ? (energyCost / totalCost) * 100 : 0, trend: -0.8, color: 'hsl(var(--chart-3))' },
-        { category: 'maintenance', label: 'Maintenance', amount: maintenanceCost, percentage: totalCost > 0 ? (maintenanceCost / totalCost) * 100 : 0, trend: 3.5, color: 'hsl(var(--chart-4))' },
-        { category: 'overhead', label: 'Frais généraux', amount: overheadCost, percentage: totalCost > 0 ? (overheadCost / totalCost) * 100 : 0, trend: 0.5, color: 'hsl(var(--chart-5))' },
-        { category: 'losses', label: 'Pertes', amount: lossCost, percentage: totalCost > 0 ? (lossCost / totalCost) * 100 : 0, trend: -1.5, color: 'hsl(var(--destructive))' },
-      ].sort((a, b) => b.amount - a.amount) as CostBreakdown[];
+      const costBreakdown: CostBreakdown[] = summary.breakdown
+        .map((row) => ({
+          ...row,
+          color: colorByCategory[row.category],
+        }))
+        .sort((a, b) => b.amount - a.amount);
 
-      return { kpis, costBreakdown, totalProduced };
+      return {
+        kpis,
+        costBreakdown,
+        totalProduced: summary.totals.produced_kg,
+        basis: summary.basis,
+        rates: summary.rates,
+        sources: summary.sources,
+      };
     },
   });
 };
