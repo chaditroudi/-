@@ -10,6 +10,7 @@ import {
   MapPin,
   Package2,
   Plus,
+  Printer,
   Search,
   ShieldCheck,
   Ship,
@@ -17,6 +18,7 @@ import {
   Trash2,
   Truck,
 } from 'lucide-react';
+import { BonExpeditionDashboard } from '@/components/bon-expedition/BonExpeditionDashboard';
 import { useAuthContext } from '@/contexts/AuthContext';
 import {
   useCreateShipment,
@@ -875,13 +877,18 @@ const ShipmentDetailDialog = ({
   );
 };
 
-export const LogisticsDashboard = () => {
+export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {}) => {
   const { user, profile } = useAuthContext();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | ShipmentStatus>('all');
   const [createOpen, setCreateOpen] = useState(false);
   const [selectedShipmentId, setSelectedShipmentId] = useState<string | null>(null);
   const [recallShipmentId, setRecallShipmentId] = useState<string | null>(null);
+  const [mainTab, setMainTab] = useState(() => (initialView === 'bde' ? 'bde' : 'shipments'));
+
+  useEffect(() => {
+    if (initialView === 'bde') setMainTab('bde');
+  }, [initialView]);
   const { data: shipments = [] } = useShipments();
   const { data: finishedProducts = [] } = useProducts('PF');
   const { data: finishedLots = [] } = useStockLots({ category: 'PF' });
@@ -926,13 +933,19 @@ export const LogisticsDashboard = () => {
             Logistics & Export
           </h1>
           <p className="text-muted-foreground mt-1">
-            Expedition, preparation lots, documents export et exercices de rappel.
+            Expédition, Bon BDE, préparation lots, documents export et exercices de rappel.
           </p>
         </div>
-        <Button onClick={() => setCreateOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nouvelle expedition
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => setMainTab('bde')}>
+            <Printer className="h-4 w-4 mr-2" />
+            Bon BDE
+          </Button>
+          <Button onClick={() => setCreateOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nouvelle expedition
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -982,9 +995,13 @@ export const LogisticsDashboard = () => {
         </Card>
       </div>
 
-      <Tabs defaultValue="shipments" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
+      <Tabs value={mainTab} onValueChange={setMainTab} className="space-y-4">
+        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 lg:w-auto lg:inline-grid">
           <TabsTrigger value="shipments">Expeditions</TabsTrigger>
+          <TabsTrigger value="bde" className="gap-1">
+            <Printer className="h-3.5 w-3.5" />
+            Bon BDE
+          </TabsTrigger>
           <TabsTrigger value="stock-pf" className="gap-1">
             Stock PF
             {finishedLots.filter((lot) => lot.status === 'VALIDATED').length > 0 && (
@@ -997,6 +1014,10 @@ export const LogisticsDashboard = () => {
           <TabsTrigger value="compliance">Conformite export</TabsTrigger>
           <TabsTrigger value="recall">Mock recall</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="bde" className="space-y-3">
+          <BonExpeditionDashboard />
+        </TabsContent>
 
         <TabsContent value="shipments" className="space-y-4">
           <Card>

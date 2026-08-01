@@ -49,12 +49,14 @@ export type LotJourneyNextAction = {
   view?: string;
   module?: string;
   focus?: string;
+  action?: string;
   /** Optional secondary CTA (e.g. export margin after ship). */
   secondary?: {
     ctaLabel: string;
     tab: AppTab;
     view?: string;
     focus?: string;
+    action?: string;
   };
 };
 
@@ -65,6 +67,7 @@ const NEXT_BY_COMPLETED_TIP: Record<LotJourneyStage, LotJourneyNextAction> = {
     description: 'Enregistrer la pesée bascule / poids net pour verrouiller l’entrée.',
     ctaLabel: 'Ouvrir réception',
     tab: 'receptions',
+    secondary: { ctaLabel: 'Créer BRA', tab: 'receptions', view: 'bra', action: 'new' },
   },
   WEIGHED: {
     nextStage: 'QC_DECIDED',
@@ -72,6 +75,7 @@ const NEXT_BY_COMPLETED_TIP: Record<LotJourneyStage, LotJourneyNextAction> = {
     description: 'Décider grade / libération / rejet sur la réception.',
     ctaLabel: 'Ouvrir QC réception',
     tab: 'receptions',
+    secondary: { ctaLabel: 'Créer BRA', tab: 'receptions', view: 'bra', action: 'new' },
   },
   QC_DECIDED: {
     nextStage: 'COLD_STORE',
@@ -108,9 +112,11 @@ const NEXT_BY_COMPLETED_TIP: Record<LotJourneyStage, LotJourneyNextAction> = {
   PACKED: {
     nextStage: 'SHIPPED',
     title: 'Expédition',
-    description: 'Préparer le bon d’expédition et lier la commande export.',
-    ctaLabel: 'Ouvrir logistique',
+    description: 'Créer / imprimer le Bon d’expédition (BDE) et lier la commande export.',
+    ctaLabel: 'Créer Bon BDE',
     tab: 'logistics',
+    view: 'bde',
+    action: 'new',
     secondary: { ctaLabel: 'Voir export / marge', tab: 'export' },
   },
   SHIPPED: {

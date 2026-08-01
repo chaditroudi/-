@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -21,21 +21,51 @@ import type { AppTab } from '@/lib/roleAccess';
 import {
   ArrowRight,
   BadgeCheck,
+  BookOpen,
+  ChevronDown,
   ExternalLink,
+  FileText,
   Link2,
   Loader2,
+  Printer,
   Search,
   ShieldAlert,
+  Truck,
 } from 'lucide-react';
+import { getFicheForStage, getFicheById, type FicheTechnique } from '@/lib/fichesTechniques';
+import { FicheTechniqueSheet } from '@/components/fiches/FicheTechniqueSheet';
 
 interface LotJourneyHubProps {
   onNavigate: AppNavigateFn;
   accessibleTabs: AppTab[];
+  /** Hide 8-step grid + finance until asked (default true for clarity). */
+  compact?: boolean;
 }
 
-export function LotJourneyHub({ onNavigate, accessibleTabs }: LotJourneyHubProps) {
+export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: LotJourneyHubProps) {
   const [query, setQuery] = useState('');
   const [selectedLotId, setSelectedLotId] = useState<string | null>(null);
+  const [showStages, setShowStages] = useState(!compact);
+  const [showFinance, setShowFinance] = useState(!compact);
+  const [ficheOpen, setFicheOpen] = useState(false);
+  const [activeFiche, setActiveFiche] = useState<FicheTechnique | null>(null);
+
+  const openFiche = (fiche: FicheTechnique | null) => {
+    if (!fiche) return;
+    setActiveFiche(fiche);
+    setFicheOpen(true);
+  };
+
+  // Keep disclosure in sync when parent toggles Simple ↔ Complet
+  useEffect(() => {
+    if (!compact) {
+      setShowStages(true);
+      setShowFinance(true);
+    } else {
+      setShowStages(false);
+      setShowFinance(false);
+    }
+  }, [compact]);
 
   const golden = useQuery({
     queryKey: ['golden-thread'],
@@ -118,21 +148,22 @@ export function LotJourneyHub({ onNavigate, accessibleTabs }: LotJourneyHubProps
 
   const canGo = (tab: AppTab) => accessibleTabs.includes(tab);
 
+  const nextFiche = getFicheForStage(next.nextStage);
+
   return (
     <Card className="surface-card overflow-hidden rounded-[28px] border-primary/20">
       <CardHeader className="space-y-3 border-b bg-muted/20 pb-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/70">
-              Parcours lot A→Z
+              Parcours lot
             </p>
             <CardTitle className="mt-1 flex items-center gap-2 text-xl">
               <Link2 className="h-5 w-5 text-primary" />
-              Un lot, une chaîne, une prochaine action
+              Chercher · décider · agir
             </CardTitle>
-            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-              Réception → pesée → QC → froid → fumigation → triage → conditionnement → expédition.
-              Les onglets métier restent disponibles, mais le fil d&apos;or guide d&apos;abord.
+            <p className="mt-1 max-w-xl text-sm text-muted-foreground">
+              Entrez un N° lot (ou scannez). L&apos;app montre la prochaine action.
             </p>
           </div>
           {golden.data && (
@@ -172,6 +203,118 @@ export function LotJourneyHub({ onNavigate, accessibleTabs }: LotJourneyHubProps
       </CardHeader>
 
       <CardContent className="space-y-5 pt-5">
+        {/* Documents — employee-first: full names + Créer / Voir */}
+        <div className="space-y-3 rounded-[24px] border border-border/70 bg-muted/15 p-4">
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                Documents & fiches
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                BRA / BDE à imprimer · fiches techniques pour chaque poste.
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              onClick={() => onNavigate('home', { view: 'fiches' })}
+            >
+              <BookOpen className="h-3.5 w-3.5" />
+              Toutes les fiches A→Z
+            </Button>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {canGo('receptions') && (
+              <div className="rounded-2xl border border-amber-200/80 bg-amber-50/70 p-4">
+                <div className="flex items-start gap-3">
+                  <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-background">
+                    <Printer className="h-5 w-5 text-amber-700" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold">Bon de Réception Achat</p>
+                    <p className="text-xs text-muted-foreground">BRA · camion fournisseur qui arrive</p>
+                  </div>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={() => onNavigate('receptions', { view: 'bra', action: 'new' })}
+                  >
+                    Créer
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1.5"
+                    onClick={() => onNavigate('receptions', { view: 'bra' })}
+                  >
+                    Voir la liste
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="gap-1.5"
+                    onClick={() => openFiche(getFicheById('FT-BRA'))}
+                  >
+                    <BookOpen className="h-3.5 w-3.5" />
+                    Aide
+                  </Button>
+                </div>
+              </div>
+            )}
+            {canGo('logistics') && (
+              <div className="rounded-2xl border border-sky-200/80 bg-sky-50/70 p-4">
+                <div className="flex items-start gap-3">
+                  <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-background">
+                    <Truck className="h-5 w-5 text-sky-700" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold">Bon d&apos;Expédition</p>
+                    <p className="text-xs text-muted-foreground">BDE · marchandise qui part</p>
+                  </div>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={() => onNavigate('logistics', { view: 'bde', action: 'new' })}
+                  >
+                    Créer
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1.5"
+                    onClick={() => onNavigate('logistics', { view: 'bde' })}
+                  >
+                    Voir la liste
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="gap-1.5"
+                    onClick={() => openFiche(getFicheById('FT-BDE'))}
+                  >
+                    <BookOpen className="h-3.5 w-3.5" />
+                    Aide
+                  </Button>
+                </div>
+              </div>
+            )}
+            {!canGo('receptions') && !canGo('logistics') && (
+              <div className="flex items-center gap-2 rounded-2xl border border-dashed px-4 py-3 text-sm text-muted-foreground sm:col-span-2">
+                <FileText className="h-4 w-4" />
+                BRA / BDE non inclus dans votre profil — les fiches A→Z restent disponibles.
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* In-progress picker */}
         {inProgressLots.length > 0 && (
           <div className="space-y-2">
@@ -257,38 +400,77 @@ export function LotJourneyHub({ onNavigate, accessibleTabs }: LotJourneyHubProps
 
             <Progress value={progress.percent} className="h-2" />
 
-            {/* Stepper */}
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
-              {LOT_JOURNEY_STAGES.map((stage, index) => {
-                const status = journeyStageStatus(stage, progress);
-                return (
-                  <div
-                    key={stage}
-                    className={cn(
-                      'rounded-xl border px-2 py-2.5 text-center',
-                      status === 'done' && 'border-emerald-200 bg-emerald-50',
-                      status === 'current' && 'border-primary bg-primary/5 ring-1 ring-primary/30',
-                      status === 'todo' && 'border-border/60 bg-background',
-                      status === 'rejected' && 'border-red-200 bg-red-50',
-                    )}
+            {/* Stepper — collapsed in compact mode */}
+            {compact && !showStages ? (
+              <button
+                type="button"
+                onClick={() => setShowStages(true)}
+                className="flex w-full items-center justify-between rounded-xl border border-dashed px-3 py-2 text-left text-sm text-muted-foreground hover:bg-muted/30"
+              >
+                <span>
+                  {(() => {
+                    const idx = LOT_JOURNEY_STAGES.indexOf(
+                      (state.stage as LotJourneyStage) || 'SUPPLIER_INTAKE',
+                    );
+                    const label =
+                      LOT_JOURNEY_STAGE_LABELS[(state.stage as LotJourneyStage) || 'SUPPLIER_INTAKE'] ||
+                      state.stage ||
+                      '—';
+                    return `Étape ${idx >= 0 ? idx + 1 : '—'}/8 · ${label}`;
+                  })()}
+                </span>
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
+                  Voir les 8 étapes <ChevronDown className="h-3.5 w-3.5" />
+                </span>
+              </button>
+            ) : (
+              <div className="space-y-2">
+                {compact && (
+                  <button
+                    type="button"
+                    onClick={() => setShowStages(false)}
+                    className="text-xs font-medium text-muted-foreground hover:text-foreground"
                   >
-                    <p className="text-[10px] font-medium text-muted-foreground">{index + 1}</p>
-                    <p className="text-xs font-semibold leading-tight">
-                      {LOT_JOURNEY_STAGE_LABELS[stage]}
-                    </p>
-                    <p className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground">
-                      {status === 'done'
-                        ? 'fait'
-                        : status === 'current'
-                          ? 'en cours'
-                          : status === 'rejected'
-                            ? 'rejet'
-                            : 'à venir'}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
+                    Masquer les étapes
+                  </button>
+                )}
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
+                  {LOT_JOURNEY_STAGES.map((stage, index) => {
+                    const status = journeyStageStatus(stage, progress);
+                    const fiche = getFicheForStage(stage);
+                    return (
+                      <button
+                        key={stage}
+                        type="button"
+                        onClick={() => openFiche(fiche)}
+                        title={fiche ? `Fiche ${fiche.code}` : undefined}
+                        className={cn(
+                          'rounded-xl border px-2 py-2.5 text-center transition-colors',
+                          status === 'done' && 'border-emerald-200 bg-emerald-50',
+                          status === 'current' && 'border-primary bg-primary/5 ring-1 ring-primary/30',
+                          status === 'todo' && 'border-border/60 bg-background hover:bg-muted/40',
+                          status === 'rejected' && 'border-red-200 bg-red-50',
+                        )}
+                      >
+                        <p className="text-[10px] font-medium text-muted-foreground">{index + 1}</p>
+                        <p className="text-xs font-semibold leading-tight">
+                          {LOT_JOURNEY_STAGE_LABELS[stage]}
+                        </p>
+                        <p className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+                          {status === 'done'
+                            ? 'fait'
+                            : status === 'current'
+                              ? 'en cours'
+                              : status === 'rejected'
+                                ? 'rejet'
+                                : 'fiche'}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Next action */}
             <div className="rounded-2xl border border-primary/25 bg-primary/5 p-4">
@@ -297,6 +479,11 @@ export function LotJourneyHub({ onNavigate, accessibleTabs }: LotJourneyHubProps
               </p>
               <h3 className="mt-1 text-lg font-semibold">{next.title}</h3>
               <p className="mt-1 text-sm text-muted-foreground">{next.description}</p>
+              {nextFiche && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Fiche {nextFiche.code} · {nextFiche.title} · ~{nextFiche.durationMin} min
+                </p>
+              )}
               <div className="mt-3 flex flex-wrap gap-2">
                 {canGo(next.tab) && (
                   <Button
@@ -306,12 +493,24 @@ export function LotJourneyHub({ onNavigate, accessibleTabs }: LotJourneyHubProps
                         view: next.view,
                         module: next.module,
                         focus: next.focus,
+                        action: next.action,
                         lot: passport.data?.lotNumber || activeLotId || undefined,
                       })
                     }
                   >
                     {next.ctaLabel}
                     <ArrowRight className="h-4 w-4" />
+                  </Button>
+                )}
+                {nextFiche && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => openFiche(nextFiche)}
+                  >
+                    <BookOpen className="h-4 w-4" />
+                    Fiche technique
                   </Button>
                 )}
                 {next.secondary && canGo(next.secondary.tab) && (
@@ -321,6 +520,7 @@ export function LotJourneyHub({ onNavigate, accessibleTabs }: LotJourneyHubProps
                       onNavigate(next.secondary!.tab, {
                         view: next.secondary!.view,
                         focus: next.secondary!.focus,
+                        action: next.secondary!.action,
                         lot: passport.data?.lotNumber || activeLotId || undefined,
                       })
                     }
@@ -343,7 +543,29 @@ export function LotJourneyHub({ onNavigate, accessibleTabs }: LotJourneyHubProps
               </div>
             </div>
 
-            {/* Money strip — soft when role cannot read finance APIs */}
+            {/* Money strip — progressive disclosure */}
+            {compact && !showFinance ? (
+              <button
+                type="button"
+                onClick={() => setShowFinance(true)}
+                className="flex w-full items-center justify-between rounded-xl border border-dashed px-3 py-2 text-left text-sm text-muted-foreground hover:bg-muted/30"
+              >
+                <span>Coût · règlement · marge (optionnel)</span>
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
+                  Afficher <ChevronDown className="h-3.5 w-3.5" />
+                </span>
+              </button>
+            ) : (
+              <div className="space-y-2">
+                {compact && (
+                  <button
+                    type="button"
+                    onClick={() => setShowFinance(false)}
+                    className="text-xs font-medium text-muted-foreground hover:text-foreground"
+                  >
+                    Masquer les chiffres
+                  </button>
+                )}
             <div className="grid gap-3 sm:grid-cols-3">
               <div className="rounded-xl border p-3">
                 <p className="text-xs text-muted-foreground">Coût lot (TND/kg)</p>
@@ -433,9 +655,18 @@ export function LotJourneyHub({ onNavigate, accessibleTabs }: LotJourneyHubProps
                 )}
               </div>
             </div>
+              </div>
+            )}
           </>
         )}
       </CardContent>
+
+      <FicheTechniqueSheet
+        fiche={activeFiche}
+        open={ficheOpen}
+        onOpenChange={setFicheOpen}
+        onNavigate={onNavigate}
+      />
     </Card>
   );
 }

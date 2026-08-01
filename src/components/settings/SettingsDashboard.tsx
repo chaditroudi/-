@@ -11,27 +11,52 @@ import { NotificationsPanel } from './notifications/NotificationsPanel';
 import { IntegrationsPanel } from './integrations/IntegrationsPanel';
 import { P2PSettingsPanel } from './p2p/P2PSettingsPanel';
 import { CostingPanel } from './costing/CostingPanel';
+import { ProductAboutPanel } from './ProductAboutPanel';
 import { DEFAULT_SETTINGS } from '@/types/settings';
-import { Palette, ToggleLeft, Factory, Users, Settings2, ShieldCheck, FileText, BellRing, PlugZap, Receipt, Coins } from 'lucide-react';
+import type { AppNavigateFn } from '@/lib/appNavigate';
+import { PRODUCT } from '@/lib/productMeta';
+import {
+  Palette,
+  ToggleLeft,
+  Factory,
+  Users,
+  Settings2,
+  ShieldCheck,
+  FileText,
+  BellRing,
+  PlugZap,
+  Receipt,
+  Coins,
+  Info,
+} from 'lucide-react';
 
-export function SettingsDashboard() {
+export function SettingsDashboard({ onNavigate }: { onNavigate?: AppNavigateFn } = {}) {
   const { data: settings = DEFAULT_SETTINGS, isLoading } = useSiteSettings();
 
   if (isLoading) {
-    return <div className="text-sm text-muted-foreground py-12 text-center">Chargement des paramètres…</div>;
+    return (
+      <div className="py-12 text-center text-sm text-muted-foreground">
+        Chargement des paramètres…
+      </div>
+    );
   }
 
   return (
     <div className="space-y-4">
       <div>
         <h2 className="text-lg font-bold">Préférences & Configuration</h2>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          Paramètres de marque, exploitation, qualité, documents, alertes et intégrations — {settings.company_name}
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          {PRODUCT.commercialName} v{PRODUCT.version} — marque, exploitation, qualité, documents —{' '}
+          {settings.company_name}
         </p>
       </div>
 
-      <Tabs defaultValue="branding">
+      <Tabs defaultValue="product">
         <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-2xl">
+          <TabsTrigger value="product" className="shrink-0 gap-1.5">
+            <Info className="h-3.5 w-3.5" />
+            Produit
+          </TabsTrigger>
           <TabsTrigger value="branding" className="shrink-0 gap-1.5">
             <Palette className="h-3.5 w-3.5" />
             Marque & Couleurs
@@ -78,6 +103,11 @@ export function SettingsDashboard() {
           </TabsTrigger>
         </TabsList>
 
+        <TabsContent value="product" className="mt-4">
+          <ProductAboutPanel
+            onOpenFiches={onNavigate ? () => onNavigate('home', { view: 'fiches' }) : undefined}
+          />
+        </TabsContent>
         <TabsContent value="branding" className="mt-4">
           <BrandingPanel settings={settings} />
         </TabsContent>

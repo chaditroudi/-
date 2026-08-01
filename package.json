@@ -1,7 +1,8 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "date-harvest-hub",
   "private": true,
-  "version": "0.0.0",
+  "version": "2.0.0",
+  "description": "Royal Palm MES — date manufacturing ERP/MES with golden-thread traceability, fiches techniques, BRA/BDE, costing & settlements",
   "type": "module",
   "scripts": {
     "clean": "node -e \"['dist','node_modules/.vite-date-harvest-hub'].forEach(p=>{try{require('fs').rmSync(p,{recursive:true,force:true});console.log('removed '+p)}catch{}})\"",
@@ -18,6 +19,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "product:check": "node scripts/product-check.mjs",
     "smoke:notifications": "node --env-file=.env scripts/smoke-notifications.mjs",
     "seed:actors": "node --env-file=.env scripts/seed-test-actors.mjs",
     "migrate:membership": "node --env-file=.env scripts/migrate-user-membership.mjs",

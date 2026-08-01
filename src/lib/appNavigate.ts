@@ -7,12 +7,14 @@ export type AppNavigateOptions = {
   prefillPOId?: string;
   /** Lot number / id to preselect in the target module. */
   lot?: string;
-  /** Sub-view inside the tab (e.g. production: phase2). */
+  /** Sub-view inside the tab (e.g. production: phase2, bra, bde). */
   view?: string;
   /** Phase2 module: fumigation | triage | … */
   module?: string;
   /** Purchasing focus: settlements */
   focus?: string;
+  /** Document action: new = open create sheet */
+  action?: string;
 };
 
 export type AppNavigateFn = (tab: string, options?: AppNavigateOptions | string) => void;

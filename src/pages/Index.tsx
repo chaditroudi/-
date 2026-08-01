@@ -22,12 +22,15 @@ import { useSearchParams } from "react-router-dom";
 import { useSettingsContext } from "@/contexts/SettingsContext";
 import { useBranding } from "@/hooks/useBranding";
 import type { SiteFeatures } from "@/types/settings";
+import { PRODUCT } from "@/lib/productMeta";
 
 // ── Lazy-loaded tab content ───────────────────────────────────────────────────
 // Each import() call becomes its own JS chunk that loads ONLY when that tab is
 // first visited. On subsequent visits the browser uses the cached chunk.
 
 const ReceptionDashboardV2   = lazy(() => import('@/components/reception').then(m => ({ default: m.ReceptionDashboardV2 })));
+const DocumentsWorkspace     = lazy(() => import('@/components/documents/DocumentsWorkspace').then(m => ({ default: m.DocumentsWorkspace })));
+const FichesTechniquesHub    = lazy(() => import('@/components/fiches').then(m => ({ default: m.FichesTechniquesHub })));
 const SuppliersList          = lazy(() => import('@/components/mes/SuppliersList').then(m => ({ default: m.SuppliersList })));
 const MaterialsList          = lazy(() => import('@/components/mes/MaterialsList').then(m => ({ default: m.MaterialsList })));
 const AlertsDashboard        = lazy(() => import('@/components/batches/AlertsDashboard').then(m => ({ default: m.AlertsDashboard })));
@@ -255,6 +258,21 @@ const Index = () => {
   );
   const [purchasingFocus, setPurchasingFocus] = useState<string | undefined>();
   const [prefillReceptionPOId, setPrefillReceptionPOId] = useState<string | undefined>();
+  const [receptionView, setReceptionView] = useState<string | undefined>(() =>
+    searchParams.get('tab') === 'receptions' && searchParams.get('view') === 'bra' ? 'bra' : undefined,
+  );
+  const [logisticsView, setLogisticsView] = useState<string | undefined>(() =>
+    searchParams.get('tab') === 'logistics' && searchParams.get('view') === 'bde' ? 'bde' : undefined,
+  );
+  const [documentAction, setDocumentAction] = useState<string | undefined>(() =>
+    searchParams.get('action') === 'new' ? 'new' : undefined,
+  );
+  const [homeView, setHomeView] = useState<string | undefined>(() =>
+    searchParams.get('tab') === 'home' && searchParams.get('view') === 'fiches' ? 'fiches' : undefined,
+  );
+  const [ficheDeepLink, setFicheDeepLink] = useState<string | undefined>(() =>
+    searchParams.get('fiche') || undefined,
+  );
 
   const handleNavigate = useCallback((tab: string, options?: import('@/lib/appNavigate').AppNavigateOptions | string) => {
     const opts = typeof options === 'string' ? { prefillPOId: options } : (options || {});
@@ -268,6 +286,14 @@ const Index = () => {
       if (opts.lot) setPhase2PreselectedLot(opts.lot);
     }
     if (tab === 'purchasing' && opts.focus) setPurchasingFocus(opts.focus);
+    if (tab === 'receptions') setReceptionView(opts.view === 'bra' ? 'bra' : undefined);
+    else setReceptionView(undefined);
+    if (tab === 'logistics') setLogisticsView(opts.view === 'bde' ? 'bde' : undefined);
+    else setLogisticsView(undefined);
+    if (tab === 'home') setHomeView(opts.view === 'fiches' ? 'fiches' : undefined);
+    else setHomeView(undefined);
+    setFicheDeepLink(opts.focus?.startsWith('FT-') ? opts.focus : undefined);
+    setDocumentAction(opts.action === 'new' ? 'new' : undefined);
     const nextTab = resolveTab(tab);
     setActiveTab(nextTab);
     setSearchParams(prev => {
@@ -277,6 +303,8 @@ const Index = () => {
       if (opts.module) p.set('module', opts.module); else p.delete('module');
       if (opts.lot) p.set('lot', opts.lot); else p.delete('lot');
       if (opts.focus) p.set('focus', opts.focus); else p.delete('focus');
+      if (opts.action) p.set('action', opts.action); else p.delete('action');
+      if (opts.focus?.startsWith('FT-')) p.set('fiche', opts.focus); else p.delete('fiche');
       return p;
     }, { replace: false });
   }, [resolveTab, setSearchParams, features.phase2_enabled]);
@@ -301,6 +329,15 @@ const Index = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'home':
+        if (homeView === 'fiches') {
+          return (
+            <FichesTechniquesHub
+              onNavigate={handleNavigate}
+              accessibleTabs={accessibleTabs}
+              initialFicheId={ficheDeepLink}
+            />
+          );
+        }
         return (
           <HomePage
             onNavigate={handleNavigate}
@@ -374,8 +411,19 @@ const Index = () => {
       case 'customers':
         return <CustomersDashboard />;
       case 'settings':
-        return <SettingsDashboard />;
+        return <SettingsDashboard onNavigate={handleNavigate} />;
       case 'receptions':
+        if (receptionView === 'bra') {
+          return (
+            <DocumentsWorkspace
+              kind="bra"
+              canBra={accessibleTabs.includes('receptions')}
+              canBde={accessibleTabs.includes('logistics')}
+              autoOpenCreate={documentAction === 'new'}
+              onNavigate={handleNavigate}
+            />
+          );
+        }
         return (
           <div className="space-y-4">
             {waitingLots.length > 0 && features.phase2_enabled && (
@@ -399,7 +447,10 @@ const Index = () => {
                 </button>
               </div>
             )}
-            <ReceptionDashboardV2 prefillPurchaseOrderId={prefillReceptionPOId} />
+            <ReceptionDashboardV2
+              prefillPurchaseOrderId={prefillReceptionPOId}
+              initialView={receptionView}
+            />
           </div>
         );
       case 'suppliers':
@@ -411,7 +462,18 @@ const Index = () => {
       case 'maintenance':
         return <MaintenanceDashboard />;
       case 'logistics':
-        return <LogisticsDashboard />;
+        if (logisticsView === 'bde') {
+          return (
+            <DocumentsWorkspace
+              kind="bde"
+              canBra={accessibleTabs.includes('receptions')}
+              canBde={accessibleTabs.includes('logistics')}
+              autoOpenCreate={documentAction === 'new'}
+              onNavigate={handleNavigate}
+            />
+          );
+        }
+        return <LogisticsDashboard initialView={logisticsView} />;
       case 'hr':
         return <HRDashboard />;
       default:
@@ -437,9 +499,27 @@ const Index = () => {
 
         <TopHeader
           onRefresh={handleRefresh}
-          pageTitle={currentMeta.pageTitle}
-          pageSubtitle={currentMeta.pageSubtitle}
-          sectionLabel={TAB_SECTION_LABEL[activeTab]}
+          pageTitle={
+            activeTab === 'home' && homeView === 'fiches'
+              ? 'Fiches techniques'
+              : activeTab === 'home'
+                ? 'Accueil'
+                : currentMeta.pageTitle
+          }
+          pageSubtitle={
+            activeTab === 'home' && homeView === 'fiches'
+              ? 'Aide atelier A→Z — étapes, limites, documents.'
+              : activeTab === 'home'
+                ? undefined
+                : currentMeta.pageSubtitle
+          }
+          sectionLabel={
+            activeTab === 'home' && homeView === 'fiches'
+              ? 'Aide atelier'
+              : activeTab === 'home'
+                ? undefined
+                : TAB_SECTION_LABEL[activeTab]
+          }
           onHomeClick={handleGoHome}
           roleLabel={roleLabel}
           workspaceLabel={workspaceProfile.workspaceLabel}
@@ -463,11 +543,13 @@ const Index = () => {
         <main className="flex-1 min-w-0 overflow-x-hidden overflow-y-auto">
           <div className="mx-auto w-full max-w-[1800px] px-3 py-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-5 md:pb-8 lg:px-6 lg:py-6">
             <div className="mb-4 empty:hidden">
-              <FlowStepper
-                activeTab={activeTab}
-                accessibleTabs={accessibleTabs}
-                onNavigate={handleNavigate}
-              />
+              {activeTab !== 'home' && (
+                <FlowStepper
+                  activeTab={activeTab}
+                  accessibleTabs={accessibleTabs}
+                  onNavigate={handleNavigate}
+                />
+              )}
             </div>
             <div key={activeTab} className="animate-page-enter w-full">
               <Suspense fallback={<TabLoader />}>
@@ -487,10 +569,10 @@ const Index = () => {
             </span>
           </div>
           <div className="flex items-center gap-2 text-[11px] text-muted-foreground/32">
-            <span className="hidden sm:inline font-medium">MES Royal Palm</span>
+            <span className="hidden sm:inline font-medium">{PRODUCT.commercialName}</span>
             <span className="hidden h-2.5 w-px bg-border/50 sm:block" />
             <span className="rounded-full border border-primary/18 bg-primary/5 px-2 py-0.5 text-[11px] font-bold tracking-wide text-primary/55">
-              v2.0
+              v{PRODUCT.version}
             </span>
           </div>
         </footer>

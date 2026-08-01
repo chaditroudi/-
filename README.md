@@ -1,129 +1,111 @@
-# Date Harvest Hub
+# Date Harvest Hub (Royal Palm MES)
 
-Date Harvest Hub is a Vite + React factory operations app for purchasing, reception, production, stock, logistics, alerts, and traceability.
+**Version 2.0.0 — Enterprise Traceability edition**
+
+MES / ERP for **date manufacturing**: reception → QC → cold store → fumigation CCP → triage → packaging → export, with golden-thread lot traceability, operator fiches techniques, BRA/BDE documents, costing, and settlements.
+
+---
+
+## What a buyer gets
+
+| Pillar | Capability |
+|---|---|
+| **Parcours lot A→Z** | Employee landing: search lot → next action → station deep-link |
+| **Fiches techniques** | FT-01…FT-08 + BRA/BDE — checklist, critical limits, print, go-to-station |
+| **Documents** | Bon de Réception Achat (BRA) · Bon d’Expédition (BDE) |
+| **Trust / fil d’or** | Gates, mass balance, CCP evidence, passport |
+| **Finance ops** | Lot costing, grade settlements, export FX margin |
+| **Roles** | Plant roles + supplier / client portals |
+| **White-label** | Company name, logo, colors in Settings → Marque |
+
+See [docs/PRODUCT_MAP.md](docs/PRODUCT_MAP.md) and [docs/BUYER_HANDOFF.md](docs/BUYER_HANDOFF.md).
+
+---
 
 ## Stack
 
-- Frontend: React, TypeScript, Vite, Tailwind, shadcn-ui
-- Backend: Express + Mongoose
-- Database: MongoDB
-- Auth: JWT
+- **Frontend:** React 18, TypeScript, Vite, Tailwind, shadcn/ui  
+- **Backend:** NestJS (Express), Mongoose  
+- **Database:** MongoDB (local or Atlas)  
+- **Auth:** JWT  
 
-## Run locally
+---
 
-1. Install dependencies.
-2. Make sure MongoDB is running locally, or set `MONGODB_URI` in `.env` to your MongoDB Atlas connection string.
-3. Start the API and frontend together.
+## Quick start (demo in minutes)
 
 ```sh
 npm install
-npm run dev:full
+cp .env.example .env   # set MONGODB_URI + JWT_SECRET
+npm run build          # compiles server + client
+npm run dev            # API + Vite together
 ```
 
-Frontend runs on `http://localhost:8080`.
-API runs on `http://localhost:4000`.
+- App: http://localhost:8080  
+- API health: http://localhost:4000/health  
 
-Local development behavior:
+### Default admin (seeded on empty DB)
 
-- Frontend changes under `src/` are picked up by Vite automatically.
-- Backend changes under `server/` are picked up by `node --watch`.
+- Email: `admin@ecodatte.local`  
+- Password: `Admin123!`  
 
-The API keeps a dynamic collection layer, so the existing frontend modules can continue reading and writing the app's collections through the same generic endpoints.
-MongoDB is required for app data. If Atlas is unavailable, the API still starts and `/health` reports `database_unavailable` while it retries.
+**Change the password before any production or client demo.**
 
-For MongoDB Atlas setup, see [docs/mongodb-atlas-setup.md](/c:/Users/DELL/Desktop/date-harvest-hub-main/docs/mongodb-atlas-setup.md:1).
+### Useful scripts
+
+| Script | Purpose |
+|---|---|
+| `npm run dev` | Full stack local |
+| `npm run build` | Production build |
+| `npm test` | Unit / component tests |
+| `npm run product:check` | Buyer readiness check (key tests) |
+| `npm run demo:golden-thread` | Demo lot journey data |
+| `npm run smoke:wave-a` / `wave-b` / `wave-c` | Trust / cost / settlement smokes |
+
+---
 
 ## Environment
 
-The project now uses MongoDB-related variables:
+Copy `.env.example` → `.env`:
 
 ```env
 MONGODB_URI=mongodb://127.0.0.1:27017/date_harvest_hub
 MONGODB_DB_NAME=date_harvest_hub
-JWT_SECRET=change-me-in-production
+JWT_SECRET=change-me-to-a-long-random-secret
 PORT=4000
 VITE_API_URL=/api
 ```
 
-Atlas example:
+Trust gates (optional, after smoke green):
 
 ```env
-MONGODB_URI=mongodb+srv://atlas_user:atlas_password@cluster-name.xxxxx.mongodb.net/date_harvest_hub?retryWrites=true&w=majority&appName=DateHarvestHub
-MONGODB_DB_NAME=date_harvest_hub
-JWT_SECRET=change-me-in-production
-PORT=4000
-VITE_API_URL=/api
+TRUST_MASS_BALANCE_GATE=enforce
+TRUST_SCAN_GATE=enforce
+TRUST_CCP_GATE=enforce
 ```
 
-## Default seeded admin
+Atlas setup: [docs/mongodb-atlas-setup.md](docs/mongodb-atlas-setup.md)
 
-When the API starts on an empty database, it seeds this user:
-
-- Email: `admin@ecodatte.local`
-- Password: `Admin123!`
-
-## Scripts
-
-- `npm run dev`: API + frontend together
-- `npm run server`: Express API only
-- `npm run server:dev`: Express API only
-- `npm run dev:full`: alias of `npm run dev`
-- `npm run build`: production build
+---
 
 ## Docker
-
-Use Docker when you want the frontend and backend to run together with live reload.
-
-1. Start the stack:
 
 ```sh
 docker compose up --build
 ```
 
-2. Open the app:
+Frontend `http://localhost:8080` · API `http://localhost:4000/health`
 
-- Frontend: `http://localhost:8080`
-- API: `http://localhost:4000/health`
+---
 
-In this mode:
+## Operator UX (v2)
 
-- frontend changes under `src/` reload through Vite
-- backend changes under `server/` restart the API automatically
-- MongoDB Atlas is used from `MONGODB_URI` in `.env`
-- the frontend container proxies `/api` to `http://api:4000` inside Docker
+1. **Simple / Complet** home — one job first; modules collapsed  
+2. **Fiches A→Z** — aide by poste next to every next action  
+3. **BRA / BDE** — full-page document workspace (not buried tabs)  
+4. Settings → **Produit** — edition, version, pillars for buyer handoff  
 
-Stop the stack:
+---
 
-```sh
-docker compose down
-```
+## License
 
-Stop the stack and remove Docker volumes too:
-
-```sh
-docker compose down -v
-```
-
-### Docker services
-
-- `web`: Vite dev server with `/api` proxied to the backend
-- `api`: Express + Mongoose backend connected to `MONGODB_URI` from `.env`
-- `Dockerfile.dev`: shared dev image for both `api` and `web`
-
-### Docker environment
-
-The compose file uses these defaults:
-
-```env
-MONGODB_URI=mongodb+srv://atlas_user:atlas_password@cluster-name.xxxxx.mongodb.net/date_harvest_hub?retryWrites=true&w=majority&appName=DateHarvestHub
-MONGODB_DB_NAME=date_harvest_hub
-JWT_SECRET=change-me-in-production
-DOCKER_API_HOST=0.0.0.0
-DOCKER_API_PORT=4000
-DOCKER_WEB_PORT=8080
-DOCKER_VITE_API_URL=/api
-```
-
-Docker Compose reuses the app's `MONGODB_URI` by default so the API container connects to the same Atlas database as local development.
-For production, use a long random `JWT_SECRET`.
-# -
+Commercial / proprietary — see [LICENSE](LICENSE). Branding may be white-labeled under license.

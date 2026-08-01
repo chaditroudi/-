@@ -37,8 +37,8 @@ export const APP_TAB_META: Record<AppTab, AppTabMeta> = {
     label: "Parcours lot",
     shortLabel: "Parcours",
     icon: Home,
-    pageTitle: "Parcours lot A→Z",
-    pageSubtitle: "Suivre un lot de la réception à l'expédition — prochaine action, coûts et passport.",
+    pageTitle: "Accueil",
+    pageSubtitle: "Prochaine action sur le lot.",
   },
   live: {
     label: "Centre de Commande",

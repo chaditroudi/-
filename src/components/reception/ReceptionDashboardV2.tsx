@@ -46,10 +46,11 @@ import { canPerformAction } from '@/lib/roleAccess';
 import { useTodayPendingNotices } from '@/hooks/useInboundNotices';
 import { usePhase2Pipeline } from '@/hooks/usePhase2Pipeline';
 import { BonReceptionAchatDashboard } from '@/components/bon-reception-achat/BonReceptionAchatDashboard';
-import { BonExpeditionDashboard } from '@/components/bon-expedition/BonExpeditionDashboard';
 
 type ActiveView = 'receptions' | 'tablet' | 'alerts';
-type SubTab = 'today' | 'qc' | 'registry' | 'bra' | 'bde';
+type SubTab = 'today' | 'qc' | 'registry' | 'bra';
+
+const VALID_SUB_TABS: SubTab[] = ['today', 'qc', 'registry', 'bra'];
 
 interface ActionQueueItem {
   reception: ReceptionV2;
@@ -94,14 +95,24 @@ const getSamplingGuidance = (quantityTotal: number) => {
   return 'Échantillonnage recommandé: entre 2 kg et 5 kg selon la représentativité du lot.';
 };
 
-export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurchaseOrderId?: string }) => {
+export const ReceptionDashboardV2 = ({
+  prefillPurchaseOrderId,
+  initialView,
+}: {
+  prefillPurchaseOrderId?: string;
+  /** Deep-link: bra opens Bon de Réception Achat. */
+  initialView?: string;
+}) => {
   const { t, i18n } = useTranslation();
   const { roles } = useAuthContext();
   const [search, setSearch] = useState(() => ss.get('rdv2-search', ''));
   const [statusFilter, setStatusFilter] = useState<string>(() => ss.get('rdv2-status', 'active'));
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [activeView, setActiveView] = useState<ActiveView>('receptions');
-  const [subTab, setSubTab] = useState<SubTab>(() => ss.get('rdv2-subtab', 'today') as SubTab);
+  const [subTab, setSubTab] = useState<SubTab>(() => {
+    const saved = ss.get('rdv2-subtab', 'today');
+    return VALID_SUB_TABS.includes(saved as SubTab) ? (saved as SubTab) : 'today';
+  });
 
   const updateSearch = useCallback((v: string) => { setSearch(v); ss.set('rdv2-search', v); }, []);
   const updateStatusFilter = useCallback((v: string) => { setStatusFilter(v); ss.set('rdv2-status', v); }, []);
@@ -112,6 +123,13 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
   useEffect(() => {
     if (prefillPurchaseOrderId) setWizardOpen(true);
   }, [prefillPurchaseOrderId]);
+
+  useEffect(() => {
+    if (initialView === 'bra') {
+      setActiveView('receptions');
+      updateSubTab('bra');
+    }
+  }, [initialView, updateSubTab]);
   const [detailOpen, setDetailOpen] = useState(false);
   const [qcDialogOpen, setQcDialogOpen] = useState(false);
   const [labDialogOpen, setLabDialogOpen] = useState(false);
@@ -353,8 +371,7 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
                   badgeClass: 'bg-amber-500 text-white',
                 },
                 { value: 'registry' as SubTab, icon: List, label: 'Registre', badge: null, badgeClass: '' },
-                { value: 'bra' as SubTab, icon: Printer, label: 'Bons BRA', badge: null, badgeClass: '' },
-                { value: 'bde' as SubTab, icon: Truck, label: 'Bons BDE', badge: null, badgeClass: '' },
+                { value: 'bra' as SubTab, icon: Printer, label: 'Bon BRA', badge: null, badgeClass: '' },
               ]).map((tab) => {
                 const active = subTab === tab.value;
                 return (
@@ -411,6 +428,24 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
                 </button>
               ))}
             </div>
+
+            {/* Document shortcut — full-page BRA workspace via Parcours is preferred; keep in-module too */}
+            <button
+              type="button"
+              onClick={() => updateSubTab('bra')}
+              className="flex w-full items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50/80 px-4 py-3 text-left transition-colors hover:bg-amber-100"
+            >
+              <div className="flex items-center gap-3">
+                <Printer className="h-5 w-5 shrink-0 text-amber-700" />
+                <div>
+                  <p className="text-sm font-semibold">Bon de Réception Achat (BRA)</p>
+                  <p className="text-xs text-muted-foreground">
+                    Créer · valider · imprimer le bon fournisseur
+                  </p>
+                </div>
+              </div>
+              <span className="text-xs font-medium text-amber-800">Ouvrir →</span>
+            </button>
 
             <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
               {/* Action queue */}
@@ -918,13 +953,13 @@ export const ReceptionDashboardV2 = ({ prefillPurchaseOrderId }: { prefillPurcha
           </TabsContent>
 
           {/* ── Tab: Bons de Réception Achat ─────────────────────────────── */}
-          <TabsContent value="bra" className="mt-5">
+          <TabsContent value="bra" className="mt-5 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border bg-muted/30 px-4 py-2.5 text-sm">
+              <span className="text-muted-foreground">
+                <span className="font-medium text-foreground">BRA</span> = bon d&apos;entrée fournisseur
+              </span>
+            </div>
             <BonReceptionAchatDashboard />
-          </TabsContent>
-
-          {/* ── Tab: Bons d'Expédition ───────────────────────────────────── */}
-          <TabsContent value="bde" className="mt-5">
-            <BonExpeditionDashboard />
           </TabsContent>
         </Tabs>
       )}

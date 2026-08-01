@@ -47,6 +47,18 @@ describe('resolveLotJourneyNextAction', () => {
     expect(next.module).toBe('triage');
   });
 
+  it('points to Bon BDE in logistics after packaging', () => {
+    const next = resolveLotJourneyNextAction({
+      completed: ['SUPPLIER_INTAKE', 'WEIGHED', 'QC_DECIDED', 'COLD_STORE', 'FUMIGATION_CCP', 'TRIAGE', 'PACKED'],
+      missing: ['SHIPPED'],
+      stage: 'PACKED',
+    });
+    expect(next.tab).toBe('logistics');
+    expect(next.view).toBe('bde');
+    expect(next.action).toBe('new');
+    expect(next.ctaLabel).toMatch(/BDE/i);
+  });
+
   it('points to export when complete', () => {
     const next = resolveLotJourneyNextAction({ complete: true, stage: 'SHIPPED' });
     expect(next.tab).toBe('export');
