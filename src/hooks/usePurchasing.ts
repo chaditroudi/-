@@ -377,7 +377,18 @@ export const useSendPurchaseOrder = () => {
     onSuccess: (updatedOrder) => {
       syncPurchaseOrderCaches(queryClient, updatedOrder);
       queryClient.invalidateQueries({ queryKey: ['purchase_orders'] });
-      toast.success('Bon de commande envoyé');
+      const status = String(updatedOrder.supplier_email_status || '');
+      if (status === 'sent') {
+        toast.success(`BC envoyé — email à ${updatedOrder.supplier_email_to || 'fournisseur'}`);
+      } else if (status === 'missing_email') {
+        toast.warning('BC envoyé — ajoutez un email sur la fiche fournisseur pour le notifier');
+      } else if (status === 'disabled') {
+        toast.success('BC envoyé (email fournisseur désactivé dans Paramètres)');
+      } else if (status === 'failed') {
+        toast.warning(`BC envoyé — échec email: ${updatedOrder.supplier_email_error || 'voir alertes'}`);
+      } else {
+        toast.success('Bon de commande envoyé');
+      }
     },
     onError: (error) => {
       toast.error("Erreur lors de l'envoi");

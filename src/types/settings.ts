@@ -72,6 +72,10 @@ export interface SiteCostingSettings {
   fx_eur_to_tnd: number;
   fx_usd_to_tnd: number;
   fx_sar_to_tnd: number;
+  /** Standard TVA rate (TN domestic), percent — e.g. 19 */
+  vat_rate_pct: number;
+  /** When true, export invoices print with TVA 0% (exonération export) */
+  export_vat_exempt: boolean;
 }
 
 export interface SiteDocumentSettings {
@@ -87,11 +91,18 @@ export interface SiteDocumentSettings {
   print_language: SiteLanguage;
   certificate_signatory: string | null;
   report_footer: string | null;
+  /**
+   * GS1 company prefix (7–10 digits). Placeholder 09999999 is NOT retail-legal —
+   * replace after GS1 Tunisia membership.
+   */
+  gs1_company_prefix: string;
 }
 
 export interface SiteNotificationSettings {
   browser_notifications_enabled: boolean;
   email_notifications_enabled: boolean;
+  /** Email the supplier when a purchase order is sent (requires supplier.email + SMTP). */
+  supplier_po_email_enabled: boolean;
   low_stock_alert_enabled: boolean;
   expiry_alert_enabled: boolean;
   expiry_alert_days: number;
@@ -172,21 +183,22 @@ export interface ManagedUser {
   primary_department?: string | null;
   org_roles?: string[];
   is_active: boolean;
+  has_signature_pin?: boolean;
   created_at: string;
 }
 
 export const DEFAULT_SETTINGS: SiteSettings = {
   id: 'global',
-  company_name: 'Royal Palm Dates',
-  company_short_name: 'RP',
-  company_legal_name: 'Royal Palm Dates SARL',
-  site_code: 'RP-TOZ',
+  company_name: 'MES Dattes',
+  company_short_name: 'MES',
+  company_legal_name: null,
+  site_code: 'USINE-01',
   country_code: 'TN',
   logo_url: null,
   logo_base64: null,
   primary_color: '#107754',
   accent_color: '#d97706',
-  plant_name: 'Usine Tozeur',
+  plant_name: 'Usine principale',
   plant_address: null,
   plant_phone: null,
   plant_email: null,
@@ -249,6 +261,8 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     fx_eur_to_tnd: 3.35,
     fx_usd_to_tnd: 3.1,
     fx_sar_to_tnd: 0.83,
+    vat_rate_pct: 19,
+    export_vat_exempt: true,
   },
   documents: {
     reception_prefix: 'REC',
@@ -263,10 +277,12 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     print_language: 'fr',
     certificate_signatory: null,
     report_footer: null,
+    gs1_company_prefix: '09999999',
   },
   notifications: {
     browser_notifications_enabled: true,
     email_notifications_enabled: false,
+    supplier_po_email_enabled: true,
     low_stock_alert_enabled: true,
     expiry_alert_enabled: true,
     expiry_alert_days: 30,

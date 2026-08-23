@@ -112,12 +112,14 @@ export function useSignFumigationCycle() {
       role,
       signerName,
       signerId,
+      pin,
     }: {
       id: string;
       role: SignatureRole;
       signerName: string;
       signerId: string;
-    }) => phase2Api.signFumigationCycle(id, { role, signerName, signerId }),
+      pin?: string;
+    }) => phase2Api.signFumigationCycle(id, { role, signerName, signerId, pin }),
     onSuccess: (_, { id, role }) => {
       const label = role === 'operator' ? 'opérateur' : 'qualité';
       toast.success(`Signature ${label} enregistrée`);

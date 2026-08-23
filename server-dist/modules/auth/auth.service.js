@@ -14,6 +14,7 @@ import { sanitizeDocument } from "../../db/dynamic-model.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
 import { getCollectionModel } from "../../db/dynamic-model.js";
 import { AuthUserModel } from "../../models/auth-user.model.js";
+import { clearUserSignaturePin, setUserSignaturePin, userHasSignaturePin, } from "./numeric-signature.js";
 const nowIso = () => new Date().toISOString();
 const getStoredPasswordHash = (user) => {
     if (typeof user?.passwordHash === "string" && user.passwordHash.length > 0)
@@ -26,6 +27,7 @@ const toPublicUser = (user) => ({
     id: user.id,
     email: user.email,
     user_metadata: sanitizeDocument(user.user_metadata || {}),
+    has_signature_pin: userHasSignaturePin(user),
 });
 const createSession = (user) => {
     const token = jwt.sign({ email: user.email, user_metadata: user.user_metadata || {} }, env.jwtSecret, { subject: user.id, expiresIn: env.jwtExpiresInSeconds });
@@ -97,6 +99,34 @@ let AuthService = class AuthService {
         if (!user)
             return { session: null, user: null };
         return { session: createSession(user), user: toPublicUser(user) };
+    }
+    /** Set or rotate the logged-in user's numeric signature PIN (requires password). */
+    async setOwnSignaturePin(auth, payload) {
+        if (!auth?.user?.id)
+            throw unauthorized("Authentication required.");
+        const pin = String(payload.pin || "").trim();
+        const password = String(payload.password || "");
+        const user = await AuthUserModel.findOne({ id: auth.user.id, is_active: true }).lean().exec();
+        if (!user)
+            throw unauthorized("Authentication required.");
+        const storedPasswordHash = getStoredPasswordHash(user);
+        if (!storedPasswordHash || !(await bcrypt.compare(password, storedPasswordHash))) {
+            throw unauthorized("Mot de passe incorrect.");
+        }
+        return setUserSignaturePin(auth.user.id, pin);
+    }
+    async clearOwnSignaturePin(auth, payload) {
+        if (!auth?.user?.id)
+            throw unauthorized("Authentication required.");
+        const password = String(payload.password || "");
+        const user = await AuthUserModel.findOne({ id: auth.user.id, is_active: true }).lean().exec();
+        if (!user)
+            throw unauthorized("Authentication required.");
+        const storedPasswordHash = getStoredPasswordHash(user);
+        if (!storedPasswordHash || !(await bcrypt.compare(password, storedPasswordHash))) {
+            throw unauthorized("Mot de passe incorrect.");
+        }
+        return clearUserSignaturePin(auth.user.id);
     }
 };
 AuthService = __decorate([

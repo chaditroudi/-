@@ -41,6 +41,7 @@ import { WeighbridgeModule } from "../modules/weighbridge/weighbridge.module.js"
 import { CcpSensorsModule } from "../modules/ccp-sensors/ccp-sensors.module.js";
 import { CostingModule } from "../modules/costing/costing.module.js";
 import { SettlementModule } from "../modules/settlement/settlement.module.js";
+import { AtpModule } from "../modules/atp/atp.module.js";
 import { AppController } from "./app.controller.js";
 import { GuardsModule } from "./guards.module.js";
 let AppModule = class AppModule {
@@ -54,6 +55,7 @@ AppModule = __decorate([
             CcpSensorsModule,
             CostingModule,
             SettlementModule,
+            AtpModule,
             AuthModule,
             BonReceptionAchatModule,
             BonExpeditionModule,

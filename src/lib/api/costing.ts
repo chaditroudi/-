@@ -38,6 +38,16 @@ export type LotCostView = {
     parent_weight_kg: number;
     grades: LotCostGrade[];
   } | null;
+  packaging?: Array<{
+    order_id: string;
+    order_number: string | null;
+    produced_kg: number;
+    waste_kg: number;
+    mass_balance_variance_pct: number | null;
+    total_cost_tnd: number | null;
+    cost_tnd_per_kg: number | null;
+    ended_at: string | null;
+  }>;
 };
 
 export type CostSummaryView = {
@@ -68,6 +78,7 @@ export type CostSummaryView = {
     packaging_orders: number;
     production_orders: number;
     reception_lots_with_purchase_cost: number;
+    mass_balance_unbalanced?: number;
   };
   breakdown: Array<{
     category: 'labor' | 'energy' | 'materials' | 'maintenance' | 'overhead' | 'losses';

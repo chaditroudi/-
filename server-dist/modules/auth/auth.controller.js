@@ -10,8 +10,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { Body, Controller, Get, HttpCode, Post, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Post, Req, UseGuards } from "@nestjs/common";
 import { appendAuthAudit } from "../../middleware/security-audit.js";
+import { RequireAuthGuard } from "../../nest/route-guards.js";
 import { AuthService } from "./auth.service.js";
 let AuthController = class AuthController {
     authService;
@@ -20,6 +21,14 @@ let AuthController = class AuthController {
     }
     async session(req) {
         const data = await this.authService.getSession(req.auth);
+        return { data };
+    }
+    async setSignaturePin(req, body) {
+        const data = await this.authService.setOwnSignaturePin(req.auth, body || {});
+        return { data };
+    }
+    async clearSignaturePin(req, body) {
+        const data = await this.authService.clearOwnSignaturePin(req.auth, body || {});
         return { data };
     }
     async signUp(req, body) {
@@ -51,6 +60,24 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "session", null);
+__decorate([
+    Post("signature-pin"),
+    UseGuards(RequireAuthGuard),
+    __param(0, Req()),
+    __param(1, Body()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "setSignaturePin", null);
+__decorate([
+    Delete("signature-pin"),
+    UseGuards(RequireAuthGuard),
+    __param(0, Req()),
+    __param(1, Body()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "clearSignaturePin", null);
 __decorate([
     Post("signup"),
     HttpCode(201),

@@ -333,7 +333,7 @@ export function LabelTemplatePanel({ currentUser = 'Utilisateur' }: { currentUse
                 <Select value={form.brand} onValueChange={(v) => setForm((p) => ({ ...p, brand: v as LabelBrand }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ROYAL_PALM">Royal Palm</SelectItem>
+                    <SelectItem value="ROYAL_PALM">Marque usine</SelectItem>
                     <SelectItem value="PRIVATE_LABEL">Marque blanche</SelectItem>
                   </SelectContent>
                 </Select>

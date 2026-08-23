@@ -6,8 +6,10 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import { settlementsApi, type SupplierSettlement } from '@/lib/api/settlements';
+import { printSettlementStatement } from '@/lib/printSettlementStatement';
+import { useSiteSettings } from '@/hooks/useSettings';
 import { toast } from 'sonner';
-import { CheckCircle2, Banknote, XCircle, Loader2 } from 'lucide-react';
+import { CheckCircle2, Banknote, XCircle, Loader2, Printer } from 'lucide-react';
 
 const STATUS_LABEL: Record<string, string> = {
   DRAFT: 'Brouillon',
@@ -18,6 +20,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 export function SettlementsPanel() {
   const queryClient = useQueryClient();
+  const { data: settings } = useSiteSettings();
   const { data = [], isLoading } = useQuery({
     queryKey: ['supplier-settlements'],
     queryFn: () => settlementsApi.list(),
@@ -87,6 +90,19 @@ export function SettlementsPanel() {
                     <Badge variant="outline">{STATUS_LABEL[row.status] || row.status}</Badge>
                   </TableCell>
                   <TableCell className="text-right space-x-1">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() =>
+                        printSettlementStatement(row, {
+                          companyName: settings?.company_name,
+                          plantName: settings?.plant_name || undefined,
+                          plantEmail: settings?.plant_email,
+                        })
+                      }
+                    >
+                      <Printer className="h-3.5 w-3.5 mr-1" /> Relevé
+                    </Button>
                     {row.status === 'DRAFT' && (
                       <Button size="sm" variant="outline" onClick={() => approve.mutate(row.id)}>
                         <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Approuver

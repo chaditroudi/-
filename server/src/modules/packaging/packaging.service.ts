@@ -11,6 +11,11 @@ import {
 import { absorbStandardCosts } from "../costing/cost-allocation.js";
 import { loadCostingRates } from "../costing/costing-rates.js";
 import { emitNotification } from "../notifications/notification-emitter.js";
+import {
+  PLACEHOLDER_GS1_COMPANY_PREFIX,
+  generateSSCC,
+  normalizeGs1Prefix,
+} from "./gs1-sscc.js";
 
 type LabelStatus = "BROUILLON" | "VALIDE" | "ARCHIVE";
 type PackagingOrderStatus = "PLANIFIE" | "EN_COURS" | "PAUSE" | "TERMINE" | "ANNULE";
@@ -98,21 +103,16 @@ const computePaletteGrossWeightKg = (
   palletWeightKg = 25,
 ) => Number((((boxCount * grossWeightG) / 1000) + palletWeightKg).toFixed(2));
 
-const computeGS1CheckDigit = (digits: string) => {
-  let sum = 0;
-  for (let index = 0; index < digits.length; index += 1) {
-    const digit = parseInt(digits[digits.length - 1 - index] || "0", 10);
-    sum += digit * (index % 2 === 0 ? 3 : 1);
+const loadGs1CompanyPrefix = async () => {
+  try {
+    const { SiteSettingsModel } = await import("../../models/site-settings.model.js");
+    const doc = (await SiteSettingsModel.findOne({ id: "global" }).lean().exec()) as {
+      documents?: { gs1_company_prefix?: string | null };
+    } | null;
+    return normalizeGs1Prefix(doc?.documents?.gs1_company_prefix);
+  } catch {
+    return normalizeGs1Prefix(null);
   }
-  return String((10 - (sum % 10)) % 10);
-};
-
-const generateSSCC = (serialNumber: number) => {
-  const extension = "0";
-  const companyPrefix = "09999999";
-  const serial = String(serialNumber).padStart(8, "0");
-  const base17 = extension + companyPrefix + serial;
-  return base17 + computeGS1CheckDigit(base17);
 };
 
 const nowIso = () => new Date().toISOString();
@@ -724,8 +724,15 @@ export class PackagingService {
     const sealNumber = readString(payload.seal_number, payload.sealNumber);
     const sealedBy = readString(payload.sealed_by, payload.sealedBy);
     const serialCounter = readNumber(payload.serial_counter, Date.now() % 100_000_000);
-    const sscc = generateSSCC(serialCounter);
+    const companyPrefix = await loadGs1CompanyPrefix();
+    const sscc = generateSSCC(serialCounter, companyPrefix);
     const now = nowIso();
+
+    if (companyPrefix === PLACEHOLDER_GS1_COMPANY_PREFIX) {
+      console.warn(
+        "[Packaging] SSCC uses placeholder GS1 company prefix 09999999 — set documents.gs1_company_prefix or GS1_COMPANY_PREFIX",
+      );
+    }
 
     if (!sealNumber) {
       await createPackagingNotification({

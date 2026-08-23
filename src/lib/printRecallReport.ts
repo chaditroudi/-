@@ -60,7 +60,7 @@ export function buildRecallReportHtml(
   result: RecallDrillResult,
   meta: RecallReportMeta = {},
 ): string {
-  const company = meta.companyName || 'Royal Palm Dates';
+  const company = meta.companyName || 'MES Dattes';
   const plant = meta.plantName || 'Usine';
   const coordinator = meta.coordinator?.trim() || 'Non renseigné (Paramètres → Qualité)';
   const preparedBy = meta.preparedBy?.trim() || 'Opérateur système';

@@ -1,80 +1,122 @@
-# Roadmap v2.1 — Date Harvest Hub
+# Roadmap — Game changer next (v2.1+)
 
-**Position:** MES traçabilité dattes (Core) → Ops+ → ERP Connect  
-**Goal:** close buyer gaps without overselling “full ERP”.
+**Position:** Traceability kernel shipped → harden claims → margin → supply loyalty → ATP  
+**Thesis:** Close *money* and *defensible claims* so the plant runs on the MES — not another good tracing tool.
+
+Supersedes foundation W0–W4 planning. See canvas: `mes-game-changer.canvas.tsx`.
 
 ---
 
-## Horizon A — 2 weeks (ship now / in progress)
+## Honest inventory (Aug 2026)
 
-| # | Deliverable | Why buyers care | Status |
+| Capability | State |
+|---|---|
+| Hash ledger · passport · recall | **Built** |
+| Signed weighbridge / CCP | **Built** |
+| Mass balance kernel (+ partial pack consume) | **Built** (gate default **warn**) |
+| Costing · settlements · export margin | **Built** (partial) |
+| UX atelier · fiches · BRA/BDE · PF · TVA | **Built** |
+| ATP / promise ship week | **Absent** |
+| Real GS1 company prefix | **Configurable** — still defaults to placeholder `09999999` |
+| Trust gates SCAN / CCP / MASS_BALANCE | Default **warn** — flip after green shift |
+
+---
+
+## Three bets
+
+1. **Margin engine** — reconcile kg → TND/kg (mass balance before costing before promising)  
+2. **Supply loyalty** — grade settlement from signed weights + triage  
+3. **Committable capacity** — ATP + finite chambers/lines → system ship week  
+
+---
+
+## Waves
+
+| Wave | Wk | Theme | Exit |
 |---|---|---|---|
-| A1 | **Fiche CMS** — edit steps / limits / if-blocked, save to site settings | Floor SOPs match the real plant | **Done** |
-| A2 | **Sales kit** — DEMO_RUNBOOK + UAT_CHECKLIST | Repeatable demos & acceptance | **Done** |
-| A3 | Product map + handoff already in v2.0 | Clarity of scope | Done |
-| A4 | `npm run product:check` | Pre-demo gate | Done |
+| **B0 Harden** | 2 | Cover ledger swallow sites · GATE_BLOCKED · dossier from chain · flip to **enforce** | Zero `LOT_LEDGER_STAGE_FAILED` for a shift |
+| **B Margin** | 4–6 | Waste as output · tolerance enforce · margin roll-up | Closed order reconciles + TND/kg |
+| **C Supply** | 3–4 | Grade settlements via portal | Same-day farmer statement |
+| **D Capacity** | 4–6 | ATP + OEE reasons + promise dates | System ship week on export order |
+| **E Sellable trust** | 3–4 | Real GS1 · EPCIS · anchored tip · server PDF | Buyer verifies SSCC |
 
-**Exit criteria (2 weeks)**  
-- Quality manager can change FT-05 CCP limits without a code deploy  
-- Demo script runs in ≤ 30 minutes  
-- UAT checklist signed by buyer IT / Ops  
+### B0 shipped in code (ops still to flip)
 
----
+- `TRUST_STAGE_GATE=warn|enforce` — `recordStageSafe` alerts + `GATE_BLOCKED`, rethrows on enforce  
+- `GET /api/trust/gates` + Settings → Produit **TrustGatesPanel**  
+- GS1 SSCC helpers (`gs1-sscc.ts`) + placeholder detection  
+- `STOCK_SYNCED` on reception / collections / ext paths; enforce rethrows ledger miss  
+- Mass-balance packaging close already supports `TRUST_MASS_BALANCE_GATE=enforce`  
+- Smoke: `npm run smoke:b0`
 
-## Horizon B — 6 weeks (Ops+)
+**Ops exit:** clean warn shift → set `TRUST_SCAN_GATE` / `TRUST_CCP_GATE` / `TRUST_STAGE_GATE=enforce` + real GS1 prefix.
 
-| # | Deliverable | Why | Status |
-|---|---|---|---|
-| B1 | **Lab QC fields** linked to reception decision (humidité, défauts %) | Real QC, not only status | Planned |
-| B2 | **Recall report** timed PDF (upstream + downstream) | Audit / client export | **Done** |
-| B3 | **Label templates** PF (lot, grade, net weight, QR) | Shipping floor | Planned |
-| B4 | **Fiche acknowledgment** — operator marks “lu / appliqué” per shift | Training evidence | Planned |
-| B5 | One-click **demo:season** seed (full A→Z lot story) | Sales acceleration | Planned |
+### Wave B surfaced (in progress)
 
-**Exit criteria**  
-- Recall drill demo &lt; 10 minutes with printable report  
-- Labels printable from packing close  
+- Packaging close: declare **déchets kg** → mass balance + standard cost on OF  
+- Triage close: declare **déchets process kg** (grades ≠ waste)  
+- OF history / dialog show **TND/kg** + Δ matière  
+- **MarginCockpitPanel** + **Pack CFO** print on Cockpit / Settings → Coûts  
+- Lot cost card includes closed packaging OF  
 
----
+### Wave C surfaced
 
-## Horizon C — 3 months (ERP Connect)
+- Settlement auto-draft on triage close (existing)  
+- **Relevé grades** print (Achats + Portail fournisseur)  
 
-| # | Deliverable | Why |
-|---|---|---|
-| C1 | **Facture export lite** (HT / TVA / TTC, TND) | Commercial close |
-| C2 | **TVA rates** in settings (TN) | Local compliance |
-| C3 | **Sage / CSV export** of invoices + settlements | Don’t replace GL — bridge it |
-| C4 | Optional lite AR (invoice status: draft / sent / paid) | Cash visibility |
-| C5 | Multi-site settings hardening (already P2P sites) | Group plants |
+### Wave D scaffold
 
-**Exit criteria**  
-- Buyer can issue export invoice with TVA and push CSV to accountant / Sage  
-- Contract wording: “MES + Connect compta”, not “ERP complet”  
+- `GET /api/atp/promise?qty_kg=` + `GET /api/atp/summary`  
+- **ATP panel** on Export dashboard (FEFO stock → ship week)  
+
+Still open: ATP line capacity / OEE, EPCIS, SMTP, real GS1.
+
+Cross-cut: Arabic operator UI · offline beyond reception · delete orphaned duplicates.
 
 ---
 
-## Explicit non-goals (for now)
+## Next 10 working days
 
-- Full GL / bank reconciliation / paie CNSS  
-- Replacing Sage as system of record  
-- Offline-first mobile OS apps (PWA later)  
+1. Commit / push baseline ahead of origin  
+2. ~~Cover remaining `recordStageSafe` sites + harness~~ (shipped — stage enforce path)  
+3. ~~Confirm `STOCK_SYNCED` on every reception→stock path~~  
+4. ~~Extend `GATE_BLOCKED` on refused writes~~ (`recordStageSafe` + shipment gates)  
+5. ~~Regression: shipment dossier from `lot_events`~~ (`gate-rules.service` tests)  
+6. Warn-mode shift → `TRUST_SCAN_GATE=enforce` + `TRUST_CCP_GATE=enforce` + `TRUST_STAGE_GATE=enforce`  
+7. **Business:** start GS1 Tunisia company-prefix application  
+8. Plant picks Wave B routes + waste ownership  
+9. **TODO later — SMTP (supplier BC email):** fill production `.env` per plant  
+   (`SMTP_HOST`, `SMTP_PORT=587`, `SMTP_FROM`, `SMTP_USER`, `SMTP_PASS`, `APP_PUBLIC_URL`).  
+   Without SMTP, emails log to server console (local demo OK). Also enable Settings → Alertes → notifications email.
+
+Env knobs (`.env.example`):
+
+```bash
+# TRUST_SCAN_GATE=warn|enforce
+# TRUST_CCP_GATE=warn|enforce
+# TRUST_STAGE_GATE=warn|enforce
+# TRUST_MASS_BALANCE_GATE=warn|enforce
+# GS1_COMPANY_PREFIX=09999999
+```
+
+Settings → Documents → **Préfixe société GS1**. Settings → Produit → **Trust B0 panel**.  
+Smoke: `npm run smoke:b0`.
+
+---
+
+## Undercutters (fix before selling hard)
+
+- Permissive gates (warn defaults)  
+- Best-effort ledger (`recordStageSafe`)  
+- Placeholder GS1 SSCC  
 
 ---
 
 ## Packaging for sale
 
-| SKU | Includes | Price framing |
-|---|---|---|
-| **Core MES** | Parcours, CCP, triage, packing, BRA/BDE, fiches (+ CMS) | Base |
-| **Ops+** | Costing, settlements, margin, recall, labels, lab | + |
-| **ERP Connect** | Invoices, TVA, Sage/CSV bridge | Add-on |
-
----
-
-## This sprint focus
-
-1. A1 Fiche CMS  
-2. A2 Demo + UAT docs  
-3. Kickoff notes for B1/B2 in PRODUCT_MAP  
-
-Track progress in git commits tagged `v2.1-*`.
+| SKU | Includes |
+|---|---|
+| **Core MES** | Parcours · CCP · fiches · BRA/BDE · passport · recall |
+| **Ops+** | Mass balance · costing · settlements · labels · lab QC |
+| **ERP Connect** | Facture+TVA · CSV · (later AR lite) |
+| **Game changer** | Enforce trust · real GS1 · ATP · farmer settlement |

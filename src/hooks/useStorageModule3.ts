@@ -69,7 +69,7 @@ export const useSeedStorageModule3 = () => {
     mutateAsync: async () => {
       const data = await seed().unwrap() as any;
       const count = data?.locationsInserted ?? 0;
-      toast.success(count > 0 ? `${count} emplacements ajoutés au plan Royal Palm` : 'Plan Royal Palm déjà synchronisé');
+      toast.success(count > 0 ? `${count} emplacements ajoutés au plan d'usine` : "Plan d'usine déjà synchronisé");
       return data;
     },
     isPending: state.isLoading,

@@ -25,6 +25,7 @@ import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { useLiveFactory, useAlertIntelligence } from '@/hooks/useFounderAnalytics';
 import { getSseConnection } from '@/lib/sseClient';
+import { useBranding } from '@/hooks/useBranding';
 
 // ── Formatters ─────────────────────────────────────────────────────────────────
 
@@ -178,6 +179,7 @@ const YieldRow = ({ label, kgIn, yieldPct, colorClass }: { label: string; kgIn: 
 export const FactoryCommandCenter = () => {
   const [clock, setClock] = useState(() => new Date());
   const [isFs, setIsFs] = useState(false);
+  const { companyName, footprint, printFooter } = useBranding();
 
   const { data: lf, refetch, isFetching, dataUpdatedAt } = useLiveFactory();
   const { data: alertData } = useAlertIntelligence('today');
@@ -326,7 +328,7 @@ export const FactoryCommandCenter = () => {
               <Activity className="h-5 w-5 text-emerald-400" />
             </div>
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-slate-500">Royal Palm · Tozeur</p>
+              <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-slate-500">{footprint || companyName}</p>
               <p className="text-base font-bold text-white leading-tight">Centre de Commande Usine</p>
             </div>
           </div>
@@ -556,7 +558,7 @@ export const FactoryCommandCenter = () => {
 
           {/* ── Footer ─────────────────────────────────────────────────────── */}
           <div className="flex items-center justify-between text-[11px] text-slate-700 pt-1">
-            <span>Royal Palm MES · Groupe Ennour Investissement · Tozeur, Tunisie</span>
+            <span>{printFooter}</span>
             {lastUpdateStr && <span>Dernière actualisation : {lastUpdateStr}</span>}
           </div>
         </div>

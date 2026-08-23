@@ -259,7 +259,7 @@ function buildPrintHtml(form: RapportQCFormData, reception: ReceptionV2, lots: R
     </tr>
     <tr>
       <td colspan="3" style="border:1px solid #ccc;border-top:none;font-size:7px;color:#bbb;padding:2px 8px;">
-        V01-2023 &nbsp;|&nbsp; ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: fr })} — Royal Palm MES
+        V01-2023 &nbsp;|&nbsp; ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: fr })} — MES Dattes
       </td>
     </tr>
   </tbody>

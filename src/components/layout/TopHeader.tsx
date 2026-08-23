@@ -39,6 +39,7 @@ interface TopHeaderProps {
   roleLabel?: string;
   workspaceLabel?: string;
   interfaceLabel?: string;
+  plantLabel?: string;
 }
 
 export const TopHeader = ({
@@ -47,6 +48,7 @@ export const TopHeader = ({
   pageSubtitle,
   sectionLabel,
   roleLabel,
+  plantLabel,
 }: TopHeaderProps) => {
   const [auditOpen, setAuditOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -118,7 +120,12 @@ export const TopHeader = ({
           )}
         </div>
 
-        {/* Role badge */}
+        {/* Role / plant — one chip max */}
+        {plantLabel && (
+          <span className="hidden shrink-0 items-center rounded-full border border-border/60 bg-muted/40 px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground lg:inline-flex">
+            {plantLabel}
+          </span>
+        )}
         {roleLabel && (
           <span className="hidden shrink-0 items-center gap-1.5 rounded-full border border-primary/22 bg-primary/9 px-2.5 py-0.5 text-[11px] font-semibold text-primary/75 lg:inline-flex">
             <ShieldCheck className="h-3 w-3 shrink-0" />

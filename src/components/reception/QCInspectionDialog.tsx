@@ -78,6 +78,9 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
   const [labSampleRequired, setLabSampleRequired] = useState(false);
   const [labAnalyses, setLabAnalyses] = useState<string[]>([]);
   const [labStorageLocation, setLabStorageLocation] = useState("");
+  /** Lab-confirmed values that lock into the QC decision trail (B1). */
+  const [labHumidityPct, setLabHumidityPct] = useState<string>("");
+  const [labDefectsPct, setLabDefectsPct] = useState<string>("");
   const [overrideDecision, setOverrideDecision] = useState<QCDecisionType | null>(null);
   const [overridePhoto, setOverridePhoto] = useState<string[]>([]);
   const [selectedNcCodes, setSelectedNcCodes] = useState<string[]>([]);
@@ -134,6 +137,27 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
   );
 
   const selectedDecision = overrideDecision || score.recommendedDecision;
+
+  const totalDefectsFloor = useMemo(
+    () =>
+      defects.insectsPercent +
+      defects.moldPercent +
+      defects.fermentationPercent +
+      defects.mechanicalDamagePercent +
+      defects.crystallizationPercent +
+      defects.discolorationPercent,
+    [defects],
+  );
+
+  const labHumidityForDecision = useMemo(() => {
+    const n = Number(labHumidityPct);
+    return Number.isFinite(n) && labHumidityPct.trim() !== '' ? n : score.humidityAverage;
+  }, [labHumidityPct, score.humidityAverage]);
+
+  const labDefectsForDecision = useMemo(() => {
+    const n = Number(labDefectsPct);
+    return Number.isFinite(n) && labDefectsPct.trim() !== '' ? n : totalDefectsFloor;
+  }, [labDefectsPct, totalDefectsFloor]);
 
   // RG-Q01: time since gate arrival
   const qcWindow = useMemo(
@@ -254,7 +278,9 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
     }
 
     const details = [
-      `Humidite moyenne: ${score.humidityAverage}%`,
+      `Humidite moyenne sol: ${score.humidityAverage}%`,
+      `Humidite decision labo: ${labHumidityForDecision}%`,
+      `Defauts totaux decision: ${labDefectsForDecision}%`,
       `Calibre moyen: ${score.caliberAverage} mm`,
       `Score final: ${score.finalScore}/100`,
       `Classement: ${getQcClassificationLabel(score.classification)}`,
@@ -273,6 +299,8 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
         score: score.finalScore,
         grade: score.classification,
         automaticRejectReasons: score.automaticRejectReasons,
+        lab_humidity_pct: labHumidityForDecision,
+        lab_defects_pct: labDefectsForDecision,
       },
       labSampleRequired,
       labAnalyses,
@@ -284,7 +312,8 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
       nonconformityCodes: selectedNcCodes.length > 0 ? selectedNcCodes : undefined,
       rqc,
       checkResults: [
-        { check_code: "HUM", check_name: "Humidite", severity: "MAJEUR", result: score.humidityScore >= 60 ? "CONFORME" : "NON_CONFORME", note: `${score.humidityAverage}%`, measured_value: String(score.humidityAverage), expected_value: "20-26" },
+        { check_code: "HUM", check_name: "Humidite", severity: "MAJEUR", result: score.humidityScore >= 60 ? "CONFORME" : "NON_CONFORME", note: `${labHumidityForDecision}% (sol ${score.humidityAverage}%)`, measured_value: String(labHumidityForDecision), expected_value: "20-26" },
+        { check_code: "DEF", check_name: "Defauts totaux", severity: "MAJEUR", result: labDefectsForDecision <= 10 ? "CONFORME" : "NON_CONFORME", note: `${labDefectsForDecision}%`, measured_value: String(labDefectsForDecision), expected_value: "<= 10" },
         { check_code: "CAL", check_name: "Calibre", severity: "MAJEUR", result: score.caliberScore >= 60 ? "CONFORME" : "NON_CONFORME", note: `${score.caliberAverage} mm`, measured_value: String(score.caliberAverage), expected_value: ">= 40" },
         { check_code: "INS", check_name: "Insectes", severity: "CRITIQUE", result: defects.insectsPercent > 5 ? "NON_CONFORME" : "CONFORME", note: `${defects.insectsPercent}%`, measured_value: String(defects.insectsPercent), expected_value: "<= 5" },
         { check_code: "MOLD", check_name: "Moisissure/Fermentation", severity: "CRITIQUE", result: defects.moldPercent > 2 || defects.fermentationPercent > 1 ? "NON_CONFORME" : "CONFORME", note: `M ${defects.moldPercent}% / F ${defects.fermentationPercent}%`, measured_value: `${defects.moldPercent}/${defects.fermentationPercent}`, expected_value: "<= 2 / <= 1" },
@@ -481,7 +510,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
                   <div className={qcSection === 'mesures' ? 'space-y-4' : 'hidden'}>
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-base">Humidite</CardTitle>
+                      <CardTitle className="text-base">Humidité sol (cible 20–26 %)</CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-3">
                       {humidity.map((value, index) => (
@@ -666,6 +695,48 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
                                 {analysis}
                               </Button>
                             ))}
+                          </div>
+                          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            <div className="space-y-1">
+                              <Label>Humidité labo confirmée (%)</Label>
+                              <Input
+                                type="number"
+                                min={10}
+                                max={40}
+                                step={0.1}
+                                placeholder={String(score.humidityAverage)}
+                                value={labHumidityPct}
+                                onChange={(e) => setLabHumidityPct(e.target.value)}
+                              />
+                              <p className="text-[11px] text-muted-foreground">
+                                Sol: {score.humidityAverage}% · cible 20–26%
+                              </p>
+                            </div>
+                            <div className="space-y-1">
+                              <Label>Défauts totaux labo (%)</Label>
+                              <Input
+                                type="number"
+                                min={0}
+                                max={100}
+                                step={0.1}
+                                placeholder={String(totalDefectsFloor)}
+                                value={labDefectsPct}
+                                onChange={(e) => setLabDefectsPct(e.target.value)}
+                              />
+                              <p className="text-[11px] text-muted-foreground">
+                                Sol (somme): {totalDefectsFloor.toFixed(1)}%
+                              </p>
+                            </div>
+                          </div>
+                          <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs">
+                            <p className="font-semibold text-foreground">Lien décision QC</p>
+                            <p className="mt-1 text-muted-foreground">
+                              Humidité décision: {labHumidityForDecision}% · Défauts décision:{' '}
+                              {labDefectsForDecision}% · Verdict proposé:{' '}
+                              <span className="font-medium text-foreground">
+                                {getQcDecisionLabel(score.recommendedDecision)}
+                              </span>
+                            </p>
                           </div>
                           <div className="space-y-1">
                             <Label>Emplacement stockage echantillon</Label>

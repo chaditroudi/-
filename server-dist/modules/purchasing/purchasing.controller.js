@@ -188,8 +188,8 @@ let PurchasingController = class PurchasingController {
         });
         return { data };
     }
-    async sendOrder(id) {
-        const data = await this.purchasingService.sendOrder(id);
+    async sendOrder(id, req) {
+        const data = await this.purchasingService.sendOrder(id, req?.user || null);
         publishRealtimeDbChange({
             type: "purchase_order_sent",
             table: "purchase_orders",
@@ -453,8 +453,9 @@ __decorate([
     Post("orders/:id/send"),
     Roles(...PURCHASING_ROLES),
     __param(0, Param("id")),
+    __param(1, Req()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], PurchasingController.prototype, "sendOrder", null);
 __decorate([

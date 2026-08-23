@@ -62,6 +62,8 @@ export function TriagePanel({ currentUser = 'Utilisateur' }: { currentUser?: str
   const { data: labelSubLots = [] } = useTriageSubLots(labelSession?.id ?? null);
   const [ficheSession, setFicheSession] = useState<TriageSession | null>(null);
   const { data: ficheSubLots = [] } = useTriageSubLots(ficheSession?.id ?? null);
+  const [closeSessionId, setCloseSessionId] = useState<string | null>(null);
+  const [closeWasteKg, setCloseWasteKg] = useState('');
 
   const active = sessions.filter((s) => ['EN_COURS', 'PAUSE'].includes(s.status));
   const recent = sessions.filter((s) => s.status === 'TERMINE').slice(0, 8);
@@ -201,7 +203,10 @@ export function TriagePanel({ currentUser = 'Utilisateur' }: { currentUser?: str
                   }}
                   onPauseResume={() => pauseResume.mutate({ id: s.id, action: s.status === 'EN_COURS' ? 'PAUSE' : 'RESUME' })}
                   onQC={() => { setQcSessionId(s.id); setQcForm(p => ({ ...p, inspector: currentUser })); }}
-                  onClose={() => closeSession.mutate({ id: s.id })}
+                  onClose={() => {
+                    setCloseSessionId(s.id);
+                    setCloseWasteKg('');
+                  }}
                   onLabels={() => setLabelSession(s)}
                 />
               ))}
@@ -406,6 +411,47 @@ export function TriagePanel({ currentUser = 'Utilisateur' }: { currentUser?: str
             <Button onClick={handleQCCheck} disabled={addQCCheck.isPending}>
               {addQCCheck.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Enregistrer contrôle
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Close triage — declare unaccounted waste (Wave B) */}
+      <Dialog open={!!closeSessionId} onOpenChange={(v) => { if (!v) setCloseSessionId(null); }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Clôturer triage</DialogTitle>
+          </DialogHeader>
+          <p className="text-xs text-muted-foreground">
+            Les grades (Extra / Cat.I / Cat.II / Rejeté) sont déjà comptés. Saisissez ici les
+            <strong> pertes process</strong> non grades (kg), si besoin.
+          </p>
+          <div className="space-y-1">
+            <Label className="text-xs">Déchets process (kg)</Label>
+            <Input
+              type="number"
+              min={0}
+              step="0.1"
+              value={closeWasteKg}
+              onChange={(e) => setCloseWasteKg(e.target.value)}
+              placeholder="0"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setCloseSessionId(null)}>Annuler</Button>
+            <Button
+              disabled={closeSession.isPending || !closeSessionId}
+              onClick={async () => {
+                if (!closeSessionId) return;
+                await closeSession.mutateAsync({
+                  id: closeSessionId,
+                  waste_kg: closeWasteKg === '' ? 0 : Number(closeWasteKg),
+                });
+                setCloseSessionId(null);
+              }}
+            >
+              {closeSession.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Confirmer clôture
             </Button>
           </DialogFooter>
         </DialogContent>

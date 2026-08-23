@@ -209,7 +209,7 @@ export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProp
         <Card className="surface-card">
           <CardHeader className="flex flex-row items-center justify-between gap-4 border-b border-border/60">
             <div>
-              <CardTitle>Module 1 - Fournisseurs Royal Palm</CardTitle>
+              <CardTitle>Module 1 — Fournisseurs</CardTitle>
               <p className="text-sm text-muted-foreground">
                 Fiches detaillees, score qualite, statuts d'agrement et alertes contractuelles.
               </p>

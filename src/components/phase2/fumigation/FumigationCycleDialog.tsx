@@ -26,6 +26,8 @@ import {
 import { AlertTriangle, CheckCircle2, Printer, ShieldCheck, Play, Loader2 } from 'lucide-react';
 import { LotSelector } from '../LotSelector';
 import { AvailableLot } from '@/hooks/useAvailableLotsForPhase2';
+import { useAuth } from '@/hooks/useAuth';
+import { NumericSignaturePad } from '@/components/shared/NumericSignatureDialog';
 
 const STATUS_LABELS: Record<FumigationCycleStatus, string> = {
   PREPARATION: 'Préparation',
@@ -264,17 +266,26 @@ function CycleSummary({ cycle }: { cycle: FumigationCycle }) {
 // ─── View / manage existing cycle ──────────────────────────────────────────
 
 function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser: string }) {
+  const { user, profile } = useAuth();
   const updateCycle = useUpdateFumigationCycle();
   const startCycle = useStartFumigationCycle();
   const signCycle = useSignFumigationCycle();
 
   const [view, setView] = useState<'details' | 'ccp'>('details');
+  const [signRole, setSignRole] = useState<'operator' | 'quality' | null>(null);
   const [dosage, setDosage] = useState({
     dose_applied_g: String(cycle.dose_applied_g ?? ''),
     product_lot_number: cycle.product_lot_number ?? '',
     product_expiry_date: cycle.product_expiry_date?.slice(0, 10) ?? '',
   });
   const [residualPpm, setResidualPpm] = useState(String(cycle.residual_concentration_ppm ?? ''));
+
+  const signerId = user?.id || currentUser;
+  const signerName =
+    profile?.full_name?.trim() ||
+    String(user?.user_metadata?.full_name || '').trim() ||
+    user?.email?.split('@')[0] ||
+    currentUser;
 
   const isCCP = cycle.status === 'EN_COURS' || cycle.status === 'VENTILATION' || cycle.status === 'VALIDATION';
   const canAdvance = cycle.status === 'PREPARATION';
@@ -433,6 +444,9 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
                 <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                   Double signature CCP obligatoire (RG-FUM-12)
                 </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Chaque visa demande le code signature numérique (4–6 chiffres) du signataire.
+                </p>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="border rounded-lg p-3">
                     {cycle.operator_signed_at ? (
@@ -441,20 +455,16 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
                         <div>
                           <div className="text-sm font-semibold">{cycle.operator_name}</div>
                           <div className="text-xs">{new Date(cycle.operator_signed_at).toLocaleString('fr-FR')}</div>
+                          {cycle.operator_pin_verified ? (
+                            <div className="text-[10px] text-emerald-700">PIN vérifié</div>
+                          ) : null}
                         </div>
                       </div>
                     ) : (
                       <Button
                         size="sm"
                         className="w-full"
-                        onClick={() =>
-                          signCycle.mutate({
-                            id: cycle.id,
-                            role: 'operator',
-                            signerName: currentUser,
-                            signerId: currentUser,
-                          })
-                        }
+                        onClick={() => setSignRole('operator')}
                         disabled={signCycle.isPending}
                       >
                         <ShieldCheck className="h-4 w-4 mr-1.5" />
@@ -470,6 +480,9 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
                         <div>
                           <div className="text-sm font-semibold">{cycle.quality_inspector_name}</div>
                           <div className="text-xs">{new Date(cycle.quality_signed_at).toLocaleString('fr-FR')}</div>
+                          {cycle.quality_pin_verified ? (
+                            <div className="text-[10px] text-emerald-700">PIN vérifié</div>
+                          ) : null}
                         </div>
                       </div>
                     ) : (
@@ -477,14 +490,7 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
                         size="sm"
                         variant="outline"
                         className="w-full"
-                        onClick={() =>
-                          signCycle.mutate({
-                            id: cycle.id,
-                            role: 'quality',
-                            signerName: currentUser,
-                            signerId: currentUser,
-                          })
-                        }
+                        onClick={() => setSignRole('quality')}
                         disabled={signCycle.isPending}
                       >
                         <ShieldCheck className="h-4 w-4 mr-1.5" />
@@ -494,6 +500,31 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
                     <div className="text-xs text-muted-foreground mt-1">Responsable Qualité / HACCP</div>
                   </div>
                 </div>
+
+                {signRole ? (
+                  <NumericSignaturePad
+                    key={signRole}
+                    title={
+                      signRole === 'quality'
+                        ? 'Signature Qualité / HACCP'
+                        : 'Signature Opérateur fumigation'
+                    }
+                    subtitle={`Visa en tant que ${signerName}`}
+                    confirmLabel="Confirmer le visa"
+                    pending={signCycle.isPending}
+                    onCancel={() => setSignRole(null)}
+                    onConfirm={async (pin) => {
+                      await signCycle.mutateAsync({
+                        id: cycle.id,
+                        role: signRole,
+                        signerName,
+                        signerId,
+                        pin,
+                      });
+                      setSignRole(null);
+                    }}
+                  />
+                ) : null}
               </div>
             </>
           )}

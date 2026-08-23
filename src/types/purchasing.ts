@@ -257,6 +257,12 @@ export interface PurchaseOrder {
   submitted_at?: string | null;
   sent_at: string | null;
   confirmed_at: string | null;
+  /** Outbound supplier email when BC is sent */
+  supplier_email_to?: string | null;
+  supplier_email_status?: 'sent' | 'failed' | 'missing_email' | 'disabled' | 'skipped' | string | null;
+  supplier_email_mode?: 'smtp' | 'console' | 'disabled' | string | null;
+  supplier_email_error?: string | null;
+  supplier_email_sent_at?: string | null;
   order_type?: PurchaseOrderType | null;
   variety?: string | null;
   quality_expected?: QualiteAttendue | null;

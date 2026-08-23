@@ -42,4 +42,24 @@ describe('fichesTechniques A→Z', () => {
     expect(merged.criticalLimits[0].value).toContain('28–32');
     expect(merged.ifBlocked).toMatch(/chef CCP/);
   });
+
+  it('treats shift ack as current only for today', async () => {
+    const { isFicheAckCurrentShift } = await import('./fichesTechniques');
+    expect(
+      isFicheAckCurrentShift({
+        operator: 'A',
+        shift: 'matin',
+        at: new Date().toISOString(),
+        applied: true,
+      }),
+    ).toBe(true);
+    expect(
+      isFicheAckCurrentShift({
+        operator: 'A',
+        shift: 'matin',
+        at: '2020-01-01T10:00:00.000Z',
+        applied: true,
+      }),
+    ).toBe(false);
+  });
 });

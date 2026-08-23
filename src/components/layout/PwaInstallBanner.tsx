@@ -53,7 +53,7 @@ export const PwaInstallBanner = () => {
           <Download className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="font-semibold leading-tight text-foreground">Installer Royal Palm</p>
+          <p className="font-semibold leading-tight text-foreground">Installer l&apos;application</p>
           {isIos ? (
             <p className="mt-0.5 text-xs text-muted-foreground">
               Appuyez sur <strong>Partager</strong> puis <strong>Sur l'écran d'accueil</strong> pour installer l'app.

@@ -19,8 +19,8 @@ import {
 } from '@/lib/lotJourney';
 import type { AppTab } from '@/lib/roleAccess';
 import { toast } from 'sonner';
-import { trustApi } from '@/lib/api/trust';
 import { printRecallReport } from '@/lib/printRecallReport';
+import { printPfLotLabel } from '@/lib/printPfLotLabel';
 import { useBranding } from '@/hooks/useBranding';
 import {
   ArrowRight,
@@ -29,15 +29,15 @@ import {
   ChevronDown,
   ExternalLink,
   FileDown,
-  FileText,
   Link2,
   Loader2,
   Printer,
   Search,
   ShieldAlert,
+  Tag,
   Truck,
 } from 'lucide-react';
-import { getFicheById, getFicheForStage, resolveFicheById, resolveFicheForStage, type FicheTechnique } from '@/lib/fichesTechniques';
+import { getFicheForStage, resolveFicheById, resolveFicheForStage, type FicheTechnique } from '@/lib/fichesTechniques';
 import { FicheTechniqueSheet } from '@/components/fiches/FicheTechniqueSheet';
 import { useSiteSettings } from '@/hooks/useSettings';
 
@@ -52,7 +52,6 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
   const [query, setQuery] = useState('');
   const [selectedLotId, setSelectedLotId] = useState<string | null>(null);
   const [showStages, setShowStages] = useState(!compact);
-  const [showFinance, setShowFinance] = useState(!compact);
   const [ficheOpen, setFicheOpen] = useState(false);
   const [activeFiche, setActiveFiche] = useState<FicheTechnique | null>(null);
   const [recallBusy, setRecallBusy] = useState(false);
@@ -89,14 +88,12 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
     }
   };
 
-  // Keep disclosure in sync when parent toggles Simple ↔ Complet
+  // Keep disclosure in sync when parent toggles compact
   useEffect(() => {
     if (!compact) {
       setShowStages(true);
-      setShowFinance(true);
     } else {
       setShowStages(false);
-      setShowFinance(false);
     }
   }, [compact]);
 
@@ -123,7 +120,7 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
   const lotCost = useQuery({
     queryKey: ['lot-journey-cost', activeLotId],
     queryFn: () => costingApi.getLotCost(activeLotId!),
-    enabled: Boolean(activeLotId),
+    enabled: Boolean(activeLotId) && !compact,
     retry: false,
   });
 
@@ -132,6 +129,7 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
     queryFn: () => settlementsApi.list(),
     staleTime: 60_000,
     retry: false,
+    enabled: !compact,
   });
 
   const state = lotState.data;
@@ -183,28 +181,45 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
 
   const nextFiche = resolveFicheForStage(next.nextStage, ficheOverrides);
 
+  const claimValue = (key: string) => {
+    const hit = passport.data?.claims?.find(
+      (c) => c.key === key || c.label.toLowerCase().includes(key.toLowerCase()),
+    );
+    return hit?.value != null ? String(hit.value) : null;
+  };
+
+  const printCurrentPfLabel = () => {
+    const lotNumber = passport.data?.lotNumber || activeLotId;
+    if (!lotNumber) {
+      toast.error('Sélectionnez un lot avant d’imprimer l’étiquette PF');
+      return;
+    }
+    const weightRaw = claimValue('weight') || claimValue('net') || claimValue('poids');
+    printPfLotLabel({
+      lotNumber,
+      productName: claimValue('product') || claimValue('produit') || 'Dattes — Produit fini',
+      variety: claimValue('variety') || claimValue('variété'),
+      grade: claimValue('grade') || 'PF',
+      netWeightKg: weightRaw ? Number(String(weightRaw).replace(',', '.')) : null,
+      companyName,
+      plantName: siteSettings?.plant_name,
+    });
+    toast.success('Étiquette PF prête à imprimer');
+  };
+
   return (
     <Card className="surface-card overflow-hidden rounded-[28px] border-primary/20">
-      <CardHeader className="space-y-3 border-b bg-muted/20 pb-4">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/70">
-              Parcours lot
-            </p>
-            <CardTitle className="mt-1 flex items-center gap-2 text-xl">
-              <Link2 className="h-5 w-5 text-primary" />
-              Chercher · décider · agir
-            </CardTitle>
-            <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-              Entrez un N° lot (ou scannez). L&apos;app montre la prochaine action.
-            </p>
-          </div>
+      <CardHeader className="space-y-3 border-b bg-muted/15 pb-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Link2 className="h-4 w-4 text-primary" />
+            Suivre un lot
+          </CardTitle>
           {golden.data && (
-            <div className="flex flex-wrap gap-2 text-xs">
+            <div className="flex flex-wrap gap-1.5 text-xs">
               <Badge variant="secondary">{golden.data.inProgress} en cours</Badge>
-              <Badge variant="outline">{golden.data.complete} complets</Badge>
               {golden.data.broken > 0 && (
-                <Badge className="bg-red-600 text-white">{golden.data.broken} chaîne cassée</Badge>
+                <Badge className="bg-red-600 text-white">{golden.data.broken} cassé</Badge>
               )}
             </div>
           )}
@@ -221,132 +236,59 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               className="pl-9"
-              placeholder="N° lot / id (ex. LOT-…)"
+              placeholder="N° lot"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
           </div>
-          <Button type="submit" className="gap-2">
-            Suivre ce lot
-          </Button>
+          <Button type="submit">Suivre</Button>
           <Button type="button" variant="outline" onClick={() => onNavigate('scan')}>
-            Scanner
+            Scan
           </Button>
         </form>
       </CardHeader>
 
-      <CardContent className="space-y-5 pt-5">
-        {/* Documents — employee-first: full names + Créer / Voir */}
-        <div className="space-y-3 rounded-[24px] border border-border/70 bg-muted/15 p-4">
-          <div className="flex flex-wrap items-start justify-between gap-2">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                Documents & fiches
-              </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                BRA / BDE à imprimer · fiches techniques pour chaque poste.
-              </p>
-            </div>
+      <CardContent className="space-y-4 pt-4">
+        {/* Docs only when a lot is active — avoid empty chrome */}
+        {activeLotId && (
+          <div className="flex flex-wrap gap-1.5">
+            {canGo('receptions') && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 gap-1"
+                onClick={() => onNavigate('receptions', { view: 'bra', action: 'new' })}
+              >
+                <Printer className="h-3.5 w-3.5" />
+                BRA
+              </Button>
+            )}
+            {canGo('logistics') && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 gap-1"
+                onClick={() => onNavigate('logistics', { view: 'bde', action: 'new' })}
+              >
+                <Truck className="h-3.5 w-3.5" />
+                BDE
+              </Button>
+            )}
+            <Button size="sm" variant="outline" className="h-8 gap-1" onClick={printCurrentPfLabel}>
+              <Tag className="h-3.5 w-3.5" />
+              Étiquette PF
+            </Button>
             <Button
-              type="button"
-              variant="outline"
               size="sm"
-              className="gap-1.5"
+              variant="ghost"
+              className="h-8 gap-1"
               onClick={() => onNavigate('home', { view: 'fiches' })}
             >
               <BookOpen className="h-3.5 w-3.5" />
-              Toutes les fiches A→Z
+              Fiche
             </Button>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {canGo('receptions') && (
-              <div className="rounded-2xl border border-amber-200/80 bg-amber-50/70 p-4">
-                <div className="flex items-start gap-3">
-                  <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-background">
-                    <Printer className="h-5 w-5 text-amber-700" />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold">Bon de Réception Achat</p>
-                    <p className="text-xs text-muted-foreground">BRA · camion fournisseur qui arrive</p>
-                  </div>
-                </div>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <Button
-                    size="sm"
-                    className="gap-1.5"
-                    onClick={() => onNavigate('receptions', { view: 'bra', action: 'new' })}
-                  >
-                    Créer
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="gap-1.5"
-                    onClick={() => onNavigate('receptions', { view: 'bra' })}
-                  >
-                    Voir la liste
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="gap-1.5"
-                    onClick={() => openFiche(getFicheById('FT-BRA'))}
-                  >
-                    <BookOpen className="h-3.5 w-3.5" />
-                    Aide
-                  </Button>
-                </div>
-              </div>
-            )}
-            {canGo('logistics') && (
-              <div className="rounded-2xl border border-sky-200/80 bg-sky-50/70 p-4">
-                <div className="flex items-start gap-3">
-                  <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-background">
-                    <Truck className="h-5 w-5 text-sky-700" />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold">Bon d&apos;Expédition</p>
-                    <p className="text-xs text-muted-foreground">BDE · marchandise qui part</p>
-                  </div>
-                </div>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <Button
-                    size="sm"
-                    className="gap-1.5"
-                    onClick={() => onNavigate('logistics', { view: 'bde', action: 'new' })}
-                  >
-                    Créer
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="gap-1.5"
-                    onClick={() => onNavigate('logistics', { view: 'bde' })}
-                  >
-                    Voir la liste
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="gap-1.5"
-                    onClick={() => openFiche(getFicheById('FT-BDE'))}
-                  >
-                    <BookOpen className="h-3.5 w-3.5" />
-                    Aide
-                  </Button>
-                </div>
-              </div>
-            )}
-            {!canGo('receptions') && !canGo('logistics') && (
-              <div className="flex items-center gap-2 rounded-2xl border border-dashed px-4 py-3 text-sm text-muted-foreground sm:col-span-2">
-                <FileText className="h-4 w-4" />
-                BRA / BDE non inclus dans votre profil — les fiches A→Z restent disponibles.
-              </div>
-            )}
-          </div>
-        </div>
+        )}
 
         {/* In-progress picker */}
         {inProgressLots.length > 0 && (
@@ -505,19 +447,16 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
               </div>
             )}
 
-            {/* Next action */}
-            <div className="rounded-2xl border border-primary/25 bg-primary/5 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+            {/* Next action — one job, few buttons */}
+            <div className="rounded-xl border border-primary/25 bg-primary/5 p-3.5">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-primary">
                 Prochaine action
               </p>
-              <h3 className="mt-1 text-lg font-semibold">{next.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{next.description}</p>
-              {nextFiche && (
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Fiche {nextFiche.code} · {nextFiche.title} · ~{nextFiche.durationMin} min
-                </p>
+              <h3 className="mt-0.5 text-base font-semibold">{next.title}</h3>
+              {!compact && (
+                <p className="mt-1 text-sm text-muted-foreground">{next.description}</p>
               )}
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-2.5 flex flex-wrap gap-2">
                 {canGo(next.tab) && (
                   <Button
                     className="gap-2"
@@ -536,19 +475,14 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
                   </Button>
                 )}
                 {nextFiche && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="gap-2"
-                    onClick={() => openFiche(nextFiche)}
-                  >
-                    <BookOpen className="h-4 w-4" />
-                    Fiche technique
+                  <Button type="button" variant="outline" size="sm" onClick={() => openFiche(nextFiche)}>
+                    Fiche
                   </Button>
                 )}
                 {next.secondary && canGo(next.secondary.tab) && (
                   <Button
                     variant="outline"
+                    size="sm"
                     onClick={() =>
                       onNavigate(next.secondary!.tab, {
                         view: next.secondary!.view,
@@ -563,6 +497,7 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
                 )}
                 <Button
                   variant="ghost"
+                  size="sm"
                   className="gap-1"
                   onClick={() =>
                     window.open(
@@ -571,58 +506,29 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
                     )
                   }
                 >
-                  Passport client <ExternalLink className="h-3.5 w-3.5" />
+                  Passport <ExternalLink className="h-3.5 w-3.5" />
                 </Button>
                 <Button
                   type="button"
-                  variant="outline"
-                  className="gap-2"
+                  variant="ghost"
+                  size="sm"
+                  className="gap-1"
                   disabled={recallBusy}
                   onClick={() => void runRecallReport()}
                 >
-                  {recallBusy ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <FileDown className="h-4 w-4" />
-                  )}
-                  Rapport recall PDF
+                  {recallBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileDown className="h-3.5 w-3.5" />}
+                  Recall
                 </Button>
               </div>
             </div>
 
-            {/* Money strip — progressive disclosure */}
-            {compact && !showFinance ? (
-              <button
-                type="button"
-                onClick={() => setShowFinance(true)}
-                className="flex w-full items-center justify-between rounded-xl border border-dashed px-3 py-2 text-left text-sm text-muted-foreground hover:bg-muted/30"
-              >
-                <span>Coût · règlement · marge (optionnel)</span>
-                <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
-                  Afficher <ChevronDown className="h-3.5 w-3.5" />
-                </span>
-              </button>
-            ) : (
-              <div className="space-y-2">
-                {compact && (
-                  <button
-                    type="button"
-                    onClick={() => setShowFinance(false)}
-                    className="text-xs font-medium text-muted-foreground hover:text-foreground"
-                  >
-                    Masquer les chiffres
-                  </button>
-                )}
-            <div className="grid gap-3 sm:grid-cols-3">
+            {/* Money — direction only, never on shop-floor compact home */}
+            {!compact && (
+              <div className="grid gap-3 sm:grid-cols-3">
               <div className="rounded-xl border p-3">
                 <p className="text-xs text-muted-foreground">Coût lot (TND/kg)</p>
                 {lotCost.isError ? (
-                  <>
-                    <p className="text-sm font-medium text-muted-foreground">Réservé Achats / Direction</p>
-                    <p className="text-[11px] text-muted-foreground">
-                      Votre rôle suit le parcours ; les chiffres coût s&apos;affichent pour les profils finance.
-                    </p>
-                  </>
+                  <p className="text-sm font-medium text-muted-foreground">Réservé finance</p>
                 ) : (
                   <>
                     <p className="text-lg font-semibold">
@@ -647,12 +553,7 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
               <div className="rounded-xl border p-3">
                 <p className="text-xs text-muted-foreground">Règlement grades</p>
                 {settlements.isError ? (
-                  <>
-                    <p className="text-sm font-medium text-muted-foreground">Voir avec Achats</p>
-                    <p className="text-[11px] text-muted-foreground">
-                      Après triage, le règlement est géré dans Achats → Règlements grades.
-                    </p>
-                  </>
+                  <p className="text-sm font-medium text-muted-foreground">Voir Achats</p>
                 ) : (
                   <>
                     <p className="text-lg font-semibold">
@@ -663,11 +564,7 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
                         : '—'}
                     </p>
                     <p className="text-[11px] text-muted-foreground">
-                      {relatedSettlement
-                        ? relatedSettlement.status
-                        : progress.completed.includes('TRIAGE')
-                          ? 'Disponible après clôture triage'
-                          : 'Après triage'}
+                      {relatedSettlement?.status || 'Après triage'}
                     </p>
                   </>
                 )}
@@ -678,7 +575,7 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
                     className="h-auto px-0 text-xs"
                     onClick={() => onNavigate('purchasing', { focus: 'settlements' })}
                   >
-                    Voir règlements
+                    Règlements
                   </Button>
                 )}
               </div>
@@ -689,7 +586,6 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
                     ? 'Disponible'
                     : '—'}
                 </p>
-                <p className="text-[11px] text-muted-foreground">CA × FX − coût lot (TND)</p>
                 {canGo('export') && (
                   <Button
                     size="sm"
@@ -697,12 +593,11 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
                     className="h-auto px-0 text-xs"
                     onClick={() => onNavigate('export')}
                   >
-                    Ouvrir export → Marge
+                    Export
                   </Button>
                 )}
               </div>
             </div>
-              </div>
             )}
           </>
         )}

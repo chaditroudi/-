@@ -60,19 +60,34 @@ export const OfflineSyncStatus = () => {
 
   const pending = items.filter((item) => item.status === 'pending' || item.status === 'syncing');
   const failed = items.filter((item) => item.status === 'failed');
+
+  // Always show when offline; otherwise only when sync work remains.
   if (online && pending.length === 0 && failed.length === 0) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-[100] flex max-w-sm items-center gap-3 rounded-xl border bg-background/95 px-4 py-3 text-sm shadow-lg backdrop-blur">
-      {!online ? <CloudOff className="h-5 w-5 text-amber-600" />
+    <div
+      className={`fixed bottom-4 right-4 z-[100] flex max-w-sm items-center gap-3 rounded-xl border px-4 py-3 text-sm backdrop-blur ${
+        !online
+          ? 'border-amber-300 bg-amber-50/95 text-amber-950'
+          : 'bg-background/95 shadow-lg'
+      }`}
+      role="status"
+    >
+      {!online ? <CloudOff className="h-5 w-5 text-amber-700" />
         : failed.length > 0 ? <TriangleAlert className="h-5 w-5 text-destructive" />
           : <Cloud className="h-5 w-5 text-primary" />}
       <div className="min-w-0">
         <p className="font-medium">
-          {!online ? 'Mode hors ligne' : failed.length > 0 ? 'Synchronisation à corriger' : 'Synchronisation en cours'}
+          {!online
+            ? 'Edge hors ligne — réception en file'
+            : failed.length > 0
+              ? 'Synchronisation à corriger'
+              : 'Synchronisation en cours'}
         </p>
-        <p className="text-xs text-muted-foreground">
-          {pending.length} en attente{failed.length > 0 ? ` · ${failed.length} en erreur` : ''}
+        <p className="text-xs opacity-80">
+          {!online
+            ? 'PWA active · outbox locale · bascule via weighbridge:sim'
+            : `${pending.length} en attente${failed.length > 0 ? ` · ${failed.length} en erreur` : ''}`}
         </p>
       </div>
       {online && (pending.length > 0 || failed.length > 0) && (

@@ -2,11 +2,13 @@ import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from "@nest
 
 import { RequireAuthGuard } from "../../nest/route-guards.js";
 import { Public } from "../../nest/route-metadata.js";
+import { SiteSettingsModel } from "../../models/site-settings.model.js";
 import { LotLedgerService } from "./lot-ledger.service.js";
 import { LotLifecycleService } from "./lot-lifecycle.service.js";
 import { LotPassportService } from "./lot-passport.service.js";
 import { LotRecallService } from "./lot-recall.service.js";
 import { ScanService } from "./scan.service.js";
+import { getTrustGateStatus } from "./trust-gate-status.js";
 import {
   APPEND_ONLY_COLLECTIONS,
   CORE_SCHEMA_COLLECTIONS,
@@ -30,7 +32,7 @@ export class TrustController {
   health() {
     return {
       data: {
-        wave: "W2",
+        wave: "B0",
         trust: "enabled",
         goldenThread: "PREMIUM_WHOLE",
         passport: "enabled",
@@ -41,6 +43,21 @@ export class TrustController {
         appendOnlyCount: APPEND_ONLY_COLLECTIONS.size,
       },
     };
+  }
+
+  /** B0 readiness — gate modes + GS1 placeholder flag. */
+  @Get("gates")
+  async getGates() {
+    let gs1: string | null = null;
+    try {
+      const doc = (await SiteSettingsModel.findOne({ id: "global" }).lean().exec()) as {
+        documents?: { gs1_company_prefix?: string | null };
+      } | null;
+      gs1 = doc?.documents?.gs1_company_prefix ?? null;
+    } catch {
+      gs1 = null;
+    }
+    return { data: getTrustGateStatus(gs1) };
   }
 
   @Public()

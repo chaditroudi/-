@@ -71,6 +71,9 @@ export function PackagingOrderDialog({ open, onOpenChange, order, currentUser = 
     checkweigher_failures: order?.checkweigher_failures ?? 0,
     metal_detector_failures: order?.metal_detector_failures ?? 0,
   });
+  const [wasteKg, setWasteKg] = useState(
+    order?.waste_kg != null ? String(order.waste_kg) : '',
+  );
 
   // Palette creation
   const [showPaletteCreate, setShowPaletteCreate] = useState(false);
@@ -394,21 +397,57 @@ export function PackagingOrderDialog({ open, onOpenChange, order, currentUser = 
                 </Button>
               )}
               {order.status === 'EN_COURS' && order.started_at && (
-                <Button
-                  size="sm"
-                  className="bg-slate-700 hover:bg-slate-800 text-white"
-                  onClick={() => closeOrder.mutate({
-                    id: order.id,
-                    started_at: order.started_at!,
-                    produced_units: order.produced_units,
-                    target_units: order.target_units,
-                    order_number: order.order_number,
-                  })}
-                  disabled={closeOrder.isPending}
-                >
-                  {closeOrder.isPending ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Square className="h-4 w-4 mr-1.5" />}
-                  Clôturer
-                </Button>
+                <div className="flex flex-wrap items-end gap-2 w-full">
+                  <div className="space-y-1">
+                    <Label className="text-xs">Déchets (kg)</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      step="0.1"
+                      className="h-9 w-28"
+                      value={wasteKg}
+                      onChange={(e) => setWasteKg(e.target.value)}
+                      placeholder="0"
+                    />
+                  </div>
+                  <Button
+                    size="sm"
+                    className="bg-slate-700 hover:bg-slate-800 text-white"
+                    onClick={() => closeOrder.mutate({
+                      id: order.id,
+                      started_at: order.started_at!,
+                      produced_units: order.produced_units,
+                      rejected_units: progressForm.rejected_units,
+                      target_units: order.target_units,
+                      order_number: order.order_number,
+                      waste_kg: wasteKg === '' ? undefined : Number(wasteKg),
+                    })}
+                    disabled={closeOrder.isPending}
+                  >
+                    {closeOrder.isPending ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Square className="h-4 w-4 mr-1.5" />}
+                    Clôturer
+                  </Button>
+                </div>
+              )}
+              {order.status === 'TERMINE' && (
+                <div className="w-full rounded-xl border bg-muted/30 px-3 py-2 text-xs space-y-1">
+                  <p className="font-medium text-sm">Clôture — bilan &amp; coût</p>
+                  <div className="flex flex-wrap gap-3 text-muted-foreground">
+                    {order.produced_kg != null && <span>Produit {order.produced_kg} kg</span>}
+                    {order.waste_kg != null && <span>Déchets {order.waste_kg} kg</span>}
+                    {order.mass_balance_variance_pct != null && (
+                      <span>Δ matière {Number(order.mass_balance_variance_pct).toFixed(2)}%</span>
+                    )}
+                    {order.cost_tnd_per_kg != null && (
+                      <span className="font-semibold text-foreground">
+                        {Number(order.cost_tnd_per_kg).toFixed(3)} TND/kg
+                      </span>
+                    )}
+                    {order.total_cost_tnd != null && (
+                      <span>Total {Number(order.total_cost_tnd).toFixed(2)} TND</span>
+                    )}
+                  </div>
+                </div>
               )}
             </div>
           </div>

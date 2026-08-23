@@ -3,6 +3,8 @@ const authUserSchema = new mongoose.Schema({
     id: { type: String, required: true, unique: true, index: true },
     email: { type: String, required: true, unique: true, index: true },
     passwordHash: { type: String, required: true },
+    /** bcrypt hash of 4–6 digit numeric signature PIN (never returned to clients). */
+    signaturePinHash: { type: String, default: null },
     user_metadata: { type: Object, default: {} },
     is_active: { type: Boolean, default: true },
     created_at: { type: String, required: true },

@@ -90,11 +90,11 @@ export const useSeedRoyalPalmStorageZones = () => {
       const existingCodes = new Set(existingZones.filter((z) => (z as any).is_active).map((z) => z.code));
       const missing = ROYAL_PALM_STORAGE_ZONES.filter((z) => !existingCodes.has(z.code));
       if (missing.length === 0) {
-        toast.success('Le plan Royal Palm est déjà initialisé');
+        toast.success("Le plan d'usine est déjà initialisé");
         return { inserted: 0 };
       }
       await Promise.all(missing.map((z) => createZone({ ...z, current_load_kg: 0, is_active: true }).unwrap()));
-      toast.success(`${missing.length} zone(s) Royal Palm initialisée(s)`);
+      toast.success(`${missing.length} zone(s) d'usine initialisée(s)`);
       return { inserted: missing.length };
     },
     isPending: state.isLoading,

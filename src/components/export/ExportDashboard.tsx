@@ -26,8 +26,15 @@ import { ExportOrderDialog } from './ExportOrderDialog';
 import { COADialog } from './COADialog';
 import { printExportContract, getContractHTML } from './printExportContract';
 import { printCOA } from './printCOA';
+import {
+  downloadExportInvoiceCsv,
+  printExportInvoice,
+} from './printExportInvoice';
+import { AtpPromisePanel } from './AtpPromisePanel';
 import type { ExportOrder, ExportContract, COADocument } from '@/types/exportOrders';
 import { settlementsApi, type ExportOrderMargin } from '@/lib/api/settlements';
+import { useSiteSettings } from '@/hooks/useSettings';
+import { useBranding } from '@/hooks/useBranding';
 import { toast } from 'sonner';
 
 // ── Status badges ─────────────────────────────────────────────────────────────
@@ -144,6 +151,8 @@ export function ExportDashboard() {
   const { data: orders    = [], isLoading: loadingOrders }    = useExportOrders();
   const { data: contracts = [], isLoading: loadingContracts } = useExportContracts();
   const { data: coaDocs   = [], isLoading: loadingCOA }       = useCOADocuments();
+  const { data: siteSettings } = useSiteSettings();
+  const { companyName } = useBranding();
 
   const createOrder  = useCreateExportOrder();
   const updateOrder  = useUpdateExportOrder();
@@ -153,6 +162,15 @@ export function ExportDashboard() {
   const createCOA    = useCreateCOA();
   const updateCOA    = useUpdateCOA();
   const deleteCOA    = useDeleteCOA();
+
+  const invoiceOpts = {
+    vatRatePct: siteSettings?.costing?.vat_rate_pct ?? 19,
+    exportVatExempt: siteSettings?.costing?.export_vat_exempt ?? true,
+    companyName,
+    companyLegalName: siteSettings?.company_legal_name,
+    plantAddress: siteSettings?.plant_address,
+    plantPhone: siteSettings?.plant_phone,
+  };
 
   // Order dialog
   const [orderDialogOpen,  setOrderDialogOpen]  = useState(false);
@@ -333,6 +351,8 @@ export function ExportDashboard() {
         </Button>
       </div>
 
+      <AtpPromisePanel />
+
       <Tabs defaultValue="orders" className="flex-1">
         <TabsList className="mb-4">
           <TabsTrigger value="orders">
@@ -425,6 +445,30 @@ export function ExportDashboard() {
                               onClick={() => openMargin(order)}
                               title="Marge vs coût lot">
                               <TrendingUp className="h-3.5 w-3.5" /> Marge
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-9 px-2 text-xs gap-1"
+                              onClick={() => {
+                                printExportInvoice(order, invoiceOpts);
+                                toast.success('Facture HT / TVA / TTC prête à imprimer');
+                              }}
+                              title="Facture export (HT / TVA / TTC)"
+                            >
+                              <Printer className="h-3.5 w-3.5" /> Facture
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-9 w-9 p-0"
+                              onClick={() => {
+                                downloadExportInvoiceCsv(order, invoiceOpts);
+                                toast.success('CSV compta téléchargé');
+                              }}
+                              title="CSV compta / Sage"
+                            >
+                              <DollarSign className="h-3.5 w-3.5" />
                             </Button>
                             <Button variant="ghost" size="sm" className="h-9 w-9 p-0"
                               onClick={() => { setEditingOrder(order); setOrderDialogOpen(true); }} title="Modifier">

@@ -52,6 +52,7 @@ export const useUpdateManagedUser = () => {
         departments?: string[];
         primary_department?: string | null;
         org_roles?: string[];
+        signature_pin?: string | null;
       };
     }) => {
       const res = await apiRequest<{ data: ManagedUser }>(`/settings/users/${id}`, {

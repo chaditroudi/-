@@ -7,6 +7,7 @@ import { notFound } from "../../core/app-error.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
 import { lotLifecycleService } from "../trust/lot-lifecycle.service.js";
 import { loadCostingRates } from "./costing-rates.js";
+import { loadConfiguredMassBalanceTolerancePct } from "../trust/mass-balance.js";
 
 const ReceptionLots = () => getCollectionModel("reception_lots");
 const TriageSessions = () => getCollectionModel("triage_sessions");
@@ -90,6 +91,28 @@ export class CostingService {
       cost_tnd_per_kg: row.cost_tnd_per_kg ?? null,
     }));
 
+    const packagingOrders = lotNumber
+      ? ((sanitizeDocument(
+          await PackagingOrders()
+            .find({ status: "TERMINE", source_lot_number: lotNumber })
+            .sort({ ended_at: -1 })
+            .limit(10)
+            .lean()
+            .exec(),
+        ) as Array<Record<string, unknown>>) || [])
+      : [];
+
+    const packaging = packagingOrders.map((row) => ({
+      order_id: row.id,
+      order_number: row.order_number ?? null,
+      produced_kg: Number(row.produced_kg || 0),
+      waste_kg: Number(row.waste_kg || 0),
+      mass_balance_variance_pct: row.mass_balance_variance_pct ?? null,
+      total_cost_tnd: row.total_cost_tnd ?? null,
+      cost_tnd_per_kg: row.cost_tnd_per_kg ?? null,
+      ended_at: row.ended_at ?? null,
+    }));
+
     const rates = await loadCostingRates();
 
     return {
@@ -123,6 +146,7 @@ export class CostingService {
             grades,
           }
         : null,
+      packaging,
     };
   }
 
@@ -204,6 +228,11 @@ export class CostingService {
     const pkgOverhead = sum(packagingOrders, "overhead_cost_tnd");
     const pkgKg = sum(packagingOrders, "produced_kg");
     const pkgWasteKg = sum(packagingOrders, "waste_kg");
+    const tolerancePct = await loadConfiguredMassBalanceTolerancePct();
+    const massBalanceUnbalanced = packagingOrders.filter((row) => {
+      const variance = Number(row.mass_balance_variance_pct);
+      return Number.isFinite(variance) && Math.abs(variance) > tolerancePct;
+    }).length;
 
     const purchaseMaterial = sum(receptionLots, "purchase_cost_tnd");
     const materialCost = purchaseMaterial > 0 ? purchaseMaterial : triageMaterial + pkgMaterial;
@@ -275,6 +304,7 @@ export class CostingService {
         packaging_orders: packagingOrders.length,
         production_orders: productionOrders.length,
         reception_lots_with_purchase_cost: receptionLots.length,
+        mass_balance_unbalanced: massBalanceUnbalanced,
       },
       breakdown,
       kpis: {

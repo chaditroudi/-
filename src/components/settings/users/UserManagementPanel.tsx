@@ -37,6 +37,7 @@ export function UserManagementPanel() {
   const [editDepartments, setEditDepartments] = useState<DepartmentCode[]>([]);
   const [editPrimaryDepartment, setEditPrimaryDepartment] = useState<DepartmentCode | ''>('');
   const [editOrgRoles, setEditOrgRoles] = useState<OrgRole[]>([]);
+  const [editSignaturePin, setEditSignaturePin] = useState('');
 
   const [createOpen, setCreateOpen] = useState(false);
   const [newName, setNewName] = useState('');
@@ -63,6 +64,7 @@ export function UserManagementPanel() {
     setEditDepartments([...(user.departments || [])] as DepartmentCode[]);
     setEditPrimaryDepartment((user.primary_department as DepartmentCode) || '');
     setEditOrgRoles([...(user.org_roles || [])] as OrgRole[]);
+    setEditSignaturePin('');
   };
 
   const toggleDepartment = (code: DepartmentCode) => {
@@ -83,6 +85,11 @@ export function UserManagementPanel() {
 
   const handleSaveRoles = async () => {
     if (!editUser) return;
+    const pin = editSignaturePin.trim();
+    if (pin && !/^\d{4,6}$/.test(pin)) {
+      toast.error('Le code signature doit contenir 4 à 6 chiffres.');
+      return;
+    }
     await updateUser.mutateAsync({
       id: editUser.id,
       patch: {
@@ -90,10 +97,12 @@ export function UserManagementPanel() {
         departments: editDepartments,
         primary_department: editPrimaryDepartment || editDepartments[0] || null,
         org_roles: editOrgRoles.length > 0 ? editOrgRoles : ['employee'],
+        ...(pin ? { signature_pin: pin } : {}),
       },
     });
-    toast.success('Profil mis à jour');
+    toast.success(pin ? 'Profil et code signature mis à jour' : 'Profil mis à jour');
     setEditUser(null);
+    setEditSignaturePin('');
   };
 
   const resetCreateForm = () => {
@@ -191,6 +200,16 @@ export function UserManagementPanel() {
                     <div className="font-medium text-sm truncate">{u.full_name || u.email}</div>
                     <div className="text-xs text-muted-foreground truncate">{u.email}</div>
                     <div className="mt-1 flex flex-wrap gap-1">
+                      {u.has_signature_pin ? (
+                        <Badge variant="outline" className="text-[10px] border-emerald-500 text-emerald-700">
+                          <Lock className="h-2.5 w-2.5 mr-0.5" />
+                          PIN
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-[10px] text-amber-700 border-amber-300">
+                          Sans PIN
+                        </Badge>
+                      )}
                       {(u.departments || []).map((dept) => (
                         <Badge key={dept} variant="outline" className="text-[10px]">
                           {DEPARTMENT_LABELS[dept as DepartmentCode] || dept}
@@ -317,6 +336,47 @@ export function UserManagementPanel() {
                 la notification d&apos;approbation — pas tous les rôles stock.
               </p>
             </div>
+
+            <div className="space-y-2 rounded-lg border border-dashed p-3">
+              <Label className="text-xs flex items-center gap-1.5">
+                <Lock className="h-3.5 w-3.5" />
+                Code signature numérique
+              </Label>
+              <p className="text-[11px] text-muted-foreground">
+                {editUser?.has_signature_pin
+                  ? 'PIN déjà défini — saisissez un nouveau code pour le remplacer (laisse vide pour ne pas changer).'
+                  : 'Aucun PIN — définir 4 à 6 chiffres pour les visas CCP / réglementés.'}
+              </p>
+              <Input
+                type="password"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={6}
+                placeholder="••••••"
+                value={editSignaturePin}
+                onChange={(e) => setEditSignaturePin(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              />
+              {editUser?.has_signature_pin ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                  disabled={updateUser.isPending}
+                  onClick={async () => {
+                    if (!editUser) return;
+                    await updateUser.mutateAsync({
+                      id: editUser.id,
+                      patch: { signature_pin: null },
+                    });
+                    toast.success('Code signature effacé');
+                    setEditUser(null);
+                  }}
+                >
+                  Effacer le PIN
+                </Button>
+              ) : null}
+            </div>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setEditUser(null)}>Annuler</Button>
@@ -360,7 +420,7 @@ export function UserManagementPanel() {
                 <Input
                   id="new-email"
                   type="email"
-                  placeholder="utilisateur@royalpalm.tn"
+                  placeholder="utilisateur@usine.tn"
                   value={newEmail}
                   onChange={(e) => setNewEmail(e.target.value)}
                   className="pl-9"

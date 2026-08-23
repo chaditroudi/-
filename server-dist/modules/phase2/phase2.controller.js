@@ -267,8 +267,8 @@ let Phase2Controller = class Phase2Controller {
         });
         return { data: result.data };
     }
-    async closeTriageSession(req, id) {
-        const result = await this.phase2Service.closeTriageSession(id);
+    async closeTriageSession(req, id, body) {
+        const result = await this.phase2Service.closeTriageSession(id, body || {});
         publishRealtimeDbChange({
             type: "phase2_triage_session_closed",
             table: "triage_sessions",
@@ -602,8 +602,9 @@ __decorate([
     Roles(...PHASE2_ROLES),
     __param(0, Req()),
     __param(1, Param("id")),
+    __param(2, Body()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:paramtypes", [Object, String, Object]),
     __metadata("design:returntype", Promise)
 ], Phase2Controller.prototype, "closeTriageSession", null);
 __decorate([

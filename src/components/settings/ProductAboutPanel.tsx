@@ -1,8 +1,12 @@
+import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PRODUCT } from '@/lib/productMeta';
-import { BookOpen, PackageCheck, ShieldCheck } from 'lucide-react';
+import { runDemoSeasonInApp } from '@/lib/demoSeason';
+import { BookOpen, Loader2, PackageCheck, Play, ShieldCheck } from 'lucide-react';
+import { toast } from 'sonner';
+import { useAuthContext } from '@/contexts/AuthContext';
 
 interface ProductAboutPanelProps {
   onOpenFiches?: () => void;
@@ -10,6 +14,22 @@ interface ProductAboutPanelProps {
 
 /** Buyer / admin facing product identity — settings & handoff. */
 export function ProductAboutPanel({ onOpenFiches }: ProductAboutPanelProps) {
+  const { isAdmin } = useAuthContext();
+  const [demoBusy, setDemoBusy] = useState(false);
+
+  const runDemo = async () => {
+    setDemoBusy(true);
+    try {
+      const result = await runDemoSeasonInApp();
+      toast.success(`Lot démo ${result.lotNumber} prêt — fil d'or complet`);
+      window.open(result.passportPath, '_blank');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Demo season impossible');
+    } finally {
+      setDemoBusy(false);
+    }
+  };
+
   return (
     <Card className="rounded-[24px] border-primary/20">
       <CardHeader>
@@ -39,12 +59,27 @@ export function ProductAboutPanel({ onOpenFiches }: ProductAboutPanelProps) {
           <p className="mt-1">{PRODUCT.waves.join(' · ')}</p>
           <p className="mt-1">Stack : {PRODUCT.stack}</p>
         </div>
-        {onOpenFiches && (
-          <Button type="button" variant="outline" className="gap-2" onClick={onOpenFiches}>
-            <BookOpen className="h-4 w-4" />
-            Ouvrir les fiches techniques A→Z
-          </Button>
-        )}
+        <div className="flex flex-wrap gap-2">
+          {onOpenFiches && (
+            <Button type="button" variant="outline" className="gap-2" onClick={onOpenFiches}>
+              <BookOpen className="h-4 w-4" />
+              Fiches A→Z
+            </Button>
+          )}
+          {isAdmin && (
+            <Button type="button" className="gap-2" disabled={demoBusy} onClick={() => void runDemo()}>
+              {demoBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+              Demo season A→Z
+            </Button>
+          )}
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          CLI : <code className="rounded bg-muted px-1">npm run demo:season</code>
+          {' · '}
+          Edge : PWA + outbox · <code className="rounded bg-muted px-1">weighbridge:sim</code>
+          {' · '}
+          Next : ATP deepen (lines/OEE) · SMTP later · GS1 réel
+        </p>
         <p className="text-[11px] text-muted-foreground">
           {PRODUCT.name} © {PRODUCT.year} — licence commerciale. Personnalisez marque et logo dans
           Paramètres → Marque.

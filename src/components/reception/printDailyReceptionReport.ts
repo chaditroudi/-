@@ -91,8 +91,8 @@ export function printDailyReceptionReport(receptions: ReceptionV2[], reportDate 
       <p class="sub">${esc(dateStr)}</p>
     </div>
     <div class="logo">
-      Royal Palm
-      <small>Groupe Ennour Investissement, Tozeur</small>
+      MES Dattes
+      <small>Réception</small>
     </div>
   </div>
 
@@ -137,7 +137,7 @@ export function printDailyReceptionReport(receptions: ReceptionV2[], reportDate 
   </div>
 
   <p class="footer">
-    Généré le ${esc(now)} • RG-Q11 Royal Palm Phase 1
+    Généré le ${esc(now)} • Rapport réception — MES Dattes
     — Ce document constitue le rapport journalier de réception dattes.
   </p>
 

@@ -152,6 +152,14 @@ export function PackagingOrderPanel({ currentUser = 'Utilisateur' }: { currentUs
                         {order.produced_units.toLocaleString('fr-TN')} un. · {yieldPct}%
                       </span>
                     )}
+                    {order.cost_tnd_per_kg != null && (
+                      <span className="text-xs font-medium">{Number(order.cost_tnd_per_kg).toFixed(3)} TND/kg</span>
+                    )}
+                    {order.mass_balance_variance_pct != null && (
+                      <span className={`text-xs ${Math.abs(Number(order.mass_balance_variance_pct)) > 2 ? 'text-amber-700' : 'text-muted-foreground'}`}>
+                        Δ {Number(order.mass_balance_variance_pct).toFixed(1)}%
+                      </span>
+                    )}
                     {order.duration_minutes != null && (
                       <span className="text-xs text-muted-foreground">{order.duration_minutes} min</span>
                     )}

@@ -2,20 +2,25 @@ import { Injectable, OnModuleInit } from "@nestjs/common";
 
 import { SiteSettingsModel } from "../../models/site-settings.model.js";
 import { AuthUserModel } from "../../models/auth-user.model.js";
+import {
+  clearUserSignaturePin,
+  setUserSignaturePin,
+  userHasSignaturePin,
+} from "../auth/numeric-signature.js";
 import { setMassBalanceToleranceReader } from "../trust/mass-balance.js";
 
 const DEFAULT_SETTINGS = {
   id: "global",
-  company_name: "Royal Palm Dates",
-  company_short_name: "RP",
-  company_legal_name: "Royal Palm Dates SARL",
-  site_code: "RP-TOZ",
+  company_name: "MES Dattes",
+  company_short_name: "MES",
+  company_legal_name: null,
+  site_code: "USINE-01",
   country_code: "TN",
   logo_url: null,
   logo_base64: null,
   primary_color: "#107754",
   accent_color: "#d97706",
-  plant_name: "Usine Tozeur",
+  plant_name: "Usine principale",
   plant_address: null,
   plant_phone: null,
   plant_email: null,
@@ -78,6 +83,8 @@ const DEFAULT_SETTINGS = {
     fx_eur_to_tnd: 3.35,
     fx_usd_to_tnd: 3.1,
     fx_sar_to_tnd: 0.83,
+    vat_rate_pct: 19,
+    export_vat_exempt: true,
   },
   documents: {
     reception_prefix: "REC",
@@ -92,10 +99,12 @@ const DEFAULT_SETTINGS = {
     print_language: "fr",
     certificate_signatory: null,
     report_footer: null,
+    gs1_company_prefix: "09999999",
   },
   notifications: {
     browser_notifications_enabled: true,
     email_notifications_enabled: false,
+    supplier_po_email_enabled: true,
     low_stock_alert_enabled: true,
     expiry_alert_enabled: true,
     expiry_alert_days: 30,
@@ -291,6 +300,7 @@ export class SettingsService implements OnModuleInit {
         departments,
         primary_department: metadata.primary_department ?? departments[0] ?? null,
         org_roles: Array.isArray(metadata.org_roles) ? metadata.org_roles : [],
+        has_signature_pin: userHasSignaturePin(u),
         created_at: u.created_at,
       };
     });
@@ -304,6 +314,7 @@ export class SettingsService implements OnModuleInit {
       departments?: string[];
       primary_department?: string | null;
       org_roles?: string[];
+      signature_pin?: string | null;
     },
   ) {
     const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
@@ -328,7 +339,18 @@ export class SettingsService implements OnModuleInit {
       update["user_metadata.org_roles"] = patch.org_roles;
     }
 
-    await AuthUserModel.updateOne({ id: userId }, { $set: update }).exec();
+    if (Object.keys(update).length > 1) {
+      await AuthUserModel.updateOne({ id: userId }, { $set: update }).exec();
+    }
+
+    if (patch.signature_pin !== undefined) {
+      const pin = patch.signature_pin;
+      if (pin === null || String(pin).trim() === "") {
+        await clearUserSignaturePin(userId);
+      } else {
+        await setUserSignaturePin(userId, String(pin).trim());
+      }
+    }
 
     const updated = (await AuthUserModel.findOne({ id: userId })
       .select("-passwordHash -password_hash")
@@ -346,6 +368,7 @@ export class SettingsService implements OnModuleInit {
       departments,
       primary_department: metadata.primary_department ?? departments[0] ?? null,
       org_roles: Array.isArray(metadata.org_roles) ? metadata.org_roles : [],
+      has_signature_pin: userHasSignaturePin(updated),
       created_at: updated.created_at,
     };
   }

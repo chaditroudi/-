@@ -16,6 +16,7 @@ import { buildGenealogyFromDossier } from "./genealogy-builder.js";
 import { lotLifecycleService } from "../trust/lot-lifecycle.service.js";
 import { lotLedgerService } from "../trust/lot-ledger.service.js";
 import { ccpGateMode, evaluateFumigationCcp } from "../trust/ccp-evidence.js";
+import { assertSignaturePin } from "../auth/numeric-signature.js";
 import { assertMassBalanceClosed, loadConfiguredMassBalanceTolerancePct, } from "../trust/mass-balance.js";
 import { allocateCostByWeight, absorbStandardCosts } from "../costing/cost-allocation.js";
 import { loadCostingRates } from "../costing/costing-rates.js";
@@ -351,14 +352,31 @@ let Phase2Service = class Phase2Service {
         const role = readString(payload.role);
         const signerName = readString(payload.signerName, payload.signer_name);
         const signerId = readString(payload.signerId, payload.signer_id);
+        const pin = readString(payload.pin, payload.signature_pin);
         if (!role || !signerName || !signerId) {
             throw badRequest("SIGNATURE_FIELDS_REQUIRED", "Le rôle, le nom et l'identifiant du signataire sont requis.");
         }
+        const pinResult = await assertSignaturePin(signerId, pin || null, {
+            action: `fumigation_sign_${role}`,
+            entityId: id,
+            displayName: signerName,
+        });
+        const resolvedName = pinResult.fullName || signerName;
         const now = nowIso();
         const patch = role === "operator"
-            ? { operator_id: signerId, operator_name: signerName, operator_signed_at: now }
+            ? {
+                operator_id: pinResult.userId,
+                operator_name: resolvedName,
+                operator_signed_at: now,
+                operator_pin_verified: pinResult.verified === true,
+            }
             : role === "quality"
-                ? { quality_inspector_id: signerId, quality_inspector_name: signerName, quality_signed_at: now }
+                ? {
+                    quality_inspector_id: pinResult.userId,
+                    quality_inspector_name: resolvedName,
+                    quality_signed_at: now,
+                    quality_pin_verified: pinResult.verified === true,
+                }
                 : null;
         if (!patch) {
             throw badRequest("INVALID_SIGNATURE_ROLE", "Le rôle de signature doit être operator ou quality.");
@@ -412,12 +430,14 @@ let Phase2Service = class Phase2Service {
                     lotId,
                     toStage: "FUMIGATION_CCP",
                     collection: "fumigation_cycles",
-                    actorId: signerId,
+                    actorId: pinResult.userId,
                     payload: {
                         cycle_id: id,
                         cycle_number: refreshed.cycle_number ?? null,
                         protocol: refreshed.protocol ?? null,
                         dual_signed: true,
+                        operator_pin_verified: refreshed.operator_pin_verified === true,
+                        quality_pin_verified: refreshed.quality_pin_verified === true || (role === "quality" && pinResult.verified),
                         evidence_compliant: evidence.compliant,
                         ct_product: evidence.ctProduct,
                         min_concentration_gm3: evidence.minConcentrationGm3,
@@ -1119,7 +1139,7 @@ let Phase2Service = class Phase2Service {
             notifications,
         };
     }
-    async closeTriageSession(id) {
+    async closeTriageSession(id, payload = {}) {
         const session = sanitizeDocument(await TriageSessions().findOne({ id }).lean().exec());
         if (!session)
             throw notFound("TRIAGE_SESSION_NOT_FOUND", "Session de triage introuvable.");
@@ -1131,6 +1151,8 @@ let Phase2Service = class Phase2Service {
         const weightCat1Kg = readNumber(session.weight_cat1_kg);
         const weightCat2Kg = readNumber(session.weight_cat2_kg);
         const weightRejectKg = readNumber(session.weight_reject_kg);
+        // Unaccounted process loss (not REJETE grade). Defaults to session.waste_kg or 0.
+        const wasteKg = readNumber(payload.waste_kg, readNumber(session.waste_kg, 0));
         if (parentWeightKg <= 0) {
             throw badRequest("TRIAGE_PARENT_WEIGHT_REQUIRED", "Le poids parent est requis pour clôturer le triage avec un bilan matière.");
         }
@@ -1139,7 +1161,7 @@ let Phase2Service = class Phase2Service {
         const balance = assertMassBalanceClosed({
             inputKg: parentWeightKg,
             outputsKg: [weightExtraKg, weightCat1Kg, weightCat2Kg, weightRejectKg],
-            wasteKg: 0,
+            wasteKg,
         }, { tolerancePct: await loadConfiguredMassBalanceTolerancePct(), context: `triage ${id}` });
         if (balance.action === "warn") {
             console.warn("[mass-balance] triage session unbalanced:", {
@@ -1207,6 +1229,7 @@ let Phase2Service = class Phase2Service {
                 duration_minutes: durationMinutes,
                 yield_kg_per_hour: yieldKgPerHour,
                 total_sorted_kg: readNumber(session.total_sorted_kg, balance.accountedKg),
+                waste_kg: wasteKg > 0 ? wasteKg : 0,
                 mass_balance_variance_pct: balance.variancePct,
                 input_cost_tnd: inputCostTnd > 0 ? inputCostTnd : null,
                 material_cost_tnd: absorbed.materialCostTnd > 0 ? absorbed.materialCostTnd : null,

@@ -267,6 +267,8 @@ export const packagingApi = {
       produced_units: number;
       target_units: number;
       order_number: string;
+      waste_kg?: number;
+      rejected_units?: number;
     },
   ) => {
     const response = await apiRequest<ApiEnvelope<PackagingOrder>>(`/packaging/orders/${encodeURIComponent(id)}/close`, {

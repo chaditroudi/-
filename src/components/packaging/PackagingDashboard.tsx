@@ -5,10 +5,14 @@ import { BOMPanel } from './bom/BOMPanel';
 import { LabelTemplatePanel } from './labels/LabelTemplatePanel';
 import { PalettePanel } from './palettes/PalettePanel';
 import { printPackagingDailyReport } from './printPackagingDailyReport';
+import { printPfLotLabel } from '@/lib/printPfLotLabel';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ClipboardList, Package, Tag, Layers, AlertTriangle, Printer } from 'lucide-react';
+import { toast } from 'sonner';
+import { useBranding } from '@/hooks/useBranding';
+import { useSiteSettings } from '@/hooks/useSettings';
 
 interface Props {
   currentUser?: string;
@@ -18,16 +22,55 @@ export function PackagingDashboard({ currentUser = 'Utilisateur' }: Props) {
   const [tab, setTab] = useState('orders');
   const { data: kpis } = usePackagingKpis();
   const { data: orders = [] } = usePackagingOrders();
+  const { companyName } = useBranding();
+  const { data: siteSettings } = useSiteSettings();
 
   const metalDetectionOrders = orders.filter(
     (o) => o.status === 'EN_COURS' && o.metal_detector_failures > 0,
   ).length;
 
+  const gs1Prefix = siteSettings?.documents?.gs1_company_prefix || '09999999';
+  const gs1Placeholder = gs1Prefix === '09999999';
+
+  const quickPfLabel = () => {
+    const lot = window.prompt('N° lot PF à étiqueter');
+    if (!lot?.trim()) return;
+    printPfLotLabel({
+      lotNumber: lot.trim(),
+      productName: 'Dattes — Produit fini',
+      grade: 'PF',
+      companyName,
+      plantName: siteSettings?.plant_name,
+    });
+    toast.success('Étiquette PF prête à imprimer');
+  };
+
   return (
     <div className="space-y-4">
+      {gs1Placeholder && (
+        <div className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2.5 text-sm text-amber-950">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+          <div>
+            <p className="font-semibold">SSCC non retail-légal</p>
+            <p className="text-xs opacity-90">
+              Préfixe GS1 = 09999999 (placeholder). Paramètres → Documents → préfixe société GS1,
+              puis adhésion GS1 Tunisie.
+            </p>
+          </div>
+        </div>
+      )}
       {/* Header row */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex-1" />
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5 text-xs"
+          onClick={quickPfLabel}
+        >
+          <Tag className="h-3.5 w-3.5" />
+          Étiquette PF rapide
+        </Button>
         <Button
           variant="outline"
           size="sm"

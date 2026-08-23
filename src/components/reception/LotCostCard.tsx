@@ -81,6 +81,27 @@ export function LotCostCard({ lotId }: Props) {
           Coût d&apos;achat figé à la réception. Le coût par grade apparaîtra après clôture triage.
         </p>
       )}
+
+      {data.packaging && data.packaging.length > 0 && (
+        <div className="space-y-2 border-t pt-3">
+          <p className="text-xs font-medium">Conditionnement clôturé</p>
+          {data.packaging.map((pkg) => (
+            <div
+              key={String(pkg.order_id)}
+              className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-background px-3 py-2 text-xs"
+            >
+              <span className="font-mono">{pkg.order_number || pkg.order_id}</span>
+              <span className="text-muted-foreground">
+                {pkg.produced_kg} kg · déchets {pkg.waste_kg} kg
+                {pkg.mass_balance_variance_pct != null
+                  ? ` · Δ ${Number(pkg.mass_balance_variance_pct).toFixed(1)}%`
+                  : ''}
+              </span>
+              <span className="font-semibold">{fmt(pkg.cost_tnd_per_kg)} / kg</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

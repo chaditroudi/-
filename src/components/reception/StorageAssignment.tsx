@@ -229,7 +229,7 @@ export const StorageAssignment = ({ reception, lots }: StorageAssignmentProps) =
         !zonesLoading && (
           <Card className="border-dashed">
             <CardContent className="p-4 text-sm text-muted-foreground text-center">
-              Aucune zone synchronisée. Allez dans l'onglet Stockage → Synchroniser le plan Royal Palm.
+              Aucune zone synchronisée. Allez dans l&apos;onglet Stockage → Synchroniser le plan d&apos;usine.
             </CardContent>
           </Card>
         )

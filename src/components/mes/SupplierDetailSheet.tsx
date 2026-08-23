@@ -240,7 +240,7 @@ export const SupplierDetailSheet = ({ supplier, open, onOpenChange, onEdit }: Pr
             {/* Score summary */}
             <div className={`rounded-2xl border p-5 text-center ${gradeClass}`}>
               <p className="text-xs font-semibold uppercase tracking-widest opacity-70 mb-1">
-                Score M1 Royal Palm — §1.2
+                Score fournisseur — §1.2
               </p>
               <p className="text-6xl font-black leading-none tabular-nums">
                 {score.finalScore.toFixed(1)}

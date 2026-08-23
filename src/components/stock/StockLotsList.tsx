@@ -75,7 +75,7 @@ export const StockLotsList = () => {
         </CardHeader>
         <CardContent>
           <div className="mb-4 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
-            <p className="font-medium">Repère métier Royal Palm</p>
+            <p className="font-medium">Repère métier usine</p>
             <p className="mt-1">
               Cette page affiche les <strong>lots de stock</strong>: des lots déjà localisés et suivis par le magasin.
               Les <strong>lots d'entrée</strong> créés au portail et à la réception restent visibles dans le module Réception.

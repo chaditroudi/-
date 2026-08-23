@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { MarginCockpitPanel } from '@/components/costing/MarginCockpitPanel';
 
 interface Props {
   settings: SiteSettings;
@@ -34,13 +35,16 @@ export function CostingPanel({ settings }: Props) {
         fx_eur_to_tnd: Number(costing.fx_eur_to_tnd || 0),
         fx_usd_to_tnd: Number(costing.fx_usd_to_tnd || 0),
         fx_sar_to_tnd: Number(costing.fx_sar_to_tnd || 0),
+        vat_rate_pct: Number(costing.vat_rate_pct ?? 19),
+        export_vat_exempt: Boolean(costing.export_vat_exempt),
       },
     });
-    toast.success('Tarifs de coût et FX mis à jour');
+    toast.success('Tarifs de coût, FX et TVA mis à jour');
   };
 
   return (
     <div className="max-w-3xl space-y-6">
+      <MarginCockpitPanel />
       <Card>
         <CardHeader>
           <CardTitle className="text-sm">Coûts standard (Wave B)</CardTitle>
@@ -140,9 +144,56 @@ export function CostingPanel({ settings }: Props) {
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">TVA facture export (ERP Connect)</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-xs text-muted-foreground">
+            Tarif standard TN (souvent 19 %). Pour l&apos;export, l&apos;exonération laisse la
+            facture à 0 % TVA avec mention sur le PDF / CSV compta.
+          </p>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Taux TVA (%)</Label>
+              <Input
+                type="number"
+                min={0}
+                max={100}
+                step={0.1}
+                value={costing.vat_rate_pct ?? 19}
+                onChange={(e) => setField('vat_rate_pct', Number(e.target.value || 0))}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Exonération TVA export</Label>
+              <button
+                type="button"
+                onClick={() =>
+                  setCosting((prev) => ({
+                    ...prev,
+                    export_vat_exempt: !prev.export_vat_exempt,
+                  }))
+                }
+                className="flex h-10 w-full items-center justify-between rounded-md border px-3 text-sm"
+              >
+                <span>
+                  {costing.export_vat_exempt
+                    ? 'Oui — TVA 0 % sur facture export'
+                    : 'Non — appliquer le taux'}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {costing.export_vat_exempt ? 'ON' : 'OFF'}
+                </span>
+              </button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Button onClick={handleSave} disabled={update.isPending}>
         {update.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        Enregistrer les tarifs coût
+        Enregistrer coût · FX · TVA
       </Button>
     </div>
   );

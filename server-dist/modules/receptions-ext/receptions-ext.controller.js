@@ -109,7 +109,12 @@ let ReceptionsExtController = class ReceptionsExtController {
             },
         });
         const created = data[0];
-        syncReceptionLotsToStock([created]).catch((e) => console.error("[ext] syncReceptionLotsToStock create failed:", e));
+        try {
+            await syncReceptionLotsToStock([created]);
+        }
+        catch (e) {
+            console.error("[ext] syncReceptionLotsToStock create failed:", e);
+        }
         return { data: created };
     }
     // ── Reception Lot update ──────────────────────────────────────────────────
@@ -120,7 +125,12 @@ let ReceptionsExtController = class ReceptionsExtController {
             values: sanitizeDocument(body),
         });
         const updated = after[0];
-        syncReceptionLotsToStock([updated]).catch((e) => console.error("[ext] syncReceptionLotsToStock update failed:", e));
+        try {
+            await syncReceptionLotsToStock([updated]);
+        }
+        catch (e) {
+            console.error("[ext] syncReceptionLotsToStock update failed:", e);
+        }
         return { data: updated };
     }
     // ── QC Inspections ────────────────────────────────────────────────────────

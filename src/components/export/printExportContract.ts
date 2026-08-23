@@ -256,14 +256,14 @@ function buildContractHTML(
   <div style="display:flex;align-items:stretch;border:2px solid #1a5276;margin-bottom:12px">
     <div style="min-width:100px;border-right:1px solid #1a5276;display:flex;align-items:center;justify-content:center;padding:8px">
       <div style="text-align:center">
-        <div style="color:#107754;font-weight:700;font-size:16px;line-height:1.1">Royal</div>
-        <div style="color:#107754;font-weight:700;font-size:16px;line-height:1.1">Palm</div>
-        <div style="color:#888;font-size:8px">Group</div>
+        <div style="color:#107754;font-weight:700;font-size:14px;line-height:1.15">MES</div>
+        <div style="color:#107754;font-weight:700;font-size:14px;line-height:1.15">Dattes</div>
+        <div style="color:#888;font-size:8px">Usine</div>
       </div>
     </div>
     <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;border-right:1px solid #1a5276">
       <div style="font-size:15px;font-weight:700;color:#1a5276;text-align:center">${t.title}</div>
-      <div style="font-size:10px;color:#555;margin-top:4px">Groupe Ennour Investissement — Tozeur, Tunisie</div>
+      <div style="font-size:10px;color:#555;margin-top:4px">Contrat export — MES Dattes</div>
     </div>
     <div style="min-width:160px;padding:10px;font-size:10px;display:flex;flex-direction:column;gap:3px">
       <div><strong>${t.contract_ref} :</strong> ${contract.contract_ref}</div>
@@ -278,7 +278,7 @@ function buildContractHTML(
     <div style="display:flex;gap:12px">
       <div style="flex:1;border:1px solid #1a5276;padding:8px">
         <div style="font-size:10px;font-weight:700;color:#1a5276;margin-bottom:6px;text-transform:uppercase">${t.seller}</div>
-        <div style="font-size:11px;font-weight:700">Groupe Ennour Investissement</div>
+        <div style="font-size:11px;font-weight:700">Vendeur — usine</div>
         <div style="font-size:10px;color:#555">Route de Nefta, Tozeur 2200, Tunisie</div>
         <div style="font-size:10px;color:#555">MF : 1234567 / A / M / 000</div>
         <div style="font-size:10px;color:#555">Tél : +216 76 000 000</div>
@@ -370,7 +370,7 @@ function buildContractHTML(
   <!-- Footer -->
   <div style="border-top:1px solid #1a5276;padding-top:6px;font-size:8.5px;color:#777;display:flex;justify-content:space-between;margin-top:12px">
     <span>${t.generated} ${now} — ${contract.contract_ref} v${contract.current_version}</span>
-    <span>Royal Palm Group — Groupe Ennour Investissement, Tozeur</span>
+    <span>MES Dattes</span>
   </div>
 </div>
 </body>

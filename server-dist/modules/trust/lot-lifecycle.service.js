@@ -16,6 +16,11 @@ import { LotLedgerService, lotLedgerService } from "./lot-ledger.service.js";
 import { assertCanRecordStage, GOLDEN_THREAD_STAGES, goldenThreadProgress, isGoldenThreadComplete, STAGE_EVENT, stageFromChain, stagesAchieved, } from "./lot-state-machine.js";
 /** Process-local counter of dual-run ledger stage misses. Resettable for tests. */
 let swallowedStageFailures = 0;
+/** B0: TRUST_STAGE_GATE=enforce rethrows after GATE_BLOCKED (fail-closed ledger). */
+export const stageGateMode = () => {
+    const value = String(process.env.TRUST_STAGE_GATE || process.env.TRUST_LEDGER_STAGE_GATE || "warn").toLowerCase();
+    return value === "enforce" ? "enforce" : "warn";
+};
 export const getSwallowedStageFailureCount = () => swallowedStageFailures;
 export const resetSwallowedStageFailureCount = () => {
     swallowedStageFailures = 0;
@@ -210,19 +215,19 @@ let LotLifecycleService = class LotLifecycleService {
             return await this.recordStage(input);
         }
         catch (error) {
-            // Never block shop-floor writes on ledger/FSM failures during dual-run —
-            // log, surface a warn notification, and continue. Hard gates still live
-            // in gate-rules for production/shipment; flip TRUST_*_GATE=enforce only
-            // after these warnings go quiet for a shift.
+            // Dual-run default (warn): never block shop-floor writes on ledger/FSM failures.
+            // B0 enforce: still emit alert + GATE_BLOCKED, then rethrow so the write fails closed.
             swallowedStageFailures += 1;
             const code = readErrorCode(error);
             const message = readErrorMessage(error);
+            const mode = stageGateMode();
             console.error("[W1] lot lifecycle recordStage failed:", {
                 lotId: input.lotId,
                 stage: input.toStage,
                 collection: input.collection,
                 code,
                 message,
+                mode,
                 failures: swallowedStageFailures,
                 error,
             });
@@ -230,7 +235,7 @@ let LotLifecycleService = class LotLifecycleService {
                 notificationType: "LOT_LEDGER_STAGE_FAILED",
                 category: "traceability",
                 space: "alerts",
-                severity: "warning",
+                severity: mode === "enforce" ? "error" : "warning",
                 title: `Étape ledger manquante — ${input.toStage}`,
                 message: `Lot ${input.lotId}: ${message}`,
                 entityType: "reception_lots",
@@ -242,7 +247,8 @@ let LotLifecycleService = class LotLifecycleService {
                     stage: input.toStage,
                     collection: input.collection,
                     code,
-                    dual_run: true,
+                    dual_run: mode === "warn",
+                    stage_gate: mode,
                     swallowed_count: swallowedStageFailures,
                 },
             });
@@ -258,13 +264,17 @@ let LotLifecycleService = class LotLifecycleService {
                         attempted_stage: input.toStage,
                         code,
                         message,
-                        dual_run: true,
+                        dual_run: mode === "warn",
+                        stage_gate: mode,
                     },
                     relatedIds: input.relatedIds,
                 });
             }
             catch (appendError) {
                 console.error("[W1] GATE_BLOCKED append failed:", appendError);
+            }
+            if (mode === "enforce") {
+                throw error;
             }
             return { skipped: true, stage: input.toStage, event: null, error };
         }

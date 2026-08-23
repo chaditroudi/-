@@ -263,8 +263,8 @@ export class PurchasingController {
 
   @Post("orders/:id/send")
   @Roles(...PURCHASING_ROLES)
-  async sendOrder(@Param("id") id: string) {
-    const data = await this.purchasingService.sendOrder(id);
+  async sendOrder(@Param("id") id: string, @Req() req: any) {
+    const data = await this.purchasingService.sendOrder(id, req?.user || null);
     publishRealtimeDbChange({
       type: "purchase_order_sent",
       table: "purchase_orders",

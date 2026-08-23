@@ -580,7 +580,7 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
               <Package className="h-4 w-4" />
             </div>
             <div>
-              <p className="font-semibold leading-none tracking-tight">Réception Royal Palm</p>
+              <p className="font-semibold leading-none tracking-tight">Réception matière</p>
               <p className="mt-0.5 text-xs text-muted-foreground">Saisie guidée · {steps.length} étapes</p>
             </div>
           </div>
@@ -649,7 +649,7 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
             {/* Step context pill */}
             <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-xl border border-primary/10 bg-primary/5 px-4 py-2.5 text-xs">
               <Badge variant="outline" className="border-primary/25 bg-primary/5 px-2 py-0 text-[11px] font-semibold text-primary">
-                Royal Palm
+                Usine
               </Badge>
               <span className="font-medium text-foreground">{ROYAL_PALM_RECEPTION_STEPS[step - 1]?.label}</span>
               <Separator orientation="vertical" className="hidden h-3 sm:block" />

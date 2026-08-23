@@ -188,7 +188,7 @@ export const ReceptionDetailV2 = ({ open, onOpenChange, receptionId }: Reception
                   <CardHeader className="pb-2">
                     <CardTitle className="flex items-center gap-2 text-sm">
                       <QrCode className="h-4 w-4" />
-                      Traçabilité Royal Palm
+                      Traçabilité lot
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="grid gap-4 md:grid-cols-3">
@@ -243,7 +243,7 @@ export const ReceptionDetailV2 = ({ open, onOpenChange, receptionId }: Reception
               <TabsContent value="timeline" className="m-0">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-sm">Timeline reception Royal Palm</CardTitle>
+                    <CardTitle className="text-sm">Timeline réception</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     {timelineEntries.map((entry, index) => (
@@ -495,7 +495,7 @@ export const ReceptionDetailV2 = ({ open, onOpenChange, receptionId }: Reception
                       <Printer className="h-4 w-4" />
                       <div className="text-left">
                         <div className="font-medium">Bon de Réception Achat</div>
-                        <div className="text-xs text-muted-foreground">Formulaire Royal Palm — produit entrant, pesée, lots</div>
+                        <div className="text-xs text-muted-foreground">Formulaire réception — produit entrant, pesée, lots</div>
                       </div>
                     </Button>
                     <Button

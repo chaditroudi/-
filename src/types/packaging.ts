@@ -184,6 +184,20 @@ export interface PackagingOrder {
   ended_at: string | null;
   duration_minutes: number | null;
 
+  // Wave B — closed mass balance + standard cost (set on close)
+  source_weight_kg?: number | null;
+  bom_net_weight_g?: number | null;
+  produced_kg?: number | null;
+  waste_kg?: number | null;
+  mass_balance_variance_pct?: number | null;
+  material_cost_tnd?: number | null;
+  packaging_cost_tnd?: number | null;
+  labour_cost_tnd?: number | null;
+  overhead_cost_tnd?: number | null;
+  total_cost_tnd?: number | null;
+  cost_tnd_per_kg?: number | null;
+  cost_basis?: string | null;
+
   notes: string | null;
   created_by: string;
   created_at: string;

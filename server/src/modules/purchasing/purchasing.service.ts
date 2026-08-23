@@ -7,6 +7,7 @@ import { AuthUserModel } from "../../models/auth-user.model.js";
 import { normalizeDepartment } from "../org/departments.js";
 import { membershipFromActor } from "../org/membership.js";
 import { settingsService } from "../settings/settings.service.js";
+import { notifySupplierPurchaseOrderSent } from "../mail/purchase-order-notify.js";
 import { notifyPurchaseRequisitionTransition } from "../workflow/purchase-requisition-notify.js";
 import {
   approveRequisitionStep,
@@ -936,15 +937,16 @@ export class PurchasingService {
     return this.getOrderById(orderId);
   }
 
-  async sendOrder(orderId: string) {
+  async sendOrder(orderId: string, actor?: ActorContext) {
+    const now = new Date().toISOString();
     await PurchaseOrders().updateOne(
       { id: orderId },
       {
         $set: {
           status: "submitted",
-          submitted_at: new Date().toISOString(),
-          sent_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
+          submitted_at: now,
+          sent_at: now,
+          updated_at: now,
         },
       },
     ).exec();
@@ -953,7 +955,34 @@ export class PurchasingService {
     if (!order) {
       throw notFound("PURCHASE_ORDER_NOT_FOUND", "Bon de commande introuvable.");
     }
-    return order;
+
+    const notify = await notifySupplierPurchaseOrderSent(
+      order as Record<string, unknown>,
+      actor?.id || null,
+    );
+    const emailPatch: Record<string, unknown> = {
+      supplier_email_to: notify.email || null,
+      supplier_email_status: notify.attempted
+        ? notify.result?.ok
+          ? "sent"
+          : "failed"
+        : notify.reason === "NO_SUPPLIER_EMAIL"
+          ? "missing_email"
+          : notify.reason === "EMAIL_DISABLED"
+            ? "disabled"
+            : "skipped",
+      supplier_email_mode: notify.result?.mode || null,
+      supplier_email_error: notify.reason || notify.result?.reason || null,
+      supplier_email_sent_at: notify.result?.ok ? now : null,
+      updated_at: new Date().toISOString(),
+    };
+    await PurchaseOrders().updateOne({ id: orderId }, { $set: emailPatch }).exec();
+
+    return {
+      ...(order as Record<string, unknown>),
+      ...emailPatch,
+      supplier_notify: notify,
+    };
   }
 
   async confirmOrder(orderId: string, expectedDate?: string | null) {

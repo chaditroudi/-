@@ -164,7 +164,7 @@ export const APP_TAB_META: Record<AppTab, AppTabMeta> = {
     shortLabel: "Zones",
     icon: Warehouse,
     pageTitle: "Gestion Entrepôt — Cartographie",
-    pageSubtitle: "Plan Royal Palm, occupation des zones et capacité physique.",
+    pageSubtitle: "Plan d'usine, occupation des zones et capacité physique.",
   },
   "stock-movements": {
     label: "Mouvements Stock",

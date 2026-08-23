@@ -283,6 +283,34 @@ const PurchaseOrderDetailContent = ({
           <TabsContent value="details" className="space-y-4 pt-2">
             <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
               <div><p className="text-muted-foreground">Fournisseur</p><p className="font-medium">{order.supplier?.name || '—'}</p></div>
+              {order.supplier?.email && (
+                <div>
+                  <p className="text-muted-foreground">Email fournisseur</p>
+                  <p className="font-medium">{order.supplier.email}</p>
+                </div>
+              )}
+              {order.supplier_email_status && (
+                <div>
+                  <p className="text-muted-foreground">Email BC</p>
+                  <p className="font-medium">
+                    {order.supplier_email_status === 'sent' && (
+                      <span className="text-emerald-700">Envoyé{order.supplier_email_to ? ` → ${order.supplier_email_to}` : ''}</span>
+                    )}
+                    {order.supplier_email_status === 'missing_email' && (
+                      <span className="text-amber-700">Email fournisseur manquant</span>
+                    )}
+                    {order.supplier_email_status === 'failed' && (
+                      <span className="text-red-700">Échec{order.supplier_email_error ? `: ${order.supplier_email_error}` : ''}</span>
+                    )}
+                    {order.supplier_email_status === 'disabled' && (
+                      <span className="text-muted-foreground">Désactivé (paramètres)</span>
+                    )}
+                    {!['sent', 'missing_email', 'failed', 'disabled'].includes(String(order.supplier_email_status)) && (
+                      <span>{order.supplier_email_status}</span>
+                    )}
+                  </p>
+                </div>
+              )}
               <div><p className="text-muted-foreground">Date commande</p><p className="font-medium">{format(new Date(order.order_date), 'dd MMMM yyyy', { locale: fr })}</p></div>
               {order.expected_delivery_date && (
                 <div><p className="text-muted-foreground">Livraison prévue</p><p className="font-medium">{format(new Date(order.expected_delivery_date), 'dd MMMM yyyy', { locale: fr })}</p></div>

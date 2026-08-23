@@ -71,7 +71,7 @@ export function SubLotLabelPrintDialog({ open, onOpenChange, subLots, sessionNum
   <div class="labels">
     ${subLots.map((sl) => `
     <div class="label" style="border-color: ${GRADE_BG[sl.grade]};">
-      <div class="label-header">Sous-lot triage — Royal Palm</div>
+      <div class="label-header">Sous-lot triage</div>
       <div class="grade" style="color: #111; background: ${GRADE_BG[sl.grade]}; padding: 2px 6px; border-radius: 3px; display: inline-block;">${GRADE_LABEL[sl.grade]}</div>
       <div class="lot-number">${sl.lot_number}</div>
       <div class="details">
@@ -80,7 +80,7 @@ export function SubLotLabelPrintDialog({ open, onOpenChange, subLots, sessionNum
         <div>Destination: ${DESTINATION_LABEL[sl.destination] ?? sl.destination}</div>
         <div>Créé: ${new Date(sl.created_at).toLocaleString('fr-FR')}</div>
       </div>
-      <div class="footer">MES Royal Palm Phase 2 — Scanner pour traçabilité</div>
+      <div class="footer">MES Dattes — Scanner pour traçabilité</div>
     </div>
     `).join('')}
   </div>
@@ -111,7 +111,7 @@ export function SubLotLabelPrintDialog({ open, onOpenChange, subLots, sessionNum
                   style={{ borderColor: GRADE_BG[sl.grade] }}
                 >
                   <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wide">
-                    Sous-lot triage — Royal Palm
+                    Sous-lot triage
                   </div>
                   <div
                     className="inline-block text-lg font-black px-2 py-0.5 rounded text-gray-900"
@@ -140,7 +140,7 @@ export function SubLotLabelPrintDialog({ open, onOpenChange, subLots, sessionNum
                     />
                   </div>
                   <div className="text-center text-xs text-muted-foreground">
-                    MES Royal Palm Phase 2
+                    MES Dattes
                   </div>
                 </div>
               ))}

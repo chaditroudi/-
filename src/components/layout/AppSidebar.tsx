@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 import {
   Activity,
   BarChart3,
@@ -46,6 +45,8 @@ interface AppSidebarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
   activeAlertsCount: number;
+  /** Only show tabs the employee can open — critical for simple UX. */
+  accessibleTabs?: string[];
 }
 
 type NavItem = { id: string; title: string; icon: typeof Home; badge?: number };
@@ -58,7 +59,7 @@ const TAB_SECTION: Record<string, string> = {
   "stock-dashboard": "flux", "stock-lots": "flux",
   "stock-products": "flux", "stock-movements": "flux",
   suppliers: "gestion", materials: "gestion", purchasing: "gestion",
-  quality: "gestion", hr: "gestion",
+  quality: "gestion", hr: "gestion", export: "gestion", customers: "gestion",
   analytics: "pilotage", "sage-operations": "pilotage",
 };
 
@@ -66,10 +67,12 @@ const STORAGE_SUBTABS = new Set([
   "stock-dashboard", "stock-lots", "stock-products", "stock-movements",
 ]);
 
-export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSidebarProps) {
-  const { t } = useTranslation();
+export function AppSidebar({ activeTab, onTabChange, activeAlertsCount, accessibleTabs }: AppSidebarProps) {
   const { user, profile, roles, signOut, isAdmin } = useAuthContext();
   const { companyName, companyShortName } = useBranding();
+
+  const canSee = (id: string) =>
+    !accessibleTabs || accessibleTabs.length === 0 || accessibleTabs.includes(id) || id === "home";
 
   const hasAlerts = activeAlertsCount > 0;
   const identityLabel = profile?.full_name || user?.email || "Utilisateur";
@@ -86,54 +89,55 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount }: AppSid
   const sections: NavSection[] = [
     {
       key: "operations",
-      label: "Opérations",
+      label: "Travail",
       items: [
-        { id: "home",   title: t("nav.home"),        icon: Home },
-        { id: "live",   title: "Centre de Commande", icon: Activity },
-        { id: "scan",   title: "Scan & Traçabilité", icon: QrCode },
-        { id: "alerts", title: t("nav.alerts"),      icon: Bell, badge: activeAlertsCount },
-      ],
+        { id: "home",   title: "Accueil", icon: Home },
+        { id: "scan",   title: "Scanner", icon: QrCode },
+        { id: "alerts", title: "Alertes", icon: Bell, badge: activeAlertsCount },
+        { id: "live",   title: "Live", icon: Activity },
+      ].filter((item) => canSee(item.id)),
     },
     {
       key: "flux",
-      label: "Flux usine",
+      label: "Atelier",
       items: [
-        { id: "receptions", title: `1. ${t("nav.receptions")}`, icon: ClipboardList },
-        { id: "storage",    title: "2. Entrepôt & Stock",       icon: Warehouse },
-        { id: "production", title: `3. ${t("nav.production")}`, icon: Factory },
-        { id: "packaging",  title: "4. Conditionnement",        icon: PackageCheck },
-        { id: "logistics",  title: `5. ${t("nav.logistics")}`,  icon: Truck },
-      ],
+        { id: "receptions", title: "Réception", icon: ClipboardList },
+        { id: "storage",    title: "Stock",     icon: Warehouse },
+        { id: "production", title: "Production", icon: Factory },
+        { id: "packaging",  title: "Conditionnement", icon: PackageCheck },
+        { id: "logistics",  title: "Expédition", icon: Truck },
+      ].filter((item) => canSee(item.id)),
     },
     {
       key: "gestion",
-      label: "Gestion",
+      label: "Bureau",
       items: [
-        { id: "suppliers", title: t("nav.suppliers"),    icon: Building2 },
-        { id: "materials", title: t("nav.materials"),    icon: Package },
-        { id: "purchasing",title: t("nav.purchasing"),   icon: ShoppingCart },
-        { id: "quality",   title: "Qualité & CAPA",      icon: CheckCircle },
-        { id: "hr",        title: "Ressources Humaines", icon: Users },
-      ],
+        { id: "suppliers",  title: "Fournisseurs", icon: Building2 },
+        { id: "materials",  title: "Articles",     icon: Package },
+        { id: "purchasing", title: "Achats",       icon: ShoppingCart },
+        { id: "quality",    title: "Qualité",      icon: CheckCircle },
+        { id: "export",     title: "Export",       icon: Scale },
+        { id: "hr",         title: "RH",           icon: Users },
+      ].filter((item) => canSee(item.id)),
     },
     {
       key: "pilotage",
-      label: "Pilotage",
+      label: "Direction",
       items: [
-        { id: "analytics",      title: t("nav.analytics"), icon: BarChart3 },
-        { id: "sage-operations",title: "Chaîne Hub",          icon: Landmark },
-      ],
+        { id: "analytics",       title: "Analytics", icon: BarChart3 },
+        { id: "sage-operations", title: "Cockpit",  icon: Landmark },
+      ].filter((item) => canSee(item.id)),
     },
-  ];
+  ].filter((section) => section.items.length > 0);
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>(() => {
     const active = TAB_SECTION[activeTab] ?? "operations";
     return {
-      operations: active === "operations",
-      // Le flux usine est la navigation principale — toujours visible au départ.
-      flux:       true,
-      gestion:    active === "gestion",
-      pilotage:   active === "pilotage",
+      operations: true,
+      flux: true,
+      // Keep office / direction closed so shop-floor stays calm
+      gestion: active === "gestion",
+      pilotage: active === "pilotage",
     };
   });
 

@@ -240,23 +240,38 @@ export function useClosePackagingOrder() {
       produced_units,
       target_units,
       order_number,
+      waste_kg,
+      rejected_units,
     }: {
       id: string;
       started_at: string;
       produced_units: number;
       target_units: number;
       order_number: string;
+      waste_kg?: number;
+      rejected_units?: number;
     }) =>
       packagingApi.closeOrder(id, {
         started_at,
         produced_units,
         target_units,
         order_number,
+        waste_kg,
+        rejected_units,
       }),
-    onSuccess: () => {
+    onSuccess: (order) => {
       qc.invalidateQueries({ queryKey: ['packaging_orders'] });
       qc.invalidateQueries({ queryKey: ['packaging_kpis'] });
-      toast.success('Ordre de conditionnement clôturé');
+      qc.invalidateQueries({ queryKey: ['costing-summary'] });
+      const cost =
+        order?.cost_tnd_per_kg != null
+          ? ` · ${Number(order.cost_tnd_per_kg).toFixed(3)} TND/kg`
+          : '';
+      const mb =
+        order?.mass_balance_variance_pct != null
+          ? ` · bilan ${Number(order.mass_balance_variance_pct).toFixed(2)}%`
+          : '';
+      toast.success(`OF clôturé${cost}${mb}`);
     },
     onError: (e: Error) => toast.error(e.message),
   });

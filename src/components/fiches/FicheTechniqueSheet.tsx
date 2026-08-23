@@ -11,7 +11,16 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Sheet,
   SheetContent,
@@ -21,11 +30,18 @@ import {
 } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import type { AppNavigateFn } from '@/lib/appNavigate';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 import {
+  clearFicheAck,
   ficheStageLabel,
+  isFicheAckCurrentShift,
+  loadFicheAcks,
   loadFicheChecklist,
   printFicheTechnique,
+  saveFicheAck,
   saveFicheChecklist,
+  type FicheShiftAck,
   type FicheTechnique,
 } from '@/lib/fichesTechniques';
 
@@ -42,7 +58,11 @@ export function FicheTechniqueSheet({
   onOpenChange,
   onNavigate,
 }: FicheTechniqueSheetProps) {
+  const { profile, user } = useAuthContext();
   const [checked, setChecked] = useState<boolean[]>([]);
+  const [ack, setAck] = useState<FicheShiftAck | null>(null);
+  const [operator, setOperator] = useState('');
+  const [shift, setShift] = useState<FicheShiftAck['shift']>('matin');
 
   useEffect(() => {
     if (!fiche) return;
@@ -53,10 +73,15 @@ export function FicheTechniqueSheet({
         ? saved
         : fiche.steps.map(() => false),
     );
-  }, [fiche]);
+    const existing = loadFicheAcks()[fiche.id] || null;
+    setAck(existing);
+    setOperator(existing?.operator || profile?.full_name || user?.email || '');
+    setShift(existing?.shift || 'matin');
+  }, [fiche, profile?.full_name, user?.email]);
 
   const doneCount = useMemo(() => checked.filter(Boolean).length, [checked]);
   const pct = fiche && fiche.steps.length ? Math.round((doneCount / fiche.steps.length) * 100) : 0;
+  const ackToday = isFicheAckCurrentShift(ack);
 
   const toggleStep = (index: number) => {
     if (!fiche) return;
@@ -79,14 +104,35 @@ export function FicheTechniqueSheet({
     saveFicheChecklist(all);
   };
 
+  const confirmAck = () => {
+    if (!fiche) return;
+    if (!operator.trim()) {
+      toast.error('Indiquez votre nom');
+      return;
+    }
+    const next: FicheShiftAck = {
+      operator: operator.trim(),
+      shift,
+      at: new Date().toISOString(),
+      applied: true,
+    };
+    saveFicheAck(fiche.id, next);
+    setAck(next);
+    toast.success('Fiche lue et appliquée — enregistré pour ce shift');
+  };
+
+  const revokeAck = () => {
+    if (!fiche) return;
+    clearFicheAck(fiche.id);
+    setAck(null);
+    toast.message('Accusé retiré');
+  };
+
   if (!fiche) return null;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        side="right"
-        className="flex w-full flex-col gap-0 p-0 sm:max-w-lg"
-      >
+      <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-lg">
         <SheetHeader className="space-y-2 border-b px-5 py-4 text-left">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="outline" className="font-mono">
@@ -96,11 +142,10 @@ export function FicheTechniqueSheet({
             <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
               <Clock3 className="h-3.5 w-3.5" /> ~{fiche.durationMin} min
             </span>
+            {ackToday && <Badge className="bg-emerald-600 text-white">Lu · shift</Badge>}
           </div>
           <SheetTitle className="text-xl leading-tight">{fiche.title}</SheetTitle>
-          <SheetDescription className="text-sm text-foreground/80">
-            {fiche.purpose}
-          </SheetDescription>
+          <SheetDescription className="text-sm text-foreground/80">{fiche.purpose}</SheetDescription>
           <p className="text-xs text-muted-foreground">Poste : {fiche.poste}</p>
         </SheetHeader>
 
@@ -152,6 +197,53 @@ export function FicheTechniqueSheet({
               <Button type="button" variant="ghost" size="sm" className="h-8 px-2 text-xs" onClick={resetChecklist}>
                 Réinitialiser la checklist
               </Button>
+            )}
+          </section>
+
+          <section className="space-y-3 rounded-xl border border-primary/20 bg-primary/5 p-3">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-primary">
+              Accusé shift — lu / appliqué
+            </h3>
+            {ackToday ? (
+              <div className="space-y-2 text-sm">
+                <p>
+                  <span className="font-medium">{ack!.operator}</span>
+                  {' · '}
+                  {ack!.shift}
+                  {' · '}
+                  {new Date(ack!.at).toLocaleString('fr-FR')}
+                </p>
+                <Button type="button" variant="ghost" size="sm" className="h-8 px-2" onClick={revokeAck}>
+                  Retirer l&apos;accusé
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Opérateur</Label>
+                  <Input
+                    value={operator}
+                    onChange={(e) => setOperator(e.target.value)}
+                    placeholder="Votre nom"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Shift</Label>
+                  <Select value={shift} onValueChange={(v) => setShift(v as FicheShiftAck['shift'])}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="matin">Matin</SelectItem>
+                      <SelectItem value="apres-midi">Après-midi</SelectItem>
+                      <SelectItem value="nuit">Nuit</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button type="button" className="w-full" onClick={confirmAck}>
+                  Je confirme : lu et appliqué
+                </Button>
+              </div>
             )}
           </section>
 

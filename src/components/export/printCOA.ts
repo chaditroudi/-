@@ -135,7 +135,7 @@ export function printCOA(coa: COADocument): void {
   <!-- Footer -->
   <div style="border-top:1px solid #1a5276;padding-top:6px;font-size:8.5px;color:#777;display:flex;justify-content:space-between;margin-top:14px">
     <span>COA ${coa.coa_ref} — Généré le ${now}</span>
-    <span>Royal Palm Group — Groupe Ennour Investissement, Tozeur, Tunisie</span>
+    <span>MES Dattes</span>
   </div>
 </div>
 </body>

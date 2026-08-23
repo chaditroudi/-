@@ -67,7 +67,7 @@ export function BrandingPanel({ settings }: Props) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label className="text-xs">Nom complet</Label>
-              <Input value={form.company_name} onChange={(e) => setForm(p => ({ ...p, company_name: e.target.value }))} placeholder="Royal Palm Dates" />
+              <Input value={form.company_name} onChange={(e) => setForm(p => ({ ...p, company_name: e.target.value }))} placeholder="Nom de votre usine" />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs">Abréviation</Label>

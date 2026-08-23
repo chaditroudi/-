@@ -88,11 +88,11 @@ export function printFumigationCertificate(cycle: FumigationCycle) {
   <div class="header">
     <div>
       <h1>Certificat de fumigation</h1>
-      <p class="sub">CCP-1 Royal Palm — Module 5 | Réf: RG-FUM-14</p>
+      <p class="sub">CCP-1 fumigation — Module 5 | Réf: RG-FUM-14</p>
     </div>
     <div class="logo">
-      Royal Palm
-      <small>Groupe Ennour Investissement, Tozeur</small>
+      MES Dattes
+      <small>Usine de dattes</small>
       <small>Date d'émission: ${esc(now)}</small>
     </div>
   </div>
@@ -172,8 +172,8 @@ export function printFumigationCertificate(cycle: FumigationCycle) {
   </div>
 
   <div class="footer">
-    <span>Généré le ${esc(now)} • CCP-1 Royal Palm Phase 2 • RG-FUM-14 — Conservation 7 ans obligatoire</span>
-    <span>Système MES Royal Palm v2 — Groupe Ennour Investissement</span>
+    <span>Généré le ${esc(now)} • CCP-1 fumigation • RG-FUM-14 — Conservation 7 ans obligatoire</span>
+    <span>MES Dattes</span>
   </div>
 
   <script>setTimeout(function() { window.print(); }, 200);</script>

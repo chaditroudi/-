@@ -54,7 +54,7 @@ export function ProductionFluxDashboard() {
             Dossier industriel v3.0
           </Badge>
           <span className="text-xs text-muted-foreground">
-            Usine Royal Palm · Tozeur · Tunisie
+            Usine de dattes
           </span>
         </div>
         <h2 className="text-sm font-semibold text-foreground">

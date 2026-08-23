@@ -2,6 +2,7 @@ export interface User {
   id: string;
   email: string;
   user_metadata?: Record<string, unknown>;
+  has_signature_pin?: boolean;
 }
 
 export interface Session {

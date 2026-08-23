@@ -150,7 +150,7 @@ export function printPhase2DailyReport(
       <h1>Rapport journalier — Traitement Phase 2</h1>
       <p class="sub">${esc(dateStr)}</p>
     </div>
-    <div class="logo">Royal Palm<small>Groupe Ennour Investissement, Tozeur</small></div>
+    <div class="logo">MES Dattes<small>Phase 2</small></div>
   </div>
 
   <div class="stats">
@@ -217,7 +217,7 @@ export function printPhase2DailyReport(
   </div>
 
   <div class="footer">
-    Généré le ${esc(now)} · Rapport Phase 2 — MES Royal Palm · Groupe Ennour Investissement Tozeur
+    Généré le ${esc(now)} · Rapport Phase 2 — MES Dattes
   </div>
 
   <script>setTimeout(function(){window.print();},200);</script>

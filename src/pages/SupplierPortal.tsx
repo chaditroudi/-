@@ -20,6 +20,7 @@ import {
   MapPin,
   ShieldCheck,
   Truck,
+  Banknote,
 } from 'lucide-react';
 import {
   computeSupplierScoreM1,
@@ -29,6 +30,10 @@ import {
   normalizeSupplierStatus,
 } from '@/lib/royalPalmPhase1';
 import { useSupplierLots, useSupplierPayments } from '@/hooks/useSuppliers';
+import { settlementsApi } from '@/lib/api/settlements';
+import { printSettlementStatement } from '@/lib/printSettlementStatement';
+import { Button } from '@/components/ui/button';
+import { Printer } from 'lucide-react';
 
 // ─── Portail fournisseur — RG-F10 ────────────────────────────────────────────
 // Read-only access for active suppliers identified by their registered email.
@@ -61,7 +66,7 @@ function ScoreCard({ supplier }: { supplier: Supplier }) {
     <div className="space-y-6">
       <div className={`rounded-2xl border p-5 text-center ${gradeClass}`}>
         <p className="text-xs font-semibold uppercase tracking-widest opacity-70 mb-1">
-          Score qualité Royal Palm — §1.2
+          Score qualité — §1.2
         </p>
         <p className="text-6xl font-black leading-none tabular-nums">{score.finalScore.toFixed(1)}</p>
         <p className="text-sm mt-1 opacity-70">points sur 100</p>
@@ -105,6 +110,52 @@ function ScoreCard({ supplier }: { supplier: Supplier }) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+function SettlementsSection({ supplierId }: { supplierId: string }) {
+  const { data = [], isLoading } = useQuery({
+    queryKey: ['supplier-settlements-portal', supplierId],
+    queryFn: () => settlementsApi.list({ supplier_id: supplierId }),
+    enabled: Boolean(supplierId),
+  });
+
+  if (isLoading) return <p className="text-sm text-muted-foreground text-center py-4">Chargement…</p>;
+  if (data.length === 0) {
+    return (
+      <p className="text-sm text-muted-foreground text-center py-4">
+        Aucun règlement grades pour le moment. Il apparaît après clôture triage de vos lots.
+      </p>
+    );
+  }
+
+  return (
+    <div className="divide-y rounded-xl border overflow-hidden">
+      {data.slice(0, 15).map((row) => (
+        <div key={row.id} className="flex items-center justify-between gap-2 px-3 py-2.5 text-sm">
+          <div>
+            <p className="font-mono text-xs text-muted-foreground">{row.settlement_number}</p>
+            <p className="text-xs">
+              {row.parent_lot_number || '—'} · {row.status}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold tabular-nums">
+              {row.total_amount_tnd.toLocaleString('fr-TN', { minimumFractionDigits: 2 })} TND
+            </span>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 text-xs"
+              onClick={() => printSettlementStatement(row)}
+            >
+              <Printer className="h-3 w-3 mr-1" />
+              Relevé
+            </Button>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -226,7 +277,7 @@ export default function SupplierPortal() {
           <p className="font-semibold">Aucun compte fournisseur associé</p>
           <p className="text-sm text-muted-foreground">
             Aucune fiche fournisseur active n'est liée à l'adresse <strong>{userEmail}</strong>.
-            Contactez l'équipe achats Royal Palm pour activer votre accès portail.
+            Contactez l&apos;équipe achats pour activer votre accès portail.
           </p>
         </div>
       </div>
@@ -291,7 +342,7 @@ export default function SupplierPortal() {
         <section className="space-y-4">
           <div className="flex items-center gap-2">
             <Award className="h-5 w-5 text-amber-500" />
-            <h2 className="font-semibold">Votre score qualité Royal Palm</h2>
+            <h2 className="font-semibold">Votre score qualité</h2>
           </div>
           <ScoreCard supplier={supplier} />
         </section>
@@ -354,6 +405,16 @@ export default function SupplierPortal() {
         {/* Livraisons */}
         <section className="space-y-3">
           <div className="flex items-center gap-2">
+            <Banknote className="h-5 w-5 text-emerald-700" />
+            <h2 className="font-semibold">Règlements grades</h2>
+          </div>
+          <SettlementsSection supplierId={supplier.id} />
+        </section>
+
+        <Separator />
+
+        <section className="space-y-3">
+          <div className="flex items-center gap-2">
             <Truck className="h-5 w-5 text-indigo-500" />
             <h2 className="font-semibold">Historique de mes livraisons</h2>
           </div>
@@ -372,7 +433,7 @@ export default function SupplierPortal() {
         </section>
 
         <p className="text-center text-xs text-muted-foreground pb-4">
-          Royal Palm · Groupe Ennour Investissement Tozeur · Portail fournisseur (RG-F10)
+          Portail fournisseur — MES Dattes
         </p>
       </div>
     </div>

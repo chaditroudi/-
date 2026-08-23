@@ -327,6 +327,11 @@ export const prepareInsertDocument = async (collection: string, rawInput: Record
     doc.invoiced_at = doc.invoiced_at ?? null;
     doc.invoice_number = doc.invoice_number ?? null;
     doc.invoice_date = doc.invoice_date ?? null;
+    doc.supplier_email_to = doc.supplier_email_to ?? null;
+    doc.supplier_email_status = doc.supplier_email_status ?? null;
+    doc.supplier_email_mode = doc.supplier_email_mode ?? null;
+    doc.supplier_email_error = doc.supplier_email_error ?? null;
+    doc.supplier_email_sent_at = doc.supplier_email_sent_at ?? null;
     doc.invoice_amount = doc.invoice_amount ?? null;
   }
 

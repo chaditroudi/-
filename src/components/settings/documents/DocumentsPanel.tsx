@@ -34,6 +34,7 @@ export function DocumentsPanel({ settings }: Props) {
         numbering_padding: Number(documents.numbering_padding || 5),
         certificate_signatory: documents.certificate_signatory || null,
         report_footer: documents.report_footer || null,
+        gs1_company_prefix: String(documents.gs1_company_prefix || '09999999').replace(/\D/g, '') || '09999999',
       },
     });
     toast.success('Paramètres documents & numérotation mis à jour');
@@ -130,6 +131,21 @@ export function DocumentsPanel({ settings }: Props) {
               rows={3}
               placeholder="Texte légal, certification, contact ou note qualité..."
             />
+          </div>
+
+          <div className="space-y-1.5 rounded-lg border border-amber-200 bg-amber-50/80 p-3">
+            <Label className="text-xs">Préfixe société GS1 (SSCC)</Label>
+            <Input
+              value={documents.gs1_company_prefix ?? '09999999'}
+              onChange={(e) => setField('gs1_company_prefix', e.target.value.replace(/\D/g, '').slice(0, 10))}
+              placeholder="09999999"
+              className="font-mono"
+            />
+            <p className="text-[11px] text-amber-900/80">
+              {String(documents.gs1_company_prefix || '09999999') === '09999999'
+                ? 'Placeholder — non conforme retail. Remplacer après adhésion GS1 Tunisie.'
+                : 'Préfixe configuré — vérifier auprès de GS1 Tunisie avant production retail.'}
+            </p>
           </div>
         </CardContent>
       </Card>

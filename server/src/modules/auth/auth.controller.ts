@@ -1,6 +1,7 @@
-import { Body, Controller, Get, HttpCode, Post, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Post, Req, UseGuards } from "@nestjs/common";
 
 import { appendAuthAudit } from "../../middleware/security-audit.js";
+import { RequireAuthGuard } from "../../nest/route-guards.js";
 import { AuthService } from "./auth.service.js";
 
 @Controller("api/auth")
@@ -10,6 +11,20 @@ export class AuthController {
   @Get("session")
   async session(@Req() req: any) {
     const data = await this.authService.getSession(req.auth);
+    return { data };
+  }
+
+  @Post("signature-pin")
+  @UseGuards(RequireAuthGuard)
+  async setSignaturePin(@Req() req: any, @Body() body: any) {
+    const data = await this.authService.setOwnSignaturePin(req.auth, body || {});
+    return { data };
+  }
+
+  @Delete("signature-pin")
+  @UseGuards(RequireAuthGuard)
+  async clearSignaturePin(@Req() req: any, @Body() body: any) {
+    const data = await this.authService.clearOwnSignaturePin(req.auth, body || {});
     return { data };
   }
 

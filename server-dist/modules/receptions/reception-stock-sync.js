@@ -56,8 +56,12 @@ const appendStockSyncEvent = async (input) => {
         });
     }
     catch (error) {
-        // Dual-run: stock projection must not fail intake if the ledger tip races.
-        console.error("[W0] STOCK_SYNCED ledger append failed:", error);
+        // Dual-run (warn): stock projection must not fail intake if the ledger tip races.
+        // B0 enforce: fail closed so STOCK_SYNCED cannot silently drop.
+        const mode = String(process.env.TRUST_STAGE_GATE || process.env.TRUST_LEDGER_STAGE_GATE || "warn").toLowerCase();
+        console.error("[W0] STOCK_SYNCED ledger append failed:", { mode, error });
+        if (mode === "enforce")
+            throw error;
     }
 };
 export const syncReceptionLotsToStock = async (lots, options) => {

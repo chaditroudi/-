@@ -579,6 +579,7 @@ export const phase2Api = {
     role: 'operator' | 'quality';
     signerName: string;
     signerId: string;
+    pin?: string;
   }) => {
     const response = await apiRequest<ApiEnvelope<FumigationCycle>>(`/phase2/fumigation/cycles/${id}/sign`, {
       method: 'POST',
@@ -811,14 +812,14 @@ export const phase2Api = {
     return response.data;
   },
 
-  closeTriageSession: async (id: string) => {
+  closeTriageSession: async (id: string, payload?: { waste_kg?: number }) => {
     const response = await apiRequest<ApiEnvelope<{
       session_number: string;
       sub_lots_created: number;
       duration_minutes: number;
     }>>(`/phase2/triage/sessions/${id}/close`, {
       method: 'POST',
-      body: JSON.stringify({}),
+      body: JSON.stringify(payload || {}),
     });
     return response.data;
   },

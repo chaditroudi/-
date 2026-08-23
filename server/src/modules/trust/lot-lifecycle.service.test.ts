@@ -96,6 +96,29 @@ describe("lotLifecycleService.recordStageSafe", () => {
     consoleSpy.mockRestore();
   });
 
+  it("rethrows when TRUST_STAGE_GATE=enforce after GATE_BLOCKED", async () => {
+    const previous = process.env.TRUST_STAGE_GATE;
+    process.env.TRUST_STAGE_GATE = "enforce";
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    await expect(
+      lotLifecycleService.recordStageSafe({
+        lotId: "lot-enforce",
+        toStage: "COLD_STORE",
+        collection: "storage_location_movements",
+        actorId: "user-1",
+        route: "PREMIUM_WHOLE",
+      }),
+    ).rejects.toMatchObject({ code: "LOT_QC_REQUIRED" });
+
+    expect(getSwallowedStageFailureCount()).toBe(1);
+    expect((store.lot_events || []).some((row) => row.event_type === "GATE_BLOCKED")).toBe(true);
+
+    consoleSpy.mockRestore();
+    if (previous === undefined) delete process.env.TRUST_STAGE_GATE;
+    else process.env.TRUST_STAGE_GATE = previous;
+  });
+
   it("still surfaces a miss when the lot already has intake but lacks QC", async () => {
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
     const intake = buildLotEventRecord(

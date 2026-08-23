@@ -3,7 +3,6 @@ import { TopHeader } from "@/components/layout/TopHeader";
 import { WorkflowNavigation } from "@/components/layout/WorkflowNavigation";
 import { FlowStepper } from "@/components/layout/FlowStepper";
 import { AppSidebar } from "@/components/layout/AppSidebar";
-import { BrandLogo } from "@/components/branding/BrandLogo";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 // HomePage is always the default tab — keep eager so it renders without a Suspense flash.
@@ -493,6 +492,7 @@ const Index = () => {
         activeTab={activeTab}
         onTabChange={handleNavigate}
         activeAlertsCount={activeAlertsCount}
+        accessibleTabs={accessibleTabs}
       />
 
       <SidebarInset className="flex min-h-screen min-w-0 flex-col bg-shell">
@@ -507,43 +507,41 @@ const Index = () => {
                 : currentMeta.pageTitle
           }
           pageSubtitle={
-            activeTab === 'home' && homeView === 'fiches'
-              ? 'Aide atelier A→Z — étapes, limites, documents.'
-              : activeTab === 'home'
-                ? undefined
-                : currentMeta.pageSubtitle
+            activeTab === 'home'
+              ? undefined
+              : currentMeta.pageSubtitle
           }
           sectionLabel={
-            activeTab === 'home' && homeView === 'fiches'
-              ? 'Aide atelier'
-              : activeTab === 'home'
-                ? undefined
-                : TAB_SECTION_LABEL[activeTab]
+            activeTab === 'home'
+              ? undefined
+              : TAB_SECTION_LABEL[activeTab]
           }
           onHomeClick={handleGoHome}
           roleLabel={roleLabel}
-          workspaceLabel={workspaceProfile.workspaceLabel}
-          interfaceLabel={workspaceProfile.interfaceLabel}
+          plantLabel={[settings.plant_name, settings.site_code].filter(Boolean).join(' · ') || undefined}
         />
 
-        <div className="md:hidden">
-          <WorkflowNavigation
-            activeTab={activeTab}
-            onTabChange={handleNavigate}
-            roles={roles}
-            profileName={profile?.full_name}
-            workspaceLabel={workspaceProfile.workspaceLabel}
-            interfaceLabel={workspaceProfile.interfaceLabel}
-            primaryTabs={primaryTabs}
-            quickTabs={quickTabs}
-            metrics={mobileMetrics}
-          />
-        </div>
+        {/* Mobile chrome only off-home — Accueil stays calm for operators */}
+        {activeTab !== 'home' && (
+          <div className="md:hidden">
+            <WorkflowNavigation
+              activeTab={activeTab}
+              onTabChange={handleNavigate}
+              roles={roles}
+              profileName={profile?.full_name}
+              workspaceLabel={workspaceProfile.workspaceLabel}
+              interfaceLabel={workspaceProfile.interfaceLabel}
+              primaryTabs={primaryTabs}
+              quickTabs={quickTabs}
+              metrics={mobileMetrics}
+            />
+          </div>
+        )}
 
         <main className="flex-1 min-w-0 overflow-x-hidden overflow-y-auto">
           <div className="mx-auto w-full max-w-[1800px] px-3 py-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-5 md:pb-8 lg:px-6 lg:py-6">
             <div className="mb-4 empty:hidden">
-              {activeTab !== 'home' && (
+              {['receptions', 'storage', 'production', 'packaging', 'logistics'].includes(activeTab) && (
                 <FlowStepper
                   activeTab={activeTab}
                   accessibleTabs={accessibleTabs}
@@ -559,22 +557,13 @@ const Index = () => {
           </div>
         </main>
 
-        <footer className="flex flex-col items-center justify-between gap-2 border-t border-border/40 bg-card/70 px-4 py-2.5 text-center backdrop-blur-sm sm:flex-row sm:px-5 sm:text-left lg:px-6">
-          <div className="flex items-center gap-2">
-            <div className="flex h-[18px] w-[18px] items-center justify-center opacity-35">
-              <BrandLogo className="h-full w-full" imgClassName="h-full w-full object-contain" alt={companyName} />
-            </div>
-            <span className="text-[11px] font-medium text-muted-foreground/40">
-              © {new Date().getFullYear()} {companyName}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 text-[11px] text-muted-foreground/32">
-            <span className="hidden sm:inline font-medium">{PRODUCT.commercialName}</span>
-            <span className="hidden h-2.5 w-px bg-border/50 sm:block" />
-            <span className="rounded-full border border-primary/18 bg-primary/5 px-2 py-0.5 text-[11px] font-bold tracking-wide text-primary/55">
-              v{PRODUCT.version}
-            </span>
-          </div>
+        <footer className="flex items-center justify-between gap-2 border-t border-border/40 px-4 py-2 text-[11px] text-muted-foreground/50 sm:px-5 lg:px-6">
+          <span>
+            © {new Date().getFullYear()} {companyName}
+          </span>
+          <span className="font-medium text-muted-foreground/40">
+            {PRODUCT.commercialName} v{PRODUCT.version}
+          </span>
         </footer>
 
       </SidebarInset>

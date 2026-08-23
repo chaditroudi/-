@@ -46,7 +46,7 @@ export const SessionLedger = ({ receptions, onView, onPrint, onDelete }: Session
         <CardHeader>
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <CardTitle>Registre reception Royal Palm</CardTitle>
+              <CardTitle>Registre réception</CardTitle>
               <CardDescription>
                 Camion, pesée, LOT-ID et lancement QC du {format(new Date(), 'dd/MM/yyyy', { locale: fr })}
               </CardDescription>

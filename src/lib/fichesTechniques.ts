@@ -394,8 +394,18 @@ export function ficheStageLabel(fiche: FicheTechnique): string {
 }
 
 const CHECKLIST_KEY = 'rp-fiche-checklist-v1';
+const ACK_KEY = 'rp-fiche-ack-v1';
 
 export type FicheChecklistState = Record<string, boolean[]>;
+
+export type FicheShiftAck = {
+  operator: string;
+  shift: 'matin' | 'apres-midi' | 'nuit';
+  at: string;
+  applied: boolean;
+};
+
+export type FicheAckState = Record<string, FicheShiftAck>;
 
 export function loadFicheChecklist(): FicheChecklistState {
   try {
@@ -412,6 +422,46 @@ export function saveFicheChecklist(state: FicheChecklistState): void {
     localStorage.setItem(CHECKLIST_KEY, JSON.stringify(state));
   } catch {
     /* ignore */
+  }
+}
+
+export function loadFicheAcks(): FicheAckState {
+  try {
+    const raw = localStorage.getItem(ACK_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw) as FicheAckState;
+  } catch {
+    return {};
+  }
+}
+
+export function saveFicheAck(ficheId: string, ack: FicheShiftAck): void {
+  try {
+    const all = loadFicheAcks();
+    all[ficheId] = ack;
+    localStorage.setItem(ACK_KEY, JSON.stringify(all));
+  } catch {
+    /* ignore */
+  }
+}
+
+export function clearFicheAck(ficheId: string): void {
+  try {
+    const all = loadFicheAcks();
+    delete all[ficheId];
+    localStorage.setItem(ACK_KEY, JSON.stringify(all));
+  } catch {
+    /* ignore */
+  }
+}
+
+/** True if ack is for today (local calendar day). */
+export function isFicheAckCurrentShift(ack: FicheShiftAck | undefined | null): boolean {
+  if (!ack?.applied || !ack.at) return false;
+  try {
+    return new Date(ack.at).toDateString() === new Date().toDateString();
+  } catch {
+    return false;
   }
 }
 
@@ -442,7 +492,7 @@ export function printFicheTechnique(fiche: FicheTechnique): void {
   <h2>Limites critiques</h2><table><thead><tr><th>Point</th><th>Règle</th></tr></thead><tbody>${limits}</tbody></table>
   <h2>Documents</h2><ul>${docs}</ul>
   <h2>Si bloqué</h2><div class="box">${escapeHtml(fiche.ifBlocked)}</div>
-  <p class="meta" style="margin-top:24px">Royal Palm MES — Fiche technique atelier · ${new Date().toLocaleDateString('fr-FR')}</p>
+  <p class="meta" style="margin-top:24px">MES Dattes — Fiche technique atelier · ${new Date().toLocaleDateString('fr-FR')}</p>
 </body></html>`;
 
   const w = window.open('', '_blank', 'noopener,noreferrer,width=800,height=900');

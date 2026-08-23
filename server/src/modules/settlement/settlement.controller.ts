@@ -15,6 +15,8 @@ const SETTLEMENT_ROLES = [
   "directeur_achat",
   "responsable_production",
   "responsable_qualite",
+  "fournisseur",
+  "supplier",
 ] as const;
 
 @Controller()

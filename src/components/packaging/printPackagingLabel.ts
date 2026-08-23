@@ -5,6 +5,7 @@ export function printPackagingLabel(
   order: PackagingOrder,
   template: LabelTemplate,
   copies = 1,
+  brandName = 'MES Dattes',
 ) {
   const today = new Date();
   const expiryDate = addDays(today, template.use_by_days);
@@ -26,7 +27,7 @@ export function printPackagingLabel(
 
   const labelHtml = `
 <div class="label-wrapper">
-  <div class="brand">${isPrivateLabel ? (template.client_name ?? 'Marque Blanche') : 'Royal Palm'}</div>
+  <div class="brand">${isPrivateLabel ? (template.client_name ?? 'Marque Blanche') : brandName}</div>
   <div class="product-name">${template.product_name}</div>
   ${template.variety ? `<div class="variety">${template.variety}</div>` : ''}
   <div class="weight-bar">

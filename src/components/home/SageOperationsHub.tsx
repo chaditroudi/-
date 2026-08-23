@@ -1,9 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import {
-  Landmark,
   ShoppingCart,
   Truck,
   ClipboardCheck,
@@ -11,52 +9,36 @@ import {
   Factory,
   AlertTriangle,
   CheckCircle2,
-  ArrowRight,
 } from 'lucide-react';
 import { useSageOperations } from '@/hooks/useSageOperations';
-import { ModuleHero } from '@/components/layout/ModuleHero';
 import { GoldenThreadPanel } from '@/components/home/GoldenThreadPanel';
 import { RecallDrillPanel } from '@/components/home/RecallDrillPanel';
+import { MarginCockpitPanel } from '@/components/costing/MarginCockpitPanel';
 import type { AppTab } from '@/lib/roleAccess';
-import { APP_TAB_META } from '@/lib/appTabs';
 
 interface SageOperationsHubProps {
   onNavigate: (tab: string) => void;
   accessibleTabs: AppTab[];
 }
 
-const getSeverityBadge = (severity: 'low' | 'medium' | 'high') => {
-  if (severity === 'high') return 'bg-red-600';
-  if (severity === 'medium') return 'bg-orange-500';
-  return 'bg-emerald-600';
-};
-
 export const SageOperationsHub = ({ onNavigate, accessibleTabs }: SageOperationsHubProps) => {
   const { data, isLoading, isError, error, refetch } = useSageOperations();
 
   if (isLoading) {
-    return (
-      <Card>
-        <CardContent className="p-6 text-sm text-muted-foreground">
-          Chargement du cockpit Chaîne Hub...
-        </CardContent>
-      </Card>
-    );
+    return <p className="p-4 text-sm text-muted-foreground">Chargement cockpit…</p>;
   }
 
   if (isError || !data) {
     return (
-      <Card>
-        <CardContent className="p-6 space-y-3">
-          <div className="text-sm text-red-600 font-medium">Impossible de charger le cockpit Chaîne Hub.</div>
-          <div className="text-xs text-muted-foreground">
-            {error instanceof Error ? error.message : 'Erreur inconnue'}
-          </div>
-          <Button size="sm" variant="outline" onClick={() => refetch()}>
-            Réessayer
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="space-y-2 p-4">
+        <p className="text-sm text-red-600">Cockpit indisponible.</p>
+        <p className="text-xs text-muted-foreground">
+          {error instanceof Error ? error.message : 'Erreur'}
+        </p>
+        <Button size="sm" variant="outline" onClick={() => refetch()}>
+          Réessayer
+        </Button>
+      </div>
     );
   }
 
@@ -67,163 +49,113 @@ export const SageOperationsHub = ({ onNavigate, accessibleTabs }: SageOperations
       title: 'Achats',
       icon: ShoppingCart,
       value: flow.pendingDa + flow.poPendingInternalApproval + flow.poReadyToSend,
-      subtitle: `${flow.pendingDa} DA attente | ${flow.poPendingInternalApproval} BC validation`,
       tab: 'purchasing',
     },
     {
       title: 'Réception',
       icon: Truck,
-      value: flow.poConfirmed + flow.poPartiallyDelivered,
-      subtitle: `${flow.receptionsWaitingQc} en QC | ${flow.quarantineLots} quarantaine`,
+      value: flow.receptionsWaitingQc + flow.quarantineLots,
       tab: 'receptions',
     },
     {
       title: 'Qualité',
       icon: ClipboardCheck,
       value: flow.receptionsWaitingQc + flow.receptionsBlocked,
-      subtitle: `${flow.receptionsWaitingQc} attente QC | ${flow.receptionsBlocked} bloquées`,
       tab: 'receptions',
     },
     {
       title: 'Stock',
       icon: Warehouse,
       value: flow.quarantinedStockLots,
-      subtitle: `${flow.quarantinedStockLots} lots quarantaine stock`,
-      tab: 'stock-lots',
+      tab: 'storage',
     },
     {
       title: 'Production',
       icon: Factory,
       value: flow.productionInProgress,
-      subtitle: `${flow.productionDelayed} OF en pause`,
       tab: 'production',
     },
-  ];
-  const visibleProcessCards = processCards.filter((card) => accessibleTabs.includes(card.tab as AppTab));
-  const visibleBlockers = blockers.filter((blocker) => accessibleTabs.includes(blocker.tab as AppTab));
-  const quickTabs = ['purchasing', 'receptions', 'stock-lots', 'production'].filter((tab) =>
-    accessibleTabs.includes(tab as AppTab),
-  ) as AppTab[];
+  ].filter((card) => accessibleTabs.includes(card.tab as AppTab));
+
+  const visibleBlockers = blockers
+    .filter((b) => accessibleTabs.includes(b.tab as AppTab) && b.count > 0)
+    .slice(0, 5);
 
   return (
-    <div className="space-y-6">
-      <ModuleHero
-        kicker="Hub • Orchestration"
-        title="Chaîne Hub"
-        description="Vue transverse MES pour suivre les flux entre achats, réception, qualité, stock, production et logistique — système de record usine."
-        stats={[
-          { label: 'Blocages', value: blockers.length },
-          { label: 'Flux QC', value: flow.receptionsWaitingQc + flow.receptionsBlocked },
-          { label: 'Production', value: flow.productionInProgress },
-        ]}
-      />
+    <div className="mx-auto max-w-5xl space-y-4">
+      <div>
+        <h1 className="text-xl font-semibold tracking-tight">Cockpit usine</h1>
+        <p className="text-sm text-muted-foreground">Blocages · marge TND/kg · fil d&apos;or · recall</p>
+      </div>
 
-      <Card className="surface-card">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Landmark className="h-5 w-5" />
-            Vue bout-en-bout
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Pilotage bout-en-bout: Demande d'achat → Bon de commande → Réception → QC → Stock → Production.
+      <div className="grid grid-cols-3 gap-2">
+        <div className="rounded-xl border px-3 py-2.5">
+          <p className="text-xs text-muted-foreground">Blocages</p>
+          <p className="text-lg font-semibold">{visibleBlockers.length}</p>
+        </div>
+        <div className="rounded-xl border px-3 py-2.5">
+          <p className="text-xs text-muted-foreground">QC</p>
+          <p className="text-lg font-semibold">
+            {flow.receptionsWaitingQc + flow.receptionsBlocked}
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
-            {visibleProcessCards.map((card) => (
-              <Button
-                key={card.title}
-                variant="outline"
-                className="h-auto p-4 justify-start"
-                onClick={() => onNavigate(card.tab)}
-              >
-                <div className="w-full space-y-2 text-left">
-                  <div className="flex items-center justify-between">
-                    <card.icon className="h-4 w-4" />
-                    <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
-                  <div className="text-lg font-bold">{card.value}</div>
-                  <div className="text-xs text-muted-foreground">{card.title}</div>
-                  <div className="text-xs text-muted-foreground">{card.subtitle}</div>
-                </div>
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+        <div className="rounded-xl border px-3 py-2.5">
+          <p className="text-xs text-muted-foreground">Traçabilité</p>
+          <p className="text-lg font-semibold">{compliance.traceabilityCoverage}%</p>
+        </div>
+      </div>
 
-      <GoldenThreadPanel onOpenScan={() => onNavigate('scan')} />
-      <RecallDrillPanel />
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+        {processCards.map((card) => (
+          <button
+            key={card.title}
+            type="button"
+            onClick={() => onNavigate(card.tab)}
+            className="rounded-xl border bg-card px-3 py-3 text-left hover:bg-muted/40"
+          >
+            <div className="flex items-center justify-between">
+              <card.icon className="h-4 w-4 text-muted-foreground" />
+              <span className="text-base font-bold">{card.value}</span>
+            </div>
+            <p className="mt-1 text-xs font-semibold">{card.title}</p>
+          </button>
+        ))}
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card className="surface-card">
-          <CardHeader>
-            <CardTitle className="text-base">Conformité Chaîne</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            <div className="flex items-center justify-between">
-              <span>Couverture traçabilité lots réceptionnés</span>
-              <Badge className={compliance.traceabilityCoverage >= 95 ? 'bg-emerald-600' : 'bg-orange-500'}>
-                {compliance.traceabilityCoverage}%
-              </Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>Couverture 3-way match</span>
-              <Badge className={compliance.threeWayCoverage >= 80 ? 'bg-emerald-600' : 'bg-orange-500'}>
-                {compliance.threeWayCoverage}%
-              </Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>3-way match conformes</span>
-              <Badge className="bg-emerald-600">{compliance.threeWayMatched}</Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <span>3-way match en écart</span>
-              <Badge className={compliance.threeWayMismatch > 0 ? 'bg-red-600' : 'bg-emerald-600'}>
-                {compliance.threeWayMismatch}
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="surface-card">
-          <CardHeader>
-            <CardTitle className="text-base">Blocages prioritaires</CardTitle>
+      {visibleBlockers.length > 0 && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">À traiter</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             {visibleBlockers.map((b) => (
               <button
                 key={b.key}
-                className="w-full rounded-md border p-3 text-left hover:bg-muted/50 transition-colors"
+                type="button"
+                className="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left text-sm hover:bg-muted/40"
                 onClick={() => onNavigate(b.tab)}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {b.count > 0 ? (
-                      <AlertTriangle className="h-4 w-4 text-orange-500" />
-                    ) : (
-                      <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                    )}
-                    <span className="text-sm font-medium">{b.label}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className={getSeverityBadge(b.severity)}>{b.severity}</Badge>
-                    <Badge variant="secondary">{b.count}</Badge>
-                  </div>
-                </div>
+                <span className="inline-flex items-center gap-2">
+                  <AlertTriangle className="h-3.5 w-3.5 text-orange-500" />
+                  {b.label}
+                </span>
+                <Badge variant="secondary">{b.count}</Badge>
               </button>
             ))}
-            <Separator className="my-3" />
-            <div className="flex flex-wrap gap-2">
-              {quickTabs.map((tab) => (
-                <Button key={tab} size="sm" variant="outline" onClick={() => onNavigate(tab)}>
-                  {APP_TAB_META[tab].label}
-                </Button>
-              ))}
-            </div>
           </CardContent>
         </Card>
-      </div>
+      )}
+
+      {visibleBlockers.length === 0 && (
+        <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-800">
+          <CheckCircle2 className="h-4 w-4" />
+          Aucun blocage prioritaire.
+        </div>
+      )}
+
+      <MarginCockpitPanel />
+      <GoldenThreadPanel onOpenScan={() => onNavigate('scan')} />
+      <RecallDrillPanel />
     </div>
   );
 };

@@ -23,6 +23,8 @@ const requiredFiles = [
   'src/components/documents/DocumentsWorkspace.tsx',
   'src/components/settings/FichesCmsPanel.tsx',
   'src/lib/printRecallReport.ts',
+  'scripts/demo-season.mjs',
+  'src/lib/demoSeason.ts',
 ];
 
 let failed = false;

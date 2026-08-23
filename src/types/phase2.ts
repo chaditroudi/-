@@ -100,9 +100,11 @@ export interface FumigationCycle {
   operator_id: string | null;
   operator_name: string | null;
   operator_signed_at: string | null;
+  operator_pin_verified?: boolean | null;
   quality_inspector_id: string | null;
   quality_inspector_name: string | null;
   quality_signed_at: string | null;
+  quality_pin_verified?: boolean | null;
 
   // Certificate (RG-FUM-14: 7-year retention)
   certificate_pdf_url: string | null;

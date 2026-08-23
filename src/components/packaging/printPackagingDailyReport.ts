@@ -105,7 +105,7 @@ export function printPackagingDailyReport(
       <h1>Rapport journalier — Conditionnement</h1>
       <p class="sub">${esc(dateStr)}</p>
     </div>
-    <div class="logo">Royal Palm<small>Groupe Ennour Investissement, Tozeur</small></div>
+    <div class="logo">MES Dattes<small>Conditionnement</small></div>
   </div>
 
   <div class="stats">
@@ -162,7 +162,7 @@ export function printPackagingDailyReport(
   </div>
 
   <div class="footer">
-    Généré le ${esc(now)} · Rapport Conditionnement — MES Royal Palm · Groupe Ennour Investissement Tozeur
+    Généré le ${esc(now)} · Rapport Conditionnement — MES Dattes
   </div>
 
   <script>setTimeout(function(){window.print();},200);</script>

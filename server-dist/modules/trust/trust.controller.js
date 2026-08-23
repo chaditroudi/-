@@ -13,11 +13,13 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from "@nestjs/common";
 import { RequireAuthGuard } from "../../nest/route-guards.js";
 import { Public } from "../../nest/route-metadata.js";
+import { SiteSettingsModel } from "../../models/site-settings.model.js";
 import { LotLedgerService } from "./lot-ledger.service.js";
 import { LotLifecycleService } from "./lot-lifecycle.service.js";
 import { LotPassportService } from "./lot-passport.service.js";
 import { LotRecallService } from "./lot-recall.service.js";
 import { ScanService } from "./scan.service.js";
+import { getTrustGateStatus } from "./trust-gate-status.js";
 import { APPEND_ONLY_COLLECTIONS, CORE_SCHEMA_COLLECTIONS, REGULATED_COLLECTIONS, } from "./regulated-collections.js";
 import { GOLDEN_THREAD_STAGES } from "./lot-state-machine.js";
 let TrustController = class TrustController {
@@ -36,7 +38,7 @@ let TrustController = class TrustController {
     health() {
         return {
             data: {
-                wave: "W2",
+                wave: "B0",
                 trust: "enabled",
                 goldenThread: "PREMIUM_WHOLE",
                 passport: "enabled",
@@ -47,6 +49,18 @@ let TrustController = class TrustController {
                 appendOnlyCount: APPEND_ONLY_COLLECTIONS.size,
             },
         };
+    }
+    /** B0 readiness — gate modes + GS1 placeholder flag. */
+    async getGates() {
+        let gs1 = null;
+        try {
+            const doc = (await SiteSettingsModel.findOne({ id: "global" }).lean().exec());
+            gs1 = doc?.documents?.gs1_company_prefix ?? null;
+        }
+        catch {
+            gs1 = null;
+        }
+        return { data: getTrustGateStatus(gs1) };
     }
     async getPassport(lotId) {
         const data = await this.passport.buildPassport(lotId);
@@ -116,6 +130,12 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], TrustController.prototype, "health", null);
+__decorate([
+    Get("gates"),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], TrustController.prototype, "getGates", null);
 __decorate([
     Public(),
     Get("lots/:lotId/passport"),

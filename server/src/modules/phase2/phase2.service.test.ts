@@ -32,6 +32,7 @@ describe("phase2Service golden-thread stages", () => {
   beforeEach(() => {
     Object.keys(store).forEach((key) => delete store[key]);
     vi.stubEnv("TRUST_CCP_GATE", "warn");
+    vi.stubEnv("NUMERIC_SIGNATURE_GATE", "off");
   });
 
   it("appends FUMIGATION_CCP after dual signature on a QC-released lot", async () => {

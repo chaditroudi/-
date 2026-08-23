@@ -143,7 +143,8 @@ export function useAddTriageQualityCheck() {
 export function useCloseTriageSession() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id }: { id: string }) => phase2Api.closeTriageSession(id),
+    mutationFn: ({ id, waste_kg }: { id: string; waste_kg?: number }) =>
+      phase2Api.closeTriageSession(id, waste_kg != null ? { waste_kg } : undefined),
     onSuccess: ({ session_number, sub_lots_created, duration_minutes }, { id }) => {
       toast.success(
         `Session ${session_number} clôturée — ${sub_lots_created} sous-lots créés (${duration_minutes} min)`
@@ -153,6 +154,8 @@ export function useCloseTriageSession() {
       qc.invalidateQueries({ queryKey: QK.subLots(id) });
       qc.invalidateQueries({ queryKey: ['stock_lots'] });
       qc.invalidateQueries({ queryKey: ['available_sublots_packaging'] });
+      qc.invalidateQueries({ queryKey: ['supplier-settlements'] });
+      qc.invalidateQueries({ queryKey: ['costing-summary'] });
     },
     onError: (err: Error) => {
       toast.error(err.message);

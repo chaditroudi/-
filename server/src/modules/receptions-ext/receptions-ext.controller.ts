@@ -126,9 +126,11 @@ export class ReceptionsExtController {
       },
     });
     const created = data[0] as Record<string, unknown>;
-    syncReceptionLotsToStock([created]).catch((e) =>
-      console.error("[ext] syncReceptionLotsToStock create failed:", e),
-    );
+    try {
+      await syncReceptionLotsToStock([created]);
+    } catch (e) {
+      console.error("[ext] syncReceptionLotsToStock create failed:", e);
+    }
     return { data: created };
   }
 
@@ -142,9 +144,11 @@ export class ReceptionsExtController {
       values: sanitizeDocument(body),
     });
     const updated = after[0] as Record<string, unknown>;
-    syncReceptionLotsToStock([updated]).catch((e) =>
-      console.error("[ext] syncReceptionLotsToStock update failed:", e),
-    );
+    try {
+      await syncReceptionLotsToStock([updated]);
+    } catch (e) {
+      console.error("[ext] syncReceptionLotsToStock update failed:", e);
+    }
     return { data: updated };
   }
 

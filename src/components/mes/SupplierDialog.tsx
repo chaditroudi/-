@@ -405,7 +405,7 @@ export const SupplierDialog = ({ open, onOpenChange, supplier, onSave, isLoading
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl">
         <DialogHeader>
-          <DialogTitle>{supplier ? 'Modifier la fiche fournisseur Royal Palm' : 'Nouvelle fiche fournisseur Royal Palm'}</DialogTitle>
+          <DialogTitle>{supplier ? 'Modifier la fiche fournisseur' : 'Nouvelle fiche fournisseur'}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -524,8 +524,9 @@ export const SupplierDialog = ({ open, onOpenChange, supplier, onSave, isLoading
                     <Input value={formData.secondary_phone} onChange={(event) => setField('secondary_phone', event.target.value)} />
                   </div>
                   <div className="space-y-2">
-                    <Label>Email</Label>
-                    <Input type="email" value={formData.email} onChange={(event) => setField('email', event.target.value)} />
+                    <Label>Email <span className="text-muted-foreground font-normal">(requis pour notifier le BC)</span></Label>
+                    <Input type="email" value={formData.email} onChange={(event) => setField('email', event.target.value)} placeholder="achat@fournisseur.tn" />
+                    <p className="text-[11px] text-muted-foreground">À l&apos;envoi du bon de commande, un email est envoyé à cette adresse.</p>
                   </div>
                   <div className="space-y-2">
                     <Label>Document CIN / registre</Label>

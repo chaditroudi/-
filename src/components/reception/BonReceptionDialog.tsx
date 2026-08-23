@@ -312,7 +312,7 @@ function buildPrintHtml(
       </td>
       <td style="border:1px solid #444;border-top:none;border-left:none;width:28%;text-align:center;padding:3px;font-size:9px;color:#777;">Contrôle de Gestion</td>
       <td style="border:1px solid #444;border-top:none;border-left:none;padding:3px 8px;font-size:8px;color:#bbb;">
-        V01-2024 &nbsp;|&nbsp; ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: fr })} — Royal Palm MES
+        V01-2024 &nbsp;|&nbsp; ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: fr })} — MES Dattes
       </td>
     </tr>
   </tbody>

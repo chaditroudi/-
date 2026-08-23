@@ -268,7 +268,7 @@ function buildPrintHtml(form: BonExpeditionFormData, reception: ReceptionV2) {
       <table class="top-grid">
         <tr>
           <td style="width: 18%;">
-            <div class="logo">RoyalPalm<small>Group</small></div>
+            <div class="logo">MES Dattes<small>Group</small></div>
           </td>
           <td style="width: 58%;">
             <div class="title">BON D'EXPEDITION</div>

@@ -4,6 +4,7 @@ import { BrandingPanel } from './branding/BrandingPanel';
 import { FeaturesPanel } from './features/FeaturesPanel';
 import { PlantInfoPanel } from './plant/PlantInfoPanel';
 import { UserManagementPanel } from './users/UserManagementPanel';
+import { SignaturePinSelfPanel } from './users/SignaturePinSelfPanel';
 import { OperationsPanel } from './operations/OperationsPanel';
 import { QualityPanel } from './quality/QualityPanel';
 import { DocumentsPanel } from './documents/DocumentsPanel';
@@ -12,6 +13,7 @@ import { IntegrationsPanel } from './integrations/IntegrationsPanel';
 import { P2PSettingsPanel } from './p2p/P2PSettingsPanel';
 import { CostingPanel } from './costing/CostingPanel';
 import { ProductAboutPanel } from './ProductAboutPanel';
+import { TrustGatesPanel } from './TrustGatesPanel';
 import { FichesCmsPanel } from './FichesCmsPanel';
 import { DEFAULT_SETTINGS } from '@/types/settings';
 import type { AppNavigateFn } from '@/lib/appNavigate';
@@ -109,10 +111,11 @@ export function SettingsDashboard({ onNavigate }: { onNavigate?: AppNavigateFn }
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="product" className="mt-4">
+        <TabsContent value="product" className="mt-4 space-y-4">
           <ProductAboutPanel
             onOpenFiches={onNavigate ? () => onNavigate('home', { view: 'fiches' }) : undefined}
           />
+          <TrustGatesPanel />
         </TabsContent>
         <TabsContent value="fiches" className="mt-4">
           <FichesCmsPanel settings={settings} />
@@ -147,7 +150,8 @@ export function SettingsDashboard({ onNavigate }: { onNavigate?: AppNavigateFn }
         <TabsContent value="integrations" className="mt-4">
           <IntegrationsPanel settings={settings} />
         </TabsContent>
-        <TabsContent value="users" className="mt-4">
+        <TabsContent value="users" className="mt-4 space-y-4">
+          <SignaturePinSelfPanel />
           <UserManagementPanel />
         </TabsContent>
       </Tabs>

@@ -236,7 +236,7 @@ export function MaterialBalancePanel() {
                 Répartition des flux — base 1 000 kg réceptionnés
               </CardTitle>
               <p className="mt-1 text-xs text-muted-foreground">
-                Source : Cartographie complète des flux de production, v3.0 · Usine Royal Palm Tozeur
+                Source : Cartographie des flux de production · Usine de dattes
               </p>
             </div>
             <div className="shrink-0 text-right">

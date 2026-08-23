@@ -186,6 +186,11 @@ export function useAuth() {
     if (error) throw error;
   };
 
+  const refreshSession = async () => {
+    const { data } = await mongodb.auth.getSession();
+    applySessionState(data.session);
+  };
+
   const hasRole = (role: ActorRole): boolean => {
     return state.roles.includes(role);
   };
@@ -199,6 +204,7 @@ export function useAuth() {
     signUp,
     signIn,
     signOut,
+    refreshSession,
     hasRole,
     hasAnyRole
   };

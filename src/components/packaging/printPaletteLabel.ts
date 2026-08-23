@@ -63,8 +63,8 @@ export function printPaletteLabel(
 <div class="pal-label">
   <div class="header">
     <div>
-      <div class="company">Royal Palm</div>
-      <div style="font-size:8pt;color:#666">Groupe Ennour Investissement — Tozeur</div>
+      <div class="company">MES Dattes</div>
+      <div style="font-size:8pt;color:#666">Palette conditionnement</div>
     </div>
     <div class="doc-type">
       <div>ÉTIQUETTE PALETTE</div>

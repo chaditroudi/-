@@ -369,8 +369,8 @@ export class Phase2Controller {
 
   @Post("triage/sessions/:id/close")
   @Roles(...PHASE2_ROLES)
-  async closeTriageSession(@Req() req: any, @Param("id") id: string) {
-    const result = await this.phase2Service.closeTriageSession(id);
+  async closeTriageSession(@Req() req: any, @Param("id") id: string, @Body() body: any) {
+    const result = await this.phase2Service.closeTriageSession(id, body || {});
     publishRealtimeDbChange({
       type: "phase2_triage_session_closed",
       table: "triage_sessions",

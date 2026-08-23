@@ -50,6 +50,7 @@ export class SettingsController {
       departments?: string[];
       primary_department?: string | null;
       org_roles?: string[];
+      signature_pin?: string | null;
     },
   ) {
     requireAdminAuth(req);
