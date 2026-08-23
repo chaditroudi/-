@@ -51,8 +51,14 @@ export function CommandMenu({ accessibleTabs, onNavigate }: CommandMenuProps) {
         setOpen((v) => !v);
       }
     };
+    // Lets a header button (or anywhere) open the palette without lifting state.
+    const onOpen = () => setOpen(true);
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    window.addEventListener("open-command-menu", onOpen);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      window.removeEventListener("open-command-menu", onOpen);
+    };
   }, []);
 
   const navItems = useMemo(
