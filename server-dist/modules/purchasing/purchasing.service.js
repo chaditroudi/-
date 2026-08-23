@@ -14,6 +14,8 @@ import { membershipFromActor } from "../org/membership.js";
 import { settingsService } from "../settings/settings.service.js";
 import { notifySupplierPurchaseOrderSent } from "../mail/purchase-order-notify.js";
 import { notifyPurchaseRequisitionTransition } from "../workflow/purchase-requisition-notify.js";
+import { autoCreateThresholdRequisitions, evaluateStockReorderNeeds } from "./stock-reorder.service.js";
+import { assertSignaturePin } from "../auth/numeric-signature.js";
 import { approveRequisitionStep, cancelRequisitionStep, rejectRequisitionStep, returnRequisitionForChanges, submitRequisition, } from "../workflow/purchase-requisition-workflow.js";
 import { DEFAULT_PR_APPROVAL_MATRIX, isPurchaseRequisitionOpen, isPurchaseRequisitionPending, normalizePurchaseRequisitionStatus, } from "../workflow/workflow-types.js";
 const META_START = "[SAGE_META]";
@@ -518,6 +520,20 @@ let PurchasingService = class PurchasingService {
         }
         return { created_count: created.length, requisitions: created };
     }
+    /**
+     * TODO Priorité 1 — Produits sous seuil de sécurité, calculés depuis le stock
+     * réel (stock_lots). Lecture seule pour l'affichage de l'alerte de réappro.
+     */
+    async listStockReorderNeeds() {
+        return evaluateStockReorderNeeds();
+    }
+    /**
+     * TODO Priorité 1 — Crée les DA de réappro seuil en brouillon (idempotent),
+     * chacune liée au lot déclencheur. Le magasinier n'a plus qu'à les soumettre.
+     */
+    async generateThresholdReorderRequisitions(actor) {
+        return autoCreateThresholdRequisitions({ actorId: actor?.id ?? null });
+    }
     async updateRequisition(requisitionId, payload) {
         const existing = await PurchaseRequisitions().findOne({ id: requisitionId }).lean().exec();
         if (!existing) {
@@ -539,13 +555,24 @@ let PurchasingService = class PurchasingService {
         // Identity comes from the authenticated session — not typed names.
         // Legacy approverName is ignored for authorization (kept only for audit compatibility).
         void options?.approverName;
+        // Signature numérique — une approbation P2P engage l'argent: on ré-authentifie
+        // le signataire (la session partagée ne suffit pas contre la fraude).
+        const pinResult = await assertSignaturePin(String(actor?.id || ""), options?.pin ?? null, {
+            action: "pr_approve",
+            entityId: requisitionId,
+        });
         const matrix = await this.loadApprovalMatrix();
         const resolvedActor = await this.resolveActor(actor);
         const decision = approveRequisitionStep(existing, resolvedActor, {
             reason: options?.reason,
             matrix,
         });
-        const updated = await this.updateRequisition(requisitionId, this.applyWorkflowDecision(decision));
+        const updated = await this.updateRequisition(requisitionId, {
+            ...this.applyWorkflowDecision(decision),
+            last_approval_pin_verified: pinResult.verified === true,
+            last_approval_by: pinResult.userId,
+            last_approval_at: new Date().toISOString(),
+        });
         await notifyPurchaseRequisitionTransition({
             id: requisitionId,
             requisition_number: updated?.requisition_number,

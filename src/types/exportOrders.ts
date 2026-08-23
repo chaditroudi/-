@@ -35,6 +35,16 @@ export interface ExportOrder {
   contract_language: ContractLanguage;
   created_by?: string | null;
   notes?: string | null;
+  // Wave D — promesse ATP inscrite sur la commande (semaine de livraison).
+  atp_ship_week?: string | null;
+  atp_ship_week_start?: string | null;
+  atp_confidence?: 'committed' | 'partial' | 'unavailable' | string | null;
+  atp_covered_kg?: number | null;
+  atp_shortfall_kg?: number | null;
+  atp_requested_kg?: number | null;
+  atp_basis?: string | null;
+  atp_promised_at?: string | null;
+  atp_promised_by?: string | null;
   created_at: string;
   updated_at: string;
 }

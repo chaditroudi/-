@@ -11,6 +11,7 @@ import {
 import { absorbStandardCosts } from "../costing/cost-allocation.js";
 import { loadCostingRates } from "../costing/costing-rates.js";
 import { emitNotification } from "../notifications/notification-emitter.js";
+import { autoReorderOnStockChange } from "../purchasing/stock-reorder.service.js";
 import {
   PLACEHOLDER_GS1_COMPANY_PREFIX,
   generateSSCC,
@@ -441,6 +442,10 @@ export class PackagingService {
           created_at: now,
         });
         await StockMovements().create([movement]);
+
+        // TODO Priorité 1 — la consommation packaging peut faire passer le
+        // produit sous son seuil: déclencher le réappro (non bloquant).
+        await autoReorderOnStockChange([readString(stockLot.product_id)], readString(order.created_by) || null);
       }
     } catch (error) {
       if ((error as { code?: string } | null)?.code === "INSUFFICIENT_STOCK"

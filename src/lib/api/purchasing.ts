@@ -94,6 +94,22 @@ export interface ReplenishmentNeed {
   already_requested: boolean;
 }
 
+export interface StockReorderNeed {
+  product_id: string;
+  product_name: string;
+  product_code: string;
+  unit: string;
+  threshold_security: number;
+  threshold_max: number | null;
+  available_quantity: number;
+  suggested_quantity: number;
+  trigger_lot_id: string | null;
+  trigger_lot_code: string | null;
+  trigger_reception_lot_id: string | null;
+  preferred_supplier_id: string | null;
+  already_requested: boolean;
+}
+
 export const purchasingApi = {
   listReplenishmentNeeds: async () => {
     const response = await apiRequest<ApiEnvelope<ReplenishmentNeed[]>>('/purchasing/replenishment-needs');
@@ -103,6 +119,19 @@ export const purchasingApi = {
   generateReplenishment: async () => {
     const response = await apiRequest<ApiEnvelope<{ created_count: number; requisitions: PurchaseRequisition[] }>>(
       '/purchasing/requisitions/auto-replenish',
+      { method: 'POST' },
+    );
+    return response.data;
+  },
+
+  listStockReorderNeeds: async () => {
+    const response = await apiRequest<ApiEnvelope<StockReorderNeed[]>>('/purchasing/stock-reorder-needs');
+    return response.data || [];
+  },
+
+  generateThresholdReorder: async () => {
+    const response = await apiRequest<ApiEnvelope<{ created_count: number; requisitions: PurchaseRequisition[] }>>(
+      '/purchasing/requisitions/auto-reorder-threshold',
       { method: 'POST' },
     );
     return response.data;
@@ -148,7 +177,10 @@ export const purchasingApi = {
     return response.data;
   },
 
-  approveRequisition: async (id: string, options?: { reason?: string | null; approverName?: string | null }) => {
+  approveRequisition: async (
+    id: string,
+    options?: { reason?: string | null; approverName?: string | null; pin?: string | null },
+  ) => {
     const response = await apiRequest<ApiEnvelope<PurchaseRequisition>>(
       `/purchasing/requisitions/${encodeURIComponent(id)}/approve`,
       {
@@ -156,6 +188,7 @@ export const purchasingApi = {
         body: JSON.stringify({
           reason: options?.reason || null,
           approverName: options?.approverName || null,
+          pin: options?.pin || null,
         }),
       },
     );

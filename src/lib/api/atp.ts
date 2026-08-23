@@ -46,4 +46,12 @@ export const atpApi = {
     const response = await apiRequest<{ data: AtpPromise }>(`/atp/promise?${qs}`);
     return response.data;
   },
+  /** Wave D — calcule et inscrit la promesse ATP sur une commande export. */
+  promiseOrder: async (orderId: string) => {
+    const response = await apiRequest<{ data: { promise: AtpPromise; order: unknown } }>(
+      `/atp/orders/${encodeURIComponent(orderId)}/promise`,
+      { method: 'POST' },
+    );
+    return response.data;
+  },
 };

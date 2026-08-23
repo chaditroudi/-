@@ -90,6 +90,8 @@ export type SubmitQcDecisionInput = {
     measured_value?: string;
     expected_value?: string;
   }>;
+  /** Code signature numérique — requis pour la libération QC (décision ACCEPTE). */
+  pin?: string | null;
 };
 
 // ── New API helpers for receptions-ext and material-receptions endpoints ─────

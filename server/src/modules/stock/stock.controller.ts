@@ -6,6 +6,7 @@ import { prepareInsertDocument } from "../../db/defaults.js";
 import { CollectionsService } from "../collections/collections.service.js";
 import { publishRealtimeDbChange } from "../realtime/realtime.bus.js";
 import { scanService } from "../trust/scan.service.js";
+import { autoReorderOnStockChange } from "../purchasing/stock-reorder.service.js";
 
 const compactIds = (...values: unknown[]) =>
   values.flat().map((value) => String(value || "")).filter(Boolean);
@@ -532,6 +533,13 @@ export class StockController {
       rowIds: compactIds(...movementDocs.map((doc) => doc.id), shipmentId, ...lotIds),
       relatedTables: ["stock_lots", "stock_summary", "shipment_preparations"],
     });
+
+    // TODO Priorité 1 — après une baisse de stock, déclencher les DA de réappro
+    // pour les produits passés sous leur seuil de sécurité (non bloquant).
+    await autoReorderOnStockChange(
+      pickedLines.map((line) => lotMap.get(line.lot_id)?.product_id ?? line.product_id ?? null),
+      req.auth?.user?.id || null,
+    );
 
     return { data: after[0] };
   }

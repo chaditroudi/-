@@ -81,6 +81,9 @@ vi.mock("./reception-stock-sync.js", () => ({
 
 describe("receptionsService", () => {
   beforeEach(() => {
+    // QC release now re-authenticates via a numeric signature (AuthUserModel).
+    // Keep the gate off in unit tests so it never reaches the real model.
+    vi.stubEnv("NUMERIC_SIGNATURE_GATE", "off");
     Object.keys(created).forEach((key) => delete created[key]);
     receptions.clear();
   });

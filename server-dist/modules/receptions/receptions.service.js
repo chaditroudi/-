@@ -16,6 +16,7 @@ import { lotLedgerService } from "../trust/lot-ledger.service.js";
 import { emitNotification } from "../notifications/notification-emitter.js";
 import { scanService } from "../trust/scan.service.js";
 import { snapshotPurchaseCost } from "../costing/cost-allocation.js";
+import { assertSignaturePin } from "../auth/numeric-signature.js";
 // ── Supplier business-rule helpers ────────────────────────────────────────────
 const Suppliers = () => getCollectionModel("suppliers");
 const gradeQualityScore = (grade) => {
@@ -725,6 +726,11 @@ let ReceptionsService = class ReceptionsService {
         if (!inspection) {
             throw notFound("INSPECTION_NOT_FOUND", "QC inspection not found.");
         }
+        // Signature numérique — la libération QC (ACCEPTE → STOCK_LIBERE) est la
+        // transition à plus fort risque légal: on ré-authentifie le signataire.
+        const releasePinResult = decision === "ACCEPTE"
+            ? await assertSignaturePin(String(actor?.id || ""), readString(payload.pin, payload.signature_pin) || null, { action: "qc_release", entityId: inspectionId })
+            : null;
         const now = new Date().toISOString();
         const qualitySummary = payload.qualitySummary || {};
         const checkResults = Array.isArray(payload.checkResults) ? payload.checkResults : [];
@@ -762,6 +768,7 @@ let ReceptionsService = class ReceptionsService {
             recommended_decision: payload.recommendedDecision || null,
             override_justification: payload.overrideJustification || null,
             rqc: payload.rqc || null,
+            release_pin_verified: releasePinResult ? releasePinResult.verified === true : null,
         };
         await QCInspections().updateOne({ id: inspectionId }, { $set: inspectionUpdate }).exec();
         const receptionStatus = buildReceptionStatusFromDecision(decision);
@@ -784,7 +791,8 @@ let ReceptionsService = class ReceptionsService {
                 quarantine_reason: decision === "QUARANTAINE" || decision === "REJETE" ? payload.comment || null : null,
                 quarantine_date: decision === "QUARANTAINE" ? now : null,
                 release_date: decision === "ACCEPTE" ? now : null,
-                released_by: decision === "ACCEPTE" ? actor?.id || null : null,
+                released_by: decision === "ACCEPTE" ? (releasePinResult?.userId || actor?.id || null) : null,
+                release_pin_verified: decision === "ACCEPTE" ? releasePinResult?.verified === true : null,
                 updated_at: now,
             },
         }).exec();

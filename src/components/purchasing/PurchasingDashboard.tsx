@@ -20,6 +20,7 @@ import { InvoicesPanel } from './p2p/InvoicesPanel';
 import { CertificatesPanel } from './p2p/CertificatesPanel';
 import { P2PKpiPanel } from './p2p/P2PKpiPanel';
 import { SettlementsPanel } from './SettlementsPanel';
+import { NumericSignatureDialog } from '@/components/shared/NumericSignatureDialog';
 import { 
   useRequisitions, 
   useCreateRequisition, 
@@ -41,7 +42,9 @@ import {
   useClosePurchaseOrder,
   usePurchasingStats,
   useReplenishmentNeeds,
-  useGenerateReplenishment
+  useGenerateReplenishment,
+  useStockReorderNeeds,
+  useGenerateThresholdReorder
 } from '@/hooks/usePurchasing';
 import { useSuppliers } from '@/hooks/useSuppliers';
 import { useMaterials } from '@/hooks/useMaterials';
@@ -154,6 +157,8 @@ export const PurchasingDashboard = ({
   const [detailReq, setDetailReq] = useState<PurchaseRequisition | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<PurchaseOrder | null>(null);
   const [fromRequisition, setFromRequisition] = useState<PurchaseRequisition | null>(null);
+  // Signature numérique — id de la DA en attente d'approbation par code PIN.
+  const [approvePinReqId, setApprovePinReqId] = useState<string | null>(null);
 
   const canManageRequisitions = hasAnyRole(REQUISITION_WORKFLOW_ROLES);
   const canManagePurchaseOrders = hasAnyRole(PURCHASE_ORDER_MANAGEMENT_ROLES);
@@ -189,6 +194,13 @@ export const PurchasingDashboard = ({
   const generateReplenishment = useGenerateReplenishment();
   // Matières sous seuil pour lesquelles aucune DA n'est encore ouverte.
   const pendingReplenishment = replenishmentNeeds.filter((need) => !need.already_requested);
+
+  // TODO Priorité 1 — produits sous seuil de sécurité (stock réel), auto-DA.
+  const { data: stockReorderNeeds = [] } = useStockReorderNeeds({
+    enabled: canManageRequisitions,
+  });
+  const generateThresholdReorder = useGenerateThresholdReorder();
+  const pendingStockReorder = stockReorderNeeds.filter((need) => !need.already_requested);
 
   // Mutations
   const createReq = useCreateRequisition();
@@ -543,13 +555,44 @@ export const PurchasingDashboard = ({
                </Button>
              </div>
            )}
+
+           {/* TODO Priorité 1 — Seuil de sécurité stock : réappro auto liée au lot déclencheur */}
+           {canManageRequisitions && pendingStockReorder.length > 0 && (
+             <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-4">
+               <Package className="h-5 w-5 shrink-0 text-red-600" />
+               <div className="min-w-0 flex-1">
+                 <p className="text-sm font-semibold text-red-900">
+                   {pendingStockReorder.length} produit{pendingStockReorder.length > 1 ? 's' : ''} sous
+                   le seuil de sécurité
+                 </p>
+                 <p className="truncate text-xs text-red-700">
+                   {pendingStockReorder
+                     .slice(0, 4)
+                     .map((need) =>
+                       `${need.product_name} (${need.available_quantity}/${need.threshold_security} ${need.unit}` +
+                       (need.trigger_lot_code ? ` · lot ${need.trigger_lot_code})` : ')'),
+                     )
+                     .join(' · ')}
+                   {pendingStockReorder.length > 4 ? ` +${pendingStockReorder.length - 4}` : ''}
+                 </p>
+               </div>
+               <Button
+                 size="sm"
+                 className="shrink-0 bg-red-600 hover:bg-red-700"
+                 onClick={() => generateThresholdReorder.mutate()}
+                 disabled={generateThresholdReorder.isPending}
+               >
+                 Générer les DA de réappro
+               </Button>
+             </div>
+           )}
            <RequisitionsList
              requisitions={requisitions}
              onNew={handleNewReq}
              onEdit={handleEditReq}
              onView={(req) => setDetailReq(req)}
              onDelete={(id) => deleteReq.mutate(id)}
-             onApprove={(id) => approveReq.mutate({ id })}
+             onApprove={(id) => setApprovePinReqId(id)}
              onReject={(id, reason) => rejectReq.mutate({ id, reason })}
              onReturn={(id, reason) => returnReq.mutate({ id, reason })}
              onSubmit={(id) => submitReq.mutate({ id })}
@@ -667,6 +710,21 @@ export const PurchasingDashboard = ({
          onCreateOrder={(req) => {
            setDetailReq(null);
            handleCreateOrderFromReq(req);
+         }}
+       />
+
+       {/* Signature numérique — ré-authentification à l'approbation d'une DA (engage l'argent) */}
+       <NumericSignatureDialog
+         open={approvePinReqId !== null}
+         onOpenChange={(open) => { if (!open) setApprovePinReqId(null); }}
+         title="Approbation — code signature"
+         subtitle="Confirmez votre code signature personnel pour approuver cette demande d'achat."
+         confirmLabel="Approuver"
+         pending={approveReq.isPending}
+         onConfirm={async (pin) => {
+           if (!approvePinReqId) return;
+           await approveReq.mutateAsync({ id: approvePinReqId, pin });
+           setApprovePinReqId(null);
          }}
        />
      </div>
