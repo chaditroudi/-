@@ -22,6 +22,7 @@ import {
   triggerAutoBlockIfNeeded,
 } from "@/lib/phase1RuleEngine";
 import { QC_NC_CODES, NC_SEVERITY_COLORS, getAutoTriggeredNCs } from "@/lib/qcNCCodes";
+import { NumericSignatureDialog } from "@/components/shared/NumericSignatureDialog";
 
 interface QCInspectionDialogProps {
   open: boolean;
@@ -85,6 +86,8 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
   const [overridePhoto, setOverridePhoto] = useState<string[]>([]);
   const [selectedNcCodes, setSelectedNcCodes] = useState<string[]>([]);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  // Signature numérique — la libération QC (ACCEPTE) exige un code signature.
+  const [releasePinOpen, setReleasePinOpen] = useState(false);
   const [rqc, setRqc] = useState<RQCData>(defaultRqc);
 
   const updateRqcCritere = useCallback((field: RqcCritereKey, test: 'test1'|'test2'|'test3', value: number | null) => {
@@ -247,7 +250,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
 
   const isOverriding = !!overrideDecision && overrideDecision !== score.recommendedDecision;
 
-  const submit = async () => {
+  const submit = async (pin?: string) => {
     if (!inspectionId) return;
     setSubmitError(null);
 
@@ -274,6 +277,13 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
     }
     if (isOverriding && overridePhoto.length === 0) {
       setSubmitError("RG-Q04 : une photo justificative est obligatoire pour modifier la décision automatique.");
+      return;
+    }
+
+    // Signature numérique — la libération (ACCEPTE) est la transition à plus
+    // fort risque légal: on demande le code signature avant d'écrire.
+    if (selectedDecision === 'ACCEPTE' && !pin) {
+      setReleasePinOpen(true);
       return;
     }
 
@@ -311,6 +321,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
       overridePhoto: isOverriding && overridePhoto.length > 0 ? overridePhoto[0] : undefined,
       nonconformityCodes: selectedNcCodes.length > 0 ? selectedNcCodes : undefined,
       rqc,
+      pin: pin ?? undefined,
       checkResults: [
         { check_code: "HUM", check_name: "Humidite", severity: "MAJEUR", result: score.humidityScore >= 60 ? "CONFORME" : "NON_CONFORME", note: `${labHumidityForDecision}% (sol ${score.humidityAverage}%)`, measured_value: String(labHumidityForDecision), expected_value: "20-26" },
         { check_code: "DEF", check_name: "Defauts totaux", severity: "MAJEUR", result: labDefectsForDecision <= 10 ? "CONFORME" : "NON_CONFORME", note: `${labDefectsForDecision}%`, measured_value: String(labDefectsForDecision), expected_value: "<= 10" },
@@ -321,6 +332,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
       ],
     });
 
+    setReleasePinOpen(false);
     setConfirmedDecision(selectedDecision);
     setPhase("confirmed");
 
@@ -357,6 +369,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={closeDialog}>
       <DialogContent className="max-w-6xl h-[92vh] flex flex-col">
         <DialogHeader>
@@ -1141,7 +1154,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
               {phase === "confirmed" ? "Fermer" : "Annuler"}
             </Button>
             {phase === "inspection" && (
-              <Button onClick={submit} disabled={submitDecision.isPending}>
+              <Button onClick={() => submit()} disabled={submitDecision.isPending}>
                 {submitDecision.isPending ? "Validation en cours..." : "Valider la décision QC"}
               </Button>
             )}
@@ -1149,5 +1162,17 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
         </DialogFooter>
       </DialogContent>
     </Dialog>
+
+    {/* Signature numérique — ré-authentification à la libération QC (ACCEPTE) */}
+    <NumericSignatureDialog
+      open={releasePinOpen}
+      onOpenChange={setReleasePinOpen}
+      title="Libération QC — code signature"
+      subtitle="Confirmez votre code signature personnel pour libérer ce lot vers le stock."
+      confirmLabel="Libérer"
+      pending={submitDecision.isPending}
+      onConfirm={async (pin) => { await submit(pin); }}
+    />
+    </>
   );
 };

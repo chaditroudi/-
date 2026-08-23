@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils';
 import {
   FileText, Plus, Printer, Pencil, Trash2, Search, Lock,
   FileCheck, Globe, RefreshCw, CheckCircle2, Clock, ChevronRight,
-  TrendingUp, Package, DollarSign, ShieldCheck,
+  TrendingUp, Package, DollarSign, ShieldCheck, CalendarClock,
 } from 'lucide-react';
 import {
   useExportOrders, useCreateExportOrder, useUpdateExportOrder, useDeleteExportOrder,
@@ -31,6 +31,8 @@ import {
   printExportInvoice,
 } from './printExportInvoice';
 import { AtpPromisePanel } from './AtpPromisePanel';
+import { useQueryClient } from '@tanstack/react-query';
+import { atpApi } from '@/lib/api/atp';
 import type { ExportOrder, ExportContract, COADocument } from '@/types/exportOrders';
 import { settlementsApi, type ExportOrderMargin } from '@/lib/api/settlements';
 import { useSiteSettings } from '@/hooks/useSettings';
@@ -190,6 +192,25 @@ export function ExportDashboard() {
   const [marginLoading,    setMarginLoading]   = useState(false);
 
   const [search, setSearch] = useState('');
+
+  // Wave D — promesse ATP inscrite sur la commande.
+  const queryClient = useQueryClient();
+  const [promisingId, setPromisingId] = useState<string | null>(null);
+
+  const promiseOrderAction = async (order: ExportOrder) => {
+    setPromisingId(order.id);
+    try {
+      const { promise } = await atpApi.promiseOrder(order.id);
+      await queryClient.invalidateQueries({ queryKey: ['export_orders'] });
+      toast.success(
+        `Promesse enregistrée — ${promise.ship_week} (${promise.confidence})`,
+      );
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Promesse ATP indisponible');
+    } finally {
+      setPromisingId(null);
+    }
+  };
 
   const openMargin = async (order: ExportOrder) => {
     setMarginTarget(order);
@@ -406,7 +427,17 @@ export function ExportDashboard() {
                     const hasContract = contracts.some((c) => c.order_id === order.id);
                     return (
                       <tr key={order.id} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
-                        <td className="px-4 py-2.5 font-mono font-medium text-primary">{order.order_ref}</td>
+                        <td className="px-4 py-2.5 font-mono font-medium text-primary">
+                          {order.order_ref}
+                          {order.atp_ship_week && (
+                            <span
+                              className="mt-0.5 block text-[10px] font-normal text-muted-foreground"
+                              title={`Promis ${order.atp_confidence} · ${order.atp_basis ?? ''}`}
+                            >
+                              ATP {order.atp_ship_week}
+                            </span>
+                          )}
+                        </td>
                         <td className="px-4 py-2.5 font-medium">{order.customer_name}</td>
                         <td className="px-4 py-2.5">{COUNTRY_LABEL[order.customer_country] ?? order.customer_country}</td>
                         <td className="px-4 py-2.5">
@@ -441,6 +472,12 @@ export function ExportDashboard() {
                                 <FileText className="h-3.5 w-3.5" /> Contrat
                               </Button>
                             )}
+                            <Button variant="ghost" size="sm" className="h-9 px-2 text-xs gap-1"
+                              onClick={() => promiseOrderAction(order)}
+                              disabled={promisingId === order.id}
+                              title="Calculer et inscrire la semaine de livraison (ATP)">
+                              <CalendarClock className="h-3.5 w-3.5" /> Promettre
+                            </Button>
                             <Button variant="ghost" size="sm" className="h-9 px-2 text-xs gap-1"
                               onClick={() => openMargin(order)}
                               title="Marge vs coût lot">

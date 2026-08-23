@@ -11,6 +11,7 @@ import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js"
 const StockLots = () => getCollectionModel("stock_lots");
 const StorageZones = () => getCollectionModel("storage_zones");
 const PackagingPalettes = () => getCollectionModel("packaging_palettes");
+const ExportOrders = () => getCollectionModel("export_orders");
 
 const readNumber = (value: unknown, fallback = 0) => {
   const n = Number(value);
@@ -153,6 +154,56 @@ export class AtpService {
             ? "Couverture partielle — semaine +1 pour compléter (production / triage)."
             : "Pas de stock validé — semaine indicative +2 (à confirmer atelier).",
     };
+  }
+
+  /**
+   * Wave D — calcule la promesse ATP pour une commande export et l'inscrit sur
+   * la commande (semaine de livraison, confiance, couverture). Rend la promesse
+   * "vendable": elle vit sur la commande, plus seulement dans un panneau lecture.
+   */
+  async promiseForOrder(orderId: string, actorId?: string | null) {
+    const id = String(orderId || "").trim();
+    if (!id) throw badRequest("ORDER_ID_REQUIRED", "orderId requis.");
+
+    const order = sanitizeDocument(
+      await ExportOrders().findOne({ id }).lean().exec(),
+    ) as Record<string, unknown> | null;
+    if (!order) throw badRequest("ORDER_NOT_FOUND", "Commande export introuvable.");
+
+    const lines = Array.isArray(order.lines) ? (order.lines as Array<Record<string, unknown>>) : [];
+    const qtyKg =
+      readNumber(order.total_weight_kg) ||
+      lines.reduce((sum, line) => sum + readNumber(line.net_weight_kg), 0);
+    if (qtyKg <= 0) {
+      throw badRequest("ORDER_QTY_REQUIRED", "La commande n'a aucun poids à promettre.");
+    }
+
+    // Grade dominant si toutes les lignes partagent le même, sinon indifférencié.
+    const grades = Array.from(
+      new Set(lines.map((line) => String(line.quality_grade || "").trim()).filter(Boolean)),
+    );
+    const grade = grades.length === 1 ? grades[0] : null;
+
+    const promise = await this.promise({ qtyKg, grade });
+
+    const now = new Date().toISOString();
+    const atpPatch = {
+      atp_ship_week: promise.ship_week,
+      atp_ship_week_start: promise.ship_week_start,
+      atp_confidence: promise.confidence,
+      atp_covered_kg: promise.covered_kg,
+      atp_shortfall_kg: promise.shortfall_kg,
+      atp_requested_kg: promise.requested_kg,
+      atp_basis: promise.basis,
+      atp_promised_at: now,
+      atp_promised_by: actorId || null,
+      updated_at: now,
+    };
+
+    await ExportOrders().updateOne({ id }, { $set: atpPatch }).exec();
+
+    const updated = sanitizeDocument(await ExportOrders().findOne({ id }).lean().exec());
+    return { promise, order: updated };
   }
 
   async summary() {

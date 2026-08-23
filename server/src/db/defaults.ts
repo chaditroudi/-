@@ -292,6 +292,9 @@ export const prepareInsertDocument = async (collection: string, rawInput: Record
   if (collection === "purchase_requisitions") {
     doc.requisition_number = doc.requisition_number || (await nextDailyNumber("DA"));
     doc.status = doc.status || "DRAFT";
+    doc.source = doc.source || "MANUAL";
+    doc.product_id = doc.product_id ?? null;
+    doc.trigger_lot_id = doc.trigger_lot_id ?? null;
   }
 
   if (collection === "maintenance_requests") {

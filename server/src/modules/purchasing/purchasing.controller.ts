@@ -72,6 +72,30 @@ export class PurchasingController {
     return { data };
   }
 
+  @Get("stock-reorder-needs")
+  @Roles(...REQUISITION_ROLES)
+  async listStockReorderNeeds() {
+    return { data: await this.purchasingService.listStockReorderNeeds() };
+  }
+
+  @Post("requisitions/auto-reorder-threshold")
+  @Roles(...REQUISITION_ROLES)
+  @HttpCode(201)
+  async generateThresholdReorder(@Req() req: any) {
+    const data = await this.purchasingService.generateThresholdReorderRequisitions(
+      req.auth?.user || null,
+    );
+    publishRealtimeDbChange({
+      type: "purchase_requisition_created",
+      table: "purchase_requisitions",
+      action: "INSERT",
+      rows: (data.requisitions as any[]) ?? [],
+      rowIds: ((data.requisitions as any[]) ?? []).map((row) => String(row?.id || "")).filter(Boolean),
+      relatedTables: ["purchasing_stats"],
+    });
+    return { data };
+  }
+
   @Get("requisitions/:id")
   @Roles(...REQUISITION_ROLES)
   async getRequisition(@Param("id") id: string) {
@@ -134,6 +158,7 @@ export class PurchasingController {
     const data = await this.purchasingService.approveRequisition(id, req.auth?.user || null, {
       reason: body?.reason,
       approverName: body?.approverName,
+      pin: body?.pin ?? body?.signature_pin ?? null,
     });
     publishRealtimeDbChange({
       type: "purchase_requisition_approved",

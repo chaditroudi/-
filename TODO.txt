@@ -1,5 +1,23 @@
-🥇 Priorité 1 — Auto-déclenchement DA depuis seuil stock
-Le chaînon manquant le plus critique.
-Le stock a threshold_security, la DA existe, mais rien ne les relie. Quand un lot tombe sous le seuil → une DA se crée automatiquement en draft avec l'article, la quantité à réapprovisionner, et un lien vers le lot déclencheur. Le magasinier n'a plus qu'à soumettre.
+✅ FAIT — Priorité 1 : Auto-déclenchement DA depuis seuil stock
+Le chaînon manquant le plus critique est maintenant en place.
+
+Le stock (produits + stock_lots) porte threshold_security ; la DA existe ;
+elles sont désormais reliées. Quand le stock disponible réel (stock_lots
+VALIDATED) d'un produit tombe sous son seuil de sécurité, une DA se crée
+automatiquement en statut DRAFT avec :
+  - l'article (produit),
+  - la quantité à réapprovisionner (jusqu'au plafond, sinon 2× le seuil),
+  - un lien vers le lot déclencheur (trigger_lot_id / trigger_lot_code),
+  - une notification actionnable au magasin.
+Le magasinier n'a plus qu'à la soumettre.
+
+Implémentation :
+  - server/src/modules/purchasing/stock-reorder.service.ts (évaluation + création idempotente)
+  - Hooks non bloquants après baisse de stock : expédition (stock) + consommation (packaging)
+  - Endpoints : GET /api/purchasing/stock-reorder-needs, POST /api/purchasing/requisitions/auto-reorder-threshold
+  - Gate : AUTO_REORDER_GATE=on|off (défaut on)
+  - UI : bannière "produits sous seuil de sécurité" sur le tableau Achats
+  - Note : le champ materials.current_stock n'était jamais mis à jour côté serveur ;
+    le réappro seuil lit désormais le stock réel (stock_lots) pour lever cette confusion.
 
 Impact : supprime les ruptures par oubli humain, trace automatiquement l'origine de chaque achat.

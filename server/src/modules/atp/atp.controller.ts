@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from "@nestjs/common";
+import { Controller, Get, Param, Post, Query, Req, UseGuards } from "@nestjs/common";
 
 import { Roles } from "../../nest/route-metadata.js";
 import { RequireAuthGuard, RolesGuard } from "../../nest/route-guards.js";
@@ -41,5 +41,12 @@ export class AtpController {
         grade: grade || null,
       }),
     };
+  }
+
+  // Wave D — calcule et inscrit la promesse ATP sur la commande export.
+  @Post("orders/:id/promise")
+  @Roles(...ATP_ROLES)
+  async promiseOrder(@Req() req: any, @Param("id") id: string) {
+    return { data: await this.atp.promiseForOrder(id, req.auth?.user?.id || null) };
   }
 }

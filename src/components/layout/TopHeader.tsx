@@ -5,6 +5,7 @@ import {
   LogIn,
   LogOut,
   RefreshCw,
+  Search,
   ShieldCheck,
   Users,
 } from "lucide-react";
@@ -136,6 +137,28 @@ export const TopHeader = ({
 
       {/* ── Right zone ── */}
       <div className="ml-auto flex shrink-0 items-center gap-1.5">
+
+        {/* Command palette — click or ⌘K */}
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new Event("open-command-menu"))}
+          title="Rechercher — ⌘K"
+          aria-label="Ouvrir la recherche rapide (⌘K)"
+          className="hidden items-center gap-2 rounded-xl border border-border/55 bg-muted/50 py-1.5 pl-2.5 pr-2 text-xs text-muted-foreground/80 transition-colors hover:bg-card hover:text-foreground sm:inline-flex"
+        >
+          <Search className="h-3.5 w-3.5" />
+          <span className="hidden lg:inline">Rechercher…</span>
+          <kbd className="rounded border border-border/60 bg-background px-1.5 py-0.5 font-mono text-[10px] font-semibold">⌘K</kbd>
+        </button>
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new Event("open-command-menu"))}
+          title="Rechercher — ⌘K"
+          aria-label="Ouvrir la recherche rapide"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground/70 hover:bg-muted hover:text-foreground sm:hidden"
+        >
+          <Search className="h-5 w-5" />
+        </button>
 
         {/* Date chip — desktop only */}
         <span className="hidden items-center gap-1.5 rounded-full border border-primary/18 bg-primary/8 px-2.5 py-1 text-xs font-semibold text-primary/80 xl:inline-flex">

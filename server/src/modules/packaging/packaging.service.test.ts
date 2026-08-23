@@ -25,6 +25,14 @@ vi.mock("../notifications/notification-emitter.js", () => ({
   emitNotification: vi.fn(async () => null),
 }));
 
+// sealPalette dynamically imports the real SiteSettingsModel (GS1 prefix lookup);
+// without a DB its query never resolves and the test times out. Stub it.
+vi.mock("../../models/site-settings.model.js", () => ({
+  SiteSettingsModel: {
+    findOne: () => ({ lean: () => ({ exec: async () => null }) }),
+  },
+}));
+
 const seedPremiumChainThroughTriage = (lotId: string) => {
   const intake = buildLotEventRecord(
     { lotId, eventType: "LOT_CREATED", collection: "reception_lots", action: "GATE", prevHash: null },

@@ -5,6 +5,7 @@ import {
   type OrderLineInsert,
   type PurchaseOrderInsert,
   type ReplenishmentNeed,
+  type StockReorderNeed,
   type RequisitionInsert,
 } from '@/lib/api/purchasing';
 import {
@@ -160,6 +161,34 @@ export const useGenerateReplenishment = () => {
   });
 };
 
+/** TODO Priorité 1 — produits sous seuil de sécurité, calculés depuis le stock réel. */
+export const useStockReorderNeeds = (options?: QueryOptions) =>
+  useQuery<StockReorderNeed[]>({
+    queryKey: ['stock-reorder-needs'],
+    queryFn: async () => purchasingApi.listStockReorderNeeds(),
+    enabled: options?.enabled ?? true,
+  });
+
+/** TODO Priorité 1 — génère les DA de réappro seuil en brouillon, liées au lot déclencheur. */
+export const useGenerateThresholdReorder = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => purchasingApi.generateThresholdReorder(),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['requisitions'] });
+      queryClient.invalidateQueries({ queryKey: ['stock-reorder-needs'] });
+      const count = data?.created_count ?? 0;
+      toast.success(
+        count > 0
+          ? `${count} demande${count > 1 ? 's' : ''} d'achat créée${count > 1 ? 's' : ''} en brouillon (seuil de sécurité)`
+          : 'Aucun produit sous le seuil de sécurité',
+      );
+    },
+    onError: () => toast.error('Erreur lors de la génération des demandes de réappro'),
+  });
+};
+
 export const useRequisition = (id: string) =>
   useQuery({
     queryKey: ['requisition', id],
@@ -204,8 +233,8 @@ export const useApproveRequisition = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, reason }: { id: string; reason?: string | null }) =>
-      purchasingApi.approveRequisition(id, { reason }),
+    mutationFn: async ({ id, reason, pin }: { id: string; reason?: string | null; pin?: string | null }) =>
+      purchasingApi.approveRequisition(id, { reason, pin }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['requisitions'] });
       toast.success('Niveau d\'approbation enregistré');

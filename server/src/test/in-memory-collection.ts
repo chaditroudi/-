@@ -17,8 +17,17 @@ export const matchesFilter = (row: TestRow, filter: TestRow = {}): boolean =>
     }
     if (condition && typeof condition === "object" && !Array.isArray(condition)) {
       const operators = condition as TestRow;
+      // Numeric-aware comparison for range operators; falls back to string
+      // comparison (correct for ISO date strings, which is how callers use it).
+      const compare = (a: unknown, b: unknown) => {
+        if (typeof a === "number" && typeof b === "number") return a - b;
+        return String(a ?? "").localeCompare(String(b ?? ""));
+      };
       if ("$ne" in operators) return row[key] !== operators.$ne;
-      if ("$gte" in operators) return String(row[key] ?? "") >= String(operators.$gte);
+      if ("$gt" in operators) return compare(row[key], operators.$gt) > 0;
+      if ("$gte" in operators) return compare(row[key], operators.$gte) >= 0;
+      if ("$lt" in operators) return compare(row[key], operators.$lt) < 0;
+      if ("$lte" in operators) return compare(row[key], operators.$lte) <= 0;
       if ("$in" in operators) return (operators.$in as unknown[]).includes(row[key]);
     }
     return row[key] === condition;

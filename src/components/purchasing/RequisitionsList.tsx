@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Plus, Search, Edit2, Trash2, Check, X, ShoppingCart, Eye,
 } from 'lucide-react';
@@ -42,6 +43,8 @@ interface RequisitionsListProps {
   onDelete: (id: string) => void;
   /** Approver identity comes from the authenticated session on the server. */
   onApprove: (id: string) => void;
+  /** Bulk approve — one signature for the whole selection (server re-checks each). */
+  onApproveMany?: (ids: string[]) => void;
   onReject: (id: string, reason: string) => void;
   onReturn?: (id: string, reason: string) => void;
   onSubmit?: (id: string) => void;
@@ -65,6 +68,7 @@ export const RequisitionsList = ({
   onEdit,
   onDelete,
   onApprove,
+  onApproveMany,
   onReject,
   onReturn,
   onSubmit,
@@ -96,6 +100,9 @@ export const RequisitionsList = ({
 
   // ── Delete confirm state ─────────────────────────────
   const [deleteTarget, setDeleteTarget] = useState<PurchaseRequisition | null>(null);
+
+  // ── Bulk-approve selection ───────────────────────────
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const filtered = requisitions.filter((r) => {
     if (statusFilter !== 'all') {
@@ -155,6 +162,42 @@ export const RequisitionsList = ({
         (currentUserId && a.approved_by_id === currentUserId) ||
         (!!currentUser && a.approved_by.trim().toLowerCase() === currentUser.trim().toLowerCase()),
     );
+
+  // A row is bulk-approvable when the user could approve it individually:
+  // pending, not their own, not already signed by them. The server re-verifies
+  // permissions, SoD, and the amount matrix for every id.
+  const isApprovable = (req: PurchaseRequisition) =>
+    canApprove &&
+    !!onApproveMany &&
+    isRequisitionPending(req.status) &&
+    !isOwnRequisition(req) &&
+    !hasAlreadySigned(req);
+
+  const approvableFiltered = filtered.filter(isApprovable);
+  const selectedApprovableIds = approvableFiltered
+    .filter((r) => selectedIds.has(r.id))
+    .map((r) => r.id);
+  const allApprovableSelected =
+    approvableFiltered.length > 0 && selectedApprovableIds.length === approvableFiltered.length;
+
+  const toggleSelected = (id: string) =>
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+  const toggleSelectAll = () =>
+    setSelectedIds((prev) =>
+      allApprovableSelected ? new Set() : new Set(approvableFiltered.map((r) => r.id)),
+    );
+
+  const handleBulkApprove = () => {
+    if (!onApproveMany || selectedApprovableIds.length === 0) return;
+    onApproveMany(selectedApprovableIds);
+    setSelectedIds(new Set());
+  };
 
   const handleApproveClick = (req: PurchaseRequisition) => {
     setReqToApprove(req);
@@ -318,11 +361,38 @@ export const RequisitionsList = ({
             </Select>
           </div>
 
+          {/* Bulk approve bar — one signature for the whole selection */}
+          {onApproveMany && selectedApprovableIds.length > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/30 bg-primary/5 px-4 py-2.5">
+              <span className="text-sm font-medium">
+                {selectedApprovableIds.length} demande{selectedApprovableIds.length > 1 ? 's' : ''} sélectionnée{selectedApprovableIds.length > 1 ? 's' : ''}
+              </span>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>
+                  Annuler
+                </Button>
+                <Button size="sm" onClick={handleBulkApprove}>
+                  Approuver la sélection
+                </Button>
+              </div>
+            </div>
+          )}
+
           {/* Table */}
           <div className="rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
+                  {onApproveMany && (
+                    <TableHead className="w-10">
+                      <Checkbox
+                        checked={allApprovableSelected}
+                        onCheckedChange={toggleSelectAll}
+                        disabled={approvableFiltered.length === 0}
+                        aria-label="Tout sélectionner"
+                      />
+                    </TableHead>
+                  )}
                   <TableHead>N° DA</TableHead>
                   <TableHead>Date souhaitée</TableHead>
                   <TableHead>Site</TableHead>
@@ -337,7 +407,7 @@ export const RequisitionsList = ({
               <TableBody>
                 {filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center text-muted-foreground py-10">
+                    <TableCell colSpan={onApproveMany ? 10 : 9} className="text-center text-muted-foreground py-10">
                       Aucune demande trouvée
                     </TableCell>
                   </TableRow>
@@ -351,6 +421,17 @@ export const RequisitionsList = ({
                         key={req.id}
                         className={cn(isUrgent && req.status === 'pending_approval' && 'bg-red-50/40')}
                       >
+                        {onApproveMany && (
+                          <TableCell className="w-10">
+                            {isApprovable(req) ? (
+                              <Checkbox
+                                checked={selectedIds.has(req.id)}
+                                onCheckedChange={() => toggleSelected(req.id)}
+                                aria-label={`Sélectionner ${req.requisition_number}`}
+                              />
+                            ) : null}
+                          </TableCell>
+                        )}
                         <TableCell>
                           <button
                             type="button"
