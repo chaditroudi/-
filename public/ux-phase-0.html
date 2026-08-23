@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MES Dattes — UX Phase 0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Discovery & audit of the date-processing MES: where the everyday operator experience is slow, and a phased plan to fix it without removing functionality.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    /* light — warm, amber-biased neutrals grounded in dates */
+    --bg:        #F5F0E8;
+    --surface:   #FCFAF5;
+    --surface-2: #F0E9DC;
+    --ink:       #2A2019;
+    --ink-soft:  #5C4F42;
+    --ink-faint: #8A7C6C;
+    --line:      #E1D6C4;
+    --line-soft: #ECE3D3;
+    --accent:    #B26B29;   /* date flesh / ochre */
+    --accent-ink:#8A4E17;
+    --accent-wash:#F3E4D0;
+    --palm:      #4A6B3F;   /* palm green — secondary */
+    --palm-wash: #E4EADD;
+    /* semantic severity — distinct from accent */
+    --crit:      #B23A2E;
+    --crit-wash: #F6DED9;
+    --warn:      #B8791A;
+    --warn-wash: #F7E9CC;
+    --ok:        #3F7A4F;
+    --ok-wash:   #DEECE0;
+    --info:      #3A6491;
+    --info-wash: #DCE7F1;
+    --shadow:    0 1px 2px rgba(42,32,25,.06), 0 4px 16px rgba(42,32,25,.05);
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --bg:        #17130E;
+      --surface:   #201A13;
+      --surface-2: #29221A;
+      --ink:       #F1E9DC;
+      --ink-soft:  #C4B7A5;
+      --ink-faint: #8F8272;
+      --line:      #362C21;
+      --line-soft: #2B2219;
+      --accent:    #E39A4F;
+      --accent-ink:#F0BE86;
+      --accent-wash:#3A2A18;
+      --palm:      #8CB07C;
+      --palm-wash: #26311F;
+      --crit:      #E88B7E; --crit-wash:#3A211C;
+      --warn:      #E3B058; --warn-wash:#38290F;
+      --ok:        #82C08F; --ok-wash:#1E2E20;
+      --info:      #86B0DB; --info-wash:#1B2836;
+      --shadow:    0 1px 2px rgba(0,0,0,.4), 0 6px 22px rgba(0,0,0,.3);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:        #17130E;
+    --surface:   #201A13;
+    --surface-2: #29221A;
+    --ink:       #F1E9DC;
+    --ink-soft:  #C4B7A5;
+    --ink-faint: #8F8272;
+    --line:      #362C21;
+    --line-soft: #2B2219;
+    --accent:    #E39A4F;
+    --accent-ink:#F0BE86;
+    --accent-wash:#3A2A18;
+    --palm:      #8CB07C;
+    --palm-wash: #26311F;
+    --crit:      #E88B7E; --crit-wash:#3A211C;
+    --warn:      #E3B058; --warn-wash:#38290F;
+    --ok:        #82C08F; --ok-wash:#1E2E20;
+    --info:      #86B0DB; --info-wash:#1B2836;
+    --shadow:    0 1px 2px rgba(0,0,0,.4), 0 6px 22px rgba(0,0,0,.3);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  h1, h2, h3 { font-family: "Archivo", ui-sans-serif, sans-serif; line-height: 1.08; text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+  .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--accent-ink);
+  }
+
+  /* ---- hero ---- */
+  header.hero {
+    border-bottom: 1px solid var(--line);
+    background:
+      radial-gradient(120% 90% at 88% -10%, var(--accent-wash) 0%, transparent 55%),
+      var(--surface);
+  }
+  .hero-inner { padding: 60px 0 40px; }
+  .hero h1 { font-size: clamp(34px, 5.6vw, 62px); font-weight: 800; letter-spacing: -0.025em; }
+  .hero h1 .tint { color: var(--accent-ink); }
+  .hero .lede {
+    margin: 20px 0 0; max-width: 60ch; font-size: clamp(16px, 2vw, 19px);
+    color: var(--ink-soft);
+  }
+  .hero .meta {
+    margin-top: 22px; display: flex; flex-wrap: wrap; gap: 8px 10px;
+    font-family: "IBM Plex Mono", monospace; font-size: 12.5px; color: var(--ink-faint);
+  }
+  .hero .meta span { display: inline-flex; align-items: center; gap: 7px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--palm); display: inline-block; }
+
+  /* ---- metric strip ---- */
+  .metrics {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+    background: var(--line); border: 1px solid var(--line);
+    border-radius: 14px; overflow: hidden; margin-top: 34px; box-shadow: var(--shadow);
+  }
+  .metric { background: var(--surface); padding: 18px 18px 16px; }
+  .metric .n { font-family: "Archivo", sans-serif; font-weight: 800; font-size: clamp(26px, 4vw, 38px); letter-spacing: -0.02em; }
+  .metric .n small { font-size: 0.5em; font-weight: 600; color: var(--ink-faint); }
+  .metric .k { font-size: 12.5px; color: var(--ink-soft); margin-top: 4px; }
+  .metric.alarm .n { color: var(--crit); }
+  .metric.warnc .n { color: var(--warn); }
+
+  /* ---- sections ---- */
+  section { padding: 56px 0; border-bottom: 1px solid var(--line-soft); }
+  .sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 8px; }
+  .sec-head .idx { font-family: "IBM Plex Mono", monospace; font-size: 13px; color: var(--accent-ink); font-weight: 600; }
+  section h2 { font-size: clamp(23px, 3.2vw, 32px); font-weight: 700; }
+  .sec-sub { color: var(--ink-soft); max-width: 68ch; margin: 12px 0 28px; }
+
+  /* ---- tables ---- */
+  .twrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 640px; }
+  thead th {
+    text-align: left; font-family: "IBM Plex Mono", monospace; font-weight: 600;
+    font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-faint); padding: 12px 14px; background: var(--surface-2);
+    border-bottom: 1px solid var(--line); position: sticky; top: 0;
+  }
+  tbody td { padding: 13px 14px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--surface-2); }
+  td.mod { font-weight: 600; white-space: nowrap; }
+  td .roles { color: var(--ink-faint); font-size: 12.5px; font-family: "IBM Plex Mono", monospace; }
+
+  /* ---- chips ---- */
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.03em; padding: 3px 8px; border-radius: 999px; text-transform: uppercase;
+  }
+  .chip::before { content:""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .c-crit { color: var(--crit); background: var(--crit-wash); }
+  .c-warn { color: var(--warn); background: var(--warn-wash); }
+  .c-ok   { color: var(--ok);   background: var(--ok-wash); }
+  .c-info { color: var(--info); background: var(--info-wash); }
+  .freq { font-family:"IBM Plex Mono", monospace; font-size: 12px; color: var(--ink-soft); white-space: nowrap; }
+
+  /* ---- IA columns ---- */
+  .ia { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .ia .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); }
+  .ia .card.now { border-left: 3px solid var(--crit); }
+  .ia .card.next { border-left: 3px solid var(--palm); }
+  .ia h3 { font-size: 15px; font-family: "IBM Plex Mono", monospace; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 4px; }
+  .ia .tag { font-family:"IBM Plex Mono",monospace; font-size: 11px; }
+  .flatlist { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+  .flatlist .t { font-size: 12px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 7px; color: var(--ink-soft); background: var(--surface-2); }
+  .grouped { margin-top: 12px; display: flex; flex-direction: column; gap: 12px; }
+  .grouped .g-lbl { font-family:"IBM Plex Mono",monospace; font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-ink); }
+  .grouped .g-items { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .grouped .g-items .t { font-size: 12px; padding: 4px 8px; border-radius: 7px; background: var(--accent-wash); color: var(--accent-ink); font-weight: 500; }
+
+  /* ---- click bars ---- */
+  .clickrow { display: grid; grid-template-columns: 1fr; gap: 4px; }
+  .bars { display: grid; grid-template-columns: 46px 1fr; align-items: center; gap: 10px; }
+  .bars .lab { font-family:"IBM Plex Mono",monospace; font-size: 11px; color: var(--ink-faint); }
+  .bar { height: 15px; border-radius: 4px; display:flex; align-items:center; justify-content:flex-end; padding-right: 7px; font-family:"IBM Plex Mono",monospace; font-size: 10.5px; font-weight: 600; color:#fff; min-width: 26px; }
+  .bar.cur { background: var(--crit); }
+  .bar.tgt { background: var(--palm); }
+  :root[data-theme="dark"] .bar, :root:not([data-theme="light"]) .bar { color: #17130E; }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .bar { color:#fff; } }
+  .save { font-family:"IBM Plex Mono",monospace; font-weight:700; color: var(--palm); }
+
+  /* ---- roadmap ---- */
+  .phases { display: flex; flex-direction: column; gap: 0; }
+  .phase { display: grid; grid-template-columns: 96px 1fr; gap: 20px; padding: 20px 0; border-top: 1px solid var(--line-soft); }
+  .phase:first-child { border-top: none; }
+  .phase .p-tag { font-family:"Archivo",sans-serif; font-weight: 800; font-size: 15px; letter-spacing: 0.02em; }
+  .phase .p-tag small { display:block; font-family:"IBM Plex Mono",monospace; font-weight:500; font-size:11px; color: var(--ink-faint); margin-top: 4px; letter-spacing:0; }
+  .phase h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+  .phase p { margin: 0; color: var(--ink-soft); font-size: 14.5px; }
+  .phase .deliv { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .phase .deliv .d { font-family:"IBM Plex Mono",monospace; font-size: 11.5px; padding: 3px 9px; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--line); color: var(--ink-soft); }
+  .p0 .p-tag { color: var(--crit); }
+  .p1 .p-tag { color: var(--warn); }
+  .p2 .p-tag { color: var(--accent-ink); }
+  .p3 .p-tag { color: var(--palm); }
+
+  .principle { background: var(--palm-wash); border: 1px solid var(--line); border-radius: 12px; padding: 18px 22px; margin-top: 26px; display:flex; gap: 14px; }
+  .principle .ico { font-family:"Archivo",sans-serif; font-weight:800; color: var(--palm); font-size: 22px; }
+  .principle p { margin: 0; font-size: 14.5px; color: var(--ink); }
+  .principle strong { color: var(--palm); }
+
+  .callout { border-left: 3px solid var(--accent); padding: 4px 0 4px 18px; margin: 22px 0; color: var(--ink-soft); font-size: 14.5px; }
+  .callout strong { color: var(--ink); }
+
+  footer { padding: 40px 0 60px; color: var(--ink-faint); font-size: 13px; }
+  footer .mono { color: var(--ink-soft); }
+
+  a { color: var(--accent-ink); }
+  @media (max-width: 760px) {
+    .metrics { grid-template-columns: repeat(2, 1fr); }
+    .ia { grid-template-columns: 1fr; }
+    .phase { grid-template-columns: 1fr; gap: 8px; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    tbody tr, .metric { transition: background .15s ease; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap hero-inner">
+    <p class="eyebrow">UX Redesign · Phase 0 — Discovery &amp; Audit</p>
+    <h1>Make a complex MES <span class="tint">feel simple</span> — without losing a single workflow.</h1>
+    <p class="lede">
+      A grounded audit of the date-processing MES: where the everyday operator experience
+      is slow, where cognitive load is highest, and a phased plan to fix it — preserving
+      every rule, permission, and business behavior already shipped.
+    </p>
+    <div class="meta">
+      <span><span class="dot"></span>Scope: full application, all roles</span>
+      <span><span class="dot"></span>Method: audit → map → prioritize → design → validate</span>
+      <span><span class="dot"></span>Constraint: zero functionality removed</span>
+    </div>
+
+    <div class="metrics">
+      <div class="metric"><div class="n">40</div><div class="k">backend modules</div></div>
+      <div class="metric"><div class="n">24</div><div class="k">navigation entries (flat sidebar)</div></div>
+      <div class="metric"><div class="n">235</div><div class="k">React components</div></div>
+      <div class="metric warnc"><div class="n">~12<small>%</small></div><div class="k">components i18n-ready (28/235)</div></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ===== A. AUDIT ===== -->
+  <section id="audit">
+    <div class="sec-head"><span class="idx">A</span><h2>UX audit by module</h2></div>
+    <p class="sec-sub">
+      Severity weighs friction × how often the module is touched during a shift × business risk.
+      The pattern is consistent: the <em>engine</em> is deep and correct; the <em>everyday surface</em>
+      makes operators pay for that depth in clicks and context switches.
+    </p>
+
+    <div class="twrap">
+      <table>
+        <thead>
+          <tr><th>Module</th><th>Primary friction today</th><th>Severity</th><th>Use</th><th>Fix direction</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mod">Réception + QC<div class="roles">operateur_reception · qualité</div></td>
+            <td>Multi-step intake and the QC decision dialog carry every field on one long surface; the release (ACCEPTE) is the highest-risk act yet buried in a tall form.</td>
+            <td><span class="chip c-crit">Critical</span></td>
+            <td class="freq">hourly</td>
+            <td>Guided 1·2·3 tablet flow; progressive disclosure of lab/override fields; PIN release as a focused final step (now shipped).</td>
+          </tr>
+          <tr>
+            <td class="mod">Stock + Stockage<div class="roles">magasinier_wms · stock</div></td>
+            <td>Four separate tabs (Lots en stock · Lots Entrepôt · Zones · Mouvements) for one mental model; a stock move means hunting the lot across tabs.</td>
+            <td><span class="chip c-crit">Critical</span></td>
+            <td class="freq">hourly</td>
+            <td>Unify into one Stock work-center with a master-detail drawer; scan-to-move as the primary action.</td>
+          </tr>
+          <tr>
+            <td class="mod">Achats (P2P)<div class="roles">achats · stock · direction</div></td>
+            <td>Requisition create + the approval chain span forms and screens; approvals were easy to miss until made actionable. Auto-reorder now seeds drafts.</td>
+            <td><span class="chip c-warn">High</span></td>
+            <td class="freq">daily</td>
+            <td>Approve/reject from the notification and the row; express "Demander" micro-flow; keep threshold auto-DA (shipped) surfaced on home.</td>
+          </tr>
+          <tr>
+            <td class="mod">Production + Conditionnement<div class="roles">production · ligne</div></td>
+            <td>OF lifecycle and packaging seal/close mix operational actions with costing/mass-balance inputs on the same dense screens.</td>
+            <td><span class="chip c-warn">High</span></td>
+            <td class="freq">per shift</td>
+            <td>Split "run the line" (start/report/complete) from "close the books"; reveal waste/cost fields only at close.</td>
+          </tr>
+          <tr>
+            <td class="mod">Qualité + Phase 2<div class="roles">qualité · fumigation</div></td>
+            <td>CCP, fumigation dual-sign, NC/CAPA spread across Quality and Phase 2; the "what needs my signature now" view doesn't exist.</td>
+            <td><span class="chip c-warn">High</span></td>
+            <td class="freq">daily</td>
+            <td>A single "à signer / à traiter" quality queue; reuse the PIN pad across CCP, release, and CAPA.</td>
+          </tr>
+          <tr>
+            <td class="mod">Maintenance<div class="roles">maintenance</div></td>
+            <td>Solid request workflow, but entry lives behind a generic tab; reporting a failure from a machine context is indirect.</td>
+            <td><span class="chip c-info">Medium</span></td>
+            <td class="freq">weekly</td>
+            <td>Contextual "Report failure" action from equipment; deep-linked actionable notification (already fixed in maintenance).</td>
+          </tr>
+          <tr>
+            <td class="mod">Export<div class="roles">export · logistique</div></td>
+            <td>Order row already dense with actions; ATP was read-only in a side panel until now written onto the order.</td>
+            <td><span class="chip c-info">Medium</span></td>
+            <td class="freq">weekly</td>
+            <td>Consolidate row actions into an overflow menu; keep the persisted ATP ship-week badge (shipped).</td>
+          </tr>
+          <tr>
+            <td class="mod">Analytics / Cockpit<div class="roles">direction · usine</div></td>
+            <td>Dashboards trend toward charts-as-collection rather than "what needs a decision."</td>
+            <td><span class="chip c-info">Medium</span></td>
+            <td class="freq">daily</td>
+            <td>Exception-first cockpit: overdue, deviations, bottlenecks, approval backlog — each drilling to records &amp; an action.</td>
+          </tr>
+          <tr>
+            <td class="mod">Navigation shell<div class="roles">all roles</div></td>
+            <td>24 flat sidebar entries shown with limited grouping; an operator and an admin face similar breadth.</td>
+            <td><span class="chip c-crit">Critical</span></td>
+            <td class="freq">constant</td>
+            <td>Grouped, role-aware IA built on the existing <span class="mono">roleAccess</span> workspace profiles (see B).</td>
+          </tr>
+          <tr>
+            <td class="mod">Localization (cross-cut)<div class="roles">operators</div></td>
+            <td>Only ~12% of components call <span class="mono">useTranslation</span>; Arabic covers 709/1006 keys. Shop-floor Arabic is incomplete.</td>
+            <td><span class="chip c-warn">High</span></td>
+            <td class="freq">constant</td>
+            <td>Wire operator-facing screens to i18n first; close the Arabic gap on the daily-work path before deep modules.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="principle">
+      <span class="ico">◆</span>
+      <p><strong>Governing rule.</strong> Complexity is never reduced by deleting features — it is
+      reduced by moving it into routing, defaults, and progressive disclosure. Every finding below
+      keeps the full MES brain on the server and gives the worker a thin, fast face.</p>
+    </div>
+  </section>
+
+  <!-- ===== B. INFORMATION ARCHITECTURE ===== -->
+  <section id="ia">
+    <div class="sec-head"><span class="idx">B</span><h2>Information architecture</h2></div>
+    <p class="sec-sub">
+      The app already computes a per-role workspace (<span class="mono">roleAccess.ts</span> →
+      <span class="mono">primaryTabs / quickTabs / actions</span>). The redesign builds on that instead of
+      adding menus: group the 24 flat entries into five task-based clusters and let role decide density.
+    </p>
+
+    <div class="ia">
+      <div class="card now">
+        <h3>Now — flat &amp; role-agnostic</h3>
+        <span class="tag" style="color:var(--crit)">24 sibling entries, minimal hierarchy</span>
+        <div class="flatlist">
+          <span class="t">Parcours lot</span><span class="t">Centre de Commande</span><span class="t">Scanner</span>
+          <span class="t">Réception</span><span class="t">Stockage</span><span class="t">Lots en stock</span>
+          <span class="t">Lots Entrepôt</span><span class="t">Zones Stockage</span><span class="t">Mouvements</span>
+          <span class="t">Production</span><span class="t">Conditionnement</span><span class="t">Qualité</span>
+          <span class="t">Logistique</span><span class="t">Export</span><span class="t">Achats</span>
+          <span class="t">Matières</span><span class="t">Fournisseurs</span><span class="t">Clients</span>
+          <span class="t">Maintenance</span><span class="t">Chaîne Hub</span><span class="t">Analytics</span>
+          <span class="t">Alertes</span><span class="t">RH</span><span class="t">Paramètres</span>
+        </div>
+      </div>
+      <div class="card next">
+        <h3>Proposed — task clusters, role-aware</h3>
+        <span class="tag" style="color:var(--palm)">5 groups · operator sees ~5, admin sees all</span>
+        <div class="grouped">
+          <div><div class="g-lbl">Daily work</div><div class="g-items"><span class="t">À faire aujourd'hui</span><span class="t">Parcours lot</span><span class="t">Scanner</span></div></div>
+          <div><div class="g-lbl">Operations</div><div class="g-items"><span class="t">Réception</span><span class="t">Stock</span><span class="t">Production</span><span class="t">Conditionnement</span><span class="t">Logistique</span></div></div>
+          <div><div class="g-lbl">Quality &amp; compliance</div><div class="g-items"><span class="t">Qualité &amp; CCP</span><span class="t">Signatures</span><span class="t">Alertes</span></div></div>
+          <div><div class="g-lbl">Supply &amp; commerce</div><div class="g-items"><span class="t">Achats</span><span class="t">Fournisseurs</span><span class="t">Export</span><span class="t">Clients</span><span class="t">Maintenance</span></div></div>
+          <div><div class="g-lbl">Admin &amp; insight</div><div class="g-items"><span class="t">Analytics</span><span class="t">Matières</span><span class="t">RH</span><span class="t">Paramètres</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="callout">
+      <strong>Stock is four tabs pretending to be one thing.</strong> Lots en stock · Lots Entrepôt ·
+      Zones · Mouvements are facets of a single stock work-center. Collapsing them into one screen with a
+      master-detail drawer removes the most confusing part of the current IA — and matches how a
+      <span class="mono">magasinier</span> actually thinks.
+    </p>
+  </section>
+
+  <!-- ===== C/D. CLICK ANALYSIS ===== -->
+  <section id="clicks">
+    <div class="sec-head"><span class="idx">C</span><h2>Click-reduction analysis</h2></div>
+    <p class="sec-sub">
+      Fewest <em>safe</em> clicks, never fewest clicks — confirmations on destructive, regulatory, or
+      financial actions stay. Counts are approximate current-state from the shipped flows; targets are the
+      redesign goal for high-frequency work. Two rows are already delivered in this session.
+    </p>
+
+    <div class="twrap">
+      <table>
+        <thead><tr><th>Workflow</th><th>Screens today</th><th style="width:220px">Clicks: current → target</th><th>Saved</th><th>How</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="mod">Purchase request (operator)</td>
+            <td class="freq">3 screens</td>
+            <td>
+              <div class="clickrow">
+                <div class="bars"><span class="lab">now</span><div class="bar cur" style="width:80%">7</div></div>
+                <div class="bars"><span class="lab">target</span><div class="bar tgt" style="width:34%">3</div></div>
+              </div>
+            </td>
+            <td class="save">−4</td>
+            <td>Home "Demander" → pick/scan material → Envoyer; system stamps dept/requester/routing.</td>
+          </tr>
+          <tr>
+            <td class="mod">QC decision + release</td>
+            <td class="freq">1 long form</td>
+            <td>
+              <div class="clickrow">
+                <div class="bars"><span class="lab">now</span><div class="bar cur" style="width:70%">6</div></div>
+                <div class="bars"><span class="lab">target</span><div class="bar tgt" style="width:40%">4</div></div>
+              </div>
+            </td>
+            <td class="save">−2</td>
+            <td>Progressive disclosure of lab/override; PIN release as one focused step <span class="mono">(shipped)</span>.</td>
+          </tr>
+          <tr>
+            <td class="mod">Stock move</td>
+            <td class="freq">2–3 tabs</td>
+            <td>
+              <div class="clickrow">
+                <div class="bars"><span class="lab">now</span><div class="bar cur" style="width:75%">7</div></div>
+                <div class="bars"><span class="lab">target</span><div class="bar tgt" style="width:26%">2</div></div>
+              </div>
+            </td>
+            <td class="save">−5</td>
+            <td>Scan lot → pick destination → confirm, inside one stock work-center.</td>
+          </tr>
+          <tr>
+            <td class="mod">Approve DA</td>
+            <td class="freq">2 screens</td>
+            <td>
+              <div class="clickrow">
+                <div class="bars"><span class="lab">now</span><div class="bar cur" style="width:55%">5</div></div>
+                <div class="bars"><span class="lab">target</span><div class="bar tgt" style="width:26%">2</div></div>
+              </div>
+            </td>
+            <td class="save">−3</td>
+            <td>Approve + PIN from the actionable notification / row <span class="mono">(PIN shipped)</span>.</td>
+          </tr>
+          <tr>
+            <td class="mod">ATP promise on export order</td>
+            <td class="freq">side panel</td>
+            <td>
+              <div class="clickrow">
+                <div class="bars"><span class="lab">now</span><div class="bar cur" style="width:45%">4</div></div>
+                <div class="bars"><span class="lab">target</span><div class="bar tgt" style="width:14%">1</div></div>
+              </div>
+            </td>
+            <td class="save">−3</td>
+            <td>One "Promettre" action writes the ship-week onto the order <span class="mono">(shipped)</span>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="callout"><strong>Reading the bars.</strong> Red is the current interaction cost;
+    green is the redesign target. The three rows marked <span class="mono">shipped</span> were closed in
+    this session and anchor the pattern the rest of the roadmap repeats.</p>
+  </section>
+
+  <!-- ===== E. ROADMAP ===== -->
+  <section id="roadmap">
+    <div class="sec-head"><span class="idx">D</span><h2>Phased roadmap</h2></div>
+    <p class="sec-sub">
+      Sequenced so the app stays usable throughout. Priority = UX impact × frequency × business
+      importance × error reduction. High-frequency operator pain is fixed before low-frequency polish.
+    </p>
+
+    <div class="phases">
+      <div class="phase p0">
+        <div class="p-tag">P0<small>Phase 1–2</small></div>
+        <div>
+          <h3>Design-system foundation + top operator workflow</h3>
+          <p>Consolidate tokens (color, type, spacing, semantic status) and the shared table / form /
+          drawer / command-menu primitives. Then rebuild the single most-used flow (QC decision or stock move)
+          end-to-end as the reference pattern. Behavior preserved, verified against existing tests.</p>
+          <div class="deliv"><span class="d">tokens.css</span><span class="d">&lt;DataTable&gt;</span><span class="d">&lt;DetailDrawer&gt;</span><span class="d">CommandMenu</span><span class="d">density modes</span></div>
+        </div>
+      </div>
+      <div class="phase p1">
+        <div class="p-tag">P1<small>Phase 3–4</small></div>
+        <div>
+          <h3>Navigation + data-dense experiences</h3>
+          <p>Ship the grouped, role-aware IA on top of <span class="mono">roleAccess</span>. Unify the four
+          stock tabs into one work-center. Bring saved views, multi-filter, bulk actions, and inline edit
+          to the highest-volume tables (stock, requisitions, receptions).</p>
+          <div class="deliv"><span class="d">role nav</span><span class="d">stock work-center</span><span class="d">bulk approve</span><span class="d">saved filters</span></div>
+        </div>
+      </div>
+      <div class="phase p2">
+        <div class="p-tag">P2<small>Phase 5</small></div>
+        <div>
+          <h3>Role home + exception-first dashboards</h3>
+          <p>"À faire aujourd'hui" task queues per role; make normal operations quiet and exceptions loud
+          — overdue work, deviations, approval backlog — each drilling to records and an action. Actionable
+          notifications everywhere (approve/sign in place).</p>
+          <div class="deliv"><span class="d">task home</span><span class="d">exception cockpit</span><span class="d">action notifications</span></div>
+        </div>
+      </div>
+      <div class="phase p3">
+        <div class="p-tag">P3<small>Phase 6–7</small></div>
+        <div>
+          <h3>Consistency, localization &amp; validation</h3>
+          <p>Apply the system to secondary modules; wire operator screens to <span class="mono">useTranslation</span>
+          and close the Arabic gap on the daily-work path; extend offline beyond reception. Validate with
+          real task-time and click measurements against this baseline.</p>
+          <div class="deliv"><span class="d">i18n operator path</span><span class="d">AR coverage</span><span class="d">offline+</span><span class="d">SUS / task-time</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="principle">
+      <span class="ico">✓</span>
+      <p><strong>Regression gate on every change.</strong> Before shipping: "Can the user still do
+      everything they could before?" Functionality, business rules, permissions, API contracts, validation,
+      and workflows are preserved — the full test suite (currently <span class="mono">212/212</span>) stays green.</p>
+    </div>
+  </section>
+
+  <footer>
+    <p class="mono">MES Dattes — UX Phase 0 · Discovery &amp; Audit</p>
+    <p>Grounded in the current codebase: 40 backend modules, 24 navigation entries, 235 components,
+    i18n at 709/1006 Arabic keys, ~12% i18n-wired components. No functionality is removed in any phase —
+    complexity is reorganized, not deleted. Next: pick a P0 target and I'll produce the screen-level
+    redesign spec and build it.</p>
+  </footer>
+
+</main>
+
+</body>
+</html>
