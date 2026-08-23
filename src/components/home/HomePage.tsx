@@ -59,39 +59,48 @@ export const HomePage = ({ onNavigate, accessibleTabs, metrics }: HomePageProps)
 
   const qcQueue = waitingQcReceptions + inQcReceptions;
 
-  const urgent = useMemo(() => {
-    const items = [
+  // "À faire aujourd'hui" — every pending item the role can act on, ranked most
+  // urgent first, each row a one-tap jump to the exact screen. Was a single
+  // top-urgent banner; now the full actionable queue.
+  const tasks = useMemo(() => {
+    return [
       {
         count: activeAlertsCount,
-        title: `${activeAlertsCount} alerte${activeAlertsCount > 1 ? "s" : ""}`,
+        title: `${activeAlertsCount} alerte${activeAlertsCount > 1 ? "s" : ""} à traiter`,
         tab: "alerts" as const,
         badge: "Urgent",
         badgeClassName: "bg-red-600 text-white",
       },
       {
         count: qcQueue,
-        title: `${qcQueue} QC à faire`,
+        title: `${qcQueue} contrôle${qcQueue > 1 ? "s" : ""} QC à faire`,
         tab: "receptions" as const,
         badge: "QC",
         badgeClassName: "bg-amber-500 text-white",
       },
       {
         count: quarantinedLots,
-        title: `${quarantinedLots} quarantaine`,
+        title: `${quarantinedLots} lot${quarantinedLots > 1 ? "s" : ""} en quarantaine`,
         tab: "storage" as const,
         badge: "Stock",
         badgeClassName: "bg-orange-500 text-white",
       },
       {
+        count: phase2Waiting,
+        title: `${phase2Waiting} lot${phase2Waiting > 1 ? "s" : ""} en attente atelier`,
+        tab: "production" as const,
+        badge: "Prod",
+        badgeClassName: "bg-violet-600 text-white",
+      },
+      {
         count: pendingShipments,
-        title: `${pendingShipments} expédition${pendingShipments > 1 ? "s" : ""}`,
+        title: `${pendingShipments} expédition${pendingShipments > 1 ? "s" : ""} à préparer`,
         tab: "logistics" as const,
         badge: "Sortie",
         badgeClassName: "bg-cyan-700 text-white",
       },
     ].filter((i) => i.count > 0 && accessibleTabs.includes(i.tab));
-    return items[0] ?? null;
-  }, [accessibleTabs, activeAlertsCount, qcQueue, quarantinedLots, pendingShipments]);
+  }, [accessibleTabs, activeAlertsCount, qcQueue, quarantinedLots, phase2Waiting, pendingShipments]);
 
   const posts = [
     {
@@ -178,18 +187,26 @@ export const HomePage = ({ onNavigate, accessibleTabs, metrics }: HomePageProps)
         </div>
       </div>
 
-      {urgent ? (
-        <button
-          type="button"
-          onClick={() => onNavigate(urgent.tab)}
-          className="flex w-full items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-left"
-        >
-          <div className="flex min-w-0 items-center gap-2">
-            <Badge className={urgent.badgeClassName}>{urgent.badge}</Badge>
-            <span className="truncate text-sm font-semibold">{urgent.title}</span>
-          </div>
-          <ArrowRight className="h-4 w-4 shrink-0 text-amber-900" />
-        </button>
+      {tasks.length > 0 ? (
+        <div className="space-y-1.5">
+          <p className="px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            À faire aujourd&apos;hui
+          </p>
+          {tasks.map((task) => (
+            <button
+              key={task.tab}
+              type="button"
+              onClick={() => onNavigate(task.tab)}
+              className="flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left transition-colors hover:bg-accent/40 active:scale-[0.99]"
+            >
+              <div className="flex min-w-0 items-center gap-2.5">
+                <Badge className={task.badgeClassName}>{task.badge}</Badge>
+                <span className="truncate text-sm font-semibold">{task.title}</span>
+              </div>
+              <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+            </button>
+          ))}
+        </div>
       ) : (
         <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm text-emerald-800">
           <CheckCircle2 className="h-4 w-4 shrink-0" />

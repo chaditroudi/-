@@ -3,6 +3,7 @@ import { TopHeader } from "@/components/layout/TopHeader";
 import { WorkflowNavigation } from "@/components/layout/WorkflowNavigation";
 import { FlowStepper } from "@/components/layout/FlowStepper";
 import { AppSidebar } from "@/components/layout/AppSidebar";
+import { CommandMenu } from "@/components/layout/CommandMenu";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 // HomePage is always the default tab — keep eager so it renders without a Suspense flash.
@@ -494,6 +495,7 @@ const Index = () => {
 
   return (
     <SidebarProvider>
+      <CommandMenu accessibleTabs={accessibleTabs} onNavigate={handleNavigate} />
       <AppSidebar
         activeTab={activeTab}
         onTabChange={handleNavigate}
