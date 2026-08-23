@@ -223,6 +223,12 @@ const Index = () => {
   }, [accessibleTabs, settings.interface.default_home_tab, workspaceProfile.defaultTab]);
 
   const resolveTab = useCallback((candidate: string | null): AppTab => {
+    // Stock was consolidated into one 'storage' work-center; legacy stock-* deep
+    // links (notifications, workflow steps, settings) still resolve to it.
+    const LEGACY_STOCK_TABS = ['stock-dashboard', 'stock-lots', 'stock-products', 'stock-movements'];
+    if (candidate && LEGACY_STOCK_TABS.includes(candidate) && accessibleTabs.includes('storage')) {
+      return 'storage';
+    }
     if (candidate && accessibleTabs.includes(candidate as AppTab)) return candidate as AppTab;
     return preferredDefaultTab;
   }, [accessibleTabs, preferredDefaultTab]);

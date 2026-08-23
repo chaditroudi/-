@@ -62,11 +62,11 @@ export const APP_TAB_META: Record<AppTab, AppTabMeta> = {
     pageSubtitle: "Lots d'entrée — pesée, création, QC entrant et orientation usine.",
   },
   storage: {
-    label: "Stockage",
+    label: "Stock",
     shortLabel: "Stock",
     icon: Warehouse,
-    pageTitle: "Stockage",
-    pageSubtitle: "Occupation des zones et capacite operationnelle.",
+    pageTitle: "Stock — Entrepôt",
+    pageSubtitle: "Vue unifiée : lots, zones & emplacements, et mouvements — avec déplacement par scan.",
   },
   production: {
     label: "Production",

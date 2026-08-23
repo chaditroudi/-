@@ -74,10 +74,8 @@ const ALL_APP_TABS: AppTab[] = [
   'materials',
   'quality',
   'hr',
-  'stock-dashboard',
-  'stock-lots',
-  'stock-products',
-  'stock-movements',
+  // Stock is a single work-center ('storage'); the stock-* ids stay valid for
+  // deep links but no longer appear as separate sidebar entries.
   'sage-operations',
   'export',
   'customers',
@@ -376,7 +374,7 @@ export const getRoleWorkspaceProfile = (roles: ActorRole[]) => {
       workspaceLabel: 'Opérations',
       defaultTab: 'home' as AppTab,
       primaryTabs: ['home', 'receptions', 'production', 'alerts'] as AppTab[],
-      quickTabs: ['stock-dashboard', 'sage-operations'] as AppTab[],
+      quickTabs: ['storage', 'sage-operations'] as AppTab[],
       actions: [] as RoleAction[],
     };
   }

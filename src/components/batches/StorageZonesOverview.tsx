@@ -529,6 +529,15 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
               Temps réel · {fmtRelative(lastSyncAt)}
             </span>
           </div>
+          {/* Primary action — scan-to-move from anywhere in the work-center. */}
+          <Button
+            size="sm"
+            className="gap-2 rounded-xl"
+            onClick={() => { setTab("mouvements"); setScannerOpen(true); }}
+          >
+            <ArrowRightLeft className="h-3.5 w-3.5" />
+            Déplacer un lot
+          </Button>
           <Button variant="outline" size="sm" className="gap-2 rounded-xl" onClick={handleRefresh}>
             <RefreshCw className="h-3.5 w-3.5" />
             Actualiser

@@ -18,13 +18,13 @@ describe("roleAccess", () => {
         "alerts",
         "suppliers",
         "materials",
-        "stock-dashboard",
-        "stock-lots",
-        "stock-products",
-        "stock-movements",
         "sage-operations",
       ]),
     );
+    // Stock is consolidated into a single 'storage' work-center; the legacy
+    // stock-* ids stay routable for deep links but are no longer sidebar tabs.
+    expect(tabs).toContain("storage");
+    expect(tabs).not.toContain("stock-dashboard");
     expect(canPerformAction(["administrateur_systeme"], "purchasing_management")).toBe(true);
     expect(canPerformAction(["administrateur_systeme"], "warehouse_operations")).toBe(true);
     expect(canPerformAction(["administrateur_systeme"], "reception_data_entry")).toBe(true);
