@@ -134,7 +134,7 @@ export function printRQC(inspection: QCInspection, reception: ReceptionV2) {
       <div class="bon-sub">RECEPTION ACHAT</div>
     </div>
     <div class="meta-cell">
-      <div class="meta-annee">Année&nbsp;: <strong>${e(rqc.conventionnel || true ? new Date().getFullYear() : "")}</strong></div>
+      <div class="meta-annee">Année&nbsp;: <strong>${e(new Date().getFullYear())}</strong></div>
       <div class="meta-no">N° ${e(inspection.inspection_number)}</div>
     </div>
   </div>
