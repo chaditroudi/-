@@ -1058,5 +1058,25 @@
     "receptionManagement": "Gestion de Réception Matière",
     "supplierTraceability": "Module Fournisseurs & Traçabilité",
     "realtimeActive": "Temps réel actif"
+  },
+  "aiGuide": {
+    "title": "Assistant",
+    "placeholder": "Comment puis-je vous aider ?",
+    "ask": "Posez une question…",
+    "thinking": "Analyse de votre écran…",
+    "fallback": "Guidage déterministe",
+    "live": "Modèle local",
+    "unavailable": "Assistant indisponible. Le guidage suit l'état actuel du MES.",
+    "noContext": "Aucun lot sélectionné",
+    "qNow": "Que faire maintenant ?",
+    "qBlocked": "Pourquoi suis-je bloqué ?",
+    "qHow": "Comment faire ?",
+    "qExplain": "Expliquer cet écran",
+    "quick": {
+      "now": "Que faire maintenant ?",
+      "blocked": "Pourquoi bloqué ?",
+      "how": "Comment faire ?",
+      "explain": "Expliquer l'écran"
+    }
   }
 }

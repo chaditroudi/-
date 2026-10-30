@@ -68,6 +68,7 @@ export const HomePage = ({ onNavigate, accessibleTabs, metrics }: HomePageProps)
         count: activeAlertsCount,
         title: `${activeAlertsCount} alerte${activeAlertsCount > 1 ? "s" : ""} à traiter`,
         tab: "alerts" as const,
+        options: undefined,
         badge: "Urgent",
         badgeClassName: "bg-red-600 text-white",
       },
@@ -75,6 +76,7 @@ export const HomePage = ({ onNavigate, accessibleTabs, metrics }: HomePageProps)
         count: qcQueue,
         title: `${qcQueue} contrôle${qcQueue > 1 ? "s" : ""} QC à faire`,
         tab: "receptions" as const,
+        options: { view: "qc" },
         badge: "QC",
         badgeClassName: "bg-amber-500 text-white",
       },
@@ -82,6 +84,7 @@ export const HomePage = ({ onNavigate, accessibleTabs, metrics }: HomePageProps)
         count: quarantinedLots,
         title: `${quarantinedLots} lot${quarantinedLots > 1 ? "s" : ""} en quarantaine`,
         tab: "storage" as const,
+        options: { focus: "quarantine" },
         badge: "Stock",
         badgeClassName: "bg-orange-500 text-white",
       },
@@ -89,6 +92,7 @@ export const HomePage = ({ onNavigate, accessibleTabs, metrics }: HomePageProps)
         count: phase2Waiting,
         title: `${phase2Waiting} lot${phase2Waiting > 1 ? "s" : ""} en attente atelier`,
         tab: "production" as const,
+        options: { view: "phase2", module: "pipeline" as const },
         badge: "Prod",
         badgeClassName: "bg-violet-600 text-white",
       },
@@ -96,6 +100,7 @@ export const HomePage = ({ onNavigate, accessibleTabs, metrics }: HomePageProps)
         count: pendingShipments,
         title: `${pendingShipments} expédition${pendingShipments > 1 ? "s" : ""} à préparer`,
         tab: "logistics" as const,
+        options: { view: "shipments" },
         badge: "Sortie",
         badgeClassName: "bg-cyan-700 text-white",
       },
@@ -196,7 +201,7 @@ export const HomePage = ({ onNavigate, accessibleTabs, metrics }: HomePageProps)
             <button
               key={task.tab}
               type="button"
-              onClick={() => onNavigate(task.tab)}
+              onClick={() => onNavigate(task.tab, task.options)}
               className="flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left transition-colors hover:bg-accent/40 active:scale-[0.99]"
             >
               <div className="flex min-w-0 items-center gap-2.5">

@@ -20,6 +20,7 @@ import { useFactoryShellMetrics } from "@/hooks/useFactoryShellMetrics";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import { useSettingsContext } from "@/contexts/SettingsContext";
+import { AiGuideProvider } from "@/contexts/AiGuideContext";
 import { useBranding } from "@/hooks/useBranding";
 import type { SiteFeatures } from "@/types/settings";
 import { PRODUCT } from "@/lib/productMeta";
@@ -69,20 +70,20 @@ const TabLoader = () => (
 // ── Static lookup tables (module-level — never recreated) ─────────────────────
 
 const TAB_SECTION_LABEL: Partial<Record<AppTab, string>> = {
-  home: "Parcours lot",
-  live: "Opérations", scan: "Opérations", alerts: "Opérations",
-  receptions: "Fil d'or — Réception / QC",
-  storage: "Fil d'or — Froid / Stock",
-  production: "Fil d'or — Fumigation / Triage",
-  packaging: "Fil d'or — Conditionnement",
-  logistics: "Fil d'or — Expédition",
-  export: "Fil d'or — Export / Marge",
-  "stock-dashboard": "Fil d'or — Froid / Stock", "stock-lots": "Fil d'or — Froid / Stock",
-  "stock-products": "Fil d'or — Froid / Stock", "stock-movements": "Fil d'or — Froid / Stock",
-  suppliers: "Gestion", materials: "Gestion", purchasing: "Gestion — Règlements",
-  maintenance: "Gestion", quality: "Gestion", hr: "Gestion",
-  analytics: "Pilotage", "sage-operations": "Pilotage", customers: "Pilotage",
-  settings: "Administration",
+  home: "Accueil Atelier",
+  live: "Opérations", scan: "Scanner un lot", alerts: "Alertes en direct",
+  receptions: "Atelier — Réception & Pesée",
+  storage: "Atelier — Stock & Chambres Froides",
+  production: "Atelier — Traitement & Triage",
+  packaging: "Atelier — Conditionnement",
+  logistics: "Atelier — Expédition & Sortie",
+  export: "Bureau — Export & Douane",
+  "stock-dashboard": "Atelier — Stock & Chambres Froides", "stock-lots": "Atelier — Stock & Chambres Froides",
+  "stock-products": "Atelier — Stock & Chambres Froides", "stock-movements": "Atelier — Stock & Chambres Froides",
+  suppliers: "Bureau — Fournisseurs", materials: "Bureau — Articles", purchasing: "Bureau — Achats & Règlements",
+  maintenance: "Bureau — Maintenance", quality: "Bureau — Qualité & CAPA", hr: "Bureau — Ressources Humaines",
+  analytics: "Direction — Indicateurs", "sage-operations": "Direction — Cockpit Usine", customers: "Bureau — Clients",
+  settings: "Administration & Paramètres",
 };
 
 const TAB_FEATURE_MAP: Partial<Record<AppTab, keyof SiteFeatures>> = {
@@ -265,10 +266,10 @@ const Index = () => {
   const [purchasingFocus, setPurchasingFocus] = useState<string | undefined>();
   const [prefillReceptionPOId, setPrefillReceptionPOId] = useState<string | undefined>();
   const [receptionView, setReceptionView] = useState<string | undefined>(() =>
-    searchParams.get('tab') === 'receptions' && searchParams.get('view') === 'bra' ? 'bra' : undefined,
+    searchParams.get('tab') === 'receptions' ? searchParams.get('view') || undefined : undefined,
   );
   const [logisticsView, setLogisticsView] = useState<string | undefined>(() =>
-    searchParams.get('tab') === 'logistics' && searchParams.get('view') === 'bde' ? 'bde' : undefined,
+    searchParams.get('tab') === 'logistics' ? searchParams.get('view') || undefined : undefined,
   );
   const [documentAction, setDocumentAction] = useState<string | undefined>(() =>
     searchParams.get('action') === 'new' ? 'new' : undefined,
@@ -292,9 +293,9 @@ const Index = () => {
       if (opts.lot) setPhase2PreselectedLot(opts.lot);
     }
     if (tab === 'purchasing' && opts.focus) setPurchasingFocus(opts.focus);
-    if (tab === 'receptions') setReceptionView(opts.view === 'bra' ? 'bra' : undefined);
+    if (tab === 'receptions') setReceptionView(opts.view);
     else setReceptionView(undefined);
-    if (tab === 'logistics') setLogisticsView(opts.view === 'bde' ? 'bde' : undefined);
+    if (tab === 'logistics') setLogisticsView(opts.view);
     else setLogisticsView(undefined);
     if (tab === 'home') setHomeView(opts.view === 'fiches' ? 'fiches' : undefined);
     else setHomeView(undefined);
@@ -494,6 +495,12 @@ const Index = () => {
   };
 
   return (
+    <AiGuideProvider
+      screen={activeTab}
+      entityId={searchParams.get("lot")}
+      reasonCode={searchParams.get("error")}
+      element={searchParams.get("field")}
+    >
     <SidebarProvider>
       <CommandMenu accessibleTabs={accessibleTabs} onNavigate={handleNavigate} />
       <AppSidebar
@@ -576,6 +583,7 @@ const Index = () => {
 
       </SidebarInset>
     </SidebarProvider>
+    </AiGuideProvider>
   );
 };
 

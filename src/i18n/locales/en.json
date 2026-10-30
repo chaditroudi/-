@@ -1057,5 +1057,25 @@
     "receptionManagement": "Material Reception Management",
     "supplierTraceability": "Suppliers & Traceability Module",
     "realtimeActive": "Realtime active"
+  },
+  "aiGuide": {
+    "title": "Assistant",
+    "placeholder": "What can I help you with?",
+    "ask": "Ask something…",
+    "thinking": "Reading your screen…",
+    "fallback": "Deterministic guidance",
+    "live": "Local model",
+    "unavailable": "Assistant unavailable. Guidance follows the current MES state.",
+    "noContext": "No lot selected",
+    "qNow": "What should I do now?",
+    "qBlocked": "Why am I blocked?",
+    "qHow": "How do I do this?",
+    "qExplain": "Explain this screen",
+    "quick": {
+      "now": "What do I do now?",
+      "blocked": "Why am I blocked?",
+      "how": "How do I do this?",
+      "explain": "Explain this screen"
+    }
   }
 }
