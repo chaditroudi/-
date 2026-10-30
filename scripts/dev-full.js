@@ -1,8 +1,19 @@
 import { spawn } from "node:child_process";
 import http from "node:http";
 
+/** Windows STATUS_CONTROL_C_EXIT — benign when user stops dev server. */
+const WIN_CTRL_C = 3221225786;
+
 const children = new Map();
 let shuttingDown = false;
+
+const isBenignExit = (code, signal) =>
+  code === 0 ||
+  code === 130 ||
+  code === 143 ||
+  code === WIN_CTRL_C ||
+  signal === "SIGINT" ||
+  signal === "SIGTERM";
 
 const apiPort = Number(process.env.PORT || 4000);
 const frontendPort = Number(process.env.VITE_DEV_PORT || 8080);
@@ -46,6 +57,11 @@ const start = (name, command, env = {}) => {
     children.delete(name);
 
     if (shuttingDown) {
+      return;
+    }
+
+    if (isBenignExit(code, signal)) {
+      stopAll(code || 0);
       return;
     }
 
@@ -137,7 +153,7 @@ process.on("exit", () => {
 });
 
 const bootstrap = async () => {
-  console.log("Starting Royal Palm dev stack...");
+  console.log("Starting MES Dattes dev stack...");
   console.log(`Backend health: ${healthUrl}`);
   console.log(`Frontend: http://localhost:${frontendPort}`);
 

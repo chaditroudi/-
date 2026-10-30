@@ -1,40 +1,132 @@
 import { spawn } from "node:child_process";
 
-const children = [];
+/** Windows STATUS_CONTROL_C_EXIT — benign when user stops dev server. */
+const WIN_CTRL_C = 3221225786;
 
-const start = (command) => {
-  const child = spawn(command, {
-    shell: true,
-    stdio: "inherit",
-    env: process.env,
+let shuttingDown = false;
+const children = new Map();
+
+const prefixStream = (stream, name, output) => {
+  let buffer = "";
+
+  stream.on("data", (chunk) => {
+    buffer += chunk.toString();
+    const lines = buffer.split(/\r?\n/);
+    buffer = lines.pop() || "";
+
+    lines.forEach((line) => {
+      if (line.length > 0) {
+        output.write(`[${name}] ${line}\n`);
+      }
+    });
   });
-  children.push(child);
-  return child;
-};
 
-const stopAll = () => {
-  children.forEach((child) => {
-    if (!child.killed) {
-      child.kill();
+  stream.on("end", () => {
+    if (buffer.length > 0) {
+      output.write(`[${name}] ${buffer}\n`);
     }
   });
 };
 
-process.on("SIGINT", stopAll);
-process.on("SIGTERM", stopAll);
-process.on("exit", stopAll);
+const killTree = (child) => {
+  if (!child?.pid || child.killed) {
+    return;
+  }
 
-const bootstrap = async () => {
-  const build = start("npx tsc -p server/tsconfig.json");
+  if (process.platform === "win32") {
+    spawn("taskkill", ["/pid", String(child.pid), "/T", "/F"], {
+      stdio: "ignore",
+      windowsHide: true,
+      shell: false,
+    });
+    return;
+  }
 
-  build.on("exit", (code) => {
-    if (code && code !== 0) {
-      process.exit(code);
+  child.kill("SIGTERM");
+};
+
+const stopAll = (exitCode = 0) => {
+  if (shuttingDown) {
+    return;
+  }
+
+  shuttingDown = true;
+  children.forEach(killTree);
+
+  setTimeout(() => {
+    process.exit(exitCode);
+  }, 250).unref();
+};
+
+const isBenignExit = (code) => code === 0 || code === 130 || code === 143 || code === WIN_CTRL_C;
+
+const start = (name, command, { stopOnExit = true } = {}) => {
+  const child = spawn(command, {
+    shell: true,
+    stdio: ["ignore", "pipe", "pipe"],
+    env: process.env,
+    windowsHide: true,
+  });
+
+  children.set(name, child);
+  prefixStream(child.stdout, name, process.stdout);
+  prefixStream(child.stderr, name, process.stderr);
+
+  child.on("exit", (code, signal) => {
+    children.delete(name);
+
+    if (shuttingDown || !stopOnExit) {
       return;
     }
 
-    start('npx concurrently -k -n "tsc,api" "npx tsc -p server/tsconfig.json --watch --preserveWatchOutput" "node --watch server-dist/index.js"');
+    if (isBenignExit(code) || signal === "SIGINT" || signal === "SIGTERM") {
+      stopAll(code || 0);
+      return;
+    }
+
+    if (code && code !== 0) {
+      console.error(`[${name}] exited with code ${code}`);
+      stopAll(code);
+    }
   });
+
+  return child;
 };
 
-bootstrap();
+process.on("SIGINT", () => stopAll(130));
+process.on("SIGTERM", () => stopAll(143));
+process.on("exit", () => {
+  shuttingDown = true;
+  children.forEach(killTree);
+});
+
+const bootstrap = async () => {
+  const build = start("build", "npx tsc -p server/tsconfig.json", { stopOnExit: false });
+
+  await new Promise((resolve, reject) => {
+    build.on("exit", (code) => {
+      if (shuttingDown) {
+        resolve();
+        return;
+      }
+      if (code && code !== 0) {
+        reject(new Error(`Initial TypeScript build failed (exit ${code}).`));
+        return;
+      }
+      resolve();
+    });
+  });
+
+  if (shuttingDown) {
+    return;
+  }
+
+  // Avoid `concurrently` on Windows — nested shells trap Ctrl+C with "Terminer O/N ?".
+  start("tsc", "npx tsc -p server/tsconfig.json --watch --preserveWatchOutput");
+  start("api", "node --watch server-dist/index.js");
+};
+
+bootstrap().catch((error) => {
+  console.error(`[server-watch] ${error instanceof Error ? error.message : String(error)}`);
+  stopAll(1);
+});
