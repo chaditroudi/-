@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from "@nestjs/common";
 import { MASTER_DATA_ROLES, STAFF_READ_ROLES, SUPPLIER_PORTAL_ROLE, SUPPLIER_WRITE_ROLES } from "../../middleware/authorization.js";
 import { Roles } from "../../nest/route-metadata.js";
 import { RequireAuthGuard } from "../../nest/route-guards.js";
 import { CollectionsService } from "../collections/collections.service.js";
 import { ReceptionsService } from "../receptions/receptions.service.js";
+import { assertOwnSupplier, filterOwnSuppliers } from "./supplier-portal-scope.js";
 
 @Controller("api/suppliers")
 @UseGuards(RequireAuthGuard)
@@ -15,9 +16,9 @@ export class SuppliersController {
 
   @Get()
   @Roles(...STAFF_READ_ROLES, SUPPLIER_PORTAL_ROLE)
-  async list() {
+  async list(@Req() req: any) {
     const data = await this.cs.query({ table: "suppliers", filters: [], orderBy: { column: "name", ascending: true } });
-    return { data };
+    return { data: filterOwnSuppliers(req, data) };
   }
 
   @Post()
@@ -50,7 +51,8 @@ export class SuppliersController {
 
   @Get(":id/lots")
   @Roles(...STAFF_READ_ROLES, SUPPLIER_PORTAL_ROLE)
-  async getLots(@Param("id") id: string) {
+  async getLots(@Req() req: any, @Param("id") id: string) {
+    await assertOwnSupplier(req, id);
     const data = await this.cs.query({
       table: "receptions_v2",
       filters: [{ type: "eq", column: "supplier_id", value: id }],
@@ -72,7 +74,8 @@ export class SuppliersController {
 
   @Get(":id/payments")
   @Roles(...MASTER_DATA_ROLES, SUPPLIER_PORTAL_ROLE)
-  async getPayments(@Param("id") id: string) {
+  async getPayments(@Req() req: any, @Param("id") id: string) {
+    await assertOwnSupplier(req, id);
     const data = await this.cs.query({
       table: "supplier_payments",
       filters: [{ type: "eq", column: "supplier_id", value: id }],

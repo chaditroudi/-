@@ -18,6 +18,9 @@ export const badRequest = (code: string, message: string, details?: unknown) =>
 export const unauthorized = (message = "Authentication required.") =>
   new AppError(401, "UNAUTHORIZED", message);
 
+/** Sent only when the token itself is missing or dead; a wrong PIN or password stays UNAUTHORIZED. */
+export const sessionRequired = () => new AppError(401, "SESSION_REQUIRED", "Authentication required.");
+
 export const forbidden = (message = "You do not have permission to perform this action.") =>
   new AppError(403, "FORBIDDEN", message);
 

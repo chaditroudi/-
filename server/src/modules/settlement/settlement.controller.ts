@@ -1,7 +1,9 @@
 import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from "@nestjs/common";
 
+import { SUPPLIER_PORTAL_ROLE } from "../../middleware/authorization.js";
 import { Roles } from "../../nest/route-metadata.js";
 import { RequireAuthGuard, RolesGuard } from "../../nest/route-guards.js";
+import { isSupplierPortalUser, ownSupplierId } from "../suppliers/supplier-portal-scope.js";
 import { ExportMarginService } from "./export-margin.service.js";
 import { SettlementService } from "./settlement.service.js";
 
@@ -26,11 +28,16 @@ export class SettlementController {
   ) {}
 
   @Get("api/settlements")
-  @Roles(...SETTLEMENT_ROLES)
+  @Roles(...SETTLEMENT_ROLES, SUPPLIER_PORTAL_ROLE)
   async list(
+    @Req() req: any,
     @Query("supplier_id") supplierId?: string,
     @Query("status") status?: string,
   ) {
+    if (isSupplierPortalUser(req)) {
+      const ownId = await ownSupplierId(req);
+      return { data: ownId ? await this.settlements.list({ supplierId: ownId, status }) : [] };
+    }
     return { data: await this.settlements.list({ supplierId, status }) };
   }
 

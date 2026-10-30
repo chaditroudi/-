@@ -6,6 +6,7 @@ import { prepareInsertDocument } from "../../db/defaults.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
 import { Phase2Service } from "../phase2/phase2.service.js";
 import { StorageService } from "../storage/storage.service.js";
+import { assertDeviceAllowed, simulatorSecret } from "../weighbridge/device-policy.js";
 import { signCcpReading, type CcpKind } from "./ccp-signature.js";
 
 export type CcpReadingInput = {
@@ -24,9 +25,6 @@ export type CcpReadingInput = {
 };
 
 const Devices = () => getCollectionModel("ccp_sensor_devices");
-const simulatorSecret = () =>
-  process.env.CCP_SIMULATOR_SECRET || "royal-palm-ccp-simulator-dev";
-
 const withoutSecret = (value: unknown) => {
   const row = sanitizeDocument(value) as Record<string, unknown>;
   const { secret: _secret, ...safe } = row;
@@ -91,6 +89,8 @@ export class CcpSensorsService {
   }
 
   async ensureSimulators() {
+    const secret = simulatorSecret("CCP_SIMULATOR_SECRET");
+    if (!secret) return;
     const fum = await Devices().findOne({ device_code: "CCP-FUM-SIM-01" }).lean().exec();
     if (!fum) {
       await this.registerDevice({
@@ -98,7 +98,7 @@ export class CcpSensorsService {
         label: "Wave A fumigation simulator",
         kind: "FUMIGATION",
         protocol: "SIMULATOR",
-        secret: simulatorSecret(),
+        secret,
         status: "ACTIVE",
       });
     }
@@ -109,7 +109,7 @@ export class CcpSensorsService {
         label: "Wave A cold-chain simulator",
         kind: "COLD",
         protocol: "SIMULATOR",
-        secret: simulatorSecret(),
+        secret,
         status: "ACTIVE",
         zone_code: null,
       });
@@ -132,6 +132,7 @@ export class CcpSensorsService {
       await Devices().findOne({ device_code: deviceCode }).lean().exec(),
     ) as Record<string, unknown> | null;
     if (!device) throw notFound("CCP_DEVICE_NOT_FOUND", "Unknown CCP sensor device.");
+    assertDeviceAllowed(device);
     if (String(device.status || "") !== "ACTIVE") throw unauthorized("CCP sensor device is not active.");
 
     const kind = String(payload.kind || device.kind || "").toUpperCase() as CcpKind;

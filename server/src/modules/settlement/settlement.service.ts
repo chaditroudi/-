@@ -3,7 +3,7 @@
  */
 import { Injectable } from "@nestjs/common";
 
-import { badRequest, notFound } from "../../core/app-error.js";
+import { AppError, badRequest, notFound } from "../../core/app-error.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
 import {
@@ -207,6 +207,10 @@ export class SettlementService {
         "INVALID_SETTLEMENT_TRANSITION",
         `Impossible de passer de ${status} à ${toStatus}.`,
       );
+    }
+
+    if (toStatus === "APPROVED" && (!actorId || current.created_by === actorId)) {
+      throw new AppError(403, "SEPARATION_OF_DUTIES", "Un règlement doit être approuvé par une autre personne que son auteur.");
     }
 
     const now = new Date().toISOString();

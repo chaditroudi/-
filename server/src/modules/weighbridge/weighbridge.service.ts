@@ -5,6 +5,7 @@ import { badRequest, notFound, unauthorized } from "../../core/app-error.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
 import { publishRealtimeDbChange } from "../realtime/realtime.bus.js";
+import { assertDeviceAllowed, simulatorSecret } from "./device-policy.js";
 import { signReading } from "./weighbridge-signature.js";
 
 export type WeighbridgeReadingInput = {
@@ -21,8 +22,6 @@ export type WeighbridgeReadingInput = {
 
 const Devices = () => getCollectionModel("weighbridge_devices");
 const Readings = () => getCollectionModel("weighbridge_readings");
-const simulatorSecret = () =>
-  process.env.WEIGHBRIDGE_SIMULATOR_SECRET || "royal-palm-simulator-dev";
 const withoutSecret = (value: unknown) => {
   const row = sanitizeDocument(value) as Record<string, unknown>;
   const { secret: _secret, ...safe } = row;
@@ -72,13 +71,15 @@ export class WeighbridgeService {
   }
 
   async ensureSimulator() {
+    const secret = simulatorSecret("WEIGHBRIDGE_SIMULATOR_SECRET");
+    if (!secret) return null;
     const existing = await Devices().findOne({ device_code: "SIM-01" }).lean().exec();
     if (existing) return sanitizeDocument(existing) as Record<string, unknown>;
     await this.registerDevice({
       device_code: "SIM-01",
       label: "W3 HTTP simulator",
       protocol: "SIMULATOR",
-      secret: simulatorSecret(),
+      secret,
       status: "ACTIVE",
       max_capacity_kg: 100_000,
       resolution_kg: 0.001,
@@ -106,6 +107,7 @@ export class WeighbridgeService {
     ) as Record<string, unknown> | null;
     if (!device && deviceCode === "SIM-01") device = await this.ensureSimulator();
     if (!device) throw notFound("WEIGHBRIDGE_DEVICE_NOT_FOUND", "Unknown weighbridge device.");
+    assertDeviceAllowed(device);
     if (String(device.status || "") !== "ACTIVE") throw unauthorized("Weighbridge device is not active.");
 
     const normalized = { readingId, deviceCode, capturedAt, weightKg, unit, stable, direction };
