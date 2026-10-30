@@ -491,7 +491,150 @@ const buildControlPoint = (
   detail: string,
 ) => ({ code, label, status, detail });
 
-export async function buildLotTraceabilityDossier(lotNumber: string) {
+const mergeRows = <T extends GenericRow>(target: T[], incoming: T[]) => {
+  const seen = new Set(target.map((row) => readString(row.id)));
+  for (const row of incoming) {
+    const id = readString(row.id);
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
+    target.push(row);
+  }
+};
+
+const parentIdsFromOutputs = (outputs: ProductionOutputLotRow[]) =>
+  uniqueStrings(
+    outputs.flatMap((row) => [
+      ...(Array.isArray(row.parent_lot_ids) ? row.parent_lot_ids : []),
+      ...((row.parent_lots_snapshot ?? []).map((snap) => snap.reception_lot_id)),
+    ]),
+  );
+
+async function dossierForShipmentNumber(query: string) {
+  const shipment = sanitizeDocument(
+    await ShipmentPreparations()
+      .findOne({ $or: [{ id: query }, { shipment_number: query }] })
+      .lean()
+      .exec(),
+  ) as ShipmentPreparationRow | null;
+  if (!shipment?.id) return null;
+
+  const lines = sanitizeDocument(
+    await ShipmentLines().find({ shipment_id: shipment.id }).lean().exec(),
+  ) as ShipmentLineRow[];
+  const movements = sanitizeDocument(
+    await StockMovements()
+      .find({
+        document_type: "SHIPMENT",
+        document_reference: { $in: uniqueStrings([shipment.id, shipment.shipment_number]) },
+      })
+      .lean()
+      .exec(),
+  ) as StockMovementRow[];
+  const lotIds = uniqueStrings([
+    ...lines.map((row) => row.lot_id),
+    ...movements.map((row) => row.lot_id),
+  ]);
+  if (lotIds.length === 0) return null;
+
+  const stocks = sanitizeDocument(
+    await StockLots().find({ id: { $in: lotIds } }).lean().exec(),
+  ) as StockLotRow[];
+  const nextKey = stocks
+    .map((row) => readString(row.source_lot_internal, row.lot_number))
+    .find((value) => value && value !== query);
+  if (!nextKey) return null;
+
+  const dossier = await buildLotTraceabilityDossier(nextKey, 1);
+  mergeRows(dossier.shipments as ShipmentPreparationRow[], [shipment]);
+  mergeRows(dossier.shipment_lines as ShipmentLineRow[], lines);
+  mergeRows(dossier.stock_movements as StockMovementRow[], movements);
+  return { ...dossier, lot_number: query };
+}
+
+async function appendOutputDownstream(args: {
+  outputLots: ProductionOutputLotRow[];
+  stockLots: StockLotRow[];
+  stockMovements: StockMovementRow[];
+  packagingOrders: PackagingOrderRow[];
+  packagingPalettes: PackagingPaletteRow[];
+  shipmentLines: ShipmentLineRow[];
+  shipments: ShipmentPreparationRow[];
+}) {
+  const outputNumbers = uniqueStrings(
+    args.outputLots.flatMap((row) => [row.lot_pf_number, (row as { lot_number?: string | null }).lot_number]),
+  );
+  if (outputNumbers.length === 0) return;
+
+  mergeRows(
+    args.stockLots,
+    sanitizeDocument(
+      await StockLots()
+        .find({
+          $or: [
+            { lot_number: { $in: outputNumbers } },
+            { source_lot_internal: { $in: outputNumbers } },
+          ],
+        })
+        .lean()
+        .exec(),
+    ) as StockLotRow[],
+  );
+  mergeRows(
+    args.packagingOrders,
+    sanitizeDocument(
+      await PackagingOrders().find({ source_lot_number: { $in: outputNumbers } }).lean().exec(),
+    ) as PackagingOrderRow[],
+  );
+
+  const orderIds = uniqueStrings(args.packagingOrders.map((row) => row.id));
+  if (orderIds.length > 0) {
+    mergeRows(
+      args.packagingPalettes,
+      sanitizeDocument(
+        await PackagingPalettes().find({ order_id: { $in: orderIds } }).lean().exec(),
+      ) as PackagingPaletteRow[],
+    );
+  }
+
+  const stockIds = uniqueStrings(args.stockLots.map((row) => row.id));
+  if (stockIds.length === 0) return;
+  mergeRows(
+    args.stockMovements,
+    sanitizeDocument(
+      await StockMovements().find({ lot_id: { $in: stockIds } }).lean().exec(),
+    ) as StockMovementRow[],
+  );
+  mergeRows(
+    args.shipmentLines,
+    sanitizeDocument(
+      await ShipmentLines().find({ lot_id: { $in: stockIds } }).lean().exec(),
+    ) as ShipmentLineRow[],
+  );
+
+  const shipmentIds = uniqueStrings([
+    ...args.shipmentLines.map((row) => row.shipment_id),
+    ...args.stockMovements
+      .filter((row) => readString(row.document_type).toUpperCase() === "SHIPMENT")
+      .map((row) => row.document_reference),
+  ]);
+  if (shipmentIds.length === 0) return;
+  mergeRows(
+    args.shipments,
+    sanitizeDocument(
+      await ShipmentPreparations()
+        .find({
+          $or: [
+            { id: { $in: shipmentIds } },
+            { shipment_number: { $in: shipmentIds } },
+          ],
+        })
+        .lean()
+        .exec(),
+    ) as ShipmentPreparationRow[],
+  );
+}
+
+export async function buildLotTraceabilityDossier(lotNumber: string, depth = 0) {
   const normalizedLotNumber = readString(lotNumber);
   if (!normalizedLotNumber) {
     throw badRequest("LOT_NUMBER_REQUIRED", "Le numero de lot est requis.");
@@ -628,6 +771,23 @@ export async function buildLotTraceabilityDossier(lotNumber: string) {
     ),
   ]);
 
+  const hasDirectAnchor = Boolean(
+    receptionExact
+    || receptionLotExact
+    || stockLotExact
+    || subLotExact
+    || outputLotExact
+    || receptionFuzzy
+    || receptionLotsDirect.length
+    || stockLotsDirect.length
+    || subLotsDirect.length
+    || outputLotsDirect.length,
+  );
+  if (!hasDirectAnchor && depth === 0) {
+    const fromShipment = await dossierForShipmentNumber(normalizedLotNumber);
+    if (fromShipment) return fromShipment;
+  }
+
   const initialReceptionIds = uniqueStrings([
     receptionExact?.id,
     receptionLotExact?.reception_id,
@@ -677,6 +837,21 @@ export async function buildLotTraceabilityDossier(lotNumber: string) {
     ) as ReceptionLotRow[],
     "created_at",
   );
+
+  const earlyOutputs = [outputLotExact, ...outputLotsDirect].filter(
+    (row): row is ProductionOutputLotRow => Boolean(row?.id),
+  );
+  const missingParentIds = parentIdsFromOutputs(earlyOutputs).filter(
+    (id) => !receptionLots.some((row) => readString(row.id) === id),
+  );
+  if (missingParentIds.length > 0) {
+    mergeRows(
+      receptionLots,
+      sanitizeDocument(
+        await ReceptionLots().find({ id: { $in: missingParentIds } }).lean().exec(),
+      ) as ReceptionLotRow[],
+    );
+  }
 
   const receptionLotIds = uniqueStrings(receptionLots.map((row) => row.id));
   const receptionNumbers = uniqueStrings([reception?.reception_number]);
@@ -811,6 +986,7 @@ export async function buildLotTraceabilityDossier(lotNumber: string) {
         .find({
           $or: [
             ...(receptionLotIds.length > 0 ? [{ reception_lot_id: { $in: receptionLotIds } }] : []),
+            ...(receptionLotIds.length > 0 ? [{ lot_id: { $in: receptionLotIds } }] : []),
             { "lot.lot_internal": { $regex: lotRegex } },
             { "lot.lot_supplier": { $regex: lotRegex } },
             { "lot.reception_number": { $regex: lotRegex } },
@@ -934,6 +1110,16 @@ export async function buildLotTraceabilityDossier(lotNumber: string) {
       )
       : Promise.resolve([] as SupplierRow[]),
   ]);
+
+  await appendOutputDownstream({
+    outputLots,
+    stockLots,
+    stockMovements,
+    packagingOrders,
+    packagingPalettes,
+    shipmentLines,
+    shipments,
+  });
 
   const supplierMap = new Map(supplierRows.map((row) => [readString(row.id), row]));
 

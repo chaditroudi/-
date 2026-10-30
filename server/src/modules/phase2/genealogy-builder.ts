@@ -85,6 +85,7 @@ export function buildGenealogyFromDossier(dossier: Record<string, unknown>): Gen
 
   const addEdge = (from: string, to: string, edgeType: GenealogyEdge['edgeType'] = 'process') => {
     if (!from || !to || from === to) return;
+    if (edges.some((edge) => edge.from === from && edge.to === to)) return;
     edges.push({ id: `e${edgeSeq++}`, from, to, edgeType });
   };
 
@@ -98,22 +99,26 @@ export function buildGenealogyFromDossier(dossier: Record<string, unknown>): Gen
   }
 
   const mainLotId = rs(mainLot.id);
-  addNode({
-    id: mainLotId,
-    type: 'reception_lot',
-    label: rs(mainLot.lot_internal) || lotNumber,
-    sublabel: rs(mainLot.variety) || null,
-    status: rs(mainLot.stock_status) || null,
-    column: COL.reception_lot,
-    meta: {
-      quantity: rn(mainLot.quantity),
-      unit: rs(mainLot.unit),
-      variety: rs(mainLot.variety),
-      origin_country: rs(mainLot.origin_country),
-      harvest_date: rs(mainLot.harvest_date),
-      quarantine_reason: rs(mainLot.quarantine_reason),
-    },
-  });
+  for (const lot of receptionLots) {
+    const id = rs(lot.id);
+    if (!id || nodes.some((node) => node.id === id)) continue;
+    addNode({
+      id,
+      type: 'reception_lot',
+      label: rs(lot.lot_internal) || lotNumber,
+      sublabel: rs(lot.variety) || null,
+      status: rs(lot.stock_status) || null,
+      column: COL.reception_lot,
+      meta: {
+        quantity: rn(lot.quantity),
+        unit: rs(lot.unit),
+        variety: rs(lot.variety),
+        origin_country: rs(lot.origin_country),
+        harvest_date: rs(lot.harvest_date),
+        quarantine_reason: rs(lot.quarantine_reason),
+      },
+    });
+  }
 
   // ── QC inspections ─────────────────────────────────────────────────────────
   const qcInspections = (dossier.qc_inspections as any[] | undefined) ?? [];
@@ -317,6 +322,9 @@ export function buildGenealogyFromDossier(dossier: Record<string, unknown>): Gen
     const allocsForOrder = productionAllocations.filter(
       (a) => rs(a.production_order_id) === id,
     );
+    const allocatedReceptionIds = allocsForOrder
+      .map((a) => rs(a.lot_id) || rs(a.reception_lot_id))
+      .filter((lotId) => lotId && nodes.some((node) => node.id === lotId));
     const allocatedSubLotIds = allocsForOrder
       .map((a) => {
         const lotNum = rs((a.lot as any)?.lot_internal) || rs(a.reception_lot_id);
@@ -324,7 +332,9 @@ export function buildGenealogyFromDossier(dossier: Record<string, unknown>): Gen
       })
       .filter(Boolean);
 
-    if (allocatedSubLotIds.length > 0) {
+    if (allocatedReceptionIds.length > 0) {
+      for (const lotId of allocatedReceptionIds) addEdge(lotId, id, 'process');
+    } else if (allocatedSubLotIds.length > 0) {
       for (const slId of allocatedSubLotIds) addEdge(slId, id, 'process');
     } else if (subLots.length > 0) {
       // Fallback: connect from all sub-lots
@@ -362,6 +372,32 @@ export function buildGenealogyFromDossier(dossier: Record<string, unknown>): Gen
       addEdge(parentOrderId, id, 'output');
     } else if (prodOrderIds.length > 0) {
       addEdge(prodOrderIds[0], id, 'output');
+    }
+
+    const snapshots = Array.isArray(ol.parent_lots_snapshot) ? ol.parent_lots_snapshot : [];
+    for (const snap of snapshots) {
+      const parentId = rs(snap?.reception_lot_id);
+      if (!parentId) continue;
+      if (!nodes.some((node) => node.id === parentId)) {
+        addNode({
+          id: parentId,
+          type: 'reception_lot',
+          label: rs(snap.lot_internal) || parentId,
+          sublabel: null,
+          status: null,
+          column: COL.reception_lot,
+          meta: {
+            quantity: rn(snap.allocated_quantity),
+            unit: rs(snap.unit),
+            lot_internal: rs(snap.lot_internal),
+          },
+        });
+      }
+      if (parentOrderId && nodes.some((node) => node.id === parentOrderId)) {
+        addEdge(parentId, parentOrderId, 'process');
+      } else {
+        addEdge(parentId, id, 'process');
+      }
     }
   }
 
@@ -458,7 +494,7 @@ export function buildGenealogyFromDossier(dossier: Record<string, unknown>): Gen
         seal_number: rs(pal.seal_number),
       },
     });
-    const parentPkoId = rs(pal.packaging_order_id);
+    const parentPkoId = rs(pal.packaging_order_id) || rs(pal.order_id);
     if (parentPkoId && nodes.find((n) => n.id === parentPkoId)) {
       addEdge(parentPkoId, id, 'output');
     } else if (pkgOrderIds.length > 0) {
