@@ -9,6 +9,9 @@ import { printPfLotLabel } from '@/lib/printPfLotLabel';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { ClipboardList, Package, Tag, Layers, AlertTriangle, Printer } from 'lucide-react';
 import { toast } from 'sonner';
 import { useBranding } from '@/hooks/useBranding';
@@ -20,6 +23,8 @@ interface Props {
 
 export function PackagingDashboard({ currentUser = 'Utilisateur' }: Props) {
   const [tab, setTab] = useState('orders');
+  const [quickPfOpen, setQuickPfOpen] = useState(false);
+  const [quickLotNumber, setQuickLotNumber] = useState('');
   const { data: kpis } = usePackagingKpis();
   const { data: orders = [] } = usePackagingOrders();
   const { companyName } = useBranding();
@@ -32,17 +37,21 @@ export function PackagingDashboard({ currentUser = 'Utilisateur' }: Props) {
   const gs1Prefix = siteSettings?.documents?.gs1_company_prefix || '09999999';
   const gs1Placeholder = gs1Prefix === '09999999';
 
-  const quickPfLabel = () => {
-    const lot = window.prompt('N° lot PF à étiqueter');
-    if (!lot?.trim()) return;
+  const handlePrintPfLabel = () => {
+    if (!quickLotNumber.trim()) {
+      toast.error('Veuillez saisir un numéro de lot PF');
+      return;
+    }
     printPfLotLabel({
-      lotNumber: lot.trim(),
+      lotNumber: quickLotNumber.trim(),
       productName: 'Dattes — Produit fini',
       grade: 'PF',
       companyName,
       plantName: siteSettings?.plant_name,
     });
-    toast.success('Étiquette PF prête à imprimer');
+    toast.success(`Étiquette imprimée pour le lot ${quickLotNumber.trim()}`);
+    setQuickPfOpen(false);
+    setQuickLotNumber('');
   };
 
   return (
@@ -66,7 +75,7 @@ export function PackagingDashboard({ currentUser = 'Utilisateur' }: Props) {
           variant="outline"
           size="sm"
           className="gap-1.5 text-xs"
-          onClick={quickPfLabel}
+          onClick={() => setQuickPfOpen(true)}
         >
           <Tag className="h-3.5 w-3.5" />
           Étiquette PF rapide
@@ -133,6 +142,65 @@ export function PackagingDashboard({ currentUser = 'Utilisateur' }: Props) {
           <PalettePanel currentUser={currentUser} />
         </TabsContent>
       </Tabs>
+
+      {/* Quick PF Label Dialog (Replaces former window.prompt) */}
+      <Dialog open={quickPfOpen} onOpenChange={setQuickPfOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Tag className="h-5 w-5 text-primary" />
+              Impression d'étiquette Produit Fini (PF)
+            </DialogTitle>
+            <DialogDescription>
+              Saisissez ou scannez le numéro de lot pour imprimer immédiatement l'étiquette conforme avec code-barres.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="pf-lot-input">Numéro de lot PF</Label>
+              <Input
+                id="pf-lot-input"
+                placeholder="ex. PF-2026-001"
+                value={quickLotNumber}
+                onChange={(e) => setQuickLotNumber(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handlePrintPfLabel();
+                  }
+                }}
+                autoFocus
+              />
+            </div>
+            {orders.length > 0 && (
+              <div className="space-y-1.5">
+                <p className="text-xs text-muted-foreground font-medium">Lots récents en conditionnement :</p>
+                <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
+                  {orders.slice(0, 5).map((o) => (
+                    <button
+                      key={o.id}
+                      type="button"
+                      onClick={() => setQuickLotNumber(o.order_number)}
+                      className="text-xs font-mono bg-muted hover:bg-muted/80 px-2 py-1 rounded-md text-foreground transition-colors border"
+                    >
+                      {o.order_number}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setQuickPfOpen(false)}>
+              Annuler
+            </Button>
+            <Button onClick={handlePrintPfLabel} disabled={!quickLotNumber.trim()}>
+              <Printer className="h-4 w-4 mr-1.5" />
+              Imprimer l'étiquette
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

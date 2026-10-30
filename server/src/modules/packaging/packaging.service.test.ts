@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { prepareInsertDocument } from "../../db/defaults.js";
 import { createInMemoryModel, type TestRow } from "../../test/in-memory-collection.js";
 import { buildLotEventRecord, verifyLotEventChain, type LotEventRecord } from "../trust/lot-ledger.js";
 import { PackagingService } from "./packaging.service.js";
@@ -90,5 +91,145 @@ describe("packagingService.sealPalette ledger", () => {
     const packed = events.find((event) => event.event_type === "PACKAGED");
     expect(packed?.payload).toMatchObject({ stage: "PACKED" });
     expect(verifyLotEventChain(events).valid).toBe(true);
+    expect(store.packaging_palettes?.[0]).toMatchObject({
+      sscc: null,
+      sscc_status: "NON_PRODUCTION_PLACEHOLDER",
+    });
+  });
+});
+
+describe("packagingService.createOrder triage consumption", () => {
+  beforeEach(() => {
+    Object.keys(store).forEach((key) => delete store[key]);
+  });
+
+  it("does not create an order when the triage lot cannot cover the requested weight", async () => {
+    store.stock_lots = [{
+      id: "stock-1",
+      lot_number: "LOT-TRI",
+      source_stage: "TRIAGE",
+      current_quantity: 10,
+      status: "RELEASED",
+      unit: "kg",
+    }];
+
+    await expect(packagingService.createOrder({
+      source_lot_number: "LOT-TRI",
+      source_weight_kg: 25,
+      bom_net_weight_g: 500,
+    })).rejects.toMatchObject({ code: "INSUFFICIENT_STOCK" });
+
+    expect(store.packaging_orders || []).toHaveLength(0);
+    expect(store.stock_lots?.[0]?.current_quantity).toBe(10);
+    expect(store.stock_movements || []).toHaveLength(0);
+  });
+
+  it("writes the order and the consumption movement for a covered weight", async () => {
+    store.stock_lots = [{
+      id: "stock-1",
+      lot_number: "LOT-TRI",
+      source_stage: "TRIAGE",
+      current_quantity: 40,
+      status: "RELEASED",
+      unit: "kg",
+    }];
+
+    const order = await packagingService.createOrder({
+      source_lot_number: "LOT-TRI",
+      source_weight_kg: 12.5,
+      bom_net_weight_g: 500,
+    }) as TestRow;
+
+    expect(String(order.order_number)).toMatch(/^PKG-/);
+    expect(store.packaging_orders).toHaveLength(1);
+    expect(store.stock_lots?.[0]?.current_quantity).toBe(27.5);
+    expect(store.stock_lots?.[0]?.status).toBe("RELEASED");
+    expect(store.stock_movements).toHaveLength(1);
+    expect(store.stock_movements?.[0]).toMatchObject({
+      movement_type: "CONSOMMATION",
+      quantity: 12.5,
+      lot_id: "stock-1",
+    });
+    expect(store.system_audit_logs).toHaveLength(1);
+    expect(store.system_audit_logs?.[0]).toMatchObject({ action: "PACKAGING_CONSUMPTION" });
+  });
+
+  it("does not create an order when the triage lot is missing, quarantined, or the movement write fails", async () => {
+    await expect(packagingService.createOrder({
+      source_lot_number: "MISSING",
+      source_weight_kg: 5,
+      bom_net_weight_g: 500,
+    })).rejects.toMatchObject({ code: "TRIAGE_STOCK_NOT_FOUND" });
+    expect(store.packaging_orders || []).toHaveLength(0);
+
+    store.stock_lots = [{
+      id: "stock-q",
+      lot_number: "LOT-Q",
+      source_stage: "TRIAGE",
+      current_quantity: 20,
+      status: "QUARANTINE",
+      unit: "kg",
+    }];
+    await expect(packagingService.createOrder({
+      source_lot_number: "LOT-Q",
+      source_weight_kg: 5,
+      bom_net_weight_g: 500,
+    })).rejects.toMatchObject({ code: "LOT_NOT_CONSUMABLE" });
+    expect(store.stock_lots[0].current_quantity).toBe(20);
+    expect(store.packaging_orders || []).toHaveLength(0);
+
+    store.stock_lots = [{
+      id: "stock-1",
+      lot_number: "LOT-TRI",
+      source_stage: "TRIAGE",
+      current_quantity: 40,
+      status: "RELEASED",
+      unit: "kg",
+    }];
+    const original = vi.mocked(prepareInsertDocument).getMockImplementation();
+    vi.mocked(prepareInsertDocument).mockImplementation(async (collection: string, value: TestRow) => {
+      if (collection === "stock_movements") throw new Error("movement write failed");
+      return original?.(collection, value);
+    });
+    try {
+      await expect(packagingService.createOrder({
+        source_lot_number: "LOT-TRI",
+        source_weight_kg: 10,
+        bom_net_weight_g: 500,
+      })).rejects.toThrow(/movement write failed/);
+    } finally {
+      vi.mocked(prepareInsertDocument).mockImplementation(original!);
+    }
+    expect(store.packaging_orders || []).toHaveLength(0);
+    expect(store.stock_lots[0].current_quantity).toBe(40);
+    expect(store.stock_movements || []).toHaveLength(0);
+  });
+
+  it("replays the same client request as one order and one consumption", async () => {
+    store.stock_lots = [{
+      id: "stock-1",
+      lot_number: "LOT-TRI",
+      source_stage: "TRIAGE",
+      current_quantity: 40,
+      status: "RELEASED",
+      unit: "kg",
+    }];
+    const first = await packagingService.createOrder({
+      client_request_id: "pkg-req-1",
+      source_lot_number: "LOT-TRI",
+      source_weight_kg: 8,
+      bom_net_weight_g: 500,
+    }) as TestRow;
+    const second = await packagingService.createOrder({
+      client_request_id: "pkg-req-1",
+      source_lot_number: "LOT-TRI",
+      source_weight_kg: 8,
+      bom_net_weight_g: 500,
+    }) as TestRow;
+
+    expect(second.id).toBe(first.id);
+    expect(store.packaging_orders).toHaveLength(1);
+    expect(store.stock_movements).toHaveLength(1);
+    expect(store.stock_lots[0].current_quantity).toBe(32);
   });
 });

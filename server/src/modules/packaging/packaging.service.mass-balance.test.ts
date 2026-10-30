@@ -54,7 +54,7 @@ describe("packagingService mass balance", () => {
         source_stage: "TRIAGE",
         current_quantity: 500,
         unit: "kg",
-        status: "QUARANTINE",
+        status: "RELEASED",
       },
     ];
 
@@ -70,7 +70,7 @@ describe("packagingService mass balance", () => {
 
     expect(store.stock_lots[0]).toMatchObject({
       current_quantity: 300,
-      status: "QUARANTINE",
+      status: "RELEASED",
     });
     expect(store.stock_movements[0]).toMatchObject({
       movement_type: "CONSOMMATION",
@@ -86,7 +86,7 @@ describe("packagingService mass balance", () => {
         source_stage: "TRIAGE",
         current_quantity: 100,
         unit: "kg",
-        status: "QUARANTINE",
+        status: "RELEASED",
       },
     ];
 

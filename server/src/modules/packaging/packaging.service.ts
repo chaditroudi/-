@@ -80,6 +80,15 @@ const PackagingPalettes = () => getCollectionModel("packaging_palettes");
 const TriageSublots = () => getCollectionModel("triage_sublots");
 const StockLots = () => getCollectionModel("stock_lots");
 const StockMovements = () => getCollectionModel("stock_movements");
+const AuditLogs = () => getCollectionModel("system_audit_logs");
+
+/** Statuses that may be consumed into a packaging order. Quarantine and rejection stay blocked. */
+const PACKAGING_CONSUMABLE_STATUSES = new Set([
+  "RELEASED",
+  "VALIDATED",
+  "STOCK_LIBERE",
+  "LIBERE",
+]);
 
 const readNumber = (value: unknown, fallback = 0) => {
   const parsed = Number(value);
@@ -351,14 +360,79 @@ export class PackagingService {
   }
 
   async createOrder(payload: Record<string, unknown>) {
+    const clientRequestId = readString(payload.client_request_id);
+    if (clientRequestId) {
+      const existing = sanitizeDocument(
+        await PackagingOrders().findOne({ client_request_id: clientRequestId }).lean().exec(),
+      ) as PackagingOrderRow | null;
+      if (existing?.id) {
+        const movement = sanitizeDocument(
+          await StockMovements().findOne({
+            request_id: `packaging:${clientRequestId}`,
+            movement_type: "CONSOMMATION",
+          }).lean().exec(),
+        ) as Record<string, unknown> | null;
+        if (!movement?.id) {
+          throw badRequest(
+            "PACKAGING_CONSUMPTION_INCOMPLETE",
+            "A previous packaging request created an order without a stock movement. Retry is blocked until that order is reconciled.",
+            { orderId: existing.id, clientRequestId },
+          );
+        }
+        return existing;
+      }
+    }
+
+    const sourceLotNumber = readString(payload.source_lot_number);
+    const consumeKg = readNumber(payload.source_weight_kg);
+    if (!sourceLotNumber) {
+      throw badRequest("SOURCE_LOT_REQUIRED", "Un ordre de conditionnement exige un lot triage source.");
+    }
+    if (consumeKg <= 0) {
+      throw badRequest(
+        "SOURCE_WEIGHT_REQUIRED",
+        "source_weight_kg doit être > 0 pour consommer le lot triage.",
+      );
+    }
+
+    const stockLot = sanitizeDocument(
+      await StockLots()
+        .findOne({ lot_number: sourceLotNumber, source_stage: "TRIAGE" })
+        .lean()
+        .exec(),
+    ) as Record<string, unknown> | null;
+    if (!stockLot?.id) {
+      throw badRequest(
+        "TRIAGE_STOCK_NOT_FOUND",
+        `Aucun lot de stock triage pour ${sourceLotNumber}. L'ordre n'est pas créé.`,
+        { sourceLotNumber },
+      );
+    }
+
+    const lotStatus = readString(stockLot.status).toUpperCase();
+    if (!PACKAGING_CONSUMABLE_STATUSES.has(lotStatus)) {
+      throw badRequest(
+        "LOT_NOT_CONSUMABLE",
+        `Le lot ${sourceLotNumber} n'est pas libéré pour le conditionnement (statut: ${lotStatus || "inconnu"}).`,
+        { lotId: stockLot.id, status: lotStatus },
+      );
+    }
+
+    const availableKg = readNumber(stockLot.current_quantity);
+    if (consumeKg > availableKg + 0.001) {
+      throw badRequest(
+        "INSUFFICIENT_STOCK",
+        `Poids demandé (${consumeKg} kg) supérieur au stock disponible (${availableKg} kg) sur ${sourceLotNumber}.`,
+        { consumeKg, availableKg, lotId: stockLot.id },
+      );
+    }
+
     const orderNumber = await nextPackagingOrderNumber();
-    const targetUnits = computeTargetUnits(
-      readNumber(payload.source_weight_kg),
-      readNumber(payload.bom_net_weight_g),
-    );
+    const targetUnits = computeTargetUnits(consumeKg, readNumber(payload.bom_net_weight_g));
     const now = nowIso();
 
     const order = await prepareInsertDocument("packaging_orders", {
+      client_request_id: clientRequestId || null,
       order_number: orderNumber,
       status: "PLANIFIE" as PackagingOrderStatus,
       source_sublot_id: payload.source_sublot_id,
@@ -390,69 +464,85 @@ export class PackagingService {
       updated_at: now,
     });
 
-    await PackagingOrders().create([order]);
+    const previousStatus = stockLot.status;
+    const remainingKg = Number(Math.max(0, availableKg - consumeKg).toFixed(3));
+    let orderInserted = false;
+    let stockApplied = false;
+    let movementId: string | null = null;
 
-    try {
-      const stockLot = sanitizeDocument(
-        await StockLots()
-          .findOne({ lot_number: order.source_lot_number, source_stage: "TRIAGE" })
-          .lean()
-          .exec(),
-      ) as Record<string, unknown> | null;
-
-      if (stockLot?.id) {
-        const consumeKg = readNumber(order.source_weight_kg);
-        const availableKg = readNumber(stockLot.current_quantity);
-        if (consumeKg <= 0) {
-          throw badRequest(
-            "SOURCE_WEIGHT_REQUIRED",
-            "source_weight_kg doit être > 0 pour consommer le lot triage.",
-          );
-        }
-        if (consumeKg > availableKg + 0.001) {
-          throw badRequest(
-            "INSUFFICIENT_STOCK",
-            `Poids demandé (${consumeKg} kg) supérieur au stock disponible (${availableKg} kg) sur ${order.source_lot_number}.`,
-            { consumeKg, availableKg, lotId: stockLot.id },
-          );
-        }
-
-        const remainingKg = Number(Math.max(0, availableKg - consumeKg).toFixed(3));
+    const rollbackConsumption = async () => {
+      if (movementId) {
+        await StockMovements().deleteMany({ id: movementId }).exec();
+      }
+      if (stockApplied) {
         await StockLots().updateOne(
           { id: stockLot.id },
-          {
-            $set: {
-              current_quantity: remainingKg,
-              status: remainingKg <= 0 ? "CONSUMED" : stockLot.status || "QUARANTINE",
-              updated_at: now,
-            },
-          },
+          { $set: { current_quantity: availableKg, status: previousStatus, updated_at: now } },
         ).exec();
+      }
+      if (orderInserted) {
+        await PackagingOrders().deleteMany({ id: order.id }).exec();
+        await AuditLogs().deleteMany({ entity_id: order.id, action: "PACKAGING_CONSUMPTION" }).exec();
+      }
+    };
 
-        const movement = await prepareInsertDocument("stock_movements", {
-          movement_type: "CONSOMMATION",
+    try {
+      await PackagingOrders().create([order]);
+      orderInserted = true;
+
+      await StockLots().updateOne(
+        { id: stockLot.id },
+        {
+          $set: {
+            current_quantity: remainingKg,
+            status: remainingKg <= 0 ? "CONSUMED" : previousStatus,
+            updated_at: now,
+          },
+        },
+      ).exec();
+      stockApplied = true;
+
+      const movement = await prepareInsertDocument("stock_movements", {
+        movement_type: "CONSOMMATION",
+        lot_id: stockLot.id,
+        product_id: stockLot.product_id ?? null,
+        quantity: consumeKg,
+        unit: stockLot.unit ?? "kg",
+        document_type: "PACKAGING_ORDER",
+        document_reference: order.order_number,
+        request_id: clientRequestId ? `packaging:${clientRequestId}` : null,
+        performed_by: order.created_by ?? null,
+        notes: `Consommation ${consumeKg} kg par OF ${order.order_number}`,
+        created_at: now,
+      });
+      movementId = String(movement.id || "");
+      await StockMovements().create([movement]);
+
+      const audit = await prepareInsertDocument("system_audit_logs", {
+        action: "PACKAGING_CONSUMPTION",
+        entity_type: "packaging_order",
+        entity_id: order.id,
+        actor_id: order.created_by ?? null,
+        summary: `OF ${order.order_number} consomme ${consumeKg} kg du lot ${sourceLotNumber}.`,
+        metadata: {
           lot_id: stockLot.id,
-          product_id: null,
-          quantity: consumeKg,
-          unit: stockLot.unit ?? "kg",
-          document_type: "PACKAGING_ORDER",
-          document_reference: order.order_number,
-          performed_by: order.created_by ?? null,
-          notes: `Consommation partielle ${consumeKg} kg par OF ${order.order_number}`,
-          created_at: now,
-        });
-        await StockMovements().create([movement]);
-
-        // TODO Priorité 1 — la consommation packaging peut faire passer le
-        // produit sous son seuil: déclencher le réappro (non bloquant).
-        await autoReorderOnStockChange([readString(stockLot.product_id)], readString(order.created_by) || null);
-      }
+          movement_id: movementId,
+          quantity_kg: consumeKg,
+          remaining_kg: remainingKg,
+          client_request_id: clientRequestId || null,
+        },
+        created_at: now,
+      });
+      await AuditLogs().create([audit]);
     } catch (error) {
-      if ((error as { code?: string } | null)?.code === "INSUFFICIENT_STOCK"
-        || (error as { code?: string } | null)?.code === "SOURCE_WEIGHT_REQUIRED") {
-        throw error;
-      }
-      console.error("[Packaging] triage stock consumption sync failed:", error);
+      await rollbackConsumption();
+      throw error;
+    }
+
+    try {
+      await autoReorderOnStockChange([readString(stockLot.product_id)], readString(order.created_by) || null);
+    } catch (error) {
+      console.error("[Packaging] threshold reorder after consumption failed:", error);
     }
 
     return sanitizeDocument(order);
@@ -730,13 +820,17 @@ export class PackagingService {
     const sealedBy = readString(payload.sealed_by, payload.sealedBy);
     const serialCounter = readNumber(payload.serial_counter, Date.now() % 100_000_000);
     const companyPrefix = await loadGs1CompanyPrefix();
-    const sscc = generateSSCC(serialCounter, companyPrefix);
+    const placeholderPrefix = companyPrefix === PLACEHOLDER_GS1_COMPANY_PREFIX;
+    const sscc = placeholderPrefix ? null : generateSSCC(serialCounter, companyPrefix);
     const now = nowIso();
 
-    if (companyPrefix === PLACEHOLDER_GS1_COMPANY_PREFIX) {
-      console.warn(
-        "[Packaging] SSCC uses placeholder GS1 company prefix 09999999 — set documents.gs1_company_prefix or GS1_COMPANY_PREFIX",
-      );
+    if (sscc) {
+      const duplicate = sanitizeDocument(
+        await PackagingPalettes().findOne({ sscc }).lean().exec(),
+      ) as PackagingPaletteRow | null;
+      if (duplicate?.id && duplicate.id !== id) {
+        throw badRequest("SSCC_DUPLICATE", `SSCC ${sscc} est déjà utilisé par la palette ${duplicate.palette_number || duplicate.id}.`);
+      }
     }
 
     if (!sealNumber) {
@@ -759,6 +853,8 @@ export class PackagingService {
           sealed_by: sealedBy || null,
           sealed_at: now,
           sscc,
+          sscc_status: placeholderPrefix ? "NON_PRODUCTION_PLACEHOLDER" : "ISSUED",
+          sscc_blocked_reason: placeholderPrefix ? "GS1_PREFIX_PLACEHOLDER" : null,
           updated_at: now,
         },
       },
