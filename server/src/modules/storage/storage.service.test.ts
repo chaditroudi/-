@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { prepareInsertDocument } from "../../db/defaults.js";
 import { createInMemoryModel, type TestRow } from "../../test/in-memory-collection.js";
 import { buildLotEventRecord, verifyLotEventChain, type LotEventRecord } from "../trust/lot-ledger.js";
 import { storageService } from "./storage.service.js";
@@ -223,6 +224,57 @@ describe("storageService.moveStock", () => {
       },
       { id: "user-1" },
     )).rejects.toMatchObject({ code: "LOT_NOT_FOUND" });
+  });
+
+  it("rejects a placement that would exceed destination kilogram capacity", async () => {
+    const destination = locations.find((row) => row.id === "dest-1");
+    if (destination) {
+      destination.capacity_kg = 10000;
+      destination.occupied_kg = 9900;
+    }
+
+    await expect(storageService.moveStock(
+      {
+        movementType: "TRANSFERT",
+        lotCode: "LOT-A",
+        sourceLocationId: "source-1",
+        destinationLocationId: "dest-1",
+        quantityKg: 500,
+        reason: "RECEPTION",
+      },
+      { id: "user-1" },
+    )).rejects.toMatchObject({ code: "DESTINATION_KG_CAPACITY_EXCEEDED" });
+
+    expect(locations.find((row) => row.id === "source-1")?.occupied_kg).toBe(1000);
+    expect(locations.find((row) => row.id === "dest-1")?.occupied_kg).toBe(9900);
+    expect(inserted.storage_location_movements || []).toHaveLength(0);
+  });
+
+  it("restores both locations when the movement row cannot be written", async () => {
+    const original = vi.mocked(prepareInsertDocument).getMockImplementation();
+    vi.mocked(prepareInsertDocument).mockImplementation(async (collection: string, value: TestRow) => {
+      if (collection === "storage_location_movements") throw new Error("movement write failed");
+      return original?.(collection, value);
+    });
+    try {
+      await expect(storageService.moveStock(
+        {
+          movementType: "TRANSFERT",
+          lotCode: "LOT-A",
+          sourceLocationId: "source-1",
+          destinationLocationId: "dest-1",
+          quantityKg: 100,
+          reason: "RECEPTION",
+        },
+        { id: "user-1" },
+      )).rejects.toThrow(/movement write failed/);
+    } finally {
+      vi.mocked(prepareInsertDocument).mockImplementation(original!);
+    }
+
+    expect(locations.find((row) => row.id === "source-1")?.occupied_kg).toBe(1000);
+    expect(locations.find((row) => row.id === "dest-1")?.occupied_kg).toBe(0);
+    expect(inserted.storage_location_movements || []).toHaveLength(0);
   });
 
   it("rejects zero palette movements", async () => {

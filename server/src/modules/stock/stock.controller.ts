@@ -1,12 +1,14 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from "@nestjs/common";
 import { Roles } from "../../nest/route-metadata.js";
 import { RequireAuthGuard, RolesGuard } from "../../nest/route-guards.js";
+import { badRequest } from "../../core/app-error.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
 import { CollectionsService } from "../collections/collections.service.js";
 import { publishRealtimeDbChange } from "../realtime/realtime.bus.js";
 import { scanService } from "../trust/scan.service.js";
 import { autoReorderOnStockChange } from "../purchasing/stock-reorder.service.js";
+import { planExpeditionDecrement, type ExpeditionLot } from "./expedition-decrement.js";
 
 const compactIds = (...values: unknown[]) =>
   values.flat().map((value) => String(value || "")).filter(Boolean);
@@ -461,27 +463,45 @@ export class StockController {
       requestId?: string;
     };
 
+    const lines = Array.isArray(pickedLines) ? pickedLines : [];
     const now = new Date().toISOString();
     const Lots = getCollectionModel("stock_lots");
     const Movements = getCollectionModel("stock_movements");
+    const idempotencyKey = String(requestId || "").trim();
 
-    const lotIds = pickedLines.map((l) => l.lot_id).filter(Boolean);
-    const existingLots = sanitizeDocument(
-      await Lots.find({ id: { $in: lotIds } })
-        .lean()
-        .exec(),
-    ) as any[];
-    const lotMap = new Map(existingLots.map((l) => [l.id, l]));
-
-    for (const line of pickedLines) {
-      const lot = lotMap.get(line.lot_id);
-      if (!lot) continue;
-      if (lot.status !== "VALIDATED") {
-        throw new Error(`Le lot ${lot.lot_number ?? line.lot_id} n'est pas libéré (statut: ${lot.status}).`);
+    if (idempotencyKey) {
+      const requestIds = lines.map((line) => `${idempotencyKey}:${line.lot_id}`);
+      const prior = sanitizeDocument(
+        await Movements.find({ request_id: { $in: requestIds }, movement_type: "EXPEDITION" }).lean().exec(),
+      ) as Array<{ id?: string }>;
+      if (prior.length === lines.length && lines.length > 0) {
+        const shipment = sanitizeDocument(
+          await getCollectionModel("shipment_preparations").findOne({ id: shipmentId }).lean().exec(),
+        );
+        return { data: shipment, replayed: true };
+      }
+      if (prior.length > 0) {
+        throw badRequest(
+          "EXPEDITION_INCOMPLETE",
+          "Une expédition précédente a enregistré une partie des mouvements. Le stock n'est pas décrémenté à nouveau.",
+          { requestId: idempotencyKey, movements: prior.length, lines: lines.length },
+        );
       }
     }
 
-    for (const line of pickedLines) {
+    const lotIds = lines.map((line) => line.lot_id).filter(Boolean);
+    const existingLots = sanitizeDocument(
+      await Lots.find({ id: { $in: lotIds } }).lean().exec(),
+    ) as ExpeditionLot[];
+    const totals = planExpeditionDecrement(lines, existingLots);
+    const lotMap = new Map(existingLots.map((lot) => [String(lot.id), lot]));
+    const snapshots = existingLots.map((lot) => ({
+      id: String(lot.id),
+      current_quantity: lot.current_quantity,
+      status: lot.status,
+    }));
+
+    for (const line of lines) {
       await scanService.consumeMoveProof({
         token: line.scan_token,
         actorId: String(req.auth?.user?.id || ""),
@@ -490,39 +510,74 @@ export class StockController {
       });
     }
 
-    for (const line of pickedLines) {
-      const lot = lotMap.get(line.lot_id);
-      if (!lot) continue;
-      const newQty = Math.max(0, Number(lot.current_quantity) - Number(line.quantity));
-      await Lots.updateOne(
-        { id: line.lot_id },
-        { $set: { current_quantity: newQty, ...(newQty <= 0 ? { status: "CONSUMED" } : {}), updated_at: now } },
-      ).exec();
+    let stockApplied = false;
+    let movementIds: string[] = [];
+    let movementDocs: Array<Record<string, unknown>> = [];
+    let shipmentRow: Record<string, unknown> | null = null;
+
+    const rollback = async () => {
+      if (movementIds.length > 0) {
+        await Movements.deleteMany({ id: { $in: movementIds } }).exec();
+      }
+      if (stockApplied) {
+        for (const snapshot of snapshots) {
+          await Lots.updateOne(
+            { id: snapshot.id },
+            { $set: { current_quantity: snapshot.current_quantity, status: snapshot.status, updated_at: now } },
+          ).exec();
+        }
+      }
+    };
+
+    try {
+      for (const [lotId, quantity] of totals) {
+        const lot = lotMap.get(lotId);
+        const available = Number(lot?.current_quantity);
+        const remaining = Number((available - quantity).toFixed(3));
+        await Lots.updateOne(
+          { id: lotId },
+          {
+            $set: {
+              current_quantity: remaining,
+              ...(remaining <= 0 ? { status: "CONSUMED" } : {}),
+              updated_at: now,
+            },
+          },
+        ).exec();
+      }
+      stockApplied = true;
+
+      movementDocs = await Promise.all(
+        lines.map((line) =>
+          prepareInsertDocument("stock_movements", {
+            lot_id: line.lot_id,
+            product_id: line.product_id ?? lotMap.get(line.lot_id)?.product_id ?? null,
+            movement_type: "EXPEDITION",
+            quantity: line.quantity,
+            unit: "kg",
+            movement_date: now,
+            request_id: idempotencyKey ? `${idempotencyKey}:${line.lot_id}` : null,
+            scan_token: line.scan_token || null,
+            scan_verified: Boolean(line.scan_token),
+            movement_source: "OPERATOR",
+            document_type: "SHIPMENT",
+            document_reference: shipmentId,
+          }),
+        ),
+      );
+      movementIds = movementDocs.map((doc) => String(doc.id || "")).filter(Boolean);
+      if (movementDocs.length > 0) await Movements.insertMany(movementDocs);
+
+      const { after } = await this.cs.update({
+        table: "shipment_preparations",
+        filters: [{ type: "eq", column: "id", value: shipmentId }],
+        values: { status },
+      });
+      shipmentRow = (after?.[0] as Record<string, unknown> | undefined) ?? null;
+    } catch (error) {
+      await rollback();
+      throw error;
     }
-
-    const movementDocs = await Promise.all(
-      pickedLines.map((line) =>
-        prepareInsertDocument("stock_movements", {
-          lot_id: line.lot_id,
-          product_id: line.product_id ?? lotMap.get(line.lot_id)?.product_id ?? null,
-          movement_type: "EXPEDITION",
-          quantity: line.quantity,
-          unit: "kg",
-          movement_date: now,
-          request_id: requestId ? `${requestId}:${line.lot_id}` : null,
-          scan_token: line.scan_token || null,
-          scan_verified: Boolean(line.scan_token),
-          movement_source: "OPERATOR",
-        }),
-      ),
-    );
-    if (movementDocs.length > 0) await Movements.insertMany(movementDocs);
-
-    const { after } = await this.cs.update({
-      table: "shipment_preparations",
-      filters: [{ type: "eq", column: "id", value: shipmentId }],
-      values: { status },
-    });
 
     publishRealtimeDbChange({
       type: "stock_expedition",
@@ -534,13 +589,15 @@ export class StockController {
       relatedTables: ["stock_lots", "stock_summary", "shipment_preparations"],
     });
 
-    // TODO Priorité 1 — après une baisse de stock, déclencher les DA de réappro
-    // pour les produits passés sous leur seuil de sécurité (non bloquant).
-    await autoReorderOnStockChange(
-      pickedLines.map((line) => lotMap.get(line.lot_id)?.product_id ?? line.product_id ?? null),
-      req.auth?.user?.id || null,
-    );
+    try {
+      await autoReorderOnStockChange(
+        lines.map((line) => lotMap.get(line.lot_id)?.product_id ?? line.product_id ?? null),
+        req.auth?.user?.id || null,
+      );
+    } catch (error) {
+      console.error("[Stock] threshold reorder after expedition failed:", error);
+    }
 
-    return { data: after[0] };
+    return { data: shipmentRow, replayed: false };
   }
 }

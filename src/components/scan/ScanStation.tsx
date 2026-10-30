@@ -62,6 +62,7 @@ import { receptionsApi } from '@/lib/api/receptions';
 import { trustApi } from '@/lib/api/trust';
 import { useLiveLotTraceability } from '@/hooks/useLotTraceability';
 import { getSseConnection } from '@/lib/sseClient';
+import { useAiGuideUi } from '@/contexts/AiGuideContext';
 import type {
   LotTraceabilityData,
   TraceabilityFumigationCycle,
@@ -1096,6 +1097,7 @@ export const ScanStation = () => {
   const [tableSearch, setTableSearch] = useState('');
   const [tableStatus, setTableStatus] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const { setEntityId } = useAiGuideUi();
 
   const { data: allLots = [], isLoading: lotsLoading } = useAllReceptionLots();
 
@@ -1103,12 +1105,13 @@ export const ScanStation = () => {
     const trimmed = code.trim();
     if (!trimmed) return;
     setActiveLotCode(trimmed);
+    setEntityId(trimmed);
     setManualInput('');
     setHistory((prev) => {
       const deduped = prev.filter((e) => e.code !== trimmed);
       return [{ code: trimmed, scannedAt: new Date().toISOString() }, ...deduped].slice(0, 10);
     });
-  }, []);
+  }, [setEntityId]);
 
   const filteredLots = useMemo(() => {
     let list = allLots;
@@ -1180,6 +1183,7 @@ export const ScanStation = () => {
               {history.map((h) => (
                 <button
                   key={h.code}
+                  data-lot-id={h.code}
                   onClick={() => loadLot(h.code)}
                   className={cn(
                     'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono border transition-all',
@@ -1289,6 +1293,7 @@ export const ScanStation = () => {
                     return (
                       <TableRow
                         key={lot.id}
+                        data-lot-id={code}
                         className={cn(
                           'transition-colors cursor-pointer group',
                           isActive

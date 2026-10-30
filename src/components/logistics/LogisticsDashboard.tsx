@@ -885,10 +885,12 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
   const [createOpen, setCreateOpen] = useState(false);
   const [selectedShipmentId, setSelectedShipmentId] = useState<string | null>(null);
   const [recallShipmentId, setRecallShipmentId] = useState<string | null>(null);
-  const [mainTab, setMainTab] = useState(() => (initialView === 'bde' ? 'bde' : 'shipments'));
+  const [mainTab, setMainTab] = useState(() => (initialView && ['bde', 'shipments', 'stock-pf', 'transport', 'compliance', 'recall'].includes(initialView) ? initialView : 'shipments'));
 
   useEffect(() => {
-    if (initialView === 'bde') setMainTab('bde');
+    if (initialView && ['bde', 'shipments', 'stock-pf', 'transport', 'compliance', 'recall'].includes(initialView)) {
+      setMainTab(initialView);
+    }
   }, [initialView]);
   const { data: shipments = [] } = useShipments();
   const { data: finishedProducts = [] } = useProducts('PF');

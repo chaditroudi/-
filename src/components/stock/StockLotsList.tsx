@@ -158,7 +158,11 @@ export const StockLotsList = () => {
                   const location = (lot as any).storage_location || (lot.location as any);
                   
                   return (
-                    <TableRow key={lot.id} className={isExpiringSoon ? 'bg-orange-50' : ''}>
+                    <TableRow
+                      key={lot.id}
+                      data-lot-id={lot.lot_number || lot.id}
+                      className={isExpiringSoon ? 'bg-orange-50' : ''}
+                    >
                       <TableCell className="font-mono font-medium">
                         <div>
                           <p>{lot.lot_number}</p>

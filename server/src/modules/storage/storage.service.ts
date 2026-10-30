@@ -1418,6 +1418,10 @@ export class StorageService {
       throw conflict("SOURCE_QUANTITY_EXCEEDED", "Source location does not contain enough palettes.");
     }
 
+    if (source && quantityKg > asNumber(source.occupied_kg) + 0.001) {
+      throw conflict("SOURCE_KG_EXCEEDED", "Source location does not contain enough kilograms.");
+    }
+
     if (source) {
       const sourceLots = Array.isArray(source.lot_ids_present) ? source.lot_ids_present.map(String) : [];
       if (sourceLots.length > 0 && !sourceLots.some((item) => lotIdentifiers.includes(item))) {
@@ -1427,18 +1431,45 @@ export class StorageService {
 
     const destCapacityPalettes = destination ? asNumber(destination.capacity_palettes) : 0;
     const destOccupiedPalettes = destination ? asNumber(destination.occupied_palettes) : 0;
+    const destCapacityKg = destination ? asNumber(destination.capacity_kg) : 0;
+    const destOccupiedKg = destination ? asNumber(destination.occupied_kg) : 0;
     if (destination && destCapacityPalettes > 0 && destOccupiedPalettes + quantityPalettes > destCapacityPalettes) {
       throw conflict("DESTINATION_CAPACITY_EXCEEDED", "Destination capacity would be exceeded.");
+    }
+    if (destination && destCapacityKg > 0 && quantityKg > 0 && destOccupiedKg + quantityKg > destCapacityKg + 0.001) {
+      throw conflict(
+        "DESTINATION_KG_CAPACITY_EXCEEDED",
+        "Destination kilogram capacity would be exceeded.",
+        { capacityKg: destCapacityKg, occupiedKg: destOccupiedKg, quantityKg },
+      );
     }
 
     const fefoAlertBundle = await validateFefoPicking(payload, lot);
     const varietyAlertBundle = await enforceVarietyAndBioRules(payload, destination, lot);
 
-    const sourceAfterPalettes = source ? Math.max(0, asNumber(source.occupied_palettes) - quantityPalettes) : 0;
-    const sourceAfterKg = source ? Math.max(0, asNumber(source.occupied_kg) - quantityKg) : 0;
+    const sourceAfterPalettes = source ? asNumber(source.occupied_palettes) - quantityPalettes : 0;
+    const sourceAfterKg = source ? Number((asNumber(source.occupied_kg) - quantityKg).toFixed(3)) : 0;
     const destinationAfterPalettes = destOccupiedPalettes + quantityPalettes;
-    const destinationAfterKg = destination ? asNumber(destination.occupied_kg) + quantityKg : 0;
+    const destinationAfterKg = destination ? Number((destOccupiedKg + quantityKg).toFixed(3)) : 0;
     const movementDate = nowIso();
+    const sourceSnapshot = source
+      ? {
+          occupied_palettes: source.occupied_palettes,
+          occupied_kg: source.occupied_kg,
+          location_status: source.location_status,
+          lot_ids_present: Array.isArray(source.lot_ids_present) ? [...source.lot_ids_present] : [],
+        }
+      : null;
+    const destinationSnapshot = destination
+      ? {
+          occupied_palettes: destination.occupied_palettes,
+          occupied_kg: destination.occupied_kg,
+          location_status: destination.location_status,
+          lot_ids_present: Array.isArray(destination.lot_ids_present) ? [...destination.lot_ids_present] : [],
+        }
+      : null;
+    let sourceApplied = false;
+    let destinationApplied = false;
 
     if (source) {
       const currentLots = Array.isArray(source.lot_ids_present) ? source.lot_ids_present.map(String) : [];
@@ -1460,6 +1491,7 @@ export class StorageService {
         },
       ).exec();
       await updateZoneLoad(source.storage_zone_id, -quantityPalettes, -quantityKg);
+      sourceApplied = true;
     }
 
     if (destination) {
@@ -1477,9 +1509,12 @@ export class StorageService {
         },
       ).exec();
       await updateZoneLoad(destination.storage_zone_id, quantityPalettes, quantityKg);
+      destinationApplied = true;
     }
 
-    const preparedMovement = await prepareInsertDocument("storage_location_movements", {
+    let preparedMovement: Record<string, unknown> | null = null;
+    try {
+    preparedMovement = await prepareInsertDocument("storage_location_movements", {
       movement_type: movementType,
       movement_date: movementDate,
       lot_id: movementLotId || null,
@@ -1582,6 +1617,26 @@ export class StorageService {
       alerts: [...fefoAlertBundle.alerts, ...varietyAlertBundle.alerts],
       notifications: [...fefoAlertBundle.notifications, ...varietyAlertBundle.notifications],
     };
+    } catch (error) {
+      if (preparedMovement?.id) {
+        await Movements.deleteMany({ id: preparedMovement.id }).exec();
+      }
+      if (sourceApplied && source && sourceSnapshot) {
+        await Locations.updateOne(
+          { id: source.id },
+          { $set: { ...sourceSnapshot, updated_at: nowIso() } },
+        ).exec();
+        await updateZoneLoad(source.storage_zone_id, quantityPalettes, quantityKg);
+      }
+      if (destinationApplied && destination && destinationSnapshot) {
+        await Locations.updateOne(
+          { id: destination.id },
+          { $set: { ...destinationSnapshot, updated_at: nowIso() } },
+        ).exec();
+        await updateZoneLoad(destination.storage_zone_id, -quantityPalettes, -quantityKg);
+      }
+      throw error;
+    }
   }
 
   // ── Zone CRUD ─────────────────────────────────────────────────────────────

@@ -224,26 +224,27 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
   // ── Assign lot dialog ─────────────────────────────────────────────────────
   const [assignLot, setAssignLot] = useState<null | { id: string; lot_internal?: string; variety?: string; quantity?: number; unit?: string; stock_status?: string }>(null);
   const [assignZone, setAssignZone] = useState("");
-  const [assignBy, setAssignBy] = useState("");
   const [assignNotes, setAssignNotes] = useState("");
   const moveLot = useMoveReceptionLotToStorage();
 
   const handleAssign = useCallback(async () => {
-    if (!assignLot || !assignZone || !assignBy) return;
-    await moveLot.mutateAsync({
-      lotId: assignLot.id,
-      targetZone: assignZone,
-      performedBy: assignBy,
-      notes: assignNotes || undefined,
-      _lotStockStatus: assignLot.stock_status ?? "STOCK_LIBERE",
-      _receptionStatus: "VALIDE",
-    });
+    if (!assignLot || !assignZone) return;
+    try {
+      await moveLot.mutateAsync({
+        lotId: assignLot.id,
+        targetZone: assignZone,
+        notes: assignNotes || undefined,
+        _lotStockStatus: assignLot.stock_status ?? "STOCK_LIBERE",
+        _receptionStatus: "VALIDE",
+      });
+    } catch {
+      return; // The hook shows the server reason; keep the dialog open.
+    }
     setAssignLot(null);
     setAssignZone("");
-    setAssignBy("");
     setAssignNotes("");
     setLastSyncAt(new Date());
-  }, [assignLot, assignZone, assignBy, assignNotes, moveLot]);
+  }, [assignLot, assignZone, assignNotes, moveLot]);
 
   // ── Movement form ─────────────────────────────────────────────────────────
   const [mvtForm, setMvtForm] = useState({
@@ -1726,15 +1727,6 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Réalisé par <span className="text-destructive">*</span></Label>
-                <Input
-                  placeholder="Nom de l'opérateur"
-                  value={assignBy}
-                  onChange={e => setAssignBy(e.target.value)}
-                  className="rounded-xl"
-                />
-              </div>
-              <div className="space-y-2">
                 <Label>Notes</Label>
                 <Input
                   placeholder="Optionnel"
@@ -1751,7 +1743,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
             </Button>
             <Button
               className="rounded-xl"
-              disabled={!assignZone || !assignBy || moveLot.isPending}
+              disabled={!assignZone || moveLot.isPending}
               onClick={handleAssign}
             >
               {moveLot.isPending ? "Affectation…" : "Confirmer l'affectation"}
