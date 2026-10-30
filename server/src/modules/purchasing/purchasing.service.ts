@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 
-import { badRequest, notFound } from "../../core/app-error.js";
+import { badRequest, conflict, notFound } from "../../core/app-error.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
 import { AuthUserModel } from "../../models/auth-user.model.js";
@@ -1078,6 +1078,17 @@ export class PurchasingService {
       await PurchaseOrderLines().findOne({ id: lineId, order_id: orderId }).lean().exec(),
     ) as PurchaseOrderLineRow | null;
     if (!line) throw notFound("PURCHASE_ORDER_LINE_NOT_FOUND", "Ligne de commande introuvable.");
+
+    // A line received through Réceptions (weighing, lots, QC) is already counted there:
+    // a direct receipt would count the same delivery twice and skip the inspection.
+    const receptionReceipts = (await getCollectionModel("purchase_order_receiving_lots")
+      .find({ purchase_order_line_id: lineId }).lean().exec()) as Array<{ qc_outcome?: string }>;
+    if (receptionReceipts.some((receipt) => receipt.qc_outcome !== "cancelled")) {
+      throw conflict(
+        "LINE_RECEIVED_BY_RECEPTION",
+        "Cette ligne est réceptionnée dans le module Réceptions (pesée, lots et contrôle qualité) : enregistrez les livraisons suivantes depuis Réceptions.",
+      );
+    }
 
     const targetQuantity = getLineTargetQuantity(line);
     const previousReceived = readNumber(line.received_quantity);

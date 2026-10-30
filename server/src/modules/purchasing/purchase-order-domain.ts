@@ -19,7 +19,7 @@ type PurchaseOrderReceiptStatus =
   | "discrepancy";
 type PurchaseOrderLineStatus = "open" | "partially_delivered" | "delivered" | "closed" | "discrepancy" | "cancelled";
 type PurchaseOrderInvoiceStatus = "not_invoiced" | "partially_invoiced" | "invoiced" | "blocked";
-type ReceiptQcOutcome = "pending_qc" | "accepted" | "conditional" | "rejected";
+type ReceiptQcOutcome = "pending_qc" | "accepted" | "conditional" | "rejected" | "cancelled";
 
 type PurchaseOrderRow = Record<string, unknown> & {
   id?: string;
@@ -175,10 +175,13 @@ const computePhysicalLineStatus = (line: PurchaseOrderLineRow): PurchaseOrderLin
   return "delivered";
 };
 
+const isCancelledReceipt = (receipt: PurchaseOrderReceiptRow) => receipt.qc_outcome === "cancelled";
+
 const deriveReceiptStatus = (
   lines: PurchaseOrderLineRow[],
-  receipts: PurchaseOrderReceiptRow[],
+  allReceipts: PurchaseOrderReceiptRow[],
 ): PurchaseOrderReceiptStatus => {
+  const receipts = allReceipts.filter((receipt) => !isCancelledReceipt(receipt));
   if (receipts.some((receipt) => ["conditional", "rejected"].includes(String(receipt.qc_outcome || "")))) {
     return "discrepancy";
   }
@@ -217,6 +220,8 @@ const deriveHeaderStatus = (
   if (receiptStatus === "discrepancy") return "on_hold";
   if (receiptStatus === "delivered" || receiptStatus === "delivered_with_tolerance") return "delivered";
   if (receiptStatus === "partially_delivered") return "partially_delivered";
+  // Every receipt was reversed: the order is open for receipt again.
+  if (["partially_delivered", "delivered", "on_hold"].includes(currentStatus)) return "confirmed";
   return currentStatus;
 };
 
@@ -253,7 +258,12 @@ const syncPurchaseOrderDerivedFields = async (purchaseOrderId: string) => {
       ? String(order.delivered_at || new Date().toISOString())
       : null;
   const goodsReceiptCount = Array.from(
-    new Set(receipts.map((receipt) => String(receipt.reception_id || "")).filter(Boolean)),
+    new Set(
+      receipts
+        .filter((receipt) => !isCancelledReceipt(receipt))
+        .map((receipt) => String(receipt.reception_id || ""))
+        .filter(Boolean),
+    ),
   ).length;
 
   await PurchaseOrders().updateOne(
@@ -348,6 +358,38 @@ export const resolvePurchaseOrderReceiptTarget = async ({
   } satisfies ResolvedReceiptTarget;
 };
 
+/**
+ * Checks the receipt fits the line's remaining quantity (plus over-delivery
+ * tolerance). Intake calls it before writing anything so a refused delivery
+ * leaves no reception, lot or stock behind.
+ */
+export const assertReceiptWithinTolerance = (
+  resolution: ResolvedReceiptTarget,
+  quantity: number,
+  line: PurchaseOrderLineRow = resolution.line,
+) => {
+  const receiptQuantity = roundQuantity(readNumber(quantity));
+  if (receiptQuantity <= 0) {
+    throw badRequest("INVALID_RECEIPT_QUANTITY", "The received quantity must be greater than zero.");
+  }
+
+  const targetQuantity = getLineTargetQuantity(line);
+  const previousReceived = roundQuantity(readNumber(line.received_quantity));
+  const overTolerancePct = readNumber(line.over_delivery_tolerance_pct);
+  const maxReceivable = roundQuantity(targetQuantity * (1 + overTolerancePct / 100));
+  const nextReceived = roundQuantity(previousReceived + receiptQuantity);
+
+  if (nextReceived > maxReceivable + 0.0001) {
+    throw badRequest(
+      "OVERDELIVERY_TOLERANCE_EXCEEDED",
+      `The receipt exceeds the authorized quantity for order ${resolution.order.order_number || resolution.order.id}.`,
+      { remaining_quantity: roundQuantity(Math.max(0, maxReceivable - previousReceived)), requested_quantity: receiptQuantity },
+    );
+  }
+
+  return { targetQuantity, nextReceived };
+};
+
 export const registerReceptionAgainstPurchaseOrder = async ({
   resolution,
   reception,
@@ -362,38 +404,39 @@ export const registerReceptionAgainstPurchaseOrder = async ({
   actorId?: string | null;
 }) => {
   const now = new Date().toISOString();
-  const receiptQuantity = roundQuantity(readNumber(quantityTotal));
-  if (receiptQuantity <= 0) {
-    throw badRequest("INVALID_RECEIPT_QUANTITY", "The received quantity must be greater than zero.");
-  }
 
-  const targetQuantity = getLineTargetQuantity(resolution.line);
-  const previousReceived = roundQuantity(readNumber(resolution.line.received_quantity));
-  const overTolerancePct = readNumber(resolution.line.over_delivery_tolerance_pct);
-  const maxReceivable = roundQuantity(targetQuantity * (1 + overTolerancePct / 100));
-  const nextReceived = roundQuantity(previousReceived + receiptQuantity);
-
-  if (nextReceived > maxReceivable + 0.0001) {
-    throw badRequest(
-      "OVERDELIVERY_TOLERANCE_EXCEEDED",
-      `The receipt exceeds the authorized quantity for order ${resolution.order.order_number || resolution.order.id}.`,
-    );
-  }
-
-  await PurchaseOrderLines().updateOne(
-    { id: resolution.line.id },
-    {
-      $set: {
-        received_quantity: nextReceived,
-        reception_id: reception.id || null,
-        last_reception_id: reception.id || null,
-        last_received_at: now,
-        last_supplier_lot: String(lots[0]?.lot_supplier || ""),
-        line_status: nextReceived + 0.0001 < targetQuantity ? "partially_delivered" : "delivered",
-        updated_at: now,
+  // Compare-and-set on received_quantity so two deliveries booked at the same
+  // time against one line cannot both pass the tolerance check.
+  let line = resolution.line;
+  for (let attempt = 0; ; attempt += 1) {
+    const { targetQuantity, nextReceived } = assertReceiptWithinTolerance(resolution, quantityTotal, line);
+    const claimed = await PurchaseOrderLines().updateOne(
+      { id: line.id, received_quantity: line.received_quantity ?? null },
+      {
+        $set: {
+          received_quantity: nextReceived,
+          reception_id: reception.id || null,
+          last_reception_id: reception.id || null,
+          last_received_at: now,
+          last_supplier_lot: String(lots[0]?.lot_supplier || ""),
+          line_status: nextReceived + 0.0001 < targetQuantity ? "partially_delivered" : "delivered",
+          updated_at: now,
+        },
       },
-    },
-  ).exec();
+    ).exec();
+    if (Number(claimed.modifiedCount || 0) === 1) break;
+
+    const fresh = sanitizeDocument(
+      await PurchaseOrderLines().findOne({ id: line.id }).lean().exec(),
+    ) as PurchaseOrderLineRow | null;
+    if (!fresh || attempt >= 4) {
+      throw badRequest(
+        "PURCHASE_ORDER_LINE_CONCURRENT_UPDATE",
+        "The purchase order line changed while receiving. Retry the reception.",
+      );
+    }
+    line = fresh;
+  }
 
   const preparedReceipts = [];
   for (const lot of lots) {
@@ -424,53 +467,11 @@ export const registerReceptionAgainstPurchaseOrder = async ({
   return syncPurchaseOrderDerivedFields(String(resolution.order.id || ""));
 };
 
-export const applyPurchaseOrderQcDecision = async ({
-  purchaseOrderId,
-  receptionId,
-  decision,
-}: {
-  purchaseOrderId: string;
-  receptionId: string;
-  decision: string;
-}) => {
-  const receipts = sanitizeDocument(
-    await PurchaseOrderReceivingLots()
-      .find({ purchase_order_id: purchaseOrderId, reception_id: receptionId })
-      .lean()
-      .exec(),
-  ) as PurchaseOrderReceiptRow[];
-
-  if (receipts.length === 0) {
-    return null;
-  }
-
-  const now = new Date().toISOString();
-  const qcOutcome: ReceiptQcOutcome =
-    decision === "ACCEPTE" ? "accepted" : decision === "REJETE" ? "rejected" : "conditional";
-
-  for (const receipt of receipts) {
-    const receivedQuantity = roundQuantity(readNumber(receipt.received_quantity));
-    await PurchaseOrderReceivingLots().updateOne(
-      { id: receipt.id },
-      {
-        $set: {
-          qc_outcome: qcOutcome,
-          accepted_quantity: qcOutcome === "accepted" ? receivedQuantity : 0,
-          rejected_quantity: qcOutcome === "rejected" ? receivedQuantity : 0,
-          updated_at: now,
-        },
-      },
-    ).exec();
-  }
-
-  const groupedLineIds = Array.from(
-    new Set(receipts.map((receipt) => String(receipt.purchase_order_line_id || "")).filter(Boolean)),
-  );
-
-  for (const lineId of groupedLineIds) {
-    const lineReceipts = sanitizeDocument(
+const recomputeLineQcQuantities = async (lineIds: string[], now: string) => {
+  for (const lineId of lineIds) {
+    const lineReceipts = (sanitizeDocument(
       await PurchaseOrderReceivingLots().find({ purchase_order_line_id: lineId }).lean().exec(),
-    ) as PurchaseOrderReceiptRow[];
+    ) as PurchaseOrderReceiptRow[]).filter((receipt) => !isCancelledReceipt(receipt));
 
     const acceptedQuantity = roundQuantity(
       lineReceipts.reduce((sum, receipt) => sum + readNumber(receipt.accepted_quantity), 0),
@@ -500,6 +501,114 @@ export const applyPurchaseOrderQcDecision = async ({
       },
     ).exec();
   }
+};
 
+/**
+ * Reverses the receipts a cancelled reception booked on its purchase order:
+ * the receipt rows are kept and flagged `cancelled`, and the line's received
+ * quantity is decremented so the order can be received again.
+ */
+export const reversePurchaseOrderReception = async ({
+  purchaseOrderId,
+  receptionId,
+  reason,
+}: {
+  purchaseOrderId: string;
+  receptionId: string;
+  reason: string;
+}) => {
+  const receipts = (sanitizeDocument(
+    await PurchaseOrderReceivingLots()
+      .find({ purchase_order_id: purchaseOrderId, reception_id: receptionId })
+      .lean()
+      .exec(),
+  ) as PurchaseOrderReceiptRow[]).filter((receipt) => !isCancelledReceipt(receipt));
+
+  if (receipts.length === 0) return null;
+
+  const now = new Date().toISOString();
+  const reversedByLine = new Map<string, number>();
+  for (const receipt of receipts) {
+    await PurchaseOrderReceivingLots().updateOne(
+      { id: receipt.id },
+      { $set: { qc_outcome: "cancelled", cancelled_at: now, cancellation_reason: reason, updated_at: now } },
+    ).exec();
+    const lineId = String(receipt.purchase_order_line_id || "");
+    if (lineId) reversedByLine.set(lineId, (reversedByLine.get(lineId) || 0) + readNumber(receipt.received_quantity));
+  }
+
+  for (const [lineId, reversed] of reversedByLine) {
+    const line = sanitizeDocument(
+      await PurchaseOrderLines().findOne({ id: lineId }).lean().exec(),
+    ) as PurchaseOrderLineRow | null;
+    if (!line) continue;
+    const receivedQuantity = roundQuantity(Math.max(0, readNumber(line.received_quantity) - reversed));
+    await PurchaseOrderLines().updateOne(
+      { id: lineId },
+      {
+        $set: {
+          received_quantity: receivedQuantity,
+          line_status: computePhysicalLineStatus({ ...line, received_quantity: receivedQuantity }),
+          updated_at: now,
+        },
+      },
+    ).exec();
+  }
+
+  await recomputeLineQcQuantities(Array.from(reversedByLine.keys()), now);
+  return syncPurchaseOrderDerivedFields(purchaseOrderId);
+};
+
+export const applyPurchaseOrderQcDecision = async ({
+  purchaseOrderId,
+  receptionId,
+  decision,
+  receptionLotIds,
+}: {
+  purchaseOrderId: string;
+  receptionId: string;
+  decision: string;
+  /** Restricts the decision to these lots (lot-level release or block). */
+  receptionLotIds?: string[];
+}) => {
+  const receipts = (sanitizeDocument(
+    await PurchaseOrderReceivingLots()
+      .find({ purchase_order_id: purchaseOrderId, reception_id: receptionId })
+      .lean()
+      .exec(),
+  ) as PurchaseOrderReceiptRow[]).filter(
+    (receipt) =>
+      !isCancelledReceipt(receipt)
+      && (!receptionLotIds || receptionLotIds.includes(String(receipt.reception_lot_id || ""))),
+  );
+
+  if (receipts.length === 0) {
+    return null;
+  }
+
+  const now = new Date().toISOString();
+  const qcOutcome: ReceiptQcOutcome =
+    decision === "ACCEPTE" ? "accepted" : decision === "REJETE" ? "rejected" : "conditional";
+
+  for (const receipt of receipts) {
+    const receivedQuantity = roundQuantity(readNumber(receipt.received_quantity));
+    await PurchaseOrderReceivingLots().updateOne(
+      { id: receipt.id },
+      {
+        $set: {
+          qc_outcome: qcOutcome,
+          accepted_quantity: qcOutcome === "accepted" ? receivedQuantity : 0,
+          rejected_quantity: qcOutcome === "rejected" ? receivedQuantity : 0,
+          updated_at: now,
+        },
+      },
+    ).exec();
+  }
+
+  const groupedLineIds = Array.from(
+    new Set(receipts.map((receipt) => String(receipt.purchase_order_line_id || "")).filter(Boolean)),
+  );
+
+  await recomputeLineQcQuantities(groupedLineIds, now);
   return syncPurchaseOrderDerivedFields(purchaseOrderId);
 };

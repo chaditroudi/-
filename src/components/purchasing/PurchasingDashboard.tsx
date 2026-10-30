@@ -708,6 +708,7 @@ export const PurchasingDashboard = ({
          onSaveThreeWayMatch={(payload) => saveThreeWayMatch.mutate(payload)}
          isReceiving={receiveOrderLine.isPending}
          isSavingThreeWayMatch={saveThreeWayMatch.isPending}
+         onOpenReception={onNavigate ? (orderId) => { setDetailDialogOpen(false); onNavigate('receptions', orderId); } : undefined}
        />
 
        <RequisitionDetailSheet

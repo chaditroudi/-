@@ -61,6 +61,8 @@ interface PurchaseOrderDetailProps {
   }) => void;
   isReceiving?: boolean;
   isSavingThreeWayMatch?: boolean;
+  /** Opens Réceptions with this order preselected (dates: weighing, lots, QC, stock). */
+  onOpenReception?: (orderId: string) => void;
 }
 
 const PurchaseOrderDetailContent = ({
@@ -71,6 +73,7 @@ const PurchaseOrderDetailContent = ({
   onSaveThreeWayMatch,
   isReceiving,
   isSavingThreeWayMatch,
+  onOpenReception,
 }: Omit<PurchaseOrderDetailProps, 'order'> & { order: PurchaseOrder }) => {
   const { toast } = useToast();
 
@@ -408,8 +411,20 @@ const PurchaseOrderDetailContent = ({
             </div>
             <Progress value={receptionPct} className="h-2" />
 
+            {onOpenReception && (
+              <div className="flex flex-col gap-2 rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sky-900">
+                  Livraison de dattes : enregistrez-la dans Réceptions (pesée, lots, contrôle qualité). Le bon de commande se met à jour automatiquement.
+                </p>
+                <Button size="sm" className="shrink-0" onClick={() => onOpenReception(order.id)}>
+                  <Truck className="mr-1.5 h-4 w-4" />
+                  Réceptionner dans Réceptions
+                </Button>
+              </div>
+            )}
+
             <p className="text-xs text-muted-foreground">
-              Traçabilité agro-alimentaire : lot fournisseur + statut QC obligatoires à chaque réception.
+              Réception directe ci-dessous : emballages et fournitures uniquement. Lot fournisseur et statut QC obligatoires.
             </p>
 
             {order.lines?.map((line) => {

@@ -506,7 +506,7 @@ export const useReceivePurchaseOrderLine = () => {
       toast.success('Réception enregistrée');
     },
     onError: (error) => {
-      toast.error('Erreur lors de la réception');
+      toast.error(error instanceof Error ? error.message : 'Erreur lors de la réception');
       console.error(error);
     },
   });
