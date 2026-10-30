@@ -1,5 +1,27 @@
 # Progress
 
+## 2026-10-30 — Phase 0: preserve and baseline
+
+- Backup outside the repo, then 13 themed commits on `stabilize/baseline`.
+- `truncate-for-testing`: embedded URI removed, no default target, dry run by default, remote needs `--i-know` and `--confirm-db`.
+- `ensure-super-admin`: hardcoded password removed; `SUPER_ADMIN_PASSWORD` required. `ensure-super-admin` and `seed-test-actors` use the same guard.
+- `server-dist` untracked. `.env.production` ignored. `engines`, `.nvmrc`, `typecheck` scripts added.
+- Fixed 5 failing tests, the `printRQC` lint error, and the test timeout. CI workflow added; deploy depends on it and uses Node 22.
+
+### Verification
+
+| Command | Result |
+|---|---|
+| `npx vitest run` | 68 files, 329 of 329 passed |
+| `npx tsc --noEmit -p server/tsconfig.json` | Pass |
+| `npx tsc --noEmit -p tsconfig.app.json` | Fail, 218 errors (known; Phase 5) |
+| `npx eslint .` | 0 errors, 1,006 warnings |
+| `npm run build` | Pass |
+
+### Blocked on the operator
+
+Credential rotation, Atlas access review, repo visibility, and removing `.env` from `gh-pages`. CI has not run on GitHub, because nothing has been pushed.
+
 ## 2026-09-27 — Manufacturing route stickiness
 
 ### Completed
