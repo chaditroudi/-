@@ -3,8 +3,9 @@
 import { randomUUID } from "node:crypto";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
+import { assertSafeDbTarget } from "./lib/db-target-guard.mjs";
 
-const PASSWORD = "Test123!";
+const LOCAL_TEST_PASSWORD = "Test123!";
 
 /**
  * [mesRole, fullName, domains, departments, primaryDepartment, orgRoles]
@@ -45,8 +46,11 @@ const profileSchema = new mongoose.Schema(
 const AuthUser = mongoose.model("auth_users", authUserSchema, "auth_users");
 const Profile = mongoose.model("profiles", profileSchema, "profiles");
 
-const mongoUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/date_harvest_hub";
+const mongoUri = process.env.MONGODB_URI;
 const mongoDbName = process.env.MONGODB_DB_NAME || "date_harvest_hub";
+const { isLocal } = assertSafeDbTarget({ uri: mongoUri, dbName: mongoDbName });
+const PASSWORD = process.env.TEST_ACTOR_PASSWORD || (isLocal ? LOCAL_TEST_PASSWORD : null);
+if (!PASSWORD) throw new Error("TEST_ACTOR_PASSWORD is required on a remote target.");
 await mongoose.connect(mongoUri, { dbName: mongoDbName });
 
 const now = new Date().toISOString();

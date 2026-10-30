@@ -3,8 +3,14 @@ import { randomUUID } from "node:crypto";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 
-const email = "superadmin@royalpalm.local";
-const password = "Admin123!";
+import { assertSafeDbTarget } from "./lib/db-target-guard.mjs";
+
+const email = process.env.SUPER_ADMIN_EMAIL || "superadmin@royalpalm.local";
+const password = process.env.SUPER_ADMIN_PASSWORD;
+if (!password || password.length < 12) {
+  console.error("SUPER_ADMIN_PASSWORD (12 characters or more) is required.");
+  process.exit(1);
+}
 const now = new Date().toISOString();
 
 const roles = [
@@ -69,8 +75,9 @@ const profileSchema = new mongoose.Schema(
 const AuthUser = mongoose.models.auth_users || mongoose.model("auth_users", authUserSchema, "auth_users");
 const Profile = mongoose.models.profiles || mongoose.model("profiles", profileSchema, "profiles");
 
-const mongoUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/date_harvest_hub";
+const mongoUri = process.env.MONGODB_URI;
 const mongoDbName = process.env.MONGODB_DB_NAME || "date_harvest_hub";
+assertSafeDbTarget({ uri: mongoUri, dbName: mongoDbName });
 
 await mongoose.connect(mongoUri, { dbName: mongoDbName });
 

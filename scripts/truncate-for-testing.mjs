@@ -2,14 +2,20 @@
  * truncate-for-testing.mjs
  * Wipes all operational data for a clean test run.
  * KEEPS: profiles, user_roles, counters, storage_zones, storage_locations
+ *
+ * Reports only by default. --apply deletes. A remote target also needs
+ * --i-know and --confirm-db=<database name>.
  */
 
 import { MongoClient } from "mongodb";
+import { assertSafeDbTarget, describeHosts } from "./lib/db-target-guard.mjs";
 
-const MONGODB_URI =
-  process.env.MONGODB_URI ||
-  "mongodb+srv://troudishedy6_db_user:vzd6ODtudvMUhzKh@cluster0.1kuiwta.mongodb.net/?appName=Cluster0";
+const MONGODB_URI = process.env.MONGODB_URI;
 const DB_NAME = process.env.MONGODB_DB_NAME || "date_harvest_hub";
+const APPLY = process.argv.includes("--apply");
+
+const purge = async (db, col) =>
+  APPLY ? db.collection(col).deleteMany({}) : { deletedCount: await db.collection(col).countDocuments() };
 
 // Collections to KEEP untouched
 const KEEP = new Set([
@@ -107,7 +113,8 @@ const TRUNCATE = [
 ];
 
 async function main() {
-  console.log("🔌 Connecting to MongoDB Atlas...");
+  assertSafeDbTarget({ uri: MONGODB_URI, dbName: DB_NAME });
+  console.log(`🔌 Connecting to ${describeHosts(MONGODB_URI)} (${APPLY ? "APPLY" : "dry run"})...`);
   const client = new MongoClient(MONGODB_URI);
 
   try {
@@ -136,7 +143,7 @@ async function main() {
         notFound++;
         continue;
       }
-      const result = await db.collection(col).deleteMany({});
+      const result = await purge(db, col);
       console.log(`  ✓  TRUNCATED: ${col} — ${result.deletedCount} docs deleted`);
       truncated++;
     }
@@ -149,10 +156,15 @@ async function main() {
     if (unlistedToTruncate.length > 0) {
       console.log("\n⚠️  Unlisted collections found in DB (also truncating):");
       for (const col of unlistedToTruncate) {
-        const result = await db.collection(col).deleteMany({});
+        const result = await purge(db, col);
         console.log(`  ✓  TRUNCATED (unlisted): ${col} — ${result.deletedCount} docs deleted`);
         truncated++;
       }
+    }
+
+    if (!APPLY) {
+      console.log("\n🧪 Dry run: nothing was deleted. Re-run with --apply to delete.");
+      return;
     }
 
     // Reset counters — keep scopes but zero them so serials restart from 1
