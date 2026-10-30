@@ -10,6 +10,7 @@ import type {
   ReceptionLot,
   ReceptionUnit,
   ReceptionV2,
+  RQCData,
 } from '@/types/reception';
 
 type ApiEnvelope<T> = {
@@ -34,7 +35,6 @@ export type MoveReceptionLotToStorageInput = {
   targetZone: string;
   position?: string;
   notes?: string;
-  performedBy: string;
 };
 
 export type MoveReceptionLotToStorageResponse = {
@@ -70,6 +70,9 @@ export type SubmitQcDecisionInput = {
     score: number;
     grade: 'EXTRA' | 'CATEGORIE_I' | 'CATEGORIE_II' | 'REJETE';
     automaticRejectReasons?: string[];
+    /** Lab-confirmed values that fed the decision. */
+    lab_humidity_pct?: number;
+    lab_defects_pct?: number;
   };
   labSampleRequired?: boolean;
   labAnalyses?: string[];
@@ -78,7 +81,7 @@ export type SubmitQcDecisionInput = {
   recommendedDecision?: QCDecisionType;
   overrideJustification?: string;
   nonconformityCodes?: string[];
-  rqc?: Record<string, unknown> | null;
+  rqc?: RQCData | null;
   checkResults: Array<{
     checklist_item_id?: string;
     check_code: string;

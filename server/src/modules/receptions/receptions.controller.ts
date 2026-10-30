@@ -15,20 +15,18 @@ import { Roles } from "../../nest/route-metadata.js";
 import { RequireAuthGuard, RolesGuard } from "../../nest/route-guards.js";
 import { publishRealtimeDbChange } from "../realtime/realtime.bus.js";
 import { IdempotencyService } from "../trust/idempotency.service.js";
+import {
+  QUALITY_ROLES,
+  RECEPTION_CANCEL_ROLES,
+  RECEPTION_READ_ROLES,
+  RECEPTION_WRITE_ROLES,
+  STORAGE_MOVE_ROLES,
+} from "./reception-roles.js";
 import { ReceptionsService } from "./receptions.service.js";
 
-const RECEPTION_READ_ROLES = [
-  "responsable_reception", "chef_reception", "operateur_reception",
-  "responsable_qualite", "inspecteur_qualite", "responsable_stock", "magasinier_wms",
-];
-const RECEPTION_WRITE_ROLES = [
-  "responsable_reception", "chef_reception", "operateur_reception", "responsable_qualite",
-];
-const QUALITY_ROLES = [
-  "responsable_qualite", "inspecteur_qualite", "resp_management_qualite", "resp_qualite_haccp",
-];
-const STORAGE_MOVE_ROLES = [
-  ...RECEPTION_WRITE_ROLES, "responsable_stock", "magasinier_wms", "responsable_logistique",
+const RECEPTION_CHANGE_TABLES = [
+  "receptions_v2", "reception_lots", "reception_units", "stock_lots", "stock_summary",
+  "reception_audit_logs_v2", "purchase_orders", "purchase_order_lines",
 ];
 
 const compactIds = (...values: unknown[]) =>
@@ -67,6 +65,13 @@ export class ReceptionsController {
   @Roles(...RECEPTION_READ_ROLES)
   async listLots(@Param("receptionId") receptionId: string) {
     const data = await this.receptionsService.listReceptionLots(receptionId);
+    return { data };
+  }
+
+  @Get("receptions/:receptionId/audit-logs")
+  @Roles(...RECEPTION_READ_ROLES)
+  async listAuditLogs(@Param("receptionId") receptionId: string) {
+    const data = await this.receptionsService.listReceptionAuditLogs(receptionId);
     return { data };
   }
 
@@ -280,6 +285,69 @@ export class ReceptionsController {
       rowIds: compactIds((data as any)?.movement?.id),
       rows: [(data as any)?.movement].filter(Boolean),
       relatedTables: ["reception_lots", "reception_units", "stock_lots", "stock_summary", "reception_audit_logs_v2"],
+    });
+    return { data };
+  }
+
+  @Post("receptions/:receptionId/cancel")
+  @HttpCode(200)
+  @Roles(...RECEPTION_CANCEL_ROLES)
+  async cancel(
+    @Param("receptionId") receptionId: string,
+    @Req() req: any,
+    @Body() body: any,
+  ) {
+    const data = await this.receptionsService.cancelReception(receptionId, body || {}, req.auth?.user || null);
+    publishRealtimeDbChange({
+      type: "reception_cancelled",
+      table: "receptions_v2",
+      action: "UPDATE",
+      actorId: req.auth?.user?.id || null,
+      rowIds: compactIds((data as any)?.reception?.id),
+      rows: [(data as any)?.reception].filter(Boolean),
+      relatedTables: RECEPTION_CHANGE_TABLES,
+    });
+    return { data };
+  }
+
+  @Post("receptions/:receptionId/quality-block")
+  @HttpCode(200)
+  @Roles(...QUALITY_ROLES)
+  async qualityBlock(
+    @Param("receptionId") receptionId: string,
+    @Req() req: any,
+    @Body() body: any,
+  ) {
+    const data = await this.receptionsService.blockReceptionForLab(receptionId, body || {}, req.auth?.user || null);
+    publishRealtimeDbChange({
+      type: "reception_quality_blocked",
+      table: "receptions_v2",
+      action: "UPDATE",
+      actorId: req.auth?.user?.id || null,
+      rowIds: compactIds((data as any)?.reception?.id),
+      rows: [(data as any)?.reception].filter(Boolean),
+      relatedTables: RECEPTION_CHANGE_TABLES,
+    });
+    return { data };
+  }
+
+  @Post("reception-lots/:lotId/quality-status")
+  @HttpCode(200)
+  @Roles(...QUALITY_ROLES)
+  async changeLotQualityStatus(
+    @Param("lotId") lotId: string,
+    @Req() req: any,
+    @Body() body: any,
+  ) {
+    const data = await this.receptionsService.changeLotQualityStatus(lotId, body || {}, req.auth?.user || null);
+    publishRealtimeDbChange({
+      type: "reception_lot_quality_changed",
+      table: "reception_lots",
+      action: "UPDATE",
+      actorId: req.auth?.user?.id || null,
+      rowIds: compactIds(lotId),
+      rows: ((data as any)?.lots || []).filter((lot: any) => lot?.id === lotId),
+      relatedTables: RECEPTION_CHANGE_TABLES,
     });
     return { data };
   }

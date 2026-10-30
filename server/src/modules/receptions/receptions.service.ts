@@ -1,16 +1,22 @@
 import mongoose from "mongoose";
 
 import { Injectable } from "@nestjs/common";
-import { badRequest, notFound } from "../../core/app-error.js";
+import { badRequest, conflict, notFound } from "../../core/app-error.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
 import {
   applyPurchaseOrderQcDecision,
+  assertReceiptWithinTolerance,
   registerReceptionAgainstPurchaseOrder,
   resolvePurchaseOrderReceiptTarget,
+  reversePurchaseOrderReception,
 } from "../purchasing/purchase-order-domain.js";
 import { syncReceptionLotsToStock, loadReceptionLots } from "./reception-stock-sync.js";
 import { lotLifecycleService } from "../trust/lot-lifecycle.service.js";
+import {
+  MANUFACTURING_ROUTE_LABEL,
+  requireManufacturingRoute,
+} from "../trust/lot-state-machine.js";
 import { lotLedgerService } from "../trust/lot-ledger.service.js";
 import { emitNotification } from "../notifications/notification-emitter.js";
 import { scanService } from "../trust/scan.service.js";
@@ -202,6 +208,7 @@ const QCChecklistItems = () => getCollectionModel("qc_checklist_items");
 const ReceptionStockMovements = () => getCollectionModel("reception_stock_movements");
 const ReceptionAuditLogs = () => getCollectionModel("reception_audit_logs_v2");
 const StockLots = () => getCollectionModel("stock_lots");
+const StockMovements = () => getCollectionModel("stock_movements");
 const WeighingRecords = () => getCollectionModel("weighing_records");
 const EpcisEvents = () => getCollectionModel("epcis_events");
 
@@ -404,6 +411,52 @@ const round = (value: number, precision = 2) => {
   return Math.round(value * factor) / factor;
 };
 
+const QC_DECISIONS = new Set(["ACCEPTE", "QUARANTAINE", "REJETE"]);
+/** Receptions that may receive a QC inspection (BLOQUE = re-inspection of a quarantined delivery). */
+const QC_OPEN_RECEPTION_STATUSES = new Set(["EN_ATTENTE_QC", "EN_QC", "BLOQUE"]);
+/** Cancellation is only possible before any QC decision has released or rejected stock. */
+const CANCELLABLE_RECEPTION_STATUSES = new Set(["BROUILLON", "EN_ATTENTE_QC", "EN_QC"]);
+/** Same tolerance the intake screens apply between the lot split and the weighbridge net. */
+const LOT_SPLIT_TOLERANCE_KG = 0.1;
+
+/** Set by the server only — an intake payload can never choose them. */
+const SERVER_OWNED_RECEPTION_FIELDS = [
+  "_id", "id", "lots", "reception_number", "status", "created_at", "updated_at",
+  "qc_decision", "qc_score", "qc_grade", "qc_auto_reject_reasons", "qc_closed_at", "qc_closed_by",
+  "validated_at", "validated_by", "cancelled_at", "cancelled_by", "cancellation_reason",
+  "supplier_code_snapshot", "supplier_name_snapshot", "purchase_order_number",
+  "weighing_verified_device", "weight_gap_percent",
+];
+const SERVER_OWNED_LOT_FIELDS = [
+  "_id", "id", "reception_id", "lot_internal", "stock_status", "qr_code_payload", "created_at", "updated_at",
+  "release_date", "released_by", "release_pin_verified", "quarantine_date", "quarantine_reason",
+  "gross_weight_kg", "tare_weight_kg", "net_weight_kg", "label_printed_at", "label_printed_by",
+  "purchase_cost_tnd_per_kg", "purchase_cost_tnd", "cost_source", "storage_zone_code",
+];
+
+const omitFields = <T extends Record<string, unknown>>(row: T, fields: string[]) =>
+  Object.fromEntries(Object.entries(row || {}).filter(([key]) => !fields.includes(key))) as T;
+
+/** null when absent; throws on a value that is present but not a finite number. */
+const readOptionalNumber = (value: unknown, field: string) => {
+  if (value === undefined || value === null || value === "") return null;
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    throw badRequest("INVALID_NUMBER", `${field} doit être un nombre.`, { field, value });
+  }
+  return parsed;
+};
+
+/** Header status implied by the lots once QC has decided (lot-level release / block). */
+const deriveReceptionStatusFromLots = (lots: Array<Record<string, unknown>>, current: string) => {
+  const statuses = lots.map((lot) => String(lot.stock_status || ""));
+  if (statuses.length === 0) return current;
+  if (statuses.some((status) => status === "EN_QUARANTAINE")) return "BLOQUE";
+  if (statuses.every((status) => status === "STOCK_REJETE")) return "REJETE";
+  if (statuses.some((status) => status === "STOCK_LIBERE")) return "LIBERE";
+  return current;
+};
+
 const buildReceptionStatusFromDecision = (decision: string) => {
   if (decision === "ACCEPTE") return "LIBERE";
   if (decision === "REJETE") return "REJETE";
@@ -510,6 +563,30 @@ export class ReceptionsService {
     return sanitizeDocument(
       await ReceptionUnits().find({ reception_lot_id: lotId }).sort({ created_at: 1 }).lean().exec(),
     );
+  }
+
+  /** Audit trail of the reception header and all of its lots, newest first. */
+  async listReceptionAuditLogs(receptionId: string) {
+    if (!receptionId) {
+      throw badRequest("RECEPTION_REQUIRED", "receptionId is required.");
+    }
+    const lots = await loadReceptionLots(receptionId);
+    const entityIds = [receptionId, ...lots.map((lot: Record<string, unknown>) => String(lot.id || ""))].filter(Boolean);
+    const logs = sanitizeDocument(
+      await ReceptionAuditLogs().find({ entity_id: { $in: entityIds } }).sort({ created_at: -1 }).lean().exec(),
+    ) as Array<Record<string, unknown>>;
+    // performed_by holds the user id; resolve display names so operators can read the history.
+    const actorIds = Array.from(new Set(logs.map((log) => String(log.performed_by || "")).filter(Boolean)));
+    const profiles = actorIds.length > 0
+      ? sanitizeDocument(
+          await getCollectionModel("profiles").find({ user_id: { $in: actorIds } }).lean().exec(),
+        ) as Array<Record<string, unknown>>
+      : [];
+    const names = new Map(profiles.map((profile) => [String(profile.user_id), String(profile.full_name || "")]));
+    return logs.map((log) => ({
+      ...log,
+      performed_by_name: names.get(String(log.performed_by || "")) || null,
+    }));
   }
 
   async listQcInspections(receptionId: string) {
@@ -686,12 +763,21 @@ export class ReceptionsService {
     if (!Array.isArray(payload?.lots) || payload.lots.length === 0) {
       throw badRequest("LOTS_REQUIRED", "At least one lot is required.");
     }
-    const zeroQtyLots = payload.lots.filter(lot => Number(lot.quantity || 0) <= 0);
-    if (zeroQtyLots.length > 0) {
+    const lots = payload.lots.map((lot) => omitFields(lot, SERVER_OWNED_LOT_FIELDS));
+    if (lots.some((lot) => !(Number(lot.quantity) > 0) || !Number.isFinite(Number(lot.quantity)))) {
       throw badRequest("INVALID_LOT_QUANTITY", "All lots must have a quantity greater than 0.");
     }
 
     const supplier = await ensureSupplierExists(String(payload.supplier_id));
+    if (
+      ["blocked", "archived"].includes(String(supplier.supplier_status || ""))
+      || supplier.qualification_status === "blacklisted"
+    ) {
+      throw badRequest(
+        "SUPPLIER_BLOCKED",
+        `Le fournisseur ${supplier.code || supplier.name || ""} est bloqué : aucune réception ne peut être enregistrée.`,
+      );
+    }
     const purchaseOrderId = readString(payload.purchase_order_id);
     const purchaseOrderLineId = readString(payload.purchase_order_line_id);
     const materialId = readString(payload.material_id);
@@ -711,7 +797,6 @@ export class ReceptionsService {
         })
       : null;
     const now = new Date().toISOString();
-    const lots = payload.lots || [];
     const grossReadingId = readString(payload.gross_reading_id);
     const tareReadingId = readString(payload.tare_reading_id);
     if ((grossReadingId || tareReadingId) && (!grossReadingId || !tareReadingId || lots.length !== 1)) {
@@ -735,19 +820,56 @@ export class ReceptionsService {
     }
     const grossReading = readingRows.find((row) => String(row.reading_id) === grossReadingId);
     const tareReading = readingRows.find((row) => String(row.reading_id) === tareReadingId);
-    const grossWeight = grossReading ? Number(grossReading.weight_kg) : Number(payload.gross_weight_kg ?? 0);
-    const tareWeight = tareReading ? Number(tareReading.weight_kg) : Number(payload.tare_weight_kg ?? 0);
-    const quantityTotal = Number(payload.quantity_total ?? lots.reduce((sum, lot) => sum + Number(lot.quantity || 0), 0));
-    const declaredWeightKg = payload.declared_weight_kg ?? payload.declaredWeightKg ?? null;
-    const netWeight = grossWeight - tareWeight;
+    const grossWeight = grossReading
+      ? Number(grossReading.weight_kg)
+      : readOptionalNumber(payload.gross_weight_kg, "gross_weight_kg") ?? 0;
+    const tareWeight = tareReading
+      ? Number(tareReading.weight_kg)
+      : readOptionalNumber(payload.tare_weight_kg, "tare_weight_kg") ?? 0;
+    if (grossWeight < 0 || tareWeight < 0) {
+      throw badRequest("INVALID_WEIGHT", "Les poids brut et tare doivent être positifs.");
+    }
+    const manufacturingRoute = requireManufacturingRoute(payload.manufacturing_route);
+
+    // Quantities are compared at gram precision (3 decimals) to avoid float drift.
+    const lotsTotal = round(lots.reduce((sum, lot) => sum + Number(lot.quantity), 0), 3);
+    const quantityTotal = readOptionalNumber(payload.quantity_total, "quantity_total") ?? lotsTotal;
+    if (Math.abs(quantityTotal - lotsTotal) > 0.001) {
+      throw badRequest(
+        "QUANTITY_TOTAL_MISMATCH",
+        `La quantité totale (${quantityTotal} kg) ne correspond pas à la somme des lots (${lotsTotal} kg).`,
+      );
+    }
+    const netWeight = round(grossWeight - tareWeight, 3);
+    const weighed = grossWeight > 0 || tareWeight > 0;
+    if (weighed && netWeight <= 0) {
+      throw badRequest(
+        "NET_WEIGHT_NOT_POSITIVE",
+        `Poids net (${netWeight} kg) ≤ 0. Vérifiez brut (${grossWeight} kg) et tare (${tareWeight} kg).`,
+      );
+    }
+    if (weighed && Math.abs(lotsTotal - netWeight) > LOT_SPLIT_TOLERANCE_KG) {
+      throw badRequest(
+        "LOT_QUANTITY_MISMATCH",
+        `La somme des lots (${lotsTotal} kg) doit correspondre au poids net pesé (${netWeight} kg).`,
+      );
+    }
+    const declaredWeightKg = readOptionalNumber(payload.declared_weight_kg ?? payload.declaredWeightKg, "declared_weight_kg");
     const weightGapPercent =
-      declaredWeightKg && Number(declaredWeightKg) > 0 ? round(((netWeight - Number(declaredWeightKg)) / Number(declaredWeightKg)) * 100) : null;
+      weighed && declaredWeightKg && declaredWeightKg > 0
+        ? round(((netWeight - declaredWeightKg) / declaredWeightKg) * 100)
+        : null;
+
+    // Refuse an over-delivery before anything is written, so a rejected
+    // delivery never leaves a reception, lots or stock behind.
+    if (receiptResolution) assertReceiptWithinTolerance(receiptResolution, quantityTotal);
 
     const reception = await prepareInsertDocument("receptions_v2", {
-      ...payload,
+      ...omitFields(payload, SERVER_OWNED_RECEPTION_FIELDS),
       client_request_id: clientRequestId || null,
       supplier_id: supplier.id || payload.supplier_id,
       purchase_order_id: purchaseOrderId || null,
+      purchase_order_number: receiptResolution?.order?.order_number || null,
       purchase_order_line_id: receiptResolution?.line?.id || purchaseOrderLineId || null,
       spontaneous_delivery: purchaseOrderId ? false : payload.spontaneous_delivery ?? true,
       supplier_code_snapshot: supplier.code || null,
@@ -760,6 +882,7 @@ export class ReceptionsService {
       tare_weight_kg: tareWeight,
       gross_reading_id: grossReadingId || null,
       tare_reading_id: tareReadingId || null,
+      manufacturing_route: manufacturingRoute,
       weighing_verified_device: Boolean(grossReading && tareReading),
       weight_gap_percent: weightGapPercent,
       status: "EN_ATTENTE_QC",
@@ -784,6 +907,7 @@ export class ReceptionsService {
         stock_status: "EN_QUARANTAINE",
         origin_country: lot.origin_country || payload.origin_country || "Tunisie",
         variety: lot.variety || payload.variety || null,
+        manufacturing_route: manufacturingRoute,
         maturity_stage: lot.maturity_stage || payload.maturity_stage || null,
         article_ref: lot.article_ref || null,
         qr_code_payload: lot.qr_code_payload || `passport:${reception.reception_number}-LOT-${index + 1}`,
@@ -834,10 +958,10 @@ export class ReceptionsService {
           lot_internal: lot.lot_internal ?? null,
           variety: lot.variety ?? null,
           quantity: lot.quantity ?? null,
-          route_product: "Deglet Nour premium whole",
+          route_product: MANUFACTURING_ROUTE_LABEL[manufacturingRoute],
         },
         relatedIds: [String(reception.id)],
-        route: "PREMIUM_WHOLE",
+        route: manufacturingRoute,
       });
     }
 
@@ -860,13 +984,36 @@ export class ReceptionsService {
     }
 
     if (receiptResolution) {
-      await registerReceptionAgainstPurchaseOrder({
-        resolution: receiptResolution,
-        reception,
-        lots: createdLots,
-        quantityTotal,
-        actorId: actor?.id || null,
-      });
+      try {
+        await registerReceptionAgainstPurchaseOrder({
+          resolution: receiptResolution,
+          reception,
+          lots: createdLots,
+          quantityTotal,
+          actorId: actor?.id || null,
+        });
+      } catch (error) {
+        // The order line changed between the pre-check and the booking (another
+        // delivery was received meanwhile). Void this intake so its stock is never
+        // counted, and free the request id so a corrected retry starts clean.
+        const reason = `Réservation sur le bon de commande impossible : ${error instanceof Error ? error.message : String(error)}`;
+        await this.voidReceptionLots(reception, createdLots, reason, actor?.id || null);
+        await Receptions().updateOne(
+          { id: reception.id },
+          {
+            $set: {
+              status: "ANNULE",
+              cancelled_at: new Date().toISOString(),
+              cancelled_by: actor?.id || null,
+              cancellation_reason: reason,
+              client_request_id: null,
+              voided_client_request_id: clientRequestId || null,
+              updated_at: new Date().toISOString(),
+            },
+          },
+        ).exec();
+        throw error;
+      }
     }
 
     const alerts = [];
@@ -923,6 +1070,14 @@ export class ReceptionsService {
       throw notFound("RECEPTION_NOT_FOUND", "Reception not found.");
     }
 
+    const receptionStatus = String(reception.status || "");
+    if (!QC_OPEN_RECEPTION_STATUSES.has(receptionStatus)) {
+      throw conflict(
+        "RECEPTION_NOT_INSPECTABLE",
+        `La réception ${reception.reception_number || receptionId} est au statut ${receptionStatus} : aucune inspection QC ne peut être ouverte.`,
+      );
+    }
+
     if (reception.created_by && actor?.id && reception.created_by === actor.id && !isAdminActor(actor)) {
       throw badRequest(
         "QC_ROLE_SEPARATION",
@@ -930,14 +1085,21 @@ export class ReceptionsService {
       );
     }
 
-    const inspection = await prepareInsertDocument("qc_inspections", {
-      ...payload,
-      reception_id: receptionId,
+    // One open inspection per reception: a double click or a reopened dialog
+    // resumes it instead of creating a parallel inspection.
+    const canonicalReceptionId = String(reception.id || receptionId);
+    const openInspection = sanitizeDocument(
+      await QCInspections().findOne({ reception_id: canonicalReceptionId, decision: null }).lean().exec(),
+    ) as Record<string, unknown> | null;
+
+    const inspection = openInspection || await prepareInsertDocument("qc_inspections", {
+      ...omitFields(payload, ["_id", "id", "decision", "ended_at", "inspection_number", "release_pin_verified", "decided_by"]),
+      reception_id: canonicalReceptionId,
       inspector_id: actor?.id || null,
       started_at: new Date().toISOString(),
       decision: null,
     });
-    await QCInspections().create([inspection]);
+    if (!openInspection) await QCInspections().create([inspection]);
 
     await Receptions().updateOne(
       receptionIdentityFilter(receptionId),
@@ -954,7 +1116,7 @@ export class ReceptionsService {
 
   async submitQcDecision(payload: QcDecisionPayload, actor: ActorContext) {
     const inspectionId = readString(payload.inspectionId, payload.inspection_id);
-    const decision = readString(payload.decision);
+    const decision = readString(payload.decision).toUpperCase();
 
     if (!inspectionId) {
       throw badRequest("INSPECTION_REQUIRED", "inspectionId is required.");
@@ -962,10 +1124,29 @@ export class ReceptionsService {
     if (!decision) {
       throw badRequest("DECISION_REQUIRED", "decision is required.");
     }
+    if (!QC_DECISIONS.has(decision)) {
+      throw badRequest("INVALID_QC_DECISION", "decision must be ACCEPTE, QUARANTAINE or REJETE.");
+    }
 
     const inspection = sanitizeDocument(await QCInspections().findOne({ id: inspectionId }).lean().exec());
     if (!inspection) {
       throw notFound("INSPECTION_NOT_FOUND", "QC inspection not found.");
+    }
+    if (inspection.decision) {
+      return this.replayQcDecision(inspection, decision, payload, actor);
+    }
+
+    const reception = sanitizeDocument(
+      await Receptions().findOne(receptionIdentityFilter(String(inspection.reception_id || ""))).lean().exec(),
+    ) as Record<string, unknown> | null;
+    if (!reception) {
+      throw notFound("RECEPTION_NOT_FOUND", "Reception not found.");
+    }
+    if (!QC_OPEN_RECEPTION_STATUSES.has(String(reception.status || ""))) {
+      throw conflict(
+        "RECEPTION_NOT_INSPECTABLE",
+        `La réception ${reception.reception_number || inspection.reception_id} est au statut ${reception.status} : la décision QC ne peut plus être enregistrée.`,
+      );
     }
 
     // Signature numérique — la libération QC (ACCEPTE → STOCK_LIBERE) est la
@@ -982,8 +1163,36 @@ export class ReceptionsService {
     const qualitySummary = payload.qualitySummary || {};
     const checkResults = Array.isArray(payload.checkResults) ? payload.checkResults : [];
 
-    await QCCheckResults().deleteMany({ inspection_id: inspectionId }).exec();
+    const inspectionUpdate = {
+      decision,
+      comment: payload.comment || null,
+      ended_at: now,
+      updated_at: now,
+      decided_by: releasePinResult?.userId || actor?.id || null,
+      lab_sample_required: Boolean(payload.labSampleRequired),
+      lab_analyses: payload.labAnalyses || [],
+      lab_storage_location: payload.labStorageLocation || null,
+      lab_sample_code: payload.labSampleRequired ? `LAB-${Date.now()}` : null,
+      secondary_inspector_name: payload.secondaryInspectorName || null,
+      recommended_decision: payload.recommendedDecision || null,
+      override_justification: payload.overrideJustification || null,
+      rqc: payload.rqc || null,
+      release_pin_verified: releasePinResult ? releasePinResult.verified === true : null,
+    };
 
+    // Atomic claim: only one submit records the decision. A concurrent double
+    // click lands in the replay path instead of writing a second set of results.
+    const claim = await QCInspections().updateOne(
+      { id: inspectionId, decision: null },
+      { $set: inspectionUpdate },
+    ).exec();
+    if (Number(claim?.modifiedCount ?? 0) !== 1) {
+      const current = sanitizeDocument(await QCInspections().findOne({ id: inspectionId }).lean().exec());
+      return this.replayQcDecision(current, decision, payload, actor);
+    }
+
+    // Results are written once per inspection; a revision needs a new inspection,
+    // so the recorded evidence is never overwritten.
     const preparedResults = [];
     for (const result of checkResults) {
       preparedResults.push(
@@ -1007,91 +1216,13 @@ export class ReceptionsService {
       await QCCheckResults().insertMany(preparedResults);
     }
 
-    const inspectionUpdate = {
+    const updatedReception = await this.applyQcDecisionToReception({
+      inspection: { ...inspection, ...inspectionUpdate },
       decision,
-      comment: payload.comment || null,
-      ended_at: now,
-      updated_at: now,
-      lab_sample_required: Boolean(payload.labSampleRequired),
-      lab_analyses: payload.labAnalyses || [],
-      lab_storage_location: payload.labStorageLocation || null,
-      lab_sample_code: payload.labSampleRequired ? `LAB-${Date.now()}` : null,
-      secondary_inspector_name: payload.secondaryInspectorName || null,
-      recommended_decision: payload.recommendedDecision || null,
-      override_justification: payload.overrideJustification || null,
-      rqc: payload.rqc || null,
-      release_pin_verified: releasePinResult ? releasePinResult.verified === true : null,
-    };
-
-    await QCInspections().updateOne({ id: inspectionId }, { $set: inspectionUpdate }).exec();
-
-    const receptionStatus = buildReceptionStatusFromDecision(decision);
-    await Receptions().updateOne(
-      receptionIdentityFilter(inspection.reception_id),
-      {
-        $set: {
-          status: receptionStatus,
-          qc_decision: decision,
-          qc_score: qualitySummary.score ?? null,
-          qc_grade: qualitySummary.grade ?? null,
-          qc_auto_reject_reasons: qualitySummary.automaticRejectReasons || [],
-          qc_closed_at: now,
-          qc_closed_by: actor?.id || null,
-          updated_at: now,
-        },
-      },
-    ).exec();
-
-    const lotStatus = buildLotStatusFromDecision(decision);
-    await ReceptionLots().updateMany(
-      { reception_id: inspection.reception_id },
-      {
-        $set: {
-          stock_status: lotStatus,
-          quarantine_reason: decision === "QUARANTAINE" || decision === "REJETE" ? payload.comment || null : null,
-          quarantine_date: decision === "QUARANTAINE" ? now : null,
-          release_date: decision === "ACCEPTE" ? now : null,
-          released_by: decision === "ACCEPTE" ? (releasePinResult?.userId || actor?.id || null) : null,
-          release_pin_verified: decision === "ACCEPTE" ? releasePinResult?.verified === true : null,
-          updated_at: now,
-        },
-      },
-    ).exec();
-
-    await ReceptionUnits().updateMany(
-      { reception_lot_id: { $in: (await loadReceptionLots(inspection.reception_id)).map((lot: { id?: string }) => lot.id) } },
-      {
-        $set: {
-          unit_status: lotStatus,
-          updated_at: now,
-        },
-      },
-    ).exec();
-
-    const updatedReception = sanitizeDocument(await Receptions().findOne(receptionIdentityFilter(inspection.reception_id)).lean().exec());
-    const updatedLots = await loadReceptionLots(inspection.reception_id);
-    try {
-      await syncReceptionLotsToStock(updatedLots, {
-        reception: updatedReception,
-        actorId: actor?.id || null,
-      });
-    } catch (syncError) {
-      console.error("[QC] syncReceptionLotsToStock failed — stock_lots may be out of sync:", syncError);
-      throw new Error("La synchronisation du stock a échoué. Veuillez réessayer ou contacter le support.");
-    }
-
-    if (updatedReception?.purchase_order_id) {
-      try {
-        await applyPurchaseOrderQcDecision({
-          purchaseOrderId: String(updatedReception.purchase_order_id),
-          receptionId: String(inspection.reception_id),
-          decision,
-        });
-      } catch (purchaseOrderError) {
-        console.error("[QC] purchase order sync failed:", purchaseOrderError);
-        throw new Error("La synchronisation du bon de commande a échoué. Veuillez réessayer.");
-      }
-    }
+      qualitySummary,
+      actor,
+      now,
+    });
 
     const storedInspection = sanitizeDocument(await QCInspections().findOne({ id: inspectionId }).lean().exec());
 
@@ -1115,7 +1246,123 @@ export class ReceptionsService {
       metadata: { decision, grade: (payload.qualitySummary as Record<string, unknown>)?.grade ?? null },
     });
 
-    for (const lot of updatedLots) {
+    return storedInspection;
+  }
+
+  /**
+   * The same decision sent again (double submit, or a retry after the stock or
+   * purchase-order sync failed) re-applies the idempotent projections while the
+   * reception is still in QC. A different decision is a revision and needs a new
+   * inspection, so the recorded one is never overwritten.
+   */
+  private async replayQcDecision(
+    inspection: Record<string, unknown>,
+    decision: string,
+    payload: QcDecisionPayload,
+    actor: ActorContext,
+  ) {
+    if (inspection.decision !== decision) {
+      throw conflict(
+        "QC_ALREADY_DECIDED",
+        `L'inspection ${inspection.inspection_number || inspection.id} est déjà clôturée avec la décision ${inspection.decision}. Ouvrez une nouvelle inspection pour la réviser.`,
+      );
+    }
+
+    const reception = sanitizeDocument(
+      await Receptions().findOne(receptionIdentityFilter(String(inspection.reception_id || ""))).lean().exec(),
+    ) as Record<string, unknown> | null;
+    if (reception && ["EN_ATTENTE_QC", "EN_QC"].includes(String(reception.status || ""))) {
+      await this.applyQcDecisionToReception({
+        inspection,
+        decision,
+        qualitySummary: payload.qualitySummary || {},
+        actor,
+        now: String(inspection.ended_at || new Date().toISOString()),
+      });
+    }
+
+    return sanitizeDocument(await QCInspections().findOne({ id: inspection.id }).lean().exec());
+  }
+
+  /**
+   * Projects a recorded QC decision onto lots, units, stock and the purchase
+   * order, then closes the reception header. The header is written last so a
+   * failed sync leaves the reception in QC and a retry can complete it.
+   */
+  private async applyQcDecisionToReception(input: {
+    inspection: Record<string, unknown>;
+    decision: string;
+    qualitySummary: Record<string, unknown>;
+    actor: ActorContext;
+    now: string;
+  }) {
+    const { inspection, decision, qualitySummary, actor, now } = input;
+    const receptionId = String(inspection.reception_id || "");
+    const inspectionId = String(inspection.id || "");
+    const lotStatus = buildLotStatusFromDecision(decision);
+    const comment = (inspection.comment as string | null) || null;
+
+    await ReceptionLots().updateMany(
+      { reception_id: receptionId },
+      {
+        $set: {
+          stock_status: lotStatus,
+          quarantine_reason: decision === "QUARANTAINE" || decision === "REJETE" ? comment : null,
+          quarantine_date: decision === "QUARANTAINE" ? now : null,
+          release_date: decision === "ACCEPTE" ? now : null,
+          released_by: decision === "ACCEPTE" ? (inspection.decided_by || actor?.id || null) : null,
+          release_pin_verified: decision === "ACCEPTE" ? inspection.release_pin_verified === true : null,
+          updated_at: now,
+        },
+      },
+    ).exec();
+
+    const lots = await loadReceptionLots(receptionId);
+    await ReceptionUnits().updateMany(
+      { reception_lot_id: { $in: lots.map((lot: { id?: string }) => lot.id) } },
+      { $set: { unit_status: lotStatus, updated_at: now } },
+    ).exec();
+
+    const reception = sanitizeDocument(
+      await Receptions().findOne(receptionIdentityFilter(receptionId)).lean().exec(),
+    ) as Record<string, unknown> | null;
+    try {
+      await syncReceptionLotsToStock(lots, { reception, actorId: actor?.id || null });
+    } catch (syncError) {
+      console.error("[QC] syncReceptionLotsToStock failed — stock_lots may be out of sync:", syncError);
+      throw new Error("La synchronisation du stock a échoué. Renvoyez la décision QC pour terminer la mise à jour.");
+    }
+
+    if (reception?.purchase_order_id) {
+      try {
+        await applyPurchaseOrderQcDecision({
+          purchaseOrderId: String(reception.purchase_order_id),
+          receptionId,
+          decision,
+        });
+      } catch (purchaseOrderError) {
+        console.error("[QC] purchase order sync failed:", purchaseOrderError);
+        throw new Error("La synchronisation du bon de commande a échoué. Renvoyez la décision QC pour terminer la mise à jour.");
+      }
+    }
+
+    await Receptions().updateOne(
+      receptionIdentityFilter(receptionId),
+      {
+        $set: {
+          status: buildReceptionStatusFromDecision(decision),
+          qc_decision: decision,
+          qc_score: qualitySummary.score ?? null,
+          qc_grade: qualitySummary.grade ?? null,
+          qc_auto_reject_reasons: qualitySummary.automaticRejectReasons || [],
+          qc_closed_at: now,
+          qc_closed_by: actor?.id || null,
+          updated_at: now,
+        },
+      },
+    ).exec();
+
+    for (const lot of lots) {
       const lotId = String(lot.id || "");
       if (!lotId) continue;
       if (decision === "REJETE") {
@@ -1139,7 +1386,9 @@ export class ReceptionsService {
       }
     }
 
-    return storedInspection;
+    return sanitizeDocument(
+      await Receptions().findOne(receptionIdentityFilter(receptionId)).lean().exec(),
+    ) as Record<string, unknown> | null;
   }
 
   async markUnitPrinted(unitId: string, actor: ActorContext) {
@@ -1220,6 +1469,25 @@ export class ReceptionsService {
       throw notFound("RECEPTION_LOT_NOT_FOUND", "Reception lot not found.");
     }
 
+    // A storage move changes where a lot sits, never its QC verdict: a zone can
+    // only confirm a release QC already granted, and a rejected lot stays rejected.
+    const currentStatus = String(lot.stock_status || "NON_STOCKE");
+    let nextStatus = resolveZoneStatus(targetZone, currentStatus);
+    if (currentStatus === "STOCK_REJETE") {
+      if (nextStatus === "STOCK_LIBERE") {
+        throw conflict(
+          "LOT_REJECTED",
+          `Le lot ${lot.lot_internal || lotId} est rejeté : il ne peut pas entrer dans une zone de stock libéré.`,
+        );
+      }
+      nextStatus = "STOCK_REJETE";
+    } else if (nextStatus === "STOCK_LIBERE" && currentStatus !== "STOCK_LIBERE") {
+      throw conflict(
+        "QC_RELEASE_REQUIRED",
+        `Le lot ${lot.lot_internal || lotId} n'est pas libéré par le contrôle qualité : seule une zone de quarantaine ou de réception est autorisée.`,
+      );
+    }
+
     const stockLot = sanitizeDocument(
       await StockLots().findOne({ reception_lot_id: lotId }).lean().exec(),
     ) as Record<string, unknown> | null;
@@ -1229,8 +1497,6 @@ export class ReceptionsService {
       expectedStockLotId: stockLot?.id ? String(stockLot.id) : null,
       collection: "reception_stock_movements",
     });
-
-    const nextStatus = resolveZoneStatus(targetZone, String(lot.stock_status || "NON_STOCKE"));
     const now = new Date().toISOString();
     const notes = readString(payload.notes);
     const position = readString(payload.position);
@@ -1253,12 +1519,8 @@ export class ReceptionsService {
       updated_at: now,
     };
 
-    if (nextStatus === "STOCK_LIBERE") {
-      lotUpdate.release_date = now;
-      lotUpdate.released_by = performedBy;
-      lotUpdate.quarantine_reason = null;
-      lotUpdate.quarantine_date = null;
-    } else if (nextStatus === "EN_QUARANTAINE") {
+    // Release fields belong to the QC decision and are left untouched here.
+    if (nextStatus === "EN_QUARANTAINE" && currentStatus !== "EN_QUARANTAINE") {
       lotUpdate.quarantine_date = now;
       if (notes) {
         lotUpdate.quarantine_reason = notes;
@@ -1285,11 +1547,6 @@ export class ReceptionsService {
       location_id: targetZone,
       updated_at: now,
     };
-
-    if (nextStatus === "STOCK_LIBERE") {
-      stockLotUpdate.qc_validated_by = performedBy;
-      stockLotUpdate.qc_validated_at = now;
-    }
 
     if (position) {
       stockLotUpdate.position = position;
@@ -1326,6 +1583,386 @@ export class ReceptionsService {
       lot: updatedLot,
       auditLog: sanitizeDocument(auditLog),
     };
+  }
+
+  // ── Cancellation & lot-level quality status ─────────────────────────────────
+
+  /**
+   * Takes lots out of usable stock without deleting any record: lots are
+   * flagged rejected, their stock projection is blocked and emptied through an
+   * AJUSTEMENT movement, and the ledger marks them so they cannot advance.
+   */
+  private async voidReceptionLots(
+    reception: Record<string, unknown>,
+    lots: Array<Record<string, unknown>>,
+    reason: string,
+    actorId: string | null,
+  ) {
+    const lotIds = lots.map((lot) => String(lot.id || "")).filter(Boolean);
+    if (lotIds.length === 0) return;
+    const now = new Date().toISOString();
+
+    await ReceptionLots().updateMany(
+      { id: { $in: lotIds } },
+      { $set: { stock_status: "STOCK_REJETE", quarantine_reason: reason, cancelled_at: now, updated_at: now } },
+    ).exec();
+    await ReceptionUnits().updateMany(
+      { reception_lot_id: { $in: lotIds } },
+      { $set: { unit_status: "STOCK_REJETE", updated_at: now } },
+    ).exec();
+
+    const voidedLots = (await loadReceptionLots(String(reception.id))).filter((lot: Record<string, unknown>) =>
+      lotIds.includes(String(lot.id)),
+    );
+    await syncReceptionLotsToStock(voidedLots, { reception, actorId });
+
+    const stockLots = sanitizeDocument(
+      await StockLots().find({ reception_lot_id: { $in: lotIds } }).lean().exec(),
+    ) as Array<Record<string, unknown>>;
+    for (const stockLot of stockLots) {
+      if (stockLot.cancelled_at) continue;
+      const quantity = Number(stockLot.current_quantity || 0);
+      if (quantity > 0) {
+        const movement = await prepareInsertDocument("stock_movements", {
+          movement_type: "AJUSTEMENT",
+          adjustment_direction: "OUT",
+          lot_id: stockLot.id,
+          product_id: stockLot.product_id ?? null,
+          quantity,
+          unit: stockLot.unit || "kg",
+          document_type: "RECEPTION_CANCEL",
+          document_reference: reception.reception_number || reception.id,
+          performed_by: actorId,
+          notes: `Annulation réception ${reception.reception_number || reception.id} — ${reason}`,
+          created_at: now,
+        });
+        await StockMovements().create([movement]);
+      }
+      await StockLots().updateOne(
+        { id: stockLot.id },
+        { $set: { current_quantity: 0, cancelled_at: now, cancellation_reason: reason, updated_at: now } },
+      ).exec();
+    }
+
+    for (const lotId of lotIds) {
+      await lotLifecycleService.recordStageSafe({
+        lotId,
+        toStage: "REJECTED",
+        collection: "receptions_v2",
+        actorId,
+        payload: { cancelled: true, rejected: true, reason },
+        relatedIds: [String(reception.id)],
+        route: "PREMIUM_WHOLE",
+      });
+    }
+  }
+
+  async cancelReception(receptionId: string, payload: { reason?: unknown }, actor: ActorContext) {
+    const reason = readString(payload?.reason);
+    if (!reason) {
+      throw badRequest("CANCELLATION_REASON_REQUIRED", "Le motif d'annulation est obligatoire.");
+    }
+
+    const reception = sanitizeDocument(
+      await Receptions().findOne(receptionIdentityFilter(receptionId)).lean().exec(),
+    ) as Record<string, unknown> | null;
+    if (!reception) throw notFound("RECEPTION_NOT_FOUND", "Reception not found.");
+
+    const canonicalId = String(reception.id);
+    // Retrying a completed cancellation is harmless.
+    if (reception.status === "ANNULE") {
+      return { reception, lots: await loadReceptionLots(canonicalId) };
+    }
+    if (!CANCELLABLE_RECEPTION_STATUSES.has(String(reception.status || ""))) {
+      throw conflict(
+        "RECEPTION_NOT_CANCELLABLE",
+        `La réception ${reception.reception_number} a une décision QC (${reception.status}) : elle ne peut plus être annulée. Utilisez le blocage qualité ou une réclamation fournisseur.`,
+      );
+    }
+
+    const lots = await loadReceptionLots(canonicalId);
+    const lotIds = lots.map((lot: Record<string, unknown>) => String(lot.id || "")).filter(Boolean);
+    const stockLots = sanitizeDocument(
+      await StockLots().find({ reception_lot_id: { $in: lotIds } }).lean().exec(),
+    ) as Array<Record<string, unknown>>;
+    const consumed = stockLots.filter(
+      (stockLot) =>
+        !stockLot.cancelled_at
+        && Math.abs(Number(stockLot.current_quantity ?? 0) - Number(stockLot.initial_quantity ?? 0)) > 0.001,
+    );
+    if (consumed.length > 0) {
+      throw conflict(
+        "RECEPTION_STOCK_CONSUMED",
+        "Une partie du stock de cette réception a déjà été mouvementée : l'annulation n'est plus possible.",
+        { stock_lot_ids: consumed.map((stockLot) => stockLot.id) },
+      );
+    }
+
+    const actorId = actor?.id || null;
+    const cancelReason = `Réception annulée : ${reason}`;
+    await this.voidReceptionLots(reception, lots, cancelReason, actorId);
+
+    if (reception.purchase_order_id) {
+      await reversePurchaseOrderReception({
+        purchaseOrderId: String(reception.purchase_order_id),
+        receptionId: canonicalId,
+        reason: cancelReason,
+      });
+    }
+
+    // Header last: if a step above fails the reception stays cancellable and
+    // the retry completes the reversal (every step skips what is already done).
+    const now = new Date().toISOString();
+    await Receptions().updateOne(
+      receptionIdentityFilter(canonicalId),
+      {
+        $set: {
+          status: "ANNULE",
+          cancelled_at: now,
+          cancelled_by: actorId,
+          cancellation_reason: reason,
+          updated_at: now,
+        },
+      },
+    ).exec();
+
+    const auditLog = await prepareInsertDocument("reception_audit_logs_v2", {
+      entity_type: "RECEPTION",
+      entity_id: canonicalId,
+      action: "CANCELLED",
+      actor_id: actorId,
+      previous_state: { status: reception.status },
+      new_state: { status: "ANNULE", reason, lot_ids: lotIds },
+      performed_by: actorId || "system",
+    });
+    await ReceptionAuditLogs().create([auditLog]);
+
+    await emitNotification({
+      notificationType: "RECEPTION_CANCELLED",
+      category: "reception",
+      space: "receptions",
+      title: `Réception annulée — ${reception.reception_number}`,
+      message: `Réception ${reception.reception_number} annulée : ${reason}. Stock retiré${reception.purchase_order_id ? " et bon de commande réouvert" : ""}.`,
+      severity: "warning",
+      entityType: "receptions_v2",
+      entityId: canonicalId,
+      metadata: { reason, purchase_order_id: reception.purchase_order_id ?? null },
+    });
+
+    return {
+      reception: sanitizeDocument(await Receptions().findOne(receptionIdentityFilter(canonicalId)).lean().exec()),
+      lots: await loadReceptionLots(canonicalId),
+    };
+  }
+
+  /**
+   * Lot-level quality change after the QC decision: release a quarantined lot
+   * (signed, like the QC release) or put a released lot back in quarantine.
+   * Stock, purchase order and reception header follow.
+   */
+  private async applyLotQualityChange(input: {
+    reception: Record<string, unknown>;
+    lotIds: string[];
+    nextStatus: "STOCK_LIBERE" | "EN_QUARANTAINE";
+    reason: string | null;
+    actorId: string | null;
+    releasePinVerified?: boolean;
+    auditAction: string;
+    headerOverrides?: Record<string, unknown>;
+  }) {
+    const { reception, lotIds, nextStatus, reason, actorId } = input;
+    const receptionId = String(reception.id);
+    const releasing = nextStatus === "STOCK_LIBERE";
+    const now = new Date().toISOString();
+
+    if (lotIds.length > 0) {
+      await ReceptionLots().updateMany(
+        { id: { $in: lotIds } },
+        {
+          $set: releasing
+            ? {
+                stock_status: nextStatus,
+                quarantine_reason: null,
+                quarantine_date: null,
+                release_date: now,
+                released_by: actorId,
+                release_pin_verified: input.releasePinVerified === true,
+                release_reason: reason,
+                updated_at: now,
+              }
+            : {
+                stock_status: nextStatus,
+                quarantine_reason: reason,
+                quarantine_date: now,
+                release_date: null,
+                released_by: null,
+                release_pin_verified: null,
+                updated_at: now,
+              },
+        },
+      ).exec();
+      await ReceptionUnits().updateMany(
+        { reception_lot_id: { $in: lotIds } },
+        { $set: { unit_status: nextStatus, updated_at: now } },
+      ).exec();
+    }
+
+    const lots = await loadReceptionLots(receptionId);
+    const changedLots = lots.filter((lot: Record<string, unknown>) => lotIds.includes(String(lot.id)));
+    if (changedLots.length > 0) {
+      await syncReceptionLotsToStock(changedLots, { reception, actorId });
+      if (reception.purchase_order_id) {
+        await applyPurchaseOrderQcDecision({
+          purchaseOrderId: String(reception.purchase_order_id),
+          receptionId,
+          decision: releasing ? "ACCEPTE" : "QUARANTAINE",
+          receptionLotIds: lotIds,
+        });
+      }
+    }
+
+    await Receptions().updateOne(
+      receptionIdentityFilter(receptionId),
+      {
+        $set: {
+          status: deriveReceptionStatusFromLots(lots, String(reception.status || "")),
+          ...input.headerOverrides,
+          updated_at: now,
+        },
+      },
+    ).exec();
+
+    const auditLogs = [];
+    for (const lot of changedLots) {
+      auditLogs.push(
+        await prepareInsertDocument("reception_audit_logs_v2", {
+          entity_type: "LOT",
+          entity_id: lot.id,
+          action: input.auditAction,
+          actor_id: actorId,
+          new_state: { stock_status: nextStatus, reason, release_pin_verified: releasing ? input.releasePinVerified === true : null },
+          performed_by: actorId || "system",
+        }),
+      );
+      if (releasing) {
+        await lotLifecycleService.recordStageSafe({
+          lotId: String(lot.id),
+          toStage: "QC_DECIDED",
+          collection: "reception_lots",
+          actorId,
+          payload: { decision: "ACCEPTE", released_from_quarantine: true, reason },
+          route: "PREMIUM_WHOLE",
+        });
+      }
+    }
+    if (auditLogs.length > 0) await ReceptionAuditLogs().insertMany(auditLogs);
+
+    return {
+      reception: sanitizeDocument(await Receptions().findOne(receptionIdentityFilter(receptionId)).lean().exec()),
+      lots,
+    };
+  }
+
+  async changeLotQualityStatus(
+    lotId: string,
+    payload: { action?: unknown; reason?: unknown; pin?: unknown },
+    actor: ActorContext,
+  ) {
+    const action = readString(payload?.action).toUpperCase();
+    if (action !== "RELEASE" && action !== "QUARANTINE") {
+      throw badRequest("INVALID_QUALITY_ACTION", "action must be RELEASE or QUARANTINE.");
+    }
+    const reason = readString(payload?.reason) || null;
+    const actorId = readString(actor?.id);
+    if (!actorId) throw badRequest("PERFORMED_BY_REQUIRED", "An authenticated actor is required.");
+
+    const lot = sanitizeDocument(
+      await ReceptionLots().findOne({ id: lotId }).lean().exec(),
+    ) as Record<string, unknown> | null;
+    if (!lot) throw notFound("RECEPTION_LOT_NOT_FOUND", "Reception lot not found.");
+    const reception = sanitizeDocument(
+      await Receptions().findOne(receptionIdentityFilter(String(lot.reception_id || ""))).lean().exec(),
+    ) as Record<string, unknown> | null;
+    if (!reception) throw notFound("RECEPTION_NOT_FOUND", "Reception not found.");
+    if (reception.status === "ANNULE") {
+      throw conflict("RECEPTION_CANCELLED", `La réception ${reception.reception_number} est annulée.`);
+    }
+
+    const currentStatus = String(lot.stock_status || "");
+    if (currentStatus === "STOCK_REJETE") {
+      throw conflict("LOT_REJECTED", `Le lot ${lot.lot_internal || lotId} est rejeté : son statut qualité ne peut plus changer.`);
+    }
+
+    if (action === "RELEASE") {
+      if (currentStatus === "STOCK_LIBERE") return { reception, lots: await loadReceptionLots(String(reception.id)) };
+      if (!reception.qc_decision) {
+        throw conflict(
+          "QC_INSPECTION_REQUIRED",
+          `Le lot ${lot.lot_internal || lotId} n'a pas encore été inspecté : lancez le contrôle qualité de la réception.`,
+        );
+      }
+      if (currentStatus !== "EN_QUARANTAINE") {
+        throw conflict("LOT_NOT_QUARANTINED", `Seul un lot en quarantaine peut être libéré (statut actuel : ${currentStatus}).`);
+      }
+      const pinResult = await assertSignaturePin(actorId, readString(payload?.pin) || null, {
+        action: "qc_release",
+        entityId: lotId,
+      });
+      return this.applyLotQualityChange({
+        reception,
+        lotIds: [lotId],
+        nextStatus: "STOCK_LIBERE",
+        reason,
+        actorId: pinResult.userId || actorId,
+        releasePinVerified: pinResult.verified === true,
+        auditAction: "LOT_RELEASED",
+      });
+    }
+
+    if (!reason) {
+      throw badRequest("QUARANTINE_REASON_REQUIRED", "Le motif de mise en quarantaine est obligatoire.");
+    }
+    if (currentStatus === "EN_QUARANTAINE") return { reception, lots: await loadReceptionLots(String(reception.id)) };
+    return this.applyLotQualityChange({
+      reception,
+      lotIds: [lotId],
+      nextStatus: "EN_QUARANTAINE",
+      reason,
+      actorId,
+      auditAction: "LOT_QUARANTINED",
+    });
+  }
+
+  /** RG-Q07 — non-conforming lab results block every lot still usable. */
+  async blockReceptionForLab(receptionId: string, payload: { reason?: unknown }, actor: ActorContext) {
+    const reason = readString(payload?.reason);
+    if (!reason) throw badRequest("BLOCK_REASON_REQUIRED", "Le motif de blocage est obligatoire.");
+
+    const reception = sanitizeDocument(
+      await Receptions().findOne(receptionIdentityFilter(receptionId)).lean().exec(),
+    ) as Record<string, unknown> | null;
+    if (!reception) throw notFound("RECEPTION_NOT_FOUND", "Reception not found.");
+    if (["ANNULE", "REJETE"].includes(String(reception.status || ""))) {
+      throw conflict("RECEPTION_CLOSED", `La réception ${reception.reception_number} est ${reception.status === "ANNULE" ? "annulée" : "rejetée"}.`);
+    }
+    if (!reception.qc_decision) {
+      throw conflict("QC_INSPECTION_REQUIRED", "Aucune décision QC enregistrée : les lots sont déjà en quarantaine.");
+    }
+
+    const lots = await loadReceptionLots(String(reception.id));
+    const usableLotIds = lots
+      .filter((lot: Record<string, unknown>) => ["STOCK_LIBERE", "NON_STOCKE"].includes(String(lot.stock_status || "")))
+      .map((lot: Record<string, unknown>) => String(lot.id));
+
+    return this.applyLotQualityChange({
+      reception,
+      lotIds: usableLotIds,
+      nextStatus: "EN_QUARANTAINE",
+      reason: `RG-Q07 résultats labo non conformes : ${reason}`,
+      actorId: actor?.id || null,
+      auditAction: "LAB_RETROACTIVE_BLOCK",
+      headerOverrides: { qc_decision: "QUARANTAINE", lab_blocked_at: new Date().toISOString(), lab_block_reason: reason },
+    });
   }
 
   // ── T-502 / T-503 — Record weighing + compute net + transition state ────────
@@ -1389,6 +2026,35 @@ export class ReceptionsService {
     ) as Record<string, unknown> | null;
     if (!lot) throw notFound("RECEPTION_LOT_NOT_FOUND", "Reception lot not found.");
 
+    const reception = sanitizeDocument(
+      await Receptions().findOne({ id: lot.reception_id }).lean().exec(),
+    ) as Record<string, unknown> | null;
+    if (reception && ["ANNULE", "REJETE"].includes(String(reception.status || ""))) {
+      throw conflict(
+        "RECEPTION_CLOSED",
+        `La réception ${reception.reception_number || lot.reception_id} est ${reception.status === "ANNULE" ? "annulée" : "rejetée"} : aucune pesée ne peut être ajoutée.`,
+      );
+    }
+
+    // Validate the resulting net before anything is persisted or a scale
+    // reading is consumed: the other side is the latest recorded weighing.
+    const previousWeighings = sanitizeDocument(
+      await WeighingRecords().find({ lot_id: lotId }).lean().exec(),
+    ) as Array<Record<string, unknown>>;
+    const latestOfType = (type: string) =>
+      previousWeighings
+        .filter((w) => w.type === type)
+        .sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")))[0];
+    const grossKg = weighType === "GROSS" ? weightKg : latestOfType("GROSS") ? Number(latestOfType("GROSS")!.weight_kg) : null;
+    const tareKg = weighType === "TARE" ? weightKg : latestOfType("TARE") ? Number(latestOfType("TARE")!.weight_kg) : null;
+    const netKg = grossKg != null && tareKg != null ? round(grossKg - tareKg, 3) : null;
+    if (netKg != null && netKg <= 0) {
+      throw badRequest(
+        "NET_WEIGHT_NOT_POSITIVE",
+        `Poids net (${netKg} kg) ≤ 0. Vérifiez brut (${grossKg} kg) et tare (${tareKg} kg).`,
+      );
+    }
+
     // Persist weighing record
     const weighing = await prepareInsertDocument("weighing_records", {
       lot_id: lotId,
@@ -1427,37 +2093,23 @@ export class ReceptionsService {
     }
     await WeighingRecords().create([weighing]);
 
-    // Re-fetch all weighings to compute net
-    const allWeighings = sanitizeDocument(
-      await WeighingRecords().find({ lot_id: lotId }).sort({ captured_at: -1, created_at: -1 }).lean().exec(),
-    ) as Array<Record<string, unknown>>;
-
-    const latestGross = allWeighings.find((w) => w.type === "GROSS");
-    const latestTare = allWeighings.find((w) => w.type === "TARE");
-
     const now = new Date().toISOString();
     const lotUpdate: Record<string, unknown> = { updated_at: now };
     if (weighType === "GROSS") lotUpdate.gross_weight_kg = weightKg;
     if (weighType === "TARE") lotUpdate.tare_weight_kg = weightKg;
 
-    if (latestGross && latestTare) {
-      const grossKg = Number(latestGross.weight_kg);
-      const tareKg = Number(latestTare.weight_kg);
-      const netKg = round(grossKg - tareKg);
-      if (netKg <= 0) {
-        throw badRequest(
-          "NET_WEIGHT_NOT_POSITIVE",
-          `Poids net (${netKg} kg) ≤ 0. Vérifiez brut (${grossKg} kg) et tare (${tareKg} kg).`,
-        );
-      }
+    if (netKg != null) {
       lotUpdate.gross_weight_kg = grossKg;
       lotUpdate.tare_weight_kg = tareKg;
       lotUpdate.net_weight_kg = netKg;
-      // T-503: transition to EN_ATTENTE_QC on the reception
-      await Receptions().updateOne(
-        { id: lot.reception_id },
-        { $set: { status: "EN_ATTENTE_QC", updated_at: now } },
-      ).exec();
+      // T-503: a draft becomes ready for QC once weighed. Any later status is
+      // kept — a re-weighing is an amendment, not a return to QC.
+      if (reception?.status === "BROUILLON") {
+        await Receptions().updateOne(
+          { id: lot.reception_id },
+          { $set: { status: "EN_ATTENTE_QC", updated_at: now } },
+        ).exec();
+      }
     }
 
     await ReceptionLots().updateOne({ id: lotId }, { $set: lotUpdate }).exec();
@@ -1473,11 +2125,11 @@ export class ReceptionsService {
     });
     await ReceptionAuditLogs().create([auditLog]);
 
-    if (latestGross && latestTare) {
+    if (netKg != null) {
       const provenance = {
-        gross_kg: Number(latestGross.weight_kg),
-        tare_kg: Number(latestTare.weight_kg),
-        net_kg: Number(lotUpdate.net_weight_kg ?? 0),
+        gross_kg: grossKg,
+        tare_kg: tareKg,
+        net_kg: netKg,
         source,
         device_code: deviceReading?.device_code ?? null,
         reading_id: deviceReading?.reading_id ?? null,

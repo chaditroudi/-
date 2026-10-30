@@ -45,7 +45,8 @@ export interface ReceptionTimelineMetrics {
 }
 
 export interface QcInspectionDraft {
-  humidity: [number, number, number];
+  /** Readings entered so far; the score uses their average. */
+  humidity: number[];
   calibers: number[];
   insectsPercent: number;
   moldPercent: number;

@@ -5,6 +5,7 @@
  */
 
 import { apiRequest } from '@/integrations/mongodb/client';
+import { ApiRequestError } from '@/lib/axiosClient';
 import { notificationsApi } from '@/lib/api/notifications';
 
 // ─── RG-F01: CIN / Matricule fiscal uniqueness ─────────────────────────────
@@ -295,17 +296,18 @@ export const applyRetroactiveLabBlock = async (params: {
   supplierName: string;
   labFindings: string;
 }): Promise<boolean> => {
-  // Fetch current reception status via REST
-  const response = await apiRequest<{ data: Array<{ id: string; status: string }> }>('/receptions');
-  const current = (response.data ?? []).find((r) => r.id === params.receptionId);
-
-  if (!current || current.status === 'REJETE' || current.status === 'ANNULE') return false;
-
-  // Update via PATCH /api/receptions-v2/:id
-  await apiRequest(`/receptions-v2/${encodeURIComponent(params.receptionId)}`, {
-    method: 'PATCH',
-    body: JSON.stringify({ status: 'BLOQUE', qc_decision: 'QUARANTAINE' }),
-  });
+  // The server quarantines every lot still usable, blocks its stock and the
+  // purchase-order receipt, and sets the reception to BLOQUE.
+  try {
+    await apiRequest(`/receptions/${encodeURIComponent(params.receptionId)}/quality-block`, {
+      method: 'POST',
+      body: JSON.stringify({ reason: params.labFindings }),
+    });
+  } catch (error) {
+    // 409: reception cancelled/rejected or not yet decided — nothing to block.
+    if (error instanceof ApiRequestError && error.status === 409) return false;
+    throw error;
+  }
 
   await createSystemNotification({
     notification_type: 'LAB_RETROACTIVE_BLOCK',

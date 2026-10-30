@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   AlertTriangle,
   Camera,
@@ -6,10 +6,12 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock3,
-  List,
+  FileText,
   MapPin,
   Package,
+  Plus,
   Scale,
+  Shield,
   ShieldCheck,
   Truck,
 } from 'lucide-react';
@@ -21,7 +23,6 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/useAuth';
 import { useCreateReceptionIntake } from '@/hooks/useReceptionIntake';
@@ -36,7 +37,6 @@ import {
   ROYAL_PALM_HARVEST_METHODS,
   ROYAL_PALM_MATURITY_STAGES,
   ROYAL_PALM_PRESENTATIONS,
-  ROYAL_PALM_RECEPTION_STEPS,
   ROYAL_PALM_TRANSPORT_CONDITIONS,
   ROYAL_PALM_VARIETIES,
   ROYAL_PALM_VISUAL_STATES,
@@ -51,10 +51,9 @@ import {
 } from '@/lib/receptionWizardValidation';
 import { Supplier, Material } from '@/types/mes';
 import { getPurchaseOrderLineRemainingQuantity, isPurchaseOrderReceivable } from '@/types/purchasing';
-import { ReceptionType, ReceptionV2 } from '@/types/reception';
+import { ReceptionType } from '@/types/reception';
 
 import { PhotoCapture } from './PhotoCapture';
-import { SessionLedger } from './SessionLedger';
 
 interface ReceptionWizardProps {
   open: boolean;
@@ -62,6 +61,10 @@ interface ReceptionWizardProps {
   suppliers: Supplier[];
   materials: Material[];
   prefillPurchaseOrderId?: string;
+  /** Whether the signed-in user may run QC (offers « Lancer le contrôle QC » after saving). */
+  canRunQc?: boolean;
+  /** Opens the saved reception: its workspace, or directly its QC inspection. */
+  onOpenReception?: (receptionId: string, next: 'workspace' | 'qc') => void;
 }
 
 interface LotDraft {
@@ -104,7 +107,7 @@ const createLotDraft = (supplier?: Supplier | null, variety = 'Deglet Nour'): Lo
 });
 
 export const ReceptionWizard = (props: ReceptionWizardProps) => {
-  const { open, onOpenChange, suppliers, prefillPurchaseOrderId } = props;
+  const { open, onOpenChange, suppliers, prefillPurchaseOrderId, canRunQc = false, onOpenReception } = props;
   const { profile, user } = useAuth();
   const operatorLabel = profile?.full_name || user?.email || 'Operateur reception';
   const { data: receptions = [] } = useReceptionsV2();
@@ -113,12 +116,20 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
   const createReceptionIntake = useCreateReceptionIntake();
   const receptionStorageZones = useMemo(() => getReceptionIntakeZones(storageZones), [storageZones]);
 
-  const [viewMode, setViewMode] = useState<'form' | 'ledger'>('form');
   const [step, setStep] = useState(1);
   // Les 4 horodatages détaillés sont auto-remplis à "maintenant" — masqués par
   // défaut, ajustables via le toggle (progressive disclosure).
   const [showTimestamps, setShowTimestamps] = useState(false);
-  const [submitResult, setSubmitResult] = useState<{ receptionNumber: string; lotCount: number; zone: string } | null>(null);
+  const [submitResult, setSubmitResult] = useState<{
+    receptionId: string;
+    receptionNumber: string;
+    lotCount: number;
+    zone: string;
+    offlineQueued: boolean;
+  } | null>(null);
+  // One idempotency key per draft: a double tap or a retry replays the same intake instead of creating a second reception.
+  const clientRequestIdRef = useRef<string>(crypto.randomUUID());
+  const submittingRef = useRef(false);
 
   const [supplierId, setSupplierId] = useState('');
   const [purchaseOrderId, setPurchaseOrderId] = useState('');
@@ -133,9 +144,10 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
   const [vehicleNumber, setVehicleNumber] = useState('');
   const [driverName, setDriverName] = useState('');
   const [gateArrivalAt, setGateArrivalAt] = useState(toDateTimeLocal());
-  const [departureTime, setDepartureTime] = useState(new Date().toTimeString().slice(0, 5));
+  const [departureTime, setDepartureTime] = useState('');
   const [presentation, setPresentation] = useState<'En caisses' | 'En regimes' | 'En vrac' | 'Melange'>('En caisses');
   const [variety, setVariety] = useState('Deglet Nour');
+  const [manufacturingRoute, setManufacturingRoute] = useState<'PREMIUM_WHOLE' | 'GENERIC'>('PREMIUM_WHOLE');
   const [maturityStage, setMaturityStage] = useState<'Khalal' | 'Rutab' | 'Tamar'>('Tamar');
   const [harvestMethod, setHarvestMethod] = useState<'Manuelle traditionnelle' | 'Semi-mecanique' | 'Mecanique'>('Manuelle traditionnelle');
   const [estimatedHarvestDate, setEstimatedHarvestDate] = useState(todayDate());
@@ -150,12 +162,12 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
   const [unloadingStartedAt, setUnloadingStartedAt] = useState(toDateTimeLocal());
   const [unloadingCompletedAt, setUnloadingCompletedAt] = useState(toDateTimeLocal());
   const [tareWeightCapturedAt, setTareWeightCapturedAt] = useState(toDateTimeLocal());
-  const [unitCount, setUnitCount] = useState('8');
+  const [unitCount, setUnitCount] = useState('');
   const [unitType, setUnitType] = useState<'PALETTE' | 'CAISSE' | 'VRAC' | 'PL' | 'GC' | 'PLOX' | 'LAMME'>('PALETTE');
   const [weighingSource, setWeighingSource] = useState<'SCALE' | 'MANUAL' | 'PANNE_BASCULE'>('SCALE');
   const [manualReason, setManualReason] = useState('');
 
-  const [arrivalTemperatureC, setArrivalTemperatureC] = useState('24');
+  const [arrivalTemperatureC, setArrivalTemperatureC] = useState('');
   const [transportCondition, setTransportCondition] = useState<'Bache' | 'Non bache' | 'Refrigere'>('Bache');
   const [quickVisualState, setQuickVisualState] = useState<'Bon' | 'Moyen' | 'Mauvais'>('Bon');
   const [quickCheckNotes, setQuickCheckNotes] = useState('');
@@ -241,7 +253,8 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
     }
   }, [purchaseOrderLineId, receivableOrderLines, selectedPurchaseOrder, supplierId]);
 
-  const unitCountValue = Math.max(1, parseInt(unitCount || '1', 10));
+  const parsedUnitCount = Number.parseInt(unitCount, 10);
+  const unitCountValue = Number.isFinite(parsedUnitCount) ? parsedUnitCount : 0;
   const grossWeightValue = parseNumeric(grossWeightKg);
   const tareWeightValue = parseNumeric(tareWeightKg);
   const declaredWeightValue = parseNumeric(declaredWeightKg);
@@ -293,14 +306,18 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
     }
   }, [suggestedZone, zoneLocked]);
 
-  // Auto-fill single lot quantity from net weight when reaching step 4
+  // Single lot on the lots step: quantity = net weight, supplier lot ref = delivery note (both editable).
   useEffect(() => {
-    if (step !== 4 || netWeightKg <= 0) return;
+    if (step !== 4) return;
     setLots((current) => {
-      if (current.length !== 1 || current[0].quantity !== 0) return current;
-      return [{ ...current[0], quantity: netWeightKg }];
+      if (current.length !== 1) return current;
+      const [lot] = current;
+      const quantity = lot.quantity === 0 && netWeightKg > 0 ? netWeightKg : lot.quantity;
+      const lotSupplier = lot.lot_supplier.trim() ? lot.lot_supplier : deliveryNoteNumber.trim();
+      if (quantity === lot.quantity && lotSupplier === lot.lot_supplier) return current;
+      return [{ ...lot, quantity, lot_supplier: lotSupplier }];
     });
-  }, [step, netWeightKg]);
+  }, [step, netWeightKg, deliveryNoteNumber]);
 
   const lotIdPreview = useMemo(
     () =>
@@ -342,15 +359,16 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
   }, [bioDeclared, phaseSignals.temperatureAlert, rgrR03Alert, selectedSupplier, timelineMetrics.delayedOver60Minutes, weighingSource]);
 
   const steps = [
-    { id: 1, label: 'Arrivee camion', icon: Truck },
-    { id: 2, label: 'Pesee & dechargement', icon: Scale },
-    { id: 3, label: 'Produit & controle', icon: ShieldCheck },
-    { id: 4, label: 'LOT-ID & stockage', icon: MapPin },
-    { id: 5, label: 'Validation', icon: Check },
+    { id: 1, label: 'Arrivée camion', icon: Truck },
+    { id: 2, label: 'Pesée', icon: Scale },
+    { id: 3, label: 'Produit & contrôle', icon: ShieldCheck },
+    { id: 4, label: 'Lots & validation', icon: MapPin },
   ];
+  const lastStep = steps.length;
+  const doneStep = lastStep + 1;
 
   const resetForm = () => {
-    setViewMode('form');
+    clientRequestIdRef.current = crypto.randomUUID();
     setStep(1);
     setShowTimestamps(false);
     setSubmitResult(null);
@@ -361,7 +379,7 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
     setVehicleNumber('');
     setDriverName('');
     setGateArrivalAt(toDateTimeLocal());
-    setDepartureTime(new Date().toTimeString().slice(0, 5));
+    setDepartureTime('');
     setPresentation('En caisses');
     setVariety('Deglet Nour');
     setMaturityStage('Tamar');
@@ -377,11 +395,11 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
     setUnloadingStartedAt(toDateTimeLocal());
     setUnloadingCompletedAt(toDateTimeLocal());
     setTareWeightCapturedAt(toDateTimeLocal());
-    setUnitCount('8');
+    setUnitCount('');
     setUnitType('PALETTE');
     setWeighingSource('SCALE');
     setManualReason('');
-    setArrivalTemperatureC('24');
+    setArrivalTemperatureC('');
     setTransportCondition('Bache');
     setQuickVisualState('Bon');
     setQuickCheckNotes('');
@@ -392,8 +410,13 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
     setLots([createLotDraft(null)]);
   };
 
+  // Closing keeps the draft so an interrupted entry can be resumed; only a saved reception or « Effacer » clears it.
+  const isDirty = Boolean(
+    supplierId || purchaseOrderId || deliveryNoteNumber || vehicleNumber || grossWeightKg || tareWeightKg
+    || arrivalPhotos.length > 0 || lots.some((lot) => lot.lot_supplier || lot.quantity > 0),
+  );
   const handleClose = () => {
-    resetForm();
+    if (step === doneStep) resetForm();
     onOpenChange(false);
   };
 
@@ -479,7 +502,10 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
   };
 
   const handleSubmit = async () => {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     const intake = await createReceptionIntake.mutateAsync({
+      client_request_id: clientRequestIdRef.current,
       supplier_id: selectedPurchaseOrder?.supplier_id || selectedSupplier?.id || selectedSupplier?.code || supplierId,
       purchase_order_id: selectedPurchaseOrder?.id || purchaseOrderId || null,
       purchase_order_line_id: selectedPurchaseOrderLine?.id || null,
@@ -498,6 +524,7 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
       tare_weight_kg: tareWeightValue,
       declared_weight_kg: declaredWeightValue || null,
       variety,
+      manufacturing_route: manufacturingRoute,
       maturity_stage: maturityStage,
       harvest_method: harvestMethod,
       harvest_datetime: `${estimatedHarvestDate}T06:00:00.000Z`,
@@ -535,14 +562,28 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
         variety: lot.variety || variety,
         rfid_tag: lot.rfid_tag.trim() || null,
       })),
-    });
+    })
+      // The hook shows the server reason; every entered value stays in place for correction.
+      .catch(() => null)
+      .finally(() => { submittingRef.current = false; });
+    if (!intake) return;
 
     setSubmitResult({
+      receptionId: intake.reception.id,
       receptionNumber: intake.reception.reception_number,
       lotCount: intake.lots.length,
       zone: intake.reception.storage_zone_code || storageZoneCode,
+      offlineQueued: Boolean(intake.offline_queued),
     });
-    setStep(6);
+    setStep(doneStep);
+  };
+
+  const openSavedReception = (next: 'workspace' | 'qc') => {
+    if (!submitResult || !onOpenReception) return;
+    const { receptionId } = submitResult;
+    resetForm();
+    onOpenChange(false);
+    onOpenReception(receptionId, next);
   };
 
   const todayReceptions = useMemo(() => {
@@ -556,22 +597,12 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
     [vehicleNumber, todayReceptions],
   );
 
-  const handleViewReception = (reception: ReceptionV2) => {
-    console.log('View reception', reception);
-  };
-
-  const handlePrintReception = (reception: ReceptionV2) => {
-    console.log('Print reception', reception);
-    window.print();
-  };
-
-  const handleDeleteReception = (id: string) => {
-    console.log('Delete reception', id);
-  };
-
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="flex max-h-[96vh] max-w-6xl flex-col gap-0 overflow-hidden p-0">
+    <Dialog open={open} onOpenChange={(next) => { if (!next) handleClose(); }}>
+      <DialogContent
+        className="flex max-h-[96vh] max-w-6xl flex-col gap-0 overflow-hidden p-0"
+        onInteractOutside={(event) => event.preventDefault()}
+      >
 
         {/* ── Header ── */}
         <div className="flex shrink-0 items-center justify-between gap-4 border-b px-6 py-4">
@@ -580,29 +611,21 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
               <Package className="h-4 w-4" />
             </div>
             <div>
-              <p className="font-semibold leading-none tracking-tight">Réception matière</p>
-              <p className="mt-0.5 text-xs text-muted-foreground">Saisie guidée · {steps.length} étapes</p>
+              <p className="font-semibold leading-none tracking-tight">Nouvelle réception</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {step <= lastStep ? `Étape ${step} / ${lastStep} · la saisie est conservée si vous fermez` : 'Réception enregistrée'}
+              </p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            {viewMode === 'form' && step < 6 && (
-              <span className="hidden text-xs font-medium text-muted-foreground sm:block">
-                Étape {step} / {steps.length}
-              </span>
-            )}
-            <div className="flex gap-1 rounded-xl bg-muted p-1">
-              <Button size="sm" variant={viewMode === 'form' ? 'default' : 'ghost'} onClick={() => setViewMode('form')}>
-                <Package className="mr-1.5 h-3.5 w-3.5" />Saisie
-              </Button>
-              <Button size="sm" variant={viewMode === 'ledger' ? 'default' : 'ghost'} onClick={() => setViewMode('ledger')}>
-                <List className="mr-1.5 h-3.5 w-3.5" />Registre
-              </Button>
-            </div>
-          </div>
+          {step <= lastStep && isDirty && (
+            <Button type="button" variant="ghost" size="sm" className="mr-8 text-muted-foreground" onClick={resetForm}>
+              Effacer la saisie
+            </Button>
+          )}
         </div>
 
         {/* ── Connected Stepper ── */}
-        {viewMode === 'form' && step < 6 && (
+        {step <= lastStep && (
           <div className="shrink-0 border-b bg-muted/25 px-6 pb-4 pt-5">
             <div className="flex items-start">
               {steps.map((entry, index) => {
@@ -645,35 +668,12 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
                 );
               })}
             </div>
-
-            {/* Step context pill */}
-            <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-xl border border-primary/10 bg-primary/5 px-4 py-2.5 text-xs">
-              <Badge variant="outline" className="border-primary/25 bg-primary/5 px-2 py-0 text-[11px] font-semibold text-primary">
-                Usine
-              </Badge>
-              <span className="font-medium text-foreground">{ROYAL_PALM_RECEPTION_STEPS[step - 1]?.label}</span>
-              <Separator orientation="vertical" className="hidden h-3 sm:block" />
-              <span className="text-muted-foreground">Resp : {ROYAL_PALM_RECEPTION_STEPS[step - 1]?.owner}</span>
-              <Separator orientation="vertical" className="hidden h-3 sm:block" />
-              <span className="flex items-center gap-1 text-muted-foreground">
-                <Clock3 className="h-3 w-3" />
-                Cible : {ROYAL_PALM_RECEPTION_STEPS[step - 1]?.targetMinutes} min
-              </span>
-            </div>
           </div>
         )}
 
         {/* ── Scrollable step content ── */}
         <div className="flex-1 overflow-y-auto px-6 py-5">
-          {viewMode === 'ledger' ? (
-            <SessionLedger
-              receptions={todayReceptions}
-              onView={handleViewReception}
-              onPrint={handlePrintReception}
-              onDelete={handleDeleteReception}
-            />
-          ) : (
-            /* key causes remount on step change → entrance animation plays */
+            {/* key causes remount on step change → entrance animation plays */}
             <div key={step} className="animate-in fade-in-0 slide-in-from-bottom-3 duration-300">
 
               {/* ── Step 1: Arrivée camion ── */}
@@ -804,7 +804,7 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
                         </div>
                       </div>
                       <div className="space-y-1.5">
-                        <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Heure départ déclarée</Label>
+                        <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Heure départ déclarée (si connue)</Label>
                         <Input className="h-10 rounded-xl" type="time" value={departureTime} onChange={(e) => setDepartureTime(e.target.value)} />
                       </div>
 
@@ -897,11 +897,11 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
 
                       <div className="space-y-1.5">
                         <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Poids brut (kg) *</Label>
-                        <Input className="h-10 rounded-xl" type="number" value={grossWeightKg} onChange={(e) => setGrossWeightKg(e.target.value)} placeholder="0" />
+                        <Input className="h-10 rounded-xl" type="number" inputMode="decimal" value={grossWeightKg} onChange={(e) => setGrossWeightKg(e.target.value)} placeholder="0" />
                       </div>
                       <div className="space-y-1.5">
                         <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Poids tare (kg) *</Label>
-                        <Input className="h-10 rounded-xl" type="number" value={tareWeightKg} onChange={(e) => setTareWeightKg(e.target.value)} placeholder="0" />
+                        <Input className="h-10 rounded-xl" type="number" inputMode="decimal" value={tareWeightKg} onChange={(e) => setTareWeightKg(e.target.value)} placeholder="0" />
                       </div>
 
                       <div className="space-y-1.5">
@@ -910,7 +910,7 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
                       </div>
                       <div className="space-y-1.5">
                         <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Nombre palettes / unités *</Label>
-                        <Input className="h-10 rounded-xl" type="number" value={unitCount} onChange={(e) => setUnitCount(e.target.value)} />
+                        <Input className="h-10 rounded-xl" type="number" inputMode="numeric" min="1" value={unitCount} onChange={(e) => setUnitCount(e.target.value)} placeholder="Compter les supports" />
                       </div>
 
                       <div className="space-y-1.5">
@@ -1105,6 +1105,19 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
                           </SelectContent>
                         </Select>
                       </div>
+                      <div className="space-y-1.5 md:col-span-2">
+                        <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Parcours de fabrication</Label>
+                        <Select value={manufacturingRoute} onValueChange={(value) => setManufacturingRoute(value as 'PREMIUM_WHOLE' | 'GENERIC')}>
+                          <SelectTrigger className="h-10 rounded-xl"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="PREMIUM_WHOLE">Deglet Nour premium — fumigation requise</SelectItem>
+                            <SelectItem value="GENERIC">Sans prérequis fumigation — plan de maîtrise du site</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <p className="text-xs text-muted-foreground">
+                          Le parcours est figé sur le lot. Le premium reste le défaut et exige la fumigation avant triage et conditionnement.
+                        </p>
+                      </div>
                       <div className="space-y-1.5">
                         <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Stade maturation *</Label>
                         <Select value={maturityStage} onValueChange={(v) => setMaturityStage(v as typeof maturityStage)}>
@@ -1131,7 +1144,7 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
 
                       <div className="space-y-1.5">
                         <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Température arrivée (°C) *</Label>
-                        <Input className="h-10 rounded-xl" type="number" value={arrivalTemperatureC} onChange={(e) => setArrivalTemperatureC(e.target.value)} />
+                        <Input className="h-10 rounded-xl" type="number" inputMode="decimal" value={arrivalTemperatureC} onChange={(e) => setArrivalTemperatureC(e.target.value)} placeholder="Mesure au thermomètre" />
                       </div>
                       <div className="space-y-1.5">
                         <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Conditions transport</Label>
@@ -1195,7 +1208,7 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
                       }`}>
                         <div className="flex items-center justify-between">
                           <span>Température réception</span>
-                          <span className="text-xl font-bold">{parseNumeric(arrivalTemperatureC)}°C</span>
+                          <span className="text-xl font-bold">{arrivalTemperatureC.trim() ? `${parseNumeric(arrivalTemperatureC)}°C` : '—'}</span>
                         </div>
                         {phaseSignals.temperatureAlert === 'critical' && (
                           <p className="mt-1 text-xs font-normal">⚠ Alerte rouge — température élevée</p>
@@ -1241,7 +1254,9 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
                           </div>
                           <div className="grid gap-3 md:grid-cols-2">
                             <div className="space-y-1.5">
-                              <Label className="text-xs text-muted-foreground">Réf. lot fournisseur *</Label>
+                              <Label className="text-xs text-muted-foreground">
+                                Réf. lot fournisseur *{lots.length === 1 && lot.lot_supplier === deliveryNoteNumber.trim() && lot.lot_supplier ? ' (reprise du BL)' : ''}
+                              </Label>
                               <Input className="h-9 rounded-xl" value={lot.lot_supplier} onChange={(e) => updateLot(index, { lot_supplier: e.target.value })} placeholder={`Lot fournisseur ${index + 1}`} />
                             </div>
                             <div className="space-y-1.5">
@@ -1348,129 +1363,61 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
                         )}
                       </div>
 
-                      <div className="rounded-2xl border bg-card p-4 text-sm">
-                        <p className="font-semibold">Étiquetage QR/RFID</p>
-                        <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
-                          Une étiquette QR par palette avec LOT-ID, variété, poids et date. Les tags RFID seront liés au LOT-ID.
-                        </p>
-                      </div>
-
-                      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm">
-                        <p className="font-semibold text-emerald-900">Notification qualité</p>
-                        <p className="mt-1.5 text-xs leading-relaxed text-emerald-700">
-                          À la validation, le lot passera en statut <strong>Réceptionné — En attente inspection</strong>.
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-
-              {/* ── Step 5: Validation finale ── */}
-              {step === 5 && (
-                <div className="grid gap-4 lg:grid-cols-[1.25fr_1fr]">
-                  <Card className="shadow-sm">
-                    <CardHeader className="border-b bg-muted/20 pb-4">
-                      <CardTitle className="flex items-center gap-2.5 text-base">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100">
-                          <Check className="h-4 w-4 text-emerald-600" />
+                      <div className="space-y-2">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Avant validation</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {[
+                            { ok: arrivalPhotos.length >= 2, label: `${arrivalPhotos.length}/2 photos` },
+                            { ok: !lotMismatch, label: 'Lots = poids net' },
+                            { ok: !!selectedSupplier, label: 'Fournisseur actif' },
+                            { ok: weighingSource === 'SCALE' || manualReason.trim().length >= 10, label: 'Pesée justifiée' },
+                          ].map(({ ok, label }) => (
+                            <div key={label} className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium ${ok ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-border bg-muted/30 text-muted-foreground'}`}>
+                              <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${ok ? 'bg-emerald-500 text-white' : 'bg-muted-foreground/20 text-muted-foreground'}`}>
+                                {ok ? '✓' : '○'}
+                              </span>
+                              {label}
+                            </div>
+                          ))}
                         </div>
-                        Récapitulatif et validation finale
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4 pt-5">
-                      <div className="grid gap-3 md:grid-cols-2">
-                        {[
-                          { label: 'Fournisseur', value: selectedSupplier?.name || '—' },
-                          { label: 'N° BL', value: deliveryNoteNumber || '—' },
-                          { label: 'Poids net officiel', value: `${netWeightKg.toFixed(2)} kg`, large: true },
-                          { label: 'Zone réception', value: storageZoneCode || '—' },
-                          { label: 'Sous-lots créés', value: String(lots.length) },
-                          { label: 'Durée estimée', value: `${timelineMetrics.totalReceptionMinutes ?? '—'} min` },
-                        ].map(({ label, value, large }) => (
-                          <div key={label} className="rounded-2xl border bg-card p-4">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
-                            <p className={`mt-1.5 font-semibold ${large ? 'text-xl' : 'text-base'}`}>{value}</p>
+                        {derivedAlerts.map((alert) => (
+                          <div key={alert} className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                            <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" />
+                            {alert}
                           </div>
                         ))}
                       </div>
 
                       <div className="space-y-1.5">
                         <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Observations opérateur</Label>
-                        <Textarea className="rounded-xl" value={remarks} onChange={(e) => setRemarks(e.target.value)} placeholder="Notes finales, incidents, orientation physique du lot..." rows={4} />
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className={`shadow-sm transition-colors ${derivedAlerts.length > 0 ? 'border-amber-300' : 'border-emerald-200'}`}>
-                    <CardHeader className={`border-b pb-4 ${derivedAlerts.length > 0 ? 'bg-amber-50/60' : 'bg-emerald-50/50'}`}>
-                      <CardTitle className="flex items-center gap-2.5 text-base">
-                        <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${derivedAlerts.length > 0 ? 'bg-amber-100' : 'bg-emerald-100'}`}>
-                          <AlertTriangle className={`h-4 w-4 ${derivedAlerts.length > 0 ? 'text-amber-600' : 'text-emerald-600'}`} />
-                        </div>
-                        Alertes et contrôles
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4 pt-5">
-                      <div className="grid grid-cols-2 gap-2">
-                        {[
-                          { ok: arrivalPhotos.length >= 2, label: `${arrivalPhotos.length}/2 photos` },
-                          { ok: !lotMismatch, label: 'Sous-lots OK' },
-                          { ok: !!selectedSupplier, label: 'Fournisseur actif' },
-                          { ok: weighingSource === 'SCALE' || manualReason.trim().length >= 10, label: 'Pesée justifiée' },
-                        ].map(({ ok, label }) => (
-                          <div key={label} className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium ${ok ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-border bg-muted/30 text-muted-foreground'}`}>
-                            <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${ok ? 'bg-emerald-500 text-white' : 'bg-muted-foreground/20 text-muted-foreground'}`}>
-                              {ok ? '✓' : '○'}
-                            </span>
-                            {label}
-                          </div>
-                        ))}
+                        <Textarea className="rounded-xl" value={remarks} onChange={(e) => setRemarks(e.target.value)} placeholder="Incidents, orientation physique du lot..." rows={3} />
                       </div>
 
-                      {derivedAlerts.length > 0 ? (
-                        <div className="space-y-2">
-                          {derivedAlerts.map((alert) => (
-                            <div key={alert} className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-900">
-                              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" />
-                              {alert}
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm text-emerald-800">
-                          <Check className="h-4 w-4 shrink-0 text-emerald-600" />
-                          Aucun blocage critique détecté avant lancement QC.
-                        </div>
-                      )}
-
-                      <div className="rounded-xl border bg-card px-4 py-3 text-sm">
-                        <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                          <Clock3 className="h-3.5 w-3.5" />
-                          Opérateur validation
-                        </div>
-                        <p className="mt-1.5 font-semibold">{operatorLabel}</p>
-                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        À la validation, les lots passent en quarantaine en attendant le contrôle qualité.
+                      </p>
                     </CardContent>
                   </Card>
                 </div>
               )}
 
-              {/* ── Step 6: Success ── */}
-              {step === 6 && submitResult && (
+              {/* ── Saved: next actions ── */}
+              {step === doneStep && submitResult && (
                 <div className="flex min-h-[320px] items-center justify-center py-8">
                   <div className="w-full max-w-2xl">
                     <div className="rounded-3xl border border-emerald-200 bg-gradient-to-b from-emerald-50 to-white p-10 text-center shadow-lg shadow-emerald-100/60">
                       <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500 shadow-xl shadow-emerald-300/50">
                         <Check className="h-10 w-10 text-white" />
                       </div>
-                      <p className="text-xs font-bold uppercase tracking-[0.25em] text-emerald-600">Réception enregistrée</p>
+                      <p className="text-xs font-bold uppercase tracking-[0.25em] text-emerald-600">
+                        {submitResult.offlineQueued ? 'Enregistrée hors ligne' : 'Réception enregistrée'}
+                      </p>
                       <h3 className="mt-2 text-3xl font-bold tracking-tight text-emerald-950">{submitResult.receptionNumber}</h3>
                       <div className="mt-8 grid gap-3 text-left md:grid-cols-3">
                         {[
-                          { label: 'Sous-lots', value: String(submitResult.lotCount) },
+                          { label: 'Lots', value: String(submitResult.lotCount) },
                           { label: 'Zone', value: submitResult.zone },
-                          { label: 'Statut', value: 'En attente QC' },
+                          { label: 'Statut', value: submitResult.offlineQueued ? 'À synchroniser' : 'En attente QC' },
                         ].map(({ label, value }) => (
                           <div key={label} className="rounded-2xl border border-emerald-100 bg-white p-4 shadow-sm">
                             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
@@ -1478,17 +1425,38 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
                           </div>
                         ))}
                       </div>
-                      <Button className="mt-8 rounded-xl px-8" onClick={handleClose}>Fermer</Button>
+                      <div className="mt-8 flex flex-col justify-center gap-2 sm:flex-row">
+                        {!submitResult.offlineQueued && onOpenReception && canRunQc && (
+                          <Button className="rounded-xl" onClick={() => openSavedReception('qc')}>
+                            <Shield className="mr-2 h-4 w-4" />
+                            Lancer le contrôle QC
+                          </Button>
+                        )}
+                        {!submitResult.offlineQueued && onOpenReception && (
+                          <Button
+                            variant={canRunQc ? 'outline' : 'default'}
+                            className="rounded-xl"
+                            onClick={() => openSavedReception('workspace')}
+                          >
+                            <FileText className="mr-2 h-4 w-4" />
+                            Ouvrir la réception
+                          </Button>
+                        )}
+                        <Button variant="outline" className="rounded-xl" onClick={resetForm}>
+                          <Plus className="mr-2 h-4 w-4" />
+                          Nouvelle réception
+                        </Button>
+                        <Button variant="ghost" className="rounded-xl" onClick={handleClose}>Fermer</Button>
+                      </div>
                     </div>
                   </div>
                 </div>
               )}
             </div>
-          )}
         </div>
 
         {/* ── Footer ── */}
-        {viewMode === 'form' && step < 6 && (
+        {step <= lastStep && (
           <div className="shrink-0 border-t bg-muted/20 px-6 py-4">
             {stepBlockers.length > 0 && (
               <div className="mb-3 flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
@@ -1502,7 +1470,7 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
             <div className="flex items-center justify-between gap-3">
               <Button variant="outline" className="rounded-xl" onClick={() => (step === 1 ? handleClose() : setStep((c) => c - 1))}>
                 <ChevronLeft className="mr-1.5 h-4 w-4" />
-                {step === 1 ? 'Annuler' : 'Précédent'}
+                {step === 1 ? 'Fermer' : 'Précédent'}
               </Button>
 
               {/* Dot progress indicator */}
@@ -1521,7 +1489,7 @@ export const ReceptionWizard = (props: ReceptionWizardProps) => {
                 ))}
               </div>
 
-              {step < 5 ? (
+              {step < lastStep ? (
                 <Button className="rounded-xl" onClick={() => setStep((c) => c + 1)} disabled={!canProceed()}>
                   Suivant
                   <ChevronRight className="ml-1.5 h-4 w-4" />

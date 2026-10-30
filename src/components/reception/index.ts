@@ -11,5 +11,4 @@ export { PreQualityCheck } from './PreQualityCheck';
 export { ScaleTelemetry } from './ScaleTelemetry';
 export { TareCalculator } from './TareCalculator';
 export { OperatorBadge } from './OperatorBadge';
-export { SessionLedger } from './SessionLedger';
 export { ReceptionTabletOperatorScreen } from './ReceptionTabletOperatorScreen';

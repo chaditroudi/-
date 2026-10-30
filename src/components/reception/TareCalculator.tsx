@@ -20,13 +20,13 @@ export type CrateModel =
   | 'CAISSE_BOIS_30KG'
   | 'CARTON_10KG';
 
-interface CrateModelInfo {
+export interface CrateModelInfo {
   label: string;
   tare: number;
   crateType: CrateType;
 }
 
-const CRATE_MODELS: Record<CrateModel, CrateModelInfo> = {
+export const CRATE_MODELS: Record<CrateModel, CrateModelInfo> = {
   'CAISSE_AJOUREE_20KG': { label: 'Caisse ajourée 20kg', tare: 1.80, crateType: 'PLASTIQUE' },
   'CAISSE_PLEINE_25KG': { label: 'Caisse pleine 25kg', tare: 2.50, crateType: 'PLASTIQUE' },
   'CAISSE_STANDARD_15KG': { label: 'Caisse standard 15kg', tare: 1.20, crateType: 'PLASTIQUE' },
@@ -35,20 +35,33 @@ const CRATE_MODELS: Record<CrateModel, CrateModelInfo> = {
   'CARTON_10KG': { label: 'Carton 10kg', tare: 0.35, crateType: 'CARTON' },
 };
 
-const CONTAINER_LABELS: Record<ContainerType, string> = {
+export const CONTAINER_LABELS: Record<ContainerType, string> = {
   'PALETTE': 'Palette',
   'CAISSE': 'Caisse',
   'AUTRE': 'Autre (Vrac)'
 };
 
-const CRATE_TYPE_LABELS: Record<CrateType, string> = {
+export const CRATE_TYPE_LABELS: Record<CrateType, string> = {
   'PLASTIQUE': 'Plastique',
   'BOIS': 'Bois',
   'CARTON': 'Carton'
 };
 
 // Tare fixe pour palette seule
-const PALETTE_TARE = 25.0;
+export const PALETTE_TARE = 25.0;
+
+/**
+ * Calcul déterministe et canonique de la tare selon les modèles homologués
+ */
+export function computeTareFromCrates(
+  crateModel: CrateModel | null,
+  crateCount: number,
+  paletteCount: number = 0
+): number {
+  const crateTareUnit = crateModel && CRATE_MODELS[crateModel] ? CRATE_MODELS[crateModel].tare : 0;
+  return Number(((Math.max(0, crateCount) * crateTareUnit) + (Math.max(0, paletteCount) * PALETTE_TARE)).toFixed(2));
+}
+
 
 interface TareCalculatorProps {
   containerType: ContainerType;
@@ -266,6 +279,3 @@ export const TareCalculator = ({
   );
 };
 
-// Export types and constants for use elsewhere
-export { CRATE_MODELS, CONTAINER_LABELS, CRATE_TYPE_LABELS, PALETTE_TARE };
-export type { CrateModelInfo };

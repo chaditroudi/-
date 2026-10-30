@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { getSseConnection } from '@/lib/sseClient';
 import { receptionsExtApi, type CreateReceptionUnitInput, type MoveReceptionLotToStorageInput, type StartQcInspectionInput, type SubmitQcDecisionInput } from '@/lib/api/receptions';
-import { ReceptionV2, ReceptionType, QCDecisionType, ReceptionHeaderStatus } from '@/types/reception';
+import { ReceptionV2, ReceptionType, QCDecisionType, ReceptionHeaderStatus, receptionStatusLabels } from '@/types/reception';
 import { checkLotStorageAllowed } from '@/lib/phase1RuleEngine';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
@@ -22,9 +22,10 @@ import {
   useGetReceptionQuery,
   useCreateReceptionMutation,
   useUpdateReceptionStatusMutation,
+  useCancelReceptionMutation,
   useListReceptionLotsQuery,
   useCreateReceptionLotMutation,
-  useUpdateReceptionLotMutation,
+  useChangeLotQualityStatusMutation,
   useListReceptionUnitsQuery,
   useCreateReceptionUnitMutation,
   useMoveLotToStorageMutation,
@@ -191,7 +192,7 @@ export const useUpdateReceptionV2Status = () => {
     }) => {
       const data = await updateStatus(payload).unwrap();
       dispatch(receptionUpserted(data as ReceptionV2));
-      toast.success(`Statut mis à jour: ${(data as any).status}`);
+      toast.success(`Statut mis à jour : ${receptionStatusLabels[(data as ReceptionV2).status] ?? (data as ReceptionV2).status}`);
       return data;
     },
     mutate: (payload: { id: string; status: ReceptionHeaderStatus; validated_by?: string; cancellation_reason?: string }) => {
@@ -258,71 +259,70 @@ export const useCreateReceptionLot = () => {
   };
 };
 
-export const useQuarantineReceptionLot = () => {
+/** RTK Query rejects with the server message as a plain string. */
+export const receptionErrorMessage = (error: unknown, fallback: string) =>
+  typeof error === 'string' ? error : error instanceof Error ? error.message : fallback;
+
+/**
+ * Post-QC lot status change. The server checks the QC decision, the signature
+ * PIN for a release, and keeps stock, purchase order and reception in step.
+ */
+const useLotQualityStatus = (action: 'RELEASE' | 'QUARANTINE') => {
   const dispatch = useAppDispatch();
-  const [updateLot, state] = useUpdateReceptionLotMutation();
+  const [changeStatus, state] = useChangeLotQualityStatusMutation();
 
   return {
     mutateAsync: async ({
       receptionId,
       lotId,
-      actorName,
       reason,
+      pin,
     }: {
       receptionId: string;
       lotId: string;
-      actorName: string;
-      reason: string;
+      reason?: string | null;
+      pin?: string | null;
     }) => {
-      const data = await updateLot({
-        receptionId,
-        lotId,
-        stock_status: 'EN_QUARANTAINE',
-        quarantine_reason: reason,
-        quarantine_date: new Date().toISOString(),
-        release_date: null,
-        released_by: null,
-      }).unwrap();
-      dispatch(receptionsRtkApi.util.invalidateTags(['LiberedLot']));
-      dispatch(stockApi.util.invalidateTags(['StockLot', 'StockSummary']));
-      toast.warning(`Lot ${data.lot_internal || data.lot_supplier} mis en quarantaine par ${actorName}`);
-      return data;
+      try {
+        const data = await changeStatus({ receptionId, lotId, action, reason: reason || null, pin: pin || null }).unwrap();
+        dispatch(receptionUpserted(data.reception));
+        dispatch(stockApi.util.invalidateTags(['StockLot', 'StockSummary']));
+        const lot = data.lots.find((row) => row.id === lotId);
+        const label = lot?.lot_internal || lot?.lot_supplier || lotId;
+        if (action === 'RELEASE') toast.success(`Lot ${label} libéré`);
+        else toast.warning(`Lot ${label} mis en quarantaine`);
+        return data;
+      } catch (error) {
+        toast.error(receptionErrorMessage(error, 'Changement de statut qualité refusé'));
+        throw error;
+      }
     },
     isPending: state.isLoading,
     isError: !!state.error,
   };
 };
 
-export const useReleaseReceptionLot = () => {
+export const useQuarantineReceptionLot = () => useLotQualityStatus('QUARANTINE');
+export const useReleaseReceptionLot = () => useLotQualityStatus('RELEASE');
+
+export const useCancelReception = () => {
   const dispatch = useAppDispatch();
-  const [updateLot, state] = useUpdateReceptionLotMutation();
+  const [cancel, state] = useCancelReceptionMutation();
 
   return {
-    mutateAsync: async ({
-      receptionId,
-      lotId,
-      actorName,
-    }: {
-      receptionId: string;
-      lotId: string;
-      actorName: string;
-    }) => {
-      const releasedAt = new Date().toISOString();
-      const data = await updateLot({
-        receptionId,
-        lotId,
-        stock_status: 'STOCK_LIBERE',
-        quarantine_reason: null,
-        release_date: releasedAt,
-        released_by: actorName,
-      }).unwrap();
-      dispatch(receptionsRtkApi.util.invalidateTags(['LiberedLot']));
-      dispatch(stockApi.util.invalidateTags(['StockLot', 'StockSummary']));
-      toast.success(`Lot ${data.lot_internal || data.lot_supplier} libéré par ${actorName}`);
-      return data;
+    mutateAsync: async ({ id, reason }: { id: string; reason: string }) => {
+      try {
+        const data = await cancel({ id, reason }).unwrap();
+        dispatch(receptionUpserted(data.reception));
+        dispatch(stockApi.util.invalidateTags(['StockLot', 'StockSummary']));
+        toast.warning(`Réception ${data.reception.reception_number} annulée — stock retiré`);
+        return data;
+      } catch (error) {
+        toast.error(receptionErrorMessage(error, "Annulation impossible"));
+        throw error;
+      }
     },
     isPending: state.isLoading,
-    isError: !!state.error,
   };
 };
 
@@ -375,16 +375,19 @@ export const useMoveReceptionLotToStorage = () => {
         if (!guard.allowed) throw new Error(guard.reason || 'Déplacement refusé par la règle RG-R07');
       }
       const { _lotStockStatus: _ls, _receptionStatus: _rs, ...cleanPayload } = payload;
-      const result = await moveLot(cleanPayload).unwrap();
-      dispatch(stockApi.util.invalidateTags(['StockLot', 'StockSummary']));
-      toast.success('Lot déplacé en stock');
-      return result;
+      try {
+        const result = await moveLot(cleanPayload).unwrap();
+        dispatch(stockApi.util.invalidateTags(['StockLot', 'StockSummary']));
+        toast.success('Lot déplacé en stock');
+        return result;
+      } catch (error) {
+        // The server records the signed-in user and enforces QC/scan rules; show its reason.
+        toast.error(receptionErrorMessage(error, 'Erreur lors du déplacement en stock'));
+        throw error;
+      }
     },
     isPending: state.isLoading,
     isError: !!state.error,
-    onError: (error: unknown) => {
-      toast.error(error instanceof Error ? error.message : 'Erreur lors du déplacement en stock');
-    },
   };
 };
 
@@ -529,52 +532,6 @@ export const useReceptionStats = () => {
     isLoading: !initialized || status === 'loading',
     isError: Boolean(errorMessage),
     error: errorMessage ? new Error(errorMessage) : null,
-  };
-};
-
-// ── RG-Q07: Retroactive lab block ─────────────────────────────────────────────
-
-export const useUpdateLabResult = () => {
-  const dispatch = useAppDispatch();
-
-  return {
-    mutateAsync: async ({
-      receptionId,
-      labSampleCode,
-      findings,
-      conformant,
-      supplierId,
-      supplierName,
-      receptionNumber,
-    }: {
-      receptionId: string;
-      labSampleCode: string;
-      findings: string;
-      conformant: boolean;
-      supplierId: string;
-      supplierName: string;
-      receptionNumber: string;
-    }) => {
-      await receptionsExtApi.updateQcInspection(receptionId, {
-        comment: `Résultats labo (${labSampleCode}): ${conformant ? 'CONFORME' : 'NON CONFORME'} — ${findings}`,
-      });
-      if (!conformant) {
-        const { applyRetroactiveLabBlock } = await import('@/lib/phase1RuleEngine');
-        await applyRetroactiveLabBlock({
-          receptionId,
-          receptionNumber,
-          supplierId,
-          supplierName,
-          labFindings: findings,
-        });
-      }
-      void dispatch(fetchReceptions());
-      dispatch(receptionsRtkApi.util.invalidateTags(['Reception', 'QcInspection']));
-      if (conformant) toast.success('Résultats labo enregistrés — Conforme');
-      else toast.error('RG-Q07 — Lot bloqué rétroactivement suite aux résultats labo non conformes');
-      return { conformant };
-    },
-    isPending: false,
   };
 };
 

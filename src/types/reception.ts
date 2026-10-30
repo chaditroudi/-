@@ -24,6 +24,8 @@ export interface ReceptionV2 {
   supplier_code_snapshot?: string | null;
   supplier_name_snapshot?: string | null;
   purchase_order_id?: string | null;
+  /** Order number snapshot taken at intake. */
+  purchase_order_number?: string | null;
   purchase_order_line_id?: string | null;
   spontaneous_delivery?: boolean | null;
   reception_type: ReceptionType;
@@ -114,6 +116,11 @@ export interface ReceptionLot {
   unit: string;
   stock_status: StockLotStatus;
   quarantine_reason: string | null;
+  /** Zone code of the last storage move. */
+  storage_zone_code?: string | null;
+  /** Set by the lot weighing (gross − tare) and the GS1 label print. */
+  net_weight_kg?: number | null;
+  label_printed_at?: string | null;
   quarantine_date: string | null;
   release_date: string | null;
   released_by: string | null;

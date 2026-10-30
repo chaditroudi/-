@@ -10,7 +10,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Textarea } from '@/components/ui/textarea';
 import { AlertTriangle, ArrowRight, CheckCircle2, Leaf, Lock, LockOpen, MapPin, Snowflake, Factory, Warehouse, Wind, ShieldAlert } from 'lucide-react';
 import { ReceptionV2, ReceptionLot, stockStatusLabels, stockStatusColors } from '@/types/reception';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useMoveReceptionLotToStorage } from '@/hooks/useReceptionsV2';
+import { getReceptionPermissions } from '@/lib/receptionWorkflow';
 import { useModule3StorageLocations, useModule3StorageZones } from '@/hooks/useStorageModule3';
 import { checkBioSegregationRGS01, checkLotStorageAllowed } from '@/lib/phase1RuleEngine';
 import type { Module3StorageZone } from '@/types/storage';
@@ -71,6 +73,9 @@ interface StorageAssignmentProps {
 }
 
 export const StorageAssignment = ({ reception, lots }: StorageAssignmentProps) => {
+  const { roles, profile, user } = useAuthContext();
+  const permissions = useMemo(() => getReceptionPermissions(roles), [roles]);
+  const actorLabel = profile?.full_name?.trim() || user?.email || '—';
   const moveLotToStorage = useMoveReceptionLotToStorage();
   const { data: dbZones = [], isLoading: zonesLoading } = useModule3StorageZones();
 
@@ -79,7 +84,6 @@ export const StorageAssignment = ({ reception, lots }: StorageAssignmentProps) =
   const [targetZoneCode, setTargetZoneCode] = useState('');
   const [targetLocationId, setTargetLocationId] = useState('');
   const [notes, setNotes] = useState('');
-  const [performedBy, setPerformedBy] = useState('');
   const [lotToQuarantine, setLotToQuarantine] = useState<ReceptionLot | null>(null);
   const [lotToRelease, setLotToRelease] = useState<ReceptionLot | null>(null);
 
@@ -155,19 +159,22 @@ export const StorageAssignment = ({ reception, lots }: StorageAssignmentProps) =
   };
 
   const handleMove = async () => {
-    if (!selectedLot || !targetZoneCode || !performedBy) return;
+    if (!selectedLot || !targetZoneCode) return;
     if (storageGuard && !storageGuard.allowed) return;
 
-    await moveLotToStorage.mutateAsync({
-      lotId: selectedLot.id,
-      targetZone: targetZoneCode,
-      position: targetLocationId || undefined,
-      notes,
-      performedBy,
-      _lotStockStatus: selectedLot.stock_status,
-      _receptionStatus: reception.status,
-    });
-    setMoveDialogOpen(false);
+    try {
+      await moveLotToStorage.mutateAsync({
+        lotId: selectedLot.id,
+        targetZone: targetZoneCode,
+        position: targetLocationId || undefined,
+        notes,
+        _lotStockStatus: selectedLot.stock_status,
+        _receptionStatus: reception.status,
+      });
+      setMoveDialogOpen(false);
+    } catch {
+      // The hook shows the server reason; keep the dialog and the selection.
+    }
   };
 
   return (
@@ -281,7 +288,7 @@ export const StorageAssignment = ({ reception, lots }: StorageAssignmentProps) =
                       </Badge>
                     )}
                     {/* Action button — all statuses except rejeté */}
-                    {lot.stock_status !== 'STOCK_REJETE' && canMove && (
+                    {permissions.canMoveStock && lot.stock_status !== 'STOCK_REJETE' && canMove && (
                       <Button
                         size="sm"
                         variant="outline"
@@ -297,7 +304,8 @@ export const StorageAssignment = ({ reception, lots }: StorageAssignmentProps) =
                           : 'Affecter'}
                       </Button>
                     )}
-                    {lot.stock_status === 'EN_QUARANTAINE' ? (
+                    {/* Lot-level release/quarantine only after the QC decision. */}
+                    {!permissions.canRunQc || !reception.qc_decision || reception.status === 'ANNULE' ? null : lot.stock_status === 'EN_QUARANTAINE' ? (
                       <Button
                         size="sm"
                         variant="outline"
@@ -307,7 +315,7 @@ export const StorageAssignment = ({ reception, lots }: StorageAssignmentProps) =
                         <LockOpen className="h-4 w-4 mr-1" />
                         Libérer
                       </Button>
-                    ) : lot.stock_status !== 'STOCK_REJETE' ? (
+                    ) : lot.stock_status === 'STOCK_LIBERE' || lot.stock_status === 'NON_STOCKE' ? (
                       <Button
                         size="sm"
                         variant="outline"
@@ -478,14 +486,9 @@ export const StorageAssignment = ({ reception, lots }: StorageAssignmentProps) =
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label>Effectué par *</Label>
-                <Input
-                  value={performedBy}
-                  onChange={(e) => setPerformedBy(e.target.value)}
-                  placeholder="Nom du magasinier"
-                />
-              </div>
+              <p className="text-xs text-muted-foreground">
+                Effectué par : <span className="font-medium text-foreground">{actorLabel}</span>
+              </p>
 
               <div className="space-y-2">
                 <Label>Notes</Label>
@@ -505,7 +508,6 @@ export const StorageAssignment = ({ reception, lots }: StorageAssignmentProps) =
               onClick={handleMove}
               disabled={
                 !targetZoneCode ||
-                !performedBy ||
                 moveLotToStorage.isPending ||
                 (storageGuard !== null && !storageGuard.allowed)
               }

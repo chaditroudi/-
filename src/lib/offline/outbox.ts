@@ -85,7 +85,10 @@ export const enqueueReceptionIntake = async <T extends Record<string, unknown>>(
     });
   }
 
-  const id = crypto.randomUUID();
+  // A caller-supplied key (one per form draft) makes a double submit write the same
+  // outbox row and replay the same server intake instead of creating a second reception.
+  const requested = typeof payload.client_request_id === 'string' ? payload.client_request_id.trim() : '';
+  const id = requested || crypto.randomUUID();
   const now = new Date().toISOString();
   const item: OutboxItem<T> = {
     id,

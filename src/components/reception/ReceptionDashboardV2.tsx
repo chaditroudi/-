@@ -18,7 +18,6 @@ import {
   Clock3,
   FlaskConical,
   List,
-  Package,
   Plus,
   Printer,
   QrCode,
@@ -33,7 +32,7 @@ import { findReceptionLotByScan, useLabPendingInspections, useReceptionAlerts, u
 import { QCInspection, ReceptionV2, receptionStatusColors, receptionStatusLabels } from '@/types/reception';
 import { ReceptionWizard } from './ReceptionWizard';
 import { printDailyReceptionReport } from './printDailyReceptionReport';
-import { ReceptionDetailV2 } from './ReceptionDetailV2';
+import { ReceptionDetailV2, type ReceptionWorkspaceSection } from './ReceptionDetailV2';
 import { QCInspectionDialog } from './QCInspectionDialog';
 import { LabResultsDialog } from './LabResultsDialog';
 import { AlertsPanel } from './AlertsPanel';
@@ -43,14 +42,20 @@ import { ReceptionTabletOperatorScreen } from './ReceptionTabletOperatorScreen';
 import { InboundNoticeDialog } from './InboundNoticeDialog';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { canPerformAction } from '@/lib/roleAccess';
+import { getReceptionPermissions } from '@/lib/receptionWorkflow';
 import { useTodayPendingNotices } from '@/hooks/useInboundNotices';
 import { usePhase2Pipeline } from '@/hooks/usePhase2Pipeline';
 import { BonReceptionAchatDashboard } from '@/components/bon-reception-achat/BonReceptionAchatDashboard';
 
-type ActiveView = 'receptions' | 'tablet' | 'alerts';
-type SubTab = 'today' | 'qc' | 'registry' | 'bra';
+type SubTab = 'today' | 'qc' | 'registry' | 'bra' | 'tablet' | 'alerts';
 
-const VALID_SUB_TABS: SubTab[] = ['today', 'qc', 'registry', 'bra'];
+const VALID_SUB_TABS: SubTab[] = ['today', 'qc', 'registry', 'bra', 'tablet', 'alerts'];
+
+interface WorkspaceTarget {
+  id: string;
+  section?: ReceptionWorkspaceSection;
+  autoStartQc?: boolean;
+}
 
 interface ActionQueueItem {
   reception: ReceptionV2;
@@ -86,7 +91,7 @@ const getUrgencyMeta = (reception: ReceptionV2) => {
 
 const ss = {
   get: (key: string, fallback: string) => { try { return sessionStorage.getItem(key) ?? fallback; } catch { return fallback; } },
-  set: (key: string, v: string) => { try { sessionStorage.setItem(key, v); } catch {} },
+  set: (key: string, v: string) => { try { sessionStorage.setItem(key, v); } catch { /* sessionStorage unavailable */ } },
 };
 
 const getSamplingGuidance = (quantityTotal: number) => {
@@ -105,14 +110,24 @@ export const ReceptionDashboardV2 = ({
 }) => {
   const { t, i18n } = useTranslation();
   const { roles } = useAuthContext();
+  const permissions = useMemo(() => getReceptionPermissions(roles), [roles]);
+  const canManageReception = useMemo(
+    () => permissions.canRegister && (canPerformAction(roles, 'reception_data_entry') || canPerformAction(roles, 'reception_weighing')),
+    [permissions.canRegister, roles],
+  );
+  const canUseTablet = canManageReception;
+  // QC is offered only to the roles the server accepts for inspections (RG-Q12 keeps reception staff out).
+  const canRunQc = permissions.canRunQc;
   const [search, setSearch] = useState(() => ss.get('rdv2-search', ''));
   const [statusFilter, setStatusFilter] = useState<string>(() => ss.get('rdv2-status', 'active'));
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
-  const [activeView, setActiveView] = useState<ActiveView>('receptions');
   const [subTab, setSubTab] = useState<SubTab>(() => {
-    const saved = ss.get('rdv2-subtab', 'today');
-    return VALID_SUB_TABS.includes(saved as SubTab) ? (saved as SubTab) : 'today';
+    // Inspectors land on their queue; everyone else on the day's work.
+    const roleDefault: SubTab = canRunQc && !canManageReception ? 'qc' : 'today';
+    const saved = ss.get('rdv2-subtab', roleDefault);
+    return VALID_SUB_TABS.includes(saved as SubTab) ? (saved as SubTab) : roleDefault;
   });
+  const [workspace, setWorkspace] = useState<WorkspaceTarget | null>(null);
 
   const updateSearch = useCallback((v: string) => { setSearch(v); ss.set('rdv2-search', v); }, []);
   const updateStatusFilter = useCallback((v: string) => { setStatusFilter(v); ss.set('rdv2-status', v); }, []);
@@ -125,12 +140,11 @@ export const ReceptionDashboardV2 = ({
   }, [prefillPurchaseOrderId]);
 
   useEffect(() => {
-    if (initialView === 'bra') {
-      setActiveView('receptions');
-      updateSubTab('bra');
+    if (initialView && VALID_SUB_TABS.includes(initialView as SubTab)) {
+      setWorkspace(null);
+      updateSubTab(initialView as SubTab);
     }
   }, [initialView, updateSubTab]);
-  const [detailOpen, setDetailOpen] = useState(false);
   const [qcDialogOpen, setQcDialogOpen] = useState(false);
   const [labDialogOpen, setLabDialogOpen] = useState(false);
   const [selectedInspection, setSelectedInspection] = useState<QCInspection | null>(null);
@@ -157,15 +171,6 @@ export const ReceptionDashboardV2 = ({
   const { data: materials = [] } = useMaterials();
   const { data: todayNotices = [] } = useTodayPendingNotices();
 
-  const canManageReception = useMemo(
-    () => canPerformAction(roles, 'reception_data_entry') || canPerformAction(roles, 'reception_weighing'),
-    [roles],
-  );
-  const canUseTablet = canManageReception;
-  const canUseQcScan = useMemo(
-    () => canPerformAction(roles, 'qc_entry_scan') || canPerformAction(roles, 'quality_supervision'),
-    [roles],
-  );
 
   const receptionsToday = useMemo(() => receptions.filter((r) => isToday(new Date(r.created_at))), [receptions]);
   const awaitingQc = useMemo(() => receptions.filter((r) => r.status === 'EN_ATTENTE_QC'), [receptions]);
@@ -220,7 +225,7 @@ export const ReceptionDashboardV2 = ({
     });
   }, [receptions, dateRange, search, statusFilter]);
 
-  const handleOpenDetail = useCallback((reception: ReceptionV2) => { setSelectedReception(reception); setDetailOpen(true); }, []);
+  const handleOpenDetail = useCallback((reception: ReceptionV2) => { setWorkspace({ id: reception.id }); }, []);
   const handleStartQC = useCallback((reception: ReceptionV2) => { setSelectedReception(reception); setQcDialogOpen(true); }, []);
 
   const handleScanLot = useCallback(async (explicitValue?: string) => {
@@ -268,7 +273,7 @@ export const ReceptionDashboardV2 = ({
       value: alerts.length,
       color: 'text-red-600',
       bg: alerts.length > 0 ? 'bg-red-50 border-red-200' : 'bg-muted/30 border-border',
-      onClick: () => setActiveView('alerts'),
+      onClick: () => updateSubTab('alerts'),
     },
     {
       icon: Clock3,
@@ -280,6 +285,17 @@ export const ReceptionDashboardV2 = ({
     },
   ], [stats, receptionsToday.length, awaitingQc.length, alerts.length, inQc.length, updateSubTab, updateStatusFilter]);
 
+  if (workspace) {
+    return (
+      <ReceptionDetailV2
+        receptionId={workspace.id}
+        initialSection={workspace.section}
+        autoStartQc={workspace.autoStartQc}
+        onBack={() => setWorkspace(null)}
+      />
+    );
+  }
+
   return (
     <div className="space-y-5">
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
@@ -289,7 +305,14 @@ export const ReceptionDashboardV2 = ({
         description="Démarrez une réception, lancez le contrôle qualité ou consultez le registre."
         primaryAction={{
           label: canManageReception ? t('receptions.new') : 'Voir les réceptions du jour',
-          onClick: () => (canManageReception ? setWizardOpen(true) : updateStatusFilter('today')),
+          onClick: () => {
+            if (canManageReception) {
+              setWizardOpen(true);
+              return;
+            }
+            updateSubTab('registry');
+            updateStatusFilter('today');
+          },
           icon: <Plus className="h-4 w-4" />,
         }}
         secondaryAction={{
@@ -321,36 +344,7 @@ export const ReceptionDashboardV2 = ({
         </button>
       )}
 
-      {/* ── Top-level view switcher ───────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-2">
-        {[
-          { value: 'receptions' as ActiveView, label: 'Réceptions', icon: Package, badge: actionQueue.length },
-          ...(canUseTablet ? [{ value: 'tablet' as ActiveView, label: 'Tablette', icon: TabletSmartphone, badge: draftReceptions.length }] : []),
-          { value: 'alerts' as ActiveView, label: 'Alertes', icon: AlertTriangle, badge: alerts.length },
-        ].map((item) => (
-          <Button
-            key={item.value}
-            type="button"
-            variant={activeView === item.value ? 'default' : 'outline'}
-            className="h-10 rounded-full gap-1.5"
-            onClick={() => setActiveView(item.value)}
-          >
-            <item.icon className="h-3.5 w-3.5" />
-            {item.label}
-            {item.badge > 0 && (
-              <Badge
-                variant={activeView === item.value ? 'secondary' : 'destructive'}
-                className={cn('rounded-full px-1.5 py-0 text-[11px]', activeView === item.value && 'bg-white/90 text-foreground')}
-              >
-                {item.badge}
-              </Badge>
-            )}
-          </Button>
-        ))}
-      </div>
-
-      {/* ── Receptions view ──────────────────────────────────────────────── */}
-      {activeView === 'receptions' && (
+      {/* ── One navigation bar for the whole module ───────────────────────── */}
         <Tabs value={subTab} onValueChange={(v) => updateSubTab(v as SubTab)}>
           {/* Sub-tab bar — scrollable, clearly clickable */}
           <div className="overflow-x-auto scrollbar-hide">
@@ -363,15 +357,23 @@ export const ReceptionDashboardV2 = ({
                   badge: actionQueue.length > 0 ? actionQueue.length : null,
                   badgeClass: 'bg-primary text-primary-foreground',
                 },
-                {
+                ...(canRunQc ? [{
                   value: 'qc' as SubTab,
                   icon: QrCode,
                   label: 'Contrôle QC',
                   badge: awaitingQc.length > 0 ? awaitingQc.length : null,
                   badgeClass: 'bg-amber-500 text-white',
-                },
+                }] : []),
                 { value: 'registry' as SubTab, icon: List, label: 'Registre', badge: null, badgeClass: '' },
                 { value: 'bra' as SubTab, icon: Printer, label: 'Bon BRA', badge: null, badgeClass: '' },
+                ...(canUseTablet ? [{ value: 'tablet' as SubTab, icon: TabletSmartphone, label: 'Tablette', badge: null, badgeClass: '' }] : []),
+                {
+                  value: 'alerts' as SubTab,
+                  icon: AlertTriangle,
+                  label: 'Alertes',
+                  badge: alerts.length > 0 ? alerts.length : null,
+                  badgeClass: 'bg-red-600 text-white',
+                },
               ]).map((tab) => {
                 const active = subTab === tab.value;
                 return (
@@ -482,7 +484,7 @@ export const ReceptionDashboardV2 = ({
                           </p>
                         </div>
                         <div className="flex shrink-0 items-center gap-1">
-                          {(item.reception.status === 'EN_ATTENTE_QC' || item.reception.status === 'EN_QC') && (
+                          {canRunQc && (item.reception.status === 'EN_ATTENTE_QC' || item.reception.status === 'EN_QC') && (
                             <Button
                               type="button"
                               size="sm"
@@ -490,7 +492,8 @@ export const ReceptionDashboardV2 = ({
                               variant={item.reception.status === 'EN_QC' ? 'default' : 'outline'}
                               onClick={(e) => { e.stopPropagation(); handleStartQC(item.reception); }}
                             >
-                              <Shield className="h-3 w-3" />
+                              <Shield className="mr-1 h-3 w-3" />
+                              {item.reception.status === 'EN_QC' ? 'Reprendre' : 'Lancer QC'}
                             </Button>
                           )}
                         </div>
@@ -557,7 +560,7 @@ export const ReceptionDashboardV2 = ({
                       variant="outline"
                       size="sm"
                       className="mt-2 h-9 rounded-xl text-xs"
-                      onClick={() => setActiveView('alerts')}
+                      onClick={() => updateSubTab('alerts')}
                     >
                       Voir les alertes
                     </Button>
@@ -608,7 +611,6 @@ export const ReceptionDashboardV2 = ({
                     variant="outline"
                     className="h-12 rounded-2xl px-4 shrink-0"
                     onClick={() => setScannerOpen(true)}
-                    disabled={!canUseQcScan}
                   >
                     <Camera className="mr-2 h-4 w-4" />
                     Caméra QR
@@ -631,12 +633,6 @@ export const ReceptionDashboardV2 = ({
                     selectedReception ? 'border-emerald-200 bg-emerald-50 text-emerald-900' : 'border-amber-200 bg-amber-50 text-amber-900',
                   )}>
                     {scanMessage}
-                  </div>
-                )}
-
-                {!canUseQcScan && (
-                  <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-                    Cette étape est réservée aux rôles qualité ou supervision réception.
                   </div>
                 )}
 
@@ -783,10 +779,12 @@ export const ReceptionDashboardV2 = ({
                       <Printer className="mr-2 h-4 w-4" />
                       Rapport J
                     </Button>
-                    <Button type="button" onClick={() => setWizardOpen(true)} className="rounded-2xl">
-                      <Plus className="mr-2 h-4 w-4" />
-                      {t('receptions.new')}
-                    </Button>
+                    {canManageReception && (
+                      <Button type="button" onClick={() => setWizardOpen(true)} className="rounded-2xl">
+                        <Plus className="mr-2 h-4 w-4" />
+                        {t('receptions.new')}
+                      </Button>
+                    )}
                   </div>
                 </div>
               </CardHeader>
@@ -918,7 +916,7 @@ export const ReceptionDashboardV2 = ({
                                   {Math.round(ageHours)}h
                                 </Badge>
                               )}
-                              {reception.status === 'EN_ATTENTE_QC' && (
+                              {canRunQc && reception.status === 'EN_ATTENTE_QC' && (
                                 <Button
                                   type="button"
                                   size="sm"
@@ -927,10 +925,10 @@ export const ReceptionDashboardV2 = ({
                                   onClick={(e) => { e.stopPropagation(); handleStartQC(reception); }}
                                 >
                                   <Shield className="mr-1 h-3 w-3" />
-                                  QC
+                                  Lancer QC
                                 </Button>
                               )}
-                              {reception.status === 'EN_QC' && (
+                              {canRunQc && reception.status === 'EN_QC' && (
                                 <Button
                                   type="button"
                                   size="sm"
@@ -961,11 +959,16 @@ export const ReceptionDashboardV2 = ({
             </div>
             <BonReceptionAchatDashboard />
           </TabsContent>
-        </Tabs>
-      )}
 
-      {activeView === 'tablet' && <ReceptionTabletOperatorScreen />}
-      {activeView === 'alerts' && <AlertsPanel />}
+          {canUseTablet && (
+            <TabsContent value="tablet" className="mt-5">
+              <ReceptionTabletOperatorScreen />
+            </TabsContent>
+          )}
+          <TabsContent value="alerts" className="mt-5">
+            <AlertsPanel />
+          </TabsContent>
+        </Tabs>
 
       {/* ── Dialogs ───────────────────────────────────────────────────────── */}
       {canManageReception && (
@@ -975,10 +978,12 @@ export const ReceptionDashboardV2 = ({
           suppliers={suppliers}
           materials={materials}
           prefillPurchaseOrderId={prefillPurchaseOrderId}
+          canRunQc={canRunQc}
+          onOpenReception={(id, next) => setWorkspace({ id, autoStartQc: next === 'qc' })}
         />
       )}
 
-      {canUseQcScan && (
+      {canRunQc && (
         <QrScannerDialog
           open={scannerOpen}
           onOpenChange={setScannerOpen}
@@ -988,8 +993,12 @@ export const ReceptionDashboardV2 = ({
 
       {selectedReception && (
         <>
-          <ReceptionDetailV2 open={detailOpen} onOpenChange={setDetailOpen} receptionId={selectedReception.id} />
-          <QCInspectionDialog open={qcDialogOpen} onOpenChange={setQcDialogOpen} reception={selectedReception} />
+          <QCInspectionDialog
+            open={qcDialogOpen}
+            onOpenChange={setQcDialogOpen}
+            reception={selectedReception}
+            onAssignStorage={() => setWorkspace({ id: selectedReception.id, section: 'stock' })}
+          />
           {selectedInspection && (
             <LabResultsDialog
               open={labDialogOpen}

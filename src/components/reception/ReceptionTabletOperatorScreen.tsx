@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import {
@@ -112,12 +112,15 @@ export const ReceptionTabletOperatorScreen = () => {
     transport_condition: 'Bâché',
     quick_visual_state: 'Bon',
     declared_weight_kg: '',
-    unit_count: '8',
+    unit_count: '',
     unit_type: 'PALETTE',
     packaging_type: 'caisses',
     remarks: '',
     weighing_supervisor: operatorName,
   });
+  // One idempotency key per screen entry: a double tap replays the same intake.
+  const clientRequestIdRef = useRef<string>(crypto.randomUUID());
+  const submittingRef = useRef(false);
 
   const selectedSupplier = suppliers.find((supplier) => supplier.id === form.supplier_id);
   const suggestedStorageZone = useMemo(
@@ -130,7 +133,8 @@ export const ReceptionTabletOperatorScreen = () => {
       }),
     [availableStorageZones, form.arrival_temperature_c, receptions],
   );
-  const unitCount = Math.max(1, parseInt(form.unit_count || '1', 10));
+  const parsedUnitCount = Number.parseInt(form.unit_count, 10);
+  const unitCount = Number.isFinite(parsedUnitCount) ? parsedUnitCount : 0;
   const declaredWeightKg = parseNumber(form.declared_weight_kg);
   const { reading: scaleReading, connected: scaleConnected } =
     useLatestWeighbridgeReading(weightMode === 'SCALE');
@@ -198,6 +202,7 @@ export const ReceptionTabletOperatorScreen = () => {
     !form.delivery_note_number.trim() ? 'Bon de livraison requis.' : null,
     !form.vehicle_number.trim() ? 'Immatriculation véhicule requise.' : null,
     !form.arrival_temperature_c.trim() ? 'Température d’arrivée requise.' : null,
+    unitCount <= 0 ? 'Nombre de supports requis (comptez les palettes / caisses).' : null,
     grossWeightKg == null ? 'Poids brut non capturé.' : null,
     tareWeightKg == null ? 'Poids tare non capturé.' : null,
     netWeightKg <= 0 ? 'Poids net invalide.' : null,
@@ -306,6 +311,7 @@ export const ReceptionTabletOperatorScreen = () => {
   };
 
   const handleResetScreen = (message = 'Écran réinitialisé.') => {
+    clientRequestIdRef.current = crypto.randomUUID();
     setForm({
       supplier_id: '',
       delivery_note_number: '',
@@ -321,7 +327,7 @@ export const ReceptionTabletOperatorScreen = () => {
       transport_condition: 'Bâché',
       quick_visual_state: 'Bon',
       declared_weight_kg: '',
-      unit_count: '8',
+      unit_count: '',
       unit_type: 'PALETTE',
       packaging_type: 'caisses',
       remarks: '',
@@ -344,9 +350,12 @@ export const ReceptionTabletOperatorScreen = () => {
       setFormError(requiredIssues[0]);
       return;
     }
+    if (submittingRef.current) return;
+    submittingRef.current = true;
 
     try {
       const intake = await createReception.mutateAsync({
+        client_request_id: clientRequestIdRef.current,
         supplier_id: form.supplier_id,
         spontaneous_delivery: true,
         reception_type: 'DATTE',
@@ -394,6 +403,8 @@ export const ReceptionTabletOperatorScreen = () => {
       handleResetScreen(`Réception ${intake.reception.reception_number} enregistrée. ${intake.lots.length} lot(s) d’entrée créés.`);
     } catch (error) {
       setFormError(error instanceof Error ? error.message : 'Erreur lors de l’enregistrement.');
+    } finally {
+      submittingRef.current = false;
     }
   };
 
@@ -602,7 +613,7 @@ export const ReceptionTabletOperatorScreen = () => {
                     </div>
                     <div className="space-y-2">
                       <Label>Nombre d’unités logistiques *</Label>
-                      <Input type="number" className="h-12 rounded-2xl text-base" value={form.unit_count} onChange={(event) => handleFieldChange('unit_count', event.target.value)} placeholder="8" />
+                      <Input type="number" className="h-12 rounded-2xl text-base" inputMode="numeric" min="1" value={form.unit_count} onChange={(event) => handleFieldChange('unit_count', event.target.value)} placeholder="Compter les supports" />
                     </div>
                     <div className="space-y-2">
                       <Label>Type unité *</Label>
@@ -887,7 +898,7 @@ export const ReceptionTabletOperatorScreen = () => {
                 </>
               )}
             </Button>
-            <Button type="button" variant="outline" size="lg" className="h-16 rounded-[24px] text-base" onClick={handleResetScreen}>
+            <Button type="button" variant="outline" size="lg" className="h-16 rounded-[24px] text-base" onClick={() => handleResetScreen()}>
               <RefreshCcw className="mr-2 h-5 w-5" />
               Vider l’écran
             </Button>

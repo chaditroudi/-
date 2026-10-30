@@ -8,8 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AlertTriangle, CheckCircle, Clock, FlaskConical, Play, Printer, Shield, XCircle } from "lucide-react";
-import { useCalibrationStatus, useCreateQCInspection, useQCInspections, useSubmitQCDecision } from "@/hooks/useReceptionsV2";
+import { AlertTriangle, CheckCircle, Clock, FlaskConical, MapPin, Play, Printer, Shield, XCircle } from "lucide-react";
+import { toast } from "sonner";
+import { receptionErrorMessage, useCalibrationStatus, useCreateQCInspection, useQCInspections, useSubmitQCDecision } from "@/hooks/useReceptionsV2";
+import { useModule3StorageZones } from "@/hooks/useStorageModule3";
+import { Module3StorageZone } from "@/types/storage";
 import { QCDecisionType, RQCData, RQCCritere, ReceptionV2 } from "@/types/reception";
 import { printRQC } from "./printRQC";
 import { computeQcScore, getQcClassificationLabel, getQcDecisionLabel } from "@/lib/royalPalmPhase1";
@@ -22,16 +25,83 @@ import {
   triggerAutoBlockIfNeeded,
 } from "@/lib/phase1RuleEngine";
 import { QC_NC_CODES, NC_SEVERITY_COLORS, getAutoTriggeredNCs } from "@/lib/qcNCCodes";
-import { NumericSignatureDialog } from "@/components/shared/NumericSignatureDialog";
+import { NumericSignaturePad } from "@/components/shared/NumericSignatureDialog";
+
+/**
+ * Recommandation déterministe d'une chambre froide basée sur les données d'occupation réelles et la compatibilité Bio
+ */
+export function getRecommendedColdStorageZone(
+  zones: Module3StorageZone[],
+  options: {
+    isBio?: boolean;
+    variety?: string | null;
+    lotWeightKg?: number | null;
+  }
+): { zone: Module3StorageZone; occupancyPct: number } | null {
+  const activeZones = zones.filter((z) => z.is_active);
+
+  // Filtrer les zones de froid (FRIGO, CHAMBRE_FROIDE ou famille COLD ou code C- / ZF)
+  const coldZones = activeZones.filter((z) => {
+    const code = (z.code || '').toLowerCase();
+    const name = (z.name || '').toLowerCase();
+    const type = (z.zone_type || '').toLowerCase();
+    const isCold =
+      type.includes('frigo') ||
+      type.includes('chambre') ||
+      type.includes('cold') ||
+      name.includes('chambre') ||
+      name.includes('frigo') ||
+      code.startsWith('c-') ||
+      code.startsWith('zf');
+    const isQuarantine = name.includes('quarantaine') || code.includes('quar');
+    return isCold && !isQuarantine;
+  });
+
+  if (coldZones.length === 0) return null;
+
+  // Filtrer selon la filière Bio vs Conventionnel
+  const bioFiltered = coldZones.filter((z) => {
+    const isBioZone = (z as any).is_bio_only === true || (z.name || '').toLowerCase().includes('bio');
+    if (options.isBio) {
+      return isBioZone;
+    } else {
+      return !(z as any).is_bio_only;
+    }
+  });
+
+  const candidates = bioFiltered.length > 0 ? bioFiltered : coldZones;
+
+  // Calculer l'occupation
+  const withOccupancy = candidates.map((z) => {
+    const cap = (z.capacity_kg && z.capacity_kg > 0)
+      ? z.capacity_kg
+      : ((z.capacity_palettes && z.capacity_palettes > 0) ? z.capacity_palettes : 10000);
+    const load = (z as any).current_load_kg ?? (z as any).current_occupancy_kg ?? (z as any).current_load_palettes ?? (z as any).current_occupancy_palettes ?? 0;
+    const occPct = cap > 0 ? Math.round((load / cap) * 100) : 0;
+    return { zone: z, occupancyPct: Math.min(100, Math.max(0, occPct)) };
+  });
+
+  withOccupancy.sort((a, b) => a.occupancyPct - b.occupancyPct);
+
+  if (withOccupancy[0].occupancyPct >= 100) return null;
+
+  return withOccupancy[0];
+}
 
 interface QCInspectionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   reception: ReceptionV2;
+  /** Opens the reception's storage assignment once the lot is released. */
+  onAssignStorage?: () => void;
 }
 
-const defaultHumidity: [number, number, number] = [22, 22, 22];
-const defaultCalibers = [45, 45, 45, 45, 45, 45, 45, 45, 45, 45];
+// Instrument readings start empty: a value is recorded only once the inspector measures it.
+type Measurement = number | null;
+const defaultHumidity = (): Measurement[] => [null, null, null];
+const defaultCalibers = (): Measurement[] => Array<Measurement>(10).fill(null);
+const isMeasured = (value: Measurement): value is number => value != null && Number.isFinite(value);
+const parseMeasurement = (raw: string): Measurement => (raw.trim() === "" ? null : Number(raw));
 
 type RqcCritereKey = keyof Pick<RQCData,'infestee'|'fermentee'|'immature'|'craquellee'|'grasse'|'seche'|'tachee'|'ridee'|'petit_calibre'>;
 
@@ -49,7 +119,7 @@ const defaultRqc = (): RQCData => ({
   responsable_qc1: null, responsable_qc2: null, directeur_qc: null,
 });
 
-export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspectionDialogProps) => {
+export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStorage }: QCInspectionDialogProps) => {
   const { user, isAdmin, profile } = useAuth();
   const { data: calibration } = useCalibrationStatus();
   const [caliberFillValue, setCaliberFillValue] = useState("");
@@ -61,8 +131,8 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
   const [inspectionId, setInspectionId] = useState<string | null>(null);
   const [comment, setComment] = useState("");
   const [confirmedDecision, setConfirmedDecision] = useState<QCDecisionType | null>(null);
-  const [humidity, setHumidity] = useState<[number, number, number]>(defaultHumidity);
-  const [calibers, setCalibers] = useState<number[]>(defaultCalibers);
+  const [humidity, setHumidity] = useState<Measurement[]>(defaultHumidity);
+  const [calibers, setCalibers] = useState<Measurement[]>(defaultCalibers);
   const [defects, setDefects] = useState({
     insectsPercent: 0,
     moldPercent: 0,
@@ -86,9 +156,20 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
   const [overridePhoto, setOverridePhoto] = useState<string[]>([]);
   const [selectedNcCodes, setSelectedNcCodes] = useState<string[]>([]);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  // Signature numérique — la libération QC (ACCEPTE) exige un code signature.
+  // Signature numérique — la libération QC (ACCEPTE) exige un code signature, saisi dans ce même écran.
   const [releasePinOpen, setReleasePinOpen] = useState(false);
   const [rqc, setRqc] = useState<RQCData>(defaultRqc);
+
+  const { data: storageZones = [] } = useModule3StorageZones();
+
+  // Recommandation déterministe basée sur les données d'occupation réelles et filière Bio
+  const recommendedColdZone = useMemo(() => {
+    return getRecommendedColdStorageZone(storageZones, {
+      isBio: reception.bio_declared,
+      variety: reception.variety,
+      lotWeightKg: reception.quantity_total,
+    });
+  }, [storageZones, reception.bio_declared, reception.variety, reception.quantity_total]);
 
   const updateRqcCritere = useCallback((field: RqcCritereKey, test: 'test1'|'test2'|'test3', value: number | null) => {
     setRqc(prev => {
@@ -131,8 +212,8 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
   const score = useMemo(
     () =>
       computeQcScore({
-        humidity,
-        calibers,
+        humidity: humidity.filter(isMeasured),
+        calibers: calibers.filter(isMeasured),
         ...defects,
         ...organoleptic,
       }),
@@ -140,6 +221,8 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
   );
 
   const selectedDecision = overrideDecision || score.recommendedDecision;
+  const missingMeasurements =
+    humidity.filter((value) => !isMeasured(value)).length + calibers.filter((value) => !isMeasured(value)).length;
 
   const totalDefectsFloor = useMemo(
     () =>
@@ -186,8 +269,8 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
     setInspectionId(null);
     setComment("");
     setConfirmedDecision(null);
-    setHumidity(defaultHumidity);
-    setCalibers(defaultCalibers);
+    setHumidity(defaultHumidity());
+    setCalibers(defaultCalibers());
     setDefects({
       insectsPercent: 0,
       moldPercent: 0,
@@ -208,6 +291,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
     setOverridePhoto([]);
     setSelectedNcCodes([]);
     setSubmitError(null);
+    setReleasePinOpen(false);
     setRqc(defaultRqc());
   };
 
@@ -216,13 +300,13 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
     onOpenChange(false);
   };
 
-  const updateHumidity = (index: number, value: number) => {
-    const next = [...humidity] as [number, number, number];
+  const updateHumidity = (index: number, value: Measurement) => {
+    const next = [...humidity];
     next[index] = value;
     setHumidity(next);
   };
 
-  const updateCaliber = (index: number, value: number) => {
+  const updateCaliber = (index: number, value: Measurement) => {
     const next = [...calibers];
     next[index] = value;
     setCalibers(next);
@@ -237,12 +321,18 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
   const startInspection = async () => {
     if (!inspectorName.trim()) return;
 
-    const inspection = await createInspection.mutateAsync({
-      reception_id: reception.id,
-      inspector_name: inspectorName.trim(),
-      sampling_method: "3 mesures humidite + 10 mesures calibre",
-      nb_samples: 10,
-    });
+    let inspection;
+    try {
+      inspection = await createInspection.mutateAsync({
+        reception_id: reception.id,
+        inspector_name: inspectorName.trim(),
+        sampling_method: "3 mesures humidite + 10 mesures calibre",
+        nb_samples: 10,
+      });
+    } catch (error) {
+      toast.error(receptionErrorMessage(error, "Impossible de démarrer l'inspection QC"));
+      return;
+    }
 
     setInspectionId(inspection.id);
     setPhase("inspection");
@@ -253,6 +343,14 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
   const submit = async (pin?: string) => {
     if (!inspectionId) return;
     setSubmitError(null);
+
+    if (missingMeasurements > 0) {
+      setReleasePinOpen(false);
+      setSubmitError(
+        `Mesures incomplètes : ${missingMeasurements} valeur(s) manquante(s) (3 humidités et 10 calibres sont obligatoires).`,
+      );
+      return;
+    }
 
     if (selectedDecision === 'REJETE' && selectedNcCodes.length === 0) {
       setSubmitError("Au moins un code NC est requis pour une décision REJETÉ.");
@@ -301,36 +399,43 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
       .filter(Boolean)
       .join(" | ");
 
-    await submitDecision.mutateAsync({
-      inspectionId,
-      decision: selectedDecision,
-      comment: details,
-      qualitySummary: {
-        score: score.finalScore,
-        grade: score.classification,
-        automaticRejectReasons: score.automaticRejectReasons,
-        lab_humidity_pct: labHumidityForDecision,
-        lab_defects_pct: labDefectsForDecision,
-      },
-      labSampleRequired,
-      labAnalyses,
-      labStorageLocation,
-      secondaryInspectorName: doubleInspectionRequired ? secondaryInspectorName.trim() : undefined,
-      recommendedDecision: score.recommendedDecision,
-      overrideJustification: isOverriding ? comment.trim() : undefined,
-      overridePhoto: isOverriding && overridePhoto.length > 0 ? overridePhoto[0] : undefined,
-      nonconformityCodes: selectedNcCodes.length > 0 ? selectedNcCodes : undefined,
-      rqc,
-      pin: pin ?? undefined,
-      checkResults: [
-        { check_code: "HUM", check_name: "Humidite", severity: "MAJEUR", result: score.humidityScore >= 60 ? "CONFORME" : "NON_CONFORME", note: `${labHumidityForDecision}% (sol ${score.humidityAverage}%)`, measured_value: String(labHumidityForDecision), expected_value: "20-26" },
-        { check_code: "DEF", check_name: "Defauts totaux", severity: "MAJEUR", result: labDefectsForDecision <= 10 ? "CONFORME" : "NON_CONFORME", note: `${labDefectsForDecision}%`, measured_value: String(labDefectsForDecision), expected_value: "<= 10" },
-        { check_code: "CAL", check_name: "Calibre", severity: "MAJEUR", result: score.caliberScore >= 60 ? "CONFORME" : "NON_CONFORME", note: `${score.caliberAverage} mm`, measured_value: String(score.caliberAverage), expected_value: ">= 40" },
-        { check_code: "INS", check_name: "Insectes", severity: "CRITIQUE", result: defects.insectsPercent > 5 ? "NON_CONFORME" : "CONFORME", note: `${defects.insectsPercent}%`, measured_value: String(defects.insectsPercent), expected_value: "<= 5" },
-        { check_code: "MOLD", check_name: "Moisissure/Fermentation", severity: "CRITIQUE", result: defects.moldPercent > 2 || defects.fermentationPercent > 1 ? "NON_CONFORME" : "CONFORME", note: `M ${defects.moldPercent}% / F ${defects.fermentationPercent}%`, measured_value: `${defects.moldPercent}/${defects.fermentationPercent}`, expected_value: "<= 2 / <= 1" },
-        { check_code: "ORG", check_name: "Organoleptique", severity: "MINEUR", result: score.organolepticScore >= 60 ? "CONFORME" : "NON_CONFORME", note: `${score.organolepticAverage}/5`, measured_value: String(score.organolepticAverage), expected_value: ">= 3/5" },
-      ],
-    });
+    try {
+      await submitDecision.mutateAsync({
+        inspectionId,
+        decision: selectedDecision,
+        comment: details,
+        qualitySummary: {
+          score: score.finalScore,
+          grade: score.classification,
+          automaticRejectReasons: score.automaticRejectReasons,
+          lab_humidity_pct: labHumidityForDecision,
+          lab_defects_pct: labDefectsForDecision,
+        },
+        labSampleRequired,
+        labAnalyses,
+        labStorageLocation,
+        secondaryInspectorName: doubleInspectionRequired ? secondaryInspectorName.trim() : undefined,
+        recommendedDecision: score.recommendedDecision,
+        overrideJustification: isOverriding ? comment.trim() : undefined,
+        overridePhoto: isOverriding && overridePhoto.length > 0 ? overridePhoto[0] : undefined,
+        nonconformityCodes: selectedNcCodes.length > 0 ? selectedNcCodes : undefined,
+        rqc,
+        pin: pin ?? undefined,
+        checkResults: [
+          { check_code: "HUM", check_name: "Humidite", severity: "MAJEUR", result: score.humidityScore >= 60 ? "CONFORME" : "NON_CONFORME", note: `${labHumidityForDecision}% (sol ${score.humidityAverage}%)`, measured_value: String(labHumidityForDecision), expected_value: "20-26" },
+          { check_code: "DEF", check_name: "Defauts totaux", severity: "MAJEUR", result: labDefectsForDecision <= 10 ? "CONFORME" : "NON_CONFORME", note: `${labDefectsForDecision}%`, measured_value: String(labDefectsForDecision), expected_value: "<= 10" },
+          { check_code: "CAL", check_name: "Calibre", severity: "MAJEUR", result: score.caliberScore >= 60 ? "CONFORME" : "NON_CONFORME", note: `${score.caliberAverage} mm`, measured_value: String(score.caliberAverage), expected_value: ">= 40" },
+          { check_code: "INS", check_name: "Insectes", severity: "CRITIQUE", result: defects.insectsPercent > 5 ? "NON_CONFORME" : "CONFORME", note: `${defects.insectsPercent}%`, measured_value: String(defects.insectsPercent), expected_value: "<= 5" },
+          { check_code: "MOLD", check_name: "Moisissure/Fermentation", severity: "CRITIQUE", result: defects.moldPercent > 2 || defects.fermentationPercent > 1 ? "NON_CONFORME" : "CONFORME", note: `M ${defects.moldPercent}% / F ${defects.fermentationPercent}%`, measured_value: `${defects.moldPercent}/${defects.fermentationPercent}`, expected_value: "<= 2 / <= 1" },
+          { check_code: "ORG", check_name: "Organoleptique", severity: "MINEUR", result: score.organolepticScore >= 60 ? "CONFORME" : "NON_CONFORME", note: `${score.organolepticAverage}/5`, measured_value: String(score.organolepticAverage), expected_value: ">= 3/5" },
+        ],
+      });
+    } catch (error) {
+      // Inputs stay as entered; re-sending the same decision completes a partial update.
+      setReleasePinOpen(false);
+      setSubmitError(receptionErrorMessage(error, "La décision QC n'a pas pu être enregistrée."));
+      return;
+    }
 
     setReleasePinOpen(false);
     setConfirmedDecision(selectedDecision);
@@ -371,7 +476,10 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
   return (
     <>
     <Dialog open={open} onOpenChange={closeDialog}>
-      <DialogContent className="max-w-6xl h-[92vh] flex flex-col">
+      <DialogContent
+        className="max-w-6xl h-[92vh] flex flex-col"
+        onInteractOutside={(event) => event.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5" />
@@ -534,15 +642,17 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
                             min="10"
                             max="40"
                             step="0.1"
-                            value={value}
+                            inputMode="decimal"
+                            placeholder="%"
+                            value={value ?? ""}
                             onFocus={(e) => e.target.select()}
-                            onChange={(event) => updateHumidity(index, Number(event.target.value))}
+                            onChange={(event) => updateHumidity(index, parseMeasurement(event.target.value))}
                           />
                         </div>
                       ))}
                       <div className="space-y-1">
                         <Label>Moyenne</Label>
-                        <Input value={score.humidityAverage} readOnly />
+                        <Input value={humidity.every(isMeasured) ? score.humidityAverage : "—"} readOnly />
                       </div>
                     </CardContent>
                   </Card>
@@ -587,9 +697,11 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
                             min="20"
                             max="70"
                             step="0.1"
-                            value={value}
+                            inputMode="decimal"
+                            placeholder="mm"
+                            value={value ?? ""}
                             onFocus={(e) => e.target.select()}
-                            onChange={(event) => updateCaliber(index, Number(event.target.value))}
+                            onChange={(event) => updateCaliber(index, parseMeasurement(event.target.value))}
                             className="h-8 rounded-lg px-2 text-sm"
                           />
                         </div>
@@ -768,6 +880,11 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
                       <CardTitle className="text-base">Resultat automatique</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3 text-sm">
+                      {missingMeasurements > 0 && (
+                        <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                          Score provisoire : {missingMeasurements} mesure(s) d'humidité ou de calibre à saisir (section 1 · Mesures).
+                        </div>
+                      )}
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">Score final</span>
                         <span className="text-2xl font-semibold">{score.finalScore}/100</span>
@@ -1106,40 +1223,77 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
           )}
 
           {phase === "confirmed" && confirmedDecision && (
-            <div className="space-y-4 p-4 text-center">
-              <div className="flex justify-center">
-                {confirmedDecision === "ACCEPTE" ? (
-                  <CheckCircle className="h-16 w-16 text-green-600" />
-                ) : confirmedDecision === "QUARANTAINE" ? (
-                  <AlertTriangle className="h-16 w-16 text-orange-600" />
-                ) : (
-                  <XCircle className="h-16 w-16 text-red-600" />
-                )}
+            <div className="space-y-6 p-4">
+              <div className="text-center space-y-2">
+                <div className="flex justify-center">
+                  {confirmedDecision === "ACCEPTE" ? (
+                    <CheckCircle className="h-16 w-16 text-green-600" />
+                  ) : confirmedDecision === "QUARANTAINE" ? (
+                    <AlertTriangle className="h-16 w-16 text-orange-600" />
+                  ) : (
+                    <XCircle className="h-16 w-16 text-red-600" />
+                  )}
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold tracking-tight">
+                    {confirmedDecision === "ACCEPTE" ? "LOT LIBÉRÉ — CONFORME" : confirmedDecision}
+                  </h3>
+                  <p className="text-muted-foreground text-sm">
+                    Score final {score.finalScore}/100 — {getQcClassificationLabel(score.classification)} • Humidité: {score.humidityAverage}%
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-xl font-semibold">{confirmedDecision}</h3>
-                <p className="text-muted-foreground">
-                  Score final {score.finalScore}/100 - {getQcClassificationLabel(score.classification)}
-                </p>
+
+              {/* Rangement : passe par l'affectation des lots de la réception (même règles et traçabilité que le magasin). */}
+              {confirmedDecision === "ACCEPTE" && (
+                <div className="mx-auto max-w-xl space-y-3 rounded-xl border border-primary/20 bg-primary/5 p-5 text-left shadow-sm">
+                  <div className="flex items-start gap-2">
+                    <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    <div className="space-y-1">
+                      <h4 className="text-base font-semibold text-foreground">Étape suivante : ranger les lots libérés</h4>
+                      <p className="text-xs text-muted-foreground">
+                        {recommendedColdZone
+                          ? `Chambre conseillée : ${recommendedColdZone.zone.code} — ${recommendedColdZone.zone.name} (occupation ${recommendedColdZone.occupancyPct} %${reception.bio_declared ? ", dédiée Bio" : ""}).`
+                          : "Choisissez la chambre froide lors de l'affectation."}
+                      </p>
+                    </div>
+                  </div>
+                  {onAssignStorage && (
+                    <Button
+                      type="button"
+                      className="w-full"
+                      onClick={() => {
+                        closeDialog();
+                        onAssignStorage();
+                      }}
+                    >
+                      <MapPin className="mr-2 h-4 w-4" />
+                      Affecter au stock
+                    </Button>
+                  )}
+                </div>
+              )}
+
+              <div className="flex justify-center pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const insp = existingInspections.find(i => i.id === inspectionId);
+                    const fakeInsp = {
+                      id: inspectionId ?? '',
+                      inspection_number: insp?.inspection_number ?? openInspection?.inspection_number ?? inspectionId ?? '',
+                      inspector_name: inspectorName,
+                      secondary_inspector_name: secondaryInspectorName || null,
+                      rqc,
+                    } as Parameters<typeof printRQC>[0];
+                    printRQC(fakeInsp, reception);
+                  }}
+                >
+                  <Printer className="h-4 w-4 mr-2" />
+                  Imprimer RQC
+                </Button>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  const insp = existingInspections.find(i => i.id === inspectionId);
-                  const fakeInsp = {
-                    id: inspectionId ?? '',
-                    inspection_number: insp?.inspection_number ?? openInspection?.inspection_number ?? inspectionId ?? '',
-                    inspector_name: inspectorName,
-                    secondary_inspector_name: secondaryInspectorName || null,
-                    rqc,
-                  } as Parameters<typeof printRQC>[0];
-                  printRQC(fakeInsp, reception);
-                }}
-              >
-                <Printer className="h-4 w-4 mr-2" />
-                Imprimer RQC
-              </Button>
             </div>
           )}
         </ScrollArea>
@@ -1149,30 +1303,32 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception }: QCInspecti
           {submitError && phase === "inspection" && (
             <p className="flex-1 text-sm text-red-600">{submitError}</p>
           )}
-          <div className="flex gap-2 justify-end w-full sm:w-auto">
-            <Button variant="outline" onClick={closeDialog}>
-              {phase === "confirmed" ? "Fermer" : "Annuler"}
-            </Button>
-            {phase === "inspection" && (
-              <Button onClick={() => submit()} disabled={submitDecision.isPending}>
-                {submitDecision.isPending ? "Validation en cours..." : "Valider la décision QC"}
+          {phase === "inspection" && releasePinOpen ? (
+            <div className="w-full sm:max-w-sm sm:ml-auto">
+              <NumericSignaturePad
+                title="Libération QC — code signature"
+                subtitle="Confirmez votre code signature personnel pour libérer ce lot vers le stock."
+                confirmLabel="Signer et libérer"
+                pending={submitDecision.isPending}
+                onCancel={() => setReleasePinOpen(false)}
+                onConfirm={async (pin) => { await submit(pin); }}
+              />
+            </div>
+          ) : (
+            <div className="flex gap-2 justify-end w-full sm:w-auto">
+              <Button variant="outline" onClick={closeDialog}>
+                {phase === "confirmed" ? "Fermer" : "Annuler"}
               </Button>
-            )}
-          </div>
+              {phase === "inspection" && (
+                <Button onClick={() => submit()} disabled={submitDecision.isPending}>
+                  {submitDecision.isPending ? "Validation en cours..." : "Valider la décision QC"}
+                </Button>
+              )}
+            </div>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
-
-    {/* Signature numérique — ré-authentification à la libération QC (ACCEPTE) */}
-    <NumericSignatureDialog
-      open={releasePinOpen}
-      onOpenChange={setReleasePinOpen}
-      title="Libération QC — code signature"
-      subtitle="Confirmez votre code signature personnel pour libérer ce lot vers le stock."
-      confirmLabel="Libérer"
-      pending={submitDecision.isPending}
-      onConfirm={async (pin) => { await submit(pin); }}
-    />
     </>
   );
 };

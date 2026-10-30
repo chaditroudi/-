@@ -49,6 +49,8 @@ export interface ReceptionIntakePayload {
   tare_reading_id?: string | null;
   declared_weight_kg?: number | null;
   variety: string;
+  /** Golden-thread route; the server defaults to PREMIUM_WHOLE. */
+  manufacturing_route?: 'PREMIUM_WHOLE' | 'GENERIC';
   maturity_stage: string;
   harvest_method: string;
   harvest_datetime?: string | null;

@@ -81,6 +81,7 @@ export const countSameVehicleToday = (
 
 export const getReceptionWizardStepBlockers = (input: {
   step: number;
+  workflowMode?: "express" | "standard";
   selectedSupplier: Pick<Supplier, "id" | "code" | "name"> | null;
   deliveryNoteNumber: string;
   vehicleNumber: string;
@@ -104,6 +105,52 @@ export const getReceptionWizardStepBlockers = (input: {
 }) => {
   const blockers: string[] = [];
 
+  // ─── Mode Express (2 étapes d'atelier) ──────────────────────────────────
+  if (input.workflowMode === "express") {
+    if (input.step === 1) {
+      if (!input.selectedSupplier) blockers.push("selectionner un fournisseur actif");
+      if (!input.deliveryNoteNumber.trim()) blockers.push("renseigner le bon de livraison");
+      if (!input.vehicleNumber.trim()) blockers.push("renseigner l'immatriculation vehicule");
+      if (input.grossWeightValue <= 0) blockers.push("saisir un poids brut superieur a 0");
+      if (input.tareWeightValue < 0) blockers.push("saisir une tare valide");
+      if (input.netWeightKg <= 0 || input.grossWeightValue <= input.tareWeightValue) {
+        blockers.push("le poids brut doit etre superieur a la tare");
+      }
+      if (input.unitCountValue <= 0) blockers.push("saisir un nombre de caisses/supports valide");
+      if (input.weighingSource === "MANUAL" && input.manualReason.trim().length < 10) {
+        blockers.push("justifier la saisie manuelle de pesee (10 caracteres min.)");
+      }
+      if (input.weighingSource === "PANNE_BASCULE" && input.manualReason.trim().length < 20) {
+        blockers.push("decrire la panne bascule (20 caracteres min.) — RG-R08");
+      }
+      return blockers;
+    }
+
+    if (input.step === 2) {
+      if (input.arrivalPhotos.length < 2) blockers.push("ajouter au moins 2 photos obligatoires (RG-R06)");
+      if (!input.variety) blockers.push("selectionner une variete");
+      if (!input.maturityStage) blockers.push("selectionner le stade de maturation");
+      if (parseNumeric(input.arrivalTemperatureC) <= 0) blockers.push("saisir la temperature d'arrivee");
+      if (input.bioDeclaredWithoutCert) {
+        blockers.push("lot declare Bio mais le fournisseur n'a pas de certification Bio valide — blocage RG-R05");
+      }
+      if (!input.storageZoneCode) blockers.push("renseigner la zone de stockage");
+      if (input.lots.length > 0) {
+        if (!input.lots.every((lot) => lot.lot_supplier.trim().length > 0)) {
+          blockers.push("renseigner chaque reference lot fournisseur");
+        }
+        if (!input.lots.every((lot) => Number(lot.quantity || 0) > 0)) {
+          blockers.push("renseigner chaque quantite de sous-lot");
+        }
+        if (input.lotMismatch) blockers.push("aligner le total des sous-lots avec le poids net");
+      }
+      return blockers;
+    }
+
+    return blockers;
+  }
+
+  // ─── Mode Standard (5 étapes rétrocompatibles) ───────────────────────────
   if (input.step === 1) {
     if (!input.selectedSupplier) blockers.push("selectionner un fournisseur actif");
     if (!input.deliveryNoteNumber.trim()) blockers.push("renseigner le bon de livraison");

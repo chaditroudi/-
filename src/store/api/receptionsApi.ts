@@ -65,6 +65,18 @@ export const receptionsApi = createApi({
       ],
     }),
 
+    cancelReception: b.mutation<{ reception: ReceptionV2; lots: ReceptionLot[] }, { id: string; reason: string }>({
+      query: ({ id, reason }) => ({ url: `/receptions/${id}/cancel`, method: 'POST', data: { reason } }),
+      transformResponse: (r: Envelope<{ reception: ReceptionV2; lots: ReceptionLot[] }>) => r.data,
+      invalidatesTags: (_r, _e, arg) => [
+        'Reception',
+        { type: 'Reception', id: arg.id },
+        { type: 'ReceptionLot', id: arg.id },
+        { type: 'ReceptionAudit', id: arg.id },
+        'LiberedLot',
+      ],
+    }),
+
     // ── Reception Lots ─────────────────────────────────────────────────────────
 
     listReceptionLots: b.query<ReceptionLot[], string>({
@@ -83,6 +95,26 @@ export const receptionsApi = createApi({
       query: ({ lotId, receptionId: _rid, ...body }) => ({ url: `/reception-lots/${lotId}`, method: 'PATCH', data: body }),
       transformResponse: (r: Envelope<ReceptionLot>) => r.data,
       invalidatesTags: (_r, _e, arg) => [{ type: 'ReceptionLot', id: arg.receptionId }],
+    }),
+
+    /** Post-QC lot release (signed) or return to quarantine. */
+    changeLotQualityStatus: b.mutation<
+      { reception: ReceptionV2; lots: ReceptionLot[] },
+      { lotId: string; receptionId: string; action: 'RELEASE' | 'QUARANTINE'; reason?: string | null; pin?: string | null }
+    >({
+      query: ({ lotId, receptionId: _rid, ...body }) => ({
+        url: `/reception-lots/${lotId}/quality-status`,
+        method: 'POST',
+        data: body,
+      }),
+      transformResponse: (r: Envelope<{ reception: ReceptionV2; lots: ReceptionLot[] }>) => r.data,
+      invalidatesTags: (_r, _e, arg) => [
+        'Reception',
+        { type: 'Reception', id: arg.receptionId },
+        { type: 'ReceptionLot', id: arg.receptionId },
+        { type: 'ReceptionAudit', id: arg.receptionId },
+        'LiberedLot',
+      ],
     }),
 
     moveLotToStorage: b.mutation<MoveReceptionLotToStorageResponse, MoveReceptionLotToStorageInput>({
@@ -220,9 +252,11 @@ export const {
   useCreateReceptionMutation,
   useUpdateReceptionMutation,
   useUpdateReceptionStatusMutation,
+  useCancelReceptionMutation,
   useListReceptionLotsQuery,
   useCreateReceptionLotMutation,
   useUpdateReceptionLotMutation,
+  useChangeLotQualityStatusMutation,
   useMoveLotToStorageMutation,
   useListReceptionUnitsQuery,
   useCreateReceptionUnitMutation,

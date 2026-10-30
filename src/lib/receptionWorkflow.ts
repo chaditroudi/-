@@ -1,0 +1,232 @@
+import { ADMIN_ROLES, type ActorRole } from '@/types/roles';
+import {
+  receptionStatusLabels,
+  stockStatusLabels,
+  type ReceptionHeaderStatus,
+  type ReceptionLot,
+  type ReceptionV2,
+  type StockLotStatus,
+} from '@/types/reception';
+
+/**
+ * Mirror of server/src/modules/receptions/reception-roles.ts. The server enforces
+ * these sets; the UI uses them only to hide actions the API would refuse.
+ */
+const RECEPTION_WRITE_ROLES: ActorRole[] = [
+  'responsable_reception', 'chef_reception', 'operateur_reception', 'responsable_qualite',
+];
+const RECEPTION_CANCEL_ROLES: ActorRole[] = ['responsable_reception', 'chef_reception', 'responsable_qualite'];
+const QUALITY_ROLES: ActorRole[] = [
+  'responsable_qualite', 'inspecteur_qualite', 'resp_management_qualite', 'resp_qualite_haccp',
+];
+const STORAGE_MOVE_ROLES: ActorRole[] = [
+  ...RECEPTION_WRITE_ROLES, 'responsable_stock', 'magasinier_wms', 'responsable_logistique',
+];
+
+export interface ReceptionPermissions {
+  canRegister: boolean;
+  canRunQc: boolean;
+  canCancel: boolean;
+  canMoveStock: boolean;
+}
+
+export const getReceptionPermissions = (roles: ActorRole[]): ReceptionPermissions => {
+  const isAdmin = roles.some((role) => ADMIN_ROLES.includes(role));
+  const has = (allowed: ActorRole[]) => isAdmin || roles.some((role) => allowed.includes(role));
+  return {
+    canRegister: has(RECEPTION_WRITE_ROLES),
+    canRunQc: has(QUALITY_ROLES),
+    canCancel: has(RECEPTION_CANCEL_ROLES),
+    canMoveStock: has(STORAGE_MOVE_ROLES),
+  };
+};
+
+export type ReceptionNextAction = 'submit_draft' | 'start_qc' | 'resume_qc' | 'reinspect' | 'assign_storage';
+
+export interface ReceptionNextStep {
+  tone: 'action' | 'waiting' | 'done' | 'closed';
+  title: string;
+  description: string;
+  action: ReceptionNextAction | null;
+  actionLabel: string | null;
+}
+
+const lotsToPlace = (lots: ReceptionLot[]) =>
+  lots.filter((lot) => lot.stock_status === 'STOCK_LIBERE' && !lot.storage_zone_code).length;
+
+/**
+ * What the reception needs next, and whether the signed-in user can do it.
+ * When the user cannot, the step names who must act instead of showing a button.
+ */
+export const getReceptionNextStep = (
+  reception: Pick<ReceptionV2, 'status' | 'qc_decision'>,
+  lots: ReceptionLot[],
+  permissions: ReceptionPermissions,
+): ReceptionNextStep => {
+  switch (reception.status) {
+    case 'BROUILLON':
+      return permissions.canRegister
+        ? {
+            tone: 'action',
+            title: 'Brouillon à soumettre',
+            description: 'Vérifiez le fournisseur et les lots, puis envoyez la réception au contrôle qualité.',
+            action: 'submit_draft',
+            actionLabel: 'Soumettre au contrôle',
+          }
+        : {
+            tone: 'waiting',
+            title: 'Brouillon en cours de saisie',
+            description: "L'équipe réception doit compléter et soumettre ce brouillon.",
+            action: null,
+            actionLabel: null,
+          };
+    case 'EN_ATTENTE_QC':
+      return permissions.canRunQc
+        ? {
+            tone: 'action',
+            title: 'Contrôle qualité à lancer',
+            description: 'Les lots sont en quarantaine en attendant votre inspection.',
+            action: 'start_qc',
+            actionLabel: 'Lancer le contrôle QC',
+          }
+        : {
+            tone: 'waiting',
+            title: 'En attente du contrôle qualité',
+            description: 'Les lots restent en quarantaine jusqu’à la décision du service qualité.',
+            action: null,
+            actionLabel: null,
+          };
+    case 'EN_QC':
+      return permissions.canRunQc
+        ? {
+            tone: 'action',
+            title: 'Inspection en cours',
+            description: 'Reprenez l’inspection pour saisir les mesures et signer la décision.',
+            action: 'resume_qc',
+            actionLabel: 'Reprendre le contrôle',
+          }
+        : {
+            tone: 'waiting',
+            title: 'Inspection qualité en cours',
+            description: 'Le service qualité est en train d’inspecter cette livraison.',
+            action: null,
+            actionLabel: null,
+          };
+    case 'BLOQUE':
+      return permissions.canRunQc
+        ? {
+            tone: 'action',
+            title: 'Lots en quarantaine',
+            description: 'Ré-inspectez la livraison, ou libérez les lots conformes un par un dans la section Lots.',
+            action: 'reinspect',
+            actionLabel: 'Ré-inspecter',
+          }
+        : {
+            tone: 'waiting',
+            title: 'Bloquée en quarantaine',
+            description: 'Une décision du service qualité est nécessaire avant toute utilisation.',
+            action: null,
+            actionLabel: null,
+          };
+    case 'LIBERE': {
+      const pending = lotsToPlace(lots);
+      if (pending > 0) {
+        return permissions.canMoveStock
+          ? {
+              tone: 'action',
+              title: `${pending} lot(s) libéré(s) à ranger`,
+              description: 'Affectez les lots libérés à une chambre froide pour les rendre localisables en stock.',
+              action: 'assign_storage',
+              actionLabel: 'Affecter au stock',
+            }
+          : {
+              tone: 'waiting',
+              title: `${pending} lot(s) libéré(s) à ranger`,
+              description: 'Le magasin doit affecter ces lots à une chambre froide.',
+              action: null,
+              actionLabel: null,
+            };
+      }
+      return {
+        tone: 'done',
+        title: 'Réception terminée',
+        description: 'Lots libérés et rangés : disponibles pour la production.',
+        action: null,
+        actionLabel: null,
+      };
+    }
+    case 'REJETE':
+      return {
+        tone: 'closed',
+        title: 'Livraison rejetée',
+        description: 'Les lots sont exclus du stock. Les documents de réclamation sont dans la section Documents.',
+        action: null,
+        actionLabel: null,
+      };
+    case 'ANNULE':
+    default:
+      return {
+        tone: 'closed',
+        title: 'Réception annulée',
+        description: 'Le stock et le bon de commande ont été corrigés ; l’historique est conservé.',
+        action: null,
+        actionLabel: null,
+      };
+  }
+};
+
+export interface ReceptionAuditLog {
+  id?: string;
+  entity_type?: string;
+  action?: string;
+  performed_by?: string;
+  performed_by_name?: string | null;
+  created_at?: string;
+  previous_state?: Record<string, unknown> | null;
+  new_state?: Record<string, unknown> | null;
+}
+
+const AUDIT_ACTION_LABELS: Record<string, string> = {
+  CANCELLED: 'Réception annulée',
+  STATUS_CHANGE: 'Changement de statut',
+  STOCK_MOVE: 'Lot rangé en stock',
+  LOT_RELEASED: 'Lot libéré',
+  RELEASE: 'Lot libéré',
+  LOT_QUARANTINED: 'Lot mis en quarantaine',
+  QUARANTINE: 'Lot mis en quarantaine',
+  LAB_RETROACTIVE_BLOCK: 'Blocage après résultats laboratoire',
+  LABEL_PRINTED: 'Étiquette GS1 imprimée',
+  WEIGHING_GROSS: 'Pesée brute du lot',
+  WEIGHING_TARE: 'Pesée tare du lot',
+  INSERT: 'Création',
+  UPDATE: 'Modification',
+};
+
+const statusLabel = (value: unknown) => {
+  const key = String(value ?? '');
+  return receptionStatusLabels[key as ReceptionHeaderStatus] ?? stockStatusLabels[key as StockLotStatus] ?? key;
+};
+
+/** Operator-readable line for one audit entry: what happened, and the facts that matter. */
+export const describeReceptionAuditEvent = (log: ReceptionAuditLog) => {
+  const action = String(log.action || '');
+  const next = log.new_state ?? {};
+  const previous = log.previous_state ?? {};
+  const details: string[] = [];
+
+  if (next.status != null) {
+    details.push(previous.status != null ? `${statusLabel(previous.status)} → ${statusLabel(next.status)}` : statusLabel(next.status));
+  }
+  if (next.stock_status != null && action !== 'STOCK_MOVE') details.push(statusLabel(next.stock_status));
+  if (next.zone) details.push(`Zone ${String(next.zone)}${next.position ? ` · ${String(next.position)}` : ''}`);
+  if (next.weight_kg != null) details.push(`${String(next.weight_kg)} kg`);
+  const reason = next.reason ?? next.quarantine_reason ?? next.cancellation_reason;
+  if (reason) details.push(`Motif : ${String(reason)}`);
+
+  return {
+    label: AUDIT_ACTION_LABELS[action] ?? (action || '—'),
+    target: log.entity_type === 'LOT' ? 'Lot' : 'Réception',
+    detail: details.join(' · '),
+    actor: log.performed_by_name || (log.performed_by === 'system' ? 'Système' : null),
+  };
+};
