@@ -20,3 +20,4 @@ Durable record for the A–Z completion plan. Commits live on `stabilize/baselin
 |---|---|---|
 | 0 | Code complete; operator steps BLOCKED | See `docs/progress.md`, 2026-10-30 |
 | 1 | NOT STARTED: waits for credential rotation (plan section L) | |
+| UX spec | Draft complete | `docs/MANUFACTURING_EMPLOYEE_UX_SPEC.md`; open decisions D-7, D-8, D-9 |
