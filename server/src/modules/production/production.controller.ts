@@ -1,10 +1,16 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
-import { RequireAuthGuard } from "../../nest/route-guards.js";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from "@nestjs/common";
+import { badRequest } from "../../core/app-error.js";
+import { PRODUCTION_ROLES } from "../../middleware/authorization.js";
+import { Roles } from "../../nest/route-metadata.js";
+import { RequireAuthGuard, RolesGuard } from "../../nest/route-guards.js";
 import { CollectionsService } from "../collections/collections.service.js";
-import { ProductionService } from "./production.service.js";
+import { PRODUCTION_LIFECYCLE_FIELDS, ProductionService } from "./production.service.js";
+
+/** The acting user always comes from the session, never from the request body. */
+const actorOf = (req: any): string | null => req.auth?.user?.id ?? null;
 
 @Controller("api/production")
-@UseGuards(RequireAuthGuard)
+@UseGuards(RequireAuthGuard, RolesGuard)
 export class ProductionController {
   constructor(
     private readonly cs: CollectionsService,
@@ -42,6 +48,7 @@ export class ProductionController {
   }
 
   @Post("quality-checks")
+  @Roles(...PRODUCTION_ROLES)
   async createQualityCheck(@Body() body: any) {
     const data = await this.cs.insert({ table: "quality_checks", values: body });
     return { data: data[0] };
@@ -50,6 +57,7 @@ export class ProductionController {
   // ── Audit Logs ────────────────────────────────────────────────────────────
 
   @Post("audit-logs")
+  @Roles(...PRODUCTION_ROLES)
   async createAuditLog(@Body() body: any) {
     const data = await this.cs.insert({ table: "production_audit_logs", values: body });
     return { data: data[0] };
@@ -58,13 +66,8 @@ export class ProductionController {
   // ── Libered Lots (STOCK_LIBERE reception lots) ────────────────────────────
 
   @Get("libered-lots")
-  async listLiberedLots() {
-    const data = await this.cs.query({
-      table: "reception_lots",
-      filters: [{ type: "eq", column: "stock_status", value: "STOCK_LIBERE" }],
-      orderBy: { column: "created_at", ascending: false },
-    });
-    return { data };
+  async listLiberedLots(@Query("order_id") orderId?: string) {
+    return { data: await this.productionService.listAvailableLots(orderId || null) };
   }
 
   // ── Steps ─────────────────────────────────────────────────────────────────
@@ -78,12 +81,14 @@ export class ProductionController {
   }
 
   @Post("steps")
+  @Roles(...PRODUCTION_ROLES)
   async createStep(@Body() body: any) {
     const data = await this.cs.insert({ table: "production_steps", values: body });
     return { data: data[0] };
   }
 
   @Patch("steps/:id")
+  @Roles(...PRODUCTION_ROLES)
   async updateStep(@Param("id") id: string, @Body() body: any) {
     const { after } = await this.cs.update({ table: "production_steps", filters: [{ type: "eq", column: "id", value: id }], values: body });
     return { data: after[0] };
@@ -93,16 +98,14 @@ export class ProductionController {
 
   @Get("allocations")
   async listAllocations(@Query("order_id") orderId?: string) {
-    const filters: any[] = [];
-    if (orderId) filters.push({ type: "eq", column: "production_order_id", value: orderId });
-    const data = await this.cs.query({ table: "production_lot_allocations", filters, orderBy: { column: "allocated_at", ascending: true } });
-    return { data };
+    if (!orderId) throw badRequest("ORDER_REQUIRED", "order_id est requis.");
+    return { data: await this.productionService.listAllocations(orderId) };
   }
 
   @Delete("allocations/:id")
-  async deleteAllocation(@Param("id") id: string) {
-    const data = await this.cs.remove({ table: "production_lot_allocations", filters: [{ type: "eq", column: "id", value: id }] });
-    return { data: data[0] };
+  @Roles(...PRODUCTION_ROLES)
+  async deleteAllocation(@Param("id") id: string, @Req() req: any) {
+    return { data: await this.productionService.removeAllocation(id, actorOf(req)) };
   }
 
   // ── Output Lots ───────────────────────────────────────────────────────────
@@ -116,6 +119,7 @@ export class ProductionController {
   }
 
   @Post("output-lots")
+  @Roles(...PRODUCTION_ROLES)
   async createOutputLot(@Body() body: any) {
     const data = await this.cs.insert({ table: "production_output_lots", values: body });
     return { data: data[0] };
@@ -142,46 +146,59 @@ export class ProductionController {
   }
 
   @Post("orders")
-  async createOrder(@Body() body: any) {
-    const actor: string | null = body._actor ?? null;
-    delete body._actor;
-    const data = await this.productionService.createOrder(body, actor);
+  @Roles(...PRODUCTION_ROLES)
+  async createOrder(@Body() body: any, @Req() req: any) {
+    const { _actor: _ignored, ...values } = body || {};
+    const data = await this.productionService.createOrder(values, actorOf(req));
     return { data };
   }
 
+  /** Descriptive edits only: status, consumption and yield change through the lifecycle actions below. */
   @Patch("orders/:id")
+  @Roles(...PRODUCTION_ROLES)
   async updateOrder(@Param("id") id: string, @Body() body: any) {
+    const locked = Object.keys(body || {}).filter((key) => PRODUCTION_LIFECYCLE_FIELDS.includes(key));
+    if (locked.length > 0) {
+      throw badRequest(
+        "PRODUCTION_STATUS_DOMAIN_ONLY",
+        `Champs pilotés par le cycle de l'ordre (planifier, démarrer, terminer, annuler) : ${locked.join(", ")}.`,
+      );
+    }
     const { after } = await this.cs.update({ table: "production_orders", filters: [{ type: "eq", column: "id", value: id }], values: body });
     return { data: after[0] };
   }
 
   // ── Business action endpoints ─────────────────────────────────────────────
 
+  @Post("orders/:id/plan")
+  @Roles(...PRODUCTION_ROLES)
+  async planOrder(@Param("id") id: string) {
+    return { data: await this.productionService.planOrder(id) };
+  }
+
   @Post("orders/:id/start")
-  async startOrder(@Param("id") id: string, @Body() body: any) {
-    const data = await this.productionService.startOrder(id, body?.actor ?? null);
-    return { data };
+  @Roles(...PRODUCTION_ROLES)
+  async startOrder(@Param("id") id: string, @Req() req: any) {
+    return { data: await this.productionService.startOrder(id, actorOf(req)) };
   }
 
   @Post("orders/:id/complete")
-  async completeOrder(@Param("id") id: string, @Body() body: any) {
-    const data = await this.productionService.completeOrder(id, body ?? {}, body?.actor ?? null);
-    return { data };
+  @Roles(...PRODUCTION_ROLES)
+  async completeOrder(@Param("id") id: string, @Body() body: any, @Req() req: any) {
+    const { actual_output_kg, waste_kg, notes } = body || {};
+    return { data: await this.productionService.completeOrder(id, { actual_output_kg, waste_kg, notes }, actorOf(req)) };
   }
 
   @Post("orders/:id/cancel")
-  async cancelOrder(@Param("id") id: string, @Body() body: any) {
-    const data = await this.productionService.cancelOrder(
-      id,
-      String(body?.reason ?? "Annulé"),
-      body?.actor ?? null,
-    );
-    return { data };
+  @Roles(...PRODUCTION_ROLES)
+  async cancelOrder(@Param("id") id: string, @Body() body: any, @Req() req: any) {
+    return { data: await this.productionService.cancelOrder(id, String(body?.reason ?? ""), actorOf(req)) };
   }
 
   @Post("orders/:id/allocate-lot")
-  async allocateLot(@Param("id") id: string, @Body() body: any) {
-    const data = await this.productionService.allocateLot(id, body ?? {}, body?.actor ?? null);
-    return { data };
+  @Roles(...PRODUCTION_ROLES)
+  async allocateLot(@Param("id") id: string, @Body() body: any, @Req() req: any) {
+    const { lot_id, allocated_kg } = body || {};
+    return { data: await this.productionService.allocateLot(id, { lot_id, allocated_kg }, actorOf(req)) };
   }
 }

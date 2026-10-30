@@ -85,59 +85,79 @@ describe("productionService partial consumption", () => {
     Object.keys(store).forEach((key) => delete store[key]);
   });
 
-  it("decrements lot quantity by allocated_kg on start", async () => {
+  const releasedLot = (id: string, receivedKg: number, availableKg: number) => {
+    store.reception_lots = [{ id, lot_internal: `L-${id}`, quantity: receivedKg, stock_status: "STOCK_LIBERE" }];
+    store.stock_lots = [{ id: `stock-${id}`, reception_lot_id: id, lot_number: `L-${id}`, current_quantity: availableKg, initial_quantity: receivedKg, status: "VALIDATED", unit: "kg" }];
+  };
+
+  it("consumes the stock lot on start and keeps the received quantity as history", async () => {
     store.production_orders = [{ id: "po-3", status: "PLANNED", order_number: "OF-3" }];
     store.production_lot_allocations = [
-      { id: "alloc-3", production_order_id: "po-3", lot_id: "lot-3", allocated_kg: 40 },
+      { id: "alloc-3", production_order_id: "po-3", lot_id: "lot-3", allocated_kg: 40, consumed_at: null },
     ];
-    store.reception_lots = [
-      { id: "lot-3", lot_internal: "L-3", quantity: 100, stock_status: "STOCK_LIBERE" },
-    ];
+    releasedLot("lot-3", 100, 100);
 
     await productionService.startOrder("po-3", "user-1");
+    // A second « Démarrer » (double tap or retry) must not consume again.
+    store.production_orders[0].status = "PLANNED";
+    await productionService.startOrder("po-3", "user-1");
 
-    expect(store.reception_lots[0]).toMatchObject({
-      quantity: 60,
-      stock_status: "EN_PRODUCTION",
-    });
-    expect(store.production_lot_allocations[0]).toMatchObject({
-      consumed_kg: 40,
-    });
+    expect(store.reception_lots[0]).toMatchObject({ quantity: 100, stock_status: "STOCK_LIBERE" });
+    expect(store.stock_lots[0]).toMatchObject({ current_quantity: 60, status: "VALIDATED" });
+    expect(store.stock_movements).toEqual([
+      expect.objectContaining({ movement_type: "CONSOMMATION", lot_id: "stock-lot-3", quantity: 40, document_reference: "OF-3" }),
+    ]);
+    expect(store.production_lot_allocations[0]).toMatchObject({ consumed_kg: 40 });
     expect(store.production_orders[0].status).toBe("IN_PROGRESS");
   });
 
-  it("rejects allocation above available stock", async () => {
-    store.production_orders = [{ id: "po-4", status: "DRAFT" }];
-    store.reception_lots = [
-      { id: "lot-4", quantity: 25, stock_status: "STOCK_LIBERE" },
+  it("marks the stock lot consumed when the order takes everything", async () => {
+    store.production_orders = [{ id: "po-6", status: "PLANNED", order_number: "OF-6" }];
+    store.production_lot_allocations = [
+      { id: "alloc-6", production_order_id: "po-6", lot_id: "lot-6", allocated_kg: 50, consumed_at: null },
     ];
+    releasedLot("lot-6", 80, 50);
+
+    await productionService.startOrder("po-6", "user-1");
+    expect(store.stock_lots[0]).toMatchObject({ current_quantity: 0, status: "CONSUMED" });
+  });
+
+  it("rejects allocation above available stock, not above the received quantity", async () => {
+    store.production_orders = [{ id: "po-4", status: "DRAFT" }];
+    releasedLot("lot-4", 100, 25);
 
     await expect(
       productionService.allocateLot("po-4", { lot_id: "lot-4", allocated_kg: 40 }, "user-1"),
     ).rejects.toMatchObject({ code: "INSUFFICIENT_STOCK" });
   });
 
-  it("restores quantity on cancel of in-progress order", async () => {
-    store.production_orders = [{ id: "po-5", status: "IN_PROGRESS" }];
+  it("refuses a lot whose stock is not released", async () => {
+    store.production_orders = [{ id: "po-7", status: "DRAFT" }];
+    releasedLot("lot-7", 100, 100);
+    store.stock_lots[0].status = "BLOCKED";
+
+    await expect(
+      productionService.allocateLot("po-7", { lot_id: "lot-7", allocated_kg: 10 }, "user-1"),
+    ).rejects.toMatchObject({ code: "LOT_NOT_LIBERE" });
+  });
+
+  it("returns only what was consumed when an in-progress order is cancelled", async () => {
+    store.production_orders = [{ id: "po-5", status: "IN_PROGRESS", order_number: "OF-5" }];
     store.production_lot_allocations = [
-      {
-        id: "alloc-5",
-        production_order_id: "po-5",
-        lot_id: "lot-5",
-        allocated_kg: 30,
-        consumed_kg: 30,
-      },
+      { id: "alloc-5", production_order_id: "po-5", lot_id: "lot-5", allocated_kg: 30, consumed_kg: 30, consumed_at: "2026-07-26T10:00:00.000Z" },
+      { id: "alloc-5b", production_order_id: "po-5", lot_id: "lot-5b", allocated_kg: 20, consumed_kg: null, consumed_at: null },
     ];
-    store.reception_lots = [
-      { id: "lot-5", quantity: 70, stock_status: "EN_PRODUCTION" },
-    ];
+    releasedLot("lot-5", 100, 70);
+    store.reception_lots.push({ id: "lot-5b", quantity: 20, stock_status: "STOCK_LIBERE" });
+    store.stock_lots.push({ id: "stock-lot-5b", reception_lot_id: "lot-5b", current_quantity: 20, status: "VALIDATED" });
 
-    await productionService.cancelOrder("po-5", "test cancel", "user-1");
+    await productionService.cancelOrder("po-5", "erreur de planification", "user-1");
 
-    expect(store.reception_lots[0]).toMatchObject({
-      quantity: 100,
-      stock_status: "STOCK_LIBERE",
-    });
+    expect(store.stock_lots[0]).toMatchObject({ current_quantity: 100, status: "VALIDATED" });
+    expect(store.stock_lots[1]).toMatchObject({ current_quantity: 20 });
+    expect(store.stock_movements).toEqual([
+      expect.objectContaining({ movement_type: "RETOUR", lot_id: "stock-lot-5", quantity: 30 }),
+    ]);
     expect(store.production_orders[0].status).toBe("CANCELLED");
   });
 });

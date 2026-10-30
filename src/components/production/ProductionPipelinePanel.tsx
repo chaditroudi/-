@@ -44,7 +44,10 @@ function LotCard({ lot, stage, onLaunch }: { lot: AvailableLot; stage: Phase2Sta
   const cfg = STAGE_CFG[stage];
   const Icon = cfg.Icon;
   return (
-    <div className="flex items-center gap-2 py-2 px-3 border rounded-lg bg-card hover:bg-muted/30 transition-colors group">
+    <div
+      data-lot-id={lot.id}
+      className="flex items-center gap-2 py-2 px-3 border rounded-lg bg-card hover:bg-muted/30 transition-colors group"
+    >
       <div className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 ${cfg.bg}`}>
         <Icon className={`h-3.5 w-3.5 ${cfg.color}`} />
       </div>
