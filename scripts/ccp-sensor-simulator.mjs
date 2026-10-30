@@ -7,7 +7,8 @@
 import { createHmac, randomUUID } from "node:crypto";
 
 const apiBase = (process.env.API_URL || `http://127.0.0.1:${process.env.PORT || 4000}/api`).replace(/\/$/, "");
-const secret = process.env.CCP_SIMULATOR_SECRET || "royal-palm-ccp-simulator-dev";
+const secret = process.env.CCP_SIMULATOR_SECRET;
+if (!secret) throw new Error("CCP_SIMULATOR_SECRET is required.");
 
 const canonical = (row) =>
   [

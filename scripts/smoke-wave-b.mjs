@@ -53,35 +53,25 @@ const seedActors = () =>
 
 const ensureSupplier = async (token) => {
   const code = "WB-COST-SUP";
-  const listed = await request("POST", "/api/db/query", token, {
-    table: "suppliers",
-    filters: [{ column: "code", op: "eq", value: code }],
-    limit: 1,
-  });
-  if (listed.body?.data?.[0]?.id) {
-    const id = listed.body.data[0].id;
-    await request("POST", "/api/db/update", token, {
-      table: "suppliers",
-      filters: [{ column: "id", op: "eq", value: id }],
-      values: { agreed_price_tnd_per_kg: 8.5, is_active: true, supplier_status: "active" },
-    });
+  const listed = await request("GET", "/api/suppliers", token);
+  const existing = listed.body?.data?.find((row) => row.code === code);
+  if (existing?.id) {
+    const id = existing.id;
+    await request("PATCH", `/api/suppliers/${id}`, token, { agreed_price_tnd_per_kg: 8.5, is_active: true, supplier_status: "active" });
     return id;
   }
   const today = new Date().toISOString().slice(0, 10);
-  const created = await request("POST", "/api/db/insert", token, {
-    table: "suppliers",
-    values: {
-      code,
-      name: "Wave B Cost Supplier",
-      supplier_status: "active",
-      is_active: true,
-      country: "TN",
-      agreed_price_tnd_per_kg: 8.5,
-      contract_start_date: today,
-      contract_end_date: "2099-12-31",
-    },
+  const created = await request("POST", "/api/suppliers", token, {
+    code,
+    name: "Wave B Cost Supplier",
+    supplier_status: "active",
+    is_active: true,
+    country: "TN",
+    agreed_price_tnd_per_kg: 8.5,
+    contract_start_date: today,
+    contract_end_date: "2099-12-31",
   });
-  return created.body?.data?.[0]?.id;
+  return created.body?.data?.id;
 };
 
 const main = async () => {

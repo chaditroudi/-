@@ -53,22 +53,19 @@ const seedActors = () => new Promise((resolve, reject) => {
 });
 
 const ensureSupplier = async (token) => {
-  const listed = await request("POST", "/api/db/query", token, { table: "suppliers", filters: [], limit: 1 });
+  const listed = await request("GET", "/api/suppliers", token);
   if (listed.body?.data?.[0]?.id) return listed.body.data[0].id;
   const today = new Date().toISOString().slice(0, 10);
-  const created = await request("POST", "/api/db/insert", token, {
-    table: "suppliers",
-    values: {
-      code: "DEMO-DN-SUP",
-      name: "Demo Deglet Nour Supplier",
-      supplier_status: "active",
-      is_active: true,
-      country: "TN",
-      contract_start_date: today,
-      contract_end_date: "2099-12-31",
-    },
+  const created = await request("POST", "/api/suppliers", token, {
+    code: "DEMO-DN-SUP",
+    name: "Demo Deglet Nour Supplier",
+    supplier_status: "active",
+    is_active: true,
+    country: "TN",
+    contract_start_date: today,
+    contract_end_date: "2099-12-31",
   });
-  return created.body?.data?.[0]?.id;
+  return created.body?.data?.id;
 };
 
 const main = async () => {

@@ -4,7 +4,8 @@ import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const apiBase = (process.env.API_URL || "http://localhost:3001/api").replace(/\/$/, "");
-const secret = process.env.WEIGHBRIDGE_SIMULATOR_SECRET || "royal-palm-simulator-dev";
+const secret = process.env.WEIGHBRIDGE_SIMULATOR_SECRET;
+if (!secret) throw new Error("WEIGHBRIDGE_SIMULATOR_SECRET is required.");
 const spoolPath = path.resolve(process.cwd(), ".w3-weighbridge-spool.json");
 
 const readSpool = async () => {

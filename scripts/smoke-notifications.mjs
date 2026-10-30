@@ -112,29 +112,21 @@ async function api(token, method, pathname, payload) {
 }
 
 async function ensureSupplier(token) {
-  const listed = await api(token, "POST", "/api/db/query", {
-    table: "suppliers",
-    filters: [],
-    limit: 5,
-    orderBy: { column: "created_at", ascending: false },
-  });
+  const listed = await api(token, "GET", "/api/suppliers");
   const any = Array.isArray(listed.body?.data) ? listed.body.data.find((row) => row?.id) : null;
   if (any?.id) return String(any.id);
 
   const today = new Date().toISOString().slice(0, 10);
-  const created = await api(token, "POST", "/api/db/insert", {
-    table: "suppliers",
-    values: {
-      code: "SMOKE-SUP",
-      name: "Smoke Test Supplier",
-      supplier_status: "active",
-      is_active: true,
-      country: "TN",
-      contract_start_date: today,
-      contract_end_date: "2099-12-31",
-    },
+  const created = await api(token, "POST", "/api/suppliers", {
+    code: "SMOKE-SUP",
+    name: "Smoke Test Supplier",
+    supplier_status: "active",
+    is_active: true,
+    country: "TN",
+    contract_start_date: today,
+    contract_end_date: "2099-12-31",
   });
-  const row = created.body?.data?.[0] || created.body?.data;
+  const row = created.body?.data;
   if (!row?.id) {
     throw new Error(`Could not create supplier: ${JSON.stringify(created.body)}`);
   }

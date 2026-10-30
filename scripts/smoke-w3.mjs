@@ -3,7 +3,8 @@ import { spawn } from "node:child_process";
 
 const API = (process.env.SMOKE_API_URL || `http://127.0.0.1:${process.env.PORT || 4000}`).replace(/\/$/, "");
 const PASSWORD = process.env.SMOKE_PASSWORD || "Test123!";
-const SIM_SECRET = process.env.WEIGHBRIDGE_SIMULATOR_SECRET || "royal-palm-simulator-dev";
+const SIM_SECRET = process.env.WEIGHBRIDGE_SIMULATOR_SECRET;
+if (!SIM_SECRET) throw new Error("WEIGHBRIDGE_SIMULATOR_SECRET is required.");
 
 const request = async (method, path, token, body, headers = {}) => {
   const response = await fetch(`${API}${path}`, {
@@ -42,24 +43,19 @@ const seedActors = () => new Promise((resolve, reject) => {
 });
 
 const ensureSupplier = async (token) => {
-  const listed = await request("POST", "/api/db/query", token, {
-    table: "suppliers", filters: [], limit: 1,
-  });
+  const listed = await request("GET", "/api/suppliers", token);
   if (listed.body?.data?.[0]?.id) return listed.body.data[0].id;
   const today = new Date().toISOString().slice(0, 10);
-  const created = await request("POST", "/api/db/insert", token, {
-    table: "suppliers",
-    values: {
-      code: "W3-SMOKE-SUP",
-      name: "W3 Smoke Supplier",
-      supplier_status: "active",
-      is_active: true,
-      country: "TN",
-      contract_start_date: today,
-      contract_end_date: "2099-12-31",
-    },
+  const created = await request("POST", "/api/suppliers", token, {
+    code: "W3-SMOKE-SUP",
+    name: "W3 Smoke Supplier",
+    supplier_status: "active",
+    is_active: true,
+    country: "TN",
+    contract_start_date: today,
+    contract_end_date: "2099-12-31",
   });
-  return created.body?.data?.[0]?.id;
+  return created.body?.data?.id;
 };
 
 const signedReading = async (direction, weightKg) => {
