@@ -7,11 +7,19 @@ import {
   GOLDEN_THREAD_STAGES,
   goldenThreadProgress,
   isGoldenThreadComplete,
+  requireManufacturingRoute,
+  resolveStickyRoute,
   STAGE_EVENT,
   stageFromChain,
+  stagesForRoute,
 } from "./lot-state-machine.js";
 
-const eventFor = (stage: keyof typeof STAGE_EVENT, sequence: number, prevHash: string | null = null) =>
+const eventFor = (
+  stage: keyof typeof STAGE_EVENT,
+  sequence: number,
+  prevHash: string | null = null,
+  route?: "PREMIUM_WHOLE" | "GENERIC",
+) =>
   buildLotEventRecord(
     {
       lotId: "LOT-GT-1",
@@ -19,7 +27,7 @@ const eventFor = (stage: keyof typeof STAGE_EVENT, sequence: number, prevHash: s
       collection: "test",
       action: "GATE",
       actorId: "tester",
-      payload: { stage },
+      payload: { stage, ...(route ? { route } : {}) },
       prevHash,
       at: `2026-07-26T${String(10 + sequence).padStart(2, "0")}:00:00.000Z`,
     },
@@ -60,6 +68,22 @@ describe("W1 golden-thread state machine", () => {
     expect(assertCanRecordStage([intake, qc], "FUMIGATION_CCP")).toBe("ok");
     expect(() => assertCanRecordStage([intake, qc], "TRIAGE", "PREMIUM_WHOLE")).toThrow(AppError);
     expect(assertCanRecordStage([intake, qc], "TRIAGE", "GENERIC")).toBe("ok");
+  });
+
+  it("keeps the route stamped on the chain and refuses an unknown route", () => {
+    const intake = eventFor("SUPPLIER_INTAKE", 1, null, "GENERIC");
+    const qc = eventFor("QC_DECIDED", 2, intake.hash, "GENERIC");
+
+    expect(resolveStickyRoute([intake, qc], "PREMIUM_WHOLE")).toBe("GENERIC");
+    expect(assertCanRecordStage([intake, qc], "TRIAGE", resolveStickyRoute([intake, qc], "PREMIUM_WHOLE"))).toBe("ok");
+    expect(stagesForRoute("GENERIC")).not.toContain("FUMIGATION_CCP");
+    expect(goldenThreadProgress([intake, qc], "PREMIUM_WHOLE").missing).not.toContain("FUMIGATION_CCP");
+    expect(isGoldenThreadComplete([intake, qc], "GENERIC")).toBe(false);
+
+    const premium = eventFor("SUPPLIER_INTAKE", 1, null, "PREMIUM_WHOLE");
+    expect(resolveStickyRoute([premium], "GENERIC")).toBe("PREMIUM_WHOLE");
+    expect(() => requireManufacturingRoute("PASTE")).toThrow(AppError);
+    expect(requireManufacturingRoute(undefined)).toBe("PREMIUM_WHOLE");
   });
 
   it("is idempotent when a stage is already recorded", () => {

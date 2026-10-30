@@ -11,12 +11,14 @@ import { emitNotification, type NotificationSeverity } from "../notifications/no
 import { LotLedgerService, lotLedgerService } from "./lot-ledger.service.js";
 import {
   assertCanRecordStage,
-  GOLDEN_THREAD_STAGES,
   goldenThreadProgress,
   isGoldenThreadComplete,
+  parseManufacturingRoute,
+  resolveStickyRoute,
   STAGE_EVENT,
   stageFromChain,
   stagesAchieved,
+  stagesForRoute,
   type GoldenRoute,
   type LotStage,
 } from "./lot-state-machine.js";
@@ -162,16 +164,17 @@ export class LotLifecycleService {
     return null;
   }
 
-  async getState(lotId: string, route: GoldenRoute = "PREMIUM_WHOLE") {
+  async getState(lotId: string, requested?: GoldenRoute) {
     const verified = await this.ledger.verify(lotId);
-    const progress = goldenThreadProgress(verified.events);
+    const route = resolveStickyRoute(verified.events, requested);
+    const progress = goldenThreadProgress(verified.events, route);
     return {
       ...verified,
       route,
       stage: stageFromChain(verified.events),
       progress,
-      goldenThreadComplete: isGoldenThreadComplete(verified.events),
-      stages: GOLDEN_THREAD_STAGES,
+      goldenThreadComplete: isGoldenThreadComplete(verified.events, route),
+      stages: stagesForRoute(route),
     };
   }
 
@@ -193,13 +196,16 @@ export class LotLifecycleService {
       throw badRequest("LOT_ID_REQUIRED", "lotId is required to record a golden-thread stage.");
     }
 
-    const route = input.route || "PREMIUM_WHOLE";
     let chain = await this.ledger.getChain(input.lotId);
+    const lot = sanitizeDocument(
+      await getCollectionModel("reception_lots").findOne({ id: input.lotId }).lean().exec(),
+    );
+    const route = resolveStickyRoute(
+      chain,
+      parseManufacturingRoute(lot?.manufacturing_route) || input.route,
+    );
 
     if (chain.length === 0 && input.toStage !== "SUPPLIER_INTAKE") {
-      const lot = sanitizeDocument(
-        await getCollectionModel("reception_lots").findOne({ id: input.lotId }).lean().exec(),
-      );
       if (lot?.id) {
         await this.ledger.append({
           lotId: input.lotId,
@@ -349,7 +355,7 @@ export class LotLifecycleService {
   async listGoldenThreadLots(limit = 50) {
     const tipEvents = sanitizeDocument(
       await getCollectionModel("lot_events")
-        .find({ "payload.route": "PREMIUM_WHOLE" })
+        .find({ "payload.route": { $in: ["PREMIUM_WHOLE", "GENERIC"] } })
         .sort({ at: -1 })
         .limit(500)
         .lean()

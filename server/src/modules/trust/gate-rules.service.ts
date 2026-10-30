@@ -11,6 +11,7 @@ import {
   type LotReleaseStatus,
 } from "./gate-rules.js";
 import { lotLedgerService } from "./lot-ledger.service.js";
+import { resolveStickyRoute, routeRequiresFumigationCcp } from "./lot-state-machine.js";
 
 const loadLotsByIds = async (ids: string[]): Promise<LotReleaseStatus[]> => {
   if (ids.length === 0) return [];
@@ -140,7 +141,7 @@ export class GateRulesService {
     }
 
     const collection = options.collection || "shipment_preparations";
-    const requiresCcp = Boolean(next.requires_ccp ?? before?.requires_ccp ?? true);
+    const explicitCcp = next.requires_ccp ?? before?.requires_ccp;
     const lotIds = collectShipmentLotIds(before, next);
 
     if (lotIds.length === 0) {
@@ -154,6 +155,10 @@ export class GateRulesService {
     for (const rawLotId of lotIds) {
       const lotId = await resolveReceptionLotId(rawLotId);
       const chain = await lotLedgerService.getChain(lotId);
+      const requiresCcp =
+        explicitCcp === undefined || explicitCcp === null
+          ? routeRequiresFumigationCcp(resolveStickyRoute(chain))
+          : Boolean(explicitCcp);
       const dossier = evaluateShipmentDossierFromChain(chain, { requiresCcp });
 
       if (dossier.missing.length > 0) {

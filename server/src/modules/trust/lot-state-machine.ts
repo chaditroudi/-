@@ -13,6 +13,13 @@ export type LotStage =
   | "SHIPPED"
   | "REJECTED";
 
+/**
+ * Built-in manufacturing routes.
+ * PREMIUM_WHOLE is the default Deglet Nour path and still requires fumigation
+ * before triage and packaging. GENERIC is an explicit opt-in for a product
+ * whose site control plan does not treat fumigation as a prerequisite.
+ * It is never inferred from variety.
+ */
 export type GoldenRoute = "PREMIUM_WHOLE" | "GENERIC";
 
 export const GOLDEN_THREAD_STAGES: LotStage[] = [
@@ -25,6 +32,56 @@ export const GOLDEN_THREAD_STAGES: LotStage[] = [
   "PACKED",
   "SHIPPED",
 ];
+
+export const MANUFACTURING_ROUTE_LABEL: Record<GoldenRoute, string> = {
+  PREMIUM_WHOLE: "Deglet Nour premium whole",
+  GENERIC: "Explicit route without fumigation prerequisite",
+};
+
+export const parseManufacturingRoute = (value: unknown): GoldenRoute | null => {
+  const raw = String(value ?? "").trim().toUpperCase();
+  if (raw === "PREMIUM_WHOLE" || raw === "GENERIC") return raw;
+  return null;
+};
+
+/** Missing route stays on the premium path. An unknown value is rejected. */
+export const requireManufacturingRoute = (
+  value: unknown,
+  fallback: GoldenRoute = "PREMIUM_WHOLE",
+): GoldenRoute => {
+  if (value === undefined || value === null || value === "") return fallback;
+  const parsed = parseManufacturingRoute(value);
+  if (!parsed) {
+    throw badRequest(
+      "MANUFACTURING_ROUTE_INVALID",
+      "manufacturing_route must be PREMIUM_WHOLE or GENERIC.",
+      { value },
+    );
+  }
+  return parsed;
+};
+
+export const routeFromChain = (events: LotEventRecord[]): GoldenRoute | null => {
+  for (const event of events) {
+    const parsed = parseManufacturingRoute(event.payload?.route);
+    if (parsed) return parsed;
+  }
+  return null;
+};
+
+/**
+ * The route stamped on the first ledger event wins.
+ * A later caller cannot downgrade PREMIUM_WHOLE to GENERIC.
+ */
+export const resolveStickyRoute = (events: LotEventRecord[], requested?: unknown): GoldenRoute =>
+  routeFromChain(events) || parseManufacturingRoute(requested) || "PREMIUM_WHOLE";
+
+export const routeRequiresFumigationCcp = (route: GoldenRoute) => route === "PREMIUM_WHOLE";
+
+export const stagesForRoute = (route: GoldenRoute): LotStage[] =>
+  routeRequiresFumigationCcp(route)
+    ? GOLDEN_THREAD_STAGES
+    : GOLDEN_THREAD_STAGES.filter((stage) => stage !== "FUMIGATION_CCP");
 
 export const STAGE_EVENT: Record<LotStage, LotEventType> = {
   SUPPLIER_INTAKE: "LOT_CREATED",
@@ -99,15 +156,18 @@ export const stagesAchieved = (events: LotEventRecord[]): Set<LotStage> => {
   return achieved;
 };
 
-export const goldenThreadProgress = (events: LotEventRecord[]) => {
+export const goldenThreadProgress = (events: LotEventRecord[], requested?: GoldenRoute) => {
+  const route = resolveStickyRoute(events, requested);
+  const required = stagesForRoute(route);
   const achieved = stagesAchieved(events);
-  const completed = GOLDEN_THREAD_STAGES.filter((stage) => achieved.has(stage));
+  const completed = required.filter((stage) => achieved.has(stage));
   const current = stageFromChain(events);
-  const percent = Math.round((completed.length / GOLDEN_THREAD_STAGES.length) * 100);
+  const percent = required.length === 0 ? 0 : Math.round((completed.length / required.length) * 100);
   return {
+    route,
     current,
     completed,
-    missing: GOLDEN_THREAD_STAGES.filter((stage) => !achieved.has(stage)),
+    missing: required.filter((stage) => !achieved.has(stage)),
     percent,
     rejected: achieved.has("REJECTED"),
   };
@@ -149,7 +209,7 @@ export const assertCanRecordStage = (
       require("QC_DECIDED", "LOT_QC_REQUIRED", "Fumigation CCP requires a QC release decision.");
       return "ok";
     case "TRIAGE":
-      if (route === "PREMIUM_WHOLE") {
+      if (routeRequiresFumigationCcp(route)) {
         require("FUMIGATION_CCP", "LOT_CCP_REQUIRED", "Premium Deglet Nour triage requires fumigation CCP completion.");
       } else {
         require("QC_DECIDED", "LOT_QC_REQUIRED", "Triage requires a QC decision.");
@@ -157,7 +217,7 @@ export const assertCanRecordStage = (
       return "ok";
     case "PACKED":
       require("TRIAGE", "LOT_TRIAGE_REQUIRED", "Packaging requires triage completion.");
-      if (route === "PREMIUM_WHOLE") {
+      if (routeRequiresFumigationCcp(route)) {
         require("FUMIGATION_CCP", "LOT_CCP_REQUIRED", "Premium packaging requires fumigation CCP.");
       }
       return "ok";
@@ -172,7 +232,8 @@ export const assertCanRecordStage = (
   }
 };
 
-export const isGoldenThreadComplete = (events: LotEventRecord[]) => {
+export const isGoldenThreadComplete = (events: LotEventRecord[], requested?: GoldenRoute) => {
+  const required = stagesForRoute(resolveStickyRoute(events, requested));
   const achieved = stagesAchieved(events);
-  return GOLDEN_THREAD_STAGES.every((stage) => achieved.has(stage));
+  return required.every((stage) => achieved.has(stage));
 };
