@@ -10,12 +10,31 @@
 
 export type TestRow = Record<string, unknown>;
 
+const collectPath = (value: unknown, parts: string[]): unknown[] => {
+  if (parts.length === 0) return [value];
+  if (Array.isArray(value)) return value.flatMap((item) => collectPath(item, parts));
+  if (value && typeof value === "object") {
+    return collectPath((value as TestRow)[parts[0]], parts.slice(1));
+  }
+  return [];
+};
+
+const fieldValues = (row: TestRow, key: string): unknown[] => {
+  if (!key.includes(".")) return key in row ? [row[key]] : [];
+  return collectPath(row, key.split("."));
+};
+
+const valueMatches = (values: unknown[], predicate: (value: unknown) => boolean) =>
+  values.some((value) => (Array.isArray(value) ? value.some((item) => predicate(item)) : predicate(value)));
+
 export const matchesFilter = (row: TestRow, filter: TestRow = {}): boolean =>
   Object.entries(filter || {}).every(([key, condition]) => {
     if (key === "$or") {
       return (condition as TestRow[]).some((clause) => matchesFilter(row, clause));
     }
-    if (condition && typeof condition === "object" && !Array.isArray(condition)) {
+    const values = fieldValues(row, key);
+    const current = key.includes(".") ? values[0] : row[key];
+    if (condition && typeof condition === "object" && !Array.isArray(condition) && !(condition instanceof RegExp)) {
       const operators = condition as TestRow;
       // Numeric-aware comparison for range operators; falls back to string
       // comparison (correct for ISO date strings, which is how callers use it).
@@ -23,14 +42,30 @@ export const matchesFilter = (row: TestRow, filter: TestRow = {}): boolean =>
         if (typeof a === "number" && typeof b === "number") return a - b;
         return String(a ?? "").localeCompare(String(b ?? ""));
       };
-      if ("$ne" in operators) return row[key] !== operators.$ne;
-      if ("$gt" in operators) return compare(row[key], operators.$gt) > 0;
-      if ("$gte" in operators) return compare(row[key], operators.$gte) >= 0;
-      if ("$lt" in operators) return compare(row[key], operators.$lt) < 0;
-      if ("$lte" in operators) return compare(row[key], operators.$lte) <= 0;
-      if ("$in" in operators) return (operators.$in as unknown[]).includes(row[key]);
+      if ("$ne" in operators) return current !== operators.$ne;
+      if ("$gt" in operators) return compare(current, operators.$gt) > 0;
+      if ("$gte" in operators) return compare(current, operators.$gte) >= 0;
+      if ("$lt" in operators) return compare(current, operators.$lt) < 0;
+      if ("$lte" in operators) return compare(current, operators.$lte) <= 0;
+      if ("$exists" in operators) {
+        const exists = values.some((value) => value !== undefined && value !== null);
+        return Boolean(operators.$exists) === exists;
+      }
+      if ("$in" in operators) {
+        const list = operators.$in as unknown[];
+        return valueMatches(values, (value) => list.includes(value));
+      }
+      if ("$regex" in operators) {
+        const pattern = operators.$regex;
+        const regex = pattern instanceof RegExp
+          ? pattern
+          : new RegExp(String(pattern), typeof operators.$options === "string" ? operators.$options : "");
+        return valueMatches(values, (value) => regex.test(String(value ?? "")));
+      }
     }
-    return row[key] === condition;
+    // Mongo: `{ field: null }` also matches documents where the field is missing.
+    if (condition === null) return values.length === 0 || valueMatches(values, (value) => value == null);
+    return valueMatches(values.length > 0 ? values : [current], (value) => value === condition);
   });
 
 export const buildQuery = (rows: TestRow[], single: boolean) => {
@@ -94,6 +129,10 @@ export const createInMemoryModel = (
     find: (filter?: TestRow) => buildQuery(select(filter), false),
     findOne: (filter?: TestRow) => buildQuery(select(filter), true),
     create: async (incoming: TestRow[]) => insert(incoming),
+    insertOne: async (doc: TestRow) => {
+      insert([doc]);
+      return doc;
+    },
     insertMany: async (incoming: TestRow[]) => insert(incoming),
     updateOne: runUpdate,
     updateMany: runUpdateMany,

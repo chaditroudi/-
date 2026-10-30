@@ -916,7 +916,7 @@ export const prepareInsertDocument = async (collection: string, rawInput: Record
 
   if (collection === "production_orders") {
     doc.order_number = doc.order_number || (await nextDailyNumber("OP"));
-    doc.status = doc.status || "DRAFT";
+    doc.status = doc.status || "draft";
     doc.production_type = doc.production_type || "STANDARD";
     doc.planned_start_at = doc.planned_start_at ?? null;
     doc.planned_end_at = doc.planned_end_at ?? null;

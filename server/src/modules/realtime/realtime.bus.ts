@@ -124,7 +124,7 @@ export const getRealtimeClientCount = () => clients.size;
 
 export const closeAllClients = () => {
   for (const client of clients.values()) {
-    try { client.end(); } catch {}
+    try { client.end(); } catch { /* one closed socket must not stop the others */ }
   }
   clients.clear();
 };

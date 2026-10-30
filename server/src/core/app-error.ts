@@ -24,5 +24,5 @@ export const forbidden = (message = "You do not have permission to perform this 
 export const notFound = (code: string, message: string) =>
   new AppError(404, code, message);
 
-export const conflict = (code: string, message: string) =>
-  new AppError(409, code, message);
+export const conflict = (code: string, message: string, details?: unknown) =>
+  new AppError(409, code, message, details);
