@@ -7,8 +7,9 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
+    testTimeout: 15000,
     setupFiles: ["./src/test/setup.ts"],
-    include: ["src/**/*.{test,spec}.{ts,tsx}", "server/**/*.{test,spec}.{js,ts}"],
+    include: ["src/**/*.{test,spec}.{ts,tsx}", "server/**/*.{test,spec}.{js,ts}", "scripts/**/*.test.mjs"],
     env: {
       AI_GUIDE_ENABLED: "false",
       AI_GUIDE_PROVIDER: "disabled",

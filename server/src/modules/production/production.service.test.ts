@@ -58,7 +58,7 @@ describe("productionService mass balance", () => {
     );
 
     expect(result).toMatchObject({
-      status: "COMPLETED",
+      status: "completed",
       actual_output_kg: 92,
       waste_kg: 8,
       mass_balance_variance_pct: 0,
@@ -108,7 +108,7 @@ describe("productionService partial consumption", () => {
       expect.objectContaining({ movement_type: "CONSOMMATION", lot_id: "stock-lot-3", quantity: 40, document_reference: "OF-3" }),
     ]);
     expect(store.production_lot_allocations[0]).toMatchObject({ consumed_kg: 40 });
-    expect(store.production_orders[0].status).toBe("IN_PROGRESS");
+    expect(store.production_orders[0].status).toBe("in_progress");
   });
 
   it("marks the stock lot consumed when the order takes everything", async () => {
@@ -158,6 +158,6 @@ describe("productionService partial consumption", () => {
     expect(store.stock_movements).toEqual([
       expect.objectContaining({ movement_type: "RETOUR", lot_id: "stock-lot-5", quantity: 30 }),
     ]);
-    expect(store.production_orders[0].status).toBe("CANCELLED");
+    expect(store.production_orders[0].status).toBe("cancelled");
   });
 });

@@ -73,6 +73,7 @@ const stockController = new StockController({ update: updateShipment } as never)
 const req = { auth: { user: { id: "user-1" } } };
 
 const lot = (id: string) => store.reception_lots?.find((row) => row.id === id);
+const stockOf = (id: string) => store.stock_lots?.find((row) => row.reception_lot_id === id);
 
 const reachable = (
   edges: Array<{ from: string; to: string }>,
@@ -114,6 +115,10 @@ const seedSourceLots = () => {
   store.reception_lots = [
     { id: "lot-a", lot_internal: "LOT-A", quantity: LOT_A_KG, stock_status: "STOCK_LIBERE", unit: "kg" },
     { id: "lot-b", lot_internal: "LOT-B", quantity: LOT_B_KG, stock_status: "STOCK_LIBERE", unit: "kg" },
+  ];
+  store.stock_lots = [
+    { id: "stock-lot-a", reception_lot_id: "lot-a", lot_number: "LOT-A", current_quantity: LOT_A_KG, initial_quantity: LOT_A_KG, status: "VALIDATED", unit: "kg" },
+    { id: "stock-lot-b", reception_lot_id: "lot-b", lot_number: "LOT-B", current_quantity: LOT_B_KG, initial_quantity: LOT_B_KG, status: "VALIDATED", unit: "kg" },
   ];
 };
 
@@ -169,8 +174,10 @@ describe("synthetic lot genealogy", () => {
     await expect(productionService.startOrder(orderId, "user-1")).rejects.toMatchObject({
       code: "INVALID_TRANSITION",
     });
-    expect(lot("lot-a")).toMatchObject({ quantity: LOT_A_KG - CONSUMED_A_KG });
-    expect(lot("lot-b")).toMatchObject({ quantity: LOT_B_KG - CONSUMED_B_KG });
+    expect(lot("lot-a")).toMatchObject({ quantity: LOT_A_KG });
+    expect(lot("lot-b")).toMatchObject({ quantity: LOT_B_KG });
+    expect(stockOf("lot-a")).toMatchObject({ current_quantity: LOT_A_KG - CONSUMED_A_KG });
+    expect(stockOf("lot-b")).toMatchObject({ current_quantity: LOT_B_KG - CONSUMED_B_KG });
     expect(store.production_lot_allocations).toEqual(expect.arrayContaining([
       expect.objectContaining({ lot_id: "lot-a", consumed_kg: CONSUMED_A_KG }),
       expect.objectContaining({ lot_id: "lot-b", consumed_kg: CONSUMED_B_KG }),
@@ -198,7 +205,7 @@ describe("synthetic lot genealogy", () => {
     expect(balanceEvents[0]?.payload).toMatchObject({ input_kg: CONSUMED_A_KG + CONSUMED_B_KG, output_kg: OUTPUT_KG, waste_kg: WASTE_KG });
 
     recordOutputLot(orderId);
-    store.stock_lots = [{
+    store.stock_lots!.push({
       id: "stock-output",
       lot_number: OUTPUT_LOT,
       source_stage: "TRIAGE",
@@ -206,7 +213,7 @@ describe("synthetic lot genealogy", () => {
       status: "RELEASED",
       current_quantity: OUTPUT_KG,
       unit: "kg",
-    }];
+    });
 
     const packagingOrder = await packagingService.createOrder({
       client_request_id: "pkg-gen-1",
@@ -228,7 +235,7 @@ describe("synthetic lot genealogy", () => {
       current_quantity: 0,
       status: "CONSUMED",
     });
-    expect(store.stock_movements?.filter((row) => row.movement_type === "CONSOMMATION")).toHaveLength(1);
+    expect(store.stock_movements?.filter((row) => row.movement_type === "CONSOMMATION" && row.lot_id === "stock-output")).toHaveLength(1);
 
     const palette = await packagingService.createPalette({
       order_id: packagingOrder.id,
@@ -327,10 +334,12 @@ describe("synthetic lot genealogy", () => {
       "user-1",
     )).rejects.toMatchObject({ code: "MASS_BALANCE_UNBALANCED" });
     expect(store.production_output_lots || []).toHaveLength(0);
-    expect(lot("lot-a")?.quantity).toBe(LOT_A_KG - CONSUMED_A_KG);
-    expect(lot("lot-b")?.quantity).toBe(LOT_B_KG - CONSUMED_B_KG);
+    expect(stockOf("lot-a")?.current_quantity).toBe(LOT_A_KG - CONSUMED_A_KG);
+    expect(stockOf("lot-b")?.current_quantity).toBe(LOT_B_KG - CONSUMED_B_KG);
 
     await productionService.cancelOrder(orderId, "completion rejected", "user-1");
+    expect(stockOf("lot-a")).toMatchObject({ current_quantity: LOT_A_KG, status: "VALIDATED" });
+    expect(stockOf("lot-b")).toMatchObject({ current_quantity: LOT_B_KG, status: "VALIDATED" });
     expect(lot("lot-a")).toMatchObject({ quantity: LOT_A_KG, stock_status: "STOCK_LIBERE" });
     expect(lot("lot-b")).toMatchObject({ quantity: LOT_B_KG, stock_status: "STOCK_LIBERE" });
     const { tree } = await trace("LOT-A");
