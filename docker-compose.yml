@@ -13,7 +13,7 @@ services:
       API_HOST: 0.0.0.0
       MONGODB_URI: ${MONGODB_URI:?Set MONGODB_URI in .env to your MongoDB Atlas connection string}
       MONGODB_DB_NAME: ${MONGODB_DB_NAME:-date_harvest_hub}
-      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      JWT_SECRET: ${JWT_SECRET:-}
     volumes:
       - .:/app
       - api_node_modules:/app/node_modules

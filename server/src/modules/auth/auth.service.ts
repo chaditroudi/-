@@ -1,14 +1,11 @@
-import { randomUUID } from "node:crypto";
-
 import { Injectable } from "@nestjs/common";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 import { env } from "../../config/env.js";
-import { conflict, unauthorized } from "../../core/app-error.js";
+import { badRequest, unauthorized } from "../../core/app-error.js";
 import { sanitizeDocument } from "../../db/dynamic-model.js";
-import { prepareInsertDocument } from "../../db/defaults.js";
-import { getCollectionModel } from "../../db/dynamic-model.js";
+import { invalidateAuthCache } from "../../middleware/auth.js";
 import { AuthUserModel } from "../../models/auth-user.model.js";
 import {
   clearUserSignaturePin,
@@ -17,6 +14,17 @@ import {
 } from "./numeric-signature.js";
 
 const nowIso = () => new Date().toISOString();
+
+export const MIN_PASSWORD_LENGTH = 10;
+
+export const assertPasswordStrength = (password: string) => {
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    throw badRequest(
+      "PASSWORD_TOO_SHORT",
+      `Le mot de passe doit contenir au moins ${MIN_PASSWORD_LENGTH} caractères.`,
+    );
+  }
+};
 
 const getStoredPasswordHash = (user: any) => {
   if (typeof user?.passwordHash === "string" && user.passwordHash.length > 0) return user.passwordHash;
@@ -29,11 +37,12 @@ const toPublicUser = (user: any) => ({
   email: user.email,
   user_metadata: sanitizeDocument(user.user_metadata || {}),
   has_signature_pin: userHasSignaturePin(user),
+  must_change_password: Boolean(user.must_change_password),
 });
 
 const createSession = (user: any) => {
   const token = jwt.sign(
-    { email: user.email, user_metadata: user.user_metadata || {} },
+    { email: user.email, tv: Number(user.token_version ?? 0) },
     env.jwtSecret,
     { subject: user.id, expiresIn: env.jwtExpiresInSeconds },
   );
@@ -48,50 +57,6 @@ const createSession = (user: any) => {
 
 @Injectable()
 export class AuthService {
-  async signUp(payload: { email: string; password: string; options?: { data?: Record<string, unknown> } }) {
-    const email = String(payload.email || "").trim().toLowerCase();
-    const password = String(payload.password || "");
-    const metadata = sanitizeDocument(payload.options?.data || {});
-
-    const existingUser = await AuthUserModel.findOne({ email }).lean().exec();
-    if (existingUser) throw conflict("AUTH_EMAIL_EXISTS", "An account already exists with this email.");
-
-    const role = String(metadata.role || "").trim();
-    const roles = Array.isArray(metadata.roles) && metadata.roles.length > 0
-      ? metadata.roles
-      : role ? [role] : ["operateur"];
-    const now = nowIso();
-    const user = await AuthUserModel.create({
-      id: randomUUID(),
-      email,
-      passwordHash: await bcrypt.hash(password, 10),
-      user_metadata: { ...metadata, roles },
-      is_active: true,
-      created_at: now,
-      updated_at: now,
-    });
-
-    const profilesCollection = getCollectionModel("profiles");
-    const userRolesCollection = getCollectionModel("user_roles");
-    const profile = await prepareInsertDocument("profiles", {
-      user_id: user.id,
-      email,
-      full_name: metadata.full_name || email.split("@")[0],
-      avatar_url: metadata.avatar_url || null,
-      phone: metadata.phone || null,
-    });
-    await profilesCollection.create([profile]);
-
-    const userRoles = await Promise.all(
-      roles.map((assignedRole: string) =>
-        prepareInsertDocument("user_roles", { user_id: user.id, role: assignedRole, assigned_by: null }),
-      ),
-    );
-    if (userRoles.length > 0) await userRolesCollection.create(userRoles);
-
-    return { user: toPublicUser(user), session: null };
-  }
-
   async signIn(payload: { email: string; password: string }) {
     const email = String(payload.email || "").trim().toLowerCase();
     const password = String(payload.password || "");
@@ -122,6 +87,46 @@ export class AuthService {
     if (!user) return { session: null, user: null };
 
     return { session: createSession(user), user: toPublicUser(user) };
+  }
+
+  /** Ends every other session for this account and returns a fresh one. */
+  async changePassword(auth: any, payload: { current_password?: string; new_password?: string }) {
+    if (!auth?.user?.id) throw unauthorized("Authentication required.");
+    const currentPassword = String(payload.current_password || "");
+    const newPassword = String(payload.new_password || "");
+
+    const user = await AuthUserModel.findOne({ id: auth.user.id, is_active: true }).lean().exec();
+    if (!user) throw unauthorized("Authentication required.");
+
+    const storedPasswordHash = getStoredPasswordHash(user);
+    if (!storedPasswordHash || !(await bcrypt.compare(currentPassword, storedPasswordHash))) {
+      throw unauthorized("Mot de passe incorrect.");
+    }
+    assertPasswordStrength(newPassword);
+    if (newPassword === currentPassword) {
+      throw badRequest("PASSWORD_UNCHANGED", "Choisissez un mot de passe différent de l'actuel.");
+    }
+
+    await AuthUserModel.updateOne(
+      { id: user.id },
+      {
+        $set: { passwordHash: await bcrypt.hash(newPassword, 10), must_change_password: false, updated_at: nowIso() },
+        $inc: { token_version: 1 },
+      },
+    ).exec();
+    invalidateAuthCache(user.id);
+
+    return createSession({
+      ...user,
+      must_change_password: false,
+      token_version: Number(user.token_version ?? 0) + 1,
+    });
+  }
+
+  async logout(auth: any) {
+    if (!auth?.user?.id) return;
+    await AuthUserModel.updateOne({ id: auth.user.id }, { $inc: { token_version: 1 } }).exec();
+    invalidateAuthCache(auth.user.id);
   }
 
   /** Set or rotate the logged-in user's numeric signature PIN (requires password). */

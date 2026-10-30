@@ -1,4 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from "@nestjs/common";
+import { SHIPPING_ROLES, STAFF_READ_ROLES } from "../../middleware/authorization.js";
+import { Roles } from "../../nest/route-metadata.js";
 import { RequireAuthGuard } from "../../nest/route-guards.js";
 import { CollectionsService } from "../collections/collections.service.js";
 import { publishRealtimeDbChange } from "../realtime/realtime.bus.js";
@@ -13,6 +15,7 @@ export class BonExpeditionController {
   constructor(private readonly cs: CollectionsService) {}
 
   @Get()
+  @Roles(...STAFF_READ_ROLES)
   async list(
     @Query("fournisseur_id") fournisseurId?: string,
     @Query("statut") statut?: string,
@@ -29,6 +32,7 @@ export class BonExpeditionController {
   }
 
   @Get(":id")
+  @Roles(...STAFF_READ_ROLES)
   async detail(@Param("id") id: string) {
     const rows = await this.cs.query({
       table: "bon_expeditions",
@@ -39,6 +43,7 @@ export class BonExpeditionController {
   }
 
   @Post()
+  @Roles(...SHIPPING_ROLES)
   async create(@Req() req: any, @Body() body: any) {
     const data = await this.cs.insert({
       table: "bon_expeditions",
@@ -59,6 +64,7 @@ export class BonExpeditionController {
   }
 
   @Patch(":id")
+  @Roles(...SHIPPING_ROLES)
   async update(@Req() req: any, @Param("id") id: string, @Body() body: any) {
     const { after } = await this.cs.update({
       table: "bon_expeditions",
@@ -80,6 +86,7 @@ export class BonExpeditionController {
   }
 
   @Delete(":id")
+  @Roles(...SHIPPING_ROLES)
   async remove(@Req() req: any, @Param("id") id: string) {
     const data = await this.cs.remove({
       table: "bon_expeditions",

@@ -11,7 +11,8 @@ import {
   UseGuards,
 } from "@nestjs/common";
 
-import { getRequestRoles } from "../../middleware/authorization.js";
+import { Roles, Authenticated } from "../../nest/route-metadata.js";
+import { getRequestRoles, AUDIT_READ_ROLES, STAFF_ROLES } from "../../middleware/authorization.js";
 import { RequireAuthGuard } from "../../nest/route-guards.js";
 import { publishRealtimeDbChange } from "../realtime/realtime.bus.js";
 import { NotificationsService } from "./notifications.service.js";
@@ -28,6 +29,7 @@ export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
   @Get()
+  @Authenticated()
   async listNotifications(
     @Req() req: any,
     @Query("unreadOnly") unreadOnly?: string,
@@ -44,6 +46,7 @@ export class NotificationsController {
   }
 
   @Post()
+  @Roles(...STAFF_ROLES)
   @HttpCode(201)
   async createNotification(@Req() req: any, @Body() body: any) {
     // The service delegates to the central emitter, which performs the targeted
@@ -70,6 +73,7 @@ export class NotificationsController {
   }
 
   @Patch(":id/read")
+  @Authenticated()
   async markNotificationRead(@Req() req: any, @Param("id") id: string, @Body() body: any) {
     const data = await this.notificationsService.markNotificationRead(
       id,
@@ -89,6 +93,7 @@ export class NotificationsController {
   }
 
   @Post("mark-all-read")
+  @Authenticated()
   @HttpCode(200)
   async markAllNotificationsRead(@Req() req: any, @Body() body: any) {
     const result = await this.notificationsService.markAllNotificationsRead(
@@ -109,6 +114,7 @@ export class NotificationsController {
   }
 
   @Get("audit")
+  @Roles(...AUDIT_READ_ROLES)
   async listAuditLogs(
     @Query("entityType") entityType?: string,
     @Query("entityId") entityId?: string,
@@ -124,6 +130,7 @@ export class NotificationsController {
   }
 
   @Post("audit")
+  @Roles(...STAFF_ROLES)
   @HttpCode(201)
   async createAuditLog(@Req() req: any, @Body() body: any) {
     const data = await this.notificationsService.createAuditLog(body || {}, {

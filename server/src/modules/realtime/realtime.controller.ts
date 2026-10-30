@@ -1,7 +1,7 @@
 import { Controller, Get, Req, Res } from "@nestjs/common";
 
-import { decodeAuthToken } from "../../middleware/auth.js";
 import { normalizeRolesFromMetadata, notificationSeesAll } from "../../middleware/authorization.js";
+import { Public } from "../../nest/route-metadata.js";
 import {
   addRealtimeClient,
   createRealtimeClientId,
@@ -9,18 +9,12 @@ import {
   removeRealtimeClient,
 } from "./realtime.bus.js";
 
-const readRealtimeToken = (req: any) => {
-  const queryToken = typeof req.query?.token === "string" ? req.query.token : "";
-  if (queryToken) return queryToken;
-  const header = String(req.headers?.authorization || "");
-  return header.startsWith("Bearer ") ? header.slice("Bearer ".length) : "";
-};
-
 @Controller("api/realtime")
 export class RealtimeController {
   @Get("events")
+  @Public()
   events(@Req() req: any, @Res() res: any) {
-    const auth = decodeAuthToken(readRealtimeToken(req));
+    const auth = req.auth;
     if (!auth?.user?.id) {
       res.status(401).json({ error: { code: "UNAUTHORIZED", message: "A valid realtime token is required." } });
       return;

@@ -1,4 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
+import { BRA_WRITE_ROLES, QUALITY_ROLES, STAFF_READ_ROLES } from "../../middleware/authorization.js";
+import { Roles } from "../../nest/route-metadata.js";
 import { RequireAuthGuard } from "../../nest/route-guards.js";
 import { CollectionsService } from "../collections/collections.service.js";
 
@@ -10,6 +12,7 @@ export class QualityExtController {
   // ── CAPA Tickets ──────────────────────────────────────────────────────────
 
   @Get("capa-tickets")
+  @Roles(...STAFF_READ_ROLES)
   async listCAPATickets(@Query("status") status?: string, @Query("supplier_id") supplierId?: string) {
     const filters: any[] = [];
     if (status) filters.push({ type: "eq", column: "status", value: status });
@@ -19,18 +22,21 @@ export class QualityExtController {
   }
 
   @Get("capa-tickets/:id")
+  @Roles(...STAFF_READ_ROLES)
   async getCAPATicket(@Param("id") id: string) {
     const rows = await this.cs.query({ table: "capa_tickets", filters: [{ type: "eq", column: "id", value: id }] });
     return { data: rows[0] ?? null };
   }
 
   @Post("capa-tickets")
+  @Roles(...QUALITY_ROLES)
   async createCAPATicket(@Body() body: any) {
     const data = await this.cs.insert({ table: "capa_tickets", values: body });
     return { data: data[0] };
   }
 
   @Patch("capa-tickets/:id")
+  @Roles(...QUALITY_ROLES)
   async updateCAPATicket(@Param("id") id: string, @Body() body: any) {
     const { after } = await this.cs.update({ table: "capa_tickets", filters: [{ type: "eq", column: "id", value: id }], values: body });
     return { data: after[0] };
@@ -39,6 +45,7 @@ export class QualityExtController {
   // ── Inbound Notices ───────────────────────────────────────────────────────
 
   @Get("inbound-notices")
+  @Roles(...STAFF_READ_ROLES)
   async listInboundNotices(
     @Query("status") status?: string,
     @Query("date_from") dateFrom?: string,
@@ -53,12 +60,14 @@ export class QualityExtController {
   }
 
   @Post("inbound-notices")
+  @Roles(...BRA_WRITE_ROLES)
   async createInboundNotice(@Body() body: any) {
     const data = await this.cs.insert({ table: "inbound_notices", values: { ...body, status: "PENDING" } });
     return { data: data[0] };
   }
 
   @Patch("inbound-notices/:id")
+  @Roles(...BRA_WRITE_ROLES)
   async updateInboundNotice(@Param("id") id: string, @Body() body: any) {
     const { after } = await this.cs.update({ table: "inbound_notices", filters: [{ type: "eq", column: "id", value: id }], values: body });
     return { data: after[0] };
@@ -67,6 +76,7 @@ export class QualityExtController {
   // ── QC Lab Results (read qc_inspections with lab filters) ─────────────────
 
   @Get("qc-lab-results")
+  @Roles(...STAFF_READ_ROLES)
   async listQcLabResults() {
     const data = await this.cs.query({
       table: "qc_inspections",

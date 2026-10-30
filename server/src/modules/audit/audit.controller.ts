@@ -1,10 +1,13 @@
 import { Controller, Get, Query, UseGuards } from "@nestjs/common";
 
+import { AUDIT_READ_ROLES } from "../../middleware/authorization.js";
+import { Roles } from "../../nest/route-metadata.js";
 import { RequireAuthGuard } from "../../nest/route-guards.js";
 import { AuditService } from "./audit.service.js";
 
 @Controller("api/audit")
 @UseGuards(RequireAuthGuard)
+@Roles(...AUDIT_READ_ROLES)
 export class AuditController {
   constructor(private readonly auditService: AuditService) {}
 

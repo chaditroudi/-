@@ -1,4 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
+import { HR_READ_ROLES, HR_ROLES, TASK_WRITE_ROLES } from "../../middleware/authorization.js";
+import { Roles } from "../../nest/route-metadata.js";
 import { RequireAuthGuard } from "../../nest/route-guards.js";
 import { CollectionsService } from "../collections/collections.service.js";
 import { HrService } from "./hr.service.js";
@@ -14,6 +16,7 @@ export class HrController {
   // ── Employees ─────────────────────────────────────────────────────────────
 
   @Get("employees")
+  @Roles(...HR_READ_ROLES)
   async listEmployees(@Query("status") status?: string) {
     const filters: any[] = [];
     if (status) filters.push({ type: "eq", column: "status", value: status });
@@ -22,12 +25,14 @@ export class HrController {
   }
 
   @Get("employees/metrics/team")
+  @Roles(...HR_READ_ROLES)
   async getTeamPresence() {
     const data = await this.hrService.getTeamPresenceToday();
     return { data };
   }
 
   @Get("employees/:id/summary")
+  @Roles(...HR_READ_ROLES)
   async getEmployeeSummary(
     @Param("id") id: string,
     @Query("year") year?: string,
@@ -41,24 +46,28 @@ export class HrController {
   }
 
   @Get("employees/:id")
+  @Roles(...HR_READ_ROLES)
   async getEmployee(@Param("id") id: string) {
     const rows = await this.cs.query({ table: "employees", filters: [{ type: "eq", column: "id", value: id }] });
     return { data: rows[0] ?? null };
   }
 
   @Post("employees")
+  @Roles(...HR_ROLES)
   async createEmployee(@Body() body: any) {
     const data = await this.cs.insert({ table: "employees", values: body });
     return { data: data[0] };
   }
 
   @Patch("employees/:id")
+  @Roles(...HR_ROLES)
   async updateEmployee(@Param("id") id: string, @Body() body: any) {
     const { after } = await this.cs.update({ table: "employees", filters: [{ type: "eq", column: "id", value: id }], values: body });
     return { data: after[0] };
   }
 
   @Delete("employees/:id")
+  @Roles(...HR_ROLES)
   async deleteEmployee(@Param("id") id: string) {
     const data = await this.cs.remove({ table: "employees", filters: [{ type: "eq", column: "id", value: id }] });
     return { data: data[0] };
@@ -67,6 +76,7 @@ export class HrController {
   // ── Timesheets ────────────────────────────────────────────────────────────
 
   @Get("timesheets/monthly-summary")
+  @Roles(...HR_READ_ROLES)
   async getMonthlySummary(
     @Query("year") year?: string,
     @Query("month") month?: string,
@@ -79,6 +89,7 @@ export class HrController {
   }
 
   @Get("timesheets")
+  @Roles(...HR_READ_ROLES)
   async listTimesheets(
     @Query("employee_id") employeeId?: string,
     @Query("start_date") startDate?: string,
@@ -93,12 +104,14 @@ export class HrController {
   }
 
   @Post("timesheets")
+  @Roles(...HR_READ_ROLES)
   async createTimesheet(@Body() body: any) {
     const data = await this.cs.insert({ table: "timesheets", values: body });
     return { data: data[0] };
   }
 
   @Patch("timesheets/:id")
+  @Roles(...HR_READ_ROLES)
   async updateTimesheet(@Param("id") id: string, @Body() body: any) {
     const updateBody = { ...body };
     if (updateBody.start_time !== undefined || updateBody.end_time !== undefined || updateBody.break_minutes !== undefined) {
@@ -116,6 +129,7 @@ export class HrController {
   }
 
   @Delete("timesheets/:id")
+  @Roles(...HR_READ_ROLES)
   async deleteTimesheet(@Param("id") id: string) {
     const data = await this.cs.remove({ table: "timesheets", filters: [{ type: "eq", column: "id", value: id }] });
     return { data: data[0] };
@@ -124,6 +138,7 @@ export class HrController {
   // ── Employee Tasks ────────────────────────────────────────────────────────
 
   @Get("employee-tasks")
+  @Roles(...HR_READ_ROLES)
   async listTasks(
     @Query("assigned_to") assignedTo?: string,
     @Query("status") status?: string,
@@ -136,18 +151,21 @@ export class HrController {
   }
 
   @Post("employee-tasks")
+  @Roles(...TASK_WRITE_ROLES)
   async createTask(@Body() body: any) {
     const data = await this.cs.insert({ table: "employee_tasks", values: body });
     return { data: data[0] };
   }
 
   @Patch("employee-tasks/:id")
+  @Roles(...TASK_WRITE_ROLES)
   async updateTask(@Param("id") id: string, @Body() body: any) {
     const { after } = await this.cs.update({ table: "employee_tasks", filters: [{ type: "eq", column: "id", value: id }], values: body });
     return { data: after[0] };
   }
 
   @Delete("employee-tasks/:id")
+  @Roles(...TASK_WRITE_ROLES)
   async deleteTask(@Param("id") id: string) {
     const data = await this.cs.remove({ table: "employee_tasks", filters: [{ type: "eq", column: "id", value: id }] });
     return { data: data[0] };

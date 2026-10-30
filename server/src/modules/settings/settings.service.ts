@@ -1,5 +1,13 @@
-import { Injectable, OnModuleInit } from "@nestjs/common";
+import { randomUUID } from "node:crypto";
 
+import { Injectable, OnModuleInit } from "@nestjs/common";
+import bcrypt from "bcryptjs";
+
+import { badRequest, conflict } from "../../core/app-error.js";
+import { prepareInsertDocument } from "../../db/defaults.js";
+import { getCollectionModel } from "../../db/dynamic-model.js";
+import { invalidateAuthCache } from "../../middleware/auth.js";
+import { ALL_ROLES } from "../../middleware/authorization.js";
 import { SiteSettingsModel } from "../../models/site-settings.model.js";
 import { AuthUserModel } from "../../models/auth-user.model.js";
 import {
@@ -7,6 +15,7 @@ import {
   setUserSignaturePin,
   userHasSignaturePin,
 } from "../auth/numeric-signature.js";
+import { assertPasswordStrength } from "../auth/auth.service.js";
 import { setMassBalanceToleranceReader } from "../trust/mass-balance.js";
 
 const DEFAULT_SETTINGS = {
@@ -227,6 +236,19 @@ const normalizeSettings = (value?: Record<string, any> | null) => ({
       : DEFAULT_SETTINGS.fiche_overrides,
 });
 
+const assertKnownRoles = (roles: string[]) => {
+  const unknown = roles.filter((role) => !ALL_ROLES.includes(role));
+  if (unknown.length > 0 || roles.length === 0) {
+    throw badRequest("UNKNOWN_ROLE", "Rôle inconnu.", { roles: unknown });
+  }
+};
+
+/** What an unauthenticated visitor may read: branding, never integration keys. */
+export const redactPublicSettings = <T extends Record<string, any>>(settings: T): T => ({
+  ...settings,
+  integrations: { ...settings.integrations, google_maps_api_key: null },
+});
+
 @Injectable()
 export class SettingsService implements OnModuleInit {
   onModuleInit() {
@@ -306,6 +328,46 @@ export class SettingsService implements OnModuleInit {
     });
   }
 
+  /** Accounts are created by an administrator; there is no self-registration. */
+  async createManagedUser(
+    payload: { email?: string; password?: string; full_name?: string; role?: string },
+    assignedBy: string | null,
+  ) {
+    const email = String(payload.email || "").trim().toLowerCase();
+    const password = String(payload.password || "");
+    const role = String(payload.role || "").trim();
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      throw badRequest("INVALID_EMAIL", "Adresse e-mail invalide.");
+    }
+    assertPasswordStrength(password);
+    assertKnownRoles([role]);
+
+    const existing = await AuthUserModel.findOne({ email }).lean().exec();
+    if (existing) throw conflict("AUTH_EMAIL_EXISTS", "Un compte existe déjà avec cet e-mail.");
+
+    const fullName = String(payload.full_name || "").trim() || email.split("@")[0];
+    const now = new Date().toISOString();
+    const user = await AuthUserModel.create({
+      id: randomUUID(),
+      email,
+      passwordHash: await bcrypt.hash(password, 10),
+      user_metadata: { full_name: fullName, role, roles: [role] },
+      is_active: true,
+      created_at: now,
+      updated_at: now,
+    });
+
+    await getCollectionModel("profiles").create([
+      await prepareInsertDocument("profiles", { user_id: user.id, email, full_name: fullName }),
+    ]);
+    await getCollectionModel("user_roles").create([
+      await prepareInsertDocument("user_roles", { user_id: user.id, role, assigned_by: assignedBy }),
+    ]);
+
+    return { id: user.id, email, full_name: fullName, roles: [role], is_active: true, created_at: now };
+  }
+
   async updateUser(
     userId: string,
     patch: {
@@ -324,6 +386,7 @@ export class SettingsService implements OnModuleInit {
     }
 
     if (Array.isArray(patch.roles) && patch.roles.length > 0) {
+      assertKnownRoles(patch.roles);
       update["user_metadata.roles"] = patch.roles;
     }
 
@@ -341,6 +404,7 @@ export class SettingsService implements OnModuleInit {
 
     if (Object.keys(update).length > 1) {
       await AuthUserModel.updateOne({ id: userId }, { $set: update }).exec();
+      invalidateAuthCache(userId);
     }
 
     if (patch.signature_pin !== undefined) {

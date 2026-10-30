@@ -1,7 +1,8 @@
 import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from "@nestjs/common";
 
+import { RECALL_ROLES, STAFF_READ_ROLES, STAGE_OVERRIDE_ROLES } from "../../middleware/authorization.js";
 import { RequireAuthGuard } from "../../nest/route-guards.js";
-import { Public } from "../../nest/route-metadata.js";
+import { Public, Roles } from "../../nest/route-metadata.js";
 import { SiteSettingsModel } from "../../models/site-settings.model.js";
 import { LotLedgerService } from "./lot-ledger.service.js";
 import { LotLifecycleService } from "./lot-lifecycle.service.js";
@@ -29,6 +30,7 @@ export class TrustController {
   ) {}
 
   @Get("health")
+  @Roles(...STAFF_READ_ROLES)
   health() {
     return {
       data: {
@@ -47,6 +49,7 @@ export class TrustController {
 
   /** B0 readiness — gate modes + GS1 placeholder flag. */
   @Get("gates")
+  @Roles(...STAFF_READ_ROLES)
   async getGates() {
     let gs1: string | null = null;
     try {
@@ -68,6 +71,7 @@ export class TrustController {
   }
 
   @Post("recall")
+  @Roles(...RECALL_ROLES)
   async runRecall(
     @Body() body: { lotId?: string; lotNumber?: string; sscc?: string },
   ) {
@@ -76,6 +80,7 @@ export class TrustController {
   }
 
   @Post("scan/resolve")
+  @Roles(...STAFF_READ_ROLES)
   async resolveScan(
     @Body() body: { rawValue?: string; scannerKind?: string; deviceId?: string | null },
     @Req() req: any,
@@ -88,18 +93,21 @@ export class TrustController {
   }
 
   @Get("lots/:lotId/chain")
+  @Roles(...STAFF_READ_ROLES)
   async getChain(@Param("lotId") lotId: string) {
     const events = await this.ledger.getChain(lotId);
     return { data: { lotId, events } };
   }
 
   @Get("lots/:lotId/verify")
+  @Roles(...STAFF_READ_ROLES)
   async verify(@Param("lotId") lotId: string) {
     const result = await this.ledger.verify(lotId);
     return { data: result };
   }
 
   @Get("lots/:lotId/state")
+  @Roles(...STAFF_READ_ROLES)
   async getState(
     @Param("lotId") lotId: string,
     @Query("route") route?: string,
@@ -112,6 +120,7 @@ export class TrustController {
   }
 
   @Post("lots/:lotId/advance")
+  @Roles(...STAGE_OVERRIDE_ROLES)
   async advance(
     @Param("lotId") lotId: string,
     @Body() body: { toStage?: LotStage; payload?: Record<string, unknown>; relatedIds?: string[]; route?: GoldenRoute; collection?: string },
@@ -137,6 +146,7 @@ export class TrustController {
   }
 
   @Get("golden-thread")
+  @Roles(...STAFF_READ_ROLES)
   async goldenThread(@Query("limit") limit?: string) {
     const states = await this.lifecycle.listGoldenThreadLots(Number(limit) || 40);
     const complete = states.filter((row) => row.goldenThreadComplete).length;

@@ -9,6 +9,9 @@ const authUserSchema = new mongoose.Schema(
     signaturePinHash: { type: String, default: null },
     user_metadata: { type: Object, default: {} },
     is_active: { type: Boolean, default: true },
+    /** Bumped on logout and password change; a token with an older value stops working. */
+    token_version: { type: Number, default: 0 },
+    must_change_password: { type: Boolean, default: false },
     created_at: { type: String, required: true },
     updated_at: { type: String, required: true },
   },

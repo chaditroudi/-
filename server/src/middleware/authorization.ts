@@ -1,7 +1,3 @@
-import { badRequest, forbidden } from "../core/app-error.js";
-
-type DbAction = "read" | "write";
-
 const ADMIN_ROLES = new Set([
   "admin",
   "administrateur_systeme",
@@ -37,7 +33,7 @@ const ROLE_ALIASES: Record<string, string[]> = {
   audit: ["auditeur_externe"],
   supplier_portal: ["fournisseur_externe"],
   client_portal: ["client_externe"],
-  // Generic shop-floor operator default (used by signUp): grant reception intake.
+  // Legacy accounts created with the generic operator role: reception intake.
   operateur: ["operateur_reception"],
 };
 
@@ -98,112 +94,84 @@ export const MAINTENANCE_ROLES = [
   "technicien_maintenance",
 ];
 
-export const tableWritePolicy: Record<string, string[]> = {
-  suppliers: [...PURCHASING_ROLES, ...RECEPTION_ROLES],
-  materials: [...PURCHASING_ROLES],
-  purchase_requisitions: [
-    ...PURCHASING_ROLES,
-    "responsable_stock",
-    "magasinier_wms",
-    "responsable_production",
-    "responsable_qualite",
-    "responsable_maintenance",
-    "responsable_logistique",
-    "responsable_reception",
-    "chef_reception",
-    "directeur_general",
-    "directeur_usine",
-    "administrateur_systeme",
-  ],
-  maintenance_requests: [
-    ...MAINTENANCE_ROLES,
-    ...PRODUCTION_ROLES,
-    ...QUALITY_ROLES,
-    ...STOCK_ROLES,
-    "responsable_reception",
-    "chef_reception",
-    "responsable_achats",
-    "directeur_general",
-    "directeur_usine",
-    "administrateur_systeme",
-  ],
-  purchase_orders: [...PURCHASING_ROLES],
-  purchase_order_lines: [...PURCHASING_ROLES],
-  purchase_order_receiving_lots: [...PURCHASING_ROLES, ...RECEPTION_ROLES, ...QUALITY_ROLES],
+/** Every role an account can hold. User management rejects anything else. */
+export const ALL_ROLES = [
+  "admin",
+  "administrateur_systeme",
+  "directeur_general",
+  "directeur_usine",
+  "responsable_production",
+  "responsable_qualite",
+  "inspecteur_qualite",
+  "chef_reception",
+  "operateur_reception",
+  "operateur_nettoyage",
+  "operateur_fumigation",
+  "operateur_triage_ia",
+  "operateur_conditionnement",
+  "operateur_emballage",
+  "magasinier_wms",
+  "responsable_logistique",
+  "responsable_achats",
+  "responsable_maintenance",
+  "technicien_maintenance",
+  "fournisseur_externe",
+  "client_externe",
+  "auditeur_externe",
+  "technico_commercial",
+  "directeur_achat",
+  "resp_management_qualite",
+  "resp_qualite_haccp",
+  "responsable_reception",
+  "responsable_stock",
+  "partenaire_client_export",
+];
 
-  receptions_v2: [...RECEPTION_ROLES],
-  reception_lots: [...RECEPTION_ROLES],
-  reception_units: [...RECEPTION_ROLES],
-  reception_alerts: [...RECEPTION_ROLES, ...QUALITY_ROLES],
-  reception_stock_movements: [...RECEPTION_ROLES, ...STOCK_ROLES],
-  reception_audit_logs: [...RECEPTION_ROLES, ...QUALITY_ROLES],
-  reception_audit_logs_v2: [...RECEPTION_ROLES, ...QUALITY_ROLES],
-  qc_checklists: [...QUALITY_ROLES],
-  qc_checklist_items: [...QUALITY_ROLES],
-  qc_inspections: [...QUALITY_ROLES],
-  qc_check_results: [...QUALITY_ROLES],
-
-  stock_locations: [...STOCK_ROLES],
-  stock_lots: [...STOCK_ROLES, ...QUALITY_ROLES],
-  stock_movements: [...STOCK_ROLES],
-  stock_alerts: [...STOCK_ROLES, ...QUALITY_ROLES],
-  inventory_counts: [...STOCK_ROLES],
-  shipment_preparations: [...STOCK_ROLES],
-  shipment_lines: [...STOCK_ROLES],
-  transport_vehicles: [...STOCK_ROLES],
-  transport_drivers: [...STOCK_ROLES],
-  transport_missions: [...STOCK_ROLES],
-  transport_position_logs: [...STOCK_ROLES],
-  products: [...STOCK_ROLES, ...PURCHASING_ROLES],
-  storage_locations: [...STOCK_ROLES],
-  storage_condition_readings: [...STOCK_ROLES, "responsable_maintenance", "technicien_maintenance"],
-  storage_location_movements: [...STOCK_ROLES],
-  storage_door_events: [...STOCK_ROLES, "responsable_maintenance", "technicien_maintenance"],
-  storage_cycle_counts: [...STOCK_ROLES],
-
-  production_orders: [...PRODUCTION_ROLES],
-  production_steps: [...PRODUCTION_ROLES],
-  production_step_definitions: [...PRODUCTION_ROLES],
-  production_audit_logs: [...PRODUCTION_ROLES],
-  quality_checks: [...QUALITY_ROLES, ...PRODUCTION_ROLES],
-  quality_inspections: [...QUALITY_ROLES],
-  fumigation_cycles: [...PRODUCTION_ROLES, ...QUALITY_ROLES],
-  fumigation_sensor_readings: [...PRODUCTION_ROLES, ...QUALITY_ROLES],
-  cleaning_cycles: [...PRODUCTION_ROLES, ...QUALITY_ROLES],
-  hydration_cycles: [...PRODUCTION_ROLES, ...QUALITY_ROLES],
-  triage_sessions: [...PRODUCTION_ROLES, ...QUALITY_ROLES],
-  triage_quality_checks: [...PRODUCTION_ROLES, ...QUALITY_ROLES],
-  triage_sublots: [...PRODUCTION_ROLES, ...QUALITY_ROLES, ...STOCK_ROLES],
-  packaging_bom: [...PRODUCTION_ROLES, ...QUALITY_ROLES],
-  label_templates: [...PRODUCTION_ROLES, ...QUALITY_ROLES],
-  private_label_clients: [...PRODUCTION_ROLES],
-  packaging_orders: [...PRODUCTION_ROLES],
-  packaging_palettes: [...PRODUCTION_ROLES, ...STOCK_ROLES],
-  batches: [...PRODUCTION_ROLES, ...QUALITY_ROLES],
-  batch_movements: [...PRODUCTION_ROLES, ...STOCK_ROLES],
-  non_conformities: [...QUALITY_ROLES],
-  alerts: [...QUALITY_ROLES, ...PRODUCTION_ROLES],
-  storage_zones: [...PRODUCTION_ROLES, ...STOCK_ROLES],
-
-  employees: [...HR_ROLES],
-  timesheets: [...HR_ROLES],
-  employee_tasks: [...HR_ROLES, "responsable_maintenance", "responsable_production"],
-  profiles: [...HR_ROLES],
-  user_roles: [...HR_ROLES],
-  auth_users: [...HR_ROLES],
-
-  system_notifications: [...HR_ROLES, ...QUALITY_ROLES, ...RECEPTION_ROLES, ...STOCK_ROLES],
-  system_audit_logs: [...HR_ROLES],
-  lot_events: [...HR_ROLES, ...QUALITY_ROLES],
-  counters: [...HR_ROLES],
-};
-
-export const restrictedReadTables = new Set([
-  "auth_users",
-  "user_roles",
-  "system_audit_logs",
-  "counters",
+const NON_STAFF_ROLES = new Set([
+  "fournisseur_externe",
+  "client_externe",
+  "partenaire_client_export",
+  "auditeur_externe",
 ]);
+
+/** Plant employees. External portal and audit accounts are not staff. */
+export const STAFF_ROLES = ALL_ROLES.filter((role) => !NON_STAFF_ROLES.has(role));
+/** The auditor reads what staff read and writes nothing. */
+export const STAFF_READ_ROLES = [...STAFF_ROLES, "auditeur_externe"];
+
+export const SUPPLIER_PORTAL_ROLE = "fournisseur_externe";
+
+export const MASTER_DATA_ROLES = [...PURCHASING_ROLES, "technico_commercial"];
+export const SUPPLIER_WRITE_ROLES = [...MASTER_DATA_ROLES, ...RECEPTION_ROLES];
+export const COMMERCIAL_ROLES = ["technico_commercial", "responsable_logistique"];
+export const COA_WRITE_ROLES = [...COMMERCIAL_ROLES, ...QUALITY_ROLES];
+export const SHIPPING_ROLES = [...STOCK_ROLES, "technico_commercial"];
+export const BRA_WRITE_ROLES = [...RECEPTION_ROLES, ...PURCHASING_ROLES];
+export const MATERIAL_RECEIPT_ROLES = [...RECEPTION_ROLES, ...PURCHASING_ROLES, ...STOCK_ROLES, ...QUALITY_ROLES];
+export const BATCH_WRITE_ROLES = [...PRODUCTION_ROLES, ...QUALITY_ROLES];
+export const BATCH_MOVEMENT_ROLES = [...PRODUCTION_ROLES, ...STOCK_ROLES];
+/** Supervisors who have the RH tab and record their team's attendance. */
+export const HR_READ_ROLES = [
+  ...HR_ROLES,
+  "responsable_production",
+  "responsable_qualite",
+  "chef_reception",
+  "responsable_logistique",
+  "responsable_achats",
+  "responsable_maintenance",
+  "directeur_achat",
+  "resp_management_qualite",
+  "resp_qualite_haccp",
+  "responsable_reception",
+  "responsable_stock",
+];
+export const TASK_WRITE_ROLES = [...HR_ROLES, "responsable_maintenance", "responsable_production"];
+export const RECALL_ROLES = [...QUALITY_ROLES, "responsable_logistique", "responsable_production"];
+/** Recording a golden-thread stage by hand is a quality decision, not an operator action. */
+export const STAGE_OVERRIDE_ROLES = ["responsable_qualite", "resp_qualite_haccp"];
+export const AUDIT_READ_ROLES = [...HR_ROLES, "auditeur_externe"];
+export const DEVICE_ADMIN_ROLES = ["responsable_maintenance"];
+export const USER_ADMIN_ROLES = ["administrateur_systeme", "directeur_general", "directeur_usine"];
 
 const normalizeRoles = (rawRoles: unknown[]) => {
   const normalized = new Set<string>();
@@ -229,7 +197,6 @@ export const normalizeRolesFromMetadata = (metadata: any) => {
   const meta = metadata || {};
   const rawRoles = [
     ...(Array.isArray(meta.roles) ? meta.roles : []),
-    ...(Array.isArray(meta.domains) ? meta.domains : []),
     meta.role,
   ].filter(Boolean);
   return normalizeRoles(rawRoles);
@@ -283,19 +250,6 @@ export const hasAnyRole = (req: any, expectedRoles: string[]) => {
   return expectedRoles.some((role) => userRoles.has(role.toLowerCase()));
 };
 
-export const canReadTable = (req: any, table: string) => {
-  if (isAdmin(req)) return true;
-  if (!restrictedReadTables.has(table)) return true;
-  return hasAnyRole(req, HR_ROLES);
-};
-
-export const canWriteTable = (req: any, table: string) => {
-  if (isAdmin(req)) return true;
-  const allowedRoles = tableWritePolicy[table];
-  if (!allowedRoles) return false;
-  return hasAnyRole(req, allowedRoles);
-};
-
 export const canAccessRpc = (req: any, name: string) => {
   if (isAdmin(req)) return true;
 
@@ -304,37 +258,4 @@ export const canAccessRpc = (req: any, name: string) => {
   }
 
   return false;
-};
-
-export const requireRoles = (roles: string[]) => (req: any, _res: any, next: any) => {
-  if (!hasAnyRole(req, roles)) {
-    return next(forbidden("You do not have permission for this operation."));
-  }
-  return next();
-};
-
-export const authorizeDbAction = (action: DbAction) => (req: any, _res: any, next: any) => {
-  const table = String(req.body?.table || "").trim();
-  if (!table) {
-    return next(badRequest("TABLE_REQUIRED", "Table is required."));
-  }
-
-  if (action === "read") {
-    if (!canReadTable(req, table)) {
-      return next(forbidden("You do not have permission to read this resource."));
-    }
-    return next();
-  }
-
-  if (!canWriteTable(req, table)) {
-    return next(forbidden("You do not have permission to modify this resource."));
-  }
-  return next();
-};
-
-export const authorizeRpc = (req: any, _res: any, next: any) => {
-  const name = String(req.params?.name || "");
-  if (canAccessRpc(req, name)) return next();
-
-  return next(forbidden("Unknown or unauthorized RPC."));
 };

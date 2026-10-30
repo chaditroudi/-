@@ -1,5 +1,6 @@
 import { Body, Controller, Param, Post, UseGuards } from "@nestjs/common";
 
+import { Authenticated } from "../../nest/route-metadata.js";
 import { RequireAuthGuard } from "../../nest/route-guards.js";
 import { RpcGuard } from "../../nest/route-guards.js";
 import { RpcService } from "./rpc.service.js";
@@ -10,6 +11,7 @@ export class RpcController {
   constructor(private readonly rpcService: RpcService) {}
 
   @Post(":name")
+  @Authenticated()
   async execute(@Param("name") name: string, @Body() body: Record<string, unknown>) {
     const data = await this.rpcService.execute(name, body || {});
     return { data };

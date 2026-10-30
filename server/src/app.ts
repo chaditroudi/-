@@ -4,14 +4,17 @@ import { NestFactory } from "@nestjs/core";
 
 import { getDatabaseStatus, isDatabaseConnected } from "./db/mongoose.js";
 import { requestContextMiddleware } from "./middleware/request-context.js";
-import { decodeAuthToken } from "./middleware/auth.js";
+import { resolveAuthToken } from "./middleware/auth.js";
 import { auditTrailMiddleware } from "./middleware/security-audit.js";
 import { AppExceptionFilter } from "./nest/app-exception.filter.js";
 import { AppModule } from "./nest/app.module.js";
 
+/** EventSource cannot send headers, so only the realtime stream may use ?token=. */
+const REALTIME_EVENTS_PATH = "/api/realtime/events";
+
 const readToken = (req: any) => {
   const queryToken = typeof req.query?.token === "string" ? req.query.token : "";
-  if (queryToken) return queryToken;
+  if (queryToken && req.path === REALTIME_EVENTS_PATH) return queryToken;
 
   const header = String(req.headers?.authorization || "");
   if (!header.startsWith("Bearer ")) {
@@ -51,8 +54,8 @@ export const createApp = async () => {
   });
   app.use(express.json({ limit: "10mb" }));
   app.use(requestContextMiddleware);
-  app.use((req: any, _res: any, next: any) => {
-    req.auth = decodeAuthToken(readToken(req));
+  app.use(async (req: any, _res: any, next: any) => {
+    req.auth = await resolveAuthToken(readToken(req));
     next();
   });
   app.use(auditTrailMiddleware);

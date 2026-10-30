@@ -1,46 +1,45 @@
-import { Body, Controller, Get, Param, Patch, Put, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Param, Patch, Post, Put, Req } from "@nestjs/common";
 
 import { forbidden } from "../../core/app-error.js";
-import { RequireAuthGuard } from "../../nest/route-guards.js";
-import { SettingsService } from "./settings.service.js";
-
-const ADMIN_ROLES = ["administrateur_systeme", "directeur_general", "directeur_usine"];
-
-const requireAdminAuth = (req: any) => {
-  const roles: string[] = req.auth?.user?.user_metadata?.roles ?? [];
-  if (!req.auth?.user?.id || !roles.some((r) => ADMIN_ROLES.includes(r))) {
-    throw forbidden("Admin access required.");
-  }
-};
+import { hasAnyRole, STAFF_READ_ROLES, USER_ADMIN_ROLES } from "../../middleware/authorization.js";
+import { Public, Roles } from "../../nest/route-metadata.js";
+import { redactPublicSettings, SettingsService } from "./settings.service.js";
 
 @Controller("api/settings")
 export class SettingsController {
   constructor(private readonly settingsService: SettingsService) {}
 
   @Get()
-  async getSettings() {
+  @Public()
+  async getSettings(@Req() req: any) {
     const data = await this.settingsService.getSettings();
-    return { data };
+    return { data: req.auth?.user?.id && hasAnyRole(req, STAFF_READ_ROLES) ? data : redactPublicSettings(data) };
   }
 
   @Put()
-  @UseGuards(RequireAuthGuard)
+  @Roles(...USER_ADMIN_ROLES)
   async updateSettings(@Req() req: any, @Body() body: Record<string, unknown>) {
-    requireAdminAuth(req);
     const data = await this.settingsService.updateSettings(body, req.auth.user.id);
     return { data };
   }
 
   @Get("users")
-  @UseGuards(RequireAuthGuard)
-  async listUsers(@Req() req: any) {
-    requireAdminAuth(req);
+  @Roles(...USER_ADMIN_ROLES)
+  async listUsers() {
     const data = await this.settingsService.listUsers();
     return { data };
   }
 
+  @Post("users")
+  @HttpCode(201)
+  @Roles(...USER_ADMIN_ROLES)
+  async createUser(@Req() req: any, @Body() body: Record<string, unknown>) {
+    const data = await this.settingsService.createManagedUser(body || {}, req.auth.user.id);
+    return { data };
+  }
+
   @Patch("users/:id")
-  @UseGuards(RequireAuthGuard)
+  @Roles(...USER_ADMIN_ROLES)
   async updateUser(
     @Req() req: any,
     @Param("id") id: string,
@@ -53,7 +52,6 @@ export class SettingsController {
       signature_pin?: string | null;
     },
   ) {
-    requireAdminAuth(req);
     if (id === req.auth.user.id && body.is_active === false) {
       throw forbidden("Cannot deactivate your own account.");
     }

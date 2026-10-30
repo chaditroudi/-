@@ -1,4 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
+import { BATCH_WRITE_ROLES, PRODUCTION_ROLES, STAFF_READ_ROLES } from "../../middleware/authorization.js";
+import { Roles } from "../../nest/route-metadata.js";
 import { RequireAuthGuard } from "../../nest/route-guards.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
@@ -11,6 +13,7 @@ export class FluxController {
   // ── Flux Production Runs ──────────────────────────────────────────────────────
 
   @Get("runs")
+  @Roles(...STAFF_READ_ROLES)
   async listRuns(
     @Query("flux_code") fluxCode?: string,
     @Query("status") status?: string,
@@ -35,6 +38,7 @@ export class FluxController {
   }
 
   @Post("runs")
+  @Roles(...PRODUCTION_ROLES)
   async createRun(@Body() body: Record<string, unknown>) {
     const doc = await prepareInsertDocument("flux_runs", body);
     await getCollectionModel("flux_runs").create([doc]);
@@ -42,6 +46,7 @@ export class FluxController {
   }
 
   @Patch("runs/:id")
+  @Roles(...PRODUCTION_ROLES)
   async updateRun(@Param("id") id: string, @Body() body: Record<string, unknown>) {
     const now = new Date().toISOString();
     const update: Record<string, unknown> = { ...body, updated_at: now };
@@ -58,6 +63,7 @@ export class FluxController {
   }
 
   @Delete("runs/:id")
+  @Roles(...PRODUCTION_ROLES)
   async deleteRun(@Param("id") id: string) {
     const raw = await getCollectionModel("flux_runs")
       .findOneAndDelete({ id })
@@ -71,6 +77,7 @@ export class FluxController {
   // ── HACCP States ──────────────────────────────────────────────────────────────
 
   @Get("haccp-states")
+  @Roles(...STAFF_READ_ROLES)
   async listHaccpStates() {
     const raw = await getCollectionModel("haccp_states")
       .find()
@@ -81,6 +88,7 @@ export class FluxController {
   }
 
   @Post("haccp-states")
+  @Roles(...BATCH_WRITE_ROLES)
   async upsertHaccpState(@Body() body: Record<string, unknown>) {
     const ccpCode = body.ccp_code;
 
@@ -109,6 +117,7 @@ export class FluxController {
   }
 
   @Patch("haccp-states/:id")
+  @Roles(...BATCH_WRITE_ROLES)
   async updateHaccpState(@Param("id") id: string, @Body() body: Record<string, unknown>) {
     const now = new Date().toISOString();
     const update: Record<string, unknown> = { ...body, updated_at: now };

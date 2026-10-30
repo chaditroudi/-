@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from "@nestjs/common";
 import { badRequest } from "../../core/app-error.js";
-import { PRODUCTION_ROLES } from "../../middleware/authorization.js";
+import { PRODUCTION_ROLES, STAFF_READ_ROLES } from "../../middleware/authorization.js";
 import { Roles } from "../../nest/route-metadata.js";
 import { RequireAuthGuard, RolesGuard } from "../../nest/route-guards.js";
 import { CollectionsService } from "../collections/collections.service.js";
@@ -20,6 +20,7 @@ export class ProductionController {
   // ── Configuration (flux codes, order & step statuses) ────────────────────
 
   @Get("config")
+  @Roles(...STAFF_READ_ROLES)
   async getConfig() {
     const [fluxCodes, orderStatuses, stepStatuses] = await Promise.all([
       this.cs.query({ table: "production_flux_codes", filters: [], orderBy: { column: "code", ascending: true } }),
@@ -32,6 +33,7 @@ export class ProductionController {
   // ── Step Definitions ──────────────────────────────────────────────────────
 
   @Get("step-definitions")
+  @Roles(...STAFF_READ_ROLES)
   async listStepDefinitions() {
     const data = await this.cs.query({ table: "production_step_definitions", filters: [], orderBy: { column: "sequence_order", ascending: true } });
     return { data };
@@ -40,6 +42,7 @@ export class ProductionController {
   // ── Quality Checks ────────────────────────────────────────────────────────
 
   @Get("quality-checks")
+  @Roles(...STAFF_READ_ROLES)
   async listQualityChecks(@Query("step_id") stepId?: string) {
     const filters: any[] = [];
     if (stepId) filters.push({ type: "eq", column: "production_step_id", value: stepId });
@@ -66,6 +69,7 @@ export class ProductionController {
   // ── Libered Lots (STOCK_LIBERE reception lots) ────────────────────────────
 
   @Get("libered-lots")
+  @Roles(...STAFF_READ_ROLES)
   async listLiberedLots(@Query("order_id") orderId?: string) {
     return { data: await this.productionService.listAvailableLots(orderId || null) };
   }
@@ -73,6 +77,7 @@ export class ProductionController {
   // ── Steps ─────────────────────────────────────────────────────────────────
 
   @Get("steps")
+  @Roles(...STAFF_READ_ROLES)
   async listSteps(@Query("order_id") orderId?: string) {
     const filters: any[] = [];
     if (orderId) filters.push({ type: "eq", column: "production_order_id", value: orderId });
@@ -97,6 +102,7 @@ export class ProductionController {
   // ── Lot Allocations ───────────────────────────────────────────────────────
 
   @Get("allocations")
+  @Roles(...STAFF_READ_ROLES)
   async listAllocations(@Query("order_id") orderId?: string) {
     if (!orderId) throw badRequest("ORDER_REQUIRED", "order_id est requis.");
     return { data: await this.productionService.listAllocations(orderId) };
@@ -111,6 +117,7 @@ export class ProductionController {
   // ── Output Lots ───────────────────────────────────────────────────────────
 
   @Get("output-lots")
+  @Roles(...STAFF_READ_ROLES)
   async listOutputLots(@Query("order_id") orderId?: string) {
     const filters: any[] = [];
     if (orderId) filters.push({ type: "eq", column: "production_order_id", value: orderId });
@@ -128,18 +135,21 @@ export class ProductionController {
   // ── Orders — summary must come before :id param route ────────────────────
 
   @Get("orders/summary")
+  @Roles(...STAFF_READ_ROLES)
   async getOrdersSummary() {
     const data = await this.productionService.getSummary();
     return { data };
   }
 
   @Get("orders/:id")
+  @Roles(...STAFF_READ_ROLES)
   async getOrder(@Param("id") id: string) {
     const rows = await this.cs.query({ table: "production_orders", filters: [{ type: "eq", column: "id", value: id }] });
     return { data: rows[0] ?? null };
   }
 
   @Get("orders")
+  @Roles(...STAFF_READ_ROLES)
   async listOrders() {
     const data = await this.cs.query({ table: "production_orders", filters: [], orderBy: { column: "created_at", ascending: false } });
     return { data };

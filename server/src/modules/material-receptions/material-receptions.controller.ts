@@ -1,4 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
+import { MATERIAL_RECEIPT_ROLES, STAFF_READ_ROLES } from "../../middleware/authorization.js";
+import { Roles } from "../../nest/route-metadata.js";
 import { RequireAuthGuard } from "../../nest/route-guards.js";
 import { CollectionsService } from "../collections/collections.service.js";
 
@@ -12,6 +14,7 @@ export class MaterialReceptionsController {
   constructor(private readonly cs: CollectionsService) {}
 
   @Get()
+  @Roles(...STAFF_READ_ROLES)
   async list(@Query("status") status?: string, @Query("supplier_id") supplierId?: string) {
     const filters: any[] = [];
     if (status) filters.push({ type: "eq", column: "status", value: status });
@@ -25,6 +28,7 @@ export class MaterialReceptionsController {
   }
 
   @Get(":id")
+  @Roles(...STAFF_READ_ROLES)
   async getOne(@Param("id") id: string) {
     const rows = await this.cs.query({
       table: "material_receptions",
@@ -34,12 +38,14 @@ export class MaterialReceptionsController {
   }
 
   @Post()
+  @Roles(...MATERIAL_RECEIPT_ROLES)
   async create(@Body() body: any) {
     const data = await this.cs.insert({ table: "material_receptions", values: body });
     return { data: data[0] };
   }
 
   @Get(":id/audit-logs")
+  @Roles(...STAFF_READ_ROLES)
   async auditLogs(@Param("id") id: string) {
     const data = await this.cs.query({
       table: "reception_audit_logs",
@@ -50,6 +56,7 @@ export class MaterialReceptionsController {
   }
 
   @Post(":id/audit-logs")
+  @Roles(...MATERIAL_RECEIPT_ROLES)
   async createAuditLog(@Param("id") id: string, @Body() body: any) {
     const data = await this.cs.insert({
       table: "reception_audit_logs",
@@ -63,6 +70,7 @@ export class MaterialReceptionsController {
    * when rejected/quarantine creates alerts and updates existing batch.
    */
   @Patch(":id/status")
+  @Roles(...MATERIAL_RECEIPT_ROLES)
   async updateStatus(@Param("id") id: string, @Body() body: any) {
     const {
       status,

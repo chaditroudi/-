@@ -1,4 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
+import { BATCH_MOVEMENT_ROLES, BATCH_WRITE_ROLES, QUALITY_ROLES, STAFF_READ_ROLES, STAFF_ROLES } from "../../middleware/authorization.js";
+import { Roles } from "../../nest/route-metadata.js";
 import { RequireAuthGuard } from "../../nest/route-guards.js";
 import { CollectionsService } from "../collections/collections.service.js";
 import { BatchesService } from "./batches.service.js";
@@ -14,18 +16,21 @@ export class BatchesController {
   // ── Storage Zones ─────────────────────────────────────────────────────────
 
   @Get("storage-zones")
+  @Roles(...STAFF_READ_ROLES)
   async listZones() {
     const data = await this.cs.query({ table: "storage_zones", filters: [], orderBy: { column: "name", ascending: true } });
     return { data };
   }
 
   @Post("storage-zones")
+  @Roles(...BATCH_MOVEMENT_ROLES)
   async createZone(@Body() body: any) {
     const data = await this.cs.insert({ table: "storage_zones", values: body });
     return { data: data[0] };
   }
 
   @Patch("storage-zones/:id")
+  @Roles(...BATCH_MOVEMENT_ROLES)
   async updateZone(@Param("id") id: string, @Body() body: any) {
     const { after } = await this.cs.update({ table: "storage_zones", filters: [{ type: "eq", column: "id", value: id }], values: body });
     return { data: after[0] };
@@ -34,6 +39,7 @@ export class BatchesController {
   // ── Quality Inspections ───────────────────────────────────────────────────
 
   @Get("quality-inspections")
+  @Roles(...STAFF_READ_ROLES)
   async listInspections(@Query("batch_id") batchId?: string) {
     const filters: any[] = [];
     if (batchId) filters.push({ type: "eq", column: "batch_id", value: batchId });
@@ -42,6 +48,7 @@ export class BatchesController {
   }
 
   @Post("quality-inspections")
+  @Roles(...QUALITY_ROLES)
   async createInspection(@Body() body: any) {
     const data = await this.cs.insert({ table: "quality_inspections", values: body });
     return { data: data[0] };
@@ -50,12 +57,14 @@ export class BatchesController {
   // ── Non Conformities ──────────────────────────────────────────────────────
 
   @Get("non-conformities")
+  @Roles(...STAFF_READ_ROLES)
   async listNonConformities() {
     const data = await this.cs.query({ table: "non_conformities", filters: [], orderBy: { column: "created_at", ascending: false } });
     return { data };
   }
 
   @Post("non-conformities")
+  @Roles(...QUALITY_ROLES)
   async createNonConformity(@Body() body: any) {
     const data = await this.cs.insert({ table: "non_conformities", values: body });
     return { data: data[0] };
@@ -64,6 +73,7 @@ export class BatchesController {
   // ── Alerts ────────────────────────────────────────────────────────────────
 
   @Get("alerts")
+  @Roles(...STAFF_READ_ROLES)
   async listAlerts(@Query("batch_id") batchId?: string) {
     const filters: any[] = [];
     if (batchId) filters.push({ type: "eq", column: "batch_id", value: batchId });
@@ -72,12 +82,14 @@ export class BatchesController {
   }
 
   @Post("alerts")
+  @Roles(...STAFF_ROLES)
   async createAlert(@Body() body: any) {
     const data = await this.cs.insert({ table: "alerts", values: body });
     return { data: data[0] };
   }
 
   @Patch("alerts/:id")
+  @Roles(...STAFF_ROLES)
   async updateAlert(@Param("id") id: string, @Body() body: any) {
     const { after } = await this.cs.update({ table: "alerts", filters: [{ type: "eq", column: "id", value: id }], values: body });
     return { data: after[0] };
@@ -86,6 +98,7 @@ export class BatchesController {
   // ── Batch Movements ───────────────────────────────────────────────────────
 
   @Get("movements")
+  @Roles(...STAFF_READ_ROLES)
   async listMovements(@Query("batch_id") batchId?: string) {
     const filters: any[] = [];
     if (batchId) filters.push({ type: "eq", column: "batch_id", value: batchId });
@@ -94,6 +107,7 @@ export class BatchesController {
   }
 
   @Post("movements")
+  @Roles(...BATCH_MOVEMENT_ROLES)
   async createMovement(@Body() body: any) {
     const data = await this.cs.insert({ table: "batch_movements", values: body });
     return { data: data[0] };
@@ -102,30 +116,35 @@ export class BatchesController {
   // ── Batches — summary and :id must be declared before wildcard ───────────
 
   @Get("summary")
+  @Roles(...STAFF_READ_ROLES)
   async getSummary() {
     const data = await this.batchesService.getSummary();
     return { data };
   }
 
   @Get(":id")
+  @Roles(...STAFF_READ_ROLES)
   async getBatch(@Param("id") id: string) {
     const rows = await this.cs.query({ table: "batches", filters: [{ type: "eq", column: "id", value: id }] });
     return { data: rows[0] ?? null };
   }
 
   @Get()
+  @Roles(...STAFF_READ_ROLES)
   async listBatches() {
     const data = await this.cs.query({ table: "batches", filters: [], orderBy: { column: "created_at", ascending: false } });
     return { data };
   }
 
   @Post()
+  @Roles(...BATCH_WRITE_ROLES)
   async createBatch(@Body() body: any) {
     const data = await this.cs.insert({ table: "batches", values: body });
     return { data: data[0] };
   }
 
   @Patch(":id")
+  @Roles(...BATCH_WRITE_ROLES)
   async updateBatch(@Param("id") id: string, @Body() body: any) {
     const { after } = await this.cs.update({ table: "batches", filters: [{ type: "eq", column: "id", value: id }], values: body });
     return { data: after[0] };
@@ -134,18 +153,21 @@ export class BatchesController {
   // ── Business action endpoints ─────────────────────────────────────────────
 
   @Post(":id/decide")
+  @Roles(...QUALITY_ROLES)
   async decideQC(@Param("id") id: string, @Body() body: any) {
     const data = await this.batchesService.decideQC(id, body ?? {}, body?.actor ?? null);
     return { data };
   }
 
   @Post(":id/inspections")
+  @Roles(...QUALITY_ROLES)
   async addInspection(@Param("id") id: string, @Body() body: any) {
     const data = await this.batchesService.createInspection(id, body ?? {}, body?.actor ?? null);
     return { data };
   }
 
   @Post(":id/non-conformities")
+  @Roles(...QUALITY_ROLES)
   async addNonConformity(@Param("id") id: string, @Body() body: any) {
     const data = await this.batchesService.createNonConformity(id, body ?? {}, body?.actor ?? null);
     return { data };
