@@ -29,6 +29,7 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { useBranding } from "@/hooks/useBranding";
 import { cn } from "@/lib/utils";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { AiGuide } from "@/components/ai-guide/AiGuide";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
 interface TopHeaderProps {
@@ -195,6 +196,7 @@ export const TopHeader = ({
           )}
 
           <LanguageSwitcher />
+          <AiGuide />
           <NotificationCenter />
 
           <Button

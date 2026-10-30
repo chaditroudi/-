@@ -37,6 +37,7 @@ import { CcpSensorsModule } from "../modules/ccp-sensors/ccp-sensors.module.js";
 import { CostingModule } from "../modules/costing/costing.module.js";
 import { SettlementModule } from "../modules/settlement/settlement.module.js";
 import { AtpModule } from "../modules/atp/atp.module.js";
+import { AiGuideModule } from "../modules/ai-guide/ai-guide.module.js";
 import { AppController } from "./app.controller.js";
 import { GuardsModule } from "./guards.module.js";
 
@@ -49,6 +50,7 @@ import { GuardsModule } from "./guards.module.js";
     CostingModule,
     SettlementModule,
     AtpModule,
+    AiGuideModule,
     AuthModule,
     BonReceptionAchatModule,
     BonExpeditionModule,
