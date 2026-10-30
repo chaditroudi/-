@@ -62,7 +62,7 @@ export class CollectionsController {
   async insert(@Req() req: any, @Body() body: any) {
     const actorId = req.auth?.user?.id || null;
     const table = String(body?.table || "");
-    const data = await this.collectionsService.insert({ ...(body || {}), actorId });
+    const data = await this.collectionsService.insert({ ...(body || {}), actorId, trustedInternal: false });
     publishCollectionChange(table, "INSERT", data, actorId);
     appendActionAudit(req, "INSERT", table, data).catch(() => {});
     return { data };
@@ -73,7 +73,7 @@ export class CollectionsController {
   async update(@Req() req: any, @Body() body: any) {
     const actorId = req.auth?.user?.id || null;
     const table = String(body?.table || "");
-    const result = await this.collectionsService.update({ ...(body || {}), actorId });
+    const result = await this.collectionsService.update({ ...(body || {}), actorId, trustedInternal: false });
     publishCollectionChange(table, "UPDATE", result.after, actorId, result.before);
     appendActionAudit(req, "UPDATE", table, result.after, result.before).catch(() => {});
     return { data: result.after, before: result.before };
@@ -83,7 +83,7 @@ export class CollectionsController {
   @DbAction("write")
   async remove(@Req() req: any, @Body() body: any) {
     const table = String(body?.table || "");
-    const data = await this.collectionsService.remove(body || {});
+    const data = await this.collectionsService.remove({ ...(body || {}), trustedInternal: false });
     publishCollectionChange(table, "DELETE", data, req.auth?.user?.id || null);
     appendActionAudit(req, "DELETE", table, data).catch(() => {});
     return { data };

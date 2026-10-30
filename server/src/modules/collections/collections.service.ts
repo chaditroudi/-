@@ -46,12 +46,8 @@ const appendLedgerSafe = async (
 ) => {
   if (!isRegulatedCollection(collection) || collection === "lot_events") return;
   if (!rows?.length) return;
-  try {
-    await lotLedgerService.appendForMutation({ collection, action, rows, actorId });
-  } catch (error) {
-    // Ledger must not silently fail for regulated writes — rethrow.
-    throw error;
-  }
+  // Ledger must not silently fail for regulated writes.
+  await lotLedgerService.appendForMutation({ collection, action, rows, actorId });
 };
 
 const assertDomainGates = async (
@@ -59,6 +55,7 @@ const assertDomainGates = async (
   action: "insert" | "update",
   docs: Record<string, unknown>[],
   beforeRows: Record<string, unknown>[] = [],
+  options: { trustedInternal?: boolean } = {},
 ) => {
   if (table === "production_orders") {
     for (const doc of docs) {
@@ -73,6 +70,39 @@ const assertDomainGates = async (
         collection: table,
       });
     }
+  }
+
+  // QC and stock verdicts are owned by the reception domain endpoints (QC
+  // decision, lot quality status, cancellation) — never a generic write.
+  if (table === "reception_lots" && !options.trustedInternal) {
+    docs.forEach((doc, index) => {
+      const before = beforeRows[index];
+      const next = String(doc.stock_status ?? "EN_QUARANTAINE");
+      const changed = action === "insert"
+        ? !["EN_QUARANTAINE", "NON_STOCKE"].includes(next)
+        : before !== undefined && doc.stock_status !== before.stock_status;
+      if (changed) {
+        throw badRequest(
+          "QUALITY_STATUS_DOMAIN_ONLY",
+          "Le statut qualité d'un lot se modifie par la décision QC ou POST /api/reception-lots/:lotId/quality-status.",
+        );
+      }
+    });
+  }
+
+  if (table === "receptions_v2" && !options.trustedInternal) {
+    docs.forEach((doc, index) => {
+      const before = beforeRows[index];
+      const changed = action === "insert"
+        ? !["BROUILLON", "EN_ATTENTE_QC"].includes(String(doc.status ?? "BROUILLON")) || Boolean(doc.qc_decision)
+        : before !== undefined && (doc.status !== before.status || doc.qc_decision !== before.qc_decision);
+      if (changed) {
+        throw badRequest(
+          "RECEPTION_STATUS_DOMAIN_ONLY",
+          "Le statut d'une réception se modifie par le contrôle qualité, l'annulation ou la soumission du brouillon.",
+        );
+      }
+    });
   }
 
   if (table === "production_lot_allocations") {
@@ -138,7 +168,7 @@ export class CollectionsService {
     }
 
     assertCoreSchema(table, prepared);
-    await assertDomainGates(table, "insert", prepared);
+    await assertDomainGates(table, "insert", prepared, [], { trustedInternal: Boolean(payload.trustedInternal) });
 
     if (table === "suppliers") await assertUniqueSuppliers(prepared);
 
@@ -194,7 +224,7 @@ export class CollectionsService {
 
     const projectedAfter = before.map((row: any) => sanitizeDocument({ ...row, ...updateValues }));
     assertCoreSchema(table, projectedAfter);
-    await assertDomainGates(table, "update", projectedAfter, before);
+    await assertDomainGates(table, "update", projectedAfter, before, { trustedInternal: Boolean(payload.trustedInternal) });
 
     await Model.updateMany(query, { $set: updateValues }).exec();
 
