@@ -5,8 +5,17 @@ import * as z from 'zod';
 import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import {
-  Users, Clock, ClipboardList, LogIn, LogOut, Check, X, AlertCircle,
-  Plus, Pencil, Trash2, Calendar,
+  Clock,
+  ClipboardList,
+  LogIn,
+  LogOut,
+  Check,
+  X,
+  AlertCircle,
+  Plus,
+  Pencil,
+  Trash2,
+  Calendar,
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,6 +37,7 @@ import { useTimesheets } from '@/hooks/useTimesheets';
 import { useTasks } from '@/hooks/useTasks';
 import type { Timesheet } from '@/types/roles';
 import type { EmployeeTask } from '@/hooks/useTasks';
+import { SummaryStrip } from '@/components/shared/SummaryStrip';
 
 // ── Badge helpers ─────────────────────────────────────────────────────────────
 
@@ -471,33 +481,12 @@ function PointagesPanel() {
 
   return (
     <div className="space-y-4">
-      {/* KPIs */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <Card className="border-emerald-200 bg-emerald-50">
-          <CardContent className="p-3 text-center">
-            <p className="text-2xl font-black text-emerald-700">{activeEmployees.length}</p>
-            <p className="text-xs text-emerald-600 mt-0.5">Employés actifs</p>
-          </CardContent>
-        </Card>
-        <Card className="border-blue-200 bg-blue-50">
-          <CardContent className="p-3 text-center">
-            <p className="text-2xl font-black text-blue-700">{presentToday}</p>
-            <p className="text-xs text-blue-600 mt-0.5">Présents aujourd'hui</p>
-          </CardContent>
-        </Card>
-        <Card className="border-amber-200 bg-amber-50">
-          <CardContent className="p-3 text-center">
-            <p className="text-2xl font-black text-amber-700">{pendingApproval}</p>
-            <p className="text-xs text-amber-600 mt-0.5">En attente approbation</p>
-          </CardContent>
-        </Card>
-        <Card className="border-purple-200 bg-purple-50">
-          <CardContent className="p-3 text-center">
-            <p className="text-2xl font-black text-purple-700">{hoursToday.toFixed(1)}h</p>
-            <p className="text-xs text-purple-600 mt-0.5">Heures totales aujourd'hui</p>
-          </CardContent>
-        </Card>
-      </div>
+      <SummaryStrip items={[
+        { label: 'Employés actifs', value: activeEmployees.length },
+        { label: "Présents aujourd'hui", value: presentToday },
+        { label: 'En attente approbation', value: pendingApproval, tone: pendingApproval > 0 ? 'watch' : 'default' },
+        { label: "Heures aujourd'hui", value: `${hoursToday.toFixed(1)} h` },
+      ]} />
 
       {/* Quick clock in/out */}
       <Card>
@@ -767,33 +756,12 @@ function TachesPanel() {
 
   return (
     <div className="space-y-4">
-      {/* KPIs */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <Card className="border-blue-200 bg-blue-50">
-          <CardContent className="p-3 text-center">
-            <p className="text-2xl font-black text-blue-700">{pending}</p>
-            <p className="text-xs text-blue-600 mt-0.5">En attente</p>
-          </CardContent>
-        </Card>
-        <Card className="border-amber-200 bg-amber-50">
-          <CardContent className="p-3 text-center">
-            <p className="text-2xl font-black text-amber-700">{inProgress}</p>
-            <p className="text-xs text-amber-600 mt-0.5">En cours</p>
-          </CardContent>
-        </Card>
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="p-3 text-center">
-            <p className="text-2xl font-black text-red-700">{overdue}</p>
-            <p className="text-xs text-red-600 mt-0.5">En retard</p>
-          </CardContent>
-        </Card>
-        <Card className="border-emerald-200 bg-emerald-50">
-          <CardContent className="p-3 text-center">
-            <p className="text-2xl font-black text-emerald-700">{completed}</p>
-            <p className="text-xs text-emerald-600 mt-0.5">Terminées</p>
-          </CardContent>
-        </Card>
-      </div>
+      <SummaryStrip items={[
+        { label: 'En attente', value: pending },
+        { label: 'En cours', value: inProgress },
+        { label: 'En retard', value: overdue, tone: overdue > 0 ? 'bad' : 'default' },
+        { label: 'Terminées', value: completed },
+      ]} />
 
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -999,7 +967,7 @@ export function HRDashboard() {
   return (
     <div className="space-y-4">
       <Tabs defaultValue="pointages">
-        <TabsList className="h-auto">
+        <TabsList className="">
           <TabsTrigger value="pointages" className="gap-1.5">
             <Clock className="h-3.5 w-3.5" />
             Pointages

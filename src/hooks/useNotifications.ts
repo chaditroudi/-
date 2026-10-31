@@ -188,6 +188,7 @@ export const useRealtimeNotifications = () => {
   // Separate effect: watch the Redux slice for new inserts and show toasts
   const allNotifications = useAppSelector(selectAllNotifications);
   const prevCountRef = useRef(allNotifications.length);
+  const openedAt = useRef(Date.now());
 
   useEffect(() => {
     const current = allNotifications.length;
@@ -196,6 +197,8 @@ export const useRealtimeNotifications = () => {
 
     const newest = allNotifications[0];
     if (!newest || newest.is_read) return;
+    // The first fetch also grows the list: what existed before this screen opened is not news.
+    if (new Date(newest.created_at).getTime() < openedAt.current - 5000) return;
 
     const fingerprint = getNotificationFingerprint(newest);
     const now = Date.now();

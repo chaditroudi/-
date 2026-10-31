@@ -60,7 +60,7 @@ export function PackagingDashboard({ currentUser = 'Utilisateur' }: Props) {
         <div className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2.5 text-sm text-amber-950">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
           <div>
-            <p className="font-semibold">SSCC non retail-légal</p>
+            <p className="font-semibold">Étiquettes SSCC provisoires</p>
             <p className="text-xs opacity-90">
               Préfixe GS1 = 09999999 (placeholder). Paramètres → Documents → préfixe société GS1,
               puis adhésion GS1 Tunisie.
@@ -100,7 +100,7 @@ export function PackagingDashboard({ currentUser = 'Utilisateur' }: Props) {
       )}
 
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="h-auto flex flex-wrap gap-1">
+        <TabsList className="flex flex-wrap gap-1">
           <TabsTrigger value="orders" className="gap-1.5">
             <ClipboardList className="h-3.5 w-3.5" />
             OF Conditionnement

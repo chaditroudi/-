@@ -1010,7 +1010,7 @@ const LotPassport = ({ lotCode, onClose }: { lotCode: string; onClose: () => voi
       {/* ── Detailed tabs ────────────────────────────────────────────────────── */}
       {trace ? (
         <Tabs defaultValue="qualite" className="w-full">
-          <TabsList className="w-full flex flex-wrap h-auto gap-1 p-1">
+          <TabsList className="w-full flex flex-wrap gap-1">
             {[
               { value: 'qualite',    label: 'Qualité',        count: qcCount,    Icon: FlaskConical },
               { value: 'transfo',    label: 'Transformation', count: transCount,  Icon: Wind        },
@@ -1277,7 +1277,7 @@ export const ScanStation = () => {
                 <TableHeader>
                   <TableRow className="bg-slate-50/70">
                     <TableHead className="text-xs font-semibold pl-4 w-40">Code lot</TableHead>
-                    <TableHead className="text-xs font-semibold w-36">Fournisseur</TableHead>
+                    <TableHead className="text-xs font-semibold w-36">Lot fournisseur</TableHead>
                     <TableHead className="text-xs font-semibold w-28">Variété</TableHead>
                     <TableHead className="text-xs font-semibold w-28 text-right">Quantité</TableHead>
                     <TableHead className="text-xs font-semibold w-32">Statut</TableHead>

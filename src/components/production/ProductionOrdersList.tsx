@@ -97,7 +97,7 @@ export const ProductionOrdersList = ({ orders, receptions, onOpenOrder }: Produc
                 </TableCell>
                 <TableCell className="hidden lg:table-cell">{order.reception?.reception_number ?? order.reception_number_snapshot ?? '—'}</TableCell>
                 <TableCell className="text-right">
-                  {order.target_quantity} {order.unit}
+                  {order.target_quantity == null ? '—' : `${order.target_quantity} ${order.unit ?? ''}`}
                   {order.actual_quantity > 0 && <span className="block text-xs text-muted-foreground">{order.actual_quantity} produits</span>}
                 </TableCell>
                 <TableCell className={cn('hidden sm:table-cell', order.priority >= 3 && 'font-semibold text-red-700', order.priority === 2 && 'font-semibold text-amber-800')}>

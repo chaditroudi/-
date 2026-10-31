@@ -107,7 +107,6 @@ function BalanceRow({
       {/* % range */}
       <span
         className="w-16 shrink-0 text-right text-xs font-semibold"
-        style={{ color }}
       >
         {yieldRangePercent[0]}–{yieldRangePercent[1]} %
       </span>
@@ -183,7 +182,7 @@ function RealBalanceRow({
         <p className="text-[11px] text-muted-foreground">{runs} prod. enregistrée{runs > 1 ? 's' : ''}</p>
       </div>
       {yieldPct && (
-        <span className="text-xs font-bold" style={{ color }}>
+        <span className="text-xs font-bold">
           {yieldPct} %
         </span>
       )}

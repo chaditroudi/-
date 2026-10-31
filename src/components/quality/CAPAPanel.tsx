@@ -2,12 +2,8 @@ import { useEffect, useState } from 'react';
 import { format, isPast, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import {
-  AlertTriangle,
-  CheckCircle2,
-  Clock,
   Plus,
   ShieldAlert,
-  XCircle,
 } from 'lucide-react';
 import {
   useCAPATickets,
@@ -50,6 +46,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
+import { SummaryStrip } from '@/components/shared/SummaryStrip';
 
 const ALL_STATUS_VALUE = 'all';
 
@@ -306,52 +303,12 @@ export const CAPAPanel = ({ currentUser }: { currentUser: string }) => {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-5">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-red-600" />
-              <div>
-                <div className="text-2xl font-bold">{openCount}</div>
-                <div className="text-sm text-muted-foreground">Tickets ouverts</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-5">
-            <div className="flex items-center gap-3">
-              <Clock className="h-5 w-5 text-amber-600" />
-              <div>
-                <div className="text-2xl font-bold">{inProgressCount}</div>
-                <div className="text-sm text-muted-foreground">En cours</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-5">
-            <div className="flex items-center gap-3">
-              <XCircle className="h-5 w-5 text-rose-600" />
-              <div>
-                <div className="text-2xl font-bold">{overdueCount}</div>
-                <div className="text-sm text-muted-foreground">En retard</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-5">
-            <div className="flex items-center gap-3">
-              <ShieldAlert className="h-5 w-5 text-purple-600" />
-              <div>
-                <div className="text-2xl font-bold">{criticalCount}</div>
-                <div className="text-sm text-muted-foreground">CRITIQUE actives</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <SummaryStrip items={[
+        { label: 'Tickets ouverts', value: openCount },
+        { label: 'En cours', value: inProgressCount },
+        { label: 'En retard', value: overdueCount, tone: overdueCount > 0 ? 'bad' : 'default' },
+        { label: 'Critiques actifs', value: criticalCount, tone: criticalCount > 0 ? 'bad' : 'default' },
+      ]} />
 
       <Card>
         <CardHeader>

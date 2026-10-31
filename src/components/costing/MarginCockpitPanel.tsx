@@ -23,6 +23,7 @@ export function MarginCockpitPanel() {
     staleTime: 30_000,
   });
 
+  const hasProduction = (data?.totals.produced_kg ?? 0) > 0;
   const overTarget =
     data != null && data.totals.cost_tnd_per_kg > data.totals.target_cost_tnd_per_kg;
 
@@ -84,7 +85,7 @@ export function MarginCockpitPanel() {
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <div className="rounded-xl border px-3 py-2.5">
                 <p className="text-[11px] text-muted-foreground">Coût / kg</p>
-                <p className="text-lg font-semibold">{fmt(data.totals.cost_tnd_per_kg, 3)}</p>
+                <p className="text-lg font-semibold">{hasProduction ? fmt(data.totals.cost_tnd_per_kg, 3) : '—'}</p>
               </div>
               <div className="rounded-xl border px-3 py-2.5">
                 <p className="text-[11px] text-muted-foreground">Cible</p>
@@ -92,20 +93,22 @@ export function MarginCockpitPanel() {
               </div>
               <div className="rounded-xl border px-3 py-2.5">
                 <p className="text-[11px] text-muted-foreground">Écart vs cible</p>
-                <p
-                  className={`flex items-center gap-1 text-lg font-semibold ${
-                    overTarget ? 'text-amber-700' : 'text-emerald-700'
-                  }`}
-                >
-                  {overTarget ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                  {fmt(data.totals.cost_variance_pct, 1)}%
-                </p>
+                {hasProduction ? (
+                  <p className={`flex items-center gap-1 text-lg font-semibold ${overTarget ? 'text-amber-700' : 'text-emerald-700'}`}>
+                    {overTarget ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                    {fmt(data.totals.cost_variance_pct, 1)}%
+                  </p>
+                ) : (
+                  <p className="text-lg font-semibold">—</p>
+                )}
               </div>
               <div className="rounded-xl border px-3 py-2.5">
                 <p className="text-[11px] text-muted-foreground">Déchets</p>
                 <p className="text-lg font-semibold">{fmt(data.totals.waste_kg, 1)} kg</p>
               </div>
             </div>
+
+            {!hasProduction && <p className="text-sm text-muted-foreground">Aucune production sur la période : ni coût ni écart à afficher.</p>}
 
             <div className="rounded-xl border px-3 py-2.5">
               <div className="mb-2 flex flex-wrap gap-2">

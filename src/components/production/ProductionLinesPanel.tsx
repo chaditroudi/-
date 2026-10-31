@@ -1,19 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Progress } from '@/components/ui/progress';
+
 import { cn } from '@/lib/utils';
 import {
   PRODUCTION_LINE_CODES,
   PRODUCTION_LINE_DEFINITIONS,
   type ProductionLineCode,
-  type ProductionLineStep,
 } from '@/types/production-lines';
 import {
   useFluxRuns,
@@ -23,21 +22,14 @@ import {
   type FluxRun,
 } from '@/hooks/useFluxRuns';
 import {
-  AlertTriangle,
   CheckCircle2,
   ChevronDown,
   ChevronUp,
-  Circle,
   Clock,
   Droplets,
   FlaskConical,
-  History,
-  Leaf,
   Loader2,
-  Package,
   Play,
-  ShieldAlert,
-  Square,
   Thermometer,
   TrendingUp,
   X,
@@ -389,40 +381,6 @@ function RecentRunsList({ runs }: { runs: FluxRun[] }) {
   );
 }
 
-// ─── StepChip ─────────────────────────────────────────────────────────────────
-
-function StepChip({ step }: { step: ProductionLineStep }) {
-  const hasCcp = Boolean(step.ccp);
-  return (
-    <div className="group relative flex flex-col items-center gap-0.5">
-      <div className="flex items-center gap-0">
-        {step.sequence > 1 && <span className="hidden h-px w-4 bg-border sm:block" />}
-        <div
-          className={cn(
-            'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-[11px] font-bold transition-colors',
-            hasCcp
-              ? 'border-red-400 bg-red-50 text-red-700'
-              : step.requiresQC
-                ? 'border-amber-300 bg-amber-50 text-amber-700'
-                : 'border-border bg-muted text-muted-foreground',
-          )}
-          title={hasCcp ? `${step.ccp} — ${step.description}` : step.description}
-        >
-          {step.sequence}
-        </div>
-      </div>
-      <span className="max-w-[60px] text-center text-[11px] leading-tight text-muted-foreground">
-        {step.label}
-      </span>
-      {hasCcp && (
-        <Badge className="rounded-full bg-red-600 px-1 py-0 text-[11px] font-bold text-white">
-          {step.ccp}
-        </Badge>
-      )}
-    </div>
-  );
-}
-
 function LineParamPill({ icon: Icon, label }: { icon: typeof Thermometer; label: string }) {
   return (
     <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/60 px-2 py-0.5 text-[11px] text-muted-foreground">
@@ -443,7 +401,7 @@ interface ProductionLineCardProps {
   isLoading: boolean;
 }
 
-function ProductionLineCard({
+function ProductionLineRow({
   code,
   isExpanded,
   onToggle,
@@ -453,81 +411,55 @@ function ProductionLineCard({
 }: ProductionLineCardProps) {
   const def = PRODUCTION_LINE_DEFINITIONS[code];
   const [startOpen, setStartOpen] = useState(false);
+  const ccps = def.steps.filter((step) => step.ccp).map((step) => step.ccp);
 
   return (
-    <>
-      <Card
-        className="surface-card overflow-hidden border-l-4 border-t border-r border-b border-border transition-shadow hover:shadow-md"
-        style={{ borderLeftColor: def.color }}
-      >
-        <CardHeader className="pb-0 pt-4 px-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge
-                  className="rounded-md px-2 py-0.5 text-xs font-bold text-white"
-                  style={{ backgroundColor: def.color }}
-                >
-                  {def.code}
-                </Badge>
-                <span className="text-sm font-semibold text-foreground">{def.labelFr}</span>
-                {def.isDerived && (
-                  <Badge variant="outline" className="rounded-full px-1.5 py-0 text-[11px]">
-                    Dérivé
-                  </Badge>
-                )}
-                {activeRun && (
-                  <span className="flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-                    Live
-                  </span>
-                )}
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{def.description}</p>
-            </div>
-            <div className="flex flex-col items-end gap-2">
-              <div
-                className="shrink-0 rounded-xl border px-3 py-1.5 text-center text-xs"
-                style={{ borderColor: def.color + '60', backgroundColor: def.color + '10' }}
-              >
-                <span className="font-bold" style={{ color: def.color }}>
-                  {def.balance.yieldRangePercent[0]}–{def.balance.yieldRangePercent[1]} %
-                </span>
-                <p className="mt-0.5 text-[11px] text-muted-foreground">du tonnage</p>
-              </div>
-              {!activeRun && (
-                <Button
-                  size="sm"
-                  className="h-9 rounded-lg px-2.5 text-xs"
-                  style={{ backgroundColor: def.color }}
-                  onClick={() => setStartOpen(true)}
-                  disabled={isLoading}
-                >
-                  <Play className="mr-1 h-3 w-3" />
-                  Démarrer
-                </Button>
-              )}
-            </div>
-          </div>
+    <li className="border-t first:border-t-0">
+      <div className="grid grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-3 px-3 py-2 md:grid-cols-[2.5rem_minmax(0,1fr)_6rem_9rem_auto]">
+        <span className="rounded-sm px-1.5 py-0.5 text-center text-xs font-bold text-white" style={{ backgroundColor: def.color }}>
+          {def.code}
+        </span>
+        <button type="button" aria-expanded={isExpanded} className="min-h-9 min-w-0 text-left pointer-coarse:min-h-11" onClick={onToggle}>
+          <span className="flex items-center gap-1 text-sm font-medium text-foreground">
+            {isExpanded ? <ChevronUp className="h-3.5 w-3.5 shrink-0" /> : <ChevronDown className="h-3.5 w-3.5 shrink-0" />}
+            <span className="truncate">{def.labelFr}</span>
+          </span>
+          <span className="block truncate pl-[1.125rem] text-xs text-muted-foreground">
+            {def.steps.length} étapes{ccps.length > 0 ? `, ${ccps.join(', ')}` : ''}{def.isDerived ? ', ligne dérivée' : ''}
+          </span>
+        </button>
+        <span className="hidden text-sm text-muted-foreground md:block">
+          {def.balance.yieldRangePercent[0]} à {def.balance.yieldRangePercent[1]} %
+        </span>
+        <span className={cn('hidden text-sm md:block', activeRun ? 'font-medium text-emerald-800' : 'text-muted-foreground')}>
+          {activeRun ? 'En production' : 'Inactive'}
+        </span>
+        {activeRun ? (
+          <span className="text-sm font-medium text-emerald-800 md:hidden">En production</span>
+        ) : (
+          <Button size="sm" variant="outline" onClick={() => setStartOpen(true)} disabled={isLoading} aria-label={`Démarrer la ligne ${def.code}`}>
+            <Play className="mr-1 h-3 w-3" />
+            Démarrer
+          </Button>
+        )}
+      </div>
 
-          <p className="mt-2 text-[11px] text-muted-foreground">
-            <span className="font-medium text-foreground">Entrée :</span> {def.inputQuality}
-          </p>
+      {activeRun && (
+        <div className="px-3 pb-3">
+          <ActiveRunBadge run={activeRun} />
+        </div>
+      )}
 
-          <div className="mt-3 flex flex-wrap items-start gap-1">
-            {def.steps.map((step) => (
-              <StepChip key={step.code} step={step} />
-            ))}
-          </div>
-        </CardHeader>
-
-        <CardContent className="px-4 pb-4 pt-3">
+      {isExpanded && (
+        <div className="space-y-3 border-t bg-muted/20 px-3 py-3">
+          <p className="text-sm text-muted-foreground">{def.description}</p>
+          <p className="text-sm"><span className="font-medium">Entrée :</span> {def.inputQuality}</p>
           <div className="flex flex-wrap gap-1.5">
             {def.params.humidity && (
-              <LineParamPill icon={Droplets} label={`Humidité ${def.params.humidity[0]}–${def.params.humidity[1]} %`} />
+              <LineParamPill icon={Droplets} label={`Humidité ${def.params.humidity[0]} à ${def.params.humidity[1]} %`} />
             )}
             {def.params.temperatureRange && (
-              <LineParamPill icon={Thermometer} label={`T° ${def.params.temperatureRange[0]}–${def.params.temperatureRange[1]} °C`} />
+              <LineParamPill icon={Thermometer} label={`Température ${def.params.temperatureRange[0]} à ${def.params.temperatureRange[1]} °C`} />
             )}
             {def.params.throughput && (
               <LineParamPill icon={Zap} label={def.params.throughput} />
@@ -537,169 +469,60 @@ function ProductionLineCard({
             )}
           </div>
 
-          {/* Live run section */}
-          {activeRun ? (
-            <ActiveRunBadge run={activeRun} />
-          ) : (
-            <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Square className="h-3 w-3" />
-              <span>Ligne inactive</span>
-            </div>
-          )}
+          {recentRuns.length > 0 && <RecentRunsList runs={recentRuns} />}
 
-          {/* Recent runs history */}
-          {recentRuns.length > 0 && (
-            <div className="mt-3 border-t border-border pt-3">
-              <RecentRunsList runs={recentRuns} />
-            </div>
-          )}
-
-          {/* Expand / collapse */}
-          <button
-            className="mt-3 flex items-center gap-1 text-xs text-primary/70 hover:text-primary"
-            onClick={onToggle}
-          >
-            {isExpanded
-              ? <><ChevronUp className="h-3 w-3" /> Masquer le détail</>
-              : <><ChevronDown className="h-3 w-3" /> Voir le détail</>}
-          </button>
-
-          {isExpanded && (
-            <div className="mt-3 space-y-2 border-t border-border pt-3">
-              <p className="text-[11px] font-semibold text-muted-foreground">Étapes</p>
-              <div className="divide-y divide-border rounded-xl border border-border text-xs">
-                {def.steps.map((step) => (
-                  <div key={step.code} className="flex items-center gap-3 px-3 py-2">
-                    <span className="w-5 text-center font-semibold text-muted-foreground">{step.sequence}</span>
-                    <div className="flex-1 min-w-0">
-                      <span className="font-medium text-foreground">{step.label}</span>
-                      {step.ccp && (
-                        <Badge className="ml-1.5 rounded-full bg-red-600 px-1.5 py-0 text-[11px] font-bold text-white">
-                          {step.ccp}
-                        </Badge>
-                      )}
-                      {step.requiresQC && !step.ccp && (
-                        <Badge variant="outline" className="ml-1.5 rounded-full border-amber-300 px-1.5 py-0 text-[11px] text-amber-700">
-                          QC
-                        </Badge>
-                      )}
-                      <p className="text-muted-foreground">{step.description}</p>
-                    </div>
-                    {step.parameters && step.parameters.length > 0 && (
-                      <div className="shrink-0 text-right text-[11px] text-muted-foreground">
-                        {step.parameters.map((p) => (
-                          <div key={p.key}>
-                            {p.label}
-                            {p.range && (p.range[0] !== null || p.range[1] !== null) && (
-                              <span className="ml-1 text-foreground font-medium">
-                                [{p.range[0] ?? '–'}, {p.range[1] ?? '–'}] {p.unit}
-                              </span>
-                            )}
-                          </div>
-                        ))}
+          <ol className="divide-y rounded-lg border bg-card text-sm">
+            {def.steps.map((step) => (
+              <li key={step.code} className="flex items-start gap-3 px-3 py-2">
+                <span className="w-5 shrink-0 text-center font-medium text-muted-foreground">{step.sequence}</span>
+                <div className="min-w-0 flex-1">
+                  <span className="font-medium text-foreground">{step.label}</span>
+                  {step.ccp && <Badge className="ml-1.5 rounded-sm bg-red-700 px-1.5 py-0 text-xs font-semibold text-white">{step.ccp}</Badge>}
+                  {step.requiresQC && !step.ccp && <Badge variant="outline" className="ml-1.5 rounded-sm border-amber-300 px-1.5 py-0 text-xs text-amber-800">QC</Badge>}
+                  <p className="text-xs text-muted-foreground">{step.description}</p>
+                </div>
+                {step.parameters && step.parameters.length > 0 && (
+                  <div className="shrink-0 text-right text-xs text-muted-foreground">
+                    {step.parameters.map((p) => (
+                      <div key={p.key}>
+                        {p.label}
+                        {p.range && (p.range[0] !== null || p.range[1] !== null) && (
+                          <span className="ml-1 font-medium text-foreground">
+                            {p.range[0] ?? '–'} à {p.range[1] ?? '–'} {p.unit}
+                          </span>
+                        )}
                       </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-              {def.params.packagingFormats && (
-                <div className="mt-2">
-                  <p className="text-[11px] font-semibold text-muted-foreground">Formats emballage</p>
-                  <div className="mt-1 flex flex-wrap gap-1">
-                    {def.params.packagingFormats.map((fmt) => (
-                      <Badge key={fmt} variant="outline" className="rounded-full text-[11px]">
-                        <Package className="mr-1 h-2.5 w-2.5" />{fmt}
-                      </Badge>
                     ))}
                   </div>
-                </div>
-              )}
-              {def.params.notes && (
-                <p className="rounded-lg bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
-                  {def.params.notes}
-                </p>
-              )}
-              <div className="flex items-center gap-1.5 rounded-lg bg-muted/30 px-3 py-1.5">
-                <Leaf className="h-3 w-3 text-emerald-600" />
-                <p className="text-[11px] text-foreground">
-                  <span className="font-medium">Destination :</span> {def.balance.destination}
-                </p>
-              </div>
-              {def.fedBy && def.fedBy.length > 0 && (
-                <p className="text-[11px] text-muted-foreground">
-                  Alimenté par :{' '}
-                  {def.fedBy.map((f) => (
-                    <Badge
-                      key={f}
-                      className="ml-1 rounded-md px-1.5 py-0 text-[11px] font-bold text-white"
-                      style={{ backgroundColor: PRODUCTION_LINE_DEFINITIONS[f].color }}
-                    >
-                      {f}
-                    </Badge>
-                  ))}
-                </p>
-              )}
-            </div>
+                )}
+              </li>
+            ))}
+          </ol>
+
+          {def.params.packagingFormats && (
+            <p className="text-sm"><span className="font-medium">Formats :</span> {def.params.packagingFormats.join(', ')}</p>
           )}
-        </CardContent>
-      </Card>
+          {def.params.notes && <p className="text-sm text-muted-foreground">{def.params.notes}</p>}
+          <p className="text-sm"><span className="font-medium">Destination :</span> {def.balance.destination}</p>
+          {def.fedBy && def.fedBy.length > 0 && (
+            <p className="text-sm"><span className="font-medium">Alimentée par :</span> {def.fedBy.join(', ')}</p>
+          )}
+        </div>
+      )}
 
       <StartRunDialog code={code} open={startOpen} onOpenChange={setStartOpen} />
-    </>
+    </li>
   );
 }
 
 // ─── Common trunk ─────────────────────────────────────────────────────────────
 
 function CommonTrunk() {
-  const steps = [
-    { label: 'Palmeraie', icon: Leaf, desc: 'Récolte régimes Deglet Nour', ccp: false },
-    { label: 'Réception', icon: ShieldAlert, desc: 'Pesée · QC humidité · Désinsectisation (CCP1)', ccp: true },
-    { label: 'Stockage froid', icon: Thermometer, desc: '0–4 °C · FIFO par lot', ccp: false },
-    { label: 'Tri / aiguillage', icon: CheckCircle2, desc: 'Table vibrante · Trieuse optique', ccp: false },
-  ];
-
+  const steps = ['Palmeraie', 'Réception (CCP1)', 'Stockage froid', 'Tri et aiguillage'];
   return (
-    <Card className="surface-card border-border">
-      <CardHeader className="pb-2">
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="rounded-full text-xs font-semibold">
-            Tronc commun
-          </Badge>
-          <span className="text-xs text-muted-foreground">— toutes lignes F1–F8</span>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <div className="flex flex-wrap items-start gap-0">
-          {steps.map((step, i) => (
-            <div key={step.label} className="flex items-center">
-              <div className="flex flex-col items-center gap-1">
-                <div
-                  className={cn(
-                    'flex h-10 w-10 items-center justify-center rounded-full border-2',
-                    step.ccp
-                      ? 'border-red-400 bg-red-50 text-red-700'
-                      : 'border-border bg-muted/60 text-muted-foreground',
-                  )}
-                >
-                  <step.icon className="h-4 w-4" />
-                </div>
-                <p className="text-[11px] font-semibold text-foreground">{step.label}</p>
-                <p className="max-w-[80px] text-center text-[11px] text-muted-foreground">{step.desc}</p>
-                {step.ccp && (
-                  <Badge className="rounded-full bg-red-600 px-1.5 py-0 text-[11px] font-bold text-white">CCP1</Badge>
-                )}
-              </div>
-              {i < steps.length - 1 && <div className="mx-2 mb-6 h-px w-8 bg-border" />}
-            </div>
-          ))}
-          <div className="mx-2 mb-6 flex items-center">
-            <div className="h-px w-8 bg-border" />
-            <div className="text-xs font-bold text-muted-foreground">→ F1–F8</div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+    <p className="text-sm text-muted-foreground">
+      <span className="font-medium text-foreground">Avant toute ligne :</span> {steps.join(', puis ')}.
+    </p>
   );
 }
 
@@ -709,40 +532,12 @@ type FilterMode = 'all' | 'main' | 'derived';
 
 function FilterBar({ mode, onChange }: { mode: FilterMode; onChange: (m: FilterMode) => void }) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-1">
       {(['all', 'main', 'derived'] as FilterMode[]).map((m) => (
-        <button
-          key={m}
-          onClick={() => onChange(m)}
-          className={cn(
-            'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
-            mode === m
-              ? 'border-primary bg-primary text-primary-foreground'
-              : 'border-border bg-card text-muted-foreground hover:bg-muted',
-          )}
-        >
-          {m === 'all' ? 'Toutes les lignes' : m === 'main' ? 'Lignes principales (F1–F4)' : 'Lignes dérivées (F5–F8)'}
-        </button>
+        <Button key={m} type="button" size="sm" variant={mode === m ? 'secondary' : 'ghost'} aria-pressed={mode === m} onClick={() => onChange(m)}>
+          {m === 'all' ? 'Toutes' : m === 'main' ? 'Principales (F1 à F4)' : 'Dérivées (F5 à F8)'}
+        </Button>
       ))}
-    </div>
-  );
-}
-
-function StepLegend() {
-  return (
-    <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-      <span className="flex items-center gap-1.5">
-        <div className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-red-400 bg-red-50 text-[11px] font-bold text-red-700">n</div>
-        CCP (point critique)
-      </span>
-      <span className="flex items-center gap-1.5">
-        <div className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-amber-300 bg-amber-50 text-[11px] font-bold text-amber-700">n</div>
-        Contrôle qualité requis
-      </span>
-      <span className="flex items-center gap-1.5">
-        <div className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-border bg-muted text-[11px] font-bold text-muted-foreground">n</div>
-        Étape opérationnelle
-      </span>
     </div>
   );
 }
@@ -785,58 +580,36 @@ export function ProductionLinesPanel() {
   });
 
   return (
-    <div className="space-y-5">
-      {/* Header + live summary */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-base font-semibold text-foreground">Flux matière — 8 lignes produits</h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            Cartographie des opérations · Données en temps réel (MAJ 30 s)
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          <span className={cn(
-            'inline-flex items-center gap-1 rounded-full border px-3 py-1 font-medium',
-            activeCount > 0 ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-border bg-muted/60 text-muted-foreground',
-          )}>
-            {isLoading
-              ? <Loader2 className="h-3 w-3 animate-spin" />
-              : <span className={cn('h-1.5 w-1.5 rounded-full', activeCount > 0 ? 'bg-emerald-500 animate-pulse' : 'bg-muted-foreground')} />}
-            {activeCount > 0 ? `${activeCount} ligne${activeCount > 1 ? 's' : ''} en production` : 'Aucune ligne active'}
-          </span>
-          {todayRuns.length > 0 && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/60 px-3 py-1 font-medium text-muted-foreground">
-              <History className="h-3 w-3" />
-              {todayRuns.length} prod. aujourd'hui · {todayOutput.toLocaleString('fr-FR')} kg
-            </span>
-          )}
-          <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/60 px-3 py-1 font-medium text-muted-foreground">
-            <AlertTriangle className="h-3 w-3 text-red-500" />
-            2 CCP
-          </span>
-        </div>
+    <div className="space-y-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <FilterBar mode={filterMode} onChange={setFilterMode} />
+        <p className="text-sm text-muted-foreground" role="status">
+          {isLoading ? 'Chargement…' : activeCount > 0 ? `${activeCount} ligne${activeCount > 1 ? 's' : ''} en production` : 'Aucune ligne en production'}
+          {todayRuns.length > 0 && `, ${todayRuns.length} production${todayRuns.length > 1 ? 's' : ''} aujourd'hui pour ${todayOutput.toLocaleString('fr-FR')} kg`}
+        </p>
       </div>
-
-      {/* Common trunk */}
       <CommonTrunk />
-
-      {/* Filter + legend */}
-      <FilterBar mode={filterMode} onChange={setFilterMode} />
-      <StepLegend />
-
-      {/* Line cards */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        {visibleCodes.map((code) => (
-          <ProductionLineCard
-            key={code}
-            code={code}
-            isExpanded={expandedCode === code}
-            onToggle={() => setExpandedCode((p) => (p === code ? null : code))}
-            activeRun={activeRunsByLine(code)}
-            recentRuns={recentRunsByLine(code)}
-            isLoading={isLoading}
-          />
-        ))}
+      <div className="overflow-hidden rounded-lg border bg-card">
+        <div className="hidden grid-cols-[2.5rem_minmax(0,1fr)_6rem_9rem_auto] gap-3 border-b bg-muted/50 px-3 py-1.5 text-xs font-medium text-muted-foreground md:grid">
+          <span>Ligne</span>
+          <span>Produit</span>
+          <span>Du tonnage</span>
+          <span>État</span>
+          <span className="w-[6.5rem]" />
+        </div>
+        <ul>
+          {visibleCodes.map((code) => (
+            <ProductionLineRow
+              key={code}
+              code={code}
+              isExpanded={expandedCode === code}
+              onToggle={() => setExpandedCode((p) => (p === code ? null : code))}
+              activeRun={activeRunsByLine(code)}
+              recentRuns={recentRunsByLine(code)}
+              isLoading={isLoading}
+            />
+          ))}
+        </ul>
       </div>
     </div>
   );

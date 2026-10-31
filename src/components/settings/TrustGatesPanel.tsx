@@ -55,10 +55,10 @@ export function TrustGatesPanel() {
             <div className="flex flex-wrap gap-2">
               {(
                 [
-                  ['scan', data.gates.scan],
-                  ['ccp', data.gates.ccp],
-                  ['stage', data.gates.stage],
-                  ['mass', data.gates.mass_balance],
+                  ['Scan', data.gates.scan],
+                  ['CCP', data.gates.ccp],
+                  ['Étapes', data.gates.stage],
+                  ['Bilan matière', data.gates.mass_balance],
                 ] as const
               ).map(([label, mode]) => (
                 <Badge key={label} className={tone(mode)}>
@@ -68,10 +68,10 @@ export function TrustGatesPanel() {
             </div>
 
             <div className="rounded-xl border px-3 py-2">
-              <p className="text-xs text-muted-foreground">GS1 company prefix</p>
+              <p className="text-xs text-muted-foreground">Préfixe société GS1</p>
               <p className="font-mono text-sm">
                 {data.gs1.company_prefix}
-                {data.gs1.placeholder ? ' · placeholder' : ''}
+                {data.gs1.placeholder ? ', provisoire' : ''}
               </p>
             </div>
 
@@ -91,7 +91,7 @@ export function TrustGatesPanel() {
             </div>
 
             <p className="text-[11px] text-muted-foreground">
-              Process swallowed stage failures: {data.swallowed_stage_failures_process}
+              Échecs d'étape non remontés par le processus : {data.swallowed_stage_failures_process}
               {' · '}
               Env: TRUST_SCAN_GATE / TRUST_CCP_GATE / TRUST_STAGE_GATE / TRUST_MASS_BALANCE_GATE
             </p>

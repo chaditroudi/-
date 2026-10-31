@@ -506,7 +506,7 @@ const Index = () => {
           </div>
         )}
 
-        <main className="flex-1 min-w-0 overflow-x-hidden overflow-y-auto">
+        <main className="min-w-0 flex-1 overflow-x-clip">
           <div className="mx-auto w-full max-w-[1800px] px-3 py-3 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-5 md:pb-8 lg:px-6 lg:py-6">
             <div key={activeTab} className="animate-page-enter w-full">
               <Suspense fallback={<TabLoader />}>

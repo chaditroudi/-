@@ -33,7 +33,7 @@ const FUMIGATION_STATUS_LABEL: Record<FumigationCycleStatus, string> = {
   VALIDATION: 'Validation',
   TERMINE: 'Termine',
   INTERROMPU: 'Interrompu',
-  ECHEC: 'Echec',
+  ECHEC: 'Échec',
 };
 
 function fmt(iso: string | null | undefined, pattern = 'dd/MM/yyyy HH:mm') {
@@ -149,7 +149,7 @@ export function LotTraceabilityDialog({ open, onOpenChange, lotNumber }: Props) 
           {data?.integration_summary.scm_sync_ready ? boolBadge(true, 'SCM lie') : null}
           {lastLiveUpdateAt && (
             <span className="text-muted-foreground">
-              Mise a jour {formatDistanceToNow(new Date(lastLiveUpdateAt), { addSuffix: true, locale: fr })}
+              Mise à jour {formatDistanceToNow(new Date(lastLiveUpdateAt), { addSuffix: true, locale: fr })}
             </span>
           )}
         </div>
@@ -219,7 +219,7 @@ export function LotTraceabilityDialog({ open, onOpenChange, lotNumber }: Props) 
               <section className="space-y-3">
                 <SectionTitle
                   icon={CheckCircle2}
-                  title="Integrite et controles"
+                  title="Intégrité et contrôles"
                   subtitle={`${auditCoverage} audit(s) relies · ${issuesCount} point(s) a surveiller`}
                 />
                 <div className="grid gap-3 lg:grid-cols-2">
@@ -242,7 +242,7 @@ export function LotTraceabilityDialog({ open, onOpenChange, lotNumber }: Props) 
                   <div className="rounded-xl border border-amber-200 bg-amber-50 p-3">
                     <div className="flex items-center gap-2 text-amber-900 font-semibold text-sm">
                       <AlertTriangle className="h-4 w-4" />
-                      Ecarts ou donnees manquantes
+                      Écarts ou données manquantes
                     </div>
                     <div className="mt-2 space-y-1">
                       {data.controls.missing_data.map((entry) => (
@@ -483,7 +483,7 @@ export function LotTraceabilityDialog({ open, onOpenChange, lotNumber }: Props) 
                                 <div className="space-y-1">
                                   {orderSteps.map((step) => (
                                     <div key={step.id} className="text-xs text-muted-foreground">
-                                      Etape {step.sequence_order ?? '—'} · {step.status} · {step.operator_name ?? 'non assigne'}
+                                      Étape {step.sequence_order ?? '—'} · {step.status} · {step.operator_name ?? 'non assigne'}
                                     </div>
                                   ))}
                                 </div>
@@ -678,7 +678,7 @@ export function LotTraceabilityDialog({ open, onOpenChange, lotNumber }: Props) 
                             Packaging: {data.integration_summary.packaging_order_numbers.join(', ') || '—'}
                           </div>
                           <div className="text-muted-foreground">
-                            Expedition: {data.integration_summary.shipment_numbers.join(', ') || '—'}
+                            Expédition : {data.integration_summary.shipment_numbers.join(', ') || '—'}
                           </div>
                         </div>
                         <div className="rounded-lg border p-3">

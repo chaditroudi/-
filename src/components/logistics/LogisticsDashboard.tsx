@@ -12,11 +12,8 @@ import {
   Plus,
   Printer,
   Search,
-  ShieldCheck,
   Ship,
-  TimerReset,
   Trash2,
-  Truck,
 } from 'lucide-react';
 import { BonExpeditionDashboard } from '@/components/bon-expedition/BonExpeditionDashboard';
 import { RecallDrillPanel } from '@/components/home/RecallDrillPanel';
@@ -59,6 +56,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { TransportWorkspace } from './TransportWorkspace';
+import { SummaryStrip } from '@/components/shared/SummaryStrip';
 
 type ShipmentChecklist = {
   totalLines: number;
@@ -120,10 +118,10 @@ const getShipmentChecklist = (shipment: ShipmentPreparation): ShipmentChecklist 
   if (!shipment.customer_name) openActions.push('Renseigner le client');
   if (!shipment.destination) openActions.push('Renseigner la destination');
   if (!shipment.requested_date) openActions.push('Planifier la date demandee');
-  if (lines.length === 0) openActions.push('Ajouter au moins une ligne de preparation');
+  if (lines.length === 0) openActions.push('Ajouter au moins une ligne de préparation');
   if (lotCoverage < 100) openActions.push('Affecter un lot a chaque ligne');
   if (!fullyPicked) openActions.push('Completer le picking des quantites demandees');
-  if (!phytosanitaryReady) openActions.push('Completer les donnees phyto/origine des lots');
+  if (!phytosanitaryReady) openActions.push('Compléter les données phyto/origine des lots');
   if (!genealogyReady) openActions.push('Completer la genealogie export des lots');
 
   return {
@@ -146,7 +144,7 @@ const buildConformityReport = (shipment: ShipmentPreparation) => {
 
   return [
     'CERTIFICAT DE CONFORMITE EXPORT',
-    `Expedition: ${shipment.shipment_number}`,
+    `Expédition : ${shipment.shipment_number}`,
     `Client: ${shipment.customer_name || '-'}`,
     `Destination: ${shipment.destination || '-'}`,
     `Date demandee: ${formatDateOnly(shipment.requested_date)}`,
@@ -176,7 +174,7 @@ const buildGenealogyReport = (shipment: ShipmentPreparation) => {
 
   return [
     'RAPPORT DE GENEALOGIE LOT',
-    `Expedition: ${shipment.shipment_number}`,
+    `Expédition : ${shipment.shipment_number}`,
     `Client downstream: ${shipment.customer_name || '-'}`,
     `Destination: ${shipment.destination || '-'}`,
     '',
@@ -201,7 +199,7 @@ const buildPhytosanitaryReport = (shipment: ShipmentPreparation) => {
 
   return [
     'FICHE PHYTOSANITAIRE / EXPORT',
-    `Expedition: ${shipment.shipment_number}`,
+    `Expédition : ${shipment.shipment_number}`,
     `Destination: ${shipment.destination || '-'}`,
     '',
     'DONNEES LOTS',
@@ -231,7 +229,7 @@ const buildRecallReport = (shipment: ShipmentPreparation) => {
 
   return [
     'MOCK RECALL EXERCISE',
-    `Expedition cible: ${shipment.shipment_number}`,
+    `Expédition cible : ${shipment.shipment_number}`,
     `Destinataire downstream: ${shipment.customer_name || '-'}`,
     `Destination: ${shipment.destination || '-'}`,
     `Reponse generee en: ${generationTime} ms`,
@@ -438,7 +436,7 @@ const RecallDialog = ({ shipment, open, onOpenChange }: RecallDialogProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Mock recall - {shipment.shipment_number}</DialogTitle>
+          <DialogTitle>Rappel simulé - {shipment.shipment_number}</DialogTitle>
           <DialogDescription>
             Simulation de rappel produit pour verifier la capacite de remontee lot-client.
           </DialogDescription>
@@ -615,7 +613,7 @@ const ShipmentDetailDialog = ({
                       {shipmentStatusLabels[shipment.status as ShipmentStatus] || shipment.status}
                     </Badge>
                     <span className="text-xs text-muted-foreground">
-                      Cree le {formatDateTime(shipment.created_at)}
+                      Créé le {formatDateTime(shipment.created_at)}
                     </span>
                   </div>
                 </div>
@@ -745,7 +743,7 @@ const ShipmentDetailDialog = ({
 
             <Card>
               <CardHeader>
-                <CardTitle>Lignes de preparation</CardTitle>
+                <CardTitle>Lignes de préparation</CardTitle>
               </CardHeader>
               <CardContent>
                 {(shipment.lines || []).length === 0 ? (
@@ -807,7 +805,7 @@ const ShipmentDetailDialog = ({
                     { label: 'Certificat de conformite', ready: checklist.conformityReady },
                     { label: 'Base phytosanitaire', ready: checklist.phytosanitaryReady },
                     { label: 'Rapport genealogie', ready: checklist.genealogyReady },
-                    { label: 'Mock recall', ready: checklist.recallReady },
+                    { label: 'Rappel simulé', ready: checklist.recallReady },
                   ].map((item) => (
                     <div key={item.label} className="flex items-center justify-between rounded-lg border px-3 py-2">
                       <span className="text-sm">{item.label}</span>
@@ -942,52 +940,12 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-5">
-            <div className="flex items-center gap-3">
-              <Truck className="h-5 w-5 text-blue-600" />
-              <div>
-                <div className="text-2xl font-bold">{shipments.length}</div>
-                <div className="text-sm text-muted-foreground">Dossiers expédition</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-5">
-            <div className="flex items-center gap-3">
-              <ShieldCheck className="h-5 w-5 text-emerald-600" />
-              <div>
-                <div className="text-2xl font-bold">{traceabilityCoverage}%</div>
-                <div className="text-sm text-muted-foreground">Couverture traçabilité</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-5">
-            <div className="flex items-center gap-3">
-              <FileCheck className="h-5 w-5 text-violet-600" />
-              <div>
-                <div className="text-2xl font-bold">{compliantShipments}</div>
-                <div className="text-sm text-muted-foreground">Dossiers export complets</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-5">
-            <div className="flex items-center gap-3">
-              <TimerReset className="h-5 w-5 text-amber-600" />
-              <div>
-                <div className="text-2xl font-bold">{openActions}</div>
-                <div className="text-sm text-muted-foreground">Actions ouvertes</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <SummaryStrip items={[
+        { label: 'Dossiers expédition', value: shipments.length },
+        { label: 'Couverture traçabilité', value: `${traceabilityCoverage} %` },
+        { label: 'Dossiers export complets', value: compliantShipments },
+        { label: 'Actions ouvertes', value: openActions, tone: openActions > 0 ? 'watch' : 'default' },
+      ]} />
 
       <Tabs value={mainTab} onValueChange={setMainTab} className="space-y-4">
         <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 lg:w-auto lg:inline-grid">
@@ -1006,7 +964,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
           </TabsTrigger>
           <TabsTrigger value="transport">Transport live</TabsTrigger>
           <TabsTrigger value="compliance">Conformité export</TabsTrigger>
-          <TabsTrigger value="recall">Mock recall</TabsTrigger>
+          <TabsTrigger value="recall">Rappel simulé</TabsTrigger>
         </TabsList>
 
         <TabsContent value="bde" className="space-y-3">
@@ -1018,7 +976,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
             <CardHeader>
               <CardTitle>Pipeline expédition</CardTitle>
               <CardDescription>
-                {readyShipments} pretes a partir, {shippedShipments} deja expediees.
+                {readyShipments} prêtes à partir, {shippedShipments} déjà expédiées.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -1185,7 +1143,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
             <CardHeader>
               <CardTitle>Matrice conformité export</CardTitle>
               <CardDescription>
-                Controle automatique des documents et de la genealogie par expédition.
+                Contrôle automatique des documents et de la généalogie par expédition.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -1272,7 +1230,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
             <CardContent className="space-y-3">
               {shipments.filter((shipment) => shipment.status === 'READY' || shipment.status === 'SHIPPED').length === 0 ? (
                 <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
-                  Aucune expédition prete pour un exercice de rappel.
+                  Aucune expédition prête pour un exercice de rappel.
                 </div>
               ) : (
                 shipments
@@ -1296,7 +1254,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
                           ) : (
                             <div className="inline-flex items-center gap-2 text-sm text-amber-700">
                               <AlertTriangle className="h-4 w-4" />
-                              Donnees incompletes
+                              Données incomplètes
                             </div>
                           )}
                           <Button variant="outline" onClick={() => setRecallShipmentId(shipment.id)}>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useCleaningCycles, useCleaningKpis, useCreateCleaningCycle, useCloseCleaningCycle } from '@/hooks/useNettoyage';
-import { CleaningCycle, CleaningProgram, WasteCategory, CLEANING_PROGRAM_CONFIG } from '@/types/phase2';
+import { CleaningProgram, WasteCategory, CLEANING_PROGRAM_CONFIG } from '@/types/phase2';
 import { LotSelector } from '../LotSelector';
 import { AvailableLot } from '@/hooks/useAvailableLotsForPhase2';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,9 +10,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CheckCircle2, Plus, Droplets, Loader2 } from 'lucide-react';
+import { CheckCircle2, Plus, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { SummaryStrip } from '@/components/shared/SummaryStrip';
 
 const STATUS_STYLE = {
   EN_COURS: 'bg-blue-100 text-blue-700',
@@ -85,30 +86,12 @@ export function NettoyagePanel({ currentUser = 'Utilisateur' }: { currentUser?: 
 
   return (
     <div className="space-y-4">
-      {/* KPIs */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <Card><CardContent className="pt-4 pb-3">
-          <div className="text-2xl font-bold">{kpis?.active_count ?? active.length}</div>
-          <div className="text-xs text-muted-foreground">Cycles actifs</div>
-        </CardContent></Card>
-        <Card><CardContent className="pt-4 pb-3">
-          <div className="text-2xl font-bold">{kpis?.completed_count ?? recent.filter(c => c.status === 'TERMINE').length}</div>
-          <div className="text-xs text-muted-foreground">Cycles terminés</div>
-        </CardContent></Card>
-        <Card><CardContent className="pt-4 pb-3">
-          <div className="text-2xl font-bold">{kpis?.avg_yield_pct != null ? `${kpis.avg_yield_pct}%` : '—'}</div>
-          <div className="text-xs text-muted-foreground">Rendement moy.</div>
-        </CardContent></Card>
-        <Card><CardContent className="pt-4 pb-3">
-          <div className="flex items-center gap-2">
-            <Droplets className="h-4 w-4 text-blue-400" />
-            <div>
-              <div className="text-sm font-semibold">Seuils</div>
-              <div className="text-xs text-muted-foreground">Rend. min. 92%</div>
-            </div>
-          </div>
-        </CardContent></Card>
-      </div>
+      <SummaryStrip items={[
+        { label: 'Cycles actifs', value: kpis?.active_count ?? active.length },
+        { label: 'Cycles terminés', value: kpis?.completed_count ?? recent.filter(c => c.status === 'TERMINE').length },
+        { label: 'Rendement moyen', value: kpis?.avg_yield_pct != null ? `${kpis.avg_yield_pct} %` : '—' },
+        { label: 'Rendement minimum', value: '92 %' },
+      ]} />
 
       {/* Active cycles */}
       <Card>

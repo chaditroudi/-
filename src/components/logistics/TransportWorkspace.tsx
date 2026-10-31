@@ -3,16 +3,12 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import {
   CalendarClock,
-  CarFront,
   Clock3,
   MapPinned,
   Navigation,
   Package2,
   Phone,
   Plus,
-  Route,
-  ShieldAlert,
-  Timer,
   Truck,
   UserRound,
 } from 'lucide-react';
@@ -66,6 +62,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
+import { SummaryStrip } from '@/components/shared/SummaryStrip';
 
 const EMPTY_VALUE = '__none__';
 const ACTIVE_MISSION_STATUSES: TransportMissionStatus[] = ['READY_TO_DEPART', 'EN_ROUTE'];
@@ -159,33 +156,6 @@ const getDirectionsUrl = (mission: TransportMission) => {
   const destination = mission.destination_address || mission.destination_label || mission.origin_label || 'Destination';
   return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=driving`;
 };
-
-const MetricCard = ({
-  title,
-  value,
-  description,
-  icon: Icon,
-}: {
-  title: string;
-  value: string | number;
-  description: string;
-  icon: typeof Truck;
-}) => (
-  <Card>
-    <CardContent className="pt-5">
-      <div className="flex items-start justify-between gap-3">
-        <div className="space-y-1">
-          <div className="text-xs font-medium text-muted-foreground">{title}</div>
-          <div className="text-2xl font-semibold">{value}</div>
-          <div className="text-xs text-muted-foreground">{description}</div>
-        </div>
-        <div className="rounded-xl border bg-muted/30 p-2.5">
-          <Icon className="h-5 w-5 text-primary" />
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-);
 
 function CreateVehicleDialog({
   open,
@@ -1062,32 +1032,12 @@ export function TransportWorkspace() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <MetricCard
-          title="Missions actives"
-          value={activeMissions.length}
-          description={`${readyMissions} prêtes à partir`}
-          icon={Route}
-        />
-        <MetricCard
-          title="Camions disponibles"
-          value={availableVehicles}
-          description={`${vehicles.length} dans la flotte`}
-          icon={CarFront}
-        />
-        <MetricCard
-          title="Chauffeurs affectés"
-          value={assignedDrivers}
-          description={`${drivers.length} chauffeurs enregistrés`}
-          icon={UserRound}
-        />
-        <MetricCard
-          title="ETA à risque"
-          value={lateMissions}
-          description={`alerte après ${missionEtaAlertMinutes} min`}
-          icon={ShieldAlert}
-        />
-      </div>
+      <SummaryStrip items={[
+        { label: 'Missions actives', value: activeMissions.length, helper: `${readyMissions} prêtes à partir` },
+        { label: 'Camions disponibles', value: availableVehicles, helper: `${vehicles.length} dans la flotte` },
+        { label: 'Chauffeurs affectés', value: assignedDrivers, helper: `${drivers.length} chauffeurs enregistrés` },
+        { label: 'Arrivées à risque', value: lateMissions, helper: `alerte après ${missionEtaAlertMinutes} min`, tone: lateMissions > 0 ? 'bad' : 'default' },
+      ]} />
 
       <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
         <Card>

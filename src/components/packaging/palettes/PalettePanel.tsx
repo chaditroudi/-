@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Loader2, ShieldCheck, Printer, Layers } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { SummaryStrip } from '@/components/shared/SummaryStrip';
 
 const STATUS_STYLE: Record<PaletteStatus, string> = {
   EN_COURS: 'bg-slate-100 text-slate-600',
@@ -44,25 +45,12 @@ export function PalettePanel({ currentUser = 'Utilisateur' }: { currentUser?: st
 
   return (
     <div className="space-y-4">
-      {/* KPIs */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <Card><CardContent className="pt-4 pb-3">
-          <div className="text-2xl font-bold">{palettes.filter((p) => p.status === 'EN_COURS').length}</div>
-          <div className="text-xs text-muted-foreground">En cours</div>
-        </CardContent></Card>
-        <Card><CardContent className="pt-4 pb-3">
-          <div className="text-2xl font-bold">{sealedToday}</div>
-          <div className="text-xs text-muted-foreground">Scellées auj.</div>
-        </CardContent></Card>
-        <Card><CardContent className="pt-4 pb-3">
-          <div className="text-2xl font-bold">{todayPalettes.length}</div>
-          <div className="text-xs text-muted-foreground">Créées auj.</div>
-        </CardContent></Card>
-        <Card><CardContent className="pt-4 pb-3">
-          <div className="text-2xl font-bold">{palettes.filter((p) => p.status === 'EXPEDIE').length}</div>
-          <div className="text-xs text-muted-foreground">Expédiées</div>
-        </CardContent></Card>
-      </div>
+      <SummaryStrip items={[
+        { label: 'En cours', value: palettes.filter((p) => p.status === 'EN_COURS').length },
+        { label: "Scellées aujourd'hui", value: sealedToday },
+        { label: "Créées aujourd'hui", value: todayPalettes.length },
+        { label: 'Expédiées', value: palettes.filter((p) => p.status === 'EXPEDIE').length },
+      ]} />
 
       {/* Filter */}
       <div className="flex gap-2 flex-wrap">

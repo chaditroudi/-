@@ -205,7 +205,7 @@ export const SupplierDetailSheet = ({ supplier, open, onOpenChange, onEdit }: Pr
 
         {/* Tabs */}
         <Tabs defaultValue="performance" className="mt-4">
-          <TabsList className="w-full flex flex-wrap h-auto gap-0.5">
+          <TabsList className="w-full flex flex-wrap gap-0.5">
             <TabsTrigger value="performance" className="py-1.5 flex-1 min-w-[5rem]">Performance</TabsTrigger>
             <TabsTrigger value="identite" className="py-1.5 flex-1 min-w-[4rem]">Identité</TabsTrigger>
             <TabsTrigger value="livraisons" className="py-1.5 flex-1 min-w-[4rem]">

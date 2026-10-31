@@ -95,6 +95,8 @@ const openApp = async (session, { viewport = { width: 1280, height: 900 }, tab =
     page.on("response", (response) => { if (/\/api\/(receptions\/intake|reception-drafts)/.test(response.url())) console.log(`  <- ${response.status()} ${response.url().replace(APP, "")}`); });
     page.on("console", (message) => { if (message.type() === "error") console.log(`  [console] ${message.text().slice(0, 200)}`); });
   }
+  // The earlier verified runs used the dev server, which has no service worker; this reproduces that on a build.
+  if (process.env.E2E_NO_SW) await page.evaluateOnNewDocument(() => { delete Navigator.prototype.serviceWorker; });
   openPages.add(page);
   page.on("dialog", (dialog) => void dialog.accept());
   // Signed in before the first script runs, and only once: scenarios change the session themselves.
@@ -123,7 +125,7 @@ const clickByText = async (page, label, options = {}) => {
       return await clickOnce(page, label, options);
     } catch (error) {
       // The list re-rendered under the pointer, as live refreshes do.
-      if (attempt >= 3 || !/detached|not clickable/i.test(error.message)) throw error;
+      if (attempt >= 8 || !/detached|not clickable/i.test(error.message)) throw error;
       await sleep(250);
     }
   }
@@ -141,6 +143,8 @@ const clickOnce = async (page, label, { selector = "button", exact = false } = {
   const element = handle.asElement();
   check(element, `button "${label}" available`);
   // A real pointer: Radix tabs react to mouse down, and a covered button must fail here too.
+  await element.evaluate((node) => node.scrollIntoView({ block: "center", behavior: "instant" }));
+  await sleep(50);
   await element.click();
 };
 
@@ -298,7 +302,7 @@ const openQcForm = async (page, receptionNumber) => {
   if (analysis.asElement()) {
     await analysis.asElement().click();
     const location = await page.evaluateHandle(() => [...document.querySelectorAll("label")]
-      .find((label) => label.innerText.startsWith("Emplacement stockage")).parentElement.querySelector("input"));
+      .find((label) => label.innerText.startsWith("Emplacement de l")).parentElement.querySelector("input"));
     await location.asElement().type("Frigo labo");
   }
 };
@@ -622,7 +626,7 @@ await run("G", "QC-pending lot cannot be used or self-released", async () => {
   check(stock.status === "QUARANTINE", "stock still quarantined", stock.status);
 
   const page = await openApp(inspector);
-  await until(() => hasText(page, "Contrôle Qualité Entrée"), "inspector lands on the QC queue");
+  await until(() => hasText(page, "À inspecter"), "inspector lands on the QC queue");
   await waitText(page, reception.reception_number);
   check(
     !(await page.evaluate(() => [...document.querySelectorAll("button")].some((button) => /nouvelle réception/i.test(button.innerText)))),
@@ -1035,9 +1039,10 @@ await run("R", "Tablet and phone widths", async () => {
       const box = button.getBoundingClientRect();
       const top = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2);
       // A disabled button lets the pointer through to its bar, which is still what is on top here.
-      return box.bottom <= window.innerHeight && box.top >= 0 && Boolean(top?.closest('[data-testid="intake-actions"]'));
+      const inside = box.bottom <= window.innerHeight && box.top >= 0 && Boolean(top?.closest('[data-testid="intake-actions"]'));
+      return inside || { bottom: box.bottom, top: box.top, height: window.innerHeight, over: `${top?.tagName}.${String(top?.className).slice(0, 60)}`, toast: top?.closest("[data-sonner-toast]")?.innerText };
     });
-    check(reachable, `primary action on screen and not covered on ${name}`);
+    check(reachable === true, `primary action on screen and not covered on ${name}`, reachable);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     check(overflow <= 1, `no horizontal scroll on ${name}`, overflow);
     await page.browserContext().close();

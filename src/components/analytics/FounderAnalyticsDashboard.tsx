@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+
 import {
   usePlantHealthScore,
   useSupplyFunnel,
@@ -19,7 +18,8 @@ import { StockStoragePanel } from './founder/StockStoragePanel';
 import { AlertsIntelligence } from './founder/AlertsIntelligence';
 import { SupplierScorecard } from './founder/SupplierScorecard';
 import { SystemAuditPanel } from './founder/SystemAuditPanel';
-import { Activity, GitBranch, Flame, Package, Bell, Users, Shield, Truck, Warehouse, ScrollText, TrendingUp, Layers } from 'lucide-react';
+import { Activity, GitBranch, Flame, Package, Bell, Users, Truck, Warehouse, ScrollText } from 'lucide-react';
+import { SummaryStrip } from '@/components/shared/SummaryStrip';
 
 type Period = 'today' | 'week' | 'month' | 'quarter';
 
@@ -29,13 +29,6 @@ const PERIOD_LABELS: Record<Period, string> = {
   month: 'Ce mois',
   quarter: 'Ce trimestre',
 };
-
-function scoreColor(s: number) {
-  if (s >= 85) return { text: 'text-green-600', bg: 'bg-green-500', border: 'border-green-300', badge: 'bg-green-600', label: 'EXCELLENT' };
-  if (s >= 70) return { text: 'text-amber-600', bg: 'bg-amber-500', border: 'border-amber-300', badge: 'bg-amber-600', label: 'BON' };
-  if (s >= 55) return { text: 'text-orange-600', bg: 'bg-orange-500', border: 'border-orange-300', badge: 'bg-orange-600', label: 'MOYEN' };
-  return { text: 'text-red-600', bg: 'bg-red-500', border: 'border-red-300', badge: 'bg-red-600', label: 'FAIBLE' };
-}
 
 function ExecutiveStrip({ period }: { period: Period }) {
   const { data: funnel, isLoading: fl } = useSupplyFunnel(period);
@@ -56,138 +49,52 @@ function ExecutiveStrip({ period }: { period: Period }) {
   const fmtKg = (v: number) => v >= 1000 ? `${(v / 1000).toFixed(1)} t` : `${v.toFixed(0)} kg`;
 
   return (
-    <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-      {/* Volume reçu */}
-      <div className="rounded-xl border border-blue-200 bg-blue-50 p-2.5">
-        <div className="flex items-center gap-1 mb-0.5">
-          <Truck className="h-3 w-3 text-blue-500" />
-          <span className="text-[11px] text-blue-600 font-semibold">Volume reçu</span>
-        </div>
-        <div className={`text-lg font-black text-blue-700 leading-tight ${loading ? 'opacity-40' : ''}`}>
-          {loading ? '…' : totalKg > 0 ? fmtKg(totalKg) : '—'}
-        </div>
-        <div className="text-[11px] text-blue-500 mt-0.5">{rec?.receptions.total ?? 0} réceptions</div>
-      </div>
-
-      {/* Rendement Phase 2 */}
-      <div className={`rounded-xl border p-2.5 ${p2Yield >= 90 ? 'border-green-200 bg-green-50' : p2Yield > 0 ? 'border-amber-200 bg-amber-50' : 'border-border bg-card'}`}>
-        <div className="flex items-center gap-1 mb-0.5">
-          <TrendingUp className="h-3 w-3 text-muted-foreground" />
-          <span className="text-[11px] text-muted-foreground font-semibold">Rendement P2</span>
-        </div>
-        <div className={`text-lg font-black leading-tight ${loading ? 'opacity-40' : ''} ${p2Yield >= 90 ? 'text-green-700' : p2Yield > 0 ? 'text-amber-700' : 'text-muted-foreground'}`}>
-          {loading ? '…' : p2Yield > 0 ? `${p2Yield.toFixed(1)}%` : '—'}
-        </div>
-        <div className="text-[11px] text-muted-foreground mt-0.5">cible ≥ 90%</div>
-      </div>
-
-      {/* OEE Conditionnement */}
-      <div className={`rounded-xl border p-2.5 ${oee >= 85 ? 'border-green-200 bg-green-50' : oee > 0 ? 'border-amber-200 bg-amber-50' : 'border-border bg-card'}`}>
-        <div className="flex items-center gap-1 mb-0.5">
-          <Package className="h-3 w-3 text-muted-foreground" />
-          <span className="text-[11px] text-muted-foreground font-semibold">OEE Cond.</span>
-        </div>
-        <div className={`text-lg font-black leading-tight ${loading ? 'opacity-40' : ''} ${oee >= 85 ? 'text-green-700' : oee > 0 ? 'text-amber-700' : 'text-muted-foreground'}`}>
-          {loading ? '…' : oee > 0 ? `${oee.toFixed(1)}%` : '—'}
-        </div>
-        <div className="text-[11px] text-muted-foreground mt-0.5">cible ≥ 85%</div>
-      </div>
-
-      {/* Palettes PF */}
-      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-2.5">
-        <div className="flex items-center gap-1 mb-0.5">
-          <Layers className="h-3 w-3 text-emerald-500" />
-          <span className="text-[11px] text-emerald-600 font-semibold">Palettes PF</span>
-        </div>
-        <div className={`text-lg font-black text-emerald-700 leading-tight ${loading ? 'opacity-40' : ''}`}>
-          {loading ? '…' : palettes > 0 ? palettes : '—'}
-        </div>
-        <div className="text-[11px] text-emerald-500 mt-0.5">{palettesKg > 0 ? fmtKg(palettesKg) + ' net' : 'scellées'}</div>
-      </div>
-
-      {/* Cycles actifs */}
-      <div className={`rounded-xl border p-2.5 ${cycles > 0 ? 'border-violet-200 bg-violet-50' : 'border-border bg-card'}`}>
-        <div className="flex items-center gap-1 mb-0.5">
-          <Activity className="h-3 w-3 text-muted-foreground" />
-          <span className="text-[11px] text-muted-foreground font-semibold">Cycles actifs</span>
-        </div>
-        <div className={`text-lg font-black leading-tight ${loading ? 'opacity-40' : ''} ${cycles > 0 ? 'text-violet-700' : 'text-muted-foreground'}`}>
-          {loading ? '…' : cycles}
-        </div>
-        <div className="text-[11px] text-muted-foreground mt-0.5">en production</div>
-      </div>
-
-      {/* Alertes */}
-      <div className={`rounded-xl border p-2.5 ${alertsCrit > 0 ? 'border-red-300 bg-red-50' : alertsTotal > 0 ? 'border-amber-200 bg-amber-50' : 'border-green-200 bg-green-50'}`}>
-        <div className="flex items-center gap-1 mb-0.5">
-          <Bell className="h-3 w-3 text-muted-foreground" />
-          <span className="text-[11px] text-muted-foreground font-semibold">Alertes</span>
-        </div>
-        <div className={`text-lg font-black leading-tight ${loading ? 'opacity-40' : ''} ${alertsCrit > 0 ? 'text-red-700' : alertsTotal > 0 ? 'text-amber-700' : 'text-green-700'}`}>
-          {loading ? '…' : alertsTotal}
-        </div>
-        <div className={`text-[11px] mt-0.5 ${alertsCrit > 0 ? 'text-red-500 font-semibold' : 'text-muted-foreground'}`}>
-          {alertsCrit > 0 ? `${alertsCrit} critique${alertsCrit > 1 ? 's' : ''}` : 'actives'}
-        </div>
-      </div>
-    </div>
+    <SummaryStrip items={[
+      { label: 'Volume reçu', value: loading ? '…' : totalKg > 0 ? fmtKg(totalKg) : '—', helper: `${rec?.receptions.total ?? 0} réceptions` },
+      { label: 'Rendement étapes', value: loading ? '…' : p2Yield > 0 ? `${p2Yield.toFixed(1)} %` : '—', helper: 'cible 90 % ou plus' },
+      { label: 'OEE conditionnement', value: loading ? '…' : oee > 0 ? `${oee.toFixed(1)} %` : '—', helper: 'cible 85 % ou plus' },
+      { label: 'Palettes scellées', value: loading ? '…' : palettes > 0 ? palettes : '—', helper: palettesKg > 0 ? `${fmtKg(palettesKg)} net` : undefined },
+      { label: 'Cycles actifs', value: loading ? '…' : cycles, helper: 'en production' },
+      {
+        label: 'Alertes actives',
+        value: loading ? '…' : alertsTotal,
+        helper: alertsCrit > 0 ? `${alertsCrit} critique${alertsCrit > 1 ? 's' : ''}` : undefined,
+        tone: alertsCrit > 0 ? 'bad' : alertsTotal > 0 ? 'watch' : 'default',
+      },
+    ]} />
   );
 }
 
 function PlantHealthHeader({ period }: { period: Period }) {
   const { data, isLoading } = usePlantHealthScore(period);
-  const score = data?.score ?? 0;
-  const clr = scoreColor(score);
+  const parts = [
+    { label: 'Réception', value: data?.breakdown.reception ?? 0, weight: 20 },
+    { label: 'Étapes', value: data?.breakdown.phase2 ?? 0, weight: 30 },
+    { label: 'Conditionnement', value: data?.breakdown.packaging ?? 0, weight: 25 },
+    { label: 'Alertes', value: data?.breakdown.alerts ?? 0, weight: 25 },
+  ];
 
   return (
-    <Card className={`border-2 ${clr.border} bg-card`}>
-      <CardContent className="pt-4 pb-4">
-        <div className="flex items-center gap-4 flex-wrap">
-          {/* Score gauge */}
-          <div className="relative flex items-center justify-center h-16 w-16 shrink-0">
-            <svg className="absolute inset-0" viewBox="0 0 64 64" fill="none">
-              <circle cx="32" cy="32" r="28" stroke="#e5e7eb" strokeWidth="6" fill="none" />
-              <circle
-                cx="32" cy="32" r="28"
-                stroke={score >= 85 ? '#22c55e' : score >= 70 ? '#f59e0b' : score >= 55 ? '#f97316' : '#ef4444'}
-                strokeWidth="6" fill="none"
-                strokeDasharray={`${(score / 100) * 175.9} 175.9`}
-                strokeLinecap="round"
-                transform="rotate(-90 32 32)"
-              />
-            </svg>
-            <span className={`text-sm font-black z-10 ${clr.text}`}>{isLoading ? '…' : Math.round(score)}</span>
+    <section aria-labelledby="plant-score-title" className="rounded-lg border bg-card p-3">
+      <div className="flex flex-wrap items-baseline gap-x-3">
+        <h2 id="plant-score-title" className="text-base">Score indicatif de l'usine</h2>
+        <span className="font-display text-xl font-semibold">{isLoading ? '…' : Math.round(data?.score ?? 0)} / 100</span>
+      </div>
+      <p className="text-sm text-muted-foreground">Une étape sans activité sur la période compte pour 100 : à lire avec les volumes ci-dessous.</p>
+      <dl className="mt-2 grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-4">
+        {parts.map((part) => (
+          <div key={part.label}>
+            <dt className="flex justify-between text-xs text-muted-foreground">
+              <span>{part.label} ({part.weight} %)</span>
+              <span className="font-medium text-foreground">{isLoading ? '—' : Math.round(part.value)}</span>
+            </dt>
+            <dd className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
+              <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(100, part.value)}%` }} />
+            </dd>
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-bold text-lg">Score de santé usine</span>
-              <Badge className={`${clr.badge} text-white text-[11px]`}>{clr.label}</Badge>
-            </div>
-            <div className="text-xs text-muted-foreground mt-0.5">
-              Indicateur composite — Réception · Phase 2 · Conditionnement · Alertes
-            </div>
-          </div>
-          {/* Breakdown bars */}
-          <div className="flex gap-3 flex-wrap">
-            {[
-              { label: 'Réception', value: data?.breakdown.reception ?? 0, weight: '20%', color: 'bg-blue-500' },
-              { label: 'Phase 2', value: data?.breakdown.phase2 ?? 0, weight: '30%', color: 'bg-violet-500' },
-              { label: 'Condit.', value: data?.breakdown.packaging ?? 0, weight: '25%', color: 'bg-emerald-500' },
-              { label: 'Alertes', value: data?.breakdown.alerts ?? 0, weight: '25%', color: 'bg-amber-500' },
-            ].map(({ label, value, weight, color }) => (
-              <div key={label} className="flex flex-col items-center gap-1 w-14">
-                <div className="text-[11px] text-muted-foreground">{label}</div>
-                <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
-                  <div className={`h-1.5 rounded-full ${color}`} style={{ width: `${value}%` }} />
-                </div>
-                <div className="text-[11px] font-semibold">{isLoading ? '—' : Math.round(value)}</div>
-                <div className="text-[11px] text-muted-foreground">{weight}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        ))}
+      </dl>
+    </section>
   );
 }
 
@@ -197,18 +104,9 @@ export function FounderAnalyticsDashboard() {
 
   return (
     <div className="space-y-4">
-      {/* Top bar */}
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-2">
-          <Shield className="h-5 w-5 text-primary" />
-          <span className="font-bold text-lg">Analytics Fondateur</span>
-          <span className="flex items-center gap-1 text-[11px] bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-full px-2 py-0.5 font-semibold">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            TEMPS RÉEL
-          </span>
-        </div>
+      <div className="flex justify-end">
         <Select value={period} onValueChange={(v) => setPeriod(v as Period)}>
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-[200px]" aria-label="Période">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -227,7 +125,7 @@ export function FounderAnalyticsDashboard() {
 
       {/* Main tabs */}
       <Tabs value={tab} onValueChange={setTab} className="space-y-4">
-        <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-xl p-1">
+        <TabsList className="flex w-full flex-wrap justify-start gap-1">
           <TabsTrigger value="live" className="gap-1.5 py-2">
             <Activity className="h-3.5 w-3.5" />
             <span>Live</span>

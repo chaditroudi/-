@@ -142,7 +142,7 @@ export const LotsTab: React.FC<LotsTabProps> = ({
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-9 rounded-lg text-xs opacity-0 transition-opacity group-hover:opacity-100"
+                              className="h-9 rounded-lg text-xs"
                               onClick={() => onAssignLot(lot)}
                             >
                               <Truck className="mr-1 h-3 w-3" />

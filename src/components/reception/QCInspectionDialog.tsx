@@ -922,19 +922,23 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                         </div>
                       )}
                       <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Score final</span>
+                        <span className="text-muted-foreground">{missingMeasurements > 0 ? "Score provisoire" : "Score final"}</span>
                         <span className="text-2xl font-semibold">{score.finalScore}/100</span>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Classement</span>
-                        <Badge variant="outline">{getQcClassificationLabel(score.classification)}</Badge>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Décision proposée</span>
-                        <Badge variant={score.recommendedDecision === "REJETE" ? "destructive" : "secondary"}>
-                          {getQcDecisionLabel(score.recommendedDecision)}
-                        </Badge>
-                      </div>
+                      {missingMeasurements === 0 && (
+                        <>
+                          <div className="flex items-center justify-between">
+                            <span className="text-muted-foreground">Classement</span>
+                            <Badge variant="outline">{getQcClassificationLabel(score.classification)}</Badge>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-muted-foreground">Décision proposée</span>
+                            <Badge variant={score.recommendedDecision === "REJETE" ? "destructive" : "secondary"}>
+                              {getQcDecisionLabel(score.recommendedDecision)}
+                            </Badge>
+                          </div>
+                        </>
+                      )}
                       <div className="grid grid-cols-2 gap-2 text-xs">
                         <div className="rounded-lg border p-2">Humidité : {score.humidityScore}</div>
                         <div className="rounded-lg border p-2">Calibre: {score.caliberScore}</div>

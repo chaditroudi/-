@@ -111,66 +111,55 @@ export const ProductionStepCard = ({ step, isActive, allSteps }: ProductionStepC
 
   const statusHint =
     isActive && isPending
-      ? 'Prochaine etape a lancer'
+      ? 'Prochaine étape à lancer'
       : isInProgress
-        ? 'Execution en cours'
+        ? 'Exécution en cours'
         : isCompleted
-          ? 'Etape cloturee'
+          ? 'Étape clôturée'
           : isFailed
             ? 'Incident de production'
             : isSkipped
-              ? 'Etape ignoree'
+              ? 'Étape ignorée'
               : 'En attente';
 
   return (
     <>
       <Card
         className={cn(
-          'border-border bg-card shadow-card transition-colors',
+          'border-border bg-card',
           isActive && !isCompleted && !isFailed && 'border-primary/40 ring-1 ring-primary/20',
           isCompleted && 'border-emerald-200 bg-emerald-50/30',
           isFailed && 'border-red-200 bg-red-50/40',
           isSkipped && 'border-orange-200 bg-orange-50/30',
         )}
       >
-        <CardHeader className="pb-3">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline" className="rounded-full px-2.5 py-1 text-xs font-semibold">
-                  Etape {step.sequence_order}
-                </Badge>
-                <Badge className={cn('rounded-full border px-2.5 py-1 text-xs font-semibold', STEP_BADGE[step.status])}>
-                  {stepStatusLabels[step.status]}
-                </Badge>
-                {isActive && !isCompleted && !isFailed && (
-                  <Badge variant="outline" className="rounded-full border-primary/20 bg-primary/5 px-2.5 py-1 text-xs font-semibold text-primary">
-                    {statusHint}
-                  </Badge>
-                )}
-                {requiresQualityCheck && (
-                  <Badge variant="outline" className="rounded-full border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
-                    QC requis
-                  </Badge>
-                )}
-                {existingChecks.length > 0 && (
-                  <Badge variant="outline" className="rounded-full border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-                    {existingChecks.length} controle{existingChecks.length > 1 ? 's' : ''}
-                  </Badge>
-                )}
-              </div>
-
-              <CardTitle className="mt-3 text-lg font-semibold text-foreground">
-                {step.step_definition?.name || `Etape ${step.sequence_order}`}
-              </CardTitle>
-              {step.step_definition?.description && (
-                <p className="mt-1 text-sm text-muted-foreground">{step.step_definition.description}</p>
-              )}
-            </div>
+        <CardHeader className="p-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="w-5 text-center text-sm text-muted-foreground">{step.sequence_order}</span>
+            <CardTitle className="text-sm font-semibold text-foreground">
+              {step.step_definition?.name || `Étape ${step.sequence_order}`}
+            </CardTitle>
+            <Badge className={cn('rounded-full border px-2 py-0.5 text-xs font-semibold', STEP_BADGE[step.status])}>
+              {stepStatusLabels[step.status]}
+            </Badge>
+            {requiresQualityCheck && (
+              <Badge variant="outline" className="rounded-full border-blue-200 bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700">
+                QC requis
+              </Badge>
+            )}
+            {existingChecks.length > 0 && (
+              <Badge variant="outline" className="rounded-full border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+                {existingChecks.length} contrôle{existingChecks.length > 1 ? 's' : ''}
+              </Badge>
+            )}
+            {isActive && !isCompleted && !isFailed && <span className="text-xs font-medium text-primary">{statusHint}</span>}
           </div>
+          {isActive && step.step_definition?.description && (
+            <p className="pl-7 text-sm text-muted-foreground">{step.step_definition.description}</p>
+          )}
         </CardHeader>
 
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3 p-3 pt-0 empty:hidden">
           <div className="flex flex-wrap gap-2 text-xs">
             {step.operator_name && (
               <InfoPill icon={User} label={`${t('production.operator')}: ${step.operator_name}`} />
@@ -182,10 +171,10 @@ export const ProductionStepCard = ({ step, isActive, allSteps }: ProductionStepC
               <InfoPill tone="danger" label={`${t('production.losses')}: ${step.waste_quantity}`} />
             )}
             {step.started_at && (
-              <InfoPill label={`Debut: ${new Date(step.started_at).toLocaleString(getDateLocale())}`} />
+              <InfoPill label={`Début : ${new Date(step.started_at).toLocaleString(getDateLocale())}`} />
             )}
             {step.completed_at && (
-              <InfoPill label={`Fin: ${new Date(step.completed_at).toLocaleString(getDateLocale())}`} />
+              <InfoPill label={`Fin : ${new Date(step.completed_at).toLocaleString(getDateLocale())}`} />
             )}
           </div>
 

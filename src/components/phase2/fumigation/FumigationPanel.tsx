@@ -5,10 +5,11 @@ import { FumigationCycle, FumigationCycleStatus, FUMIGATION_PROTOCOL_CONFIG } fr
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Printer, Plus, Activity, CheckCircle2, AlertTriangle, Layers } from 'lucide-react';
+import { Printer, Plus, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { printFumigationCertificate } from './printFumigationCertificate';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { SummaryStrip } from '@/components/shared/SummaryStrip';
 
 const STATUS_LABELS: Record<FumigationCycleStatus, string> = {
   PREPARATION: 'Préparation',
@@ -43,66 +44,18 @@ export function FumigationPanel({ currentUser = 'Utilisateur' }: { currentUser?:
 
   return (
     <div className="space-y-4">
-      {/* KPI cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <Card>
-          <CardContent className="pt-4 pb-3">
-            <div className="flex items-center gap-2">
-              <Activity className="h-4 w-4 text-amber-500" />
-              <div>
-                <div className="text-2xl font-bold">{kpis?.active_count ?? active.length}</div>
-                <div className="text-xs text-muted-foreground">Cycles actifs</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-4 pb-3">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
-              <div>
-                <div className="text-2xl font-bold">{kpis?.completed_count ?? recent.filter(c => c.status === 'TERMINE').length}</div>
-                <div className="text-xs text-muted-foreground">Cycles terminés</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-4 pb-3">
-            <div className="flex items-center gap-2">
-              <Layers className="h-4 w-4 text-primary" />
-              <div>
-                <div className="text-2xl font-bold">
-                  {kpis?.compliance_pct != null ? `${kpis.compliance_pct}%` : '—'}
-                </div>
-                <div className="text-xs text-muted-foreground">Conformité CCP</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-4 pb-3">
-            <div className="flex items-center gap-2">
-              <Layers className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <div className="text-2xl font-bold">
-                  {kpis?.total_kg_treated != null ? `${kpis.total_kg_treated.toLocaleString('fr-TN')} kg` : '—'}
-                </div>
-                <div className="text-xs text-muted-foreground">Volume traité</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <SummaryStrip items={[
+        { label: 'Cycles actifs', value: kpis?.active_count ?? active.length },
+        { label: 'Cycles terminés', value: kpis?.completed_count ?? recent.filter(c => c.status === 'TERMINE').length },
+        { label: 'Conformité CCP', value: kpis?.compliance_pct != null ? `${kpis.compliance_pct} %` : '—' },
+        { label: 'Volume traité', value: kpis?.total_kg_treated != null ? `${kpis.total_kg_treated.toLocaleString('fr-TN')} kg` : '—' },
+      ]} />
 
       {/* Active cycles */}
       <Card>
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Activity className="h-4 w-4" />
-              Cycles actifs ({active.length})
-            </CardTitle>
+            <CardTitle className="text-sm">Cycles actifs ({active.length})</CardTitle>
             <Button size="sm" onClick={() => setShowCreate(true)}>
               <Plus className="h-4 w-4 mr-1.5" />
               Nouveau cycle
@@ -223,6 +176,7 @@ function CycleRow({
             size="sm"
             variant="ghost"
             className="h-9 px-2"
+            aria-label={`Imprimer le certificat du cycle ${cycle.cycle_number}`}
             onClick={(e) => { e.stopPropagation(); printFumigationCertificate(cycle); }}
           >
             <Printer className="h-3.5 w-3.5" />

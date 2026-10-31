@@ -29,6 +29,12 @@ import { useBranding } from '@/hooks/useBranding';
 
 // ── Formatters ─────────────────────────────────────────────────────────────────
 
+const ALERT_TYPE_LABELS: Record<string, string> = {
+  LOT_SUPPLIER_INTAKE: 'Lots fournisseur entrés',
+  LOT_WEIGHED: 'Lots pesés',
+  RECEPTION_CREATED: 'Réceptions créées',
+};
+
 const fmtKg = (n?: number | null) =>
   n != null
     ? new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(n) + ' kg'
@@ -544,10 +550,10 @@ export const FactoryCommandCenter = () => {
               {/* Alert type breakdown */}
               {alertData?.topTypes && alertData.topTypes.length > 0 && (
                 <div className="pt-3 border-t border-slate-800 space-y-1.5">
-                  <p className="text-[11px] font-bold text-slate-600">Alertes par type</p>
+                  <p className="text-[11px] font-bold text-slate-600">Notifications par type</p>
                   {alertData.topTypes.slice(0, 3).map((t) => (
                     <div key={t.code} className="flex items-center justify-between text-xs">
-                      <span className="text-slate-400 font-mono">{t.code}</span>
+                      <span className="text-slate-400">{ALERT_TYPE_LABELS[t.code] ?? t.code.replace(/_/g, ' ').toLowerCase()}</span>
                       <span className="text-amber-400 font-bold tabular-nums">{t.count}</span>
                     </div>
                   ))}

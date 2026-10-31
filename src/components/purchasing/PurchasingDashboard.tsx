@@ -54,6 +54,7 @@ import { useMaterials } from '@/hooks/useMaterials';
 import { PurchaseRequisition, PurchaseOrder, RequisitionStatus, normalizePurchaseOrderStatus } from '@/types/purchasing';
 import { useAuthContext } from '@/contexts/AuthContext';
 import type { ActorRole } from '@/types/roles';
+import { SummaryStrip } from '@/components/shared/SummaryStrip';
 
 const REQUISITION_WORKFLOW_ROLES: ActorRole[] = [
   'responsable_stock',
@@ -455,31 +456,11 @@ export const PurchasingDashboard = ({
         );
       })()}
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        {statCards.map((stat) => (
-          <Card key={stat.label}>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${stat.bg}`}>
-                  <stat.icon className={`h-5 w-5 ${stat.color}`} />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">
-                    {stat.value}
-                    {stat.suffix && <span className="text-sm font-normal ml-1">{stat.suffix}</span>}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{stat.label}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <SummaryStrip items={statCards.map((stat) => ({ label: stat.label, value: `${stat.value}${stat.suffix ? ` ${stat.suffix}` : ''}` }))} />
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="flex-wrap h-auto gap-1">
+        <TabsList className="flex-wrap gap-1">
           <TabsTrigger value="requisitions" className="gap-2">
             <FileText className="h-4 w-4" />
             {t('purchasing.requisitions')}

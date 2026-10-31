@@ -22,11 +22,11 @@ Rejected first idea: a dark green shell with a green accent. That is what the ap
 | Semantic | Hex | Rule |
 |---|---|---|
 | Success | `#1B7A4B` | Always with a word |
-| Warning | `#A86F0C` | Always with a word |
+| Warning | `#8F5D09` | Always with a word |
 | Danger | `#B3261E` | Always with a word |
 | Information | `#1F6287` | Always with a word |
 | Disabled | `#9A9F9A` | Never for information |
-| Focus | `#A86F0C` | 2px ring, 2px offset |
+| Focus | `#A76E0C` | 2px ring, 2px offset |
 
 Status is never colour alone: every status has its label.
 
@@ -87,6 +87,14 @@ The Filière thread: a thin line through the five stages of a lot's path in the 
 | Dialog | Only for focused tasks; the QC inspection and PIN signature |
 | Reception row | `ReceptionRow` and `ReceptionListHead` in `ReceptionDashboardV2.tsx` |
 | QC checklist | `QcChecklistAnswers`; answers are never prefilled |
+
+## Summary line
+
+Figures for a screen sit in one `SummaryStrip` above its work list: a joined band of label, value and an optional line under it. It replaces rows of separate tiles, so a figure reads as context for the work and never competes with it.
+
+## Notifications
+
+Toasts appear bottom left beside the sidebar on a desk, because every primary action is on the right, and at the top on a phone, where actions sit at the bottom. Only what happened after the screen opened may pop up. The rest stays in the bell.
 
 ## Interaction
 

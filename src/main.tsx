@@ -20,9 +20,11 @@ if ('serviceWorker' in navigator) {
       regs.forEach(reg => reg.unregister());
     });
   } else {
-    // When the active SW is replaced by a new one, reload immediately.
+    // When the active SW is replaced by a new one, reload immediately. The first
+    // install also fires this event, and nothing is stale on that visit.
+    const hadController = Boolean(navigator.serviceWorker.controller);
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      window.location.reload();
+      if (hadController) window.location.reload();
     });
   }
 }

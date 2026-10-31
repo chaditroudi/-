@@ -5,7 +5,6 @@ import {
   AlertTriangle,
   ArrowRightLeft,
   BoxIcon,
-  CheckCircle2,
   ChevronRight,
   ClipboardList,
   Clock,
@@ -33,11 +32,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LotTraceabilityDialog } from "@/components/phase2/LotTraceabilityDialog";
 import { Textarea } from "@/components/ui/textarea";
 import { QrScannerDialog } from "@/components/reception/QrScannerDialog";
 import { scanApi } from "@/lib/api/scan";
@@ -60,6 +60,7 @@ import {
 import { useMoveReceptionLotToStorage, useRawStorageOverdueReceptions } from "@/hooks/useReceptionsV2";
 import { useAllReceptionLots, useInventoryCounts } from "@/hooks/useStock";
 import { cn } from "@/lib/utils";
+import { checkLotStorageAllowed } from "@/lib/phase1RuleEngine";
 import { storageMovementReasonLabels, storageMovementTypeLabels } from "@/types/storage";
 import type {
   Module3StorageZone,
@@ -165,34 +166,12 @@ const normalizeQr = (raw: string): string => {
   return v.split("|")[0].trim();
 };
 
+const LOT_PAGE_SIZE = 50;
+const LOCATION_ROW_LIMIT = 250;
+const ZONE_FAMILY_ORDER = ["reception", "raw", "cold", "fumigation", "export"];
+
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-const KpiTile = ({ label, value, sub, icon: Icon, tone = "default" }: {
-  label: string; value: string | number; sub: string;
-  icon: typeof Warehouse;
-  tone?: "default" | "amber" | "red" | "emerald";
-}) => {
-  const iconCls = {
-    default: "bg-primary/10 text-primary",
-    amber:   "bg-amber-100 text-amber-700",
-    red:     "bg-red-100 text-red-700",
-    emerald: "bg-emerald-100 text-emerald-700",
-  }[tone];
-  return (
-    <Card className="rounded-2xl border-border/60">
-      <CardContent className="flex items-center justify-between gap-3 p-4">
-        <div className="min-w-0 flex-1">
-          <p className="text-xs font-semibold text-muted-foreground">{label}</p>
-          <p className="mt-1.5 truncate text-2xl font-bold text-foreground">{value}</p>
-          <p className="mt-0.5 truncate text-xs text-muted-foreground">{sub}</p>
-        </div>
-        <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl", iconCls)}>
-          <Icon className="h-5 w-5" />
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
 
 const OccupancyBar = ({ pct, className }: { pct: number; className?: string }) => (
   <div className={cn("h-1.5 w-full overflow-hidden rounded-full bg-border/40", className)}>
@@ -215,6 +194,8 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
   const [tab, setTab] = useState(defaultTab === "lots" ? "lots" : defaultTab === "movements" ? "mouvements" : "dashboard");
   const [lotSearch, setLotSearch] = useState("");
   const [lotStatusFilter, setLotStatusFilter] = useState("all");
+  const [lotPage, setLotPage] = useState(0);
+  const [traceLot, setTraceLot] = useState("");
   const [selectedZoneId, setSelectedZoneId] = useState("all");
   const [locationSearch, setLocationSearch] = useState("");
   const [scannerOpen, setScannerOpen] = useState(false);
@@ -431,6 +412,15 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
     return map;
   }, [allLots]);
 
+  const selectedZone = zones.find(z => z.id === selectedZoneId);
+
+  const zoneGroups = useMemo(() => {
+    const families = [...ZONE_FAMILY_ORDER, ...zones.map(z => z.storage_family).filter(f => !ZONE_FAMILY_ORDER.includes(f))];
+    return [...new Set(families)]
+      .map(family => ({ family, label: familyLabel[family] ?? family, zones: zones.filter(z => z.storage_family === family) }))
+      .filter(group => group.zones.length > 0);
+  }, [zones]);
+
   const globalOccupancy = useMemo(() => {
     const pcts = zones.map(z => zoneOccupancy(z, zoneLoadsKg.get(z.code)));
     return pcts.length > 0 ? Math.round(pcts.reduce((s, p) => s + p, 0) / pcts.length) : 0;
@@ -527,13 +517,13 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
           {/* Primary action — scan-to-move from anywhere in the work-center. */}
           <Button
             size="sm"
-            className="gap-2 rounded-xl"
+            className="gap-2 "
             onClick={() => { setTab("mouvements"); setScannerOpen(true); }}
           >
             <ArrowRightLeft className="h-3.5 w-3.5" />
             Déplacer un lot
           </Button>
-          <Button variant="outline" size="sm" className="gap-2 rounded-xl" onClick={handleRefresh}>
+          <Button variant="outline" size="sm" className="gap-2 " onClick={handleRefresh}>
             <RefreshCw className="h-3.5 w-3.5" />
             Actualiser
           </Button>
@@ -542,9 +532,9 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
 
       {/* ── Unplaced lots banner ── */}
       {unplacedLots.length > 0 && (
-        <div className="flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 border border-amber-200 bg-amber-50 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center bg-amber-100">
               <AlertTriangle className="h-4.5 w-4.5 text-amber-600" />
             </div>
             <div>
@@ -558,7 +548,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
           </div>
           <Button
             size="sm"
-            className="shrink-0 rounded-xl bg-amber-600 hover:bg-amber-700 text-white"
+            className="shrink-0 bg-amber-600 hover:bg-amber-700 text-white"
             onClick={() => { setTab("lots"); setLotStatusFilter("STOCK_LIBERE"); }}
           >
             Affecter les lots
@@ -569,7 +559,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
 
       {/* ── Raw overdue alert ── */}
       {rawOverdue.length > 0 && (
-        <div className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-4">
+        <div className="flex items-center gap-3 border border-red-200 bg-red-50 p-4">
           <ShieldAlert className="h-5 w-5 shrink-0 text-red-600" />
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold text-red-800">
@@ -582,7 +572,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
 
       {/* ── DLC alerts ── */}
       {dlcAlerts.length > 0 && (
-        <div className="flex items-center gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-4">
+        <div className="flex items-center gap-3 border border-rose-200 bg-rose-50 p-4">
           <Clock className="h-5 w-5 shrink-0 text-rose-600" />
           <p className="text-sm text-rose-800">
             <span className="font-semibold">{dlcAlerts.length} alerte{dlcAlerts.length > 1 ? "s" : ""} DLC :</span>{" "}
@@ -592,11 +582,13 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
         </div>
       )}
 
+      <LotTraceabilityDialog open={Boolean(traceLot)} onOpenChange={(open) => !open && setTraceLot("")} lotNumber={traceLot} />
+
       {/* ── Main tabs ── */}
       <Tabs value={tab} onValueChange={setTab} className="space-y-4">
-        <TabsList className="flex h-auto flex-wrap gap-1 rounded-2xl bg-muted/60 p-1">
+        <TabsList className="flex flex-wrap gap-1">
           {[
-            { id: "dashboard",  label: "Tableau de bord",       icon: Activity },
+            { id: "dashboard",  label: "Vue d'ensemble",       icon: Activity },
             { id: "lots",       label: "Lots en stock",          icon: BoxIcon },
             { id: "zones",      label: "Zones & emplacements",   icon: MapPin },
             { id: "mouvements", label: "Mouvements",             icon: ArrowRightLeft },
@@ -606,7 +598,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
             <TabsTrigger
               key={id}
               value={id}
-              className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm"
             >
               <Icon className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{label}</span>
@@ -619,114 +611,80 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
             TAB 1 — DASHBOARD
         ════════════════════════════════════════════════ */}
         <TabsContent value="dashboard" className="space-y-5">
-          {/* KPI row */}
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <KpiTile
-              label="Stock libéré"
-              value={fmtNum(liberatedKg, " kg")}
-              sub={`${allLots.filter(l => l.stock_status === "STOCK_LIBERE").length} lots disponibles`}
-              icon={CheckCircle2}
-              tone="emerald"
-            />
-            <KpiTile
-              label="Quarantaine"
-              value={quarantineCount}
-              sub="Lots bloqués en attente décision"
-              icon={ShieldAlert}
-              tone="amber"
-            />
-            <KpiTile
-              label="Occupation globale"
-              value={`${globalOccupancy}%`}
-              sub={`${zones.length} zones actives`}
-              icon={Warehouse}
-              tone={globalOccupancy >= 90 ? "red" : globalOccupancy >= 70 ? "amber" : "default"}
-            />
-            <KpiTile
-              label="Alertes actives"
-              value={dlcAlerts.length + rawOverdue.length}
-              sub={rawOverdue.length > 0 ? `${rawOverdue.length} retards brut` : "Aucun retard critique"}
-              icon={AlertTriangle}
-              tone={dlcAlerts.length + rawOverdue.length > 0 ? "red" : "default"}
-            />
-          </div>
+          <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border bg-border lg:grid-cols-4">
+            <div className="bg-card px-3 py-2">
+              <dt className="text-xs text-muted-foreground">Disponible (libéré)</dt>
+              <dd className="font-display text-xl font-semibold text-emerald-800">{fmtNum(liberatedKg, " kg")}</dd>
+              <dd className="text-xs text-muted-foreground">{`${allLots.filter(l => l.stock_status === "STOCK_LIBERE").length} lots disponibles`}</dd>
+            </div>
+            <div className="bg-card px-3 py-2">
+              <dt className="text-xs text-muted-foreground">Bloqué, non utilisable</dt>
+              <dd className="font-display text-xl font-semibold text-amber-800">{quarantineCount} lots</dd>
+              <dd className="text-xs text-muted-foreground">En quarantaine, en attente de décision qualité</dd>
+            </div>
+            <div className="bg-card px-3 py-2">
+              <dt className="text-xs text-muted-foreground">Occupation</dt>
+              <dd className="font-display text-xl font-semibold">{globalOccupancy} %</dd>
+              <dd className="text-xs text-muted-foreground">{zones.length} zones actives</dd>
+            </div>
+            <div className="bg-card px-3 py-2">
+              <dt className="text-xs text-muted-foreground">Alertes</dt>
+              <dd className={cn("font-display text-xl font-semibold", dlcAlerts.length + rawOverdue.length > 0 && "text-red-700")}>{dlcAlerts.length + rawOverdue.length}</dd>
+              <dd className="text-xs text-muted-foreground">{rawOverdue.length > 0 ? `${rawOverdue.length} retards brut` : "Aucun retard critique"}</dd>
+            </div>
+          </dl>
 
-          {/* Zone occupancy grid */}
-          <Card className="rounded-2xl border-border/60">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Warehouse className="h-4 w-4 text-primary" />
-                Occupation par zone
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          <div className="grid items-start gap-3 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+            <section>
+              <h2 className="pb-1 text-base">Occupation par zone</h2>
               {zonesLoading ? (
-                <div className="py-8 text-center text-sm text-muted-foreground">Chargement…</div>
+                <p className="rounded-lg border bg-card py-8 text-center text-sm text-muted-foreground">Chargement…</p>
               ) : zones.length === 0 ? (
-                <div className="py-8 text-center text-sm text-muted-foreground">Aucune zone configurée</div>
+                <p className="rounded-lg border bg-card py-8 text-center text-sm text-muted-foreground">Aucune zone configurée</p>
               ) : (
-                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {zones.map(z => {
-                    const pct = zoneOccupancy(z, zoneLoadsKg.get(z.code));
-                    return (
-                      <button
-                        key={z.id}
-                        type="button"
-                        onClick={() => { setSelectedZoneId(z.id); setTab("zones"); }}
-                        className="group flex flex-col gap-2.5 rounded-xl border border-border/60 bg-card p-3.5 text-left transition-all hover:border-primary/30 hover:shadow-sm"
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex items-center gap-2">
-                            <div className={cn(
-                              "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border",
-                              conditionCls(z.condition_status),
-                            )}>
-                              {zoneIcon(z)}
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Zone</TableHead>
+                      <TableHead className="hidden sm:table-cell">Type</TableHead>
+                      <TableHead className="w-[30%]">Occupation</TableHead>
+                      <TableHead className="hidden text-right md:table-cell">Charge</TableHead>
+                      <TableHead className="text-right">Lots</TableHead>
+                      <TableHead className="hidden text-right sm:table-cell">Temp.</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {zones.map((z) => {
+                      const pct = zoneOccupancy(z, zoneLoadsKg.get(z.code));
+                      return (
+                        <TableRow key={z.id}>
+                          <TableCell className="py-1.5">
+                            <button type="button" className="font-mono text-sm hover:underline" onClick={() => { setSelectedZoneId(z.id); setTab("zones"); }}>{z.code}</button>
+                          </TableCell>
+                          <TableCell className="hidden py-1.5 sm:table-cell">{familyLabel[z.storage_family] ?? z.storage_family}</TableCell>
+                          <TableCell className="py-1.5">
+                            <div className="flex items-center gap-2">
+                              <OccupancyBar pct={pct} className="flex-1" />
+                              <span className="w-10 shrink-0 text-right text-sm">{pct} %</span>
                             </div>
-                            <div className="min-w-0">
-                              <p className="truncate text-sm font-semibold text-foreground">{z.code}</p>
-                              <p className="truncate text-xs text-muted-foreground">{familyLabel[z.storage_family] ?? z.storage_family}</p>
-                            </div>
-                          </div>
-                          <span className="shrink-0 text-lg font-bold text-foreground">{pct}%</span>
-                        </div>
-                        <OccupancyBar pct={pct} />
-                        <div className="flex items-center justify-between text-xs text-muted-foreground">
-                          {(z.capacity_palettes ?? 0) > 0 && (z.current_load_palettes ?? 0) > 0
-                            ? <span>{fmtNum(z.current_load_palettes)} / {fmtNum(z.capacity_palettes)} pal.</span>
-                            : <span>{fmtNum(zoneLoadsKg.get(z.code) ?? z.current_load_kg, " kg")} / {fmtNum(z.capacity_kg, " kg")}</span>
-                          }
-                          <div className="flex items-center gap-2">
-                            {(lotCountByZone.get(z.code) ?? 0) > 0 && (
-                              <span className="flex items-center gap-0.5">
-                                <Package className="h-3 w-3" />
-                                {lotCountByZone.get(z.code)} lot{(lotCountByZone.get(z.code) ?? 0) > 1 ? "s" : ""}
-                              </span>
-                            )}
-                            {z.current_temperature_c != null && (
-                              <span className="flex items-center gap-1">
-                                <Thermometer className="h-3 w-3" />
-                                {z.current_temperature_c}°C
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
+                          </TableCell>
+                          <TableCell className="hidden py-1.5 text-right text-sm md:table-cell">
+                            {fmtNum(zoneLoadsKg.get(z.code) ?? z.current_load_kg, "")} / {fmtNum(z.capacity_kg, " kg")}
+                          </TableCell>
+                          <TableCell className="py-1.5 text-right text-sm">{lotCountByZone.get(z.code) ?? 0}</TableCell>
+                          <TableCell className="hidden py-1.5 text-right text-sm sm:table-cell">{z.current_temperature_c != null ? `${z.current_temperature_c} °C` : "—"}</TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
               )}
-            </CardContent>
-          </Card>
+            </section>
 
           {/* Recent movements */}
-          <Card className="rounded-2xl border-border/60">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <ArrowRightLeft className="h-4 w-4 text-primary" />
-                Derniers mouvements
-              </CardTitle>
-            </CardHeader>
+          <section>
+            <h2 className="pb-1 text-base">Derniers mouvements</h2>
+            <Card>
             <CardContent className="p-0">
               {movements.length === 0 ? (
                 <p className="px-4 py-6 text-center text-sm text-muted-foreground">Aucun mouvement enregistré</p>
@@ -768,7 +726,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
 
           {/* Inventory counts */}
           {inventoryCounts.length > 0 && (
-            <Card className="rounded-2xl border-border/60">
+            <Card className="border-border/60">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <ClipboardList className="h-4 w-4 text-primary" />
@@ -806,49 +764,32 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
             </Card>
           )}
 
-          {/* ── Manufacturing pipeline ── */}
-          <Card className="rounded-2xl border-border/60">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Factory className="h-4 w-4 text-primary" />
-                Flux de fabrication — lots en cours
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-                {([
-                  { key: "waiting",  label: "En attente",    icon: Clock,     color: "bg-slate-100 text-slate-700 border-slate-200",  lots: mfgStages.waiting },
-                  { key: "raw",      label: "Stockage brut", icon: Warehouse,  color: "bg-amber-50 text-amber-800 border-amber-200",   lots: mfgStages.raw },
-                  { key: "cold",     label: "Chambre froide", icon: Snowflake, color: "bg-sky-50 text-sky-800 border-sky-200",         lots: mfgStages.cold },
-                  { key: "fum",      label: "Fumigation",     icon: Wind,      color: "bg-purple-50 text-purple-800 border-purple-200", lots: mfgStages.fum },
-                  { key: "expReady", label: "Prêt export",   icon: Truck,     color: "bg-emerald-50 text-emerald-800 border-emerald-200", lots: mfgStages.expReady },
-                ] as Array<{ key: string; label: string; icon: typeof Clock; color: string; lots: typeof allLots }>).map(({ key, label, icon: Icon, color, lots }) => (
-                  <div key={key} className={cn("flex flex-col gap-2 rounded-xl border p-3.5", color.split(" ").slice(2).join(" "))}>
-                    <div className="flex items-center gap-2">
-                      <Icon className={cn("h-4 w-4 shrink-0", color.split(" ").slice(1, 2).join(" "))} />
-                      <span className={cn("text-xs font-semibold", color.split(" ").slice(1, 2).join(" "))}>{label}</span>
-                    </div>
-                    <p className={cn("text-2xl font-bold", color.split(" ").slice(1, 2).join(" "))}>{lots.length}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {lots.reduce((s, l) => s + (l.quantity ?? 0), 0).toLocaleString("fr-FR")} kg
-                    </p>
-                    {lots.length > 0 && (
-                      <div className="space-y-1 border-t border-current/10 pt-2">
-                        {lots.slice(0, 3).map(l => (
-                          <p key={l.id} className="truncate text-xs text-muted-foreground">
-                            {l.lot_internal ?? l.lot_supplier ?? l.id?.slice(-6)} · {fmtNum(l.quantity, " kg")}
-                          </p>
-                        ))}
-                        {lots.length > 3 && (
-                          <p className="text-xs font-medium text-muted-foreground">+{lots.length - 3} autres</p>
-                        )}
-                      </div>
-                    )}
+          </section>
+          </div>
+
+          <section aria-labelledby="stock-flow-title">
+            <h2 id="stock-flow-title" className="pb-1 text-base">Où sont les lots</h2>
+            <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-3 lg:grid-cols-5">
+              {([
+                { key: "waiting",  label: "Libérés, sans zone", lots: mfgStages.waiting },
+                { key: "raw",      label: "Stockage brut",      lots: mfgStages.raw },
+                { key: "cold",     label: "Chambre froide",     lots: mfgStages.cold },
+                { key: "fum",      label: "Fumigation",         lots: mfgStages.fum },
+                { key: "expReady", label: "Zone export",        lots: mfgStages.expReady },
+              ] as Array<{ key: string; label: string; lots: typeof allLots }>).map(({ key, label, lots }) => {
+                const blocked = lots.filter(l => l.stock_status !== "STOCK_LIBERE").length;
+                return (
+                  <div key={key} className="bg-card px-3 py-2">
+                    <dt className="text-xs text-muted-foreground">{label}</dt>
+                    <dd className="font-display text-xl font-semibold">{lots.length} lot{lots.length !== 1 ? "s" : ""}</dd>
+                    <dd className="text-xs text-muted-foreground">{fmtNum(lots.reduce((sum, l) => sum + (l.quantity ?? 0), 0), " kg")}</dd>
+                    {blocked > 0 && <dd className="text-xs font-medium text-amber-800">dont {blocked} bloqué{blocked > 1 ? "s" : ""}</dd>}
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                );
+              })}
+            </dl>
+          </section>
+
         </TabsContent>
 
         {/* ════════════════════════════════════════════════
@@ -861,23 +802,20 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
               <Input
                 placeholder="Rechercher un lot, variété, zone…"
                 value={lotSearch}
-                onChange={e => setLotSearch(e.target.value)}
-                className="rounded-xl pl-9"
+                onChange={e => { setLotSearch(e.target.value); setLotPage(0); }}
+                className="pl-9"
               />
               <Eye className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
             </div>
-            <Select value={lotStatusFilter} onValueChange={setLotStatusFilter}>
-              <SelectTrigger className="w-full rounded-xl sm:w-48">
-                <SelectValue placeholder="Tous les statuts" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les statuts</SelectItem>
-                <SelectItem value="STOCK_LIBERE">Libéré</SelectItem>
-                <SelectItem value="EN_QUARANTAINE">Quarantaine</SelectItem>
-                <SelectItem value="STOCK_REJETE">Rejeté</SelectItem>
-                <SelectItem value="NON_STOCKE">Non affecté</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex flex-wrap gap-1">
+              {[
+                ["all", "Tous"], ["STOCK_LIBERE", "Disponibles"], ["EN_QUARANTAINE", "En quarantaine"], ["STOCK_REJETE", "Rejetés"], ["NON_STOCKE", "Non affectés"],
+              ].map(([value, label]) => (
+                <Button key={value} type="button" size="sm" variant={lotStatusFilter === value ? "secondary" : "ghost"} aria-pressed={lotStatusFilter === value} onClick={() => { setLotStatusFilter(value); setLotPage(0); }}>
+                  {label}
+                </Button>
+              ))}
+            </div>
           </div>
 
           <p className="text-xs text-muted-foreground">
@@ -886,7 +824,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
           </p>
 
           {/* Table */}
-          <Card className="rounded-2xl border-border/60">
+          <Card className="border-border/60">
             <CardContent className="p-0">
               {lotsLoading ? (
                 <div className="py-16 text-center text-sm text-muted-foreground">Chargement des lots…</div>
@@ -901,7 +839,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                     <TableHeader>
                       <TableRow className="hover:bg-transparent">
                         <TableHead>Lot interne</TableHead>
-                        <TableHead>Fournisseur</TableHead>
+                        <TableHead>Lot fournisseur</TableHead>
                         <TableHead>Variété</TableHead>
                         <TableHead className="text-right">Qté</TableHead>
                         <TableHead>Zone stockage</TableHead>
@@ -911,9 +849,19 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredLots.slice(0, 300).map(lot => (
+                      {filteredLots.slice(lotPage * LOT_PAGE_SIZE, (lotPage + 1) * LOT_PAGE_SIZE).map(lot => (
                         <TableRow key={lot.id} className="group">
-                          <TableCell className="font-mono text-xs font-semibold">{lot.lot_internal ?? "—"}</TableCell>
+                          <TableCell>
+                            <button
+                              type="button"
+                              className="font-mono text-sm hover:underline"
+                              title="Voir la traçabilité du lot"
+                              disabled={!lot.lot_internal}
+                              onClick={() => setTraceLot(lot.lot_internal ?? "")}
+                            >
+                              {lot.lot_internal ?? "—"}
+                            </button>
+                          </TableCell>
                           <TableCell className="text-xs text-muted-foreground">{lot.lot_supplier ?? "—"}</TableCell>
                           <TableCell className="text-xs">{lot.variety ?? "—"}</TableCell>
                           <TableCell className="text-right text-xs">{fmtNum(lot.quantity, ` ${lot.unit ?? "kg"}`)}</TableCell>
@@ -936,14 +884,9 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                           {canManage && (
                             <TableCell>
                               {(!lot.storage_zone_code || lot.stock_status === "STOCK_LIBERE") && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-9 rounded-lg text-xs opacity-0 transition-opacity group-hover:opacity-100"
-                                  onClick={() => setAssignLot(lot)}
-                                >
-                                  <Truck className="mr-1 h-3 w-3" />
-                                  Affecter
+                                <Button variant="ghost" size="sm" onClick={() => setAssignLot(lot)}>
+                                  {lot.stock_status === "STOCK_LIBERE" ? <Truck className="mr-1 h-3 w-3" /> : <ShieldAlert className="mr-1 h-3 w-3" />}
+                                  {lot.stock_status === "STOCK_LIBERE" ? "Affecter" : "Isoler"}
                                 </Button>
                               )}
                             </TableCell>
@@ -956,166 +899,181 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
               )}
             </CardContent>
           </Card>
-          {filteredLots.length > 300 && (
-            <p className="text-center text-xs text-muted-foreground">
-              Affichage limité à 300 lots · {filteredLots.length - 300} non affichés · Affinez le filtre.
-            </p>
+          {filteredLots.length > LOT_PAGE_SIZE && (
+            <div className="flex items-center justify-end gap-2 text-sm text-muted-foreground">
+              <span>{lotPage * LOT_PAGE_SIZE + 1} à {Math.min((lotPage + 1) * LOT_PAGE_SIZE, filteredLots.length)} sur {filteredLots.length}</span>
+              <Button type="button" size="sm" variant="outline" disabled={lotPage === 0} onClick={() => setLotPage((page) => page - 1)}>Précédents</Button>
+              <Button type="button" size="sm" variant="outline" disabled={(lotPage + 1) * LOT_PAGE_SIZE >= filteredLots.length} onClick={() => setLotPage((page) => page + 1)}>Suivants</Button>
+            </div>
           )}
         </TabsContent>
 
         {/* ════════════════════════════════════════════════
             TAB 3 — ZONES & EMPLACEMENTS
         ════════════════════════════════════════════════ */}
-        <TabsContent value="zones" className="space-y-4">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <Select value={selectedZoneId} onValueChange={setSelectedZoneId}>
-              <SelectTrigger className="w-full rounded-xl sm:w-56">
-                <SelectValue placeholder="Toutes les zones" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Toutes les zones</SelectItem>
-                {zones.map(z => (
-                  <SelectItem key={z.id} value={z.id}>{z.code} — {z.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <div className="relative flex-1">
-              <Input
-                placeholder="Rechercher un emplacement, code lot…"
-                value={locationSearch}
-                onChange={e => setLocationSearch(e.target.value)}
-                className="rounded-xl pl-9"
-              />
-              <Eye className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
-            </div>
-          </div>
+        <TabsContent value="zones">
+          <div className="grid items-start gap-3 xl:grid-cols-[18rem_minmax(0,1fr)]">
+            <nav aria-label="Zones de stockage" className="hidden max-h-[calc(100vh-4rem)] overflow-y-auto rounded-lg border bg-card xl:sticky xl:top-14 xl:block">
+              <button
+                type="button"
+                aria-current={selectedZoneId === "all" ? "true" : undefined}
+                className={cn("flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-muted/50", selectedZoneId === "all" && "bg-secondary font-medium")}
+                onClick={() => setSelectedZoneId("all")}
+              >
+                Toutes les zones
+                <span className="text-xs text-muted-foreground">{zones.length}</span>
+              </button>
+              {zoneGroups.map(group => (
+                <div key={group.family}>
+                  <h3 className="border-t bg-muted/40 px-3 py-1 text-xs font-medium text-muted-foreground">{group.label}</h3>
+                  {group.zones.map(z => {
+                    const pct = zoneOccupancy(z, zoneLoadsKg.get(z.code));
+                    return (
+                      <button
+                        key={z.id}
+                        type="button"
+                        aria-current={selectedZoneId === z.id ? "true" : undefined}
+                        className={cn("flex w-full items-center gap-2 border-t px-3 py-1.5 text-left hover:bg-muted/50 pointer-coarse:py-2.5", selectedZoneId === z.id && "bg-secondary")}
+                        onClick={() => setSelectedZoneId(z.id)}
+                      >
+                        <span className={cn("w-12 shrink-0 font-mono text-sm", selectedZoneId === z.id && "font-semibold")}>{z.code}</span>
+                        <OccupancyBar pct={pct} className="flex-1" />
+                        <span className="w-11 shrink-0 text-right text-xs text-muted-foreground">{pct} %</span>
+                        {(z.condition_status === "critical" || z.condition_status === "warning") && (
+                          <AlertTriangle className={cn("h-3.5 w-3.5 shrink-0", z.condition_status === "critical" ? "text-red-700" : "text-amber-700")} aria-label={z.condition_status === "critical" ? "Critique" : "À surveiller"} />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              ))}
+            </nav>
 
-          {/* Zone summary cards */}
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {(selectedZoneId === "all" ? zones : zones.filter(z => z.id === selectedZoneId)).map(z => {
-              const pct = zoneOccupancy(z, zoneLoadsKg.get(z.code));
-              return (
-                <Card key={z.id} className="rounded-2xl border-border/60">
-                  <CardHeader className="pb-2 pt-4">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-center gap-2.5">
-                        <div className={cn("flex h-8 w-8 items-center justify-center rounded-xl border", conditionCls(z.condition_status))}>
-                          {zoneIcon(z)}
-                        </div>
-                        <div>
-                          <p className="font-bold text-foreground">{z.code}</p>
-                          <p className="text-xs text-muted-foreground">{familyLabel[z.storage_family] ?? z.storage_family}</p>
-                        </div>
-                      </div>
-                      <Badge className={cn("rounded-full text-xs", conditionCls(z.condition_status))}>
-                        {z.condition_status === "critical" ? "Critique" : z.condition_status === "warning" ? "À surveiller" : "Normal"}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3 pb-4">
-                    <div className="space-y-1.5">
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>Occupation {(z.capacity_palettes ?? 0) > 0 ? "palettes" : "en poids"}</span>
-                        <span className="font-semibold text-foreground">{pct}%</span>
-                      </div>
-                      <OccupancyBar pct={pct} />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        {(z.capacity_palettes ?? 0) > 0 && (z.current_load_palettes ?? 0) > 0
-                          ? <span>{fmtNum(z.current_load_palettes)} / {fmtNum(z.capacity_palettes)} palettes</span>
-                          : <span>{fmtNum(zoneLoadsKg.get(z.code) ?? z.current_load_kg, " kg")} / {fmtNum(z.capacity_kg, " kg")}</span>
-                        }
-                        {(z.capacity_palettes ?? 0) > 0 && (z.current_load_palettes ?? 0) > 0 && z.capacity_kg > 0 && (
-                          <span>{fmtNum(zoneLoadsKg.get(z.code) ?? z.current_load_kg, " kg")} / {fmtNum(z.capacity_kg, " kg")}</span>
-                        )}
-                      </div>
-                    </div>
-                    {(z.current_temperature_c != null || z.temperature_min != null) && (
-                      <div className="flex flex-wrap gap-2 border-t border-border/40 pt-2">
-                        {z.current_temperature_c != null && (
-                          <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Thermometer className="h-3 w-3" />
-                            {z.current_temperature_c}°C
-                          </span>
-                        )}
-                        {z.temperature_min != null && (
-                          <span className="text-xs text-muted-foreground">
-                            Consigne: {z.temperature_min}–{z.temperature_max}°C
-                          </span>
-                        )}
-                      </div>
-                    )}
-                    {z.condition_messages && z.condition_messages.length > 0 && (
-                      <p className="text-xs text-amber-700">{z.condition_messages[0]}</p>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+            <div className="min-w-0 space-y-3">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <div className="xl:hidden">
+                  <Select value={selectedZoneId} onValueChange={setSelectedZoneId}>
+                    <SelectTrigger className="w-full sm:w-56" aria-label="Zone">
+                      <SelectValue placeholder="Toutes les zones" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Toutes les zones</SelectItem>
+                      {zones.map(z => (
+                        <SelectItem key={z.id} value={z.id}>{z.code} — {z.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="relative flex-1">
+                  <Input
+                    aria-label="Rechercher un emplacement ou un lot"
+                    placeholder="Rechercher un emplacement, code lot…"
+                    value={locationSearch}
+                    onChange={e => setLocationSearch(e.target.value)}
+                    className="pl-9"
+                  />
+                  <Eye className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
+                </div>
+              </div>
 
-          {/* Locations table */}
-          <Card className="rounded-2xl border-border/60">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <MapPin className="h-4 w-4 text-primary" />
-                Emplacements
-                <span className="ml-1 text-sm font-normal text-muted-foreground">({filteredLocations.length})</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              {filteredLocations.length === 0 ? (
-                <div className="py-10 text-center text-sm text-muted-foreground">Aucun emplacement trouvé</div>
-              ) : (
-                <div className="overflow-x-auto">
+              {selectedZone && (
+                <section aria-labelledby="stock-zone-title" className="rounded-lg border bg-card p-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h2 id="stock-zone-title" className="text-base">
+                      <span className="font-mono">{selectedZone.code}</span> {selectedZone.name}
+                    </h2>
+                    <Badge className={cn("rounded-full text-xs", conditionCls(selectedZone.condition_status))}>
+                      {selectedZone.condition_status === "critical" ? "Critique" : selectedZone.condition_status === "warning" ? "À surveiller" : "Normal"}
+                    </Badge>
+                  </div>
+                  <dl className="mt-2 grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:grid-cols-4">
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Type</dt>
+                      <dd>{familyLabel[selectedZone.storage_family] ?? selectedZone.storage_family}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Charge</dt>
+                      <dd>{fmtNum(zoneLoadsKg.get(selectedZone.code) ?? selectedZone.current_load_kg, "")} / {fmtNum(selectedZone.capacity_kg, " kg")}</dd>
+                      {(selectedZone.capacity_palettes ?? 0) > 0 && <dd className="text-xs text-muted-foreground">{fmtNum(selectedZone.current_load_palettes ?? 0)} / {fmtNum(selectedZone.capacity_palettes)} palettes</dd>}
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Température</dt>
+                      <dd>{selectedZone.current_temperature_c != null ? `${selectedZone.current_temperature_c} °C` : "Aucune lecture"}</dd>
+                      {selectedZone.temperature_min != null && <dd className="text-xs text-muted-foreground">Consigne {selectedZone.temperature_min} à {selectedZone.temperature_max} °C</dd>}
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Lots présents</dt>
+                      <dd>{lotCountByZone.get(selectedZone.code) ?? 0}</dd>
+                    </div>
+                  </dl>
+                  <OccupancyBar pct={zoneOccupancy(selectedZone, zoneLoadsKg.get(selectedZone.code))} className="mt-3" />
+                  {selectedZone.condition_messages?.map(message => (
+                    <p key={message} className="mt-2 text-xs text-amber-800">{message}</p>
+                  ))}
+                </section>
+              )}
+
+              <section aria-labelledby="stock-locations-title">
+                <h2 id="stock-locations-title" className="pb-1 text-base">
+                  Emplacements <span className="text-sm font-normal text-muted-foreground">({filteredLocations.length})</span>
+                </h2>
+                {filteredLocations.length === 0 ? (
+                  <p className="rounded-lg border bg-card py-8 text-center text-sm text-muted-foreground">
+                    {locationSearch ? "Aucun emplacement pour cette recherche" : "Aucun emplacement dans cette zone. Créez-en un dans Gestion."}
+                  </p>
+                ) : (
                   <Table>
                     <TableHeader>
-                      <TableRow className="hover:bg-transparent">
+                      <TableRow>
                         <TableHead>Code</TableHead>
-                        <TableHead>Zone</TableHead>
+                        {selectedZoneId === "all" && <TableHead>Zone</TableHead>}
                         <TableHead>Statut</TableHead>
                         <TableHead className="text-right">Occupation</TableHead>
-                        <TableHead>Lots présents</TableHead>
-                        <TableHead>Temp / Hum</TableHead>
-                        <TableHead>Dernier mvt</TableHead>
+                        <TableHead className="hidden sm:table-cell">Lots présents</TableHead>
+                        <TableHead className="hidden md:table-cell">Temp. et humidité</TableHead>
+                        <TableHead className="hidden xl:table-cell">Dernier mouvement</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredLocations.slice(0, 250).map(loc => {
+                      {filteredLocations.slice(0, LOCATION_ROW_LIMIT).map(loc => {
                         const pct = occupancy(loc.occupied_palettes, loc.capacity_palettes);
                         return (
                           <TableRow key={loc.id}>
-                            <TableCell className="font-mono text-xs font-semibold">{loc.code}</TableCell>
-                            <TableCell className="text-xs text-muted-foreground">{loc.zone_code}</TableCell>
-                            <TableCell>
+                            <TableCell className="whitespace-nowrap py-1.5 font-mono text-sm">{loc.code}</TableCell>
+                            {selectedZoneId === "all" && <TableCell className="py-1.5 text-sm text-muted-foreground">{loc.zone_code}</TableCell>}
+                            <TableCell className="py-1.5">
                               <Badge className={cn("rounded-full text-xs", locationStatusCls(loc.location_status))}>
                                 {locationStatusLabel[loc.location_status]}
                               </Badge>
                             </TableCell>
-                            <TableCell className="text-right">
+                            <TableCell className="py-1.5 text-right">
                               <div className="flex items-center justify-end gap-2">
                                 <OccupancyBar pct={pct} className="w-16" />
-                                <span className="w-10 text-right text-xs font-semibold">{pct}%</span>
+                                <span className="w-11 text-right text-sm">{pct} %</span>
                               </div>
                             </TableCell>
-                            <TableCell className="text-xs text-muted-foreground">
+                            <TableCell className="hidden py-1.5 text-sm text-muted-foreground sm:table-cell">
                               {loc.lot_ids_present?.length > 0
                                 ? loc.lot_ids_present.slice(0, 2).join(", ") + (loc.lot_ids_present.length > 2 ? ` +${loc.lot_ids_present.length - 2}` : "")
                                 : "—"}
                             </TableCell>
-                            <TableCell className="text-xs text-muted-foreground">
-                              {loc.current_temperature_c != null ? `${loc.current_temperature_c}°C` : "—"}
-                              {loc.current_humidity_percent != null ? ` · ${loc.current_humidity_percent}%` : ""}
+                            <TableCell className="hidden py-1.5 text-sm text-muted-foreground md:table-cell">
+                              {loc.current_temperature_c != null ? `${loc.current_temperature_c} °C` : "—"}
+                              {loc.current_humidity_percent != null ? ` · ${loc.current_humidity_percent} %` : ""}
                             </TableCell>
-                            <TableCell className="text-xs text-muted-foreground">{fmt(loc.last_movement_at)}</TableCell>
+                            <TableCell className="hidden py-1.5 text-sm text-muted-foreground xl:table-cell">{fmt(loc.last_movement_at)}</TableCell>
                           </TableRow>
                         );
                       })}
                     </TableBody>
                   </Table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                )}
+                {filteredLocations.length > LOCATION_ROW_LIMIT && (
+                  <p className="pt-2 text-xs text-muted-foreground">{LOCATION_ROW_LIMIT} premiers sur {filteredLocations.length}. Choisissez une zone ou précisez la recherche.</p>
+                )}
+              </section>
+            </div>
+          </div>
         </TabsContent>
 
         {/* ════════════════════════════════════════════════
@@ -1125,7 +1083,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
           <div className="grid gap-4 lg:grid-cols-[380px_1fr]">
             {/* Form */}
             {canManage && (
-              <Card className="h-fit rounded-2xl border-border/60">
+              <Card className="h-fit border-border/60">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-base">
                     <ArrowRightLeft className="h-4 w-4 text-primary" />
@@ -1139,7 +1097,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                       value={mvtForm.movementType}
                       onValueChange={v => setMvtForm(f => ({ ...f, movementType: v as StorageMovementType }))}
                     >
-                      <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                      <SelectTrigger ><SelectValue /></SelectTrigger>
                       <SelectContent>
                         {Object.entries(storageMovementTypeLabels).map(([k, label]) => (
                           <SelectItem key={k} value={k}>{label}</SelectItem>
@@ -1155,13 +1113,14 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                         placeholder="Scanner le QR/SSCC du lot"
                         value={mvtForm.lotCode}
                         readOnly
-                        className="rounded-xl"
+                        
                       />
                       <Button
                         type="button"
                         variant="outline"
                         size="icon"
-                        className="shrink-0 rounded-xl"
+                        className="shrink-0"
+                        aria-label="Scanner le lot"
                         onClick={() => setScannerOpen(true)}
                       >
                         <QrCode className="h-4 w-4" />
@@ -1175,7 +1134,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                       value={mvtForm.sourceLocationId}
                       onValueChange={v => setMvtForm(f => ({ ...f, sourceLocationId: v }))}
                     >
-                      <SelectTrigger className="rounded-xl"><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+                      <SelectTrigger ><SelectValue placeholder="Sélectionner" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="none">Aucun (entrée externe)</SelectItem>
                         {allLocations.map(l => <SelectItem key={l.id} value={l.id}>{l.code} — {l.zone_code}</SelectItem>)}
@@ -1193,7 +1152,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                         setMvtForm(f => ({ ...f, destinationLocationId: v, destinationZoneId: zone?.id ?? "none" }));
                       }}
                     >
-                      <SelectTrigger className="rounded-xl"><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+                      <SelectTrigger ><SelectValue placeholder="Sélectionner" /></SelectTrigger>
                       <SelectContent>
                         {allLocations.map(l => <SelectItem key={l.id} value={l.id}>{l.code} — {l.zone_code}</SelectItem>)}
                       </SelectContent>
@@ -1208,7 +1167,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                         min="1"
                         value={mvtForm.quantityPalettes}
                         onChange={e => setMvtForm(f => ({ ...f, quantityPalettes: e.target.value }))}
-                        className="rounded-xl"
+                        
                       />
                     </div>
                     <div className="space-y-2">
@@ -1218,7 +1177,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                         placeholder="Optionnel"
                         value={mvtForm.quantityKg}
                         onChange={e => setMvtForm(f => ({ ...f, quantityKg: e.target.value }))}
-                        className="rounded-xl"
+                        
                       />
                     </div>
                   </div>
@@ -1229,7 +1188,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                       value={mvtForm.reason}
                       onValueChange={v => setMvtForm(f => ({ ...f, reason: v as StorageMovementReason }))}
                     >
-                      <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                      <SelectTrigger ><SelectValue /></SelectTrigger>
                       <SelectContent>
                         {Object.entries(storageMovementReasonLabels).map(([k, label]) => (
                           <SelectItem key={k} value={k}>{label}</SelectItem>
@@ -1244,12 +1203,17 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                       placeholder="Observations optionnelles…"
                       value={mvtForm.notes}
                       onChange={e => setMvtForm(f => ({ ...f, notes: e.target.value }))}
-                      className="min-h-[72px] resize-none rounded-xl"
+                      className="min-h-[72px] resize-none "
                     />
                   </div>
 
+                  {(!lotScanToken || !mvtForm.destinationLocationId) && (
+                    <p className="text-xs text-muted-foreground">
+                      {!lotScanToken ? "Scannez le lot pour continuer. La saisie à la main n'est pas acceptée." : "Choisissez l'emplacement de destination."}
+                    </p>
+                  )}
                   <Button
-                    className="w-full rounded-xl"
+                    className="w-full"
                     disabled={!mvtForm.lotCode || !lotScanToken || !mvtForm.destinationLocationId || moveStock.isPending}
                     onClick={handleMovementSubmit}
                   >
@@ -1260,7 +1224,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
             )}
 
             {/* History */}
-            <Card className="rounded-2xl border-border/60">
+            <Card className="border-border/60">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <Activity className="h-4 w-4 text-primary" />
@@ -1321,7 +1285,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
           <div className="grid gap-4 lg:grid-cols-[340px_1fr]">
             {/* Reading form */}
             {canManage && (
-              <Card className="h-fit rounded-2xl border-border/60">
+              <Card className="h-fit border-border/60">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-base">
                     <Thermometer className="h-4 w-4 text-primary" />
@@ -1335,7 +1299,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                       value={readingForm.storageZoneId}
                       onValueChange={v => setReadingForm(f => ({ ...f, storageZoneId: v }))}
                     >
-                      <SelectTrigger className="rounded-xl"><SelectValue placeholder="Sélectionner une zone" /></SelectTrigger>
+                      <SelectTrigger ><SelectValue placeholder="Sélectionner une zone" /></SelectTrigger>
                       <SelectContent>
                         {zones.map(z => <SelectItem key={z.id} value={z.id}>{z.code} — {z.name}</SelectItem>)}
                       </SelectContent>
@@ -1350,7 +1314,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                         placeholder="ex: 18.5"
                         value={readingForm.temperatureC}
                         onChange={e => setReadingForm(f => ({ ...f, temperatureC: e.target.value }))}
-                        className="rounded-xl"
+                        
                       />
                     </div>
                     <div className="space-y-2">
@@ -1361,7 +1325,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                         placeholder="ex: 65"
                         value={readingForm.humidityPercent}
                         onChange={e => setReadingForm(f => ({ ...f, humidityPercent: e.target.value }))}
-                        className="rounded-xl"
+                        
                       />
                     </div>
                   </div>
@@ -1373,7 +1337,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                         placeholder="Optionnel"
                         value={readingForm.gasPpm}
                         onChange={e => setReadingForm(f => ({ ...f, gasPpm: e.target.value }))}
-                        className="rounded-xl"
+                        
                       />
                     </div>
                     <div className="space-y-2">
@@ -1382,12 +1346,12 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                         placeholder="SEN-001"
                         value={readingForm.sensorRef}
                         onChange={e => setReadingForm(f => ({ ...f, sensorRef: e.target.value }))}
-                        className="rounded-xl"
+                        
                       />
                     </div>
                   </div>
                   <Button
-                    className="w-full rounded-xl"
+                    className="w-full "
                     disabled={!readingForm.storageZoneId || !readingForm.temperatureC || createReading.isPending}
                     onClick={handleReadingSubmit}
                   >
@@ -1399,7 +1363,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
 
             {/* Readings + door events */}
             <div className="space-y-4">
-              <Card className="rounded-2xl border-border/60">
+              <Card className="border-border/60">
                 <CardHeader className="pb-2">
                   <CardTitle className="flex items-center gap-2 text-base">
                     <Thermometer className="h-4 w-4 text-primary" />
@@ -1449,7 +1413,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
 
               {/* Door events */}
               {doorEvents.length > 0 && (
-                <Card className="rounded-2xl border-border/60">
+                <Card className="border-border/60">
                   <CardHeader className="pb-2">
                     <CardTitle className="flex items-center gap-2 text-base">
                       <Activity className="h-4 w-4 text-primary" />
@@ -1490,7 +1454,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
           <TabsContent value="gestion" className="space-y-4">
 
             {/* ── Zones ── */}
-            <Card className="rounded-2xl border-border/60">
+            <Card className="border-border/60">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between gap-2">
                   <CardTitle className="flex items-center gap-2 text-base">
@@ -1498,7 +1462,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                     Zones de stockage
                     <span className="text-sm font-normal text-muted-foreground">({zones.length})</span>
                   </CardTitle>
-                  <Button size="sm" className="gap-1.5 rounded-xl" onClick={openZoneCreate}>
+                  <Button size="sm" className="gap-1.5 " onClick={openZoneCreate}>
                     <Plus className="h-4 w-4" />
                     Nouvelle zone
                   </Button>
@@ -1509,7 +1473,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                   <div className="py-12 text-center">
                     <Warehouse className="mx-auto mb-3 h-10 w-10 text-muted-foreground/30" />
                     <p className="text-sm text-muted-foreground">Aucune zone configurée</p>
-                    <Button size="sm" className="mt-3 rounded-xl" onClick={openZoneCreate}>
+                    <Button size="sm" className="mt-3 " onClick={openZoneCreate}>
                       <Plus className="mr-1.5 h-4 w-4" />
                       Créer la première zone
                     </Button>
@@ -1551,24 +1515,21 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                             <TableCell className="text-xs text-muted-foreground">
                               {z.temperature_min != null ? `${z.temperature_min}–${z.temperature_max}°C` : "—"}
                             </TableCell>
+                            <TableCell className="text-sm text-muted-foreground">{z.is_active ? "Oui" : "Non"}</TableCell>
                             <TableCell>
-                              <span className={cn(
-                                "inline-flex h-2 w-2 rounded-full",
-                                z.is_active ? "bg-emerald-500" : "bg-slate-300",
-                              )} />
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                              <div className="flex items-center gap-1">
                                 <Button
                                   variant="ghost" size="icon"
-                                  className="h-9 w-9 rounded-lg"
+                                  className="h-9 w-9"
+                                  aria-label={`Modifier la zone ${z.code}`}
                                   onClick={() => openZoneEdit(z)}
                                 >
                                   <Pencil className="h-3.5 w-3.5" />
                                 </Button>
                                 <Button
                                   variant="ghost" size="icon"
-                                  className="h-9 w-9 rounded-lg text-destructive hover:bg-destructive/10"
+                                  className="h-9 w-9 text-destructive hover:bg-destructive/10"
+                                  aria-label={`Supprimer la zone ${z.code}`}
                                   onClick={() => setDeleteZoneConfirm(z)}
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
@@ -1585,7 +1546,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
             </Card>
 
             {/* ── Emplacements ── */}
-            <Card className="rounded-2xl border-border/60">
+            <Card className="border-border/60">
               <CardHeader className="pb-3">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <CardTitle className="flex items-center gap-2 text-base">
@@ -1597,7 +1558,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                   </CardTitle>
                   <div className="flex items-center gap-2">
                     <Select value={mgmtZoneFilter} onValueChange={setMgmtZoneFilter}>
-                      <SelectTrigger className="w-44 rounded-xl">
+                      <SelectTrigger className="w-44 ">
                         <SelectValue placeholder="Toutes les zones" />
                       </SelectTrigger>
                       <SelectContent>
@@ -1605,7 +1566,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                         {zones.map(z => <SelectItem key={z.id} value={z.id}>{z.code}</SelectItem>)}
                       </SelectContent>
                     </Select>
-                    <Button size="sm" className="gap-1.5 rounded-xl" onClick={openLocCreate}>
+                    <Button size="sm" className="gap-1.5 " onClick={openLocCreate}>
                       <Plus className="h-4 w-4" />
                       Nouvel emplacement
                     </Button>
@@ -1621,7 +1582,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                     <div className="py-12 text-center">
                       <MapPin className="mx-auto mb-3 h-10 w-10 text-muted-foreground/30" />
                       <p className="text-sm text-muted-foreground">Aucun emplacement</p>
-                      <Button size="sm" className="mt-3 rounded-xl" onClick={openLocCreate}>
+                      <Button size="sm" className="mt-3 " onClick={openLocCreate}>
                         <Plus className="mr-1.5 h-4 w-4" />
                         Ajouter un emplacement
                       </Button>
@@ -1654,24 +1615,21 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                                   {locationStatusLabel[l.location_status]}
                                 </Badge>
                               </TableCell>
+                              <TableCell className="text-sm text-muted-foreground">{l.is_active ? "Oui" : "Non"}</TableCell>
                               <TableCell>
-                                <span className={cn(
-                                  "inline-flex h-2 w-2 rounded-full",
-                                  l.is_active ? "bg-emerald-500" : "bg-slate-300",
-                                )} />
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                                <div className="flex items-center gap-1">
                                   <Button
                                     variant="ghost" size="icon"
-                                    className="h-9 w-9 rounded-lg"
+                                    className="h-9 w-9"
+                                    aria-label={`Modifier l'emplacement ${l.code}`}
                                     onClick={() => openLocEdit(l)}
                                   >
                                     <Pencil className="h-3.5 w-3.5" />
                                   </Button>
                                   <Button
                                     variant="ghost" size="icon"
-                                    className="h-9 w-9 rounded-lg text-destructive hover:bg-destructive/10"
+                                    className="h-9 w-9 text-destructive hover:bg-destructive/10"
+                                    aria-label={`Supprimer l'emplacement ${l.code}`}
                                     onClick={() => setDeleteLocConfirm(l)}
                                   >
                                     <Trash2 className="h-3.5 w-3.5" />
@@ -1692,8 +1650,8 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
       </Tabs>
 
       {/* ── Assign lot dialog ── */}
-      <Dialog open={!!assignLot} onOpenChange={open => !open && setAssignLot(null)}>
-        <DialogContent className="rounded-2xl sm:max-w-md">
+      <Dialog open={!!assignLot} onOpenChange={open => { if (!open) { setAssignLot(null); setAssignZone(""); } }}>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Truck className="h-5 w-5 text-primary" />
@@ -1702,16 +1660,21 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
           </DialogHeader>
           {assignLot && (
             <div className="space-y-4">
-              <div className="rounded-xl border border-border/60 bg-muted/30 p-3 text-sm">
+              <div className="border border-border/60 bg-muted/30 p-3 text-sm">
                 <p className="font-semibold text-foreground">{assignLot.lot_internal ?? assignLot.id}</p>
                 <p className="text-muted-foreground">{assignLot.variety ?? "—"} · {fmtNum(assignLot.quantity, ` ${assignLot.unit ?? "kg"}`)}</p>
               </div>
+              {assignLot.stock_status !== "STOCK_LIBERE" && (
+                <p className="rounded border border-amber-200 bg-amber-50 p-2 text-sm text-amber-800">
+                  Ce lot reste bloqué : cette affectation ne le libère pas. Seules les zones de quarantaine sont proposées.
+                </p>
+              )}
               <div className="space-y-2">
                 <Label>Zone de stockage <span className="text-destructive">*</span></Label>
                 <Select value={assignZone} onValueChange={setAssignZone}>
-                  <SelectTrigger className="rounded-xl"><SelectValue placeholder="Choisir une zone" /></SelectTrigger>
+                  <SelectTrigger aria-label="Zone de stockage"><SelectValue placeholder="Choisir une zone" /></SelectTrigger>
                   <SelectContent>
-                    {zones.filter(z => z.is_active !== false).map(z => (
+                    {zones.filter(z => z.is_active !== false && checkLotStorageAllowed({ lotStockStatus: assignLot.stock_status ?? "", receptionStatus: "VALIDE", targetZoneCode: z.code }).allowed).map(z => (
                       <SelectItem key={z.id} value={z.code}>
                         {z.code} — {familyLabel[z.storage_family] ?? z.storage_family}
                         {z.current_load_palettes != null && ` (${zoneOccupancy(z, zoneLoadsKg.get(z.code))}% occupé)`}
@@ -1726,17 +1689,17 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                   placeholder="Optionnel"
                   value={assignNotes}
                   onChange={e => setAssignNotes(e.target.value)}
-                  className="rounded-xl"
+                  
                 />
               </div>
             </div>
           )}
           <DialogFooter className="gap-2">
-            <Button variant="outline" className="rounded-xl" onClick={() => setAssignLot(null)}>
+            <Button variant="outline" onClick={() => { setAssignLot(null); setAssignZone(""); }}>
               Annuler
             </Button>
             <Button
-              className="rounded-xl"
+              
               disabled={!assignZone || moveLot.isPending}
               onClick={handleAssign}
             >
@@ -1770,7 +1733,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
 
       {/* ── Zone form dialog ── */}
       <Dialog open={zoneDialog.open} onOpenChange={open => !open && setZoneDialog({ open: false, editing: null })}>
-        <DialogContent className="rounded-2xl sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Warehouse className="h-5 w-5 text-primary" />
@@ -1785,13 +1748,13 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                   placeholder="BRT-01"
                   value={zoneForm.code}
                   onChange={e => setZoneForm(f => ({ ...f, code: e.target.value }))}
-                  className="rounded-xl uppercase"
+                  className="uppercase"
                 />
               </div>
               <div className="space-y-2">
                 <Label>Famille <span className="text-destructive">*</span></Label>
                 <Select value={zoneForm.storage_family} onValueChange={v => setZoneForm(f => ({ ...f, storage_family: v }))}>
-                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                  <SelectTrigger ><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {Object.entries(familyLabel).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
                   </SelectContent>
@@ -1804,51 +1767,51 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                 placeholder="Zone stockage brut n°1"
                 value={zoneForm.name}
                 onChange={e => setZoneForm(f => ({ ...f, name: e.target.value }))}
-                className="rounded-xl"
+                
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>Capacité (kg) <span className="text-destructive">*</span></Label>
-                <Input type="number" placeholder="50000" value={zoneForm.capacity_kg} onChange={e => setZoneForm(f => ({ ...f, capacity_kg: e.target.value }))} className="rounded-xl" />
+                <Input type="number" placeholder="50000" value={zoneForm.capacity_kg} onChange={e => setZoneForm(f => ({ ...f, capacity_kg: e.target.value }))}  />
               </div>
               <div className="space-y-2">
                 <Label>Capacité (palettes)</Label>
-                <Input type="number" placeholder="Optionnel" value={zoneForm.capacity_palettes} onChange={e => setZoneForm(f => ({ ...f, capacity_palettes: e.target.value }))} className="rounded-xl" />
+                <Input type="number" placeholder="Optionnel" value={zoneForm.capacity_palettes} onChange={e => setZoneForm(f => ({ ...f, capacity_palettes: e.target.value }))}  />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>Temp. min (°C)</Label>
-                <Input type="number" step="0.1" placeholder="ex: 2" value={zoneForm.temperature_min} onChange={e => setZoneForm(f => ({ ...f, temperature_min: e.target.value }))} className="rounded-xl" />
+                <Input type="number" step="0.1" placeholder="ex: 2" value={zoneForm.temperature_min} onChange={e => setZoneForm(f => ({ ...f, temperature_min: e.target.value }))}  />
               </div>
               <div className="space-y-2">
                 <Label>Temp. max (°C)</Label>
-                <Input type="number" step="0.1" placeholder="ex: 8" value={zoneForm.temperature_max} onChange={e => setZoneForm(f => ({ ...f, temperature_max: e.target.value }))} className="rounded-xl" />
+                <Input type="number" step="0.1" placeholder="ex: 8" value={zoneForm.temperature_max} onChange={e => setZoneForm(f => ({ ...f, temperature_max: e.target.value }))}  />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>Humidité min (%)</Label>
-                <Input type="number" step="0.1" placeholder="ex: 60" value={zoneForm.humidity_min} onChange={e => setZoneForm(f => ({ ...f, humidity_min: e.target.value }))} className="rounded-xl" />
+                <Input type="number" step="0.1" placeholder="ex: 60" value={zoneForm.humidity_min} onChange={e => setZoneForm(f => ({ ...f, humidity_min: e.target.value }))}  />
               </div>
               <div className="space-y-2">
                 <Label>Humidité max (%)</Label>
-                <Input type="number" step="0.1" placeholder="ex: 80" value={zoneForm.humidity_max} onChange={e => setZoneForm(f => ({ ...f, humidity_max: e.target.value }))} className="rounded-xl" />
+                <Input type="number" step="0.1" placeholder="ex: 80" value={zoneForm.humidity_max} onChange={e => setZoneForm(f => ({ ...f, humidity_max: e.target.value }))}  />
               </div>
             </div>
             <div className="space-y-2">
               <Label>Notes</Label>
-              <Textarea placeholder="Observations optionnelles…" value={zoneForm.notes} onChange={e => setZoneForm(f => ({ ...f, notes: e.target.value }))} className="min-h-[60px] resize-none rounded-xl" />
+              <Textarea placeholder="Observations optionnelles…" value={zoneForm.notes} onChange={e => setZoneForm(f => ({ ...f, notes: e.target.value }))} className="min-h-[60px] resize-none " />
             </div>
-            <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/30 px-4 py-3">
+            <div className="flex items-center justify-between border border-border/60 bg-muted/30 px-4 py-3">
               <div>
                 <p className="text-sm font-medium">Zone active</p>
                 <p className="text-xs text-muted-foreground">Désactiver pour masquer sans supprimer</p>
               </div>
               <Switch checked={zoneForm.is_active} onCheckedChange={v => setZoneForm(f => ({ ...f, is_active: v }))} />
             </div>
-            <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/30 px-4 py-3">
+            <div className="flex items-center justify-between border border-border/60 bg-muted/30 px-4 py-3">
               <div>
                 <p className="text-sm font-medium">Bio uniquement</p>
                 <p className="text-xs text-muted-foreground">Réserve cette zone aux lots certifiés bio</p>
@@ -1857,11 +1820,11 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
             </div>
           </div>
           <DialogFooter className="gap-2">
-            <Button variant="outline" className="rounded-xl" onClick={() => setZoneDialog({ open: false, editing: null })}>
+            <Button variant="outline"  onClick={() => setZoneDialog({ open: false, editing: null })}>
               Annuler
             </Button>
             <Button
-              className="rounded-xl"
+              
               disabled={!zoneForm.code || !zoneForm.name || !zoneForm.capacity_kg || createZone.isPending || updateZone.isPending}
               onClick={handleZoneSubmit}
             >
@@ -1873,7 +1836,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
 
       {/* ── Zone delete confirm ── */}
       <Dialog open={!!deleteZoneConfirm} onOpenChange={open => !open && setDeleteZoneConfirm(null)}>
-        <DialogContent className="rounded-2xl sm:max-w-sm">
+        <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-destructive">
               <Trash2 className="h-5 w-5" />
@@ -1886,12 +1849,12 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
             Cette action est irréversible et supprimera également ses emplacements.
           </p>
           <DialogFooter className="gap-2">
-            <Button variant="outline" className="rounded-xl" onClick={() => setDeleteZoneConfirm(null)}>
+            <Button variant="outline"  onClick={() => setDeleteZoneConfirm(null)}>
               Annuler
             </Button>
             <Button
               variant="destructive"
-              className="rounded-xl"
+              
               disabled={deleteZone.isPending}
               onClick={async () => {
                 if (!deleteZoneConfirm) return;
@@ -1907,7 +1870,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
 
       {/* ── Location form dialog ── */}
       <Dialog open={locDialog.open} onOpenChange={open => !open && setLocDialog({ open: false, editing: null })}>
-        <DialogContent className="rounded-2xl sm:max-w-md">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <MapPin className="h-5 w-5 text-primary" />
@@ -1922,13 +1885,13 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                   placeholder="BRT-01-A"
                   value={locForm.code}
                   onChange={e => setLocForm(f => ({ ...f, code: e.target.value }))}
-                  className="rounded-xl uppercase"
+                  className="uppercase"
                 />
               </div>
               <div className="space-y-2">
                 <Label>Zone <span className="text-destructive">*</span></Label>
                 <Select value={locForm.storage_zone_id} onValueChange={v => setLocForm(f => ({ ...f, storage_zone_id: v }))}>
-                  <SelectTrigger className="rounded-xl"><SelectValue placeholder="Choisir" /></SelectTrigger>
+                  <SelectTrigger ><SelectValue placeholder="Choisir" /></SelectTrigger>
                   <SelectContent>
                     {zones.map(z => <SelectItem key={z.id} value={z.id}>{z.code} — {z.name}</SelectItem>)}
                   </SelectContent>
@@ -1941,20 +1904,20 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                 placeholder="Emplacement A nord"
                 value={locForm.name}
                 onChange={e => setLocForm(f => ({ ...f, name: e.target.value }))}
-                className="rounded-xl"
+                
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>Capacité palettes <span className="text-destructive">*</span></Label>
-                <Input type="number" min="1" placeholder="ex: 10" value={locForm.capacity_palettes} onChange={e => setLocForm(f => ({ ...f, capacity_palettes: e.target.value }))} className="rounded-xl" />
+                <Input type="number" min="1" placeholder="ex: 10" value={locForm.capacity_palettes} onChange={e => setLocForm(f => ({ ...f, capacity_palettes: e.target.value }))}  />
               </div>
               <div className="space-y-2">
                 <Label>Capacité (kg)</Label>
-                <Input type="number" placeholder="Optionnel" value={locForm.capacity_kg} onChange={e => setLocForm(f => ({ ...f, capacity_kg: e.target.value }))} className="rounded-xl" />
+                <Input type="number" placeholder="Optionnel" value={locForm.capacity_kg} onChange={e => setLocForm(f => ({ ...f, capacity_kg: e.target.value }))}  />
               </div>
             </div>
-            <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/30 px-4 py-3">
+            <div className="flex items-center justify-between border border-border/60 bg-muted/30 px-4 py-3">
               <div>
                 <p className="text-sm font-medium">Emplacement actif</p>
                 <p className="text-xs text-muted-foreground">Désactiver pour le mettre hors service</p>
@@ -1963,11 +1926,11 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
             </div>
           </div>
           <DialogFooter className="gap-2">
-            <Button variant="outline" className="rounded-xl" onClick={() => setLocDialog({ open: false, editing: null })}>
+            <Button variant="outline"  onClick={() => setLocDialog({ open: false, editing: null })}>
               Annuler
             </Button>
             <Button
-              className="rounded-xl"
+              
               disabled={!locForm.code || !locForm.name || !locForm.storage_zone_id || !locForm.capacity_palettes || createLocation.isPending || updateLocation.isPending}
               onClick={handleLocSubmit}
             >
@@ -1979,7 +1942,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
 
       {/* ── Location delete confirm ── */}
       <Dialog open={!!deleteLocConfirm} onOpenChange={open => !open && setDeleteLocConfirm(null)}>
-        <DialogContent className="rounded-2xl sm:max-w-sm">
+        <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-destructive">
               <Trash2 className="h-5 w-5" />
@@ -1992,12 +1955,12 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
             Cette action est irréversible.
           </p>
           <DialogFooter className="gap-2">
-            <Button variant="outline" className="rounded-xl" onClick={() => setDeleteLocConfirm(null)}>
+            <Button variant="outline"  onClick={() => setDeleteLocConfirm(null)}>
               Annuler
             </Button>
             <Button
               variant="destructive"
-              className="rounded-xl"
+              
               disabled={deleteLocation.isPending}
               onClick={async () => {
                 if (!deleteLocConfirm) return;

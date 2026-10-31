@@ -29,6 +29,9 @@ interface WorkRowProps {
   onAction: () => void;
 }
 
+const quantityOf = (order: ProductionOrder) =>
+  order.target_quantity == null ? 'quantité à définir' : `${order.target_quantity} ${order.unit ?? ''}`.trim();
+
 const WorkRow = ({ icon: Icon, title, detail, status, action, onAction }: WorkRowProps) => (
   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2">
     <Icon className="h-[18px] w-[18px] shrink-0 text-muted-foreground" />
@@ -66,7 +69,7 @@ const PlannedOrderRow = ({ order, onOpenOrder, label }: { order: ProductionOrder
     <WorkRow
       icon={Factory}
       title={order.order_number}
-      detail={`${order.product_name} : ${order.target_quantity} ${order.unit}`}
+      detail={`${order.product_name} : ${quantityOf(order)}`}
       status={!isLoading && !hasLots
         ? <Badge variant="outline" className={ORDER_STATUS_BADGE.cancelled}>Aucun lot alloué</Badge>
         : <Badge variant="outline" className={ORDER_STATUS_BADGE.planned}>{label}</Badge>}
@@ -149,7 +152,7 @@ export const ProductionToday = ({ orders, stagesEnabled, onOpenView, onOpenOrder
             key={order.id}
             icon={Factory}
             title={order.order_number}
-            detail={`${order.product_name} : ${order.actual_quantity} sur ${order.target_quantity} ${order.unit}`}
+            detail={`${order.product_name} : ${order.actual_quantity ?? 0} sur ${quantityOf(order)}`}
             status={<Badge variant="outline" className={ORDER_STATUS_BADGE.in_progress}>{orderStatusLabels[order.status]}</Badge>}
             action="Suivre"
             onAction={() => onOpenOrder(order.id)}
@@ -177,7 +180,7 @@ export const ProductionToday = ({ orders, stagesEnabled, onOpenView, onOpenOrder
             key={order.id}
             icon={Factory}
             title={order.order_number}
-            detail={`${order.product_name} : ${order.target_quantity} ${order.unit}`}
+            detail={`${order.product_name} : ${quantityOf(order)}`}
             status={<Badge variant="outline" className={ORDER_STATUS_BADGE.draft}>{orderStatusLabels[order.status]}</Badge>}
             action="Planifier"
             onAction={() => onOpenOrder(order.id)}

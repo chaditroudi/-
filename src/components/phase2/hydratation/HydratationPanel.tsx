@@ -24,9 +24,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Droplets, Thermometer, Plus, Loader2 } from 'lucide-react';
+import { Thermometer, Plus, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { SummaryStrip } from '@/components/shared/SummaryStrip';
 
 const STATUS_STYLE = {
   EN_COURS: 'bg-blue-100 text-blue-700',
@@ -116,30 +117,12 @@ export function HydratationPanel({ currentUser = 'Utilisateur' }: { currentUser?
 
   return (
     <div className="space-y-4">
-      {/* KPIs */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <Card><CardContent className="pt-4 pb-3">
-          <div className="text-2xl font-bold">{kpis?.active_count ?? active.length}</div>
-          <div className="text-xs text-muted-foreground">Cycles actifs</div>
-        </CardContent></Card>
-        <Card><CardContent className="pt-4 pb-3">
-          <div className="text-2xl font-bold">{kpis?.conform_pct != null ? `${kpis.conform_pct}%` : '—'}</div>
-          <div className="text-xs text-muted-foreground">Conformité (20–26%)</div>
-        </CardContent></Card>
-        <Card><CardContent className="pt-4 pb-3">
-          <div className="text-2xl font-bold">{kpis?.override_count ?? '—'}</div>
-          <div className="text-xs text-muted-foreground">Dérogations programme</div>
-        </CardContent></Card>
-        <Card><CardContent className="pt-4 pb-3">
-          <div className="flex items-center gap-2">
-            <Droplets className="h-4 w-4 text-blue-400" />
-            <div>
-              <div className="text-sm font-semibold">20 – 26%</div>
-              <div className="text-xs text-muted-foreground">Cible humidité</div>
-            </div>
-          </div>
-        </CardContent></Card>
-      </div>
+      <SummaryStrip items={[
+        { label: 'Cycles actifs', value: kpis?.active_count ?? active.length },
+        { label: 'Conformité (20 à 26 %)', value: kpis?.conform_pct != null ? `${kpis.conform_pct} %` : '—' },
+        { label: 'Dérogations programme', value: kpis?.override_count ?? '—' },
+        { label: 'Cible humidité', value: '20 à 26 %' },
+      ]} />
 
       {/* Active */}
       <Card>

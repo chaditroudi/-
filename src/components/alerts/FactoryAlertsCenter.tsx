@@ -26,6 +26,7 @@ import { ReceptionAlert } from '@/types/reception';
 import { formatDistanceToNow, format, isAfter, isBefore, startOfDay, endOfDay } from 'date-fns';
 import { fr, enUS, ar } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { SummaryStrip } from '@/components/shared/SummaryStrip';
 
  // Alert type icons
  const alertTypeIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -132,65 +133,13 @@ export const FactoryAlertsCenter = () => {
 
    return (
      <div className="space-y-4">
-       {/* Header Stats */}
-       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-         <Card className={cn("transition-all", criticalCount > 0 && "border-red-500 bg-red-50 animate-pulse")}>
-           <CardContent className="p-4">
-             <div className="flex items-center gap-3">
-               <div className="p-2 rounded-full bg-red-100">
-                 <XCircle className="h-5 w-5 text-red-600" />
-               </div>
-               <div>
-                 <p className="text-2xl font-bold text-red-600">{criticalCount}</p>
-                 <p className="text-xs text-muted-foreground">{t('alerts.critical')}</p>
-               </div>
-             </div>
-           </CardContent>
-         </Card>
-         
-         <Card className={cn("transition-all", warningCount > 0 && "border-orange-500 bg-orange-50")}>
-           <CardContent className="p-4">
-             <div className="flex items-center gap-3">
-               <div className="p-2 rounded-full bg-orange-100">
-                 <AlertTriangle className="h-5 w-5 text-orange-600" />
-               </div>
-               <div>
-                 <p className="text-2xl font-bold text-orange-600">{warningCount}</p>
-                 <p className="text-xs text-muted-foreground">{t('alerts.warnings')}</p>
-               </div>
-             </div>
-           </CardContent>
-         </Card>
-         
-         <Card>
-           <CardContent className="p-4">
-             <div className="flex items-center gap-3">
-               <div className="p-2 rounded-full bg-blue-100">
-                 <Bell className="h-5 w-5 text-blue-600" />
-               </div>
-               <div>
-                 <p className="text-2xl font-bold text-blue-600">{unreadCount}</p>
-                 <p className="text-xs text-muted-foreground">{t('alerts.unread')}</p>
-               </div>
-             </div>
-           </CardContent>
-         </Card>
-         
-         <Card>
-           <CardContent className="p-4">
-             <div className="flex items-center gap-3">
-               <div className="p-2 rounded-full bg-purple-100">
-                 <Package className="h-5 w-5 text-purple-600" />
-               </div>
-               <div>
-                 <p className="text-2xl font-bold text-purple-600">{activeReceptionAlerts}</p>
-                 <p className="text-xs text-muted-foreground">{t('alerts.receptionAlerts')}</p>
-               </div>
-             </div>
-           </CardContent>
-         </Card>
-       </div>
-       
+       <SummaryStrip items={[
+         { label: t('alerts.critical'), value: criticalCount, tone: criticalCount > 0 ? 'bad' : 'default' },
+         { label: t('alerts.warnings'), value: warningCount, tone: warningCount > 0 ? 'watch' : 'default' },
+         { label: t('alerts.unread'), value: unreadCount },
+         { label: t('alerts.receptionAlerts'), value: activeReceptionAlerts },
+       ]} />
+
        {/* Main Content */}
        <Card>
          <CardHeader className="pb-2">

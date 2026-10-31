@@ -67,7 +67,7 @@ function LotCard({ lot, stage, onLaunch }: { lot: AvailableLot; stage: Phase2Sta
         <Button
           size="sm"
           variant="outline"
-          className="h-9 text-xs shrink-0 gap-1 opacity-0 group-hover:opacity-100 transition-opacity border-orange-300 text-orange-700 hover:bg-orange-50"
+          className="h-9 text-xs shrink-0 gap-1 border-orange-300 text-orange-700 hover:bg-orange-50"
           onClick={onLaunch}
         >
           <Flame className="h-3 w-3" />
@@ -191,9 +191,6 @@ export function ProductionPipelinePanel({ onLaunchFumigation }: Props) {
                   />
                 ))}
               </div>
-              <p className="text-[11px] text-muted-foreground mt-2">
-                Survoler un lot pour lancer la fumigation directement.
-              </p>
             </CardContent>
           </Card>
         )}

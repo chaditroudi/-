@@ -89,7 +89,7 @@ export const AnalyticsDashboard = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="flex h-auto w-full justify-start gap-1 overflow-x-auto rounded-2xl bg-card/80 p-1 shadow-card [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:grid lg:w-auto lg:grid-cols-5 lg:overflow-visible">
+        <TabsList className="flex w-full justify-start gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:grid lg:w-auto lg:grid-cols-5 lg:overflow-visible">
           <TabsTrigger value="direction" className="shrink-0 gap-2">
             <Crown className="h-4 w-4" />
             <span className="hidden sm:inline">{t('analytics.executive')}</span>

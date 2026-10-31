@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { usePackagingOrders, usePackagingKpis, useLabelTemplates } from '@/hooks/usePackaging';
 import {
   PackagingOrder,
-  PackagingOrderStatus,
   ORDER_STATUS_STYLE,
   PACKAGING_FORMAT_CONFIG,
 } from '@/types/packaging';
@@ -14,6 +13,7 @@ import { Progress } from '@/components/ui/progress';
 import { Plus, ClipboardList, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { SummaryStrip } from '@/components/shared/SummaryStrip';
 
 export function PackagingOrderPanel({ currentUser = 'Utilisateur' }: { currentUser?: string }) {
   const { data: orders = [], isLoading } = usePackagingOrders();
@@ -29,24 +29,14 @@ export function PackagingOrderPanel({ currentUser = 'Utilisateur' }: { currentUs
 
   return (
     <div className="space-y-4">
-      {/* KPI row */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        {[
-          { label: 'En cours',        value: kpis?.active_orders   ?? active.length  },
-          { label: 'Planifiés',        value: kpis?.planned_orders  ?? planned.length },
-          { label: 'Terminés auj.',   value: kpis?.completed_today ?? 0              },
-          { label: 'Produits auj.',   value: (kpis?.total_produced_today ?? 0).toLocaleString('fr-TN') },
-          { label: 'Palettes scellées', value: kpis?.palettes_sealed_today ?? 0       },
-          { label: 'Rendement moy.',  value: kpis?.avg_yield_pct != null ? `${kpis.avg_yield_pct}%` : '—' },
-        ].map(({ label, value }) => (
-          <Card key={label}>
-            <CardContent className="pt-4 pb-3">
-              <div className="text-2xl font-bold">{value}</div>
-              <div className="text-xs text-muted-foreground">{label}</div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <SummaryStrip items={[
+        { label: 'En cours', value: kpis?.active_orders ?? active.length },
+        { label: 'Planifiés', value: kpis?.planned_orders ?? planned.length },
+        { label: "Terminés aujourd'hui", value: kpis?.completed_today ?? 0 },
+        { label: "Produits aujourd'hui", value: (kpis?.total_produced_today ?? 0).toLocaleString('fr-TN') },
+        { label: 'Palettes scellées', value: kpis?.palettes_sealed_today ?? 0 },
+        { label: 'Rendement moyen', value: kpis?.avg_yield_pct != null ? `${kpis.avg_yield_pct} %` : '—' },
+      ]} />
 
       {/* Active + Planned orders */}
       <Card>

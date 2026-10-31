@@ -200,7 +200,7 @@ export function Phase2AlertsPanel() {
           value={kpis.preventif}
           icon={Bell}
           tone={kpis.preventif > 0 ? 'neutral' : 'muted'}
-          helper="Controle de routine"
+          helper="Contrôle de routine"
         />
       </div>
 
@@ -244,14 +244,14 @@ export function Phase2AlertsPanel() {
 
         <CardContent className="pt-0">
           <Tabs defaultValue="active">
-            <TabsList className="h-auto rounded-xl border border-border bg-muted/40 p-1">
-              <TabsTrigger value="active" className="rounded-lg px-3 py-2 sm:text-sm">
+            <TabsList className="border">
+              <TabsTrigger value="active" className="px-3 py-2 sm:text-sm">
                 Actives
                 <span className="ml-2 rounded-full bg-red-100 px-1.5 py-0.5 text-[11px] font-semibold text-red-700">
                   {filteredActive.length}
                 </span>
               </TabsTrigger>
-              <TabsTrigger value="history" className="rounded-lg px-3 py-2 sm:text-sm">
+              <TabsTrigger value="history" className="px-3 py-2 sm:text-sm">
                 Historique
                 <span className="ml-2 rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-foreground">
                   {filteredAcknowledged.length}

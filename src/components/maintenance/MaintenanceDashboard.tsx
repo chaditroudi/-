@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import {
-  Wrench,
   Clock,
   CheckCircle,
   Flag,
@@ -29,6 +28,7 @@ import {
   MaintenanceRequestDialog,
   type MaintenanceRequestSaveData,
 } from './MaintenanceRequestDialog';
+import { SummaryStrip } from '@/components/shared/SummaryStrip';
 
 const MAINTENANCE_ACCESS_ROLES: ActorRole[] = [
   'responsable_maintenance',
@@ -148,23 +148,7 @@ export const MaintenanceDashboard = () => {
         {isLoading && <div className="text-xs text-muted-foreground">Chargement...</div>}
       </div>
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-        {statCards.map((stat) => (
-          <Card key={stat.label}>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className={`rounded-lg p-2 ${stat.bg}`}>
-                  <stat.icon className={`h-5 w-5 ${stat.color}`} />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{stat.value}</p>
-                  <p className="text-xs text-muted-foreground">{stat.label}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <SummaryStrip items={statCards.map((stat) => ({ label: stat.label, value: stat.value }))} />
 
       <MaintenanceRequestsList
         requests={requests}

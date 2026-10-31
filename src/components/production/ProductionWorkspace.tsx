@@ -115,7 +115,7 @@ export function ProductionWorkspace({ orders, receptions, currentUser, stagesEna
 
   return (
     <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:gap-4">
-      <nav aria-label="Sections de la production" className="-mx-1 overflow-x-auto scrollbar-hide lg:sticky lg:top-16 lg:mx-0 lg:w-48 lg:shrink-0 lg:overflow-visible">
+      <nav aria-label="Sections de la production" className="-mx-1 overflow-x-auto scrollbar-hide lg:sticky lg:top-14 lg:mx-0 lg:w-48 lg:shrink-0 lg:overflow-visible">
         <div className="flex gap-1 px-1 lg:block lg:space-y-3 lg:px-0">
           {groups.map((group) => (
             <div key={group.label} className="flex gap-1 lg:block lg:space-y-px">

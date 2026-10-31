@@ -47,12 +47,8 @@ export function SettingsDashboard({ onNavigate }: { onNavigate?: AppNavigateFn }
 
   return (
     <div className="space-y-4">
-      <Tabs defaultValue="product">
-        <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-2xl">
-          <TabsTrigger value="product" className="shrink-0 gap-1.5">
-            <Info className="h-3.5 w-3.5" />
-            Produit
-          </TabsTrigger>
+      <Tabs defaultValue="plant">
+        <TabsList className="flex w-full flex-wrap justify-start gap-1">
           <TabsTrigger value="fiches" className="shrink-0 gap-1.5">
             <BookOpen className="h-3.5 w-3.5" />
             Fiches
@@ -100,6 +96,10 @@ export function SettingsDashboard({ onNavigate }: { onNavigate?: AppNavigateFn }
           <TabsTrigger value="users" className="shrink-0 gap-1.5">
             <Users className="h-3.5 w-3.5" />
             Utilisateurs
+          </TabsTrigger>
+          <TabsTrigger value="product" className="shrink-0 gap-1.5">
+            <Info className="h-3.5 w-3.5" />
+            Produit
           </TabsTrigger>
         </TabsList>
 

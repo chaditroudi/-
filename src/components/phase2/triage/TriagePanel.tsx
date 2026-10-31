@@ -17,7 +17,6 @@ import {
   TriageSession,
   TriageLine,
   TapeSpeed,
-  SUBLOT_SUFFIX,
 } from '@/types/phase2';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -25,11 +24,12 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 import { Separator } from '@/components/ui/separator';
-import { Scissors, Plus, Loader2, Pause, Play, CheckSquare, Package, Printer, FileText } from 'lucide-react';
-import { format } from 'date-fns';
+import { Plus, Loader2, Pause, Play, CheckSquare, Package, Printer } from 'lucide-react';
+
 import { fr } from 'date-fns/locale';
+import { SummaryStrip } from '@/components/shared/SummaryStrip';
 
 const STATUS_STYLE = {
   EN_COURS: 'bg-amber-100 text-amber-700',
@@ -139,36 +139,12 @@ export function TriagePanel({ currentUser = 'Utilisateur' }: { currentUser?: str
 
   return (
     <div className="space-y-4">
-      {/* KPIs */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        <Card><CardContent className="pt-4 pb-3">
-          <div className="text-2xl font-bold">{kpis?.active_count ?? active.length}</div>
-          <div className="text-xs text-muted-foreground">Lignes actives</div>
-        </CardContent></Card>
-        <Card><CardContent className="pt-4 pb-3">
-          <div className="text-2xl font-bold text-emerald-700">{kpis?.avg_extra_pct != null ? `${kpis.avg_extra_pct}%` : '—'}</div>
-          <div className="text-xs text-muted-foreground">Extra moy.</div>
-        </CardContent></Card>
-        <Card><CardContent className="pt-4 pb-3">
-          <div className={`text-2xl font-bold ${(kpis?.avg_reject_pct ?? 0) > 10 ? 'text-red-600' : ''}`}>
-            {kpis?.avg_reject_pct != null ? `${kpis.avg_reject_pct}%` : '—'}
-          </div>
-          <div className="text-xs text-muted-foreground">Rejet moy.</div>
-        </CardContent></Card>
-        <Card><CardContent className="pt-4 pb-3">
-          <div className="text-2xl font-bold">{kpis?.total_sorted_kg != null ? `${kpis.total_sorted_kg.toLocaleString('fr-TN')} kg` : '—'}</div>
-          <div className="text-xs text-muted-foreground">Volume trié total</div>
-        </CardContent></Card>
-        <Card><CardContent className="pt-4 pb-3">
-          <div className="flex items-center gap-2">
-            <Scissors className="h-4 w-4 text-muted-foreground" />
-            <div>
-              <div className="text-sm font-semibold">L1–L4</div>
-              <div className="text-xs text-muted-foreground">Lignes triage</div>
-            </div>
-          </div>
-        </CardContent></Card>
-      </div>
+      <SummaryStrip items={[
+        { label: 'Lignes actives (L1 à L4)', value: kpis?.active_count ?? active.length },
+        { label: 'Extra moyen', value: kpis?.avg_extra_pct != null ? `${kpis.avg_extra_pct} %` : '—', tone: 'good' },
+        { label: 'Rejet moyen', value: kpis?.avg_reject_pct != null ? `${kpis.avg_reject_pct} %` : '—', tone: (kpis?.avg_reject_pct ?? 0) > 10 ? 'bad' : 'default' },
+        { label: 'Volume trié', value: kpis?.total_sorted_kg != null ? `${kpis.total_sorted_kg.toLocaleString('fr-TN')} kg` : '—' },
+      ]} />
 
       {/* Active sessions */}
       <Card>

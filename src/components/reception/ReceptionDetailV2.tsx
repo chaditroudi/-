@@ -286,7 +286,7 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
       </div>
 
       <Tabs value={section} onValueChange={(value) => setSection(value as ReceptionWorkspaceSection)}>
-        <TabsList className="h-auto w-full flex-wrap justify-start">
+        <TabsList className="w-full flex-wrap justify-start">
           <TabsTrigger value="overview"><FileText className="mr-1 h-3.5 w-3.5" />Fiche</TabsTrigger>
           <TabsTrigger value="lots"><Package className="mr-1 h-3.5 w-3.5" />Lots ({lots.length})</TabsTrigger>
           <TabsTrigger value="qc"><Shield className="mr-1 h-3.5 w-3.5" />Qualité</TabsTrigger>

@@ -11,14 +11,10 @@ import { OutputLotPanel } from './OutputLotPanel';
 import { ProductionOrder, ProductionOrderStatus } from '@/types/production';
 import { useAuthContext } from '@/contexts/AuthContext';
 import {
-  Calendar,
   CheckCircle,
-  ClipboardList,
   FileText,
   Loader2,
-  Package,
   Play,
-  User,
   XCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -28,6 +24,8 @@ interface ProductionOrderDetailProps {
   onOpenChange: (open: boolean) => void;
   orderId: string;
 }
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-/i;
 
 const STATUS_BADGE: Record<ProductionOrderStatus, string> = {
   draft: 'border-border bg-muted text-muted-foreground',
@@ -80,214 +78,109 @@ export const ProductionOrderDetail = ({ open, onOpenChange, orderId }: Productio
 
   const statusMessage =
     order?.status === 'draft'
-      ? 'Ordre en preparation avant planification.'
+      ? 'En préparation, pas encore planifié.'
       : order?.status === 'planned'
-        ? 'Pret a etre lance sur la ligne.'
+        ? 'Prêt à être lancé sur la ligne.'
         : order?.status === 'in_progress'
-          ? 'Suivi d execution en temps reel.'
+          ? 'En cours d\'exécution.'
           : order?.status === 'completed'
-            ? 'Ordre cloture et trace.'
-            : 'Ordre retire du flux actif.';
+            ? 'Clôturé et tracé.'
+            : 'Annulé, retiré du flux actif.';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92vh] max-w-6xl overflow-hidden border-border bg-background p-0">
+      <DialogContent className="max-h-[92vh] max-w-6xl overflow-hidden p-0">
         {isLoading ? (
           <div className="flex min-h-[360px] items-center justify-center">
             <div className="flex flex-col items-center gap-3 text-muted-foreground">
               <Loader2 className="h-6 w-6 animate-spin" />
-              <p className="text-sm">Chargement de l ordre de fabrication...</p>
+              <p className="text-sm">Chargement de l'ordre de fabrication…</p>
             </div>
           </div>
         ) : order ? (
           <div className="max-h-[92vh] overflow-y-auto">
-            <DialogHeader className="border-b border-border px-6 py-5">
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+            <DialogHeader className="border-b px-4 py-3 pr-12 text-left">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="outline" className="rounded-full px-2.5 py-1 text-xs font-semibold">
-                      Ordre de fabrication
-                    </Badge>
-                    <Badge className={cn('rounded-full border px-2.5 py-1 text-xs font-semibold', STATUS_BADGE[order.status])}>
+                  <DialogTitle className="font-mono text-xl">{order.order_number}</DialogTitle>
+                  <p className="text-sm text-foreground">{order.product_name}</p>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <Badge className={cn('rounded-full border px-2 py-0.5 text-xs font-semibold', STATUS_BADGE[order.status])}>
                       {orderStatusLabels[order.status]}
                     </Badge>
                     {order.flux_code && (
-                      <Badge
-                        className="rounded-md px-2 py-0.5 text-xs font-bold text-white"
-                        style={{ backgroundColor: fluxCodeColors[order.flux_code] }}
-                      >
+                      <Badge className="rounded-sm px-2 py-0.5 text-xs font-bold text-white" style={{ backgroundColor: fluxCodeColors[order.flux_code] }}>
                         {order.flux_code} — {fluxCodeLabels[order.flux_code]}
                       </Badge>
                     )}
                     <PriorityBadge priority={order.priority} />
+                    <span className="text-sm text-muted-foreground">{statusMessage}</span>
                   </div>
-
-                  <DialogTitle className="mt-3 text-2xl font-semibold text-foreground">
-                    {order.order_number}
-                  </DialogTitle>
-                  <p className="mt-1 text-base text-foreground">{order.product_name}</p>
-                  <p className="mt-2 text-sm text-muted-foreground">{statusMessage}</p>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
-                  {order.status === 'draft' && (
-                    <ActionButton
-                      loading={updateStatus.isPending && updateStatus.variables?.status === 'planned'}
-                      onClick={() => handleStatusChange('planned')}
-                    >
-                      {t('common.planOrder')}
-                    </ActionButton>
-                  )}
-
-                  {order.status === 'planned' && (
-                    <ActionButton
-                      loading={updateStatus.isPending && updateStatus.variables?.status === 'in_progress'}
-                      onClick={() => handleStatusChange('in_progress')}
-                      disabled={lotAllocations.length === 0}
-                      title={lotAllocations.length === 0 ? 'RG-M5 — Allouez au moins un lot libéré avant de lancer' : undefined}
-                    >
-                      <Play className="mr-2 h-4 w-4" />
-                      {t('common.startProduction')}
-                    </ActionButton>
-                  )}
-
-                  {order.status === 'in_progress' && (
-                    <>
+                <div className="flex flex-col items-start gap-1 lg:items-end">
+                  <div className="flex flex-wrap gap-2">
+                    {order.status === 'draft' && (
                       <ActionButton
-                        tone="success"
-                        loading={updateStatus.isPending && updateStatus.variables?.status === 'completed'}
-                        onClick={() => handleStatusChange('completed')}
+                        loading={updateStatus.isPending && updateStatus.variables?.status === 'planned'}
+                        onClick={() => handleStatusChange('planned')}
                       >
-                        <CheckCircle className="mr-2 h-4 w-4" />
-                        {t('common.completeOrder')}
+                        {t('common.planOrder')}
                       </ActionButton>
+                    )}
+
+                    {order.status === 'planned' && (
                       <ActionButton
-                        tone="danger"
-                        loading={updateStatus.isPending && updateStatus.variables?.status === 'cancelled'}
-                        onClick={() => handleStatusChange('cancelled')}
+                        loading={updateStatus.isPending && updateStatus.variables?.status === 'in_progress'}
+                        onClick={() => handleStatusChange('in_progress')}
+                        disabled={lotAllocations.length === 0}
                       >
-                        <XCircle className="mr-2 h-4 w-4" />
-                        {t('common.cancel')}
+                        <Play className="mr-2 h-4 w-4" />
+                        {t('common.startProduction')}
                       </ActionButton>
-                    </>
+                    )}
+
+                    {order.status === 'in_progress' && (
+                      <>
+                        <ActionButton
+                          tone="danger"
+                          loading={updateStatus.isPending && updateStatus.variables?.status === 'cancelled'}
+                          onClick={() => handleStatusChange('cancelled')}
+                        >
+                          <XCircle className="mr-2 h-4 w-4" />
+                          {t('common.cancel')}
+                        </ActionButton>
+                        <ActionButton
+                          tone="success"
+                          loading={updateStatus.isPending && updateStatus.variables?.status === 'completed'}
+                          onClick={() => handleStatusChange('completed')}
+                        >
+                          <CheckCircle className="mr-2 h-4 w-4" />
+                          {t('common.completeOrder')}
+                        </ActionButton>
+                      </>
+                    )}
+                  </div>
+                  {order.status === 'planned' && lotAllocations.length === 0 && (
+                    <p className="text-sm font-medium text-amber-800">Allouez au moins un lot libéré avant de lancer.</p>
                   )}
                 </div>
               </div>
             </DialogHeader>
 
-            <div className="space-y-5 p-6">
-              <CardSection>
-                <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                  <div className="min-w-0 lg:max-w-xl">
-                    <p className="text-sm font-semibold text-foreground">{t('common.progress')}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {completedSteps + skippedSteps}/{totalSteps} etapes cloturees
-                      {inProgressSteps > 0 ? ` · ${inProgressSteps} en cours` : ''}
-                      {skippedSteps > 0 ? ` · ${skippedSteps} ignoree${skippedSteps > 1 ? 's' : ''}` : ''}
-                    </p>
-                    <div className="mt-4">
-                      <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
-                        <span>Execution globale</span>
-                        <span className="font-semibold text-foreground">{progress}%</span>
-                      </div>
-                      <Progress value={progress} className="h-2.5" />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 lg:min-w-[360px] lg:grid-cols-2">
-                    <DetailMetric
-                      label={t('production.targetQuantity')}
-                      value={`${order.target_quantity} ${order.unit}`}
-                      icon={Package}
-                    />
-                    <DetailMetric
-                      label={t('production.actualQuantity')}
-                      value={`${order.actual_quantity || 0} ${order.unit}`}
-                      icon={Package}
-                    />
-                    <DetailMetric
-                      label={t('production.steps')}
-                      value={`${totalSteps}`}
-                      helper={`${completedSteps + skippedSteps} cloturees`}
-                      icon={ClipboardList}
-                    />
-                    <DetailMetric
-                      label={t('production.startDate')}
-                      value={
-                        order.planned_start_date
-                          ? new Date(order.planned_start_date).toLocaleDateString(getDateLocale())
-                          : 'Non planifiee'
-                      }
-                      icon={Calendar}
-                    />
-                  </div>
-                </div>
-              </CardSection>
-
-              <div className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.9fr)]">
-                <CardSection>
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <FileText className="h-4 w-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-foreground">{t('common.linkedToReception')}</p>
-                      {order.reception ? (
-                        <p className="mt-1 text-sm text-muted-foreground">
-                          <span className="font-semibold text-foreground">{order.reception.reception_number}</span>
-                          {order.reception.material && ` · ${order.reception.material.name}`}
-                          {order.reception.supplier && ` · ${order.reception.supplier.name}`}
-                          {order.reception.variety && ` · ${order.reception.variety}`}
-                        </p>
-                      ) : order.reception_number_snapshot ? (
-                        <p className="mt-1 text-sm text-muted-foreground">
-                          <span className="font-semibold text-foreground">{order.reception_number_snapshot}</span>
-                          {order.supplier_name_snapshot && ` · ${order.supplier_name_snapshot}`}
-                        </p>
-                      ) : (
-                        <p className="mt-1 text-sm text-muted-foreground">Aucune reception liee.</p>
-                      )}
-                    </div>
-                  </div>
-                </CardSection>
-
-                <CardSection>
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                      <User className="h-4 w-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-foreground">{t('production.createdBy')}</p>
-                      <p className="mt-1 text-sm text-muted-foreground">{order.created_by || 'Utilisateur non renseigne'}</p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Cree le {new Date(order.created_at).toLocaleString(getDateLocale())}
-                      </p>
-                    </div>
-                  </div>
-                </CardSection>
-              </div>
-
-              {order.notes && (
-                <CardSection>
-                  <p className="text-sm font-semibold text-foreground">{t('common.notes')}</p>
-                  <p className="mt-2 text-sm text-muted-foreground">{order.notes}</p>
-                </CardSection>
-              )}
-
-              <CardSection>
-                <div className="p-5">
+            <div className="grid gap-4 p-4 xl:grid-cols-[minmax(0,1fr)_20rem]">
+              <div className="min-w-0 space-y-4">
+                <section className="rounded-lg border bg-card p-3">
                   <LotAllocationPanel
                     orderId={order.id}
                     targetQuantity={order.target_quantity}
                     targetUnit={order.unit}
                     orderStatus={order.status}
                   />
-                </div>
-              </CardSection>
+                </section>
 
-              {(order.status === 'in_progress' || order.status === 'completed') && (
-                <CardSection>
-                  <div className="p-5">
+                {(order.status === 'in_progress' || order.status === 'completed') && (
+                  <section className="rounded-lg border bg-card p-3">
                     <OutputLotPanel
                       orderId={order.id}
                       orderNumber={order.order_number}
@@ -295,33 +188,66 @@ export const ProductionOrderDetail = ({ open, onOpenChange, orderId }: Productio
                       orderStatus={order.status}
                       actorName={actorName}
                     />
-                  </div>
-                </CardSection>
-              )}
+                  </section>
+                )}
 
-              <CardSection>
-                <div className="flex flex-col gap-2 border-b border-border px-5 py-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <h3 className="text-base font-semibold text-foreground">{t('production.steps')}</h3>
-                    <Badge variant="outline" className="rounded-full px-2.5 py-1 text-xs">
-                      {totalSteps} etape{totalSteps > 1 ? 's' : ''}
-                    </Badge>
+                <section aria-labelledby="order-steps-title" className="space-y-2">
+                  <h3 id="order-steps-title" className="text-base">{t('production.steps')}</h3>
+                  {sortedSteps.length === 0 ? (
+                    <p className="rounded-lg border bg-card py-6 text-center text-sm text-muted-foreground">Aucune étape pour cet ordre.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {sortedSteps.map((step, index) => (
+                        <ProductionStepCard
+                          key={step.id}
+                          step={step}
+                          isActive={index === highlightedStepIndex}
+                          allSteps={sortedSteps}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </section>
+              </div>
+
+              <aside className="min-w-0 xl:order-last">
+                <dl className="divide-y rounded-lg border bg-card text-sm">
+                  <div className="px-3 py-2">
+                    <dt className="text-xs text-muted-foreground">{t('common.progress')}</dt>
+                    <dd className="flex items-center gap-2 font-medium">
+                      <Progress value={progress} className="h-2 flex-1" aria-label={t('common.progress')} />
+                      {progress} %
+                    </dd>
+                    <dd className="text-xs text-muted-foreground">
+                      {completedSteps + skippedSteps} sur {totalSteps} étapes clôturées
+                      {inProgressSteps > 0 ? `, ${inProgressSteps} en cours` : ''}
+                      {skippedSteps > 0 ? `, ${skippedSteps} ignorée${skippedSteps > 1 ? 's' : ''}` : ''}
+                    </dd>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    Chaque etape presente les donnees operateur, l avancement et les actions de pilotage.
-                  </p>
-                </div>
-                <div className="space-y-4 p-5">
-                  {sortedSteps.map((step, index) => (
-                    <ProductionStepCard
-                      key={step.id}
-                      step={step}
-                      isActive={index === highlightedStepIndex}
-                      allSteps={sortedSteps}
-                    />
-                  ))}
-                </div>
-              </CardSection>
+                  <Fact label={t('production.targetQuantity')} value={quantityText(order.target_quantity, order.unit)} />
+                  <Fact label={t('production.actualQuantity')} value={quantityText(order.actual_quantity, order.unit)} />
+                  <Fact
+                    label={t('production.startDate')}
+                    value={order.planned_start_date ? new Date(order.planned_start_date).toLocaleDateString(getDateLocale()) : 'Non planifiée'}
+                  />
+                  <Fact
+                    label={t('common.linkedToReception')}
+                    value={
+                      order.reception
+                        ? [order.reception.reception_number, order.reception.material?.name, order.reception.supplier?.name, order.reception.variety].filter(Boolean).join(', ')
+                        : order.reception_number_snapshot
+                          ? [order.reception_number_snapshot, order.supplier_name_snapshot].filter(Boolean).join(', ')
+                          : 'Aucune réception liée'
+                    }
+                  />
+                  <Fact
+                    label={t('production.createdBy')}
+                    value={order.created_by && !UUID_PATTERN.test(order.created_by) ? order.created_by : 'Non renseigné'}
+                    helper={`Le ${new Date(order.created_at).toLocaleString(getDateLocale())}`}
+                  />
+                  {order.notes && <Fact label={t('common.notes')} value={order.notes} />}
+                </dl>
+              </aside>
             </div>
           </div>
         ) : (
@@ -331,7 +257,7 @@ export const ProductionOrderDetail = ({ open, onOpenChange, orderId }: Productio
             </div>
             <p className="text-base font-semibold text-foreground">{t('common.orderNotFound')}</p>
             <p className="max-w-md text-sm text-muted-foreground">
-              L ordre demande est introuvable ou n est plus disponible.
+              Cet ordre est introuvable ou n'est plus disponible.
             </p>
           </div>
         )}
@@ -340,39 +266,22 @@ export const ProductionOrderDetail = ({ open, onOpenChange, orderId }: Productio
   );
 };
 
-function CardSection({ children }: { children: React.ReactNode }) {
-  return <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">{children}</section>;
-}
-
-function DetailMetric({
-  label,
-  value,
-  helper,
-  icon: Icon,
-}: {
-  label: string;
-  value: string;
-  helper?: string;
-  icon: typeof Package;
-}) {
+function Fact({ label, value, helper }: { label: string; value: string; helper?: string }) {
   return (
-    <div className="rounded-xl border border-border bg-muted/20 p-4">
-      <div className="flex items-start gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-background text-muted-foreground">
-          <Icon className="h-4 w-4" />
-        </div>
-        <div className="min-w-0">
-          <p className="text-xs font-medium text-muted-foreground">{label}</p>
-          <p className="mt-2 text-sm font-semibold text-foreground">{value}</p>
-          {helper && <p className="mt-1 text-xs text-muted-foreground">{helper}</p>}
-        </div>
-      </div>
+    <div className="px-3 py-2">
+      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dd className="font-medium">{value}</dd>
+      {helper && <dd className="text-xs text-muted-foreground">{helper}</dd>}
     </div>
   );
 }
 
+function quantityText(quantity: number | null | undefined, unit: string | null | undefined) {
+  return quantity == null ? 'Non renseignée' : `${quantity} ${unit ?? ''}`.trim();
+}
+
 function PriorityBadge({ priority }: { priority: number }) {
-  const label = priority >= 3 ? 'Urgent' : priority === 2 ? 'Normal' : 'Basse';
+  const label = priority >= 3 ? 'urgente' : priority === 2 ? 'normale' : 'basse';
 
   return (
     <Badge
@@ -384,7 +293,7 @@ function PriorityBadge({ priority }: { priority: number }) {
         priority <= 1 && 'border-border bg-muted text-muted-foreground',
       )}
     >
-      Priorite {label}
+      Priorité {label}
     </Badge>
   );
 }
@@ -394,25 +303,21 @@ function ActionButton({
   onClick,
   loading,
   disabled,
-  title,
   tone = 'default',
 }: {
   children: React.ReactNode;
   onClick: () => void;
   loading: boolean;
   disabled?: boolean;
-  title?: string;
   tone?: 'default' | 'success' | 'danger';
 }) {
   return (
     <Button
       onClick={onClick}
       disabled={loading || disabled}
-      title={title}
       className={cn(
-        'rounded-lg',
-        tone === 'success' && 'bg-emerald-600 hover:bg-emerald-700',
-        tone === 'danger' && 'bg-red-600 hover:bg-red-700',
+        tone === 'success' && 'bg-emerald-700 hover:bg-emerald-800',
+        tone === 'danger' && 'bg-red-700 hover:bg-red-800',
       )}
     >
       {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
