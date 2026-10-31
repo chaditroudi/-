@@ -97,6 +97,18 @@ const Loading = () => (
   </div>
 );
 
+const ReceptionListHead = () => (
+  <div className="hidden gap-x-3 bg-muted/70 px-3 py-1.5 font-display text-[13px] font-semibold text-foreground/80 lg:grid lg:grid-cols-[10.5rem_minmax(0,1.4fr)_7rem_6.5rem_minmax(0,1fr)_6.5rem_9rem]">
+    <span>Réception</span>
+    <span>Fournisseur</span>
+    <span>Variété</span>
+    <span className="text-right">Poids</span>
+    <span>Bon de livraison</span>
+    <span>Arrivée</span>
+    <span className="text-right">Statut</span>
+  </div>
+);
+
 const ReceptionRow = ({ reception, onOpen }: { reception: ReceptionV2; onOpen: (reception: ReceptionV2) => void }) => (
   <button
     type="button"
@@ -111,7 +123,7 @@ const ReceptionRow = ({ reception, onOpen }: { reception: ReceptionV2; onOpen: (
     <span className="truncate text-sm text-muted-foreground lg:text-foreground">{reception.variety || '—'}</span>
     <span className="text-sm lg:text-right">{reception.quantity_total} {reception.unit}</span>
     <span className="truncate text-xs text-muted-foreground lg:text-sm">
-      BL {reception.delivery_note_number || '—'}{reception.purchase_order_number ? ` · ${reception.purchase_order_number}` : ''}
+      <span className="lg:hidden">BL </span>{reception.delivery_note_number || '—'}{reception.purchase_order_number ? ` · ${reception.purchase_order_number}` : ''}
     </span>
     <span className="text-xs text-muted-foreground lg:text-sm">{format(new Date(reception.created_at), 'dd/MM HH:mm', { locale: fr })}</span>
   </button>
@@ -199,7 +211,8 @@ const HistorySection = ({ onOpen, onDailyReport }: { onOpen: (reception: Recepti
           Rapport du jour
         </Button>
       </div>
-      <div className="space-y-2">
+      <div className="divide-y overflow-hidden rounded-lg border bg-card">
+        <ReceptionListHead />
         {cursors.map((before, index) => (
           <HistoryPage
             key={before ?? 'first'}
@@ -302,7 +315,12 @@ const PendingSection = ({ canManage, userId, activeReceptions, onOpen, onResume 
         <h3 className="flex items-center gap-2 text-sm font-semibold"><ListChecks className="h-4 w-4 text-primary" />En attente du contrôle qualité</h3>
         {activeReceptions.length === 0
           ? <EmptyState>Aucune réception en attente du contrôle qualité.</EmptyState>
-          : activeReceptions.map((reception) => <ReceptionRow key={reception.id} reception={reception} onOpen={onOpen} />)}
+          : (
+            <div className="divide-y overflow-hidden rounded-lg border bg-card">
+              <ReceptionListHead />
+              {activeReceptions.map((reception) => <ReceptionRow key={reception.id} reception={reception} onOpen={onOpen} />)}
+            </div>
+          )}
       </section>
     </div>
   );
@@ -402,20 +420,6 @@ export const ReceptionDashboardV2 = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="ml-auto flex flex-wrap gap-2">
-          <Button type="button" variant="outline" className="gap-2" onClick={() => setNoticeOpen(true)}>
-            <Bell className="h-4 w-4" />
-            Pré-annonces{todayNotices.length > 0 ? ` (${todayNotices.length})` : ''}
-          </Button>
-          {canManageReception && (
-            <Button type="button" className="gap-2" onClick={() => setIntake({})}>
-              <Plus className="h-5 w-5" />
-              {t('receptions.new')}
-            </Button>
-          )}
-        </div>
-      </div>
 
       {todayNotices.length > 0 && (
         <button
@@ -433,8 +437,9 @@ export const ReceptionDashboardV2 = ({
       )}
 
       <Tabs value={subTab} onValueChange={(v) => updateSubTab(v as SubTab)}>
-        <div className="overflow-x-auto scrollbar-hide">
-          <div className="flex min-w-max gap-1 border-b" role="tablist" aria-label="Sections de la réception">
+        <div className="flex flex-wrap-reverse items-center gap-x-3 gap-y-2 border-b">
+          <div className="min-w-0 flex-1 overflow-x-auto scrollbar-hide">
+          <div className="flex min-w-max gap-1" role="tablist" aria-label="Sections de la réception">
             {tabs.map((tab) => {
               const active = subTab === tab.value;
               return (
@@ -462,8 +467,22 @@ export const ReceptionDashboardV2 = ({
             })}
           </div>
         </div>
+          <div className="ml-auto flex shrink-0 gap-2 pb-1.5">
+          <Button type="button" variant="outline" className="gap-2" onClick={() => setNoticeOpen(true)}>
+            <Bell className="h-4 w-4" />
+            Pré-annonces{todayNotices.length > 0 ? ` (${todayNotices.length})` : ''}
+          </Button>
+          {canManageReception && (
+            <Button type="button" className="gap-2" onClick={() => setIntake({})}>
+              <Plus className="h-5 w-5" />
+              {t('receptions.new')}
+            </Button>
+          )}
+          </div>
+        </div>
 
-        <TabsContent value="today" className="mt-3 overflow-hidden divide-y rounded-lg border bg-card">
+        <TabsContent value="today" className="mt-3 divide-y overflow-hidden rounded-lg border bg-card">
+          <ReceptionListHead />
           {todayError ? <ListError /> : todayLoading ? <Loading /> : todayRows.length === 0 ? (
             <div className="flex items-center justify-center gap-3 rounded-2xl border border-dashed p-8 text-sm text-muted-foreground">
               <CheckCircle2 className="h-5 w-5" />

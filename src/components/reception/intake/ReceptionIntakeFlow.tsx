@@ -289,13 +289,13 @@ const FlowBody = ({ draftId, prefillPurchaseOrderId, canRunQc, onClose, onOpenRe
     <div
       data-testid="intake-actions"
       className={cn(
-        'rounded-2xl border bg-background/95 p-2 shadow-lg backdrop-blur',
-        isMobile ? 'fixed inset-x-2 bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-[9998]' : 'sticky bottom-2 z-30 -mx-1',
+        'border-t bg-card px-3 py-2',
+        isMobile ? 'fixed inset-x-2 bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-[9998]' : 'sticky bottom-0 z-30 -mx-3',
       )}
     >
       <div className="flex flex-wrap items-center gap-2">
         {draft.stage > 1 && (
-          <Button type="button" variant="outline" className="h-12" onClick={() => goTo((draft.stage - 1) as IntakeStage)}>
+          <Button type="button" variant="outline" onClick={() => goTo((draft.stage - 1) as IntakeStage)}>
             <ArrowLeft className="mr-1 h-4 w-4" />
             Retour
           </Button>
@@ -349,7 +349,7 @@ const FlowBody = ({ draftId, prefillPurchaseOrderId, canRunQc, onClose, onOpenRe
         <span className="ml-auto text-xs text-muted-foreground" role="status">{saveLabel}</span>
       </div>
 
-      <ol className="grid grid-cols-3 gap-2" aria-label="Étapes de la réception">
+      <ol className="grid grid-cols-3 border-b" aria-label="Étapes de la réception">
         {STAGES.map((stage) => {
           const done = stage.id < draft.stage;
           const current = stage.id === draft.stage;
@@ -361,11 +361,11 @@ const FlowBody = ({ draftId, prefillPurchaseOrderId, canRunQc, onClose, onOpenRe
                 aria-current={current ? 'step' : undefined}
                 onClick={() => goTo(stage.id)}
                 className={cn(
-                  'flex min-h-12 w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm font-medium',
-                  current ? 'border-primary bg-primary text-primary-foreground' : done ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'text-muted-foreground',
+                  '-mb-px flex min-h-11 w-full items-center gap-2 border-b-2 px-1 py-2 text-left text-sm font-semibold',
+                  current ? 'border-primary text-foreground' : done ? 'border-primary/40 text-primary hover:text-foreground' : 'border-transparent text-muted-foreground',
                 )}
               >
-                <span className={cn('flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs', current && 'border-primary-foreground')}>
+                <span className={cn('flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs', current && 'border-primary bg-primary text-primary-foreground')}>
                   {done ? <Check className="h-3.5 w-3.5" /> : stage.id}
                 </span>
                 <span className="truncate sm:hidden">{stage.shortLabel}</span>

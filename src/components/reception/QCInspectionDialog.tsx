@@ -405,9 +405,9 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
     }
 
     const details = [
-      `Humidite moyenne sol: ${score.humidityAverage}%`,
-      `Humidite decision labo: ${labHumidityForDecision}%`,
-      `Defauts totaux decision: ${labDefectsForDecision}%`,
+      `Humidité moyenne sol: ${score.humidityAverage}%`,
+      `Humidité décision labo: ${labHumidityForDecision}%`,
+      `Défauts totaux décision: ${labDefectsForDecision}%`,
       `Calibre moyen: ${score.caliberAverage} mm`,
       `Score final: ${score.finalScore}/100`,
       `Classement: ${getQcClassificationLabel(score.classification)}`,
@@ -443,8 +443,8 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
         checkResults: [
           ...checklistResults(qcChecklist.items, checklistAnswers),
           ...([
-          { check_code: "HUM", check_name: "Humidite", severity: "MAJEUR", result: score.humidityScore >= 60 ? "CONFORME" : "NON_CONFORME", note: `${labHumidityForDecision}% (sol ${score.humidityAverage}%)`, measured_value: String(labHumidityForDecision), expected_value: "20-26" },
-          { check_code: "DEF", check_name: "Defauts totaux", severity: "MAJEUR", result: labDefectsForDecision <= 10 ? "CONFORME" : "NON_CONFORME", note: `${labDefectsForDecision}%`, measured_value: String(labDefectsForDecision), expected_value: "<= 10" },
+          { check_code: "HUM", check_name: "Humidité", severity: "MAJEUR", result: score.humidityScore >= 60 ? "CONFORME" : "NON_CONFORME", note: `${labHumidityForDecision}% (sol ${score.humidityAverage}%)`, measured_value: String(labHumidityForDecision), expected_value: "20-26" },
+          { check_code: "DEF", check_name: "Défauts totaux", severity: "MAJEUR", result: labDefectsForDecision <= 10 ? "CONFORME" : "NON_CONFORME", note: `${labDefectsForDecision}%`, measured_value: String(labDefectsForDecision), expected_value: "<= 10" },
           { check_code: "CAL", check_name: "Calibre", severity: "MAJEUR", result: score.caliberScore >= 60 ? "CONFORME" : "NON_CONFORME", note: `${score.caliberAverage} mm`, measured_value: String(score.caliberAverage), expected_value: ">= 40" },
           { check_code: "INS", check_name: "Insectes", severity: "CRITIQUE", result: defects.insectsPercent > 5 ? "NON_CONFORME" : "CONFORME", note: `${defects.insectsPercent}%`, measured_value: String(defects.insectsPercent), expected_value: "<= 5" },
           { check_code: "MOLD", check_name: "Moisissure/Fermentation", severity: "CRITIQUE", result: defects.moldPercent > 2 || defects.fermentationPercent > 1 ? "NON_CONFORME" : "CONFORME", note: `M ${defects.moldPercent}% / F ${defects.fermentationPercent}%`, measured_value: `${defects.moldPercent}/${defects.fermentationPercent}`, expected_value: "<= 2 / <= 1" },
@@ -505,7 +505,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5" />
-            Controle qualite entrant - {reception.reception_number}
+            Contrôle qualité entrant - {reception.reception_number}
           </DialogTitle>
         </DialogHeader>
 
@@ -584,15 +584,15 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                     <p className="font-medium">{reception.supplier?.name}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Quantite</p>
+                    <p className="text-muted-foreground">Quantité</p>
                     <p className="font-medium">{reception.quantity_total} {reception.unit}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Variete</p>
+                    <p className="text-muted-foreground">Variété</p>
                     <p className="font-medium">{reception.variety || "-"}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Temperature arrivee</p>
+                    <p className="text-muted-foreground">Température à l'arrivée</p>
                     <p className="font-medium">{reception.arrival_temperature_c ?? "-"}C</p>
                   </div>
                 </CardContent>
@@ -618,7 +618,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                 }
               >
                 <Play className="h-4 w-4 mr-2" />
-                {createInspection.isPending ? "Demarrage..." : "Demarrer l'inspection"}
+                {createInspection.isPending ? "Démarrage…" : "Démarrer l'inspection"}
               </Button>
             </div>
           )}
@@ -886,7 +886,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                             </p>
                           </div>
                           <div className="space-y-1">
-                            <Label>Emplacement stockage echantillon</Label>
+                            <Label>Emplacement de l'échantillon</Label>
                             <Input value={labStorageLocation} onChange={(event) => setLabStorageLocation(event.target.value)} />
                           </div>
                         </>
@@ -913,7 +913,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                   </Card>
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-base">Resultat automatique</CardTitle>
+                      <CardTitle className="text-base">Résultat automatique</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3 text-sm">
                       {missingMeasurements > 0 && (
@@ -930,16 +930,16 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                         <Badge variant="outline">{getQcClassificationLabel(score.classification)}</Badge>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Decision proposee</span>
+                        <span className="text-muted-foreground">Décision proposée</span>
                         <Badge variant={score.recommendedDecision === "REJETE" ? "destructive" : "secondary"}>
                           {getQcDecisionLabel(score.recommendedDecision)}
                         </Badge>
                       </div>
                       <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div className="rounded-lg border p-2">Humidite: {score.humidityScore}</div>
+                        <div className="rounded-lg border p-2">Humidité : {score.humidityScore}</div>
                         <div className="rounded-lg border p-2">Calibre: {score.caliberScore}</div>
                         <div className="rounded-lg border p-2">Insectes: {score.insectsScore}</div>
-                        <div className="rounded-lg border p-2">Moisi/Ferment: {score.moldFermentationScore}</div>
+                        <div className="rounded-lg border p-2">Moisissure/fermentation : {score.moldFermentationScore}</div>
                         <div className="rounded-lg border p-2">Organo: {score.organolepticScore}</div>
                         <div className="rounded-lg border p-2">Autres: {score.otherDefectsScore}</div>
                       </div>
@@ -972,7 +972,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                   )}
 
                   <div className="space-y-2">
-                    <Label>Modifier la décision (RG-Q04)</Label>
+                    <Label>Modifier la décision</Label>
                     <div className="flex flex-wrap gap-2">
                       {(["ACCEPTE", "QUARANTAINE", "REJETE"] as QCDecisionType[]).map((decision) => (
                         <Button
@@ -1008,7 +1008,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
                       <Label>
-                        {needsJustification ? "Justification override *" : "Observations"}
+                        {needsJustification ? "Justification de l'écart *" : "Observations"}
                       </Label>
                       {needsJustification && (
                         <span className={`text-xs tabular-nums ${comment.trim().length >= 20 ? "text-emerald-600" : "text-amber-600"}`}>
@@ -1357,7 +1357,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
               </Button>
               {phase === "inspection" && (
                 <Button onClick={() => submit()} disabled={submitDecision.isPending}>
-                  {submitDecision.isPending ? "Validation en cours..." : "Valider la décision QC"}
+                  {submitDecision.isPending ? "Validation en cours..." : "Valider la décision"}
                 </Button>
               )}
             </div>

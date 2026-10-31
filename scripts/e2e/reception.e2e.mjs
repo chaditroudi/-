@@ -275,7 +275,7 @@ const openQcForm = async (page, receptionNumber) => {
   }, receptionNumber);
   await until(async () => (await findAction()).asElement(), "QC action available", 30000);
   await (await findAction()).asElement().click();
-  const startButton = () => page.evaluate(() => [...document.querySelectorAll('[role="dialog"] button')].some((button) => button.innerText.includes("Demarrer")));
+  const startButton = () => page.evaluate(() => [...document.querySelectorAll('[role="dialog"] button')].some((button) => button.innerText.includes("Démarrer")));
   await until(async () => (await startButton()) || page.$('input[placeholder="%"]'), "QC form open");
   // An open inspection resumes by itself once it has loaded.
   await sleep(1000);
@@ -283,7 +283,7 @@ const openQcForm = async (page, receptionNumber) => {
     const name = await page.evaluateHandle(() => [...document.querySelectorAll("label")]
       .find((label) => label.innerText.startsWith("Inspecteur principal")).parentElement.querySelector("input"));
     await name.asElement().type("Inspecteur E2E");
-    await clickByText(page, "Demarrer");
+    await clickByText(page, "Démarrer");
   }
   await page.waitForSelector('input[placeholder="%"]');
   for (const input of await page.$$('input[placeholder="%"]')) {
@@ -955,7 +955,7 @@ await run("P", "QC release in the browser: PIN and evidence", async () => {
   const noPin = await openApp(qualityManager);
   await openQcForm(noPin, reception.reception_number);
   await answerChecklist(noPin);
-  await clickByText(noPin, "Valider la décision QC");
+  await clickByText(noPin, "Valider la décision");
   await signRelease(noPin, "4815");
   await waitText(noPin, "Aucun code signature");
   check((await col("reception_lots").findOne({ id: lot.id })).stock_status === "EN_QUARANTAINE", "no PIN configured: nothing released");
@@ -963,16 +963,16 @@ await run("P", "QC release in the browser: PIN and evidence", async () => {
 
   const page = await openApp(inspector);
   await openQcForm(page, reception.reception_number);
-  await clickByText(page, "Valider la décision QC");
+  await clickByText(page, "Valider la décision");
   await waitText(page, "Grille qualité incomplète");
   check((await col("reception_lots").findOne({ id: lot.id })).stock_status === "EN_QUARANTAINE", "unanswered checklist: nothing released");
   await answerChecklist(page);
-  await clickByText(page, "Valider la décision QC");
+  await clickByText(page, "Valider la décision");
   await signRelease(page, "000111");
   await waitText(page, "Code signature incorrect");
   check(!page.url().includes("/auth"), "a wrong PIN does not end the session");
   check((await col("reception_lots").findOne({ id: lot.id })).stock_status === "EN_QUARANTAINE", "wrong PIN: nothing released");
-  await clickByText(page, "Valider la décision QC");
+  await clickByText(page, "Valider la décision");
   await signRelease(page, RELEASE_PIN);
   await until(async () => (await col("reception_lots").findOne({ id: lot.id })).stock_status === "STOCK_LIBERE", "release signed");
   const stock = await col("stock_lots").findOne({ reception_lot_id: lot.id });

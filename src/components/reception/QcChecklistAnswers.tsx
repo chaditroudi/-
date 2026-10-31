@@ -23,13 +23,13 @@ export function QcChecklistAnswers({ checklist, items, unavailable, answers, onC
   if (!checklist) return null;
 
   return (
-    <div className="space-y-2" data-testid="qc-checklist">
-      <p className="text-xs text-muted-foreground">{checklist.name} · version {checklist.version}</p>
+    <div className="divide-y" data-testid="qc-checklist">
+      <p className="pb-1.5 text-xs text-muted-foreground">{checklist.name}, version {checklist.version}. Répondez à chaque contrôle.</p>
       {items.map((item) => (
-        <div key={item.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border p-2">
-          <span className="flex items-center gap-2 text-sm">
+        <div key={item.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 py-1.5">
+          <span className="text-sm leading-tight">
             {item.name}
-            {item.severity === 'CRITIQUE' && <Badge variant="destructive">Critique</Badge>}
+            {item.severity === 'CRITIQUE' && <Badge variant="destructive" className="ml-1.5 align-text-bottom">Critique</Badge>}
           </span>
           <span className="flex gap-1">
             {(['CONFORME', 'NON_CONFORME'] as const).map((result) => (

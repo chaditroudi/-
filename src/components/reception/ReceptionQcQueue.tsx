@@ -62,29 +62,20 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
   return (
     <>
             <Card className="surface-card rounded-lg">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <QrCode className="h-5 w-5 text-primary" />
-                  Contrôle Qualité Entrée
-                </CardTitle>
-                <CardDescription>
-                  Scannez ou saisissez un LOT-ID pour charger la fiche et ouvrir le contrôle qualité entrant.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 p-3">
                 {/* Scan row */}
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <Input
                     value={scanValue}
                     onChange={(e) => setScanValue(e.target.value)}
-                    placeholder="LOT-ID / QR code / référence lot"
-                    className="h-12 flex-1 rounded-2xl bg-background/85"
+                    placeholder="Scanner ou saisir un numéro de lot"
+                    className="flex-1"
                     onKeyDown={(e) => { if (e.key === 'Enter') void handleScanLot(); }}
                   />
                   <Button
                     type="button"
                     variant="outline"
-                    className="h-12 rounded-2xl px-4 shrink-0"
+                    className="shrink-0"
                     onClick={() => setScannerOpen(true)}
                   >
                     <Camera className="mr-2 h-4 w-4" />
@@ -92,7 +83,7 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                   </Button>
                   <Button
                     type="button"
-                    className="h-12 rounded-2xl px-5 shrink-0"
+                    className="shrink-0"
                     onClick={() => void handleScanLot()}
                     disabled={isScanLoading || !scanValue.trim()}
                   >
@@ -111,89 +102,74 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                   </div>
                 )}
 
-                {/* Info panels side by side */}
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-border/60 bg-muted/25 p-4 text-sm">
-                    <p className="font-medium text-foreground">Règles d'échantillonnage</p>
-                    <ul className="mt-2 space-y-1 text-muted-foreground text-xs leading-5">
-                      <li>• Lot ≤ 1 tonne → minimum 2 kg</li>
-                      <li>• Lot &gt; 5 tonnes → minimum 5 kg</li>
-                      <li>• Entre les deux → prélèvement représentatif</li>
-                    </ul>
-                  </div>
-                  <div className="rounded-2xl border border-border/60 bg-muted/25 p-4 text-sm">
-                    <p className="font-medium text-foreground">Ce qui est chargé après scan</p>
-                    <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                      Fournisseur, variété, poids, statut et lot — aucune ressaisie avant le contrôle.
-                    </p>
-                  </div>
-                </div>
+                <p className="text-xs text-muted-foreground">
+                  Prélèvement : minimum 2 kg jusqu'à 1 tonne, minimum 5 kg au-delà de 5 tonnes, représentatif entre les deux.
+                </p>
 
                 {/* Awaiting QC mini-list */}
                 {awaitingQc.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-xs font-semibold text-muted-foreground">
-                      Lots en attente QC ({awaitingQc.length})
-                    </p>
+                  <div>
+                    <h3 className="pb-1 text-sm font-semibold">À inspecter ({awaitingQc.length})</h3>
+                    <div className="divide-y rounded-lg border">
                     {awaitingQc.map((r) => (
                       <button
                         key={r.id}
                         type="button"
                         onClick={() => handleStartQC(r)}
-                        className="flex w-full items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50/60 px-4 py-3 text-left hover:bg-amber-50 transition-colors"
+                        className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left hover:bg-muted/60"
                       >
                         <div>
                           <span className="font-mono text-sm font-semibold">{r.reception_number}</span>
                           <span className="ml-2 text-xs text-muted-foreground">{r.supplier?.name || r.supplier_name_snapshot || '—'} • {r.quantity_total} {r.unit}</span>
                         </div>
-                        <Button type="button" size="sm" className="h-9 rounded-xl text-xs" onClick={(e) => { e.stopPropagation(); handleStartQC(r); }}>
+                        <Button type="button" size="sm" className="text-xs" onClick={(e) => { e.stopPropagation(); handleStartQC(r); }}>
                           <Shield className="mr-1 h-3 w-3" />
                           Lancer QC
                         </Button>
                       </button>
                     ))}
+                    </div>
                   </div>
                 )}
 
                 {/* In-progress QC mini-list — interrupted inspections stay findable here */}
                 {inQc.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-xs font-semibold text-muted-foreground">
-                      Inspections en cours ({inQc.length})
-                    </p>
+                  <div>
+                    <h3 className="pb-1 text-sm font-semibold">En cours ({inQc.length})</h3>
+                    <div className="divide-y rounded-lg border">
                     {inQc.map((r) => (
                       <button
                         key={r.id}
                         type="button"
                         onClick={() => handleStartQC(r)}
-                        className="flex w-full items-center justify-between gap-3 rounded-2xl border border-sky-200 bg-sky-50/60 px-4 py-3 text-left hover:bg-sky-50 transition-colors"
+                        className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left hover:bg-muted/60"
                       >
                         <div>
                           <span className="font-mono text-sm font-semibold">{r.reception_number}</span>
                           <span className="ml-2 text-xs text-muted-foreground">{r.supplier?.name || r.supplier_name_snapshot || '—'} • {r.quantity_total} {r.unit}</span>
                         </div>
-                        <Button type="button" size="sm" className="h-9 rounded-xl bg-sky-600 text-xs hover:bg-sky-700" onClick={(e) => { e.stopPropagation(); handleStartQC(r); }}>
+                        <Button type="button" size="sm" className="bg-sky-600 text-xs hover:bg-sky-700" onClick={(e) => { e.stopPropagation(); handleStartQC(r); }}>
                           <Shield className="mr-1 h-3 w-3" />
                           Reprendre
                         </Button>
                       </button>
                     ))}
+                    </div>
                   </div>
                 )}
 
                 {/* Lab pending results — RG-Q07 */}
                 {labPendingInspections.length > 0 && (
-                  <div className="space-y-2 pt-1">
-                    <p className="text-xs font-semibold text-sky-700">
-                      Résultats labo en attente ({labPendingInspections.length})
-                    </p>
+                  <div>
+                    <h3 className="pb-1 text-sm font-semibold">Résultats labo en attente ({labPendingInspections.length})</h3>
+                    <div className="divide-y rounded-lg border">
                     {labPendingInspections.slice(0, 5).map((insp) => {
                       const rec = receptions.find((r) => r.id === insp.reception_id);
                       if (!rec) return null;
                       return (
                         <div
                           key={insp.id}
-                          className="flex w-full items-center justify-between gap-3 rounded-2xl border border-sky-200 bg-sky-50/60 px-4 py-3"
+                          className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left hover:bg-muted/60"
                         >
                           <div className="min-w-0">
                             <span className="font-mono text-sm font-semibold">{rec.reception_number}</span>
@@ -205,7 +181,7 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                             type="button"
                             size="sm"
                             variant="outline"
-                            className="h-9 rounded-xl text-xs border-sky-300 text-sky-700 hover:bg-sky-50 shrink-0"
+                            className="text-xs border-sky-300 text-sky-700 hover:bg-sky-50 shrink-0"
                             onClick={() => {
                               setSelectedReception(rec);
                               setSelectedInspection(insp as QCInspection);
@@ -218,6 +194,7 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                         </div>
                       );
                     })}
+                    </div>
                     {labPendingInspections.length > 5 && (
                       <p className="text-center text-xs text-muted-foreground">
                         + {labPendingInspections.length - 5} autres en attente

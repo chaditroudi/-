@@ -8,7 +8,7 @@ const Toaster = ({ ...props }: ToasterProps) => (
     closeButton
     expand
     pauseWhenPageIsHidden
-    position="top-right"
+    position="bottom-right"
     richColors
     theme="light"
     visibleToasts={4}
