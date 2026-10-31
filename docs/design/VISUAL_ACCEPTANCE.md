@@ -55,7 +55,7 @@ Branch: `feature/ui-redesign`. Nothing here has been pushed, merged or served on
 | The public passport showed raw status codes and jargon | Existing | Plain French |
 | Two nested `main` landmarks | Existing | One |
 | Summary strip left a grey gap with five figures | Redesign | Last cell fills the row |
-| Text hidden behind `0.0k TND` | Existing | Real amount |
+| Purchasing total read `0.0k TND` | Existing | Real amount |
 | Pale line colours on percentages failed contrast in Bilan | Existing | Figures use the text colour |
 
 ## Open questions for review
