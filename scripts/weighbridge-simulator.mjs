@@ -3,7 +3,9 @@ import { existsSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-const apiBase = (process.env.API_URL || "http://localhost:3001/api").replace(/\/$/, "");
+import { resolveTestApi } from "./lib/api-target-guard.mjs";
+
+const apiBase = resolveTestApi(process.env.API_URL);
 const secret = process.env.WEIGHBRIDGE_SIMULATOR_SECRET;
 if (!secret) throw new Error("WEIGHBRIDGE_SIMULATOR_SECRET is required.");
 const spoolPath = path.resolve(process.cwd(), ".w3-weighbridge-spool.json");

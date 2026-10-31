@@ -6,7 +6,9 @@
  */
 import { createHmac, randomUUID } from "node:crypto";
 
-const apiBase = (process.env.API_URL || `http://127.0.0.1:${process.env.PORT || 4000}/api`).replace(/\/$/, "");
+import { resolveTestApi } from "./lib/api-target-guard.mjs";
+
+const apiBase = resolveTestApi(process.env.API_URL);
 const secret = process.env.CCP_SIMULATOR_SECRET;
 if (!secret) throw new Error("CCP_SIMULATOR_SECRET is required.");
 
