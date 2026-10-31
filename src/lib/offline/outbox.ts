@@ -22,6 +22,8 @@ export type OutboxItem<T = Record<string, unknown>> = {
 const DB_NAME = 'royal-palm-edge';
 const DB_VERSION = 1;
 const STORE = 'outbox';
+/** Longer than the form's own request, so a tablet closed mid-send is still retried. */
+const FORM_REQUEST_WINDOW_MS = 35_000;
 const listeners = new Set<() => void>();
 let draining = false;
 
@@ -99,7 +101,9 @@ export const enqueueReceptionIntake = async <T extends Record<string, unknown>>(
     createdAt: now,
     updatedAt: now,
     attempts: 0,
-    nextAttemptAt: Date.now(),
+    // The form sends it first. A drain now would race that request, and a refusal
+    // it recorded would bring back a delivery the employee is already correcting.
+    nextAttemptAt: Date.now() + FORM_REQUEST_WINDOW_MS,
     lastError: null,
     ownerUserId,
   };

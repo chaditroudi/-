@@ -1,7 +1,45 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
-import { ApiRequestError } from '@/lib/axiosClient';
-import { isOutboxRetryable, isSessionExpiredError } from './outbox';
+import { ApiRequestError, axiosClient } from '@/lib/axiosClient';
+import {
+  drainOutbox,
+  enqueueReceptionIntake,
+  isOutboxRetryable,
+  isSessionExpiredError,
+  retryOutboxItem,
+} from './outbox';
+
+vi.mock('@/lib/offline/idb', () => {
+  const rows = new Map<string, unknown>();
+  const request = (result?: unknown) => {
+    const pending: { result?: unknown; onsuccess?: () => void } = { result };
+    queueMicrotask(() => pending.onsuccess?.());
+    return pending;
+  };
+  const store = {
+    get: (id: string) => request(rows.get(id)),
+    getAll: () => request([...rows.values()]),
+    put: (row: { id: string }) => { rows.set(row.id, row); return request(); },
+    delete: (id: string) => { rows.delete(id); return request(); },
+  };
+  const db = { transaction: () => ({ objectStore: () => store }), close: () => undefined };
+  return { openIndexedDb: async () => db };
+});
+
+describe('delivery being sent from the form', () => {
+  it('is left to that request until it comes back unsent', async () => {
+    const post = vi.spyOn(axiosClient, 'post').mockResolvedValue({ data: { data: {} } });
+    const queued = await enqueueReceptionIntake({ client_request_id: 'in-flight' }, 'user-1');
+
+    await drainOutbox('user-1');
+    expect(post).not.toHaveBeenCalled();
+
+    await retryOutboxItem(queued.id);
+    await drainOutbox('user-1');
+    expect(post).toHaveBeenCalledTimes(1);
+    post.mockRestore();
+  });
+});
 
 describe('W3 offline outbox retry classification', () => {
   it('retries transport, server, and in-progress conflicts', () => {

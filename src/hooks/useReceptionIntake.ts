@@ -7,6 +7,7 @@ import { deleteLocalDraft } from '@/lib/offline/draftStore';
 import {
   discardOutboxItem,
   enqueueReceptionIntake,
+  retryOutboxItem,
   isOutboxRetryable,
   isSessionExpiredError,
 } from '@/lib/offline/outbox';
@@ -124,6 +125,7 @@ export const useCreateReceptionIntake = () => {
           throw error;
         }
 
+        await retryOutboxItem(queued.id).catch(() => undefined);
         return {
           reception: {
             id: queued.id,
