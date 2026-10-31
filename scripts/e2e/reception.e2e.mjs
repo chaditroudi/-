@@ -12,11 +12,12 @@ import path from "node:path";
 import mongoose from "mongoose";
 import puppeteer from "puppeteer-core";
 
+import { resolveTestApi } from "../lib/api-target-guard.mjs";
 import { assertSafeDbTarget } from "../lib/db-target-guard.mjs";
 import { syntheticIntakeFields } from "../lib/intake-contract.mjs";
 
-const API = process.env.E2E_API || "http://127.0.0.1:4127";
-const APP = process.env.E2E_APP || "http://127.0.0.1:8127";
+const API = resolveTestApi(process.env.E2E_API || "http://127.0.0.1:4127");
+const APP = resolveTestApi(process.env.E2E_APP || "http://127.0.0.1:8127");
 const MONGO = process.env.MONGODB_URI || "mongodb://127.0.0.1:27327/?replicaSet=rs-reception";
 const DB = process.env.E2E_DB_NAME || "reception_e2e";
 const BROWSER = process.env.E2E_BROWSER || "C:/Program Files/Google/Chrome/Application/chrome.exe";
@@ -30,7 +31,7 @@ const JPEG = Buffer.from(
   "base64",
 );
 
-assertSafeDbTarget({ uri: MONGO, dbName: DB });
+if (!assertSafeDbTarget({ uri: MONGO, dbName: DB, argv: [] }).isLocal) throw new Error("This suite drops its database: local only.");
 
 let apiProcess = null;
 
@@ -71,7 +72,8 @@ const signIn = async (email) => {
 const browser = await puppeteer.launch({
   executablePath: BROWSER,
   headless: true,
-  args: ["--no-sandbox", "--use-fake-ui-for-media-stream"],
+  // Anything but this machine fails to resolve, so no page in this suite can reach a live host.
+  args: ["--no-sandbox", "--use-fake-ui-for-media-stream", "--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE localhost, EXCLUDE 127.0.0.1"],
 });
 
 const openPages = new Set();

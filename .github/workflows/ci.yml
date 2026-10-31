@@ -39,3 +39,6 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          VITE_BUILD_TARGET: test
+          VITE_API_URL: /api

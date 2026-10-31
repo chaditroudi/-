@@ -1,8 +1,9 @@
-import { defineConfig, type Plugin } from "vite";
+import { defineConfig, loadEnv, type Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import { VitePWA } from "vite-plugin-pwa";
 import http from "node:http";
 import path from "path";
+import { refuseBuildTarget, resolveBuildTarget } from "./src/lib/apiTarget";
 
 // In dev mode, serve a self-destructing SW at /sw.js so the browser's
 // automatic SW update check (which always bypasses the cache and the
@@ -95,8 +96,19 @@ const apiReadinessGate = (apiProxyTarget: string) => {
   };
 };
 
+/** A build states where it talks. There is no default host, so a missing value stops here. */
+const assertBuildApiTarget = (mode: string) => {
+  const env = { ...loadEnv(mode, process.cwd(), "VITE_"), ...process.env };
+  const target = resolveBuildTarget(env.VITE_BUILD_TARGET, mode);
+  if (!target) throw new Error(`Unknown VITE_BUILD_TARGET "${env.VITE_BUILD_TARGET}": use test, staging or production.`);
+  const refusal = refuseBuildTarget(env.VITE_API_URL, target);
+  if (refusal) throw new Error(`Build refused: ${refusal}`);
+};
+
 // https://vitejs.dev/config/
-export default defineConfig(async ({ mode }) => {
+export default defineConfig(async ({ command, mode }) => {
+  if (command === "build") assertBuildApiTarget(mode);
+
   const apiProxyTarget = process.env.VITE_API_PROXY_TARGET || "http://127.0.0.1:4000";
   const devPort = Number(process.env.VITE_DEV_PORT || 8080);
   const enableLovableTagger = mode === "development" && process.env.ENABLE_LOVABLE_TAGGER === "true";

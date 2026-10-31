@@ -18,6 +18,7 @@
     "build": "npm run server:build && vite build",
     "deploy": "vite build && gh-pages -d dist",
     "build:dev": "vite build --mode development",
+    "build:test": "node scripts/build-test-bundle.mjs",
     "lint": "eslint .",
     "typecheck": "npm run typecheck:server && npm run typecheck:client",
     "typecheck:server": "tsc --noEmit -p server/tsconfig.json",

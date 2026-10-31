@@ -1,9 +1,7 @@
 import axios from "axios";
+import { resolveApiBaseUrl } from "./apiTarget";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ||
-  (import.meta.env.PROD
-    ? "https://focused-illumination-production-d6a5.up.railway.app/api"
-    : "/api");
+const API_BASE_URL = resolveApiBaseUrl(import.meta.env.VITE_API_URL);
 const AUTH_STORAGE_KEY = "date-harvest-hub-session";
 
 export const SESSION_ENDED_EVENT = "auth:session-ended";

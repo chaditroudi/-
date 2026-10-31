@@ -37,6 +37,7 @@ jobs:
         env:
           # Point to your hosted backend (Railway, Render, VPS, etc.)
           # Set this secret in: GitHub repo → Settings → Secrets → Actions
+          # The build stops if it is missing: the client has no default host.
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
       - name: Upload Pages artifact

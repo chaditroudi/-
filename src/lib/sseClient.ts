@@ -1,3 +1,5 @@
+import { resolveApiBaseUrl } from './apiTarget';
+
 /**
  * Native EventSource-based SSE client for the NestJS realtime endpoint.
  *
@@ -20,7 +22,7 @@ const getToken = (): string | null => {
 const getRealtimeUrl = (): string | null => {
   const token = getToken();
   if (!token) return null;
-  const base = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
+  const base = resolveApiBaseUrl(import.meta.env.VITE_API_URL);
   return `${base}/realtime/events?token=${encodeURIComponent(token)}`;
 };
 
