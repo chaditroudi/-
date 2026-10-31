@@ -14,6 +14,9 @@ import { OfflineSyncStatus } from "@/components/layout/OfflineSyncStatus";
 import { EnvironmentRibbon } from "@/components/layout/EnvironmentRibbon";
 import { restartSseConnection } from "@/lib/sseClient";
 import { clearSessionData } from "@/lib/sessionData";
+import { AppErrorBoundary } from "@/components/shared/AppErrorBoundary";
+import { shouldRetryQuery } from "@/lib/apiErrors";
+import { canAccessTab, isSupplierPortalRole } from "@/lib/roleAccess";
 import { store } from "@/store";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
@@ -28,7 +31,7 @@ const queryClient = new QueryClient({
     queries: {
       networkMode: "always",
       refetchOnWindowFocus: false,
-      retry: 1,
+      retry: shouldRetryQuery,
       staleTime: 60_000,       // data stays fresh for 1 min — eliminates refetches on tab switch
       gcTime: 10 * 60_000,     // keep cache for 10 min
     },
@@ -67,6 +70,7 @@ const NotificationsRealtimeBridge = () => {
 };
 
 const App = () => (
+  <AppErrorBoundary>
   <Provider store={store}>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -85,8 +89,8 @@ const App = () => (
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/passport/:lotId" element={<PassportPage />} />
                 <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                <Route path="/alerts" element={<ProtectedRoute><AlertsCenter /></ProtectedRoute>} />
-                <Route path="/portail" element={<ProtectedRoute><SupplierPortal /></ProtectedRoute>} />
+                <Route path="/alerts" element={<ProtectedRoute allow={(roles) => canAccessTab(roles, "alerts")}><AlertsCenter /></ProtectedRoute>} />
+                <Route path="/portail" element={<ProtectedRoute allow={isSupplierPortalRole}><SupplierPortal /></ProtectedRoute>} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
@@ -96,6 +100,7 @@ const App = () => (
       </AuthProvider>
     </QueryClientProvider>
   </Provider>
+  </AppErrorBoundary>
 );
 
 export default App;

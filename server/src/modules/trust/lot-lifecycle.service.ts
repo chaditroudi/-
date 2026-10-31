@@ -374,7 +374,13 @@ export class LotLifecycleService {
     for (const lotId of lotIds) {
       states.push(await this.getState(lotId));
     }
-    return states;
+    // Lot numbers, so a role that cannot read stock still sees which lot is which.
+    const numbers = new Map(
+      (sanitizeDocument(
+        await getCollectionModel("reception_lots").find({ id: { $in: lotIds } }).select("id lot_internal").lean().exec(),
+      ) as Array<{ id?: string; lot_internal?: string }>).map((row) => [String(row.id), row.lot_internal ?? null]),
+    );
+    return states.map((state) => ({ ...state, lotNumber: numbers.get(String(state.lotId)) ?? null }));
   }
 
   async requireLot(lotId: string) {

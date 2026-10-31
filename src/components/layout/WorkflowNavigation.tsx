@@ -38,11 +38,11 @@ interface WorkflowNavigationProps {
   primaryTabs: AppTab[];
   quickTabs: AppTab[];
   metrics: {
-    activeAlertsCount: number;
-    pendingReceptions: number;
-    qualityQueueCount: number;
-    inProgressOrders: number;
-    storedLots: number;
+    activeAlertsCount: number | null;
+    pendingReceptions: number | null;
+    qualityQueueCount: number | null;
+    inProgressOrders: number | null;
+    storedLots: number | null;
   };
 }
 
@@ -343,17 +343,18 @@ const getWorkflowCards = (roles: ActorRole[], metrics: WorkflowNavigationProps["
 const getMetricForTab = (tab: AppTab, metrics: WorkflowNavigationProps["metrics"]) => {
   switch (tab) {
     case "alerts":
-      return metrics.activeAlertsCount > 0 ? `${metrics.activeAlertsCount} alertes` : "Stable";
+      if (metrics.activeAlertsCount === null) return "Accès direct";
+      return metrics.activeAlertsCount > 0 ? `${metrics.activeAlertsCount} alertes` : "Aucune alerte";
     case "receptions":
-      return `${metrics.pendingReceptions} à traiter`;
+      return metrics.pendingReceptions === null ? "Accès direct" : `${metrics.pendingReceptions} à traiter`;
     case "quality":
-      return `${metrics.qualityQueueCount} à vérifier`;
+      return metrics.qualityQueueCount === null ? "Accès direct" : `${metrics.qualityQueueCount} à vérifier`;
     case "production":
-      return `${metrics.inProgressOrders} en cours`;
+      return metrics.inProgressOrders === null ? "Accès direct" : `${metrics.inProgressOrders} en cours`;
     case "storage":
     case "stock-dashboard":
     case "stock-lots":
-      return `${metrics.storedLots} lots`;
+      return metrics.storedLots === null ? "Accès direct" : `${metrics.storedLots} lots`;
     default:
       return "Accès direct";
   }
@@ -457,7 +458,7 @@ export function WorkflowNavigation({
                   <span className="relative">
                     <meta.icon className={cn("h-5 w-5 transition-transform duration-200", isActive && "scale-110")} />
                     {hasBadge && (
-                      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[11px] font-bold text-white badge-pulse">
+                      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-xs font-bold text-white badge-pulse">
                         {metrics.activeAlertsCount > 9 ? "9+" : metrics.activeAlertsCount}
                       </span>
                     )}
@@ -536,7 +537,7 @@ export function WorkflowNavigation({
                     <div className="flex items-center gap-2">
                       <p className="truncate text-sm font-semibold text-foreground">{meta.label}</p>
                       {tab === "alerts" && metrics.activeAlertsCount > 0 && (
-                        <Badge variant="destructive" className="rounded-full px-1.5 text-[11px] badge-pulse">
+                        <Badge variant="destructive" className="rounded-full px-1.5 text-xs badge-pulse">
                           {metrics.activeAlertsCount}
                         </Badge>
                       )}

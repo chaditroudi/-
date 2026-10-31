@@ -17,6 +17,7 @@ import {
   QrCode,
   Scale,
   Settings,
+  ShieldCheck,
   ShoppingCart,
   Truck,
   Users,
@@ -30,6 +31,7 @@ import { ChangePasswordForm } from "@/components/auth/ChangePasswordForm";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useBranding } from "@/hooks/useBranding";
 import { ROLE_CONFIG } from "@/types/roles";
+import { getReceptionPermissions } from "@/lib/receptionWorkflow";
 import {
   Sidebar,
   SidebarContent,
@@ -44,8 +46,11 @@ import {
 
 interface AppSidebarProps {
   activeTab: string;
-  onTabChange: (tab: string) => void;
-  activeAlertsCount: number;
+  onTabChange: (tab: string, options?: { view?: string }) => void;
+  /** Sub-screen of the active tab, so Contrôle qualité can light up on its own. */
+  activeView?: string;
+  /** Null while unknown: no badge is better than a false zero. */
+  activeAlertsCount: number | null;
   /** Only show tabs the employee can open — critical for simple UX. */
   accessibleTabs?: string[];
 }
@@ -57,14 +62,19 @@ const STORAGE_SUBTABS = new Set(["stock-dashboard", "stock-lots", "stock-product
 /** The path a lot takes through the plant, in physical order. */
 const FILIERE: NavItem[] = [
   { id: "receptions", title: "Réception", icon: ClipboardList },
+  { id: "qc", title: "Contrôle qualité", icon: ShieldCheck },
   { id: "storage", title: "Stock", icon: Warehouse },
   { id: "production", title: "Production", icon: Factory },
   { id: "packaging", title: "Conditionnement", icon: PackageCheck },
   { id: "logistics", title: "Expédition", icon: Truck },
 ];
 
-const isItemActive = (item: NavItem, activeTab: string) =>
-  activeTab === item.id || (item.id === "storage" && STORAGE_SUBTABS.has(activeTab));
+const isItemActive = (item: NavItem, activeTab: string, activeView?: string, canInspect = false) => {
+  const inQc = canInspect && activeTab === "receptions" && activeView === "qc";
+  if (item.id === "qc") return inQc;
+  if (item.id === "receptions") return activeTab === "receptions" && !inQc;
+  return activeTab === item.id || (item.id === "storage" && STORAGE_SUBTABS.has(activeTab));
+};
 
 const ITEM_CLASS =
   "h-9 gap-2.5 rounded-md px-2.5 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-white " +
@@ -76,7 +86,7 @@ const GroupLabel = ({ children }: { children: string }) => (
   </p>
 );
 
-export function AppSidebar({ activeTab, onTabChange, activeAlertsCount, accessibleTabs }: AppSidebarProps) {
+export function AppSidebar({ activeTab, onTabChange, activeView, activeAlertsCount, accessibleTabs }: AppSidebarProps) {
   const { user, profile, roles, signOut, isAdmin } = useAuthContext();
   const [passwordOpen, setPasswordOpen] = useState(false);
   const { companyName } = useBranding();
@@ -95,7 +105,14 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount, accessib
     { id: "live", title: "En direct", icon: Activity },
   ].filter((item) => canSee(item.id));
 
-  const filiere = FILIERE.filter((item) => canSee(item.id));
+  const canInspect = getReceptionPermissions(roles).canRunQc;
+  const filiere = FILIERE.filter((item) => (item.id === "qc" ? canInspect && canSee("receptions") : canSee(item.id)));
+
+  const openItem = (item: NavItem) => {
+    if (item.id === "qc") onTabChange("receptions", { view: "qc" });
+    else if (item.id === "receptions" && canInspect) onTabChange("receptions", { view: "today" });
+    else onTabChange(item.id);
+  };
 
   const office = [
     { id: "quality", title: "Qualité", icon: CheckCircle },
@@ -116,8 +133,8 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount, accessib
   const renderItem = (item: NavItem) => (
     <SidebarMenuItem key={item.id}>
       <SidebarMenuButton
-        onClick={() => onTabChange(item.id)}
-        isActive={isItemActive(item, activeTab)}
+        onClick={() => openItem(item)}
+        isActive={isItemActive(item, activeTab, activeView, canInspect)}
         tooltip={item.title}
         className={ITEM_CLASS}
       >
@@ -133,7 +150,7 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount, accessib
   );
 
   // The thread of light: lit from intake down to the step on screen.
-  const activeStep = filiere.findIndex((item) => isItemActive(item, activeTab));
+  const activeStep = filiere.findIndex((item) => isItemActive(item, activeTab, activeView, canInspect));
   const litShare = activeStep < 0 ? 0 : ((activeStep + 0.5) / filiere.length) * 100;
 
   return (

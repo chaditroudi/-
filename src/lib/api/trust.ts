@@ -6,6 +6,7 @@ type ApiEnvelope<T> = {
 };
 
 export type GoldenThreadLotState = {
+  lotNumber?: string | null;
   lotId: string;
   valid: boolean;
   eventCount: number;

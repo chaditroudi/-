@@ -1,4 +1,5 @@
 import { History, RefreshCw, Search } from "lucide-react";
+import { RealtimeIndicator } from "@/components/layout/RealtimeIndicator";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -68,6 +69,7 @@ export const TopHeader = ({ onRefresh, pageTitle }: TopHeaderProps) => {
             </DialogContent>
           </Dialog>
         )}
+        <RealtimeIndicator />
         <LanguageSwitcher />
         <AiGuide />
         <NotificationCenter />

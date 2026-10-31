@@ -1,4 +1,5 @@
 import type { ActorRole } from '@/types/roles';
+import { tabIsServed } from './apiAccess';
 
 export type AppTab =
   | 'home'
@@ -404,8 +405,17 @@ const hasPlantAccess = (roles: ActorRole[]) =>
 export const getAccessibleTabs = (roles: ActorRole[]) => {
   const profile = getRoleWorkspaceProfile(roles);
   const plantTabs: AppTab[] = hasPlantAccess(roles) ? ['live', 'scan'] : [];
-  return unique<AppTab>([...profile.primaryTabs, ...profile.quickTabs, 'home', ...plantTabs]);
+  // A profile may list a screen the server refuses; only what it serves is offered.
+  return unique<AppTab>([...profile.primaryTabs, ...profile.quickTabs, 'home', ...plantTabs]).filter((tab) => tabIsServed(roles, tab));
 };
+
+/** Suppliers work in the portal. Directors and administrators may open it to check it. */
+export const isSupplierPortalRole = (roles: ActorRole[]) =>
+  roles.some((role) => ['fournisseur_externe', 'administrateur_systeme', 'directeur_general', 'directeur_usine'].includes(role));
+
+/** A supplier has no factory screens, so the portal is their home. */
+export const landsOnSupplierPortal = (roles: ActorRole[]) =>
+  roles.length > 0 && roles.every((role) => role === 'fournisseur_externe');
 
 export const canAccessTab = (roles: ActorRole[], tab: AppTab) => getAccessibleTabs(roles).includes(tab);
 

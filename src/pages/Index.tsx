@@ -14,11 +14,15 @@ import { useReceptions } from "@/hooks/useReceptions";
 import { useProductionOrders } from "@/hooks/useProduction";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { ROLE_CONFIG } from "@/types/roles";
-import { canPerformAction, getAccessibleTabs, getRoleWorkspaceProfile, type AppTab } from "@/lib/roleAccess";
+import { canPerformAction, getAccessibleTabs, getRoleWorkspaceProfile, landsOnSupplierPortal, type AppTab } from "@/lib/roleAccess";
+import { canRead } from "@/lib/apiAccess";
+import { getReceptionPermissions } from "@/lib/receptionWorkflow";
+import { RestrictedScreen } from "@/components/auth/RestrictedScreen";
+import { AppErrorBoundary } from "@/components/shared/AppErrorBoundary";
 import { APP_TAB_META } from "@/lib/appTabs";
 import { useFactoryShellMetrics } from "@/hooks/useFactoryShellMetrics";
 import { useQueryClient } from "@tanstack/react-query";
-import { useSearchParams } from "react-router-dom";
+import { Navigate, useSearchParams } from "react-router-dom";
 import { useSettingsContext } from "@/contexts/SettingsContext";
 import { AiGuideProvider } from "@/contexts/AiGuideContext";
 import { useBranding } from "@/hooks/useBranding";
@@ -53,14 +57,9 @@ const CustomersDashboard     = lazy(() => import('@/components/customers/Custome
 
 // ── Suspense fallback ─────────────────────────────────────────────────────────
 const TabLoader = () => (
-  <div className="flex flex-col items-center justify-center gap-4 py-32">
-    <div className="relative h-10 w-10">
-      <div className="absolute inset-0 animate-spin rounded-full border-2 border-primary/10 border-t-primary" />
-      <div className="absolute inset-[5px] animate-spin rounded-full border-2 border-transparent border-b-primary/40" style={{ animationDirection: 'reverse', animationDuration: '0.7s' }} />
-    </div>
-    <p className="text-xs font-semibold text-muted-foreground/40 animate-pulse uppercase">
-      Chargement
-    </p>
+  <div role="status" className="flex items-center justify-center gap-2 py-24 text-sm text-muted-foreground">
+    <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
+    Chargement…
   </div>
 );
 
@@ -167,25 +166,27 @@ const Index = () => {
   const { data: suppliers = [], refetch: refetchSuppliers } = useSuppliers({ enabled: canReadSuppliers });
   const { data: materials = [], refetch: refetchMaterials } = useMaterials({ enabled: canReadMaterials });
   const { data: receptions = [] } = useReceptions({ enabled: canReadProduction });
-  const { data: productionOrders = [] } = useProductionOrders({ enabled: canReadProduction });
+  const productionQuery = useProductionOrders({ enabled: canReadProduction });
+  const { data: productionOrders = [] } = productionQuery;
 
   const features = settings.features;
+  const stagesReadable = !!features.phase2_enabled && canRead(roles, 'stageLots');
 
   const {
     draftReceptions, waitingQcReceptions, inQcReceptions, releasedReceptions,
     activeAlertsCount, pendingReceptions, qualityLots, quarantinedLots,
     inProgressOrders, storedLots, phase2Active, phase2Waiting, waitingLots,
-    validatedPFLots, activePackagingOrders, pendingShipments,
+    validatedPFLots, activePackagingOrders, pendingShipments, coverage,
   } = useFactoryShellMetrics({
-    enableReceptions:      canReadReceptionsMetrics,
-    enableReceptionAlerts: canReadReceptionsMetrics || canReadAlertsMetrics,
+    enableReceptions:      canReadReceptionsMetrics && canRead(roles, 'receptions'),
+    enableReceptionAlerts: canRead(roles, 'receptionAlerts'),
+    enableReceptionLots:   canRead(roles, 'receptionLots'),
     enableProduction:      canReadProduction,
-    enableBatches:         canReadBatchMetrics,
     enableBatchAlerts:     canReadBatchMetrics || canReadAlertsMetrics,
-    enablePhase2:          !!features.phase2_enabled,
-    enableStock:           !!features.stock_enabled,
-    enablePackaging:       !!features.packaging_enabled,
-    enableLogistics:       !!features.logistics_enabled,
+    enablePhase2:          stagesReadable,
+    enableStock:           !!features.stock_enabled && canRead(roles, 'stockLots'),
+    enablePackaging:       !!features.packaging_enabled && canRead(roles, 'packagingOrders'),
+    enableLogistics:       !!features.logistics_enabled && canRead(roles, 'shipments'),
   });
 
   // ── Memoized prop objects ─────────────────────────────────────────────────
@@ -194,12 +195,12 @@ const Index = () => {
     draftReceptions, waitingQcReceptions, inQcReceptions, releasedReceptions,
     pendingReceptions, inProgressOrders, qualityLots, quarantinedLots,
     storedLots, activeAlertsCount, phase2Active, phase2Waiting,
-    validatedPFLots, activePackagingOrders, pendingShipments,
+    validatedPFLots, activePackagingOrders, pendingShipments, coverage,
   }), [
     draftReceptions, waitingQcReceptions, inQcReceptions, releasedReceptions,
     pendingReceptions, inProgressOrders, qualityLots, quarantinedLots,
     storedLots, activeAlertsCount, phase2Active, phase2Waiting,
-    validatedPFLots, activePackagingOrders, pendingShipments,
+    validatedPFLots, activePackagingOrders, pendingShipments, coverage,
   ]);
 
   const mobileMetrics = useMemo(() => ({
@@ -233,20 +234,24 @@ const Index = () => {
   }, [accessibleTabs, preferredDefaultTab]);
 
   const requestedTab = searchParams.get('tab');
+  // A typed or shared address for a screen this role lacks says so, instead of moving them.
+  const deniedTab = requestedTab && requestedTab in APP_TAB_META && resolveTab(requestedTab) !== requestedTab
+    ? requestedTab as AppTab
+    : null;
   const [activeTab, setActiveTab] = useState<AppTab>(() => resolveTab(requestedTab));
 
   // Sync URL param ↔ active tab. Functional updates avoid stale closures.
   useEffect(() => {
     const nextTab = resolveTab(requestedTab);
     setActiveTab(prev => prev !== nextTab ? nextTab : prev);
-    if (requestedTab !== nextTab) {
+    if (!deniedTab && requestedTab !== nextTab) {
       setSearchParams(prev => {
         const p = new URLSearchParams(prev);
         p.set('tab', nextTab);
         return p;
       }, { replace: true });
     }
-  }, [requestedTab, resolveTab, setSearchParams]);
+  }, [deniedTab, requestedTab, resolveTab, setSearchParams]);
 
   const currentMeta = useMemo(
     () => APP_TAB_META[activeTab] ?? APP_TAB_META.home,
@@ -338,6 +343,7 @@ const Index = () => {
         }
         return (
           <HomePage
+            canInspect={getReceptionPermissions(roles).canRunQc}
             onNavigate={handleNavigate}
             accessibleTabs={accessibleTabs}
             metrics={homeMetrics}
@@ -366,9 +372,11 @@ const Index = () => {
         return (
           <ProductionWorkspace
             orders={productionOrders}
+            ordersData={productionQuery.data}
+            ordersSource={{ isLoading: productionQuery.isLoading, error: productionQuery.error, updatedAt: productionQuery.fulfilledTimeStamp, refetch: productionQuery.refetch }}
             receptions={receptions}
             currentUser={profile?.full_name ?? workspaceProfile.workspaceLabel}
-            stagesEnabled={!!features.phase2_enabled}
+            stagesEnabled={stagesReadable}
             view={productionView}
             onViewChange={setProductionView}
             preSelectedLot={phase2PreselectedLot}
@@ -423,6 +431,7 @@ const Index = () => {
             <ReceptionDashboardV2
               prefillPurchaseOrderId={prefillReceptionPOId}
               initialView={receptionView}
+              onViewChange={setReceptionView}
             />
           </div>
         );
@@ -452,6 +461,7 @@ const Index = () => {
       default:
         return (
           <HomePage
+            canInspect={getReceptionPermissions(roles).canRunQc}
             onNavigate={handleNavigate}
             accessibleTabs={accessibleTabs}
             metrics={homeMetrics}
@@ -459,6 +469,8 @@ const Index = () => {
         );
     }
   };
+
+  if (landsOnSupplierPortal(roles)) return <Navigate to="/portail" replace />;
 
   return (
     <AiGuideProvider
@@ -470,8 +482,9 @@ const Index = () => {
     <SidebarProvider defaultOpen={window.innerWidth >= 1024}>
       <CommandMenu accessibleTabs={accessibleTabs} onNavigate={handleNavigate} />
       <AppSidebar
-        activeTab={activeTab}
+        activeTab={deniedTab ? '' : activeTab}
         onTabChange={handleNavigate}
+        activeView={receptionView}
         activeAlertsCount={activeAlertsCount}
         accessibleTabs={accessibleTabs}
       />
@@ -481,7 +494,11 @@ const Index = () => {
         <TopHeader
           onRefresh={handleRefresh}
           pageTitle={
-            activeTab === 'home' && homeView === 'fiches'
+            deniedTab
+              ? APP_TAB_META[deniedTab]?.pageTitle ?? 'Accès réservé'
+              : activeTab === 'receptions' && receptionView === 'qc'
+              ? 'Contrôle qualité'
+              : activeTab === 'home' && homeView === 'fiches'
               ? 'Fiches techniques'
               : activeTab === 'home'
                 ? 'Accueil'
@@ -509,14 +526,20 @@ const Index = () => {
         <div className="min-w-0 flex-1 overflow-x-clip">
           <div className="mx-auto w-full max-w-[1800px] px-3 py-3 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-5 md:pb-8 lg:px-6 lg:py-6">
             <div key={activeTab} className="animate-page-enter w-full">
-              <Suspense fallback={<TabLoader />}>
-                {renderContent()}
-              </Suspense>
+              <AppErrorBoundary scoped resetKey={activeTab}>
+                {deniedTab ? (
+                  <RestrictedScreen title={APP_TAB_META[deniedTab]?.pageTitle} onLeave={() => handleNavigate(preferredDefaultTab)} />
+                ) : (
+                  <Suspense fallback={<TabLoader />}>
+                    {renderContent()}
+                  </Suspense>
+                )}
+              </AppErrorBoundary>
             </div>
           </div>
         </div>
 
-        <footer className="flex items-center justify-between gap-2 border-t border-border/40 px-4 py-2 text-[11px] text-muted-foreground/50 sm:px-5 lg:px-6">
+        <footer className="flex items-center justify-between gap-2 border-t border-border/40 px-4 py-2 text-xs text-muted-foreground/50 sm:px-5 lg:px-6">
           <span>
             © {new Date().getFullYear()} {companyName}
           </span>
