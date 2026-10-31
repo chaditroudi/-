@@ -529,6 +529,7 @@ export const StorageAssignment = ({ reception, lots }: StorageAssignmentProps) =
         lot={lotToRelease}
         receptionId={reception.id}
         mode="release"
+        receptionType={reception.reception_type}
         onClose={() => setLotToRelease(null)}
       />
     </div>

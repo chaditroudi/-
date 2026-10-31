@@ -25,6 +25,15 @@ export const numericSignatureGateMode = (): NumericSignatureGate => {
   return "warn";
 };
 
+/**
+ * A QC release fails closed: production always enforces, and anywhere else a
+ * weaker mode must be asked for explicitly with NUMERIC_SIGNATURE_GATE.
+ */
+export const releaseSignatureGateMode = (): NumericSignatureGate => {
+  if (process.env.NODE_ENV === "production") return "enforce";
+  return String(process.env.NUMERIC_SIGNATURE_GATE || "").trim() ? numericSignatureGateMode() : "enforce";
+};
+
 export const isValidPinFormat = (pin: string): boolean =>
   /^\d+$/.test(pin) && pin.length >= PIN_MIN_LENGTH && pin.length <= PIN_MAX_LENGTH;
 
@@ -69,7 +78,7 @@ export const assertSignaturePin = async (
   pin: string | null | undefined,
   context?: { action?: string; entityId?: string; displayName?: string },
 ): Promise<SignaturePinResult> => {
-  const gate = numericSignatureGateMode();
+  const gate = context?.action === "qc_release" ? releaseSignatureGateMode() : numericSignatureGateMode();
   const id = String(userId || "").trim();
   if (!id) {
     throw badRequest("SIGNER_ID_REQUIRED", "Identifiant du signataire requis.");

@@ -74,7 +74,21 @@ const appendStockSyncEvent = async (input: {
   }
 };
 
-export const syncReceptionLotsToStock = async (lots: any[], options?: { reception?: any; actorId?: string }) => {
+const projectedStatus = (receptionStatus: unknown, currentStatus: unknown, qcDecision: boolean) => {
+  if (receptionStatus === "STOCK_REJETE") return "BLOCKED";
+  if (receptionStatus !== "STOCK_LIBERE") return "QUARANTINE";
+  return qcDecision ? "VALIDATED" : String(currentStatus || "QUARANTINE");
+};
+
+/**
+ * Projects reception lots into stock. The projection can hold or reject a lot, but
+ * only a QC decision (`qcDecision`) can make its stock available: any other caller
+ * leaves a released status where it was, or in quarantine for a new row.
+ */
+export const syncReceptionLotsToStock = async (
+  lots: any[],
+  options?: { reception?: any; actorId?: string | null; qcDecision?: boolean },
+) => {
   const stockLotModel = StockLotModel();
 
   for (const rawLot of lots) {
@@ -105,23 +119,18 @@ export const syncReceptionLotsToStock = async (lots: any[], options?: { receptio
       current_quantity: Number(existing?.current_quantity ?? lot.quantity ?? 0),
       unit: lot.unit || "kg",
       category: existing?.category || "MP",
-      status:
-        lot.stock_status === "STOCK_LIBERE"
-          ? "VALIDATED"
-          : lot.stock_status === "STOCK_REJETE"
-            ? "BLOCKED"
-            : "QUARANTINE",
+      status: projectedStatus(lot.stock_status, existing?.status, options?.qcDecision === true),
       location_id: existing?.location_id || null,
       storage_location_id: existing?.storage_location_id || null,
       storage_location_code: existing?.storage_location_code || null,
       position: existing?.position || null,
       quality_notes: lot.quarantine_reason || null,
       qc_validated_by:
-        lot.stock_status === "STOCK_LIBERE"
+        lot.stock_status === "STOCK_LIBERE" && options?.qcDecision
           ? (options?.actorId ?? existing?.qc_validated_by ?? null)
           : (existing?.qc_validated_by ?? null),
       qc_validated_at:
-        lot.stock_status === "STOCK_LIBERE"
+        lot.stock_status === "STOCK_LIBERE" && options?.qcDecision
           ? (lot.release_date || existing?.qc_validated_at || new Date().toISOString())
           : (existing?.qc_validated_at ?? null),
       created_by: options?.actorId || null,

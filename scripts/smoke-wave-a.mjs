@@ -2,12 +2,13 @@
  * Wave A CCP sensors smoke: sensor attestation + cold breach + evidence gate payload.
  *   npm run smoke:wave-a
  */
+import { resolveTestApi } from "./lib/api-target-guard.mjs";
 import { createHmac, randomUUID } from "node:crypto";
 import { spawn } from "node:child_process";
 import { syntheticIntakeFields } from "./lib/intake-contract.mjs";
 import { releaseThroughQc } from "./lib/qc-release.mjs";
 
-const API = (process.env.SMOKE_API_URL || `http://127.0.0.1:${process.env.PORT || 4000}`).replace(/\/$/, "");
+const API = resolveTestApi();
 const PASSWORD = process.env.SMOKE_PASSWORD || "Test123!";
 const CCP_SECRET = process.env.CCP_SIMULATOR_SECRET;
 if (!CCP_SECRET) throw new Error("CCP_SIMULATOR_SECRET is required.");
@@ -92,7 +93,7 @@ const main = async () => {
   const lot = intake.body?.data?.lots?.[0];
   assert(intake.response.ok && lot?.id, "intake lot created");
 
-  await releaseThroughQc((path, body) => request("POST", path, qualityToken, body), intake.body.data.reception.id);
+  await releaseThroughQc((method, path, body) => request(method, path, qualityToken, body), intake.body.data.reception.id);
   for (const toStage of ["WEIGHED"]) {
     const advanced = await request("POST", `/api/trust/lots/${encodeURIComponent(lot.id)}/advance`, directionToken, {
       toStage, collection: "smoke_wave_a", payload: { smoke: true }, route: "PREMIUM_WHOLE",

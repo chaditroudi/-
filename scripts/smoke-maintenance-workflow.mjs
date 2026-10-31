@@ -6,9 +6,10 @@
  *
  * Requires API on PORT (default 4000) and seeded actors.
  */
+import { resolveTestApi } from "./lib/api-target-guard.mjs";
 import { spawn } from "node:child_process";
 
-const API = (process.env.SMOKE_API_URL || `http://127.0.0.1:${process.env.PORT || 4000}`).replace(/\/$/, "");
+const API = resolveTestApi();
 const PASSWORD = process.env.SMOKE_PASSWORD || "Test123!";
 
 const ACTORS = {

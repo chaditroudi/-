@@ -12,6 +12,7 @@ import {
   resolvePurchaseOrderReceiptTarget,
   reversePurchaseOrderReception,
 } from "../purchasing/purchase-order-domain.js";
+import { evaluateQcEvidence, loadQcRequirements, type QcCheckInput, type QcEvidenceRow, type QcRequirements } from "./qc-evidence.js";
 import { syncReceptionLotsToStock, loadReceptionLots } from "./reception-stock-sync.js";
 import { lotLifecycleService } from "../trust/lot-lifecycle.service.js";
 import {
@@ -313,23 +314,20 @@ type ReceptionIntakePayload = Record<string, unknown> & {
   weighing_manual_reason?: string | null;
   draft_version?: unknown;
 };
-type QcResultInput = Record<string, unknown> & {
-  checklist_item_id?: string | null;
-  check_code?: string;
-  check_name?: string;
-  category?: string | null;
-  severity?: string;
-  result?: string;
-  note?: string | null;
-  measured_value?: string | null;
-  expected_value?: string | null;
-};
 type QcDecisionPayload = Record<string, unknown> & {
   inspection_id?: string;
   inspectionId?: string;
   decision?: string;
   qualitySummary?: Record<string, unknown>;
-  checkResults?: QcResultInput[];
+  checkResults?: QcCheckInput[];
+};
+type QcLotStatusPayload = {
+  action?: unknown;
+  reason?: unknown;
+  pin?: unknown;
+  checkResults?: QcCheckInput[];
+  overrideJustification?: unknown;
+  overridePhoto?: unknown;
 };
 type ReceptionUnitInput = Record<string, unknown> & {
   reception_lot_id?: string;
@@ -1425,7 +1423,7 @@ export class ReceptionsService {
     ) as Record<string, unknown> | null;
 
     const inspection = openInspection || await prepareInsertDocument("qc_inspections", {
-      ...omitFields(payload, ["_id", "id", "decision", "ended_at", "inspection_number", "release_pin_verified", "decided_by"]),
+      ...omitFields(payload, ["_id", "id", "decision", "ended_at", "inspection_number", "release_pin_verified", "decided_by", "purpose", "supersedes_inspection_id", "checklist_id", "checklist_code", "checklist_version", "override_justification", "override_photo", "lab_analysis_results"]),
       reception_id: canonicalReceptionId,
       inspector_id: actor?.id || null,
       started_at: new Date().toISOString(),
@@ -1465,7 +1463,7 @@ export class ReceptionsService {
       throw notFound("INSPECTION_NOT_FOUND", "QC inspection not found.");
     }
     if (inspection.decision) {
-      return this.replayQcDecision(inspection, decision, payload, actor);
+      return this.replayQcDecision(inspection, decision);
     }
 
     const reception = sanitizeDocument(
@@ -1483,6 +1481,18 @@ export class ReceptionsService {
 
     assertQcRoleSeparation(reception, actor);
 
+    const qualitySummary = payload.qualitySummary || {};
+    const requirements = await loadQcRequirements(reception.reception_type);
+    const evidence = evaluateQcEvidence({
+      decision,
+      requirements,
+      checkResults: payload.checkResults,
+      automaticRejectReasons: qualitySummary.automaticRejectReasons,
+      recommendedDecision: payload.recommendedDecision,
+      overrideJustification: payload.overrideJustification,
+      overridePhoto: payload.overridePhoto,
+    });
+
     // Signature numérique — la libération QC (ACCEPTE → STOCK_LIBERE) est la
     // transition à plus fort risque légal: on ré-authentifie le signataire.
     const releasePinResult = decision === "ACCEPTE"
@@ -1494,8 +1504,6 @@ export class ReceptionsService {
       : null;
 
     const now = new Date().toISOString();
-    const qualitySummary = payload.qualitySummary || {};
-    const checkResults = Array.isArray(payload.checkResults) ? payload.checkResults : [];
 
     const inspectionUpdate = {
       decision,
@@ -1510,6 +1518,10 @@ export class ReceptionsService {
       secondary_inspector_name: payload.secondaryInspectorName || null,
       recommended_decision: payload.recommendedDecision || null,
       override_justification: payload.overrideJustification || null,
+      override_photo: payload.overridePhoto || null,
+      checklist_id: requirements.checklist_id,
+      checklist_code: requirements.checklist_code,
+      checklist_version: requirements.checklist_version,
       rqc: payload.rqc || null,
       release_pin_verified: releasePinResult ? releasePinResult.verified === true : null,
     };
@@ -1523,30 +1535,7 @@ export class ReceptionsService {
       ).exec();
       if (Number(claim?.modifiedCount ?? 0) !== 1) return null;
 
-      // Results are written once per inspection; a revision needs a new inspection,
-      // so the recorded evidence is never overwritten.
-      const preparedResults = [];
-      for (const result of checkResults) {
-        preparedResults.push(
-          await prepareInsertDocument("qc_check_results", {
-            inspection_id: inspectionId,
-            checklist_item_id: result.checklist_item_id || null,
-            check_code: result.check_code,
-            check_name: result.check_name,
-            category: result.category || null,
-            severity: result.severity || "MAJEUR",
-            result: result.result || "NA",
-            note: result.note || null,
-            measured_value: result.measured_value || null,
-            expected_value: result.expected_value || null,
-            checked_at: now,
-            checked_by: actor?.id || null,
-          }),
-        );
-      }
-      if (preparedResults.length > 0) {
-        await QCCheckResults().insertMany(preparedResults);
-      }
+      await this.recordQcEvidence(inspectionId, evidence, actor?.id ?? null, now);
 
       return this.applyQcDecisionToReception({
         inspection: { ...inspection, ...inspectionUpdate },
@@ -1558,7 +1547,7 @@ export class ReceptionsService {
     });
     if (!committed) {
       const current = sanitizeDocument(await QCInspections().findOne({ id: inspectionId }).lean().exec());
-      return this.replayQcDecision(current, decision, payload, actor);
+      return this.replayQcDecision(current, decision);
     }
     const updatedReception = committed;
 
@@ -1587,18 +1576,38 @@ export class ReceptionsService {
     return storedInspection;
   }
 
+  /** Results are written once per inspection, so the recorded evidence is never overwritten. */
+  private async recordQcEvidence(inspectionId: string, evidence: QcEvidenceRow[], actorId: string | null, now: string) {
+    const prepared = [];
+    for (const row of evidence) {
+      prepared.push(
+        await prepareInsertDocument("qc_check_results", {
+          inspection_id: inspectionId,
+          checklist_item_id: row.checklist_item_id ?? null,
+          checklist_version: row.checklist_version,
+          check_code: row.check_code,
+          check_name: row.check_name,
+          category: row.category ?? null,
+          severity: row.severity,
+          result: row.result,
+          note: row.note || null,
+          measured_value: row.measured_value || null,
+          expected_value: row.expected_value || null,
+          checked_at: now,
+          checked_by: actorId,
+        }),
+      );
+    }
+    if (prepared.length > 0) await QCCheckResults().insertMany(prepared);
+  }
+
   /**
-   * The same decision sent again (double submit, or a retry after the stock or
-   * purchase-order sync failed) re-applies the idempotent projections while the
-   * reception is still in QC. A different decision is a revision and needs a new
-   * inspection, so the recorded one is never overwritten.
+   * The same decision sent again (a double submit) returns what is recorded and
+   * applies nothing: the decision committed with its effects, and a release only
+   * ever happens on a request that carried its evidence and signature. A different
+   * decision is a revision and needs a new inspection.
    */
-  private async replayQcDecision(
-    inspection: Record<string, unknown>,
-    decision: string,
-    payload: QcDecisionPayload,
-    actor: ActorContext,
-  ) {
+  private async replayQcDecision(inspection: Record<string, unknown>, decision: string) {
     if (inspection.decision !== decision) {
       throw conflict(
         "QC_ALREADY_DECIDED",
@@ -1606,22 +1615,7 @@ export class ReceptionsService {
       );
     }
 
-    const reception = sanitizeDocument(
-      await Receptions().findOne(receptionIdentityFilter(String(inspection.reception_id || ""))).lean().exec(),
-    ) as Record<string, unknown> | null;
-    if (reception && ["EN_ATTENTE_QC", "EN_QC"].includes(String(reception.status || ""))) {
-      await runInTransaction(() =>
-        this.applyQcDecisionToReception({
-          inspection,
-          decision,
-          qualitySummary: payload.qualitySummary || {},
-          actor,
-          now: String(inspection.ended_at || new Date().toISOString()),
-        }),
-      );
-    }
-
-    return sanitizeDocument(await QCInspections().findOne({ id: inspection.id }).lean().exec());
+    return inspection;
   }
 
   /**
@@ -1642,8 +1636,9 @@ export class ReceptionsService {
     const lotStatus = buildLotStatusFromDecision(decision);
     const comment = (inspection.comment as string | null) || null;
 
+    // A rejected lot stays rejected: an acceptance covers the lots still in play.
     await ReceptionLots().updateMany(
-      { reception_id: receptionId },
+      { reception_id: receptionId, ...(decision === "ACCEPTE" ? { stock_status: { $ne: "STOCK_REJETE" } } : {}) },
       {
         $set: {
           stock_status: lotStatus,
@@ -1659,7 +1654,7 @@ export class ReceptionsService {
 
     const lots = await loadReceptionLots(receptionId);
     await ReceptionUnits().updateMany(
-      { reception_lot_id: { $in: lots.map((lot: { id?: string }) => lot.id) } },
+      { reception_lot_id: { $in: lots.filter((lot: { stock_status?: string }) => lot.stock_status === lotStatus).map((lot: { id?: string }) => lot.id) } },
       { $set: { unit_status: lotStatus, updated_at: now } },
     ).exec();
 
@@ -1667,7 +1662,7 @@ export class ReceptionsService {
       await Receptions().findOne(receptionIdentityFilter(receptionId)).lean().exec(),
     ) as Record<string, unknown> | null;
     try {
-      await syncReceptionLotsToStock(lots, { reception, actorId: actor?.id || null });
+      await syncReceptionLotsToStock(lots, { reception, actorId: actor?.id || null, qcDecision: true });
     } catch (syncError) {
       if (isTransientTransactionError(syncError)) throw syncError;
       console.error("[QC] syncReceptionLotsToStock failed — stock_lots may be out of sync:", syncError);
@@ -1884,8 +1879,9 @@ export class ReceptionsService {
         },
       ).exec();
 
+      // A move can hold a lot but never releases one: only a QC decision sets VALIDATED.
       const stockLotUpdate: Record<string, unknown> = {
-        status: buildStockLotStatus(nextStatus),
+        ...(nextStatus === "STOCK_LIBERE" ? {} : { status: buildStockLotStatus(nextStatus) }),
         source_status: nextStatus,
         location_id: targetZone,
         updated_at: now,
@@ -2169,7 +2165,7 @@ export class ReceptionsService {
     const lots = await loadReceptionLots(receptionId);
     const changedLots = lots.filter((lot: Record<string, unknown>) => lotIds.includes(String(lot.id)));
     if (changedLots.length > 0) {
-      await syncReceptionLotsToStock(changedLots, { reception, actorId });
+      await syncReceptionLotsToStock(changedLots, { reception, actorId, qcDecision: releasing });
       if (reception.purchase_order_id) {
         await applyPurchaseOrderQcDecision({
           purchaseOrderId: String(reception.purchase_order_id),
@@ -2224,7 +2220,7 @@ export class ReceptionsService {
 
   async changeLotQualityStatus(
     lotId: string,
-    payload: { action?: unknown; reason?: unknown; pin?: unknown },
+    payload: QcLotStatusPayload,
     actor: ActorContext,
   ) {
     const action = readString(payload?.action).toUpperCase();
@@ -2264,19 +2260,10 @@ export class ReceptionsService {
       if (currentStatus !== "EN_QUARANTAINE") {
         throw conflict("LOT_NOT_QUARANTINED", `Seul un lot en quarantaine peut être libéré (statut actuel : ${currentStatus}).`);
       }
-      const pinResult = await assertSignaturePin(actorId, readString(payload?.pin) || null, {
-        action: "qc_release",
-        entityId: lotId,
-      });
-      return this.applyLotQualityChange({
-        reception,
-        lotIds: [lotId],
-        nextStatus: "STOCK_LIBERE",
-        reason,
-        actorId: pinResult.userId || actorId,
-        releasePinVerified: pinResult.verified === true,
-        auditAction: "LOT_RELEASED",
-      });
+      if (!reason) {
+        throw badRequest("QC_RELEASE_REASON_REQUIRED", "Le motif de libération est obligatoire.");
+      }
+      return this.releaseLotAfterReinspection({ reception, lot, reason, payload, actorId });
     }
 
     if (!reason) {
@@ -2290,6 +2277,105 @@ export class ReceptionsService {
       reason,
       actorId,
       auditAction: "LOT_QUARANTINED",
+    });
+  }
+
+  /**
+   * A held lot leaves quarantine only on a new inspection: fresh evidence against
+   * the published checklist, a signature, and a record of its own beside the
+   * decision that held it, which stays as it was.
+   */
+  private async releaseLotAfterReinspection(input: {
+    reception: Record<string, unknown>;
+    lot: Record<string, unknown>;
+    reason: string;
+    payload: QcLotStatusPayload;
+    actorId: string;
+  }) {
+    const { reception, lot, reason, payload, actorId } = input;
+    const lotId = String(lot.id);
+    const receptionId = String(reception.id);
+    const requirements = await loadQcRequirements(reception.reception_type);
+    const evidence = evaluateQcEvidence({
+      decision: "ACCEPTE",
+      requirements,
+      checkResults: payload.checkResults,
+      overrideJustification: payload.overrideJustification,
+      overridePhoto: payload.overridePhoto,
+    });
+    const signature = await assertSignaturePin(actorId, readString(payload.pin) || null, {
+      action: "qc_release",
+      entityId: lotId,
+    });
+    const signerId = signature.userId || actorId;
+    const superseded = sanitizeDocument(
+      await QCInspections().findOne({ reception_id: receptionId, decision: { $ne: null } }).sort({ ended_at: -1 }).lean().exec(),
+    ) as Record<string, unknown> | null;
+
+    const now = new Date().toISOString();
+    return runInTransaction(async () => {
+      const claim = await ReceptionLots().updateOne(
+        { id: lotId, stock_status: "EN_QUARANTAINE" },
+        { $set: { updated_at: now } },
+      ).exec();
+      if (Number(claim?.modifiedCount ?? 0) !== 1) {
+        return { reception, lots: await loadReceptionLots(receptionId) };
+      }
+
+      const inspection = await this.prepareReinspection({ reception, lotId, reason, requirements, superseded, signerId, now, pinVerified: signature.verified === true, payload });
+      await QCInspections().create([inspection]);
+      await this.recordQcEvidence(String(inspection.id), evidence, signerId, now);
+      await ReceptionAuditLogs().create([
+        await prepareInsertDocument("reception_audit_logs_v2", {
+          entity_type: "QC_INSPECTION",
+          entity_id: inspection.id,
+          action: "QC_REINSPECTION_DECIDED",
+          actor_id: signerId,
+          new_state: { reception_lot_id: lotId, decision: "ACCEPTE", supersedes_inspection_id: superseded?.id ?? null, checklist_version: requirements.checklist_version },
+          performed_by: signerId,
+        }),
+      ]);
+      return this.writeLotQualityChange({
+        reception,
+        lotIds: [lotId],
+        nextStatus: "STOCK_LIBERE",
+        reason,
+        actorId: signerId,
+        releasePinVerified: signature.verified === true,
+        auditAction: "LOT_RELEASED",
+      });
+    });
+  }
+
+  private prepareReinspection(input: {
+    reception: Record<string, unknown>;
+    lotId: string;
+    reason: string;
+    requirements: QcRequirements;
+    superseded: Record<string, unknown> | null;
+    signerId: string;
+    now: string;
+    pinVerified: boolean;
+    payload: QcLotStatusPayload;
+  }) {
+    const { reception, lotId, reason, requirements, superseded, signerId, now, pinVerified, payload } = input;
+    return prepareInsertDocument("qc_inspections", {
+      reception_id: reception.id,
+      reception_lot_id: lotId,
+      purpose: "REINSPECTION",
+      supersedes_inspection_id: superseded?.id ?? null,
+      inspector_id: signerId,
+      decided_by: signerId,
+      decision: "ACCEPTE",
+      comment: reason,
+      started_at: now,
+      ended_at: now,
+      checklist_id: requirements.checklist_id,
+      checklist_code: requirements.checklist_code,
+      checklist_version: requirements.checklist_version,
+      override_justification: payload.overrideJustification || null,
+      override_photo: payload.overridePhoto || null,
+      release_pin_verified: pinVerified,
     });
   }
 

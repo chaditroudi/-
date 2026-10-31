@@ -20,9 +20,13 @@ const DOMAIN_ONLY_INSERTS = new Set([
   "storage_condition_readings",
   "storage_door_events",
   "qc_inspections",
+  "qc_check_results",
 ]);
 
-const DOMAIN_ONLY_UPDATES = new Set(["qc_inspections"]);
+const DOMAIN_ONLY_UPDATES = new Set(["qc_inspections", "qc_check_results"]);
+
+/** A QC decision lives on an inspection; a batch has no decision of its own to write. */
+const BATCH_QC_FIELDS = ["qc_decision", "qc_decision_date", "qc_decision_by"];
 
 /** Set by QC, reception or stock movements; a stock route can only move and describe a lot. */
 const STOCK_LOT_DOMAIN_FIELDS = [
@@ -80,6 +84,12 @@ export const assertStockLotWrite = (
       "STOCK_LOT_DOMAIN_ONLY",
       "Le statut, les quantités et le lien de réception d'un lot de stock se modifient par le contrôle qualité ou un mouvement de stock.",
     );
+  }
+};
+
+export const assertBatchWrite = (doc: Record<string, unknown>, before?: Record<string, unknown>) => {
+  if (BATCH_QC_FIELDS.some((field) => String(doc[field] ?? "") !== String(before?.[field] ?? ""))) {
+    throw badRequest("QC_DECISION_DOMAIN_ONLY", "Une décision qualité s'enregistre par le contrôle qualité.");
   }
 };
 

@@ -4,12 +4,18 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ReceptionV2 } from '@/types/reception';
 
 const submitDecision = vi.fn();
+const checklist = {
+  checklist: { id: 'cl', name: 'Réception dattes', version: 2 },
+  items: [{ id: 'i-1', code: 'CONT', name: 'Parasites', severity: 'CRITIQUE' }],
+  unavailable: false,
+};
 const createInspection = vi.fn();
 
 vi.mock('@/hooks/useReceptionsV2', () => ({
   receptionErrorMessage: (error: unknown, fallback: string) => (error instanceof Error ? error.message : fallback),
   useCalibrationStatus: () => ({ data: null }),
   useCreateQCInspection: () => ({ mutateAsync: createInspection, isPending: false }),
+  useQcChecklist: () => checklist,
   useQCInspections: () => ({ data: [] }),
   useSubmitQCDecision: () => ({ mutateAsync: submitDecision, isPending: false }),
 }));
@@ -84,6 +90,11 @@ describe('QC inspection flow', { timeout: 30_000 }, () => {
     fireEvent.click(screen.getByRole('button', { name: /Appliquer à tous/i }));
 
     fireEvent.click(screen.getByRole('button', { name: /Valider la décision QC/i }));
+    expect(await screen.findByText(/Grille qualité incomplète : 1 contrôle/)).toBeInTheDocument();
+    expect(screen.queryByText('Libération QC — code signature')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Parasites : conforme' }));
+    fireEvent.click(screen.getByRole('button', { name: /Valider la décision QC/i }));
     const padTitle = await screen.findByText('Libération QC — code signature');
     expect(screen.getAllByRole('dialog')).toHaveLength(1);
 
@@ -95,6 +106,7 @@ describe('QC inspection flow', { timeout: 30_000 }, () => {
     const payload = submitDecision.mock.calls[0][0];
     expect(payload).toMatchObject({ inspectionId: 'insp-1', decision: 'ACCEPTE', pin: '1234' });
     expect(payload.checkResults).toEqual(expect.arrayContaining([
+      expect.objectContaining({ checklist_item_id: 'i-1', check_code: 'CONT', result: 'CONFORME' }),
       expect.objectContaining({ check_code: 'HUM', measured_value: '22' }),
       expect.objectContaining({ check_code: 'CAL', measured_value: '46' }),
     ]));

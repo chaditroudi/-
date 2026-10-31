@@ -28,6 +28,7 @@ const uri = process.env.RECEPTION_IT_MONGO_URI;
 const DB_NAME = "reception_integration_test";
 const operator = { id: "op-it" };
 const inspector = { id: "qc-it" };
+const evidence = [{ check_code: "CRIT", result: "CONFORME" }, { check_code: "MAJ", result: "CONFORME" }];
 
 const SIDE_EFFECT_COLLECTIONS = [
   "receptions_v2", "reception_lots", "reception_units", "stock_lots", "weighing_records",
@@ -98,10 +99,16 @@ describe.skipIf(!uri)("reception on a real replica set", () => {
     vi.stubEnv("TRUST_SCAN_GATE", "off");
     for (const name of [
       ...SIDE_EFFECT_COLLECTIONS, "suppliers", "purchase_orders", "purchase_order_lines", "reception_drafts",
-      "idempotency_commands", "weighbridge_readings", "qc_inspections", "site_settings",
+      "idempotency_commands", "weighbridge_readings", "qc_inspections", "qc_check_results", "site_settings",
+      "qc_checklists", "qc_checklist_items",
     ]) {
       await model(name).deleteMany({}).exec();
     }
+    await model("qc_checklists").create([{ id: "cl-it", code: "QC-IT", reception_type: "DATTE", version: 1, is_active: true }]);
+    await model("qc_checklist_items").create([
+      { id: "i-crit", checklist_id: "cl-it", code: "CRIT", name: "Critique", severity: "CRITIQUE", sequence_order: 1, is_active: true },
+      { id: "i-maj", checklist_id: "cl-it", code: "MAJ", name: "Majeur", severity: "MAJEUR", sequence_order: 2, is_active: true },
+    ]);
     await model("suppliers").create([{ id: "sup-it", code: "SUP-IT", name: "Oasis Test", supplier_status: "active" }]);
   });
 
@@ -364,7 +371,7 @@ describe.skipIf(!uri)("reception on a real replica set", () => {
       const real = lotLifecycleService.recordStageSafe.bind(lotLifecycleService);
       vi.spyOn(lotLifecycleService, "recordStageSafe").mockRejectedValueOnce(new Error("forced QC failure"));
       await expect(
-        receptionsService.submitQcDecision({ inspectionId: String(inspection.id), decision: "ACCEPTE" }, inspector),
+        receptionsService.submitQcDecision({ inspectionId: String(inspection.id), decision: "ACCEPTE", checkResults: evidence }, inspector),
       ).rejects.toThrow(/forced QC failure/);
 
       const rolledBack = await model("reception_lots").findOne({ id: lots[0].id }).lean().exec();
@@ -375,8 +382,8 @@ describe.skipIf(!uri)("reception on a real replica set", () => {
 
       vi.spyOn(lotLifecycleService, "recordStageSafe").mockImplementation(real);
       await Promise.all([
-        receptionsService.submitQcDecision({ inspectionId: String(inspection.id), decision: "ACCEPTE" }, inspector),
-        receptionsService.submitQcDecision({ inspectionId: String(inspection.id), decision: "ACCEPTE" }, inspector),
+        receptionsService.submitQcDecision({ inspectionId: String(inspection.id), decision: "ACCEPTE", checkResults: evidence }, inspector),
+        receptionsService.submitQcDecision({ inspectionId: String(inspection.id), decision: "ACCEPTE", checkResults: evidence }, inspector),
       ]);
       expect(await count("stock_lots", { status: "VALIDATED" })).toBe(1);
       const qcEvents = await count("lot_events", { lot_id: lots[0].id, event_type: "QC_DECIDED" });
@@ -419,7 +426,7 @@ describe.skipIf(!uri)("reception on a real replica set", () => {
       const { reception, receptionLot } = await quarantinedLot();
       const inspection = await receptionsService.startQcInspection({ reception_id: reception.id }, inspector);
       await receptionsService.submitQcDecision({
-        inspectionId: String(inspection.id), decision: "QUARANTAINE", labSampleRequired: true, ...decisionFields,
+        inspectionId: String(inspection.id), decision: "QUARANTAINE", labSampleRequired: true, checkResults: evidence, ...decisionFields,
       }, inspector);
       return { inspectionId: String(inspection.id), reception, receptionLot };
     };
@@ -462,7 +469,7 @@ describe.skipIf(!uri)("reception on a real replica set", () => {
     it("the QC decision still releases stock", async () => {
       const { reception, stockId } = await quarantinedLot();
       const inspection = await receptionsService.startQcInspection({ reception_id: reception.id }, inspector);
-      await receptionsService.submitQcDecision({ inspectionId: String(inspection.id), decision: "ACCEPTE" }, inspector);
+      await receptionsService.submitQcDecision({ inspectionId: String(inspection.id), decision: "ACCEPTE", checkResults: evidence }, inspector);
       expect((await model("stock_lots").findOne({ id: stockId }).lean().exec()).status).toBe("VALIDATED");
     });
 
@@ -532,11 +539,49 @@ describe.skipIf(!uri)("reception on a real replica set", () => {
     it("production accepts a lot released by QC, by either id", async () => {
       const { reception, receptionLot, stockId } = await quarantinedLot();
       const inspection = await receptionsService.startQcInspection({ reception_id: reception.id }, inspector);
-      await receptionsService.submitQcDecision({ inspectionId: String(inspection.id), decision: "ACCEPTE" }, inspector);
+      await receptionsService.submitQcDecision({ inspectionId: String(inspection.id), decision: "ACCEPTE", checkResults: evidence }, inspector);
       for (const id of [stockId, receptionLot.id]) {
         await expect(gateRulesService.assertProductionOrderWritable({ status: "RELEASED", input_lot_ids: [id] }))
           .resolves.toBeUndefined();
       }
+    });
+
+    describe("existing lots under the production gate", () => {
+      const writable = (id: string) =>
+        gateRulesService.assertProductionOrderWritable({ status: "RELEASED", input_lot_ids: [id] });
+      const receptionLot = (id: string, stock_status: string) =>
+        model("reception_lots").create([{ id, reception_id: "rc-legacy", lot_internal: id, stock_status, quantity: 100 }]);
+      const stockLot = (id: string, status: string, reception_lot_id?: string) =>
+        model("stock_lots").create([{ id, lot_number: id, status, current_quantity: 100, ...(reception_lot_id ? { reception_lot_id } : {}) }]);
+
+      it("keeps a released lot usable by either id", async () => {
+        await receptionLot("rl-ok", "STOCK_LIBERE");
+        await stockLot("st-ok", "VALIDATED", "rl-ok");
+        await expect(writable("rl-ok")).resolves.toBeUndefined();
+        await expect(writable("st-ok")).resolves.toBeUndefined();
+      });
+
+      it("keeps a released lot usable once its stock is fully consumed", async () => {
+        await receptionLot("rl-used", "STOCK_LIBERE");
+        await stockLot("st-used", "CONSUMED", "rl-used");
+        await expect(writable("rl-used")).resolves.toBeUndefined();
+      });
+
+      it("keeps lots with only one side on record usable", async () => {
+        await stockLot("st-packed", "VALIDATED");
+        await receptionLot("rl-alone", "STOCK_LIBERE");
+        await expect(writable("st-packed")).resolves.toBeUndefined();
+        await expect(writable("rl-alone")).resolves.toBeUndefined();
+      });
+
+      it("refuses a split lot by any id while one stock row is held", async () => {
+        await receptionLot("rl-split", "STOCK_LIBERE");
+        await stockLot("st-split-held", "BLOCKED", "rl-split");
+        await stockLot("st-split-free", "VALIDATED", "rl-split");
+        for (const id of ["rl-split", "st-split-free"]) {
+          await expect(writable(id)).rejects.toMatchObject({ code: "PRODUCTION_LOT_NOT_RELEASED" });
+        }
+      });
     });
 
     it("the stage override cannot record a QC outcome", async () => {
@@ -551,7 +596,7 @@ describe.skipIf(!uri)("reception on a real replica set", () => {
     it("the stage override still records operational stages", async () => {
       const { reception, receptionLot } = await quarantinedLot();
       const inspection = await receptionsService.startQcInspection({ reception_id: reception.id }, inspector);
-      await receptionsService.submitQcDecision({ inspectionId: String(inspection.id), decision: "ACCEPTE" }, inspector);
+      await receptionsService.submitQcDecision({ inspectionId: String(inspection.id), decision: "ACCEPTE", checkResults: evidence }, inspector);
       await stageRoutes.advance(String(receptionLot.id), { toStage: "COLD_STORE", payload: {} } as never, warehouse);
       expect(await count("lot_events", { lot_id: receptionLot.id, event_type: "STOCK_MOVED" })).toBe(1);
     });

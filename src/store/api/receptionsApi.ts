@@ -145,7 +145,14 @@ export const receptionsApi = createApi({
     /** Post-QC lot release (signed) or return to quarantine. */
     changeLotQualityStatus: b.mutation<
       { reception: ReceptionV2; lots: ReceptionLot[] },
-      { lotId: string; receptionId: string; action: 'RELEASE' | 'QUARANTINE'; reason?: string | null; pin?: string | null }
+      {
+        lotId: string;
+        receptionId: string;
+        action: 'RELEASE' | 'QUARANTINE';
+        reason?: string | null;
+        pin?: string | null;
+        checkResults?: Array<{ checklist_item_id: string; check_code: string; result: string }>;
+      }
     >({
       query: ({ lotId, receptionId: _rid, ...body }) => ({
         url: `/reception-lots/${lotId}/quality-status`,

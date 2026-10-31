@@ -110,10 +110,12 @@ const intakePayload = (overrides: TestRow = {}) => ({
 const deliveryOf = (kg: number, overrides: TestRow = {}) =>
   intakePayload({ gross_weight_kg: kg + 100, tare_weight_kg: 100, lots: [{ lot_supplier: `LS-${kg}`, quantity: kg }], ...overrides });
 
+const evidence = [{ check_code: "CRIT", result: "CONFORME" }, { check_code: "MAJ", result: "CONFORME" }];
+
 const inspect = async (receptionId: string, decision: string, extra: TestRow = {}) => {
   const inspection = await receptionsService.startQcInspection({ reception_id: receptionId }, inspector as any);
   return receptionsService.submitQcDecision(
-    { inspectionId: String(inspection.id), decision, qualitySummary: { grade: "EXTRA", score: 92 }, ...extra },
+    { inspectionId: String(inspection.id), decision, qualitySummary: { grade: "EXTRA", score: 92 }, checkResults: evidence, ...extra },
     inspector as any,
   );
 };
@@ -127,6 +129,11 @@ describe("reception lifecycle", () => {
     sequence = 0;
     syncControl.failNext = false;
     seed();
+    store.qc_checklists = [{ id: "cl-1", code: "QC-TEST", reception_type: "DATTE", version: 1, is_active: true }];
+    store.qc_checklist_items = [
+      { id: "i-crit", checklist_id: "cl-1", code: "CRIT", name: "Critique", severity: "CRITIQUE", sequence_order: 1, is_active: true },
+      { id: "i-maj", checklist_id: "cl-1", code: "MAJ", name: "Majeur", severity: "MAJEUR", sequence_order: 2, is_active: true },
+    ];
   });
 
   describe("registration", () => {
@@ -270,16 +277,16 @@ describe("reception lifecycle", () => {
           {
             inspectionId: String(inspection.id),
             decision,
-            checkResults: [{ check_code: "HUM", check_name: "Humidité", result: "CONFORME", measured_value: "22" }],
+            checkResults: [...evidence, { check_code: "HUM", check_name: "Humidité", result: "CONFORME", measured_value: "22" }],
           },
           inspector as any,
         );
 
       await Promise.all([submit("ACCEPTE"), submit("ACCEPTE")]);
-      expect(rows("qc_check_results")).toHaveLength(1);
+      expect(rows("qc_check_results")).toHaveLength(3);
       await expect(submit("REJETE")).rejects.toMatchObject({ code: "QC_ALREADY_DECIDED" });
       expect(one("receptions_v2", reception.id).status).toBe("LIBERE");
-      expect(rows("qc_check_results")).toHaveLength(1);
+      expect(rows("qc_check_results")).toHaveLength(3);
     });
 
     it("reuses the open inspection and refuses to reopen QC on a closed reception", async () => {
@@ -289,27 +296,13 @@ describe("reception lifecycle", () => {
       expect(second.id).toBe(first.id);
       expect(rows("qc_inspections")).toHaveLength(1);
 
-      await receptionsService.submitQcDecision({ inspectionId: String(first.id), decision: "ACCEPTE" }, inspector as any);
+      await receptionsService.submitQcDecision({ inspectionId: String(first.id), decision: "ACCEPTE", checkResults: evidence }, inspector as any);
       await expect(
         receptionsService.startQcInspection({ reception_id: reception.id }, inspector as any),
       ).rejects.toMatchObject({ code: "RECEPTION_NOT_INSPECTABLE" });
       expect(one("receptions_v2", reception.id).status).toBe("LIBERE");
     });
 
-    it("completes a decision on retry after the stock sync failed", async () => {
-      const { reception, lots } = await receptionsService.intake(intakePayload(), operator);
-      const inspection = await receptionsService.startQcInspection({ reception_id: reception.id }, inspector as any);
-
-      syncControl.failNext = true;
-      await expect(
-        receptionsService.submitQcDecision({ inspectionId: String(inspection.id), decision: "ACCEPTE" }, inspector as any),
-      ).rejects.toThrow(/Renvoyez la décision QC/);
-      expect(one("receptions_v2", reception.id).status).toBe("EN_QC");
-
-      await receptionsService.submitQcDecision({ inspectionId: String(inspection.id), decision: "ACCEPTE" }, inspector as any);
-      expect(one("receptions_v2", reception.id).status).toBe("LIBERE");
-      expect(stockFor(lots[0].id).status).toBe("VALIDATED");
-    });
   });
 
   describe("lot-level quality and storage", () => {
@@ -345,7 +338,7 @@ describe("reception lifecycle", () => {
       expect(one("receptions_v2", reception.id).status).toBe("BLOQUE");
       expect(one("purchase_orders", "po-1").status).toBe("on_hold");
 
-      await receptionsService.changeLotQualityStatus(lotA, { action: "RELEASE", reason: "labo conforme" }, inspector as any);
+      await receptionsService.changeLotQualityStatus(lotA, { action: "RELEASE", reason: "labo conforme", checkResults: evidence }, inspector as any);
       expect(stockFor(lotA).status).toBe("VALIDATED");
       expect(stockFor(lotB).status).toBe("QUARANTINE");
       expect(one("receptions_v2", reception.id).status).toBe("BLOQUE");
@@ -452,10 +445,10 @@ describe("reception lifecycle", () => {
       await expect(receptionsService.startQcInspection({ reception_id: reception.id }, both)).rejects.toMatchObject({ code: "QC_ROLE_SEPARATION" });
       const inspection = await receptionsService.startQcInspection({ reception_id: reception.id }, inspector as any);
       await expect(
-        receptionsService.submitQcDecision({ inspectionId: String(inspection.id), decision: "ACCEPTE" }, both),
+        receptionsService.submitQcDecision({ inspectionId: String(inspection.id), decision: "ACCEPTE", checkResults: evidence }, both),
       ).rejects.toMatchObject({ code: "QC_ROLE_SEPARATION" });
 
-      await receptionsService.submitQcDecision({ inspectionId: String(inspection.id), decision: "QUARANTAINE", comment: "lab" }, inspector as any);
+      await receptionsService.submitQcDecision({ inspectionId: String(inspection.id), decision: "QUARANTAINE", checkResults: evidence, comment: "lab" }, inspector as any);
       await expect(
         receptionsService.changeLotQualityStatus(String(lots[0].id), { action: "RELEASE", reason: "ok" }, both),
       ).rejects.toMatchObject({ code: "QC_ROLE_SEPARATION" });

@@ -1,8 +1,9 @@
+import { resolveTestApi } from "./lib/api-target-guard.mjs";
 import { createHmac, randomUUID } from "node:crypto";
 import { spawn } from "node:child_process";
 import { syntheticIntakeFields } from "./lib/intake-contract.mjs";
 
-const API = (process.env.SMOKE_API_URL || `http://127.0.0.1:${process.env.PORT || 4000}`).replace(/\/$/, "");
+const API = resolveTestApi();
 const PASSWORD = process.env.SMOKE_PASSWORD || "Test123!";
 const SIM_SECRET = process.env.WEIGHBRIDGE_SIMULATOR_SECRET;
 if (!SIM_SECRET) throw new Error("WEIGHBRIDGE_SIMULATOR_SECRET is required.");

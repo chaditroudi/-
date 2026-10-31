@@ -5,7 +5,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { NumericSignaturePad } from '@/components/shared/NumericSignatureDialog';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { useQuarantineReceptionLot, useReleaseReceptionLot } from '@/hooks/useReceptionsV2';
+import { useQcChecklist, useQuarantineReceptionLot, useReleaseReceptionLot } from '@/hooks/useReceptionsV2';
+import { QcChecklistAnswers } from './QcChecklistAnswers';
+import { checklistResults, unansweredCount, type QcChecklistAnswers as ChecklistAnswers } from '@/lib/qcChecklist';
 import { ReceptionLot, stockStatusLabels } from '@/types/reception';
 import { AlertTriangle, ShieldCheck } from 'lucide-react';
 
@@ -13,26 +15,35 @@ interface ReceptionLotStatusDialogProps {
   lot: ReceptionLot | null;
   receptionId: string;
   mode: 'quarantine' | 'release';
+  /** Selects the published checklist a release is inspected against. */
+  receptionType?: string | null;
   onClose: () => void;
 }
 
 /**
- * Post-QC lot status change. A release is signed with the personal PIN, like
- * the QC release, inside this same dialog; the action is recorded under the signed-in user.
+ * Post-QC lot status change. A release is a re-inspection: the published checklist
+ * is answered again and signed with the personal PIN, inside this same dialog. The
+ * action is recorded under the signed-in user, beside the decision that held the lot.
  */
 export function ReceptionLotStatusDialog({
   lot,
   receptionId,
   mode,
+  receptionType,
   onClose,
 }: ReceptionLotStatusDialogProps) {
   const { profile, user } = useAuthContext();
   const quarantineLot = useQuarantineReceptionLot();
   const releaseLot = useReleaseReceptionLot();
+  const qcChecklist = useQcChecklist(mode === 'release' ? receptionType : null);
   const [reason, setReason] = useState('');
+  const [answers, setAnswers] = useState<ChecklistAnswers>({});
+  const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
     setReason('');
+    setAnswers({});
+    setFormError(null);
   }, [lot, mode]);
 
   const actorLabel = profile?.full_name?.trim() || user?.email || '—';
@@ -41,12 +52,32 @@ export function ReceptionLotStatusDialog({
 
   const handleClose = () => {
     setReason('');
+    setAnswers({});
+    setFormError(null);
     onClose();
   };
 
   const run = async (pin?: string) => {
     if (!lot) return;
-    const payload = { receptionId, lotId: lot.id, reason: reason.trim() || null, pin: pin ?? null };
+    if (isRelease) {
+      const unanswered = unansweredCount(qcChecklist.items, answers);
+      if (qcChecklist.unavailable || unanswered > 0 || !reason.trim()) {
+        setFormError(qcChecklist.unavailable
+          ? 'Aucune grille qualité publiée : la libération est impossible.'
+          : !reason.trim()
+            ? 'Le motif de libération est obligatoire.'
+            : `Grille qualité incomplète : ${unanswered} contrôle(s) sans réponse.`);
+        return;
+      }
+    }
+    setFormError(null);
+    const payload = {
+      receptionId,
+      lotId: lot.id,
+      reason: reason.trim() || null,
+      pin: pin ?? null,
+      checkResults: isRelease ? checklistResults(qcChecklist.items, answers) : undefined,
+    };
     try {
       if (isRelease) await releaseLot.mutateAsync(payload);
       else await quarantineLot.mutateAsync(payload);
@@ -86,7 +117,7 @@ export function ReceptionLotStatusDialog({
           <div className="space-y-1.5">
             <Label htmlFor="reception-lot-reason">
               {isRelease ? 'Justification de la libération' : 'Motif de quarantaine'}
-              {!isRelease && <span className="text-red-500"> *</span>}
+              <span className="text-red-500"> *</span>
             </Label>
             <Textarea
               id="reception-lot-reason"
@@ -101,6 +132,18 @@ export function ReceptionLotStatusDialog({
               }
             />
           </div>
+
+          {isRelease && (
+            <QcChecklistAnswers
+              checklist={qcChecklist.checklist}
+              items={qcChecklist.items}
+              unavailable={qcChecklist.unavailable}
+              answers={answers}
+              onChange={setAnswers}
+            />
+          )}
+
+          {formError && <p className="text-sm text-red-600">{formError}</p>}
 
           {isRelease && (
             <NumericSignaturePad

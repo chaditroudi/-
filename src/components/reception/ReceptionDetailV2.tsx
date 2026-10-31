@@ -752,7 +752,7 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
       <ReceptionCancelDialog reception={reception} open={cancelOpen} onOpenChange={setCancelOpen} />
       <ReceptionCorrectionDialog reception={reception} open={correctionOpen} onOpenChange={setCorrectionOpen} />
       <ReceptionLotStatusDialog lot={lotToQuarantine} receptionId={reception.id} mode="quarantine" onClose={() => setLotToQuarantine(null)} />
-      <ReceptionLotStatusDialog lot={lotToRelease} receptionId={reception.id} mode="release" onClose={() => setLotToRelease(null)} />
+      <ReceptionLotStatusDialog lot={lotToRelease} receptionId={reception.id} mode="release" receptionType={reception.reception_type} onClose={() => setLotToRelease(null)} />
 
       {qcDialogOpen && (
         <QCInspectionDialog

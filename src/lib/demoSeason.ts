@@ -45,15 +45,32 @@ async function ensureSupplierId(): Promise<string> {
   return id;
 }
 
-/** QC outcomes are recorded only by the inspection; the stage override refuses them. */
+/**
+ * QC outcomes are recorded only by the inspection; the stage override refuses them.
+ * A release needs a signature, so where the PIN is enforced this demo stops here.
+ */
 async function releaseDemoLot(receptionId: string): Promise<void> {
+  const checklists = await apiRequest<{ data: Array<{ id: string }> }>('/qc-checklists?receptionType=DATTE');
+  const checklistId = checklists.data?.[0]?.id;
+  if (!checklistId) throw new Error('Aucune grille qualité publiée pour la démonstration');
+  const items = await apiRequest<{ data: Array<{ id: string; code: string }> }>(`/qc-checklists/${checklistId}/items`);
   const started = await apiRequest<{ data: { id: string } }>('/qc/start', {
     method: 'POST',
     body: JSON.stringify({ reception_id: receptionId }),
   });
   await apiRequest('/qc/submit', {
     method: 'POST',
-    body: JSON.stringify({ inspectionId: started.data?.id, decision: 'ACCEPTE', comment: 'Démonstration' }),
+    body: JSON.stringify({
+      inspectionId: started.data?.id,
+      decision: 'ACCEPTE',
+      comment: 'Démonstration',
+      checkResults: items.data.map((item) => ({
+        checklist_item_id: item.id,
+        check_code: item.code,
+        result: 'CONFORME',
+        note: 'Démonstration : aucune mesure réelle',
+      })),
+    }),
   });
 }
 

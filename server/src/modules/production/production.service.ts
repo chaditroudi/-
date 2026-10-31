@@ -69,10 +69,14 @@ const activeAllocations = async (orderId: string) =>
  * (stock_lots.current_quantity), like packaging, expeditions and ATP. The
  * reception lot keeps the received quantity as history.
  */
-const findStockLot = async (receptionLotId: string) =>
-  sanitizeDocument(
-    await StockLots().findOne({ reception_lot_id: receptionLotId }).lean().exec(),
-  ) as Row | null;
+/** A held row speaks for the whole lot; used-up rows say nothing about its quality. */
+const findStockLot = async (receptionLotId: string) => {
+  const rows = sanitizeDocument(
+    await StockLots().find({ reception_lot_id: receptionLotId }).lean().exec(),
+  ) as Row[];
+  const active = rows.filter((row) => row.status !== "CONSUMED");
+  return active.find((row) => row.status !== "VALIDATED") ?? active[0] ?? rows[0] ?? null;
+};
 
 /** Compare-and-set on current_quantity so concurrent consumers cannot both spend the same kilos. */
 const changeStockLotQuantity = async (stockLotId: string, deltaKg: number, now: string) => {

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { AppError } from "../../core/app-error.js";
 import { validateCoreDocument } from "./core-schemas.js";
-import { assertCoreSchema, assertGenericDbMutationAllowed, assertStockLotWrite } from "./write-guard.js";
+import { assertBatchWrite, assertCoreSchema, assertGenericDbMutationAllowed, assertStockLotWrite } from "./write-guard.js";
 
 describe("W0 write guard", () => {
   it("forbids deletes on regulated collections via generic API", () => {
@@ -15,6 +15,18 @@ describe("W0 write guard", () => {
     expect(() => assertGenericDbMutationAllowed("qc_inspections", "insert")).toThrow(/trusted domain service/);
     expect(() => assertGenericDbMutationAllowed("qc_inspections", "update")).toThrow(/trusted domain service/);
     expect(() => assertGenericDbMutationAllowed("qc_inspections", "update", { trustedInternal: true })).not.toThrow();
+  });
+
+  it("keeps QC evidence to its domain service", () => {
+    expect(() => assertGenericDbMutationAllowed("qc_check_results", "insert")).toThrow(/trusted domain service/);
+    expect(() => assertGenericDbMutationAllowed("qc_check_results", "update")).toThrow(/trusted domain service/);
+  });
+
+  it("gives a batch no QC decision of its own", () => {
+    expect(() => assertBatchWrite({ batch_number: "B", qc_decision: "ACCEPT" })).toThrow(/contrôle qualité/);
+    const decided = { qc_decision: "ACCEPT", qc_decision_by: "someone" };
+    expect(() => assertBatchWrite({ ...decided, notes: "edit" }, decided)).not.toThrow();
+    expect(() => assertBatchWrite({ ...decided, qc_decision: "REJECT" }, decided)).toThrow(AppError);
   });
 
   it("creates stock lots only in quarantine and unlinked", () => {

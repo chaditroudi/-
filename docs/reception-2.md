@@ -76,6 +76,8 @@ In Paramètres › Opérations, enforced by the server:
 | `reception_weight_gap_warning_pct` | 5 (RG-R03) | Above 0 |
 | `reception_weight_gap_critical_pct` | 10 (RG-R03) | At least the warning, at most 25 |
 
+A QC release signature fails closed: `NUMERIC_SIGNATURE_GATE` unset means enforced, and production always enforces, so every quality user needs a PIN. `scripts/audit-pin-readiness.mjs` lists who lacks one. The release rules are in section 23 of `docs/plans/DATE_HARVEST_QMS_2_MASTER_PLAN.md`.
+
 ## Tests
 
 ```bash
@@ -94,6 +96,16 @@ mongosh --port 27327 --eval "rs.initiate()"
 
 ```bash
 RECEPTION_IT_MONGO_URI="mongodb://127.0.0.1:27327/?replicaSet=rs-reception" npx vitest run server/src/modules/receptions
+```
+
+The QC release suite runs over real HTTP against the compiled server, because Nest needs the decorator metadata `tsc` emits:
+
+```bash
+npm run server:build
+```
+
+```bash
+RECEPTION_IT_MONGO_URI="mongodb://127.0.0.1:27327/?replicaSet=rs-reception" npx vitest run qc-release.http
 ```
 
 Browser acceptance (`puppeteer-core`, already a dev dependency) wipes its own local database:

@@ -72,6 +72,14 @@ vi.mock("../../db/defaults.js", () => ({
   })),
 }));
 
+vi.mock("./qc-evidence.js", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("./qc-evidence.js")>()),
+  loadQcRequirements: async () => ({
+    checklist_id: "cl", checklist_code: "QC", checklist_version: 1,
+    items: [{ id: "i", code: "C", name: "Contrôle", category: null, severity: "MAJEUR" }],
+  }),
+}));
+
 vi.mock("./reception-stock-sync.js", () => ({
   syncReceptionLotsToStock: vi.fn(async () => undefined),
   loadReceptionLots: vi.fn(async (receptionId: string) =>
@@ -163,7 +171,7 @@ describe("receptionsService", () => {
     created.reception_lots = [{ id: "lot-1", reception_id: "rec-3", lot_internal: "LOT-A" }];
 
     await receptionsService.submitQcDecision(
-      { inspectionId: "insp-1", decision: "ACCEPTE", qualitySummary: { grade: "A" } },
+      { inspectionId: "insp-1", decision: "ACCEPTE", qualitySummary: { grade: "A" }, checkResults: [{ check_code: "C", result: "CONFORME" }] },
       { id: "qc-1" },
     );
 
@@ -179,7 +187,7 @@ describe("receptionsService", () => {
     created.reception_lots = [{ id: "lot-rej", reception_id: "rec-4", lot_internal: "LOT-R" }];
 
     await receptionsService.submitQcDecision(
-      { inspectionId: "insp-2", decision: "REJETE", qualitySummary: { grade: "R" }, comment: "moisissure" },
+      { inspectionId: "insp-2", decision: "REJETE", qualitySummary: { grade: "R" }, checkResults: [{ check_code: "C", result: "NON_CONFORME" }], comment: "moisissure" },
       { id: "qc-2" },
     );
 

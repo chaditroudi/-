@@ -5,12 +5,13 @@
  *   npm run smoke:wave-b
  * Requires API server running (npm run server / dev).
  */
+import { resolveTestApi } from "./lib/api-target-guard.mjs";
 import { randomUUID } from "node:crypto";
 import { spawn } from "node:child_process";
 import { syntheticIntakeFields } from "./lib/intake-contract.mjs";
 import { releaseThroughQc } from "./lib/qc-release.mjs";
 
-const API = (process.env.SMOKE_API_URL || `http://127.0.0.1:${process.env.PORT || 4000}`).replace(/\/$/, "");
+const API = resolveTestApi();
 const PASSWORD = process.env.SMOKE_PASSWORD || "Test123!";
 
 const request = async (method, path, token, body) => {
@@ -107,7 +108,7 @@ const main = async () => {
     "purchase cost snapshot on lot",
   );
 
-  await releaseThroughQc((path, body) => request("POST", path, qualityToken, body), reception.id);
+  await releaseThroughQc((method, path, body) => request(method, path, qualityToken, body), reception.id);
   for (const toStage of ["WEIGHED"]) {
     const advanced = await request(
       "POST",

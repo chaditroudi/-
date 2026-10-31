@@ -9,7 +9,7 @@ import { appendSupplierPerformanceSnapshot, normalizeSupplierDocument } from "..
 import { gateRulesService } from "../trust/gate-rules.service.js";
 import { lotLedgerService } from "../trust/lot-ledger.service.js";
 import { isRegulatedCollection } from "../trust/regulated-collections.js";
-import { assertCoreSchema, assertGenericDbMutationAllowed, assertStockLotWrite } from "../trust/write-guard.js";
+import { assertCoreSchema, assertGenericDbMutationAllowed, assertBatchWrite, assertStockLotWrite } from "../trust/write-guard.js";
 
 const findRows = async (collection: string, filter: Record<string, unknown>, orderBy?: any, limit?: number) => {
   const Model = getCollectionModel(collection);
@@ -88,6 +88,10 @@ const assertDomainGates = async (
         );
       }
     });
+  }
+
+  if (table === "batches" && !options.trustedInternal) {
+    docs.forEach((doc, index) => assertBatchWrite(doc, beforeRows[index]));
   }
 
   if (table === "stock_lots" && !options.trustedInternal) {

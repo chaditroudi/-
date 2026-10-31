@@ -8,7 +8,6 @@ const Inspections = () => getCollectionModel("quality_inspections");
 const NonConformities = () => getCollectionModel("non_conformities");
 const Movements = () => getCollectionModel("batch_movements");
 const Alerts = () => getCollectionModel("alerts");
-const ReceptionLots = () => getCollectionModel("reception_lots");
 
 // RG-Q07: grade from score
 const inferGrade = (score: number): string => {
@@ -20,103 +19,6 @@ const inferGrade = (score: number): string => {
 
 @Injectable()
 export class BatchesService {
-  // ── QC Decision ───────────────────────────────────────────────────────────
-
-  async decideQC(batchId: string, body: Record<string, unknown>, actor: string | null) {
-    const batch = sanitizeDocument(
-      await Batches().findOne({ id: batchId }).lean().exec(),
-    ) as Record<string, unknown> | null;
-    if (!batch) throw notFound("BATCH_NOT_FOUND", `Lot ${batchId} introuvable`);
-
-    if (batch.qc_decision) {
-      throw badRequest("QC_ALREADY_DECIDED", `Décision QC déjà enregistrée : ${batch.qc_decision}`);
-    }
-
-    const decision = String(body.decision ?? "").toUpperCase();
-    if (!["ACCEPT", "REJECT", "QUARANTINE"].includes(decision)) {
-      throw badRequest("INVALID_DECISION", "Décision doit être ACCEPT, REJECT ou QUARANTINE");
-    }
-
-    const score = body.quality_score !== undefined ? Number(body.quality_score) : null;
-    const grade = score !== null ? inferGrade(score) : (batch.quality_grade as string | null);
-    const now = new Date().toISOString();
-
-    const batchUpdate: Record<string, unknown> = {
-      qc_decision: decision,
-      qc_decision_date: now,
-      qc_decision_by: actor,
-      updated_at: now,
-    };
-    if (score !== null) {
-      batchUpdate.quality_score = score;
-      batchUpdate.quality_grade = grade;
-    }
-
-    let newStatus: string;
-    let alertSeverity: string | null = null;
-    let alertMsg: string | null = null;
-
-    if (decision === "ACCEPT") {
-      newStatus = "accepted";
-    } else if (decision === "REJECT") {
-      newStatus = "rejected";
-      batchUpdate.rejection_reason = body.rejection_reason ?? null;
-      alertSeverity = "critical";
-      alertMsg = String(body.rejection_reason ?? `Lot ${batch.batch_number} rejeté`);
-    } else {
-      newStatus = "quarantine";
-      batchUpdate.quarantine_reason = body.quarantine_reason ?? null;
-      alertSeverity = "warning";
-      alertMsg = String(body.quarantine_reason ?? `Lot ${batch.batch_number} mis en quarantaine`);
-    }
-
-    batchUpdate.status = newStatus;
-    await Batches().updateOne({ id: batchId }, { $set: batchUpdate });
-
-    // Propagate to linked reception_lot
-    if (batch.reception_id) {
-      const lotStatus =
-        decision === "ACCEPT"
-          ? "STOCK_LIBERE"
-          : decision === "REJECT"
-            ? "STOCK_REJETE"
-            : "EN_QUARANTAINE";
-      await ReceptionLots().updateMany(
-        { reception_id: batch.reception_id as string },
-        { $set: { stock_status: lotStatus, updated_at: now } },
-      );
-    }
-
-    // Log batch movement
-    const movDoc = await prepareInsertDocument("batch_movements", {
-      batch_id: batchId,
-      movement_type: "QC_DECISION",
-      from_status: batch.status,
-      to_status: newStatus,
-      quantity_kg: batch.current_weight_kg ?? batch.initial_weight_kg ?? 0,
-      performed_by: actor,
-      reason: decision === "ACCEPT" ? "Accepté QC" : alertMsg,
-    });
-    Batches(); // keep model warm
-    Movements().insertOne(movDoc as any).catch(() => null);
-
-    // Create alert for reject/quarantine
-    if (alertSeverity && alertMsg) {
-      const alertDoc = await prepareInsertDocument("alerts", {
-        alert_type: decision === "REJECT" ? "BATCH_REJECTED" : "BATCH_QUARANTINE",
-        title: decision === "REJECT" ? "Lot rejeté" : "Lot en quarantaine",
-        message: alertMsg,
-        severity: alertSeverity,
-        batch_id: batchId,
-      });
-      Alerts().insertOne(alertDoc as any).catch(() => null);
-    }
-
-    return sanitizeDocument(await Batches().findOne({ id: batchId }).lean().exec()) as Record<string, unknown>;
-  }
-
-  // ── Create inspection with auto-scoring ───────────────────────────────────
-
   async createInspection(batchId: string, body: Record<string, unknown>, actor: string | null) {
     const batch = sanitizeDocument(
       await Batches().findOne({ id: batchId }).lean().exec(),

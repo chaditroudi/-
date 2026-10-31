@@ -10,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertTriangle, CheckCircle, Clock, FlaskConical, MapPin, Play, Printer, Shield, XCircle } from "lucide-react";
 import { toast } from "sonner";
-import { receptionErrorMessage, useCalibrationStatus, useCreateQCInspection, useQCInspections, useSubmitQCDecision } from "@/hooks/useReceptionsV2";
+import { receptionErrorMessage, useCalibrationStatus, useQcChecklist, useCreateQCInspection, useQCInspections, useSubmitQCDecision } from "@/hooks/useReceptionsV2";
 import { useModule3StorageZones } from "@/hooks/useStorageModule3";
 import { Module3StorageZone } from "@/types/storage";
 import { QCDecisionType, RQCData, RQCCritere, ReceptionV2 } from "@/types/reception";
@@ -26,6 +26,9 @@ import {
 } from "@/lib/phase1RuleEngine";
 import { QC_NC_CODES, NC_SEVERITY_COLORS, getAutoTriggeredNCs } from "@/lib/qcNCCodes";
 import { NumericSignaturePad } from "@/components/shared/NumericSignatureDialog";
+import { QcChecklistAnswers } from "./QcChecklistAnswers";
+import type { SubmitQcDecisionInput } from "@/lib/api/receptions";
+import { checklistResults, hasNonConformity, unansweredCount, type QcChecklistAnswers as ChecklistAnswers } from "@/lib/qcChecklist";
 
 /**
  * Recommandation déterministe d'une chambre froide basée sur les données d'occupation réelles et la compatibilité Bio
@@ -154,6 +157,8 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
   const [labDefectsPct, setLabDefectsPct] = useState<string>("");
   const [overrideDecision, setOverrideDecision] = useState<QCDecisionType | null>(null);
   const [overridePhoto, setOverridePhoto] = useState<string[]>([]);
+  const qcChecklist = useQcChecklist(reception.reception_type);
+  const [checklistAnswers, setChecklistAnswers] = useState<ChecklistAnswers>({});
   const [selectedNcCodes, setSelectedNcCodes] = useState<string[]>([]);
   const [submitError, setSubmitError] = useState<string | null>(null);
   // Signature numérique — la libération QC (ACCEPTE) exige un code signature, saisi dans ce même écran.
@@ -288,6 +293,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
     setLabAnalyses([]);
     setLabStorageLocation("");
     setOverrideDecision(null);
+    setChecklistAnswers({});
     setOverridePhoto([]);
     setSelectedNcCodes([]);
     setSubmitError(null);
@@ -339,6 +345,8 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
   };
 
   const isOverriding = !!overrideDecision && overrideDecision !== score.recommendedDecision;
+  const needsJustification = isOverriding
+    || (selectedDecision === 'ACCEPTE' && hasNonConformity(qcChecklist.items, checklistAnswers));
 
   const submit = async (pin?: string) => {
     if (!inspectionId) return;
@@ -349,6 +357,17 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
       setSubmitError(
         `Mesures incomplètes : ${missingMeasurements} valeur(s) manquante(s) (3 humidités et 10 calibres sont obligatoires).`,
       );
+      return;
+    }
+
+    if (qcChecklist.unavailable) {
+      setSubmitError("Aucune grille qualité publiée : la décision ne peut pas être enregistrée.");
+      return;
+    }
+    const unanswered = unansweredCount(qcChecklist.items, checklistAnswers);
+    if (selectedDecision === 'ACCEPTE' && unanswered > 0) {
+      setReleasePinOpen(false);
+      setSubmitError(`Grille qualité incomplète : ${unanswered} contrôle(s) sans réponse.`);
       return;
     }
 
@@ -369,11 +388,11 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
       return;
     }
     // RG-Q04: override requires ≥ 20 char justification + 1 photo
-    if (isOverriding && comment.trim().length < 20) {
+    if (needsJustification && comment.trim().length < 20) {
       setSubmitError(`RG-Q04 : justification trop courte (${comment.trim().length}/20 caractères minimum).`);
       return;
     }
-    if (isOverriding && overridePhoto.length === 0) {
+    if (needsJustification && overridePhoto.length === 0) {
       setSubmitError("RG-Q04 : une photo justificative est obligatoire pour modifier la décision automatique.");
       return;
     }
@@ -416,18 +435,21 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
         labStorageLocation,
         secondaryInspectorName: doubleInspectionRequired ? secondaryInspectorName.trim() : undefined,
         recommendedDecision: score.recommendedDecision,
-        overrideJustification: isOverriding ? comment.trim() : undefined,
-        overridePhoto: isOverriding && overridePhoto.length > 0 ? overridePhoto[0] : undefined,
+        overrideJustification: needsJustification ? comment.trim() : undefined,
+        overridePhoto: needsJustification && overridePhoto.length > 0 ? overridePhoto[0] : undefined,
         nonconformityCodes: selectedNcCodes.length > 0 ? selectedNcCodes : undefined,
         rqc,
         pin: pin ?? undefined,
         checkResults: [
+          ...checklistResults(qcChecklist.items, checklistAnswers),
+          ...([
           { check_code: "HUM", check_name: "Humidite", severity: "MAJEUR", result: score.humidityScore >= 60 ? "CONFORME" : "NON_CONFORME", note: `${labHumidityForDecision}% (sol ${score.humidityAverage}%)`, measured_value: String(labHumidityForDecision), expected_value: "20-26" },
           { check_code: "DEF", check_name: "Defauts totaux", severity: "MAJEUR", result: labDefectsForDecision <= 10 ? "CONFORME" : "NON_CONFORME", note: `${labDefectsForDecision}%`, measured_value: String(labDefectsForDecision), expected_value: "<= 10" },
           { check_code: "CAL", check_name: "Calibre", severity: "MAJEUR", result: score.caliberScore >= 60 ? "CONFORME" : "NON_CONFORME", note: `${score.caliberAverage} mm`, measured_value: String(score.caliberAverage), expected_value: ">= 40" },
           { check_code: "INS", check_name: "Insectes", severity: "CRITIQUE", result: defects.insectsPercent > 5 ? "NON_CONFORME" : "CONFORME", note: `${defects.insectsPercent}%`, measured_value: String(defects.insectsPercent), expected_value: "<= 5" },
           { check_code: "MOLD", check_name: "Moisissure/Fermentation", severity: "CRITIQUE", result: defects.moldPercent > 2 || defects.fermentationPercent > 1 ? "NON_CONFORME" : "CONFORME", note: `M ${defects.moldPercent}% / F ${defects.fermentationPercent}%`, measured_value: `${defects.moldPercent}/${defects.fermentationPercent}`, expected_value: "<= 2 / <= 1" },
           { check_code: "ORG", check_name: "Organoleptique", severity: "MINEUR", result: score.organolepticScore >= 60 ? "CONFORME" : "NON_CONFORME", note: `${score.organolepticAverage}/5`, measured_value: String(score.organolepticAverage), expected_value: ">= 3/5" },
+          ] as SubmitQcDecisionInput['checkResults']).filter((row) => !qcChecklist.items.some((item) => item.code === row.check_code)),
         ],
       });
     } catch (error) {
@@ -877,6 +899,20 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                 <div className="space-y-4">
                   <Card>
                     <CardHeader>
+                      <CardTitle className="text-base">Grille qualité</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <QcChecklistAnswers
+                        checklist={qcChecklist.checklist}
+                        items={qcChecklist.items}
+                        unavailable={qcChecklist.unavailable}
+                        answers={checklistAnswers}
+                        onChange={setChecklistAnswers}
+                      />
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
                       <CardTitle className="text-base">Resultat automatique</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3 text-sm">
@@ -972,9 +1008,9 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
                       <Label>
-                        {isOverriding ? "Justification override *" : "Observations"}
+                        {needsJustification ? "Justification override *" : "Observations"}
                       </Label>
-                      {isOverriding && (
+                      {needsJustification && (
                         <span className={`text-xs tabular-nums ${comment.trim().length >= 20 ? "text-emerald-600" : "text-amber-600"}`}>
                           {comment.trim().length}/20
                         </span>
@@ -984,13 +1020,13 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                       value={comment}
                       onChange={(event) => { setComment(event.target.value); setSubmitError(null); }}
                       rows={4}
-                      className={isOverriding && comment.trim().length < 20 ? "border-amber-300 focus-visible:ring-amber-300" : ""}
-                      placeholder={isOverriding ? "Décrivez précisément pourquoi vous modifiez la décision automatique..." : "Observations, anomalies, remarques..."}
+                      className={needsJustification && comment.trim().length < 20 ? "border-amber-300 focus-visible:ring-amber-300" : ""}
+                      placeholder={needsJustification ? "Décrivez précisément pourquoi vous modifiez la décision automatique..." : "Observations, anomalies, remarques..."}
                     />
                   </div>
 
                   {/* RG-Q04 override photo */}
-                  {isOverriding && (
+                  {needsJustification && (
                     <div className="space-y-2">
                       <Label>Photo justificative * (RG-Q04)</Label>
                       <PhotoCapture

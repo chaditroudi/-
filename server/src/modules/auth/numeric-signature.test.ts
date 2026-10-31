@@ -3,6 +3,7 @@ import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import {
   isValidPinFormat,
   numericSignatureGateMode,
+  releaseSignatureGateMode,
   hashSignaturePin,
 } from "./numeric-signature.js";
 
@@ -12,6 +13,28 @@ describe("numeric-signature", () => {
   afterEach(() => {
     if (previous === undefined) delete process.env.NUMERIC_SIGNATURE_GATE;
     else process.env.NUMERIC_SIGNATURE_GATE = previous;
+  });
+
+  describe("QC release gate", () => {
+    afterEach(() => vi.unstubAllEnvs());
+
+    it("fails closed when nothing is configured", () => {
+      vi.stubEnv("NUMERIC_SIGNATURE_GATE", "");
+      expect(releaseSignatureGateMode()).toBe("enforce");
+    });
+
+    it("lets a weaker mode be asked for explicitly outside production", () => {
+      vi.stubEnv("NUMERIC_SIGNATURE_GATE", "warn");
+      expect(releaseSignatureGateMode()).toBe("warn");
+    });
+
+    it("always enforces in production", () => {
+      vi.stubEnv("NODE_ENV", "production");
+      for (const mode of ["", "warn", "off"]) {
+        vi.stubEnv("NUMERIC_SIGNATURE_GATE", mode);
+        expect(releaseSignatureGateMode()).toBe("enforce");
+      }
+    });
   });
 
   it("accepts 4–6 digit PINs only", () => {

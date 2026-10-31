@@ -277,14 +277,16 @@ const useLotQualityStatus = (action: 'RELEASE' | 'QUARANTINE') => {
       lotId,
       reason,
       pin,
+      checkResults,
     }: {
       receptionId: string;
       lotId: string;
       reason?: string | null;
       pin?: string | null;
+      checkResults?: Array<{ checklist_item_id: string; check_code: string; result: string }>;
     }) => {
       try {
-        const data = await changeStatus({ receptionId, lotId, action, reason: reason || null, pin: pin || null }).unwrap();
+        const data = await changeStatus({ receptionId, lotId, action, checkResults, reason: reason || null, pin: pin || null }).unwrap();
         dispatch(receptionUpserted(data.reception));
         dispatch(stockApi.util.invalidateTags(['StockLot', 'StockSummary']));
         const lot = data.lots.find((row) => row.id === lotId);
@@ -395,6 +397,15 @@ export const useMoveReceptionLotToStorage = () => {
 
 export const useQCChecklists = (receptionType?: string) => {
   return useListQcChecklistsQuery(receptionType, { skip: false });
+};
+
+/** The one published checklist for a reception type, and whether there is none to work from. */
+export const useQcChecklist = (receptionType?: string | null) => {
+  const { data: checklists = [], isLoading: listLoading } = useListQcChecklistsQuery(receptionType ?? '', { skip: !receptionType });
+  const checklist = receptionType ? checklists[0] ?? null : null;
+  const { data: items = [], isLoading: itemsLoading } = useQCChecklistItems(checklist?.id ?? '');
+  const isLoading = listLoading || itemsLoading;
+  return { checklist, items, isLoading, unavailable: Boolean(receptionType) && !isLoading && items.length === 0 };
 };
 
 export const useQCChecklistItems = (checklistId: string) => {

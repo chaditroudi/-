@@ -24,6 +24,7 @@ const SHOTS = process.env.E2E_SCREENSHOTS || "";
 const ONLY = (process.env.E2E_ONLY || "").split(",").filter(Boolean);
 const SIM_SECRET = process.env.WEIGHBRIDGE_SIMULATOR_SECRET || "local-e2e-sim-secret";
 const PASSWORD = "Test123!";
+const RELEASE_PIN = "482915";
 const JPEG = Buffer.from(
   "/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAAA//EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AN//Z",
   "base64",
@@ -248,6 +249,80 @@ const openReceptions = (page) => until(async () => {
   return hasText(page, "Réception des dattes");
 }, "Réception open", 30000);
 
+const checklistAnswers = async (limit) => {
+  const checklist = await col("qc_checklists").findOne({ reception_type: "DATTE", is_active: true });
+  const items = await col("qc_checklist_items").find({ checklist_id: checklist.id, is_active: true }).sort({ sequence_order: 1 }).toArray();
+  return items.slice(0, limit ?? items.length).map((item) => ({ checklist_item_id: item.id, check_code: item.code, result: "CONFORME" }));
+};
+
+const syntheticDelivery = async (reference) => {
+  const { status, body } = await api("POST", "/receptions/intake", operator.access_token, {
+    ...syntheticIntakeFields(reference), client_request_id: randomUUID(), supplier_id: supplierA.id, variety: "Deglet Nour",
+    gross_weight_kg: 300, tare_weight_kg: 20, lots: [{ lot_supplier: reference, quantity: 280 }],
+  });
+  check(status < 300, `delivery ${reference} booked`, body);
+  return body.data.reception;
+};
+
+const openQcForm = async (page, receptionNumber) => {
+  await openReceptions(page);
+  await clickByText(page, "Contrôle QC");
+  await until(() => hasText(page, receptionNumber), "delivery in the QC queue", 30000);
+  const findAction = () => page.evaluateHandle((number) => {
+    const row = [...document.querySelectorAll("button")].filter((node) => node.getClientRects().length > 0)
+      .find((node) => node.innerText.includes(number) && /Lancer QC|Reprendre/.test(node.innerText));
+    return row?.querySelector("button") ?? row ?? null;
+  }, receptionNumber);
+  await until(async () => (await findAction()).asElement(), "QC action available", 30000);
+  await (await findAction()).asElement().click();
+  const startButton = () => page.evaluate(() => [...document.querySelectorAll('[role="dialog"] button')].some((button) => button.innerText.includes("Demarrer")));
+  await until(async () => (await startButton()) || page.$('input[placeholder="%"]'), "QC form open");
+  // An open inspection resumes by itself once it has loaded.
+  await sleep(1000);
+  if (await startButton()) {
+    const name = await page.evaluateHandle(() => [...document.querySelectorAll("label")]
+      .find((label) => label.innerText.startsWith("Inspecteur principal")).parentElement.querySelector("input"));
+    await name.asElement().type("Inspecteur E2E");
+    await clickByText(page, "Demarrer");
+  }
+  await page.waitForSelector('input[placeholder="%"]');
+  for (const input of await page.$$('input[placeholder="%"]')) {
+    if (await input.evaluate((node) => !node.value && !node.readOnly && node.getClientRects().length > 0)) await input.type("22");
+  }
+  const [caliber] = await page.$$('input[placeholder="mm"]');
+  await caliber.type("46");
+  await clickByText(page, "Appliquer à tous");
+  // A new supplier's first deliveries need a laboratory sample.
+  await clickByText(page, "3 · Laboratoire");
+  const analysis = await page.evaluateHandle(() => [...document.querySelectorAll('[role="dialog"] button')]
+    .find((button) => button.innerText.trim() === "Aflatoxines" && button.getClientRects().length > 0) ?? null);
+  if (analysis.asElement()) {
+    await analysis.asElement().click();
+    const location = await page.evaluateHandle(() => [...document.querySelectorAll("label")]
+      .find((label) => label.innerText.startsWith("Emplacement stockage")).parentElement.querySelector("input"));
+    await location.asElement().type("Frigo labo");
+  }
+};
+
+const answerChecklist = async (page) => {
+  await page.waitForSelector('[data-testid="qc-checklist"]');
+  for (const button of await page.$$('[data-testid="qc-checklist"] button[aria-label$=": conforme"]')) await button.click();
+};
+
+const signRelease = async (page, pin) => {
+  await until(() => page.evaluate(() => [...document.querySelectorAll("button")].some((button) => button.innerText.includes("Signer et libérer"))), "signature pad open");
+  await page.evaluate((digits) => {
+    const confirm = [...document.querySelectorAll("button")].find((button) => button.innerText.includes("Signer et libérer"));
+    const pad = confirm.closest(".rounded-lg.border") ?? confirm.parentElement.parentElement;
+    const buttons = [...pad.querySelectorAll("button")];
+    const clear = buttons.find((button) => button.querySelector("svg") && !button.innerText.trim());
+    for (let index = 0; index < 8; index += 1) clear?.click();
+    for (const digit of digits) buttons.find((button) => button.innerText.trim() === digit)?.click();
+  }, pin);
+  await sleep(150);
+  await clickByText(page, "Signer et libérer");
+};
+
 const receptionByNote = (note) => col("receptions_v2").findOne({ delivery_note_number: note });
 
 const shot = async (page, name) => {
@@ -310,6 +385,7 @@ for (const name of [
 const operator = await signIn("operateur.reception@test.local");
 const supervisor = await signIn("chef.reception@test.local");
 const inspector = await signIn("inspecteur.qualite@test.local");
+const qualityManager = await signIn("responsable.qualite@test.local");
 const director = await signIn("directeur.usine@test.local");
 const production = await signIn("responsable.production@test.local");
 
@@ -809,7 +885,7 @@ await run("S", "QC decision reaches other screens without approving anything els
   check(started.status === 201, "inspector opens the QC", started.status);
   await until(async () => (await col("receptions_v2").findOne({ id: reception.id })).status === "EN_QC", "reception in QC");
   const decision = await api("POST", "/qc/submit", inspector.access_token, {
-    inspectionId: started.body.data.id, decision: "QUARANTAINE", comment: "Humidité à recontrôler",
+    inspectionId: started.body.data.id, decision: "QUARANTAINE", comment: "Humidité à recontrôler", checkResults: await checklistAnswers(1),
   });
   check(decision.status < 300, "quarantine decision", decision);
   await waitText(watcher, "Bloqué");
@@ -848,12 +924,15 @@ await run("V", "Stock and stage routes cannot stand in for QC", async () => {
   const inspectionId = started.body.data.id;
   await api("POST", "/qc/submit", inspector.access_token, {
     inspectionId, decision: "QUARANTAINE", comment: "Attente labo", labSampleRequired: true, labAnalyses: ["Aflatoxines"],
+    checkResults: await checklistAnswers(1),
   });
 
   const rewrite = await api("PATCH", `/qc-inspections/${inspectionId}`, inspector.access_token, { comment: "réécrit" });
   check(rewrite.status === 404, "a decided inspection has no edit route", rewrite.status);
 
   const page = await openApp(inspector);
+  await openReceptions(page);
+  await clickByText(page, "Contrôle QC");
   await waitText(page, "Saisir résultats", 30000);
   await clickByText(page, "Saisir résultats");
   await page.waitForSelector('[role="dialog"] input');
@@ -865,6 +944,82 @@ await run("V", "Stock and stage routes cannot stand in for QC", async () => {
   check(row.decision === "QUARANTAINE" && row.comment === "Attente labo", "decision untouched", [row.decision, row.comment]);
   await page.browserContext().close();
   return "refused with STOCK_LOT_DOMAIN_ONLY and STAGE_DOMAIN_ONLY; lab result saved from the screen";
+});
+
+await run("P", "QC release in the browser: PIN and evidence", async () => {
+  const pinSet = await api("POST", "/auth/signature-pin", inspector.access_token, { pin: RELEASE_PIN, password: PASSWORD });
+  check(pinSet.status < 300, "inspector PIN provisioned", pinSet);
+  const reception = await syntheticDelivery("E2E-PIN");
+  const lot = await col("reception_lots").findOne({ reception_id: reception.id });
+
+  const noPin = await openApp(qualityManager);
+  await openQcForm(noPin, reception.reception_number);
+  await answerChecklist(noPin);
+  await clickByText(noPin, "Valider la décision QC");
+  await signRelease(noPin, "4815");
+  await waitText(noPin, "Aucun code signature");
+  check((await col("reception_lots").findOne({ id: lot.id })).stock_status === "EN_QUARANTAINE", "no PIN configured: nothing released");
+  await noPin.browserContext().close();
+
+  const page = await openApp(inspector);
+  await openQcForm(page, reception.reception_number);
+  await clickByText(page, "Valider la décision QC");
+  await waitText(page, "Grille qualité incomplète");
+  check((await col("reception_lots").findOne({ id: lot.id })).stock_status === "EN_QUARANTAINE", "unanswered checklist: nothing released");
+  await answerChecklist(page);
+  await clickByText(page, "Valider la décision QC");
+  await signRelease(page, "000111");
+  await waitText(page, "Code signature incorrect");
+  check(!page.url().includes("/auth"), "a wrong PIN does not end the session");
+  check((await col("reception_lots").findOne({ id: lot.id })).stock_status === "EN_QUARANTAINE", "wrong PIN: nothing released");
+  await clickByText(page, "Valider la décision QC");
+  await signRelease(page, RELEASE_PIN);
+  await until(async () => (await col("reception_lots").findOne({ id: lot.id })).stock_status === "STOCK_LIBERE", "release signed");
+  const stock = await col("stock_lots").findOne({ reception_lot_id: lot.id });
+  const inspection = await col("qc_inspections").findOne({ reception_id: reception.id });
+  check(stock.status === "VALIDATED", "stock released", stock.status);
+  check((await col("reception_lots").findOne({ id: lot.id })).release_pin_verified === true, "signature recorded");
+  check(Number.isInteger(inspection.checklist_version), "checklist version recorded", inspection.checklist_version);
+  await page.browserContext().close();
+  return "no PIN, unanswered checklist and wrong PIN each refused on screen; correct PIN released";
+});
+
+await run("Q", "A held lot needs a new inspection to leave quarantine", async () => {
+  const reception = await syntheticDelivery("E2E-HOLD");
+  const lot = await col("reception_lots").findOne({ reception_id: reception.id });
+  const started = await api("POST", "/qc/start", inspector.access_token, { reception_id: reception.id, inspector_name: "E2E" });
+  const held = await api("POST", "/qc/submit", inspector.access_token, {
+    inspectionId: started.body.data.id, decision: "QUARANTAINE", comment: "Humidité à recontrôler", checkResults: await checklistAnswers(1),
+  });
+  check(held.status < 300, "lot held", held);
+
+  const bare = await api("POST", `/reception-lots/${lot.id}/quality-status`, inspector.access_token, { action: "RELEASE", reason: "ok", pin: RELEASE_PIN });
+  check(bare.body.error?.code === "QC_EVIDENCE_INCOMPLETE", "a status change alone is refused", bare);
+
+  const page = await openApp(inspector);
+  await openReceptions(page);
+  await clickByText(page, "Historique", { selector: '[role="tab"]' });
+  await until(() => page.evaluate((number) => [...document.querySelectorAll("button")]
+    .some((button) => button.innerText.includes(number) && button.getClientRects().length > 0), reception.reception_number), "held delivery in the history", 30000);
+  await clickByText(page, reception.reception_number);
+  await until(() => hasText(page, "Traçabilité"), "reception open");
+  await clickByText(page, "Lots");
+  await waitText(page, "Libérer");
+  await clickByText(page, "Libérer", { exact: true });
+  await waitText(page, "Justification de la libération");
+  await signRelease(page, RELEASE_PIN);
+  await waitText(page, "Le motif de libération est obligatoire");
+  await fill(page, "Justification de la libération", "Recontrôle humidité conforme");
+  await signRelease(page, RELEASE_PIN);
+  await waitText(page, "Grille qualité incomplète");
+  check((await col("reception_lots").findOne({ id: lot.id })).stock_status === "EN_QUARANTAINE", "still held without evidence");
+  await answerChecklist(page);
+  await signRelease(page, RELEASE_PIN);
+  await until(async () => (await col("reception_lots").findOne({ id: lot.id })).stock_status === "STOCK_LIBERE", "re-inspection released the lot");
+  const records = await col("qc_inspections").find({ reception_id: reception.id }).toArray();
+  check(records.length === 2 && records.some((row) => row.decision === "QUARANTAINE") && records.some((row) => row.purpose === "REINSPECTION"), "both records kept", records.length);
+  await page.browserContext().close();
+  return "status change refused; re-inspection released the lot and kept the decision that held it";
 });
 
 await run("R", "Tablet and phone widths", async () => {

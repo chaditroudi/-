@@ -5,11 +5,12 @@
  *
  * Requires API up (npm run server) and .env.
  */
+import { resolveTestApi } from "./lib/api-target-guard.mjs";
 import { spawn } from "node:child_process";
 import { syntheticIntakeFields } from "./lib/intake-contract.mjs";
 import { releaseThroughQc } from "./lib/qc-release.mjs";
 
-const API = (process.env.SMOKE_API_URL || `http://127.0.0.1:${process.env.PORT || 4000}`).replace(/\/$/, "");
+const API = resolveTestApi();
 const PASSWORD = process.env.SMOKE_PASSWORD || "Test123!";
 
 const STAGES = [
@@ -112,7 +113,7 @@ const main = async () => {
 
   for (const toStage of STAGES) {
     if (toStage === "QC_DECIDED") {
-      await releaseThroughQc((path, body) => request("POST", path, qualityToken, body), intake.body.data.reception.id);
+      await releaseThroughQc((method, path, body) => request(method, path, qualityToken, body), intake.body.data.reception.id);
       continue;
     }
     const payload = {

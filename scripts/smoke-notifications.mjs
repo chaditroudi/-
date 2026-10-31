@@ -7,13 +7,14 @@
  *
  * Exit 0 = all checks passed; exit 1 = failures.
  */
+import { resolveTestApi } from "./lib/api-target-guard.mjs";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { syntheticIntakeFields } from "./lib/intake-contract.mjs";
 import { releaseThroughQc } from "./lib/qc-release.mjs";
 
-const API = (process.env.SMOKE_API_URL || `http://127.0.0.1:${process.env.PORT || 4000}`).replace(/\/$/, "");
+const API = resolveTestApi();
 const PASSWORD = process.env.SMOKE_PASSWORD || "Test123!";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -258,7 +259,7 @@ async function main() {
   for (const stage of STAGES) {
     try {
       if (stage === "QC_DECIDED") {
-        await releaseThroughQc((path, body) => api(qualityToken, "POST", path, body), receptionId);
+        await releaseThroughQc((method, path, body) => api(qualityToken, method, path, body), receptionId);
         ok(`Advance ${stage}`, "recorded by QC");
         await sleep(250);
         continue;

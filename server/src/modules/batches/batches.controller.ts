@@ -152,13 +152,6 @@ export class BatchesController {
 
   // ── Business action endpoints ─────────────────────────────────────────────
 
-  @Post(":id/decide")
-  @Roles(...QUALITY_ROLES)
-  async decideQC(@Param("id") id: string, @Body() body: any) {
-    const data = await this.batchesService.decideQC(id, body ?? {}, body?.actor ?? null);
-    return { data };
-  }
-
   @Post(":id/inspections")
   @Roles(...QUALITY_ROLES)
   async addInspection(@Param("id") id: string, @Body() body: any) {

@@ -7,11 +7,18 @@ import {
   assertNoOrganicConventionalMix,
   assertShipmentDossierComplete,
   evaluateShipmentDossierFromChain,
+  isLotReleasedForProduction,
   isShipmentClosingStatus,
   type LotReleaseStatus,
 } from "./gate-rules.js";
 import { lotLedgerService } from "./lot-ledger.service.js";
 import { resolveStickyRoute, routeRequiresFumigationCcp } from "./lot-state-machine.js";
+
+/** Used-up stock says nothing about quality; any stock row still held holds the lot. */
+const stockSideStatus = (rows: LotReleaseStatus[]) => {
+  const active = rows.filter((row) => String(row.status || "").toUpperCase() !== "CONSUMED");
+  return (active.find((row) => !isLotReleasedForProduction({ id: row.id, status: row.status })) ?? active[0])?.status;
+};
 
 /** A reception lot and its stock lot are one lot: each row carries both statuses, so the gate sees both. */
 const loadLotsByIds = async (ids: string[]): Promise<LotReleaseStatus[]> => {
@@ -24,28 +31,31 @@ const loadLotsByIds = async (ids: string[]): Promise<LotReleaseStatus[]> => {
   const found = new Set(stockLots.map((lot) => lot.id));
   const missing = ids.filter((id) => !found.has(id));
 
-  const pairedIds = stockLots.map((lot) => lot.reception_lot_id).filter(Boolean);
+  const pairedIds = stockLots.map((lot) => lot.reception_lot_id).filter(Boolean) as string[];
   const receptionLots = sanitizeDocument(
     await getCollectionModel("reception_lots").find({ id: { $in: [...missing, ...pairedIds] } }).lean().exec(),
   ) as LotReleaseStatus[];
   const receptionById = new Map(receptionLots.map((lot) => [lot.id, lot]));
 
   const requestedReceptionLots = receptionLots.filter((lot) => missing.includes(lot.id));
-  const stockByReceptionLot = new Map(
-    (sanitizeDocument(
-      await getCollectionModel("stock_lots")
-        .find({ reception_lot_id: { $in: requestedReceptionLots.map((lot) => lot.id) } })
-        .lean()
-        .exec(),
-    ) as Array<LotReleaseStatus & { reception_lot_id?: string }>).map((lot) => [lot.reception_lot_id, lot]),
-  );
+  const stockRows = sanitizeDocument(
+    await getCollectionModel("stock_lots")
+      .find({ reception_lot_id: { $in: [...pairedIds, ...requestedReceptionLots.map((lot) => lot.id)] } })
+      .lean()
+      .exec(),
+  ) as Array<LotReleaseStatus & { reception_lot_id?: string }>;
+  const stockSide = (receptionLotId: string) =>
+    stockSideStatus(stockRows.filter((row) => row.reception_lot_id === receptionLotId));
 
   return [
     ...stockLots.map((lot) => {
       const paired = receptionById.get(String(lot.reception_lot_id || ""));
-      return paired ? { ...lot, stock_status: paired.stock_status } : lot;
+      return paired ? { ...lot, status: stockSide(paired.id) ?? lot.status, stock_status: paired.stock_status } : lot;
     }),
-    ...requestedReceptionLots.map((lot) => ({ ...lot, status: stockByReceptionLot.get(lot.id)?.status })),
+    ...requestedReceptionLots.map((lot) => ({
+      ...lot,
+      status: stockSide(lot.id),
+    })),
   ];
 };
 
