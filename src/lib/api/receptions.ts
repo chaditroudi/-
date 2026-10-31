@@ -138,10 +138,10 @@ export const receptionsExtApi = {
     return r.data ?? [];
   },
 
-  updateQcInspection: async (id: string, payload: Record<string, unknown>) => {
-    const r = await apiRequest<{ data: unknown }>(`/qc-inspections/${encodeURIComponent(id)}`, {
-      method: 'PATCH',
-      body: JSON.stringify(payload),
+  recordLabResults: async (id: string, results: unknown[]) => {
+    const r = await apiRequest<{ data: unknown }>(`/qc-inspections/${encodeURIComponent(id)}/lab-results`, {
+      method: 'POST',
+      body: JSON.stringify({ results }),
     });
     return r.data;
   },

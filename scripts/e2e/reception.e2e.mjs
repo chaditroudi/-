@@ -13,6 +13,7 @@ import mongoose from "mongoose";
 import puppeteer from "puppeteer-core";
 
 import { assertSafeDbTarget } from "../lib/db-target-guard.mjs";
+import { syntheticIntakeFields } from "../lib/intake-contract.mjs";
 
 const API = process.env.E2E_API || "http://127.0.0.1:4127";
 const APP = process.env.E2E_APP || "http://127.0.0.1:8127";
@@ -818,6 +819,52 @@ await run("S", "QC decision reaches other screens without approving anything els
   const release = await api("POST", "/qc/submit", operator.access_token, { inspectionId: started.body.data.id, decision: "ACCEPTE" });
   check(release.status === 403, "operator cannot decide", release.status);
   return "quarantine shown live on the operator's screen; lot and stock stayed blocked";
+});
+
+await run("V", "Stock and stage routes cannot stand in for QC", async () => {
+  const reception = await receptionByNote("BL-E");
+  const lot = await col("reception_lots").findOne({ reception_id: reception.id });
+  const stock = await col("stock_lots").findOne({ reception_lot_id: lot.id });
+  const warehouse = await signIn("magasinier.wms@test.local");
+
+  const release = await api("PATCH", `/stock/lots/${stock.id}`, warehouse.access_token, { status: "VALIDATED", current_quantity: 5000 });
+  check(release.status === 400 && release.body.error?.code === "STOCK_LOT_DOMAIN_ONLY", "warehouse cannot release or resize a lot", release);
+  const after = await col("stock_lots").findOne({ id: stock.id });
+  check(after.status === "QUARANTINE" && after.current_quantity === stock.current_quantity, "stock lot unchanged", [after.status, after.current_quantity]);
+  const place = await api("PATCH", `/stock/lots/${stock.id}`, warehouse.access_token, { position: "A-12" });
+  check(place.status === 200, "warehouse can still place a lot", place.status);
+  const created = await api("POST", "/stock/lots", warehouse.access_token, { lot_number: "E2E-X", status: "VALIDATED", current_quantity: 5000 });
+  check(created.status === 400, "released lot cannot be created", created.status);
+
+  const stage = await api("POST", `/trust/lots/${lot.id}/advance`, director.access_token, { toStage: "QC_DECIDED", payload: { decision: "ACCEPTE" } });
+  check(stage.status === 400 && stage.body.error?.code === "STAGE_DOMAIN_ONLY", "stage override cannot record a QC outcome", stage);
+
+  const intake = await api("POST", "/receptions/intake", operator.access_token, {
+    ...syntheticIntakeFields("E2E-LAB"), client_request_id: randomUUID(), supplier_id: supplierA.id, variety: "Deglet Nour",
+    gross_weight_kg: 300, tare_weight_kg: 20, lots: [{ lot_supplier: "E2E-LAB", quantity: 280 }],
+  });
+  check(intake.status < 300, "lab delivery booked", intake);
+  const started = await api("POST", "/qc/start", inspector.access_token, { reception_id: intake.body.data.reception.id, inspector_name: "E2E" });
+  const inspectionId = started.body.data.id;
+  await api("POST", "/qc/submit", inspector.access_token, {
+    inspectionId, decision: "QUARANTAINE", comment: "Attente labo", labSampleRequired: true, labAnalyses: ["Aflatoxines"],
+  });
+
+  const rewrite = await api("PATCH", `/qc-inspections/${inspectionId}`, inspector.access_token, { comment: "réécrit" });
+  check(rewrite.status === 404, "a decided inspection has no edit route", rewrite.status);
+
+  const page = await openApp(inspector);
+  await waitText(page, "Saisir résultats", 30000);
+  await clickByText(page, "Saisir résultats");
+  await page.waitForSelector('[role="dialog"] input');
+  await page.type('[role="dialog"] input', "1.2");
+  await clickByText(page, "Enregistrer les résultats");
+  await until(async () => (await col("qc_inspections").findOne({ id: inspectionId })).lab_analysis_results?.length === 1, "result saved from the lab screen");
+  const row = await col("qc_inspections").findOne({ id: inspectionId });
+  check(row.lab_analysis_results[0].entered_by === inspector.user.id, "stamped with the signed-in user", row.lab_analysis_results[0]);
+  check(row.decision === "QUARANTAINE" && row.comment === "Attente labo", "decision untouched", [row.decision, row.comment]);
+  await page.browserContext().close();
+  return "refused with STOCK_LOT_DOMAIN_ONLY and STAGE_DOMAIN_ONLY; lab result saved from the screen";
 });
 
 await run("R", "Tablet and phone widths", async () => {

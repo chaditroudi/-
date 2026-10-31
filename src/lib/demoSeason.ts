@@ -45,13 +45,25 @@ async function ensureSupplierId(): Promise<string> {
   return id;
 }
 
+/** QC outcomes are recorded only by the inspection; the stage override refuses them. */
+async function releaseDemoLot(receptionId: string): Promise<void> {
+  const started = await apiRequest<{ data: { id: string } }>('/qc/start', {
+    method: 'POST',
+    body: JSON.stringify({ reception_id: receptionId }),
+  });
+  await apiRequest('/qc/submit', {
+    method: 'POST',
+    body: JSON.stringify({ inspectionId: started.data?.id, decision: 'ACCEPTE', comment: 'Démonstration' }),
+  });
+}
+
 export async function runDemoSeasonInApp(): Promise<DemoSeasonResult> {
   const seasonTag = `SEASON-${new Date().toISOString().slice(0, 10)}`;
   const supplierId = await ensureSupplierId();
   const lotSupplier = `${seasonTag}-${Date.now()}`;
 
   const intake = await apiRequest<{
-    data: { lots?: Array<{ id: string; lot_internal?: string }> };
+    data: { reception?: { id: string }; lots?: Array<{ id: string; lot_internal?: string }> };
   }>('/receptions/intake', {
     method: 'POST',
     body: JSON.stringify({
@@ -83,12 +95,11 @@ export async function runDemoSeasonInApp(): Promise<DemoSeasonResult> {
   if (!lot?.id) throw new Error("Intake démo échoué — vérifiez les droits réception");
 
   for (const toStage of STAGES) {
-    const payload: Record<string, unknown> = { demo: true, season: seasonTag, toStage };
     if (toStage === 'QC_DECIDED') {
-      payload.lab_humidity_pct = 22.4;
-      payload.lab_defects_pct = 3.1;
-      payload.decision = 'ACCEPTE';
+      await releaseDemoLot(String(intake.data?.reception?.id));
+      continue;
     }
+    const payload: Record<string, unknown> = { demo: true, season: seasonTag, toStage };
     if (toStage === 'PACKED') {
       payload.label = 'PF';
       payload.net_weight_kg = 12.5;

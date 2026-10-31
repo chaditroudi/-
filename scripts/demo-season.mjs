@@ -7,6 +7,7 @@
  */
 import { spawn } from "node:child_process";
 import { syntheticIntakeFields } from "./lib/intake-contract.mjs";
+import { releaseThroughQc } from "./lib/qc-release.mjs";
 
 const API = (process.env.SMOKE_API_URL || `http://127.0.0.1:${process.env.PORT || 4000}`).replace(/\/$/, "");
 const PASSWORD = process.env.SMOKE_PASSWORD || "Test123!";
@@ -81,6 +82,7 @@ const main = async () => {
   console.log(`\nDemo season A→Z — ${seasonTag}`);
   await seedActors();
   const receptionToken = await login("operateur.reception@test.local");
+  const qualityToken = await login("responsable.qualite@test.local");
   const directionToken = await login("directeur.usine@test.local");
   const supplierId = await ensureSupplier(directionToken);
 
@@ -109,13 +111,14 @@ const main = async () => {
   assert(intake.response.ok && lot?.id, `Intake created lot ${lot?.lot_internal || lot?.id}`);
 
   for (const toStage of STAGES) {
+    if (toStage === "QC_DECIDED") {
+      await releaseThroughQc((path, body) => request("POST", path, qualityToken, body), intake.body.data.reception.id);
+      continue;
+    }
     const payload = {
       demo: true,
       season: seasonTag,
       toStage,
-      ...(toStage === "QC_DECIDED"
-        ? { lab_humidity_pct: 22.4, lab_defects_pct: 3.1, decision: "ACCEPTE" }
-        : {}),
       ...(toStage === "PACKED" ? { label: "PF", net_weight_kg: 12.5 } : {}),
     };
     const advanced = await request(

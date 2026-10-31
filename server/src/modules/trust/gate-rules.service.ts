@@ -13,23 +13,40 @@ import {
 import { lotLedgerService } from "./lot-ledger.service.js";
 import { resolveStickyRoute, routeRequiresFumigationCcp } from "./lot-state-machine.js";
 
+/** A reception lot and its stock lot are one lot: each row carries both statuses, so the gate sees both. */
 const loadLotsByIds = async (ids: string[]): Promise<LotReleaseStatus[]> => {
   if (ids.length === 0) return [];
 
   const stockLots = sanitizeDocument(
     await getCollectionModel("stock_lots").find({ id: { $in: ids } }).lean().exec(),
-  ) as LotReleaseStatus[];
+  ) as Array<LotReleaseStatus & { reception_lot_id?: string }>;
 
   const found = new Set(stockLots.map((lot) => lot.id));
   const missing = ids.filter((id) => !found.has(id));
 
-  if (missing.length === 0) return stockLots;
-
+  const pairedIds = stockLots.map((lot) => lot.reception_lot_id).filter(Boolean);
   const receptionLots = sanitizeDocument(
-    await getCollectionModel("reception_lots").find({ id: { $in: missing } }).lean().exec(),
+    await getCollectionModel("reception_lots").find({ id: { $in: [...missing, ...pairedIds] } }).lean().exec(),
   ) as LotReleaseStatus[];
+  const receptionById = new Map(receptionLots.map((lot) => [lot.id, lot]));
 
-  return [...stockLots, ...receptionLots];
+  const requestedReceptionLots = receptionLots.filter((lot) => missing.includes(lot.id));
+  const stockByReceptionLot = new Map(
+    (sanitizeDocument(
+      await getCollectionModel("stock_lots")
+        .find({ reception_lot_id: { $in: requestedReceptionLots.map((lot) => lot.id) } })
+        .lean()
+        .exec(),
+    ) as Array<LotReleaseStatus & { reception_lot_id?: string }>).map((lot) => [lot.reception_lot_id, lot]),
+  );
+
+  return [
+    ...stockLots.map((lot) => {
+      const paired = receptionById.get(String(lot.reception_lot_id || ""));
+      return paired ? { ...lot, stock_status: paired.stock_status } : lot;
+    }),
+    ...requestedReceptionLots.map((lot) => ({ ...lot, status: stockByReceptionLot.get(lot.id)?.status })),
+  ];
 };
 
 const pushId = (ids: Set<string>, value: unknown) => {

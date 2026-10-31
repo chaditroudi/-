@@ -10,10 +10,17 @@ import {
 } from "./gate-rules.js";
 
 describe("W0 gate rules", () => {
+  it("requires both statuses to agree when a lot carries both", () => {
+    expect(isLotReleasedForProduction({ id: "1", status: "VALIDATED", stock_status: "STOCK_LIBERE" })).toBe(true);
+    expect(isLotReleasedForProduction({ id: "2", status: "VALIDATED", stock_status: "EN_QUARANTAINE" })).toBe(false);
+    expect(isLotReleasedForProduction({ id: "3", status: "BLOCKED", stock_status: "STOCK_LIBERE" })).toBe(false);
+  });
+
   it("allows production only on QC-released lots", () => {
     expect(isLotReleasedForProduction({ id: "1", status: "VALIDATED" })).toBe(true);
     expect(isLotReleasedForProduction({ id: "2", stock_status: "STOCK_LIBERE" })).toBe(true);
     expect(isLotReleasedForProduction({ id: "3", status: "QUARANTINE" })).toBe(false);
+    expect(isLotReleasedForProduction({ id: "4" })).toBe(false);
 
     expect(() =>
       assertLotsReleasedForProduction(

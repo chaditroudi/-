@@ -11,7 +11,6 @@ export interface SubmitLabResultsInput {
   receptionNumber: string;
   supplierId: string;
   supplierName: string;
-  enteredBy: string;
   results: Omit<LabAnalysisResult, 'entered_at' | 'entered_by'>[];
 }
 
@@ -20,19 +19,9 @@ export const useSubmitLabResults = () => {
 
   return useMutation({
     mutationFn: async (input: SubmitLabResultsInput) => {
-      const now = new Date().toISOString();
-      const stamped: LabAnalysisResult[] = input.results.map((r) => ({
-        ...r,
-        entered_at: now,
-        entered_by: input.enteredBy || null,
-      }));
+      await receptionsExtApi.recordLabResults(input.inspectionId, input.results);
 
-      await receptionsExtApi.updateQcInspection(input.inspectionId, {
-        lab_analysis_results: stamped,
-        updated_at: now,
-      });
-
-      const ncResults = stamped.filter((r) => !r.conformant);
+      const ncResults = input.results.filter((r) => !r.conformant);
       if (ncResults.length > 0) {
         const findings = ncResults
           .map((r) => `${r.analysis_type}: ${r.result_value}${r.threshold ? ` (seuil: ${r.threshold})` : ''}`)

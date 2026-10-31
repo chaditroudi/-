@@ -11,6 +11,7 @@ import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { syntheticIntakeFields } from "./lib/intake-contract.mjs";
+import { releaseThroughQc } from "./lib/qc-release.mjs";
 
 const API = (process.env.SMOKE_API_URL || `http://127.0.0.1:${process.env.PORT || 4000}`).replace(/\/$/, "");
 const PASSWORD = process.env.SMOKE_PASSWORD || "Test123!";
@@ -137,6 +138,7 @@ async function ensureSupplier(token) {
 async function intakeLot(token, supplierId) {
   const stamp = new Date().toISOString().replace(/[-:TZ.]/g, "").slice(0, 14);
   const { status, body } = await api(token, "POST", "/api/receptions/intake", {
+    client_request_id: crypto.randomUUID(),
     supplier_id: supplierId,
     ...syntheticIntakeFields(),
     spontaneous_delivery: true,
@@ -236,11 +238,13 @@ async function main() {
   console.log("\nCreating Deglet Nour intake lot...");
   let lotId;
   let lotInternal;
+  let receptionId;
   try {
     const supplierId = await ensureSupplier(directionToken);
     const intake = await intakeLot(receptionToken, supplierId);
     lotId = intake.lotId;
     lotInternal = intake.lotInternal;
+    receptionId = intake.receptionId;
     ok("Reception intake", `lot ${lotInternal} (${lotId})`);
   } catch (err) {
     fail("Reception intake", String(err.message || err));
@@ -253,6 +257,12 @@ async function main() {
   console.log("\nAdvancing golden thread...");
   for (const stage of STAGES) {
     try {
+      if (stage === "QC_DECIDED") {
+        await releaseThroughQc((path, body) => api(qualityToken, "POST", path, body), receptionId);
+        ok(`Advance ${stage}`, "recorded by QC");
+        await sleep(250);
+        continue;
+      }
       const data = await advance(directionToken, lotId, stage);
       if (data.skipped && data.error) {
         fail(`Advance ${stage}`, String(data.error?.message || data.error));

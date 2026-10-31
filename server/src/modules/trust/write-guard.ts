@@ -19,7 +19,17 @@ const DOMAIN_ONLY_INSERTS = new Set([
   "fumigation_sensor_readings",
   "storage_condition_readings",
   "storage_door_events",
+  "qc_inspections",
 ]);
+
+const DOMAIN_ONLY_UPDATES = new Set(["qc_inspections"]);
+
+/** Set by QC, reception or stock movements; a stock route can only move and describe a lot. */
+const STOCK_LOT_DOMAIN_FIELDS = [
+  "status", "initial_quantity", "current_quantity", "reception_lot_id", "entry_lot_id",
+  "qc_validated_by", "qc_validated_at", "validated_by", "validated_at", "released_by", "released_at",
+];
+const STOCK_LOT_LINK_FIELDS = STOCK_LOT_DOMAIN_FIELDS.filter((field) => !["status", "initial_quantity", "current_quantity"].includes(field));
 
 /**
  * Generic /api/db write policy for W0 trust.
@@ -38,6 +48,10 @@ export const assertGenericDbMutationAllowed = (
     throw forbidden(`${table} is writable only by its trusted domain service.`);
   }
 
+  if (action === "update" && DOMAIN_ONLY_UPDATES.has(table)) {
+    throw forbidden(`${table} is writable only by its trusted domain service.`);
+  }
+
   if (isAppendOnlyCollection(table) && (action === "update" || action === "delete")) {
     throw badRequest(
       "IMMUTABLE_LOG",
@@ -49,6 +63,22 @@ export const assertGenericDbMutationAllowed = (
     throw badRequest(
       "REGULATED_DELETE_FORBIDDEN",
       `${table} is a regulated MES record and cannot be deleted via the generic API.`,
+    );
+  }
+};
+
+export const assertStockLotWrite = (
+  action: "insert" | "update",
+  doc: Record<string, unknown>,
+  before?: Record<string, unknown>,
+) => {
+  const changed = action === "insert"
+    ? String(doc.status ?? "QUARANTINE") !== "QUARANTINE" || STOCK_LOT_LINK_FIELDS.some((field) => Boolean(doc[field]))
+    : before !== undefined && STOCK_LOT_DOMAIN_FIELDS.some((field) => String(doc[field] ?? "") !== String(before[field] ?? ""));
+  if (changed) {
+    throw badRequest(
+      "STOCK_LOT_DOMAIN_ONLY",
+      "Le statut, les quantités et le lien de réception d'un lot de stock se modifient par le contrôle qualité ou un mouvement de stock.",
     );
   }
 };

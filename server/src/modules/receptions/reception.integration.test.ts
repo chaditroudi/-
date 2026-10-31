@@ -12,7 +12,12 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 
 import { getCollectionModel } from "../../db/dynamic-model.js";
 import { ensureTrustIndexes } from "../../db/indexes.js";
+import { CollectionsService } from "../collections/collections.service.js";
+import { ReceptionsExtController } from "../receptions-ext/receptions-ext.controller.js";
+import { StockController } from "../stock/stock.controller.js";
+import { gateRulesService } from "../trust/gate-rules.service.js";
 import { lotLifecycleService } from "../trust/lot-lifecycle.service.js";
+import { TrustController } from "../trust/trust.controller.js";
 import { IdempotencyService } from "../trust/idempotency.service.js";
 import * as purchaseOrderDomain from "../purchasing/purchase-order-domain.js";
 import { addRealtimeClient, removeRealtimeClient } from "../realtime/realtime.bus.js";
@@ -394,5 +399,161 @@ describe.skipIf(!uri)("reception on a real replica set", () => {
     const stock = await model("stock_lots").findOne({ reception_lot_id: lots[0].id }).lean().exec();
     expect(stock.current_quantity).toBe(900);
     expect(await count("receptions_v2", { status: "EN_ATTENTE_QC" })).toBe(1);
+  });
+
+  describe("quality decisions cannot be written around the QC workflow", () => {
+    const cs = new CollectionsService();
+    const stockRoutes = new StockController(cs);
+    const stageRoutes = new TrustController(
+      undefined as never, lotLifecycleService, undefined as never, undefined as never, undefined as never,
+    );
+    const warehouse = { auth: { user: { id: "wh-it" } } };
+
+    const quarantinedLot = async () => {
+      const { reception, lots } = await receptionsService.intake(delivery(), operator);
+      const stock = await model("stock_lots").findOne({ reception_lot_id: lots[0].id }).lean().exec();
+      return { reception, receptionLot: lots[0], stockId: String(stock.id) };
+    };
+
+    const decided = async (decisionFields: Record<string, unknown> = {}) => {
+      const { reception, receptionLot } = await quarantinedLot();
+      const inspection = await receptionsService.startQcInspection({ reception_id: reception.id }, inspector);
+      await receptionsService.submitQcDecision({
+        inspectionId: String(inspection.id), decision: "QUARANTAINE", labSampleRequired: true, ...decisionFields,
+      }, inspector);
+      return { inspectionId: String(inspection.id), reception, receptionLot };
+    };
+
+    const labResult = { analysis_type: "Aflatoxines", result_value: "1.2", threshold: null, conformant: true, notes: null };
+
+    it("a stock route cannot release a quarantined lot", async () => {
+      const { stockId } = await quarantinedLot();
+      await expect(stockRoutes.updateLot(warehouse, stockId, { status: "VALIDATED" }))
+        .rejects.toMatchObject({ code: "STOCK_LOT_DOMAIN_ONLY" });
+      expect((await model("stock_lots").findOne({ id: stockId }).lean().exec()).status).toBe("QUARANTINE");
+    });
+
+    it("a stock route cannot change a lot's quantity or its link to the reception lot", async () => {
+      const { stockId } = await quarantinedLot();
+      for (const change of [{ current_quantity: 5000 }, { initial_quantity: 5000 }, { reception_lot_id: "other" }]) {
+        await expect(stockRoutes.updateLot(warehouse, stockId, change))
+          .rejects.toMatchObject({ code: "STOCK_LOT_DOMAIN_ONLY" });
+      }
+      expect((await model("stock_lots").findOne({ id: stockId }).lean().exec()).current_quantity).toBe(900);
+    });
+
+    it("a stock route can still place a lot", async () => {
+      const { stockId } = await quarantinedLot();
+      const { data } = await stockRoutes.updateLot(warehouse, stockId, { position: "A-12" });
+      expect(data.position).toBe("A-12");
+    });
+
+    it("a stock route cannot create a released lot", async () => {
+      await expect(stockRoutes.createLot(warehouse, { lot_number: "X", status: "VALIDATED", current_quantity: 5000 }))
+        .rejects.toMatchObject({ code: "STOCK_LOT_DOMAIN_ONLY" });
+      expect(await count("stock_lots")).toBe(0);
+    });
+
+    it("a stock route cannot attach a new lot to a reception lot", async () => {
+      await expect(stockRoutes.createLot(warehouse, { lot_number: "X", reception_lot_id: "rl-1" }))
+        .rejects.toMatchObject({ code: "STOCK_LOT_DOMAIN_ONLY" });
+    });
+
+    it("the QC decision still releases stock", async () => {
+      const { reception, stockId } = await quarantinedLot();
+      const inspection = await receptionsService.startQcInspection({ reception_id: reception.id }, inspector);
+      await receptionsService.submitQcDecision({ inspectionId: String(inspection.id), decision: "ACCEPTE" }, inspector);
+      expect((await model("stock_lots").findOne({ id: stockId }).lean().exec()).status).toBe("VALIDATED");
+    });
+
+    it("an inspection has no general edit route", async () => {
+      const { inspectionId } = await decided({ comment: "original" });
+      expect("updateQcInspection" in ReceptionsExtController.prototype).toBe(false);
+      await expect(cs.update({
+        table: "qc_inspections",
+        filters: [{ type: "eq", column: "id", value: inspectionId }],
+        values: { comment: "rewritten" },
+      })).rejects.toThrow(/trusted domain service/);
+      expect((await model("qc_inspections").findOne({ id: inspectionId }).lean().exec()).comment).toBe("original");
+    });
+
+    it("lab results append, are stamped by the server and leave the decision alone", async () => {
+      const { inspectionId } = await decided({ comment: "original" });
+      await receptionsService.recordLabResults(inspectionId, { results: [labResult] }, inspector);
+      await receptionsService.recordLabResults(inspectionId, {
+        results: [{ ...labResult, analysis_type: "Pesticides", entered_by: "someone else", entered_at: "2001-01-01" }],
+        decision: "ACCEPTE",
+        comment: "rewritten",
+      } as never, inspector);
+
+      const row = await model("qc_inspections").findOne({ id: inspectionId }).lean().exec();
+      expect(row.lab_analysis_results.map((entry: { analysis_type: string }) => entry.analysis_type))
+        .toEqual(["Aflatoxines", "Pesticides"]);
+      expect(row.lab_analysis_results[1].entered_by).toBe(inspector.id);
+      expect(row.lab_analysis_results[1].entered_at).not.toBe("2001-01-01");
+      expect(row.decision).toBe("QUARANTAINE");
+      expect(row.comment).toBe("original");
+    });
+
+    it("each lab submission leaves an audit row", async () => {
+      const { inspectionId } = await decided();
+      await receptionsService.recordLabResults(inspectionId, { results: [labResult] }, inspector);
+      expect(await count("reception_audit_logs_v2", { entity_id: inspectionId, action: "LAB_RESULTS_RECORDED" })).toBe(1);
+    });
+
+    it("lab results are refused where no sample was requested or the entry is incomplete", async () => {
+      const { inspectionId } = await decided({ labSampleRequired: false });
+      await expect(receptionsService.recordLabResults(inspectionId, { results: [labResult] }, inspector))
+        .rejects.toMatchObject({ code: "LAB_SAMPLE_NOT_REQUESTED" });
+
+      const sampled = await decided();
+      for (const results of [[], [{ ...labResult, result_value: " " }], [{ ...labResult, conformant: "yes" }]]) {
+        await expect(receptionsService.recordLabResults(sampled.inspectionId, { results }, inspector))
+          .rejects.toMatchObject({ code: "LAB_RESULTS_INVALID" });
+      }
+    });
+
+    it("production refuses a lot released on one side only", async () => {
+      const { receptionLot, stockId } = await quarantinedLot();
+      await model("stock_lots").updateOne({ id: stockId }, { $set: { status: "VALIDATED" } }).exec();
+      for (const id of [stockId, receptionLot.id]) {
+        await expect(gateRulesService.assertProductionOrderWritable({ status: "RELEASED", input_lot_ids: [id] }))
+          .rejects.toMatchObject({ code: "PRODUCTION_LOT_NOT_RELEASED" });
+      }
+
+      await model("stock_lots").updateOne({ id: stockId }, { $set: { status: "BLOCKED" } }).exec();
+      await model("reception_lots").updateOne({ id: receptionLot.id }, { $set: { stock_status: "STOCK_LIBERE" } }).exec();
+      for (const id of [stockId, receptionLot.id]) {
+        await expect(gateRulesService.assertProductionOrderWritable({ status: "RELEASED", input_lot_ids: [id] }))
+          .rejects.toMatchObject({ code: "PRODUCTION_LOT_NOT_RELEASED" });
+      }
+    });
+
+    it("production accepts a lot released by QC, by either id", async () => {
+      const { reception, receptionLot, stockId } = await quarantinedLot();
+      const inspection = await receptionsService.startQcInspection({ reception_id: reception.id }, inspector);
+      await receptionsService.submitQcDecision({ inspectionId: String(inspection.id), decision: "ACCEPTE" }, inspector);
+      for (const id of [stockId, receptionLot.id]) {
+        await expect(gateRulesService.assertProductionOrderWritable({ status: "RELEASED", input_lot_ids: [id] }))
+          .resolves.toBeUndefined();
+      }
+    });
+
+    it("the stage override cannot record a QC outcome", async () => {
+      const { receptionLot } = await quarantinedLot();
+      for (const toStage of ["QC_DECIDED", "REJECTED", "qc_decided"]) {
+        await expect(stageRoutes.advance(String(receptionLot.id), { toStage } as never, warehouse))
+          .rejects.toMatchObject({ code: "STAGE_DOMAIN_ONLY" });
+      }
+      expect(await count("lot_events", { lot_id: receptionLot.id, event_type: "QC_DECIDED" })).toBe(0);
+    });
+
+    it("the stage override still records operational stages", async () => {
+      const { reception, receptionLot } = await quarantinedLot();
+      const inspection = await receptionsService.startQcInspection({ reception_id: reception.id }, inspector);
+      await receptionsService.submitQcDecision({ inspectionId: String(inspection.id), decision: "ACCEPTE" }, inspector);
+      await stageRoutes.advance(String(receptionLot.id), { toStage: "COLD_STORE", payload: {} } as never, warehouse);
+      expect(await count("lot_events", { lot_id: receptionLot.id, event_type: "STOCK_MOVED" })).toBe(1);
+    });
   });
 });

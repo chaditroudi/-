@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from "@nestjs/common";
 
 import { RECALL_ROLES, STAFF_READ_ROLES, STAGE_OVERRIDE_ROLES } from "../../middleware/authorization.js";
+import { badRequest } from "../../core/app-error.js";
 import { RequireAuthGuard } from "../../nest/route-guards.js";
 import { Public, Roles } from "../../nest/route-metadata.js";
 import { SiteSettingsModel } from "../../models/site-settings.model.js";
@@ -17,6 +18,8 @@ import {
 } from "./regulated-collections.js";
 import type { GoldenRoute, LotStage } from "./lot-state-machine.js";
 import { GOLDEN_THREAD_STAGES } from "./lot-state-machine.js";
+
+const QC_OUTCOME_STAGES = new Set(["QC_DECIDED", "REJECTED"]);
 
 @Controller("api/trust")
 @UseGuards(RequireAuthGuard)
@@ -131,6 +134,11 @@ export class TrustController {
       return {
         error: { code: "STAGE_REQUIRED", message: "toStage is required." },
       };
+    }
+
+    // A QC outcome needs an inspection behind it, so only /qc/submit records one.
+    if (QC_OUTCOME_STAGES.has(String(toStage).toUpperCase())) {
+      throw badRequest("STAGE_DOMAIN_ONLY", "Une décision qualité s'enregistre par le contrôle qualité.");
     }
 
     const data = await this.lifecycle.recordStage({

@@ -2,13 +2,38 @@ import { describe, expect, it } from "vitest";
 
 import { AppError } from "../../core/app-error.js";
 import { validateCoreDocument } from "./core-schemas.js";
-import { assertCoreSchema, assertGenericDbMutationAllowed } from "./write-guard.js";
+import { assertCoreSchema, assertGenericDbMutationAllowed, assertStockLotWrite } from "./write-guard.js";
 
 describe("W0 write guard", () => {
   it("forbids deletes on regulated collections via generic API", () => {
     expect(() => assertGenericDbMutationAllowed("reception_lots", "delete")).toThrow(AppError);
     expect(() => assertGenericDbMutationAllowed("qc_inspections", "delete")).toThrow(/REGULATED_DELETE_FORBIDDEN|cannot be deleted/);
     expect(() => assertGenericDbMutationAllowed("suppliers", "delete")).not.toThrow();
+  });
+
+  it("keeps QC inspections to their domain service", () => {
+    expect(() => assertGenericDbMutationAllowed("qc_inspections", "insert")).toThrow(/trusted domain service/);
+    expect(() => assertGenericDbMutationAllowed("qc_inspections", "update")).toThrow(/trusted domain service/);
+    expect(() => assertGenericDbMutationAllowed("qc_inspections", "update", { trustedInternal: true })).not.toThrow();
+  });
+
+  it("creates stock lots only in quarantine and unlinked", () => {
+    expect(() => assertStockLotWrite("insert", { status: "QUARANTINE", current_quantity: 10 })).not.toThrow();
+    for (const status of ["VALIDATED", "STOCK_LIBERE", "LIBERE", "RELEASED"]) {
+      expect(() => assertStockLotWrite("insert", { status })).toThrow(/contrôle qualité/);
+    }
+    expect(() => assertStockLotWrite("insert", { status: "QUARANTINE", entry_lot_id: "x" })).toThrow(AppError);
+    expect(() => assertStockLotWrite("insert", { status: "QUARANTINE", qc_validated_by: "x" })).toThrow(AppError);
+  });
+
+  it("leaves quality fields of a stock lot to the QC workflow", () => {
+    const before = { status: "QUARANTINE", current_quantity: 100, qc_validated_by: null, position: "A" };
+    expect(() => assertStockLotWrite("update", { ...before, position: "B" }, before)).not.toThrow();
+    expect(() => assertStockLotWrite("update", { ...before, current_quantity: "100" }, before)).not.toThrow();
+    expect(() => assertStockLotWrite("update", { ...before, qc_validated_by: undefined }, before)).not.toThrow();
+    expect(() => assertStockLotWrite("update", { ...before, status: "VALIDATED" }, before)).toThrow(AppError);
+    expect(() => assertStockLotWrite("update", { ...before, current_quantity: 5000 }, before)).toThrow(AppError);
+    expect(() => assertStockLotWrite("update", { ...before, qc_validated_by: "me" }, before)).toThrow(AppError);
   });
 
   it("forbids updates and deletes on append-only logs", () => {

@@ -5,6 +5,7 @@
 import { randomUUID } from "node:crypto";
 import { spawn } from "node:child_process";
 import { syntheticIntakeFields } from "./lib/intake-contract.mjs";
+import { releaseThroughQc } from "./lib/qc-release.mjs";
 
 const API = (process.env.SMOKE_API_URL || `http://127.0.0.1:${process.env.PORT || 4000}`).replace(/\/$/, "");
 const PASSWORD = process.env.SMOKE_PASSWORD || "Test123!";
@@ -83,6 +84,7 @@ const main = async () => {
   await seedActors();
   const receptionToken = await login("operateur.reception@test.local");
   const triageToken = await login("operateur.triage.ia@test.local");
+  const qualityToken = await login("responsable.qualite@test.local");
   const directionToken = await login("directeur.usine@test.local");
   const supplierId = await ensureSupplier(directionToken);
   assert(Boolean(supplierId), "supplier with grade prices ready");
@@ -103,7 +105,8 @@ const main = async () => {
   const reception = intake.body?.data?.reception;
   assert(intake.response.ok && lot?.id, "intake lot created");
 
-  for (const toStage of ["WEIGHED", "QC_DECIDED"]) {
+  await releaseThroughQc((path, body) => request("POST", path, qualityToken, body), reception.id);
+  for (const toStage of ["WEIGHED"]) {
     const advanced = await request(
       "POST",
       `/api/trust/lots/${encodeURIComponent(lot.id)}/advance`,

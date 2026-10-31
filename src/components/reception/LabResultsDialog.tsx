@@ -13,7 +13,6 @@ import { AlertTriangle, CheckCircle2, FlaskConical } from "lucide-react";
 import { useSubmitLabResults } from "@/hooks/useQCLabResults";
 import type { QCInspection } from "@/types/reception";
 import type { ReceptionV2 } from "@/types/reception";
-import { useAuth } from "@/hooks/useAuth";
 
 interface LabResultsDialogProps {
   open: boolean;
@@ -36,7 +35,6 @@ export const LabResultsDialog = ({
   inspection,
   reception,
 }: LabResultsDialogProps) => {
-  const { user } = useAuth();
   const submitLabResults = useSubmitLabResults();
 
   const analyses: string[] = inspection.lab_analyses ?? [];
@@ -69,7 +67,6 @@ export const LabResultsDialog = ({
       supplierId: reception.supplier_id,
       supplierName:
         reception.supplier?.name ?? reception.supplier_name_snapshot ?? reception.supplier_id,
-      enteredBy: user?.email ?? user?.id ?? "inconnu",
       results: drafts.map((d) => ({
         analysis_type: d.analysis_type,
         result_value: d.result_value.trim(),
@@ -105,7 +102,7 @@ export const LabResultsDialog = ({
           <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
             Résultats déjà enregistrés le{" "}
             {new Date(inspection.lab_analysis_results[0].entered_at).toLocaleDateString("fr-FR")}.
-            Soumettez à nouveau pour mettre à jour.
+            Une nouvelle saisie s'ajoute à ces résultats.
           </div>
         ) : null}
 

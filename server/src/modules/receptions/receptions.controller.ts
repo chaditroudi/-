@@ -336,6 +336,21 @@ export class ReceptionsController {
     return { data };
   }
 
+  @Post("qc-inspections/:id/lab-results")
+  @Roles(...QUALITY_ROLES)
+  async recordLabResults(@Req() req: any, @Param("id") id: string, @Body() body: any) {
+    const data = await this.receptionsService.recordLabResults(id, body || {}, req.auth?.user || null);
+    this.publish({
+      type: "qc_lab_results_recorded",
+      table: "qc_inspections",
+      action: "UPDATE",
+      actorId: req.auth?.user?.id || null,
+      rowIds: compactIds(id),
+      relatedTables: ["receptions_v2"],
+    });
+    return { data };
+  }
+
   @Post("reception-units/mark-printed")
   @Roles(...RECEPTION_WRITE_ROLES)
   async markUnitPrinted(@Req() req: any, @Body() body: any) {

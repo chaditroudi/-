@@ -2294,6 +2294,61 @@ export class ReceptionsService {
   }
 
   /** RG-Q07 — non-conforming lab results block every lot still usable. */
+  /**
+   * RG-Q10: lab results join the inspection after the decision. They only append,
+   * so a reported result is never replaced and the decision stays as it was taken.
+   */
+  async recordLabResults(inspectionId: string, payload: { results?: unknown }, actor: ActorContext) {
+    const results = (Array.isArray(payload?.results) ? payload.results : []) as Record<string, unknown>[];
+    const complete = results.every((result) =>
+      Boolean(readString(result?.analysis_type)) && Boolean(readString(result?.result_value))
+      && typeof result?.conformant === "boolean");
+    if (results.length === 0 || !complete) {
+      throw badRequest("LAB_RESULTS_INVALID", "Chaque analyse demande un type, un résultat et une conformité.");
+    }
+
+    const inspection = sanitizeDocument(await QCInspections().findOne({ id: inspectionId }).lean().exec());
+    if (!inspection) {
+      throw notFound("INSPECTION_NOT_FOUND", "QC inspection not found.");
+    }
+    if (!inspection.lab_sample_required) {
+      throw conflict("LAB_SAMPLE_NOT_REQUESTED", "Aucun échantillon de laboratoire n'a été demandé pour ce contrôle.");
+    }
+
+    const now = new Date().toISOString();
+    const actorId = actor?.id || null;
+    const stamped = results.map((result) => ({
+      analysis_type: readString(result.analysis_type),
+      result_value: readString(result.result_value),
+      threshold: readString(result.threshold) || null,
+      conformant: result.conformant,
+      notes: readString(result.notes) || null,
+      entered_at: now,
+      entered_by: actorId,
+    }));
+
+    return runInTransaction(async () => {
+      await QCInspections().updateOne({ id: inspectionId, lab_analysis_results: null }, { $set: { lab_analysis_results: [] } }).exec();
+      await QCInspections().updateOne(
+        { id: inspectionId },
+        { $push: { lab_analysis_results: { $each: stamped } }, $set: { updated_at: now } },
+      ).exec();
+      const updated = sanitizeDocument(await QCInspections().findOne({ id: inspectionId }).lean().exec());
+
+      const auditLog = await prepareInsertDocument("reception_audit_logs_v2", {
+        entity_type: "QC_INSPECTION",
+        entity_id: inspectionId,
+        action: "LAB_RESULTS_RECORDED",
+        actor_id: actorId,
+        new_state: { reception_id: inspection.reception_id, results: stamped },
+        performed_by: actorId || "system",
+      });
+      await ReceptionAuditLogs().create([auditLog]);
+      await lotLedgerService.appendForMutation({ collection: "qc_inspections", action: "UPDATE", rows: [updated], actorId });
+      return updated;
+    });
+  }
+
   async blockReceptionForLab(receptionId: string, payload: { reason?: unknown }, actor: ActorContext) {
     const reason = readString(payload?.reason);
     if (!reason) throw badRequest("BLOCK_REASON_REQUIRED", "Le motif de blocage est obligatoire.");

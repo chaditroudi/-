@@ -36,7 +36,8 @@ const RELEASED_RECEPTION = new Set(["STOCK_LIBERE", "LIBERE"]);
 export const isLotReleasedForProduction = (lot: LotReleaseStatus) => {
   const status = String(lot.status || "").toUpperCase();
   const stockStatus = String(lot.stock_status || "").toUpperCase();
-  return RELEASED_STOCK.has(status) || RELEASED_RECEPTION.has(stockStatus);
+  if (!status && !stockStatus) return false;
+  return (!status || RELEASED_STOCK.has(status)) && (!stockStatus || RELEASED_RECEPTION.has(stockStatus));
 };
 
 export const assertLotsReleasedForProduction = (lots: LotReleaseStatus[], inputLotIds: string[]) => {

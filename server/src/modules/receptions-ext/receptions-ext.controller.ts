@@ -27,11 +27,6 @@ const LOT_SYSTEM_FIELDS = [
   "purchase_cost_tnd_per_kg", "purchase_cost_tnd", "cost_source",
 ];
 const LOT_LOCKED_FIELDS = [...LOT_SYSTEM_FIELDS, "reception_id", "quantity", "unit", "manufacturing_route"];
-const INSPECTION_LOCKED_FIELDS = [
-  "_id", "id", "reception_id", "inspection_number", "decision", "decided_by", "ended_at",
-  "started_at", "inspector_id", "release_pin_verified", "created_at",
-];
-
 const without = (body: unknown, fields: string[]) =>
   Object.fromEntries(
     Object.entries((body || {}) as Record<string, unknown>).filter(([key]) => !fields.includes(key)),
@@ -272,17 +267,5 @@ export class ReceptionsExtController {
       orderBy: { column: "started_at", ascending: false },
     });
     return { data };
-  }
-
-  /** Lab results and comments; the decision itself is recorded by POST /qc/submit. */
-  @Patch("qc-inspections/:id")
-  @Roles(...QUALITY_ROLES)
-  async updateQcInspection(@Param("id") id: string, @Body() body: any) {
-    const { after } = await this.cs.update({
-      table: "qc_inspections",
-      filters: [{ type: "eq", column: "id", value: id }],
-      values: without(body, INSPECTION_LOCKED_FIELDS),
-    });
-    return { data: after[0] };
   }
 }
