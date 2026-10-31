@@ -104,7 +104,7 @@ const FlowLine = ({ active }: { active: boolean }) => (
     <div className={cn(
       'w-full h-px transition-all duration-700',
       active
-        ? 'bg-gradient-to-r from-emerald-700 via-emerald-400 to-emerald-700 shadow-[0_0_6px_rgba(52,211,153,0.5)]'
+        ? 'bg-emerald-500'
         : 'bg-slate-800',
     )}>
       {active && (

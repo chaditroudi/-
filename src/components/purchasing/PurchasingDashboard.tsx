@@ -412,14 +412,6 @@ export const PurchasingDashboard = ({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">{t('purchasing.title')}</h1>
-          <p className="text-muted-foreground">
-            {canManagePurchaseOrders
-              ? `${t('purchasing.requisitions')} & ${t('purchasing.orders')}`
-              : 'Validation des besoins d\'achat avant transmission au service achats'}
-          </p>
-        </div>
         {(reqLoading || ordersLoading) && (
           <div className="text-xs text-muted-foreground">Synchronisation SAGE en cours...</div>
         )}

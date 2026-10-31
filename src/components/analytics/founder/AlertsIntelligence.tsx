@@ -55,7 +55,7 @@ export function AlertsIntelligence({ period }: { period: Period }) {
       </div>
 
       {data?.mttrMin != null && data.mttrMin > 0 && (
-        <Card className="bg-blue-50 border-blue-200">
+        <Card className="bg-card">
           <CardContent className="pt-3 pb-3 flex items-center gap-3">
             <Clock className="h-5 w-5 text-blue-600 shrink-0" />
             <div>

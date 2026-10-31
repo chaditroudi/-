@@ -105,7 +105,7 @@ const openApp = async (session, { viewport = { width: 1280, height: 900 }, tab =
   }, session);
   await page.goto(`${APP}/#/?tab=${tab}`, { waitUntil: "domcontentloaded" });
   await page.waitForFunction(
-    () => document.body.innerText.includes("Réception des dattes") || document.body.innerText.includes("Contrôle Qualité Entrée"),
+    () => document.body.innerText.includes("Réceptions du jour") || document.body.innerText.includes("Contrôle Qualité Entrée"),
     { timeout: 90000 },
   );
   return page;
@@ -230,7 +230,7 @@ const confirmReception = async (page) => {
 
 const backToList = async (page) => {
   await page.reload({ waitUntil: "domcontentloaded" });
-  await page.waitForFunction(() => document.body.innerText.includes("Réception des dattes"), { timeout: 90000 });
+  await page.waitForFunction(() => document.body.innerText.includes("Réceptions du jour"), { timeout: 90000 });
 };
 
 const readOutbox = (page) => page.evaluate(() => new Promise((resolve) => {
@@ -246,7 +246,7 @@ const readOutbox = (page) => page.evaluate(() => new Promise((resolve) => {
 const openReceptions = (page) => until(async () => {
   await page.evaluate(() => { window.location.hash = "#/?tab=receptions"; });
   await sleep(700);
-  return hasText(page, "Réception des dattes");
+  return hasText(page, "Réceptions du jour");
 }, "Réception open", 30000);
 
 const checklistAnswers = async (limit) => {
@@ -269,9 +269,8 @@ const openQcForm = async (page, receptionNumber) => {
   await clickByText(page, "Contrôle QC");
   await until(() => hasText(page, receptionNumber), "delivery in the QC queue", 30000);
   const findAction = () => page.evaluateHandle((number) => {
-    const row = [...document.querySelectorAll("button")].filter((node) => node.getClientRects().length > 0)
-      .find((node) => node.innerText.includes(number) && /Lancer QC|Reprendre/.test(node.innerText));
-    return row?.querySelector("button") ?? row ?? null;
+    return [...document.querySelectorAll("button")].filter((node) => node.getClientRects().length > 0)
+      .find((node) => /Lancer QC|Reprendre/.test(node.innerText) && node.parentElement.innerText.includes(number)) ?? null;
   }, receptionNumber);
   await until(async () => (await findAction()).asElement(), "QC action available", 30000);
   await (await findAction()).asElement().click();
@@ -595,7 +594,7 @@ await run("F", "Concurrent employee edits", async () => {
 
   await fill(pageA, "Poids brut", "999");
   await clickByText(pageA, "Enregistrer et quitter");
-  await waitText(pageA, "Réception des dattes");
+  await waitText(pageA, "Réceptions du jour");
   const stored = await col("reception_drafts").findOne({ id: draft.id });
   check(stored.payload.gross_weight_kg === "610", "stale save lost nothing", stored.payload.gross_weight_kg);
   await pageA.browserContext().close();
@@ -702,7 +701,7 @@ await run("H", "Offline, session expiry and server restart recovery", async () =
   });
   check(gross === "720", "typed weight restored after sign-in", gross);
   await clickByText(page, "Abandonner");
-  await waitText(page, "Réception des dattes");
+  await waitText(page, "Réceptions du jour");
 
   // Network drop, then back.
   await stepOne(page, { supplier: "Oasis Essai Alpha", note: "BL-H2", plate: "666 TU 7777" });

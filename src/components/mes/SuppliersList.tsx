@@ -1,11 +1,10 @@
 import { useMemo, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Plus, Search, Edit2, Trash2, AlertTriangle, Eye, MapPin, Leaf, CalendarClock, Scale, ShieldCheck, FileText } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, AlertTriangle, Eye } from 'lucide-react';
 import { Supplier } from '@/types/mes';
 import { SupplierDialog } from './SupplierDialog';
 import { SupplierDetailSheet } from './SupplierDetailSheet';
@@ -146,10 +145,9 @@ export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProp
 
   return (
     <>
-      <div className="space-y-4">
+      <div className="space-y-3">
         <ModuleHero
-          kicker="Référentiel • Fournisseurs"
-          title="Gestion fournisseurs claire et exploitable"
+          title="Fournisseurs"
           description="Les equipes doivent pouvoir retrouver un fournisseur, voir son statut, comprendre son niveau de risque et agir rapidement sans se perdre dans des formulaires trop lourds."
           primaryAction={canManage ? {
             label: "Nouveau fournisseur",
@@ -161,7 +159,7 @@ export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProp
           } : undefined}
           stats={[
             { label: 'Actifs', value: stats.active },
-            { label: 'Agrees', value: stats.approved },
+            { label: 'Agréés', value: stats.approved },
             { label: 'Surveillance', value: stats.watch },
             { label: 'Bloqués', value: stats.blocked },
           ]}
@@ -179,289 +177,154 @@ export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProp
           </div>
         )}
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="metric-tile">
-            <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground">Fournisseurs actifs</p>
-              <p className="text-2xl font-semibold">{stats.active}</p>
-            </CardContent>
-          </Card>
-          <Card className="metric-tile">
-            <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground">Sous surveillance score</p>
-              <p className="text-2xl font-semibold text-amber-600">{stats.watch}</p>
-            </CardContent>
-          </Card>
-          <Card className="metric-tile">
-            <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground">Fournisseurs bloques</p>
-              <p className="text-2xl font-semibold text-red-600">{stats.blocked}</p>
-            </CardContent>
-          </Card>
-          <Card className="metric-tile">
-            <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground">Agrements valides</p>
-              <p className="text-2xl font-semibold text-emerald-600">{stats.approved}</p>
-            </CardContent>
-          </Card>
+        <dl className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
+          <div className="flex items-baseline gap-1.5"><dd className="font-display text-lg font-semibold">{stats.active}</dd><dt className="text-muted-foreground">actifs</dt></div>
+          <div className="flex items-baseline gap-1.5"><dd className="font-display text-lg font-semibold">{stats.approved}</dd><dt className="text-muted-foreground">agréés</dt></div>
+          <div className="flex items-baseline gap-1.5"><dd className="font-display text-lg font-semibold text-amber-700">{stats.watch}</dd><dt className="text-muted-foreground">sous surveillance</dt></div>
+          <div className="flex items-baseline gap-1.5"><dd className="font-display text-lg font-semibold text-red-600">{stats.blocked}</dd><dt className="text-muted-foreground">bloqués</dt></div>
+        </dl>
+
+        <div className="grid grid-cols-2 gap-2 lg:grid-cols-[minmax(14rem,1.4fr)_repeat(5,minmax(0,0.7fr))]">
+          <div className="relative col-span-2 lg:col-span-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input className="pl-9" placeholder="Nom, code, ville, CIN" aria-label="Rechercher un fournisseur" value={search} onChange={(event) => setSearch(event.target.value)} />
+          </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Statut" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Statut</SelectItem>
+              <SelectItem value="active">Actifs</SelectItem>
+              <SelectItem value="pending_approval">En agrément</SelectItem>
+              <SelectItem value="blocked">Bloqués</SelectItem>
+              <SelectItem value="inactive">Inactifs</SelectItem>
+              <SelectItem value="archived">Archives</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={qualificationFilter} onValueChange={setQualificationFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Qualification" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Qualification</SelectItem>
+              <SelectItem value="prospect">Prospects</SelectItem>
+              <SelectItem value="qualified">Qualifiés</SelectItem>
+              <SelectItem value="approved">Agréés</SelectItem>
+              <SelectItem value="suspended">Suspendus</SelectItem>
+              <SelectItem value="blacklisted">Liste noire</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={regionFilter} onValueChange={setRegionFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Région" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Région</SelectItem>
+              {regions.map((region) => (
+                <SelectItem key={region} value={region}>
+                  {region}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={varietyFilter} onValueChange={setVarietyFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Variété" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Variété</SelectItem>
+              {varieties.map((variety) => (
+                <SelectItem key={variety} value={variety}>
+                  {variety}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={scoreFilter} onValueChange={setScoreFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Score" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Score</SelectItem>
+              <SelectItem value="excellent">Excellent (≥ 85)</SelectItem>
+              <SelectItem value="good">Bon (70–84)</SelectItem>
+              <SelectItem value="watch">Surveillance (60–69)</SelectItem>
+              <SelectItem value="risk">Risque (&lt; 60)</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
-        <Card className="surface-card">
-          <CardHeader className="flex flex-row items-center justify-between gap-4 border-b border-border/60">
-            <div>
-              <CardTitle>Module 1 — Fournisseurs</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Fiches detaillees, score qualite, statuts d'agrement et alertes contractuelles.
-              </p>
-            </div>
-            {canManage && (
-              <Button onClick={() => { setSelectedSupplier(null); setDialogOpen(true); }} className="rounded-2xl">
-                <Plus className="h-4 w-4 mr-2" />
-                Nouveau fournisseur
-              </Button>
-            )}
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_repeat(5,minmax(0,0.7fr))] gap-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  className="pl-9"
-                  placeholder="Rechercher par nom, code, ville, CIN"
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
-                />
-              </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Statut" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous les statuts</SelectItem>
-                  <SelectItem value="active">Actifs</SelectItem>
-                  <SelectItem value="pending_approval">En agrement</SelectItem>
-                  <SelectItem value="blocked">Bloques</SelectItem>
-                  <SelectItem value="inactive">Inactifs</SelectItem>
-                  <SelectItem value="archived">Archives</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={qualificationFilter} onValueChange={setQualificationFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Qualification" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes qualifications</SelectItem>
-                  <SelectItem value="prospect">Prospects</SelectItem>
-                  <SelectItem value="qualified">Qualifies</SelectItem>
-                  <SelectItem value="approved">Agrees</SelectItem>
-                  <SelectItem value="suspended">Suspendus</SelectItem>
-                  <SelectItem value="blacklisted">Liste noire</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={regionFilter} onValueChange={setRegionFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Region" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes les regions</SelectItem>
-                  {regions.map((region) => (
-                    <SelectItem key={region} value={region}>
-                      {region}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={varietyFilter} onValueChange={setVarietyFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Variete" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes les varietes</SelectItem>
-                  {varieties.map((variety) => (
-                    <SelectItem key={variety} value={variety}>
-                      {variety}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={scoreFilter} onValueChange={setScoreFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Score M1" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous les scores</SelectItem>
-                  <SelectItem value="excellent">Excellent (≥ 85)</SelectItem>
-                  <SelectItem value="good">Bon (70–84)</SelectItem>
-                  <SelectItem value="watch">Surveillance (60–69)</SelectItem>
-                  <SelectItem value="risk">Risque (&lt; 60)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-3">
-              {filteredSuppliers.length === 0 ? (
-                <div className="py-12 text-center text-muted-foreground border rounded-lg">
-                  Aucun fournisseur ne correspond aux filtres.
-                </div>
-              ) : (
-                filteredSuppliers.map((supplier) => {
-                  const status = normalizeSupplierStatus(supplier);
-                  const score = computeSupplierCompositeScore(supplier);
-                  const tone = getSupplierScoreTone(score);
-                  const alerts = computeSupplierAlerts(supplier);
-                  const activeContract = getActiveSupplierContract(supplier);
-
-                  return (
-                    <div key={supplier.id} className="surface-card p-4">
-                      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                        <div className="space-y-3 flex-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="font-mono text-xs text-muted-foreground">{supplier.code}</span>
-                            <Badge variant="outline" className={getSupplierStatusClassName(status)}>
-                              {getSupplierStatusLabel(status)}
-                            </Badge>
-                            {supplier.actor_type && (
-                              <Badge variant="secondary">{supplier.actor_type.replace(/_/g, ' ')}</Badge>
-                            )}
-                            <Badge variant="outline">
-                              <ShieldCheck className="h-3 w-3 mr-1" />
-                              {getSupplierQualificationLabel(supplier.qualification_status)}
-                            </Badge>
-                            <Badge variant="outline" className={getSupplierComplianceClassName(supplier.compliance_status)}>
-                              {getSupplierComplianceLabel(supplier.compliance_status)}
-                            </Badge>
-                            {supplier.region && (
-                              <Badge variant="outline">
-                                <MapPin className="h-3 w-3 mr-1" />
-                                {supplier.region}
-                              </Badge>
-                            )}
-                          </div>
-
-                          <div>
-                            <button
-                              type="button"
-                              className="text-left hover:underline decoration-muted-foreground/40"
-                              onClick={() => handleOpenSheet(supplier)}
-                            >
-                              <h3 className="text-lg font-semibold">{supplier.name}</h3>
-                            </button>
-                            {supplier.name_ar && (
-                              <p dir="auto" className="text-sm font-medium text-muted-foreground">{supplier.name_ar}</p>
-                            )}
-                            <p className="text-sm text-muted-foreground">
-                              {[supplier.locality || supplier.city, supplier.oasis_name, supplier.phone]
-                                .filter(Boolean)
-                                .join(' • ') || 'Aucune coordonnee detaillee'}
-                            </p>
-                          </div>
-
-                          <div className="flex flex-wrap gap-2">
-                            {(supplier.produced_varieties || []).map((variety) => (
-                              <Badge key={variety} variant="secondary">
-                                {variety}
-                              </Badge>
-                            ))}
-                            {(supplier.certifications || []).map((certification) => (
-                              <Badge key={certification.name} variant="outline" className="border-emerald-200 text-emerald-700">
-                                <Leaf className="h-3 w-3 mr-1" />
-                                {certification.name}
-                              </Badge>
-                            ))}
-                          </div>
-
-                          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
-                            <div className="rounded-lg bg-muted/50 p-3">
-                              <p className="text-muted-foreground">Score qualite</p>
-                              <p className="text-xl font-semibold">{Number(supplier.quality_score ?? supplier.rating ?? 0).toFixed(1)}</p>
-                            </div>
-                            <div className="rounded-lg bg-muted/50 p-3">
-                              <p className="text-muted-foreground">Fiabilite</p>
-                              <p className="text-xl font-semibold">{supplier.delivery_reliability_score ?? 0}</p>
-                            </div>
-                            <div className="rounded-lg bg-muted/50 p-3">
-                              <p className="text-muted-foreground">Tracabilite</p>
-                              <p className="text-xl font-semibold">{supplier.traceability_score ?? 0}</p>
-                            </div>
-                            <div className="rounded-lg bg-muted/50 p-3">
-                              <p className="text-muted-foreground">Taux rejet</p>
-                              <p className="text-xl font-semibold">{supplier.rejection_rate ?? 0}%</p>
-                            </div>
-                          </div>
+        {filteredSuppliers.length === 0 ? (
+          <p className="rounded-lg border bg-card py-10 text-center text-muted-foreground">Aucun fournisseur ne correspond aux filtres.</p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Fournisseur</TableHead>
+                <TableHead className="hidden md:table-cell">Région</TableHead>
+                <TableHead className="hidden lg:table-cell">Variétés</TableHead>
+                <TableHead>Statut</TableHead>
+                <TableHead className="hidden lg:table-cell">Qualification</TableHead>
+                <TableHead className="text-right">Score</TableHead>
+                <TableHead className="hidden text-right md:table-cell">Rejet</TableHead>
+                <TableHead className="hidden lg:table-cell">Alertes</TableHead>
+                {canManage && <TableHead className="w-20"><span className="sr-only">Actions</span></TableHead>}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredSuppliers.map((supplier) => {
+                const status = normalizeSupplierStatus(supplier);
+                const score = computeSupplierCompositeScore(supplier);
+                const tone = getSupplierScoreTone(score);
+                const alerts = computeSupplierAlerts(supplier);
+                return (
+                  <TableRow key={supplier.id}>
+                    <TableCell>
+                      <button type="button" className="text-left font-medium hover:underline" onClick={() => handleOpenSheet(supplier)}>
+                        {supplier.name}
+                      </button>
+                      <span className="block font-mono text-xs text-muted-foreground">{supplier.code}</span>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">{supplier.region || '—'}</TableCell>
+                    <TableCell className="hidden max-w-[14rem] truncate lg:table-cell">{(supplier.produced_varieties || []).join(', ') || '—'}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={getSupplierStatusClassName(status)}>{getSupplierStatusLabel(status)}</Badge>
+                    </TableCell>
+                    <TableCell className="hidden lg:table-cell">{getSupplierQualificationLabel(supplier.qualification_status)}</TableCell>
+                    <TableCell className="text-right">
+                      <span className="font-semibold">{score.toFixed(0)}</span>
+                      <span className={tone === 'excellent' ? 'block text-xs text-emerald-700' : tone === 'watch' ? 'block text-xs text-amber-700' : 'block text-xs text-red-700'}>
+                        {tone === 'excellent' ? 'Solide' : tone === 'watch' ? 'À surveiller' : 'Risque'}
+                      </span>
+                    </TableCell>
+                    <TableCell className="hidden text-right md:table-cell">{supplier.rejection_rate ?? 0} %</TableCell>
+                    <TableCell className="hidden lg:table-cell">
+                      {alerts.length === 0 ? <span className="text-muted-foreground">Aucune</span> : (
+                        <span className="inline-flex items-center gap-1 text-amber-800" title={alerts.join('\n')}>
+                          <AlertTriangle className="h-4 w-4" />
+                          {alerts.length}
+                        </span>
+                      )}
+                    </TableCell>
+                    {canManage && (
+                      <TableCell>
+                        <div className="flex justify-end">
+                          <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Modifier ${supplier.name}`} onClick={() => handleEdit(supplier)}>
+                            <Edit2 className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Supprimer ${supplier.name}`} onClick={() => handleDelete(supplier.id)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
                         </div>
-
-                        <div className="w-full lg:w-[320px] space-y-3">
-                          <div className="rounded-lg border p-3">
-                            <div className="flex items-center justify-between text-sm mb-2">
-                              <span className="text-muted-foreground">Indice performance</span>
-                              <span
-                                className={
-                                  tone === 'excellent'
-                                    ? 'text-emerald-700 font-medium'
-                                    : tone === 'watch'
-                                      ? 'text-amber-700 font-medium'
-                                      : 'text-red-700 font-medium'
-                                }
-                              >
-                                {tone === 'excellent' ? 'Solide' : tone === 'watch' ? 'A surveiller' : 'Risque'}
-                              </span>
-                            </div>
-                            <Progress value={Math.max(0, Math.min(score, 100))} className="h-2" />
-                            <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
-                              <span className="inline-flex items-center gap-1">
-                                <CalendarClock className="h-3.5 w-3.5" />
-                                Derniere livraison: {supplier.last_delivery_date || '-'}
-                              </span>
-                              <span className="inline-flex items-center gap-1">
-                                <FileText className="h-3.5 w-3.5" />
-                                Contrat: {activeContract?.reference || supplier.contract_records?.[0]?.reference || '-'}
-                              </span>
-                              <span className="inline-flex items-center gap-1" dir={supplier.contract_type === 'achat_sur_pied' ? 'auto' : 'ltr'}>
-                                {contractTypeLabels[supplier.contract_type || 'saisonnier']}
-                              </span>
-                              <span className="inline-flex items-center gap-1">
-                                Echeance: {supplier.contract_end_date || activeContract?.end_date || '-'}
-                              </span>
-                              <span className="inline-flex items-center gap-1">
-                                <Scale className="h-3.5 w-3.5" />
-                                Prix: {supplier.agreed_price_tnd_per_kg ?? '-'} TND/kg
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className="rounded-lg border p-3 space-y-2">
-                            <p className="text-sm font-medium">Alertes de gestion</p>
-                            {alerts.length === 0 ? (
-                              <p className="text-sm text-muted-foreground">Aucune alerte ouverte.</p>
-                            ) : (
-                              alerts.map((alert) => (
-                                <div key={alert} className="flex items-start gap-2 text-sm text-amber-800">
-                                  <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
-                                  <span>{alert}</span>
-                                </div>
-                              ))
-                            )}
-                          </div>
-
-                          {canManage && (
-                            <div className="flex justify-end gap-2">
-                              <Button variant="outline" size="icon" onClick={() => handleEdit(supplier)}>
-                                <Edit2 className="h-4 w-4" />
-                              </Button>
-                              <Button variant="outline"size="icon" onClick={() => handleDelete(supplier.id)}>
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        )}
       </div>
 
       <SupplierDialog

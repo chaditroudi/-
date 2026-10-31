@@ -47,14 +47,6 @@ export function SettingsDashboard({ onNavigate }: { onNavigate?: AppNavigateFn }
 
   return (
     <div className="space-y-4">
-      <div>
-        <h2 className="text-lg font-bold">Préférences & Configuration</h2>
-        <p className="mt-0.5 text-xs text-muted-foreground">
-          {PRODUCT.commercialName} v{PRODUCT.version} — marque, exploitation, qualité, documents —{' '}
-          {settings.company_name}
-        </p>
-      </div>
-
       <Tabs defaultValue="product">
         <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-2xl">
           <TabsTrigger value="product" className="shrink-0 gap-1.5">

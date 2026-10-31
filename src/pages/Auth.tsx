@@ -51,14 +51,8 @@ export default function Auth() {
   return (
     <div
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#F4F6F9] px-4 py-10"
+      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-4 py-10"
     >
-      {/* ── Subtle background blobs ── */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-emerald-500/6 blur-3xl" />
-        <div className="absolute -bottom-32 -left-20 h-80 w-80 rounded-full bg-primary/5 blur-3xl" />
-        <div className="absolute -bottom-24 -right-16 h-72 w-72 rounded-full bg-emerald-300/6 blur-3xl" />
-      </div>
 
       {/* ── Language switcher ── */}
       <div className="absolute end-4 top-4 z-10">
@@ -74,19 +68,12 @@ export default function Auth() {
         <div className="mb-8 flex flex-col items-center gap-4 text-center">
           <div
             className="flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/18 bg-white p-2.5"
-            style={{ boxShadow: '0 0 0 6px hsl(142 68% 27% / 0.07), 0 8px 24px -8px hsl(142 68% 27% / 0.25)' }}
           >
             <BrandLogo className="h-full w-full" imgClassName="h-full w-full object-contain" alt={companyName} />
           </div>
 
           <div>
-            <div className="mb-1.5 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/7 px-3 py-0.5">
-              <ShieldCheck className="h-3 w-3 text-primary/70" />
-              <span className="text-[11px] font-bold text-primary/65">
-                {companyShortName} · MES
-              </span>
-            </div>
-            <h1 className="text-[22px] font-bold text-foreground">
+            <h1 className="text-2xl text-foreground">
               {i18n.language.startsWith('ar')
                 ? 'تسجيل الدخول'
                 : i18n.language.startsWith('fr')
@@ -106,7 +93,6 @@ export default function Auth() {
         {/* Form card */}
         <div
           className="rounded-2xl border border-border/60 bg-white p-6 sm:p-7"
-          style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 20px 48px -16px rgba(0,0,0,0.12)' }}
         >
           <form onSubmit={handleSubmit} className="space-y-4">
 
@@ -174,11 +160,7 @@ export default function Auth() {
               size="lg"
               disabled={pending}
               className={cn(
-                'mt-2 h-12 w-full rounded-xl text-[15px] font-semibold',
-                'bg-gradient-to-r from-primary to-emerald-500',
-                'shadow-[0_4px_16px_-4px_hsl(142_68%_27%_/_0.45)]',
-                'hover:opacity-92 hover:shadow-[0_6px_20px_-4px_hsl(142_68%_27%_/_0.55)]',
-                'transition-all duration-200',
+                'mt-2 w-full',
                 'disabled:opacity-60 disabled:cursor-not-allowed',
               )}
             >

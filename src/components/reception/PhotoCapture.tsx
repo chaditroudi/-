@@ -97,7 +97,7 @@ export const PhotoCapture = ({
             playsInline
             muted
           />
-          <div className="absolute inset-x-0 bottom-0 flex justify-center gap-2 bg-gradient-to-t from-black/70 to-transparent pb-4 pt-10">
+          <div className="absolute inset-x-0 bottom-0 flex justify-center gap-2 bg-black/60 pb-4 pt-3">
             <Button
               size="sm"
               className="rounded-xl shadow-md"

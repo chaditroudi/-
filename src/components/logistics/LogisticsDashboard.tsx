@@ -386,7 +386,7 @@ const CreateShipmentDialog = ({ open, onOpenChange }: CreateShipmentDialogProps)
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle>Nouvelle expedition</DialogTitle>
+          <DialogTitle>Nouvelle expédition</DialogTitle>
           <DialogDescription>Creation du dossier logistique et export.</DialogDescription>
         </DialogHeader>
 
@@ -414,7 +414,7 @@ const CreateShipmentDialog = ({ open, onOpenChange }: CreateShipmentDialogProps)
             Annuler
           </Button>
           <Button onClick={handleCreate} disabled={createShipment.isPending}>
-            Creer l'expedition
+            Creer l'expédition
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -448,7 +448,7 @@ const RecallDialog = ({ shipment, open, onOpenChange }: RecallDialogProps) => {
           <Card>
             <CardContent className="pt-5">
               <div className="text-2xl font-bold">{checklist.lotCoverage}%</div>
-              <div className="text-sm text-muted-foreground">Couverture tracabilite</div>
+              <div className="text-sm text-muted-foreground">Couverture traçabilité</div>
             </CardContent>
           </Card>
           <Card>
@@ -585,7 +585,7 @@ const ShipmentDetailDialog = ({
             {shipment.shipment_number}
           </DialogTitle>
           <DialogDescription>
-            Preparation expedition, documentation export et verification de tracabilite.
+            Preparation expédition, documentation export et verification de traçabilité.
           </DialogDescription>
         </DialogHeader>
 
@@ -593,7 +593,7 @@ const ShipmentDetailDialog = ({
           <div className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Entete expedition</CardTitle>
+                <CardTitle>Entete expédition</CardTitle>
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2">
                 <div className="grid gap-2">
@@ -833,7 +833,7 @@ const ShipmentDetailDialog = ({
                   onClick={() => downloadTextReport(`${shipment.shipment_number}-conformite.txt`, buildConformityReport(shipment))}
                 >
                   <FileCheck className="h-4 w-4 mr-2" />
-                  Certificat de conformite
+                  Certificat de conformité
                 </Button>
                 <Button
                   variant="outline"
@@ -860,7 +860,7 @@ const ShipmentDetailDialog = ({
               </CardHeader>
               <CardContent className="space-y-2">
                 {checklist.openActions.length === 0 ? (
-                  <div className="text-sm text-emerald-700">Le dossier expedition est complet.</div>
+                  <div className="text-sm text-emerald-700">Le dossier expédition est complet.</div>
                 ) : (
                   checklist.openActions.map((action) => (
                     <div key={action} className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm">
@@ -937,7 +937,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
           </Button>
           <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            Nouvelle expedition
+            Nouvelle expédition
           </Button>
         </div>
       </div>
@@ -949,7 +949,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
               <Truck className="h-5 w-5 text-blue-600" />
               <div>
                 <div className="text-2xl font-bold">{shipments.length}</div>
-                <div className="text-sm text-muted-foreground">Dossiers expedition</div>
+                <div className="text-sm text-muted-foreground">Dossiers expédition</div>
               </div>
             </div>
           </CardContent>
@@ -960,7 +960,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
               <ShieldCheck className="h-5 w-5 text-emerald-600" />
               <div>
                 <div className="text-2xl font-bold">{traceabilityCoverage}%</div>
-                <div className="text-sm text-muted-foreground">Couverture tracabilite</div>
+                <div className="text-sm text-muted-foreground">Couverture traçabilité</div>
               </div>
             </div>
           </CardContent>
@@ -991,7 +991,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
 
       <Tabs value={mainTab} onValueChange={setMainTab} className="space-y-4">
         <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 lg:w-auto lg:inline-grid">
-          <TabsTrigger value="shipments">Expeditions</TabsTrigger>
+          <TabsTrigger value="shipments">Expéditions</TabsTrigger>
           <TabsTrigger value="bde" className="gap-1">
             <Printer className="h-3.5 w-3.5" />
             Bon BDE
@@ -1005,7 +1005,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
             )}
           </TabsTrigger>
           <TabsTrigger value="transport">Transport live</TabsTrigger>
-          <TabsTrigger value="compliance">Conformite export</TabsTrigger>
+          <TabsTrigger value="compliance">Conformité export</TabsTrigger>
           <TabsTrigger value="recall">Mock recall</TabsTrigger>
         </TabsList>
 
@@ -1016,7 +1016,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
         <TabsContent value="shipments" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Pipeline expedition</CardTitle>
+              <CardTitle>Pipeline expédition</CardTitle>
               <CardDescription>
                 {readyShipments} pretes a partir, {shippedShipments} deja expediees.
               </CardDescription>
@@ -1027,7 +1027,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     className="pl-10"
-                    placeholder="Rechercher par numero, client ou destination"
+                    placeholder="Rechercher par numéro, client ou destination"
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                   />
@@ -1049,7 +1049,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
 
               {filteredShipments.length === 0 ? (
                 <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
-                  Aucune expedition ne correspond aux filtres.
+                  Aucune expédition ne correspond aux filtres.
                 </div>
               ) : (
                 <div className="grid gap-3">
@@ -1119,7 +1119,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
                 Stock produits finis disponibles
               </CardTitle>
               <CardDescription>
-                Palettes scellees (SSCC) validees issues du conditionnement — prets a integrer dans une expedition.
+                Palettes scellees (SSCC) validees issues du conditionnement — prets a integrer dans une expédition.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -1133,7 +1133,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
                     <TableRow>
                       <TableHead>SSCC / Lot</TableHead>
                       <TableHead>Source</TableHead>
-                      <TableHead>Variete / Grade</TableHead>
+                      <TableHead>Variété / Grade</TableHead>
                       <TableHead>Poids net</TableHead>
                       <TableHead>Date cond.</TableHead>
                       <TableHead>Statut</TableHead>
@@ -1183,20 +1183,20 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
         <TabsContent value="compliance">
           <Card>
             <CardHeader>
-              <CardTitle>Matrice conformite export</CardTitle>
+              <CardTitle>Matrice conformité export</CardTitle>
               <CardDescription>
-                Controle automatique des documents et de la genealogie par expedition.
+                Controle automatique des documents et de la genealogie par expédition.
               </CardDescription>
             </CardHeader>
             <CardContent>
               {shipments.length === 0 ? (
-                <div className="text-sm text-muted-foreground">Aucune expedition disponible.</div>
+                <div className="text-sm text-muted-foreground">Aucune expédition disponible.</div>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Expedition</TableHead>
-                      <TableHead>Conformite</TableHead>
+                      <TableHead>Expédition</TableHead>
+                      <TableHead>Conformité</TableHead>
                       <TableHead>Phyto</TableHead>
                       <TableHead>Genealogie</TableHead>
                       <TableHead>Actions</TableHead>
@@ -1239,7 +1239,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
                                 variant="outline"
                                 onClick={() => downloadTextReport(`${shipment.shipment_number}-conformite.txt`, buildConformityReport(shipment))}
                               >
-                                Conformite
+                                Conformité
                               </Button>
                               <Button
                                 size="sm"
@@ -1272,7 +1272,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
             <CardContent className="space-y-3">
               {shipments.filter((shipment) => shipment.status === 'READY' || shipment.status === 'SHIPPED').length === 0 ? (
                 <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
-                  Aucune expedition prete pour un exercice de rappel.
+                  Aucune expédition prete pour un exercice de rappel.
                 </div>
               ) : (
                 shipments

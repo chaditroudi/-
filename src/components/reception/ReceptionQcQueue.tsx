@@ -112,12 +112,7 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                     <h3 className="pb-1 text-sm font-semibold">À inspecter ({awaitingQc.length})</h3>
                     <div className="divide-y rounded-lg border">
                     {awaitingQc.map((r) => (
-                      <button
-                        key={r.id}
-                        type="button"
-                        onClick={() => handleStartQC(r)}
-                        className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left hover:bg-muted/60"
-                      >
+                      <div key={r.id} className="flex w-full items-center justify-between gap-3 px-3 py-2">
                         <div>
                           <span className="font-mono text-sm font-semibold">{r.reception_number}</span>
                           <span className="ml-2 text-xs text-muted-foreground">{r.supplier?.name || r.supplier_name_snapshot || '—'} • {r.quantity_total} {r.unit}</span>
@@ -126,7 +121,7 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                           <Shield className="mr-1 h-3 w-3" />
                           Lancer QC
                         </Button>
-                      </button>
+                      </div>
                     ))}
                     </div>
                   </div>
@@ -138,12 +133,7 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                     <h3 className="pb-1 text-sm font-semibold">En cours ({inQc.length})</h3>
                     <div className="divide-y rounded-lg border">
                     {inQc.map((r) => (
-                      <button
-                        key={r.id}
-                        type="button"
-                        onClick={() => handleStartQC(r)}
-                        className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left hover:bg-muted/60"
-                      >
+                      <div key={r.id} className="flex w-full items-center justify-between gap-3 px-3 py-2">
                         <div>
                           <span className="font-mono text-sm font-semibold">{r.reception_number}</span>
                           <span className="ml-2 text-xs text-muted-foreground">{r.supplier?.name || r.supplier_name_snapshot || '—'} • {r.quantity_total} {r.unit}</span>
@@ -152,7 +142,7 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                           <Shield className="mr-1 h-3 w-3" />
                           Reprendre
                         </Button>
-                      </button>
+                      </div>
                     ))}
                     </div>
                   </div>

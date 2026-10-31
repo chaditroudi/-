@@ -114,7 +114,7 @@ export const TareCalculator = ({
   };
 
   return (
-    <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+    <Card className="border-primary/20 bg-card">
       <CardHeader className="pb-3">
         <CardTitle className="text-sm flex items-center gap-2">
           <Package className="h-4 w-4 text-primary" />

@@ -36,9 +36,9 @@ function KpiBenchmarkCard({
     <Card
       className={
         onTarget
-          ? 'border-green-300 bg-green-50'
+          ? 'border-green-300 bg-card'
           : offTarget
-          ? 'border-amber-300 bg-amber-50'
+          ? 'border-amber-300 bg-card'
           : ''
       }
     >
@@ -222,7 +222,7 @@ export function SupplyFunnel({ period }: { period: Period }) {
 
           {/* Context banner when only reception has data */}
           {!allEmpty && phase2Empty && firstVal > 0 && (
-            <div className="mt-4 rounded-xl bg-blue-50 border border-blue-200 px-4 py-3 text-sm text-blue-700">
+            <div className="mt-4 rounded-xl bg-card border px-4 py-3 text-sm text-blue-700">
               <span className="font-semibold">{fmtKg(firstVal)}</span> de matière première
               disponible en réception —{' '}
               <span className="text-blue-500">

@@ -746,7 +746,7 @@ export const SupplierDialog = ({ open, onOpenChange, supplier, onSave, isLoading
                     <Input value={formData.contract_document_url} onChange={(event) => setField('contract_document_url', event.target.value)} placeholder="URL ou chemin document" />
                   </div>
                   <div className="space-y-2">
-                    <Label>Conformite contrat</Label>
+                    <Label>Conformité contrat</Label>
                     <Select value={formData.contract_compliance_status} onValueChange={(value) => setField('contract_compliance_status', value as typeof formData.contract_compliance_status)}>
                       <SelectTrigger>
                         <SelectValue />
@@ -805,7 +805,7 @@ export const SupplierDialog = ({ open, onOpenChange, supplier, onSave, isLoading
               </section>
 
               <section className={sectionClass('conformite')}>
-                <h3 className="text-sm font-semibold">Agrement, risque et conformite</h3>
+                <h3 className="text-sm font-semibold">Agrément, risque et conformité</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label>Qualification</Label>
@@ -823,7 +823,7 @@ export const SupplierDialog = ({ open, onOpenChange, supplier, onSave, isLoading
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Conformite</Label>
+                    <Label>Conformité</Label>
                     <Select value={formData.compliance_status} onValueChange={(value) => setField('compliance_status', value as typeof formData.compliance_status)}>
                       <SelectTrigger>
                         <SelectValue />
@@ -857,7 +857,7 @@ export const SupplierDialog = ({ open, onOpenChange, supplier, onSave, isLoading
                     <Input type="date" value={formData.onboarding_date} onChange={(event) => setField('onboarding_date', event.target.value)} />
                   </div>
                   <div className="space-y-2">
-                    <Label>Date agrement</Label>
+                    <Label>Date agrément</Label>
                     <Input type="date" value={formData.approval_date} onChange={(event) => setField('approval_date', event.target.value)} />
                   </div>
                   <div className="space-y-2">
@@ -887,15 +887,15 @@ export const SupplierDialog = ({ open, onOpenChange, supplier, onSave, isLoading
                 <h3 className="text-sm font-semibold">Performance suivie</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label>Score qualite (/100)</Label>
+                    <Label>Score qualité (/100)</Label>
                     <Input type="number" min="0" max="100" step="0.1" value={formData.quality_score} onChange={(event) => setField('quality_score', event.target.value)} />
                   </div>
                   <div className="space-y-2">
-                    <Label>Fiabilite livraison (/100)</Label>
+                    <Label>Fiabilité livraison (/100)</Label>
                     <Input type="number" min="0" max="100" step="0.1" value={formData.delivery_reliability_score} onChange={(event) => setField('delivery_reliability_score', event.target.value)} />
                   </div>
                   <div className="space-y-2">
-                    <Label>Score tracabilite (/100)</Label>
+                    <Label>Score traçabilité (/100)</Label>
                     <Input type="number" min="0" max="100" step="0.1" value={formData.traceability_score} onChange={(event) => setField('traceability_score', event.target.value)} />
                   </div>
                   <div className="space-y-2">
@@ -911,11 +911,11 @@ export const SupplierDialog = ({ open, onOpenChange, supplier, onSave, isLoading
                     <Input type="number" min="0" max="100" step="0.1" value={formData.rejection_rate} onChange={(event) => setField('rejection_rate', event.target.value)} />
                   </div>
                   <div className="space-y-2">
-                    <Label>Derniere livraison</Label>
+                    <Label>Dernière livraison</Label>
                     <Input type="date" value={formData.last_delivery_date} onChange={(event) => setField('last_delivery_date', event.target.value)} />
                   </div>
                   <div className="space-y-2">
-                    <Label>Derniere evaluation</Label>
+                    <Label>Dernière evaluation</Label>
                     <Input type="date" value={formData.last_evaluation_date} onChange={(event) => setField('last_evaluation_date', event.target.value)} />
                   </div>
                   <div className="space-y-2">

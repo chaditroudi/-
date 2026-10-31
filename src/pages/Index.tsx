@@ -379,7 +379,7 @@ const Index = () => {
             className="w-full"
           >
             <TabsList className="mb-4 h-auto w-full flex-wrap justify-start gap-1 sm:w-auto">
-              {features.phase2_enabled && <TabsTrigger value="phase2">Phase 2</TabsTrigger>}
+              {features.phase2_enabled && <TabsTrigger value="phase2">Transformation</TabsTrigger>}
               <TabsTrigger value="overview">Vue d&apos;ensemble</TabsTrigger>
               <TabsTrigger value="flux">Flux</TabsTrigger>
               <TabsTrigger value="orders">Ordres de fabrication</TabsTrigger>
@@ -497,7 +497,7 @@ const Index = () => {
       reasonCode={searchParams.get("error")}
       element={searchParams.get("field")}
     >
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={window.innerWidth >= 1024}>
       <CommandMenu accessibleTabs={accessibleTabs} onNavigate={handleNavigate} />
       <AppSidebar
         activeTab={activeTab}

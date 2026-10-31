@@ -58,7 +58,7 @@ export function Phase2Dashboard({ currentUser = 'Utilisateur', defaultModule = '
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
-        <h2 className="text-lg font-bold">Traitement & Préparation — Phase 2</h2>
+        <h2 className="text-lg font-bold">Traitement et préparation</h2>
         {pipeline.waiting.length > 0 && (
           <button
             onClick={() => setActiveModule('pipeline')}

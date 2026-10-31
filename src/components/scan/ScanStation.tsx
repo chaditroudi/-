@@ -1144,7 +1144,7 @@ export const ScanStation = () => {
   return (
     <div className="space-y-5">
       {/* ── Scan bar ───────────────────────────────────────────────────────── */}
-      <Card className="border-2 border-dashed border-primary/25 bg-gradient-to-br from-primary/5 to-transparent">
+      <Card className="border-2 border-dashed border-primary/25 bg-card">
         <CardContent className="p-5 space-y-3">
           <div className="flex flex-col sm:flex-row gap-3">
             <Button

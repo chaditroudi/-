@@ -25,7 +25,7 @@ export function StockStoragePanel({ period }: { period: Period }) {
     <div className="space-y-4">
       {/* Critical storage alerts */}
       {(st?.criticalAlerts ?? 0) > 0 && (
-        <div className="flex items-center gap-3 rounded-xl bg-red-50 border border-red-300 px-4 py-3">
+        <div className="flex items-center gap-3 rounded-xl bg-card border border-red-300 px-4 py-3">
           <AlertTriangle className="h-5 w-5 text-red-600 shrink-0 animate-pulse" />
           <span className="text-red-700 font-semibold text-sm">
             {st!.criticalAlerts} alerte{st!.criticalAlerts > 1 ? 's' : ''} critique{st!.criticalAlerts > 1 ? 's' : ''} sur le stock
@@ -35,7 +35,7 @@ export function StockStoragePanel({ period }: { period: Period }) {
 
       {/* Stock KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <Card className="bg-gradient-to-br from-violet-50 to-violet-100/40 border-violet-200">
+        <Card className="bg-card border-border">
           <CardContent className="pt-4 pb-3">
             <div className="flex items-center gap-1.5 mb-1">
               <Package className="h-3.5 w-3.5 text-violet-600" />
@@ -48,7 +48,7 @@ export function StockStoragePanel({ period }: { period: Period }) {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-50 to-green-100/40 border-green-200">
+        <Card className="bg-card border-border">
           <CardContent className="pt-4 pb-3">
             <div className="flex items-center gap-1.5 mb-1">
               <ArrowUpRight className="h-3.5 w-3.5 text-green-600" />
@@ -61,7 +61,7 @@ export function StockStoragePanel({ period }: { period: Period }) {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-red-50 to-red-100/40 border-red-200">
+        <Card className="bg-card border-red-200">
           <CardContent className="pt-4 pb-3">
             <div className="flex items-center gap-1.5 mb-1">
               <ArrowDownRight className="h-3.5 w-3.5 text-red-600" />
@@ -76,7 +76,7 @@ export function StockStoragePanel({ period }: { period: Period }) {
           </CardContent>
         </Card>
 
-        <Card className={`border-2 ${(sr?.condCompliance ?? 100) >= 95 ? 'border-green-300 bg-green-50' : 'border-amber-300 bg-amber-50'}`}>
+        <Card className={`border-2 ${(sr?.condCompliance ?? 100) >= 95 ? 'border-green-300 bg-card' : 'border-amber-300 bg-card'}`}>
           <CardContent className="pt-4 pb-3">
             <div className="flex items-center gap-1.5 mb-1">
               <Thermometer className={`h-3.5 w-3.5 ${(sr?.condCompliance ?? 100) >= 95 ? 'text-green-600' : 'text-amber-600'}`} />

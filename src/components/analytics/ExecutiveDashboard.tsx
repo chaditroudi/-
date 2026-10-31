@@ -175,7 +175,7 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Production vs Planned */}
-        <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-background to-muted/20">
+        <Card className="overflow-hidden">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <div className="p-1.5 rounded-lg bg-primary/10">
@@ -254,7 +254,7 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
         </Card>
 
         {/* Cost Breakdown */}
-        <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-background to-muted/20">
+        <Card className="overflow-hidden">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <div className="p-1.5 rounded-lg bg-emerald-500/10">
@@ -318,7 +318,7 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
       {/* Bottom Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Quality Trend */}
-        <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-background to-emerald-500/5">
+        <Card className="overflow-hidden">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <div className="p-1.5 rounded-lg bg-emerald-500/10">
@@ -358,7 +358,7 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
         </Card>
 
         {/* Grade Distribution */}
-        <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-background to-amber-500/5">
+        <Card className="overflow-hidden">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <div className="p-1.5 rounded-lg bg-amber-500/10">
@@ -398,7 +398,7 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
         </Card>
 
         {/* Downtime Breakdown */}
-        <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-background to-red-500/5">
+        <Card className="overflow-hidden">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <div className="p-1.5 rounded-lg bg-red-500/10">

@@ -665,7 +665,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
               ) : zones.length === 0 ? (
                 <div className="py-8 text-center text-sm text-muted-foreground">Aucune zone configurée</div>
               ) : (
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {zones.map(z => {
                     const pct = zoneOccupancy(z, zoneLoadsKg.get(z.code));
                     return (

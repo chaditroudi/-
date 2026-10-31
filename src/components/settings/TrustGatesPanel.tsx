@@ -40,7 +40,7 @@ export function TrustGatesPanel() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <Shield className="h-4 w-4 text-primary" />
-          Trust B0 — gates & claims
+          Contrôles de traçabilité
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 text-sm">

@@ -27,7 +27,7 @@ export function PackagingPerformance({ period }: { period: Period }) {
     <div className="space-y-4">
       {/* Metal detection alert */}
       {(kpis?.metalFailures ?? 0) > 0 && (
-        <div className="flex items-center gap-3 rounded-xl bg-red-50 border border-red-300 px-4 py-3">
+        <div className="flex items-center gap-3 rounded-xl bg-card border border-red-300 px-4 py-3">
           <AlertTriangle className="h-5 w-5 text-red-600 shrink-0 animate-pulse" />
           <span className="text-red-700 font-semibold text-sm">
             {kpis!.metalFailures} détection(s) métal enregistrée(s) sur la période

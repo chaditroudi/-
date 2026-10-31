@@ -43,7 +43,7 @@ export function ReceptionPhase1Panel({ period }: { period: Period }) {
     <div className="space-y-4">
       {/* Reception KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100/40 border-blue-200">
+        <Card className="bg-card border-border">
           <CardContent className="pt-4 pb-3">
             <div className="flex items-center gap-1.5 mb-1">
               <Truck className="h-3.5 w-3.5 text-blue-600" />
@@ -56,7 +56,7 @@ export function ReceptionPhase1Panel({ period }: { period: Period }) {
           </CardContent>
         </Card>
 
-        <Card className={`border-2 ${(r?.acceptanceRate ?? 0) >= 80 ? 'border-green-300 bg-green-50' : 'border-amber-300 bg-amber-50'}`}>
+        <Card className={`border-2 ${(r?.acceptanceRate ?? 0) >= 80 ? 'border-green-300 bg-card' : 'border-amber-300 bg-card'}`}>
           <CardContent className="pt-4 pb-3">
             <div className="flex items-center gap-1.5 mb-1">
               <CheckCircle2 className={`h-3.5 w-3.5 ${(r?.acceptanceRate ?? 0) >= 80 ? 'text-green-600' : 'text-amber-600'}`} />

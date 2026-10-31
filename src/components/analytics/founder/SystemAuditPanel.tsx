@@ -129,7 +129,7 @@ export function SystemAuditPanel() {
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-primary" />
           <span className="font-bold">Journal d'audit système</span>
-          <span className="flex items-center gap-1 text-[11px] bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-full px-2 py-0.5 font-semibold">
+          <span className="flex items-center gap-1 text-[11px] bg-emerald-100 text-emerald-700 border rounded-full px-2 py-0.5 font-semibold">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
             LIVE
           </span>
@@ -148,7 +148,7 @@ export function SystemAuditPanel() {
             <div className="text-2xl font-black">{statsLoading ? '…' : statsData?.total ?? 0}</div>
           </CardContent>
         </Card>
-        <Card className={(statsData?.securityEvents ?? 0) > 0 ? 'border-red-300 bg-red-50' : ''}>
+        <Card className={(statsData?.securityEvents ?? 0) > 0 ? 'border-red-300 bg-card' : ''}>
           <CardContent className="pt-3 pb-3">
             <div className="text-xs text-muted-foreground mb-1">Évènements sécurité</div>
             <div className={`text-2xl font-black ${(statsData?.securityEvents ?? 0) > 0 ? 'text-red-600' : ''}`}>

@@ -57,7 +57,6 @@ export function ProductAboutPanel({ onOpenFiches }: ProductAboutPanelProps) {
             Inclus dans cette édition
           </p>
           <p className="mt-1">{PRODUCT.waves.join(' · ')}</p>
-          <p className="mt-1">Stack : {PRODUCT.stack}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {onOpenFiches && (
@@ -73,13 +72,6 @@ export function ProductAboutPanel({ onOpenFiches }: ProductAboutPanelProps) {
             </Button>
           )}
         </div>
-        <p className="text-[11px] text-muted-foreground">
-          CLI : <code className="rounded bg-muted px-1">npm run demo:season</code>
-          {' · '}
-          Edge : PWA + outbox · <code className="rounded bg-muted px-1">weighbridge:sim</code>
-          {' · '}
-          Next : ATP deepen (lines/OEE) · SMTP later · GS1 réel
-        </p>
         <p className="text-[11px] text-muted-foreground">
           {PRODUCT.name} © {PRODUCT.year} — licence commerciale. Personnalisez marque et logo dans
           Paramètres → Marque.

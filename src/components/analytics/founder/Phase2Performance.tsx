@@ -116,7 +116,7 @@ export function Phase2Performance({ period }: { period: Period }) {
 
       {/* CCP Compliance */}
       {(data?.fumigation.done ?? 0) > 0 && (
-        <Card className={data!.fumigation.ccpCompliance >= 95 ? 'border-green-300 bg-green-50' : 'border-amber-300 bg-amber-50'}>
+        <Card className={data!.fumigation.ccpCompliance >= 95 ? 'border-green-300 bg-card' : 'border-amber-300 bg-card'}>
           <CardContent className="pt-3 pb-3 flex items-center gap-3">
             <ShieldCheck className={`h-5 w-5 shrink-0 ${data!.fumigation.ccpCompliance >= 95 ? 'text-green-600' : 'text-amber-600'}`} />
             <div>

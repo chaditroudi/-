@@ -132,7 +132,7 @@ export function LotTraceabilityDialog({ open, onOpenChange, lotNumber }: Props) 
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
-            Dossier de tracabilite lot — <span className="font-mono">{lotNumber}</span>
+            Dossier de traçabilité lot — <span className="font-mono">{lotNumber}</span>
           </DialogTitle>
         </DialogHeader>
 
@@ -198,7 +198,7 @@ export function LotTraceabilityDialog({ open, onOpenChange, lotNumber }: Props) 
                 />
                 <SummaryCard
                   icon={Shield}
-                  title="Qualite"
+                  title="Qualité"
                   value={`${data.qc_inspections.length} inspection(s)`}
                   detail={data.qc_inspections[0]?.decision ? `Derniere decision: ${data.qc_inspections[0].decision}` : 'Pas de decision QC retrouvee'}
                 />
@@ -551,7 +551,7 @@ export function LotTraceabilityDialog({ open, onOpenChange, lotNumber }: Props) 
               <section className="space-y-3">
                 <SectionTitle
                   icon={Truck}
-                  title="Stock fini et expedition client"
+                  title="Stock fini et expédition client"
                   subtitle={`${data.stock_lots.length} lot(s) stock · ${data.shipments.length} expedition(s)`}
                 />
 
@@ -597,7 +597,7 @@ export function LotTraceabilityDialog({ open, onOpenChange, lotNumber }: Props) 
                               <div>Expedie: {fmt(shipment.shipped_at)}</div>
                             </div>
                             <div className="mt-3 rounded-lg border p-3">
-                              <div className="text-xs font-semibold mb-2">Lignes expedition</div>
+                              <div className="text-xs font-semibold mb-2">Lignes expédition</div>
                               <div className="space-y-1">
                                 {lines.map((line) => {
                                   const stockLot = data.stock_lots.find((lot) => lot.id === line.lot_id);
@@ -617,7 +617,7 @@ export function LotTraceabilityDialog({ open, onOpenChange, lotNumber }: Props) 
                 ) : (
                   <Card>
                     <CardContent className="p-4 text-sm text-muted-foreground">
-                      Aucune expedition client reliee a ce lot pour l'instant.
+                      Aucune expédition client reliee a ce lot pour l'instant.
                     </CardContent>
                   </Card>
                 )}
@@ -716,8 +716,8 @@ export function LotTraceabilityDialog({ open, onOpenChange, lotNumber }: Props) 
               {data.timeline.length === 0 && !data.reception && (
                 <div className="py-8 text-center">
                   <AlertTriangle className="h-8 w-8 text-amber-400 mx-auto mb-2" />
-                  <div className="text-sm text-muted-foreground">Aucun enregistrement trouve pour ce numero de lot.</div>
-                  <div className="text-xs text-muted-foreground mt-1">Verifiez la reference ou utilisez un numero amont, sous-lot, lot PF ou SSCC.</div>
+                  <div className="text-sm text-muted-foreground">Aucun enregistrement trouve pour ce numéro de lot.</div>
+                  <div className="text-xs text-muted-foreground mt-1">Verifiez la reference ou utilisez un numéro amont, sous-lot, lot PF ou SSCC.</div>
                 </div>
               )}
 
