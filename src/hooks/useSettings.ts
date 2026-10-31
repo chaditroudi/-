@@ -69,15 +69,7 @@ export const useCreateManagedUser = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (payload: { email: string; password: string; full_name: string; role: string }) => {
-      // Reuse the auth signup endpoint — admin creates accounts on behalf of employees
-      return apiRequest('/auth/signup', {
-        method: 'POST',
-        body: JSON.stringify({
-          email: payload.email,
-          password: payload.password,
-          options: { data: { full_name: payload.full_name, role: payload.role } },
-        }),
-      });
+      return apiRequest('/settings/users', { method: 'POST', body: JSON.stringify(payload) });
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: USERS_KEY }),
   });

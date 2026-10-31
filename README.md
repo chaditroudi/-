@@ -45,12 +45,9 @@ npm run dev            # API + Vite together
 - App: http://localhost:8080  
 - API health: http://localhost:4000/health  
 
-### Default admin (seeded on empty DB)
+### First admin
 
-- Email: `admin@ecodatte.local`  
-- Password: `Admin123!`  
-
-**Change the password before any production or client demo.**
+Set `INITIAL_ADMIN_EMAIL` and `INITIAL_ADMIN_PASSWORD` before the first start on an empty database. That account must choose a new password at first sign-in. Later accounts are created in Paramètres → Utilisateurs.
 
 ### Useful scripts
 

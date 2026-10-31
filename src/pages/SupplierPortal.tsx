@@ -242,7 +242,7 @@ export default function SupplierPortal() {
     queryKey: ['portail-supplier', userEmail],
     queryFn: async () => {
       const all = await suppliersApi.list() as Supplier[];
-      return all.filter(s => s.email === userEmail).slice(0, 2);
+      return all.filter(s => s.email?.toLowerCase() === userEmail?.toLowerCase()).slice(0, 2);
     },
     enabled: !!userEmail,
   });

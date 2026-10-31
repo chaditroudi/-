@@ -17,7 +17,7 @@ Use this checklist when delivering or evaluating the product for purchase.
 ## 2. Demo path (30 minutes)
 
 1. `npm install` → configure `.env` → `npm run dev`
-2. Login `admin@ecodatte.local` / `Admin123!`
+2. Sign in with the first admin from `INITIAL_ADMIN_EMAIL`
 3. Home **Simple** → search or pick a lot → **Prochaine action**
 4. Open **Fiche technique** → check steps → **Aller au poste**
 5. Documents: **Créer BRA** / **Créer BDE** → print

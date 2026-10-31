@@ -66,7 +66,7 @@ export function ProductAboutPanel({ onOpenFiches }: ProductAboutPanelProps) {
               Fiches A→Z
             </Button>
           )}
-          {isAdmin && (
+          {isAdmin && import.meta.env.DEV && (
             <Button type="button" className="gap-2" disabled={demoBusy} onClick={() => void runDemo()}>
               {demoBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
               Demo season A→Z

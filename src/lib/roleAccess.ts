@@ -373,8 +373,8 @@ export const getRoleWorkspaceProfile = (roles: ActorRole[]) => {
       interfaceLabel: 'Interface web',
       workspaceLabel: 'Opérations',
       defaultTab: 'home' as AppTab,
-      primaryTabs: ['home', 'receptions', 'production', 'alerts'] as AppTab[],
-      quickTabs: ['storage', 'sage-operations'] as AppTab[],
+      primaryTabs: ['home'] as AppTab[],
+      quickTabs: [] as AppTab[],
       actions: [] as RoleAction[],
     };
   }
@@ -395,15 +395,19 @@ export const getRoleWorkspaceProfile = (roles: ActorRole[]) => {
   };
 };
 
+/** Live and Scan read plant-wide data, which portal accounts and unknown roles may not see. */
+const PORTAL_ROLES: ActorRole[] = ['fournisseur_externe', 'client_externe', 'partenaire_client_export'];
+
+const hasPlantAccess = (roles: ActorRole[]) =>
+  roles.some((role) => ROLE_WORKSPACES[role] && !PORTAL_ROLES.includes(role));
+
 export const getAccessibleTabs = (roles: ActorRole[]) => {
   const profile = getRoleWorkspaceProfile(roles);
-  return unique<AppTab>([...profile.primaryTabs, ...profile.quickTabs, 'home', 'live', 'scan']);
+  const plantTabs: AppTab[] = hasPlantAccess(roles) ? ['live', 'scan'] : [];
+  return unique<AppTab>([...profile.primaryTabs, ...profile.quickTabs, 'home', ...plantTabs]);
 };
 
-export const canAccessTab = (roles: ActorRole[], tab: AppTab) => {
-  const profile = getRoleWorkspaceProfile(roles);
-  return profile.primaryTabs.includes(tab) || profile.quickTabs.includes(tab) || tab === 'home' || tab === 'live' || tab === 'scan';
-};
+export const canAccessTab = (roles: ActorRole[], tab: AppTab) => getAccessibleTabs(roles).includes(tab);
 
 export const canPerformAction = (roles: ActorRole[], action: RoleAction) => {
   const profile = getRoleWorkspaceProfile(roles);
