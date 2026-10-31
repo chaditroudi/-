@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { DataState } from '@/components/shared/DataState';
 import {
   Activity,
   AlertTriangle,
@@ -81,7 +82,7 @@ const ProcessNode = ({ label, Icon, count, subtext, isActive, colorText, colorBo
       <Icon className={cn('h-6 w-6 transition-colors duration-500', isActive ? colorText : 'text-slate-300')} />
       {isActive && count > 0 && (
         <span className={cn(
-          'absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full text-[11px] font-bold flex items-center justify-center bg-slate-950',
+          'absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full text-xs font-bold flex items-center justify-center bg-slate-950',
           'border-2', colorBorder, colorText,
         )}>
           {count}
@@ -89,13 +90,13 @@ const ProcessNode = ({ label, Icon, count, subtext, isActive, colorText, colorBo
       )}
     </div>
     <div className="text-center">
-      <p className={cn('text-[11px] font-bold uppercase transition-colors duration-500',
+      <p className={cn('text-xs font-bold uppercase transition-colors duration-500',
         isActive ? colorText : 'text-slate-300'
       )}>
         {label}
       </p>
       {subtext && (
-        <p className={cn('text-[11px] tabular-nums mt-0.5', isActive ? 'text-slate-400' : 'text-slate-300')}>
+        <p className={cn('text-xs tabular-nums mt-0.5', isActive ? 'text-slate-400' : 'text-slate-300')}>
           {subtext}
         </p>
       )}
@@ -187,7 +188,7 @@ export const FactoryCommandCenter = () => {
   const [isFs, setIsFs] = useState(false);
   const { companyName, footprint, printFooter } = useBranding();
 
-  const { data: lf, refetch, isFetching, dataUpdatedAt } = useLiveFactory();
+  const { data: lf, refetch, isFetching, isLoading: liveLoading, error: liveError, dataUpdatedAt } = useLiveFactory();
   const { data: alertData } = useAlertIntelligence('today');
 
   // Live clock — 1s tick
@@ -310,6 +311,10 @@ export const FactoryCommandCenter = () => {
 
   const packagingDetail = active?.packagingDetail ?? [];
 
+  if (!lf) {
+    return <DataState source={{ isLoading: liveLoading, error: liveError, refetch }} data={lf} isEmpty={false} what="l'état de l'usine">{null}</DataState>;
+  }
+
   return (
     <>
       {/* Keyframes for flowing particle */}
@@ -334,7 +339,7 @@ export const FactoryCommandCenter = () => {
               <Activity className="h-5 w-5 text-emerald-400" />
             </div>
             <div>
-              <p className="text-[11px] font-bold text-slate-300">{footprint || companyName}</p>
+              <p className="text-xs font-bold text-slate-300">{footprint || companyName}</p>
               <p className="text-base font-bold text-white leading-tight">Centre de Commande Usine</p>
             </div>
           </div>
@@ -351,7 +356,7 @@ export const FactoryCommandCenter = () => {
               <p className="text-xl font-mono font-bold text-white tabular-nums">
                 {clock.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
               </p>
-              <p className="text-[11px] text-slate-300 capitalize">
+              <p className="text-xs text-slate-300 capitalize">
                 {clock.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}
               </p>
             </div>
@@ -406,9 +411,9 @@ export const FactoryCommandCenter = () => {
           {/* ── Process flow ───────────────────────────────────────────────── */}
           <div className="bg-slate-900/60 rounded-xl border border-slate-800 p-5">
             <div className="flex items-center gap-2 mb-5">
-              <span className="text-[11px] font-bold text-slate-300">Flux de production</span>
+              <span className="text-xs font-bold text-slate-300">Flux de production</span>
               {lf && (
-                <span className="text-[11px] text-slate-300">
+                <span className="text-xs text-slate-300">
                   · {active?.total ?? 0} processus actif{(active?.total ?? 0) !== 1 ? 's' : ''}
                 </span>
               )}
@@ -495,7 +500,7 @@ export const FactoryCommandCenter = () => {
                           <div className="flex items-center gap-2">
                             <span className="h-1.5 w-1.5 rounded-full bg-orange-400 animate-pulse" />
                             <span className="text-xs font-mono font-semibold text-orange-300">{p.order_number}</span>
-                            {p.line && <span className="text-[11px] text-slate-300">· {p.line}</span>}
+                            {p.line && <span className="text-xs text-slate-300">· {p.line}</span>}
                           </div>
                           <div className="flex items-center gap-2 text-xs text-slate-400">
                             <span className="tabular-nums">{fmtN(p.produced_units)}/{fmtN(p.target_units)} u.</span>
@@ -504,7 +509,7 @@ export const FactoryCommandCenter = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <Progress value={pct} className="h-1.5 flex-1 bg-slate-700 [&>*]:bg-orange-500" />
-                          <span className="text-[11px] font-bold text-orange-400 tabular-nums w-9 text-right">
+                          <span className="text-xs font-bold text-orange-400 tabular-nums w-9 text-right">
                             {pct.toFixed(0)}%
                           </span>
                         </div>
@@ -550,7 +555,7 @@ export const FactoryCommandCenter = () => {
               {/* Alert type breakdown */}
               {alertData?.topTypes && alertData.topTypes.length > 0 && (
                 <div className="pt-3 border-t border-slate-800 space-y-1.5">
-                  <p className="text-[11px] font-bold text-slate-300">Notifications par type</p>
+                  <p className="text-xs font-bold text-slate-300">Notifications par type</p>
                   {alertData.topTypes.slice(0, 3).map((t) => (
                     <div key={t.code} className="flex items-center justify-between text-xs">
                       <span className="text-slate-400">{ALERT_TYPE_LABELS[t.code] ?? t.code.replace(/_/g, ' ').toLowerCase()}</span>
@@ -563,7 +568,7 @@ export const FactoryCommandCenter = () => {
           </div>
 
           {/* ── Footer ─────────────────────────────────────────────────────── */}
-          <div className="flex items-center justify-between text-[11px] text-slate-300 pt-1">
+          <div className="flex items-center justify-between text-xs text-slate-300 pt-1">
             <span>{printFooter}</span>
             {lastUpdateStr && <span>Dernière actualisation : {lastUpdateStr}</span>}
           </div>

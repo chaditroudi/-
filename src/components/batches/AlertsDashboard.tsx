@@ -313,7 +313,7 @@ export const AlertsDashboard = () => {
             <Bell className="h-3.5 w-3.5" />
             Actives
             {active.length > 0 && (
-              <Badge variant="destructive" className="rounded-full px-1.5 py-0 text-[11px]">
+              <Badge variant="destructive" className="rounded-full px-1.5 py-0 text-xs">
                 {active.length}
               </Badge>
             )}
@@ -322,7 +322,7 @@ export const AlertsDashboard = () => {
             <Check className="h-3.5 w-3.5" />
             En traitement
             {acked.length > 0 && (
-              <Badge variant="secondary" className="rounded-full px-1.5 py-0 text-[11px]">
+              <Badge variant="secondary" className="rounded-full px-1.5 py-0 text-xs">
                 {acked.length}
               </Badge>
             )}
@@ -483,11 +483,11 @@ function AlertList({
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-1.5">
                   <p className="text-sm font-semibold text-foreground leading-tight">{alert.title}</p>
-                  <Badge variant="outline" className="text-[11px] px-1.5 py-0 rounded-sm">
+                  <Badge variant="outline" className="text-xs px-1.5 py-0 rounded-sm">
                     {alert.alert_type}
                   </Badge>
                   <Badge
-                    className={`text-[11px] px-1.5 py-0 rounded-sm ${
+                    className={`text-xs px-1.5 py-0 rounded-sm ${
                       alert.source === 'batch'
                         ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300'
                         : 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300'

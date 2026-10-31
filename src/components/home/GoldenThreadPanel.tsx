@@ -75,7 +75,7 @@ export const GoldenThreadPanel = ({ onOpenScan }: { onOpenScan?: () => void }) =
 
         <div className="flex flex-wrap gap-1.5">
           {data.stages.map((stage) => (
-            <Badge key={stage} variant="secondary" className="text-[11px]">
+            <Badge key={stage} variant="secondary" className="text-xs">
               {STAGE_LABELS[stage] || stage}
             </Badge>
           ))}

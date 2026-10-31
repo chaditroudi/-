@@ -694,7 +694,7 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="font-medium">{event.label}</span>
-                          <Badge variant="outline" className="text-[11px]">{event.target}</Badge>
+                          <Badge variant="outline" className="text-xs">{event.target}</Badge>
                           {event.actor && <span className="text-xs text-muted-foreground">par {event.actor}</span>}
                         </div>
                         {event.detail && <p className="mt-0.5 text-xs text-muted-foreground">{event.detail}</p>}

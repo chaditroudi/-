@@ -35,7 +35,7 @@ function StagePill({ stage, count }: { stage: Phase2Stage; count: number }) {
         <Icon className={`h-4 w-4 ${cfg.color}`} />
         <span className={`text-sm font-bold ${cfg.color}`}>{count}</span>
       </div>
-      <span className="text-[11px] text-muted-foreground font-medium">{cfg.label}</span>
+      <span className="text-xs text-muted-foreground font-medium">{cfg.label}</span>
     </div>
   );
 }
@@ -54,11 +54,11 @@ function LotCard({ lot, stage, onLaunch }: { lot: AvailableLot; stage: Phase2Sta
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5 flex-wrap">
           <span className="text-xs font-mono font-semibold">{lot.reception_number}</span>
-          {lot.variety && <span className="text-[11px] text-muted-foreground">{lot.variety}</span>}
-          {lot.is_bio && <Badge variant="outline" className="text-[11px] h-4 px-1 text-green-600 border-green-300"><Leaf className="h-2.5 w-2.5 mr-0.5" />BIO</Badge>}
-          {lot.qc_grade && <Badge variant="outline" className="text-[11px] h-4 px-1">{lot.qc_grade}</Badge>}
+          {lot.variety && <span className="text-xs text-muted-foreground">{lot.variety}</span>}
+          {lot.is_bio && <Badge variant="outline" className="text-xs h-4 px-1 text-green-600 border-green-300"><Leaf className="h-2.5 w-2.5 mr-0.5" />BIO</Badge>}
+          {lot.qc_grade && <Badge variant="outline" className="text-xs h-4 px-1">{lot.qc_grade}</Badge>}
         </div>
-        <div className="text-[11px] text-muted-foreground">
+        <div className="text-xs text-muted-foreground">
           {lot.quantity_total ? `${lot.quantity_total.toLocaleString('fr')} ${lot.unit ?? 'kg'}` : '—'}
           {lot.storage_zone_code && ` · Zone ${lot.storage_zone_code}`}
         </div>
@@ -95,13 +95,13 @@ function ActiveCycleSummary() {
 
   return (
     <div className="space-y-1.5">
-      <p className="text-[11px] text-muted-foreground font-semibold mb-2">Cycles actifs maintenant</p>
+      <p className="text-xs text-muted-foreground font-semibold mb-2">Cycles actifs maintenant</p>
       {activeFum.map((c: any) => (
         <div key={c.id} className="flex items-center gap-2 text-xs px-2 py-1.5 bg-orange-50 border border-orange-200 rounded-lg">
           <Flame className="h-3.5 w-3.5 text-orange-600 shrink-0" />
           <span className="font-medium text-orange-700">{c.chamber ?? 'Chambre'}</span>
           <span className="text-muted-foreground flex-1">{c.lot_refs?.map((r: any) => r.lot_number).join(', ') || '—'}</span>
-          <Badge className="text-[11px] h-4 bg-orange-100 text-orange-700 border-orange-300 shrink-0">{c.status}</Badge>
+          <Badge className="text-xs h-4 bg-orange-100 text-orange-700 border-orange-300 shrink-0">{c.status}</Badge>
         </div>
       ))}
       {activeNet.map((c: any) => (
@@ -109,7 +109,7 @@ function ActiveCycleSummary() {
           <Droplets className="h-3.5 w-3.5 text-blue-600 shrink-0" />
           <span className="font-medium text-blue-700">Prog. {c.program}</span>
           <span className="text-muted-foreground flex-1">{c.lot_number || '—'}</span>
-          <Badge className="text-[11px] h-4 bg-blue-100 text-blue-700 border-blue-300 shrink-0">EN_COURS</Badge>
+          <Badge className="text-xs h-4 bg-blue-100 text-blue-700 border-blue-300 shrink-0">EN_COURS</Badge>
         </div>
       ))}
       {activeHyd.map((c: any) => (
@@ -117,7 +117,7 @@ function ActiveCycleSummary() {
           <Wind className="h-3.5 w-3.5 text-cyan-600 shrink-0" />
           <span className="font-medium text-cyan-700">{c.chamber ?? 'Chambre'}</span>
           <span className="text-muted-foreground flex-1">{c.lot_refs?.map((r: any) => r.lot_number).join(', ') || '—'}</span>
-          <Badge className="text-[11px] h-4 bg-cyan-100 text-cyan-700 border-cyan-300 shrink-0">EN_COURS</Badge>
+          <Badge className="text-xs h-4 bg-cyan-100 text-cyan-700 border-cyan-300 shrink-0">EN_COURS</Badge>
         </div>
       ))}
       {activeTri.map((s: any) => (
@@ -125,7 +125,7 @@ function ActiveCycleSummary() {
           <Scissors className="h-3.5 w-3.5 text-violet-600 shrink-0" />
           <span className="font-medium text-violet-700">{s.line ?? 'Ligne'}</span>
           <span className="text-muted-foreground flex-1">{s.parent_lot_number || '—'}</span>
-          <Badge className="text-[11px] h-4 bg-violet-100 text-violet-700 border-violet-300 shrink-0">{s.status}</Badge>
+          <Badge className="text-xs h-4 bg-violet-100 text-violet-700 border-violet-300 shrink-0">{s.status}</Badge>
         </div>
       ))}
     </div>
@@ -177,7 +177,7 @@ export function ProductionPipelinePanel({ onLaunchFumigation }: Props) {
               <div className="flex items-center gap-2 mb-3">
                 <Clock className="h-4 w-4 text-amber-500" />
                 <span className="font-semibold text-sm">Lots en attente de traitement</span>
-                <Badge variant="outline" className="text-amber-700 border-amber-300 bg-amber-50 text-[11px]">
+                <Badge variant="outline" className="text-amber-700 border-amber-300 bg-amber-50 text-xs">
                   {waiting.length}
                 </Badge>
               </div>

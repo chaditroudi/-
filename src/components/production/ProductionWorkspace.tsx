@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { DataSource } from '@/components/shared/DataState';
 import {
   Bell,
   ClipboardList,
@@ -48,6 +49,8 @@ type NavItem = { view: ProductionView; label: string; icon: LucideIcon; badge?: 
 
 interface ProductionWorkspaceProps {
   orders: ProductionOrder[];
+  ordersSource: DataSource;
+  ordersData: unknown;
   receptions: MaterialReception[];
   currentUser: string;
   stagesEnabled: boolean;
@@ -57,7 +60,7 @@ interface ProductionWorkspaceProps {
 }
 
 /** One level of navigation for everything production does, opening on the work to do. */
-export function ProductionWorkspace({ orders, receptions, currentUser, stagesEnabled, view, onViewChange, preSelectedLot }: ProductionWorkspaceProps) {
+export function ProductionWorkspace({ orders, ordersSource, ordersData, receptions, currentUser, stagesEnabled, view, onViewChange, preSelectedLot }: ProductionWorkspaceProps) {
   const pipeline = usePhase2Pipeline({ enabled: stagesEnabled });
   const alerts = usePhase2AlertKpis();
   const { data: fumigation = [] } = useFumigationCycles(undefined, { enabled: stagesEnabled });
@@ -170,7 +173,7 @@ export function ProductionWorkspace({ orders, receptions, currentUser, stagesEna
           </div>
         )}
 
-        {view === 'today' && <ProductionToday orders={orders} stagesEnabled={stagesEnabled} onOpenView={onViewChange} onOpenOrder={setOrderId} />}
+        {view === 'today' && <ProductionToday orders={orders} ordersSource={ordersSource} ordersData={ordersData} stagesEnabled={stagesEnabled} onOpenView={onViewChange} onOpenOrder={setOrderId} />}
         {view === 'orders' && <ProductionOrdersList orders={orders} receptions={receptions} onOpenOrder={setOrderId} />}
         {view === 'pipeline' && (
           <ProductionPipelinePanel

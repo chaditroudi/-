@@ -218,7 +218,7 @@ export const StorageAssignment = ({ reception, lots }: StorageAssignmentProps) =
                   </div>
                   <p className="text-xl font-bold">{count} <span className="text-xs font-normal text-muted-foreground">zone(s)</span></p>
                   <div className="space-y-1">
-                    <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
                       <span>{usedPal}/{totalPal} pal.</span>
                       <span>{occ}%</span>
                     </div>
@@ -405,7 +405,7 @@ export const StorageAssignment = ({ reception, lots }: StorageAssignmentProps) =
                               <span className="flex items-center gap-2">
                                 <span className={FAMILY_COLOR[family]}>{FAMILY_ICON[family]}</span>
                                 <span>{z.code} — {z.name}</span>
-                                <span className={`text-[11px] ml-auto ${occ >= 90 ? 'text-red-600' : 'text-muted-foreground'}`}>
+                                <span className={`text-xs ml-auto ${occ >= 90 ? 'text-red-600' : 'text-muted-foreground'}`}>
                                   {occ}%
                                 </span>
                               </span>

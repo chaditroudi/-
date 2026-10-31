@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { useOnline } from '@/hooks/useOnline';
 import { Camera, FlaskConical, QrCode, Shield } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,8 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
   const [qcDialogOpen, setQcDialogOpen] = useState(false);
   const [labDialogOpen, setLabDialogOpen] = useState(false);
   const { data: labPendingInspections = [] } = useLabPendingInspections();
+  // A decision is made on the server, so inspections need the connection.
+  const online = useOnline();
 
   const awaitingQc = useMemo(() => receptions.filter((r) => r.status === 'EN_ATTENTE_QC'), [receptions]);
   const inQc = useMemo(() => receptions.filter((r) => r.status === 'EN_QC'), [receptions]);
@@ -106,6 +109,14 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                   Prélèvement : minimum 2 kg jusqu'à 1 tonne, minimum 5 kg au-delà de 5 tonnes, représentatif entre les deux.
                 </p>
 
+                {awaitingQc.length === 0 && inQc.length === 0 && labPendingInspections.length === 0 && (
+                  <p className="rounded-lg border border-dashed px-3 py-3 text-sm text-muted-foreground">Aucun lot en attente de contrôle.</p>
+                )}
+
+                {!online && (awaitingQc.length > 0 || inQc.length > 0) && (
+                  <p className="text-sm text-muted-foreground">Le contrôle qualité demande une connexion : il reprendra au retour du réseau.</p>
+                )}
+
                 {/* Awaiting QC mini-list */}
                 {awaitingQc.length > 0 && (
                   <div>
@@ -117,7 +128,7 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                           <span className="block whitespace-nowrap font-mono text-sm font-semibold">{r.reception_number}</span>
                           <span className="text-xs text-muted-foreground">{r.supplier?.name || r.supplier_name_snapshot || '—'} • {r.quantity_total} {r.unit}</span>
                         </div>
-                        <Button type="button" size="sm" className="text-xs" onClick={(e) => { e.stopPropagation(); handleStartQC(r); }}>
+                        <Button type="button" size="sm" className="text-xs" disabled={!online} onClick={(e) => { e.stopPropagation(); handleStartQC(r); }}>
                           <Shield className="mr-1 h-3 w-3" />
                           Lancer QC
                         </Button>
@@ -138,7 +149,7 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                           <span className="block whitespace-nowrap font-mono text-sm font-semibold">{r.reception_number}</span>
                           <span className="text-xs text-muted-foreground">{r.supplier?.name || r.supplier_name_snapshot || '—'} • {r.quantity_total} {r.unit}</span>
                         </div>
-                        <Button type="button" size="sm" className="bg-sky-600 text-xs hover:bg-sky-700" onClick={(e) => { e.stopPropagation(); handleStartQC(r); }}>
+                        <Button type="button" size="sm" className="bg-sky-600 text-xs hover:bg-sky-700" disabled={!online} onClick={(e) => { e.stopPropagation(); handleStartQC(r); }}>
                           <Shield className="mr-1 h-3 w-3" />
                           Reprendre
                         </Button>

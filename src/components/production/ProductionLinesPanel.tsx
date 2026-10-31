@@ -121,7 +121,7 @@ function StartRunDialog({ code, open, onOpenChange }: StartRunDialogProps) {
               placeholder="ex. 1000"
               required
             />
-            <p className="mt-1 text-[11px] text-muted-foreground">
+            <p className="mt-1 text-xs text-muted-foreground">
               Rendement attendu : {def.balance.yieldRangePercent[0]}–{def.balance.yieldRangePercent[1]} %
             </p>
           </div>
@@ -331,7 +331,7 @@ function RecentRunsList({ runs }: { runs: FluxRun[] }) {
 
   return (
     <div className="mt-2">
-      <p className="mb-1.5 text-[11px] font-semibold text-muted-foreground">
+      <p className="mb-1.5 text-xs font-semibold text-muted-foreground">
         Historique récent
       </p>
       <div className="space-y-1.5">
@@ -361,16 +361,16 @@ function RecentRunsList({ runs }: { runs: FluxRun[] }) {
                 </>
               )}
               {run.ccp2_passed === false && (
-                <Badge className="ml-auto rounded-full bg-red-100 px-1.5 py-0 text-[11px] font-semibold text-red-700">
+                <Badge className="ml-auto rounded-full bg-red-100 px-1.5 py-0 text-xs font-semibold text-red-700">
                   CCP2 NC
                 </Badge>
               )}
               {isCancel && (
-                <Badge className="ml-auto rounded-full bg-muted px-1.5 py-0 text-[11px] text-muted-foreground">
+                <Badge className="ml-auto rounded-full bg-muted px-1.5 py-0 text-xs text-muted-foreground">
                   Annulé
                 </Badge>
               )}
-              <span className="ml-auto text-[11px] text-muted-foreground">
+              <span className="ml-auto text-xs text-muted-foreground">
                 {new Date(run.started_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })}
               </span>
             </div>
@@ -383,7 +383,7 @@ function RecentRunsList({ runs }: { runs: FluxRun[] }) {
 
 function LineParamPill({ icon: Icon, label }: { icon: typeof Thermometer; label: string }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/60 px-2 py-0.5 text-[11px] text-muted-foreground">
+    <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/60 px-2 py-0.5 text-xs text-muted-foreground">
       <Icon className="h-2.5 w-2.5" />
       {label}
     </span>

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { DataState } from '@/components/shared/DataState';
 import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -328,8 +329,9 @@ const PendingSection = ({ canManage, userId, activeReceptions, onOpen, onResume 
 
 export const ReceptionDashboardV2 = ({
   prefillPurchaseOrderId,
-  initialView,
+  initialView, onViewChange,
 }: {
+  onViewChange?: (view: string) => void;
   prefillPurchaseOrderId?: string;
   /** Deep-link: bra opens Bon de Réception Achat. */
   initialView?: string;
@@ -353,7 +355,7 @@ export const ReceptionDashboardV2 = ({
   const [intake, setIntake] = useState<IntakeTarget | null>(null);
   const [noticeOpen, setNoticeOpen] = useState(false);
 
-  const updateSubTab = useCallback((v: SubTab) => { setSubTab(v); ss.set('rdv2-subtab', v); }, []);
+  const updateSubTab = useCallback((v: SubTab) => { setSubTab(v); ss.set('rdv2-subtab', v); onViewChange?.(v); }, [onViewChange]);
 
   useEffect(() => {
     if (prefillPurchaseOrderId) setIntake({ prefillPurchaseOrderId });
@@ -369,8 +371,12 @@ export const ReceptionDashboardV2 = ({
   }, [initialView, updateSubTab]);
 
   const todayStart = useMemo(startOfToday, []);
-  const { data: todayPage, isLoading: todayLoading, isError: todayError } = useSearchReceptionsQuery({ from: todayStart, limit: 100 });
-  const { data: activePage, isLoading: activeLoading } = useSearchReceptionsQuery({ status: ACTIVE_STATUSES, limit: 100 });
+  const todayQuery = useSearchReceptionsQuery({ from: todayStart, limit: 100 });
+  const activeQuery = useSearchReceptionsQuery({ status: ACTIVE_STATUSES, limit: 100 });
+  const { data: todayPage } = todayQuery;
+  const { data: activePage } = activeQuery;
+  const todaySource = { isLoading: todayQuery.isLoading, error: todayQuery.error, updatedAt: todayQuery.fulfilledTimeStamp, refetch: todayQuery.refetch };
+  const activeSource = { isLoading: activeQuery.isLoading, error: activeQuery.error, updatedAt: activeQuery.fulfilledTimeStamp, refetch: activeQuery.refetch };
   const { data: drafts = [] } = useListReceptionDraftsQuery();
   const { data: alerts = [] } = useReceptionAlerts();
   const { data: suppliers = [] } = useSuppliers();
@@ -438,7 +444,7 @@ export const ReceptionDashboardV2 = ({
 
       <Tabs value={subTab} onValueChange={(v) => updateSubTab(v as SubTab)}>
         <div className="flex flex-wrap-reverse items-center gap-x-3 gap-y-2 border-b">
-          <div className="min-w-0 flex-1 overflow-x-auto scrollbar-hide">
+          <div className="min-w-0 flex-1 overflow-x-auto scrollbar-hide max-lg:basis-full">
           <div className="flex min-w-max gap-1" role="tablist" aria-label="Sections de la réception">
             {tabs.map((tab) => {
               const active = subTab === tab.value;
@@ -457,7 +463,7 @@ export const ReceptionDashboardV2 = ({
                   <tab.icon className="h-4 w-4 shrink-0" />
                   {tab.label}
                   {tab.badge != null && (
-                    <span className={cn('flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-bold leading-none text-primary-foreground', tab.badgeClass)}>
+                    <span className={cn('flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-bold leading-none text-primary-foreground', tab.badgeClass)}>
                       {tab.badge}
                     </span>
                   )}
@@ -481,18 +487,15 @@ export const ReceptionDashboardV2 = ({
           </div>
         </div>
 
-        <TabsContent value="today" className="mt-3 divide-y overflow-hidden rounded-lg border bg-card">
+        <TabsContent value="today" className="mt-3 divide-y overflow-clip rounded-lg border bg-card">
           <ReceptionListHead />
-          {todayError ? <ListError /> : todayLoading ? <Loading /> : todayRows.length === 0 ? (
-            <div className="flex items-center justify-center gap-3 rounded-2xl border border-dashed p-8 text-sm text-muted-foreground">
-              <CheckCircle2 className="h-5 w-5" />
-              Aucune réception aujourd'hui pour le moment.
-            </div>
-          ) : todayRows.map((reception) => <ReceptionRow key={reception.id} reception={reception} onOpen={openReception} />)}
+          <DataState source={todaySource} data={todayPage} isEmpty={todayRows.length === 0} what="les réceptions du jour" className="m-2 mb-3" empty="Aucune réception aujourd'hui pour le moment.">
+            {todayRows.map((reception) => <ReceptionRow key={reception.id} reception={reception} onOpen={openReception} />)}
+          </DataState>
         </TabsContent>
 
         <TabsContent value="pending" className="mt-4">
-          {activeLoading ? <Loading /> : (
+          <DataState source={activeSource} data={activePage} isEmpty={false} what="les réceptions en attente">
             <PendingSection
               canManage={canManageReception}
               userId={user?.id ?? null}
@@ -500,7 +503,7 @@ export const ReceptionDashboardV2 = ({
               onOpen={openReception}
               onResume={(draftId) => setIntake({ draftId })}
             />
-          )}
+          </DataState>
         </TabsContent>
 
         <TabsContent value="registry" className="mt-4">
@@ -509,7 +512,9 @@ export const ReceptionDashboardV2 = ({
 
         {canRunQc && (
           <TabsContent value="qc" className="mt-4">
-            <ReceptionQcQueue receptions={activeRows} onOpenStorage={(id) => setWorkspace({ id, section: 'stock' })} />
+            <DataState source={activeSource} data={activePage} isEmpty={false} what="la file de contrôle qualité">
+              <ReceptionQcQueue receptions={activeRows} onOpenStorage={(id) => setWorkspace({ id, section: 'stock' })} />
+            </DataState>
           </TabsContent>
         )}
 

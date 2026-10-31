@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { canRead } from '@/lib/apiAccess';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Locale } from 'date-fns';
@@ -88,7 +90,8 @@ export const FactoryAlertsCenter = () => {
    const { data: notifications = [], isLoading: notifLoading, refetch: refetchNotifications } = useNotifications();
    const { recentNotifications, lastRealtimeAt } = useNotificationRealtimeState();
    const { data: auditLogs = [], isLoading: auditLoading, refetch: refetchAudit } = useAuditLogs();
-   const { data: receptionAlerts = [] } = useReceptionAlerts();
+   const { roles } = useAuthContext();
+   const { data: receptionAlerts = [] } = useReceptionAlerts({ enabled: canRead(roles, 'receptionAlerts') });
    
    // Cache invalidation is handled globally by useBackendRealtimeSync (SSE → RTK Query tags)
 
@@ -179,7 +182,7 @@ export const FactoryAlertsCenter = () => {
                    <div key={notification.id} className="rounded-lg border bg-background px-3 py-2">
                      <div className="flex items-center justify-between gap-2">
                        <span className="truncate text-sm font-medium">{notification.title}</span>
-                       <Badge variant="outline" className="shrink-0 text-[11px]">
+                       <Badge variant="outline" className="shrink-0 text-xs">
                          {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale: getLocale() })}
                        </Badge>
                      </div>

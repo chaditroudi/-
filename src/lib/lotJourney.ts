@@ -75,6 +75,7 @@ const NEXT_BY_COMPLETED_TIP: Record<LotJourneyStage, LotJourneyNextAction> = {
     description: 'Décider grade / libération / rejet sur la réception.',
     ctaLabel: 'Ouvrir QC réception',
     tab: 'receptions',
+    view: 'qc',
     secondary: { ctaLabel: 'Créer BRA', tab: 'receptions', view: 'bra', action: 'new' },
   },
   QC_DECIDED: {

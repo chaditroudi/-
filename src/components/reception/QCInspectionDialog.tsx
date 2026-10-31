@@ -801,7 +801,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                                 </button>
                               ))}
                             </div>
-                            <p className="text-center text-[11px] text-muted-foreground">{current}/5</p>
+                            <p className="text-center text-xs text-muted-foreground">{current}/5</p>
                           </div>
                         );
                       })}
@@ -855,7 +855,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                                 value={labHumidityPct}
                                 onChange={(e) => setLabHumidityPct(e.target.value)}
                               />
-                              <p className="text-[11px] text-muted-foreground">
+                              <p className="text-xs text-muted-foreground">
                                 Sol: {score.humidityAverage}% · cible 20–26%
                               </p>
                             </div>
@@ -870,7 +870,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                                 value={labDefectsPct}
                                 onChange={(e) => setLabDefectsPct(e.target.value)}
                               />
-                              <p className="text-[11px] text-muted-foreground">
+                              <p className="text-xs text-muted-foreground">
                                 Sol (somme): {totalDefectsFloor.toFixed(1)}%
                               </p>
                             </div>
@@ -992,7 +992,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                         >
                           {decision}
                           {decision === score.recommendedDecision && (
-                            <span className="ml-1 text-[11px] opacity-60">auto</span>
+                            <span className="ml-1 text-xs opacity-60">auto</span>
                           )}
                         </Button>
                       ))}

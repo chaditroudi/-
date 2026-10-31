@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { DataState } from '@/components/shared/DataState';
 import { suppliersApi } from '@/lib/api/suppliers';
 import { useAuthContext } from '@/contexts/AuthContext';
 import type { Supplier } from '@/types/mes';
@@ -50,6 +51,20 @@ const GRADE_LABELS: Record<string, string> = {
   CATEGORIE_II: 'Cat. II',
   REJETE: 'Rejeté',
 };
+
+const COMPLIANCE_LABEL: Record<string, string> = {
+  compliant: 'Conforme',
+  warning: 'À vérifier',
+  non_compliant: 'Non conforme',
+  blocked: 'Bloqué',
+};
+
+const portalDate = (value?: string | null) => (value ? new Date(value).toLocaleDateString('fr-FR') : '—');
+
+/** The score reads its inputs as zero when they are missing, so with none there is no score. */
+const hasScoreData = (supplier: Supplier) =>
+  [supplier.quality_score, supplier.rating, supplier.delivery_reliability_score, supplier.traceability_score]
+    .some((value) => Number(value) > 0);
 
 function ScoreCard({ supplier }: { supplier: Supplier }) {
   const score = computeSupplierScoreM1(supplier);
@@ -234,11 +249,20 @@ function PaiementsSection({ supplierId, totalPaid }: { supplierId: string; total
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
+const PortalSignOut = () => {
+  const { signOut } = useAuthContext();
+  return (
+    <div className="flex justify-end">
+      <Button type="button" variant="outline" size="sm" onClick={() => void signOut()}>Se déconnecter</Button>
+    </div>
+  );
+};
+
 export default function SupplierPortal() {
   const { user } = useAuthContext();
   const userEmail = user?.email ?? null;
 
-  const { data: suppliers, isLoading, error } = useQuery({
+  const { data: suppliers, isLoading, error, refetch } = useQuery({
     queryKey: ['portail-supplier', userEmail],
     queryFn: async () => {
       const all = await suppliersApi.list() as Supplier[];
@@ -269,7 +293,18 @@ export default function SupplierPortal() {
     );
   }
 
-  if (error || !supplier) {
+  if (error) {
+    return (
+      <div className="min-h-screen bg-muted/30 p-4">
+        <div className="mx-auto mt-16 max-w-md">
+          <DataState source={{ error, refetch }} data={undefined} what="votre fiche fournisseur">{null}</DataState>
+          <PortalSignOut />
+        </div>
+      </div>
+    );
+  }
+
+  if (!supplier) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-muted/30">
         <div className="text-center space-y-2 max-w-sm">
@@ -279,6 +314,7 @@ export default function SupplierPortal() {
             Aucune fiche fournisseur active n'est liée à l'adresse <strong>{userEmail}</strong>.
             Contactez l&apos;équipe achats pour activer votre accès portail.
           </p>
+          <PortalSignOut />
         </div>
       </div>
     );
@@ -315,7 +351,8 @@ export default function SupplierPortal() {
           </div>
           <div className="flex flex-col items-end gap-1">
             <Badge className={getSupplierStatusClassName(status)}>{getSupplierStatusLabel(status)}</Badge>
-            <span className="text-[11px] text-muted-foreground">Portail fournisseur — lecture seule</span>
+            <span className="text-xs text-muted-foreground">Portail fournisseur, lecture seule</span>
+            <PortalSignOut />
           </div>
         </div>
         <div className="max-w-2xl mx-auto px-4 pb-3 flex flex-wrap gap-2">
@@ -344,7 +381,9 @@ export default function SupplierPortal() {
             <Award className="h-5 w-5 text-amber-500" />
             <h2 className="font-semibold">Votre score qualité</h2>
           </div>
-          <ScoreCard supplier={supplier} />
+          {hasScoreData(supplier)
+            ? <ScoreCard supplier={supplier} />
+            : <p className="rounded-lg border border-dashed px-3 py-3 text-sm text-muted-foreground">Pas encore de score : aucune livraison n'a été évaluée.</p>}
         </section>
 
         <Separator />
@@ -358,11 +397,11 @@ export default function SupplierPortal() {
           <div className="grid grid-cols-2 gap-3">
             {[
               ['Type de contrat', supplier.contract_type ?? '—'],
-              ['Début', supplier.contract_start_date ?? '—'],
-              ['Fin', supplier.contract_end_date ?? '—'],
+              ['Début', portalDate(supplier.contract_start_date)],
+              ['Fin', portalDate(supplier.contract_end_date)],
               ['Modalités paiement', supplier.payment_terms ?? '—'],
               ['Prix convenu', supplier.agreed_price_tnd_per_kg != null ? `${supplier.agreed_price_tnd_per_kg} TND/kg` : '—'],
-              ['Conformité', supplier.compliance_status ?? '—'],
+              ['Conformité', COMPLIANCE_LABEL[supplier.compliance_status ?? ''] ?? supplier.compliance_status ?? '—'],
             ].map(([label, value]) => (
               <div key={String(label)} className="rounded-xl bg-muted/50 p-3">
                 <p className="text-xs text-muted-foreground">{label}</p>

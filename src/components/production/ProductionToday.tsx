@@ -2,6 +2,7 @@ import { useMemo, type ReactNode } from 'react';
 import { AlertTriangle, ChevronRight, Droplets, Factory, Flame, Scissors, Wind, type LucideIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { DataState, type DataSource } from '@/components/shared/DataState';
 import { useFumigationCycles } from '@/hooks/useFumigation';
 import { useCleaningCycles } from '@/hooks/useNettoyage';
 import { useHydrationCycles } from '@/hooks/useHydratation';
@@ -15,6 +16,8 @@ import type { ProductionView } from './views';
 
 interface ProductionTodayProps {
   orders: ProductionOrder[];
+  ordersSource: DataSource;
+  ordersData: unknown;
   stagesEnabled: boolean;
   onOpenView: (view: ProductionView) => void;
   onOpenOrder: (orderId: string) => void;
@@ -47,7 +50,7 @@ const WorkRow = ({ icon: Icon, title, detail, status, action, onAction }: WorkRo
   </div>
 );
 
-const Section = ({ title, hint, children }: { title: string; hint: string; children: ReactNode }) => {
+const Section = ({ title, hint, unknown, children }: { title: string; hint: string; unknown?: boolean; children: ReactNode }) => {
   const rows = (Array.isArray(children) ? children.flat() : [children]).filter(Boolean);
   return (
     <section>
@@ -57,7 +60,7 @@ const Section = ({ title, hint, children }: { title: string; hint: string; child
       </div>
       {rows.length > 0
         ? <div className="divide-y rounded-lg border bg-card">{children}</div>
-        : <p className="rounded-lg border border-dashed px-3 py-3 text-sm text-muted-foreground">Rien pour le moment.</p>}
+        : <p className="rounded-lg border border-dashed px-3 py-3 text-sm text-muted-foreground">{unknown ? 'Non vérifié : les cycles de l\'atelier n\'ont pas pu être chargés.' : 'Rien pour le moment.'}</p>}
     </section>
   );
 };
@@ -87,7 +90,7 @@ const RECENT_MS = 7 * 24 * 60 * 60 * 1000;
 const isRecent = (row: { created_at?: string | null }) => Date.now() - new Date(row.created_at ?? 0).getTime() < RECENT_MS;
 
 /** The first screen of Production: what is running, what comes next, what is stuck and why. */
-export const ProductionToday = ({ orders, stagesEnabled, onOpenView, onOpenOrder }: ProductionTodayProps) => {
+export const ProductionToday = ({ orders, ordersSource, ordersData, stagesEnabled, onOpenView, onOpenOrder }: ProductionTodayProps) => {
   const { orderStatusLabels } = useProductionConfig();
   const pipeline = usePhase2Pipeline({ enabled: stagesEnabled });
   const alerts = usePhase2AlertKpis();
@@ -131,9 +134,15 @@ export const ProductionToday = ({ orders, stagesEnabled, onOpenView, onOpenOrder
   ];
 
   const criticalAlerts = alerts.urgence + alerts.critique;
+  const stagesUnknown = stagesEnabled && (Boolean(pipeline.error) || pipeline.isLoading);
 
   return (
+    <DataState source={ordersSource} data={ordersData} isEmpty={false} what="les ordres de fabrication">
     <div className="space-y-4">
+      {stagesEnabled && Boolean(pipeline.error) && (
+        <DataState compact source={{ error: pipeline.error, refetch: pipeline.refetch }} data={undefined} what="les cycles de l'atelier">{null}</DataState>
+      )}
+
       {criticalAlerts > 0 && (
         <button
           type="button"
@@ -146,7 +155,7 @@ export const ProductionToday = ({ orders, stagesEnabled, onOpenView, onOpenOrder
         </button>
       )}
 
-      <Section title="En cours" hint="Le travail en atelier">
+      <Section title="En cours" hint="Le travail en atelier" unknown={stagesUnknown}>
         {running.map((order) => (
           <WorkRow
             key={order.id}
@@ -171,7 +180,7 @@ export const ProductionToday = ({ orders, stagesEnabled, onOpenView, onOpenOrder
         ))}
       </Section>
 
-      <Section title="À lancer" hint="Les prochaines actions possibles">
+      <Section title="À lancer" hint="Les prochaines actions possibles" unknown={stagesUnknown}>
         {planned.map((order) => (
           <PlannedOrderRow key={order.id} order={order} onOpenOrder={onOpenOrder} label={orderStatusLabels[order.status]} />
         ))}
@@ -197,7 +206,7 @@ export const ProductionToday = ({ orders, stagesEnabled, onOpenView, onOpenOrder
         )}
       </Section>
 
-      <Section title="Bloqué" hint="Incidents des 7 derniers jours">
+      <Section title="Bloqué" hint="Incidents des 7 derniers jours" unknown={stagesUnknown}>
         {stuck.map((item) => (
           <WorkRow
             key={item.id}
@@ -211,5 +220,6 @@ export const ProductionToday = ({ orders, stagesEnabled, onOpenView, onOpenOrder
         ))}
       </Section>
     </div>
+    </DataState>
   );
 };

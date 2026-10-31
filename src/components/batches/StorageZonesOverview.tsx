@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { DataState } from '@/components/shared/DataState';
 import { toast } from "sonner";
 import {
   Activity,
@@ -24,7 +25,6 @@ import {
   Truck,
   Warehouse,
   Wind,
-  Zap,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -80,15 +80,6 @@ const fmt = (v?: string | null) => {
 const fmtNum = (v?: number | null, unit = "") => {
   if (v == null || Number.isNaN(v)) return "—";
   return `${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 }).format(v)}${unit}`;
-};
-
-const fmtRelative = (date: Date) => {
-  const s = Math.floor((Date.now() - date.getTime()) / 1000);
-  if (s < 10) return "à l'instant";
-  if (s < 60) return `il y a ${s}s`;
-  const m = Math.floor(s / 60);
-  if (m < 60) return `il y a ${m} min`;
-  return `il y a ${Math.floor(m / 60)} h`;
 };
 
 const occupancy = (cur = 0, cap = 0) => cap > 0 ? Math.min(100, Math.round((cur / cap) * 1000) / 10) : 0;
@@ -200,7 +191,6 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
   const [locationSearch, setLocationSearch] = useState("");
   const [scannerOpen, setScannerOpen] = useState(false);
   const [lotScanToken, setLotScanToken] = useState("");
-  const [lastSyncAt, setLastSyncAt] = useState<Date>(new Date());
 
   // ── Assign lot dialog ─────────────────────────────────────────────────────
   const [assignLot, setAssignLot] = useState<null | { id: string; lot_internal?: string; variety?: string; quantity?: number; unit?: string; stock_status?: string }>(null);
@@ -224,7 +214,6 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
     setAssignLot(null);
     setAssignZone("");
     setAssignNotes("");
-    setLastSyncAt(new Date());
   }, [assignLot, assignZone, assignNotes, moveLot]);
 
   // ── Movement form ─────────────────────────────────────────────────────────
@@ -251,15 +240,25 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
   });
 
   // ── Data ──────────────────────────────────────────────────────────────────
-  const { data: zones = [], isLoading: zonesLoading, refetch: refetchZones } = useModule3StorageZones();
+  const zonesQuery = useModule3StorageZones();
+  const { data: zones = [], isLoading: zonesLoading, refetch: refetchZones } = zonesQuery;
   const { data: allLocations = [], refetch: refetchLocations } = useModule3StorageLocations();
   const { data: locations = [] } = useModule3StorageLocations(selectedZoneId === "all" ? undefined : selectedZoneId);
   const { data: readings = [] } = useStorageConditionReadings(80);
-  const { data: movements = [], refetch: refetchMovements } = useStorageLocationMovements(100);
-  const { data: rawOverdue = [] } = useRawStorageOverdueReceptions();
-  const { data: dlcAlerts = [] } = useStorageDlcAlerts();
+  const movementsQuery = useStorageLocationMovements(100);
+  const { data: movements = [], refetch: refetchMovements } = movementsQuery;
+  const overdueQuery = useRawStorageOverdueReceptions();
+  const dlcQuery = useStorageDlcAlerts();
+  const { data: rawOverdue = [] } = overdueQuery;
+  const { data: dlcAlerts = [] } = dlcQuery;
   const { data: doorEvents = [] } = useStorageDoorEvents(30);
-  const { data: allLots = [], isLoading: lotsLoading, refetch: refetchLots } = useAllReceptionLots();
+  const lotsQuery = useAllReceptionLots();
+  const { data: allLots, isLoading: lotsLoading, refetch: refetchLots } = lotsQuery;
+  const lotsSource = { isLoading: lotsQuery.isLoading, error: lotsQuery.error, updatedAt: lotsQuery.fulfilledTimeStamp, refetch: refetchLots };
+  const zonesSource = { isLoading: zonesQuery.isLoading, error: zonesQuery.error, updatedAt: zonesQuery.fulfilledTimeStamp, refetch: refetchZones };
+  const movementsSource = { isLoading: movementsQuery.isLoading, error: movementsQuery.error, updatedAt: movementsQuery.fulfilledTimeStamp, refetch: refetchMovements };
+  const zonesKnown = !zonesQuery.error && zonesQuery.data !== undefined;
+  const alertsKnown = !overdueQuery.error && !dlcQuery.error && overdueQuery.data !== undefined && dlcQuery.data !== undefined;
   const { data: inventoryCounts = [] } = useInventoryCounts();
 
   const moveStock = useMoveStorageStock();
@@ -340,7 +339,6 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
       await createZone.mutateAsync(payload);
     }
     setZoneDialog({ open: false, editing: null });
-    setLastSyncAt(new Date());
   }, [zoneForm, zoneDialog.editing, updateZone, createZone]);
 
   const openLocCreate = useCallback(() => {
@@ -373,7 +371,6 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
       await createLocation.mutateAsync(payload);
     }
     setLocDialog({ open: false, editing: null });
-    setLastSyncAt(new Date());
   }, [locForm, locDialog.editing, updateLocation, createLocation]);
 
   // ── Derived data ──────────────────────────────────────────────────────────
@@ -458,7 +455,6 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
 
   const handleRefresh = useCallback(async () => {
     await Promise.all([refetchZones(), refetchLocations(), refetchMovements(), refetchLots()]);
-    setLastSyncAt(new Date());
   }, [refetchZones, refetchLocations, refetchMovements, refetchLots]);
 
   const handleMovementSubmit = useCallback(async () => {
@@ -479,7 +475,6 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
     } as any);
     setMvtForm(f => ({ ...f, lotCode: "", variety: "", quantityPalettes: "1", quantityKg: "", notes: "" }));
     setLotScanToken("");
-    setLastSyncAt(new Date());
   }, [lotScanToken, mvtForm, moveStock]);
 
   const handleReadingSubmit = useCallback(async () => {
@@ -495,7 +490,6 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
       recordedBy: "operateur",
     });
     setReadingForm(f => ({ ...f, temperatureC: "", humidityPercent: "", gasPpm: "", sensorRef: "" }));
-    setLastSyncAt(new Date());
   }, [readingForm, zones, createReading]);
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -506,17 +500,10 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
       {/* ── Header ── */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-2">
-          {/* Real-time indicator */}
-          <div className="flex items-center gap-1.5 whitespace-nowrap rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-            <Zap className="h-3 w-3 text-emerald-600" />
-            <span className="text-xs font-semibold text-emerald-700">
-              Temps réel · {fmtRelative(lastSyncAt)}
-            </span>
-          </div>
           {/* Primary action — scan-to-move from anywhere in the work-center. */}
           <Button
             size="sm"
+            disabled={!lotsQuery.currentData}
             className="gap-2 "
             onClick={() => { setTab("mouvements"); setScannerOpen(true); }}
           >
@@ -548,7 +535,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
           </div>
           <Button
             size="sm"
-            className="shrink-0 bg-amber-600 hover:bg-amber-700 text-white"
+            className="shrink-0"
             onClick={() => { setTab("lots"); setLotStatusFilter("STOCK_LIBERE"); }}
           >
             Affecter les lots
@@ -585,6 +572,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
       <LotTraceabilityDialog open={Boolean(traceLot)} onOpenChange={(open) => !open && setTraceLot("")} lotNumber={traceLot} />
 
       {/* ── Main tabs ── */}
+      <DataState source={lotsSource} data={lotsQuery.currentData} isEmpty={false} what="les lots en stock">
       <Tabs value={tab} onValueChange={setTab} className="space-y-4">
         <TabsList className="flex flex-wrap gap-1">
           {[
@@ -624,21 +612,21 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
             </div>
             <div className="bg-card px-3 py-2">
               <dt className="text-xs text-muted-foreground">Occupation</dt>
-              <dd className="font-display text-xl font-semibold">{globalOccupancy} %</dd>
-              <dd className="text-xs text-muted-foreground">{zones.length} zones actives</dd>
+              <dd className="font-display text-xl font-semibold">{zonesKnown ? `${globalOccupancy} %` : "—"}</dd>
+              <dd className="text-xs text-muted-foreground">{zonesKnown ? `${zones.length} zones actives` : "Zones indisponibles"}</dd>
             </div>
             <div className="bg-card px-3 py-2">
               <dt className="text-xs text-muted-foreground">Alertes</dt>
-              <dd className={cn("font-display text-xl font-semibold", dlcAlerts.length + rawOverdue.length > 0 && "text-red-700")}>{dlcAlerts.length + rawOverdue.length}</dd>
-              <dd className="text-xs text-muted-foreground">{rawOverdue.length > 0 ? `${rawOverdue.length} retards brut` : "Aucun retard critique"}</dd>
+              <dd className={cn("font-display text-xl font-semibold", dlcAlerts.length + rawOverdue.length > 0 && "text-red-700")}>{alertsKnown ? dlcAlerts.length + rawOverdue.length : "—"}</dd>
+              <dd className="text-xs text-muted-foreground">{!alertsKnown ? "Non vérifié" : rawOverdue.length > 0 ? `${rawOverdue.length} retards brut` : "Aucun retard critique"}</dd>
             </div>
           </dl>
 
           <div className="grid items-start gap-3 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
             <section>
               <h2 className="pb-1 text-base">Occupation par zone</h2>
-              {zonesLoading ? (
-                <p className="rounded-lg border bg-card py-8 text-center text-sm text-muted-foreground">Chargement…</p>
+              {!zonesKnown ? (
+                <DataState source={zonesSource} data={zonesQuery.data} isEmpty={false} what="les zones de stockage">{null}</DataState>
               ) : zones.length === 0 ? (
                 <p className="rounded-lg border bg-card py-8 text-center text-sm text-muted-foreground">Aucune zone configurée</p>
               ) : (
@@ -686,7 +674,9 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
             <h2 className="pb-1 text-base">Derniers mouvements</h2>
             <Card>
             <CardContent className="p-0">
-              {movements.length === 0 ? (
+              {movementsQuery.error || !movementsQuery.data ? (
+                <DataState compact source={movementsSource} data={movementsQuery.data} isEmpty={false} what="les mouvements">{null}</DataState>
+              ) : movements.length === 0 ? (
                 <p className="px-4 py-6 text-center text-sm text-muted-foreground">Aucun mouvement enregistré</p>
               ) : (
                 <div className="divide-y divide-border/40">
@@ -769,7 +759,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
 
           <section aria-labelledby="stock-flow-title">
             <h2 id="stock-flow-title" className="pb-1 text-base">Où sont les lots</h2>
-            <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-3 lg:grid-cols-5">
+            <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-3 lg:grid-cols-5 max-lg:[&>*:last-child]:col-span-2">
               {([
                 { key: "waiting",  label: "Libérés, sans zone", lots: mfgStages.waiting },
                 { key: "raw",      label: "Stockage brut",      lots: mfgStages.raw },
@@ -1234,7 +1224,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
               </CardHeader>
               <CardContent className="p-0">
                 {movements.length === 0 ? (
-                  <div className="py-12 text-center text-sm text-muted-foreground">Aucun mouvement</div>
+                  <div className="py-12 text-center text-sm text-muted-foreground">{movementsQuery.error ? "Mouvements indisponibles" : "Aucun mouvement"}</div>
                 ) : (
                   <div className="overflow-x-auto">
                     <Table>
@@ -1425,7 +1415,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                       {doorEvents.slice(0, 20).map(e => (
                         <div key={e.id} className="flex items-center gap-3 px-4 py-2.5">
                           <span className={cn(
-                            "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold",
+                            "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold",
                             e.event_type === "OPEN"
                               ? "bg-amber-100 text-amber-700"
                               : "bg-emerald-100 text-emerald-700",
@@ -1472,7 +1462,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                 {zones.length === 0 ? (
                   <div className="py-12 text-center">
                     <Warehouse className="mx-auto mb-3 h-10 w-10 text-muted-foreground/30" />
-                    <p className="text-sm text-muted-foreground">Aucune zone configurée</p>
+                    <p className="text-sm text-muted-foreground">{zonesKnown ? "Aucune zone configurée" : "Zones indisponibles"}</p>
                     <Button size="sm" className="mt-3 " onClick={openZoneCreate}>
                       <Plus className="mr-1.5 h-4 w-4" />
                       Créer la première zone
@@ -1648,6 +1638,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
           </TabsContent>
         )}
       </Tabs>
+      </DataState>
 
       {/* ── Assign lot dialog ── */}
       <Dialog open={!!assignLot} onOpenChange={open => { if (!open) { setAssignLot(null); setAssignZone(""); } }}>

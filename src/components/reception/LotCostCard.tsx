@@ -34,7 +34,7 @@ export function LotCostCard({ lotId }: Props) {
     <div className="rounded-2xl border bg-muted/30 p-4 space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm font-medium">Coût lot (Wave B)</p>
-        <Badge variant="outline" className="text-[10px]">
+        <Badge variant="outline" className="text-xs">
           base {data.rates.basis}
         </Badge>
       </div>
@@ -68,9 +68,9 @@ export function LotCostCard({ lotId }: Props) {
             <div className="grid gap-2 sm:grid-cols-3">
               {grades.map((grade) => (
                 <div key={String(grade.lot_number || grade.grade)} className="rounded-lg border bg-background px-3 py-2">
-                  <p className="text-[11px] text-muted-foreground">{grade.grade}</p>
+                  <p className="text-xs text-muted-foreground">{grade.grade}</p>
                   <p className="text-sm font-semibold">{fmt(grade.cost_tnd_per_kg)} / kg</p>
-                  <p className="text-[11px] text-muted-foreground">{grade.weight_kg} kg</p>
+                  <p className="text-xs text-muted-foreground">{grade.weight_kg} kg</p>
                 </div>
               ))}
             </div>
