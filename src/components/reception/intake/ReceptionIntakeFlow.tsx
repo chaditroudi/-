@@ -338,7 +338,7 @@ const FlowBody = ({ draftId, prefillPurchaseOrderId, canRunQc, onClose, onOpenRe
   );
 
   return (
-    <div className={cn('space-y-4', isMobile && 'pb-36')}>
+    <div data-work-in-progress className={cn('space-y-4', isMobile && 'pb-36')}>
       <div className="flex flex-wrap items-center gap-3">
         <Button variant="ghost" className="gap-2 px-2" onClick={() => void saveAndLeave()}>
           <ArrowLeft className="h-4 w-4" />

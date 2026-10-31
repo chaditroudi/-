@@ -69,7 +69,7 @@ export const OfflineSyncStatus = () => {
     };
   }, [drain, refresh]);
 
-  const mine = items.filter((item) => (item.ownerUserId ?? userId) === userId);
+  const mine = items.filter((item) => item.ownerUserId === userId);
   const others = items.length - mine.length;
   const pending = mine.filter((item) => item.status === 'pending' || item.status === 'syncing');
   const failed = mine.filter((item) => item.status === 'failed');

@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import { VitePWA } from "vite-plugin-pwa";
 import http from "node:http";
 import path from "path";
-import { refuseBuildTarget, resolveBuildTarget } from "./src/lib/apiTarget";
+import { refuseBuildTarget, refuseDevProxy, resolveBuildTarget } from "./src/lib/apiTarget";
 
 // In dev mode, serve a self-destructing SW at /sw.js so the browser's
 // automatic SW update check (which always bypasses the cache and the
@@ -96,6 +96,17 @@ const apiReadinessGate = (apiProxyTarget: string) => {
   };
 };
 
+/** Reads the final port, so `--port` on the command line is checked too. */
+const devProxyGuard = (): Plugin => ({
+  name: "dev-proxy-guard",
+  apply: "serve",
+  configResolved(config) {
+    const port = config.isProduction ? config.preview.port : config.server.port;
+    const refusal = refuseDevProxy(Number(port), process.env.VITE_API_PROXY_TARGET);
+    if (refusal) throw new Error(`Server refused: ${refusal}`);
+  },
+});
+
 /** A build states where it talks. There is no default host, so a missing value stops here. */
 const assertBuildApiTarget = (mode: string) => {
   const env = { ...loadEnv(mode, process.cwd(), "VITE_"), ...process.env };
@@ -120,7 +131,8 @@ export default defineConfig(async ({ command, mode }) => {
 
   return {
   base: isProd ? "./" : "/",
-  cacheDir: "node_modules/.vite-date-harvest-hub",
+  // A test server in another worktree must not rewrite the running dev server's cache.
+  cacheDir: process.env.VITE_CACHE_DIR || "node_modules/.vite-date-harvest-hub",
   server: {
     host: "::",
     port: devPort,
@@ -180,6 +192,7 @@ export default defineConfig(async ({ command, mode }) => {
     },
   },
   plugins: [
+      devProxyGuard(),
       apiReadinessGate(apiProxyTarget),
       devSwKillSwitch(),
       react(),
@@ -213,19 +226,7 @@ export default defineConfig(async ({ command, mode }) => {
           // Cache JS/CSS/HTML bundles for offline use
           globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
           maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
-          // API calls — network first, fall back to cache
-          runtimeCaching: [
-            {
-              urlPattern: ({ url }) => url.pathname.startsWith('/api') || url.pathname.includes('/api'),
-              handler: "NetworkFirst",
-              options: {
-                cacheName: "api-cache",
-                networkTimeoutSeconds: 8,
-                expiration: { maxEntries: 50, maxAgeSeconds: 60 * 5 },
-                cacheableResponse: { statuses: [0, 200] },
-              },
-            },
-          ],
+          // No API route: a tablet is shared, and answers belong to whoever asked for them.
         },
         devOptions: {
           // Enable SW in dev so you can test it without a production build

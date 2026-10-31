@@ -31,3 +31,7 @@ server-dist
 *.njsproj
 *.sln
 *.sw?
+
+# Browser run output and database backups hold test credentials or real records
+.playwright-mcp/
+backups/

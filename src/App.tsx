@@ -1,15 +1,19 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 import { Provider } from "react-redux";
 import { HashRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider, useAuthContext } from "@/contexts/AuthContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useBackendRealtimeSync } from "@/hooks/useBackendRealtimeSync";
 import { useRealtimeNotifications } from "@/hooks/useNotifications";
 import { PwaInstallBanner } from "@/components/layout/PwaInstallBanner";
 import { OfflineSyncStatus } from "@/components/layout/OfflineSyncStatus";
+import { EnvironmentRibbon } from "@/components/layout/EnvironmentRibbon";
+import { restartSseConnection } from "@/lib/sseClient";
+import { clearSessionData } from "@/lib/sessionData";
 import { store } from "@/store";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
@@ -34,6 +38,24 @@ const queryClient = new QueryClient({
   },
 });
 
+/** A tablet is shared: nothing one account loaded or subscribed to may reach the next. */
+const SessionBoundary = () => {
+  const { user } = useAuthContext();
+  const client = useQueryClient();
+  const userId = user?.id ?? null;
+  const previous = useRef(userId);
+
+  useEffect(() => {
+    if (previous.current === userId) return;
+    const hadAccount = previous.current !== null;
+    previous.current = userId;
+    restartSseConnection();
+    if (hadAccount) void clearSessionData(client);
+  }, [client, userId]);
+
+  return null;
+};
+
 const RealtimeSync = () => {
   useBackendRealtimeSync();
   return null;
@@ -50,10 +72,12 @@ const App = () => (
       <AuthProvider>
         <SettingsProvider>
           <HashRouter>
+            <SessionBoundary />
             <RealtimeSync />
             <NotificationsRealtimeBridge />
             <TooltipProvider>
               <Toaster />
+              <EnvironmentRibbon />
               <PwaInstallBanner />
               <OfflineSyncStatus />
               <Routes>

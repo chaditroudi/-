@@ -2,6 +2,9 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import "./i18n";
+import { toast } from "sonner";
+import { applyUpdateWhenSafe } from "./lib/appUpdate";
+import { deleteLegacyApiCache } from "./lib/sessionData";
 
 // ── Service worker lifecycle ──────────────────────────────────────────────────
 //
@@ -12,7 +15,8 @@ import "./i18n";
 //
 // Production: vite-plugin-pwa registers the SW via autoUpdate. We additionally
 //      listen for the `controllerchange` event and reload the page so users
-//      always see the latest build without needing a manual hard-refresh.
+//      always see the latest build without needing a manual hard-refresh. The
+//      reload waits for any work on screen.
 
 if ('serviceWorker' in navigator) {
   if (import.meta.env.DEV) {
@@ -20,11 +24,18 @@ if ('serviceWorker' in navigator) {
       regs.forEach(reg => reg.unregister());
     });
   } else {
-    // When the active SW is replaced by a new one, reload immediately. The first
-    // install also fires this event, and nothing is stale on that visit.
+    void deleteLegacyApiCache();
+    // When the active SW is replaced by a new one, reload. The first install also
+    // fires this event, and nothing is stale on that visit.
     const hadController = Boolean(navigator.serviceWorker.controller);
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (hadController) window.location.reload();
+      if (!hadController) return;
+      applyUpdateWhenSafe({
+        onWaiting: (reloadNow) => toast('Nouvelle version prête', {
+          duration: Infinity,
+          action: { label: 'Recharger', onClick: reloadNow },
+        }),
+      });
     });
   }
 }

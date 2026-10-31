@@ -67,3 +67,19 @@ describe('W3 offline outbox retry classification', () => {
     expect(isOutboxRetryable(new ApiRequestError({ message: 'forbidden', status: 403 }))).toBe(false);
   });
 });
+
+describe('delivery with no recorded owner', () => {
+  it('is not sent under the account that happens to be signed in', async () => {
+    const send = vi.spyOn(axiosClient, 'post').mockResolvedValue({ data: { data: {} } });
+    const { enqueueReceptionIntake, drainOutbox, listOutbox } = await import('@/lib/offline/outbox');
+    const queued = await enqueueReceptionIntake({ client_request_id: 'no-owner', delivery_note_photos: [] }, null);
+    const later = vi.spyOn(Date, 'now').mockReturnValue(Date.now() + 60 * 60_000);
+
+    await drainOutbox('user-b');
+
+    expect(send).not.toHaveBeenCalled();
+    expect((await listOutbox()).some((item) => item.id === queued.id)).toBe(true);
+    later.mockRestore();
+    send.mockRestore();
+  });
+});

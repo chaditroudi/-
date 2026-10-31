@@ -144,7 +144,7 @@ export const drainOutbox = async (
     const items = (await listOutbox())
       .filter((item) =>
         (item.status === 'pending' || item.status === 'syncing')
-        && (item.ownerUserId ?? userId) === userId
+        && item.ownerUserId === userId
         && item.nextAttemptAt <= Date.now())
       .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 
