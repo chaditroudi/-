@@ -12,6 +12,7 @@ import {
   STEP_DEFINITIONS,
   STEP_STATUS_CONFIG,
 } from "./config/constants.js";
+import { classifyDatabaseHost, resolveAppEnv, shouldSeedDemoData } from "./config/runtime-env.js";
 import { getCollectionModel } from "./db/dynamic-model.js";
 import { prepareInsertDocument } from "./db/defaults.js";
 import { AuthUserModel } from "./models/auth-user.model.js";
@@ -67,7 +68,9 @@ export const seedDatabase = async () => {
   await ensureDocuments("production_flux_codes", "code", FLUX_CODE_CONFIG);
   await ensureDocuments("production_order_statuses", "code", ORDER_STATUS_CONFIG);
   await ensureDocuments("production_step_statuses", "code", STEP_STATUS_CONFIG);
-  if (process.env.NODE_ENV !== "production") {
+  const appEnv = resolveAppEnv(process.env.APP_ENV, process.env.NODE_ENV || "development");
+  const databaseHost = classifyDatabaseHost(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017");
+  if (shouldSeedDemoData(appEnv, databaseHost)) {
     await ensureDocuments("stock_locations", "code", DEMO_STOCK_LOCATIONS);
     await ensureDocuments("products", "code", DEMO_PRODUCTS);
     await ensureDocuments("materials", "code", DEMO_MATERIALS);

@@ -6,6 +6,7 @@
  *   DRY_RUN=1 npm run backfill:mass-balance
  */
 import mongoose from "mongoose";
+import { assertSafeDbTarget } from "./lib/db-target-guard.mjs";
 
 const mongoUri = process.env.MONGODB_URI;
 const mongoDbName = process.env.MONGODB_DB_NAME || "date_harvest_hub";
@@ -34,6 +35,7 @@ const compute = (inputKg, outputsKg, wasteKg = 0) => {
   return { variancePct, varianceKg, inputKg: input, accountedKg: accounted };
 };
 
+assertSafeDbTarget({ uri: mongoUri, dbName: mongoDbName });
 await mongoose.connect(mongoUri, { dbName: mongoDbName });
 const db = mongoose.connection.db;
 

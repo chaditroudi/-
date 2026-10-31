@@ -2,13 +2,14 @@
  * Wave A CCP sensors smoke: sensor attestation + cold breach + evidence gate payload.
  *   npm run smoke:wave-a
  */
-import { resolveTestApi } from "./lib/api-target-guard.mjs";
+import { assertTestStack, resolveTestApi } from "./lib/api-target-guard.mjs";
 import { createHmac, randomUUID } from "node:crypto";
 import { spawn } from "node:child_process";
 import { syntheticIntakeFields } from "./lib/intake-contract.mjs";
 import { releaseThroughQc } from "./lib/qc-release.mjs";
 
 const API = resolveTestApi();
+await assertTestStack(API);
 const PASSWORD = process.env.SMOKE_PASSWORD || "Test123!";
 const CCP_SECRET = process.env.CCP_SIMULATOR_SECRET;
 if (!CCP_SECRET) throw new Error("CCP_SIMULATOR_SECRET is required.");

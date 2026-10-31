@@ -51,6 +51,19 @@ describe("seedDatabase", () => {
   });
   afterEach(() => vi.unstubAllEnvs());
 
+  it("writes demo records to a local database", async () => {
+    await seedDatabase();
+    expect(created).toEqual(expect.arrayContaining(["suppliers", "products"]));
+  });
+
+  it("never writes demo records to a remote database, whatever else is set", async () => {
+    vi.stubEnv("MONGODB_URI", "mongodb+srv://user:secret@cluster0.example.mongodb.net/app");
+    await seedDatabase();
+    expect(created).not.toContain("suppliers");
+    expect(created).not.toContain("products");
+    expect(created).not.toContain("stock_locations");
+  });
+
   it("creates the first admin from the environment and forces a password change", async () => {
     await seedDatabase();
     expect(users).toHaveLength(1);

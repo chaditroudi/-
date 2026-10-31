@@ -1,5 +1,7 @@
 import dotenv from "dotenv";
 
+import { classifyDatabaseHost, resolveAppEnv } from "./runtime-env.js";
+
 dotenv.config();
 
 const toNumber = (value: string | undefined, fallback: number) => {
@@ -22,12 +24,15 @@ export const resolveJwtSecret = (nodeEnv: string, secret: string | undefined) =>
 };
 
 const nodeEnv = process.env.NODE_ENV || "development";
+const mongoUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/date_harvest_hub";
 
 export const env = {
   nodeEnv,
+  appEnv: resolveAppEnv(process.env.APP_ENV, nodeEnv),
+  databaseHostClass: classifyDatabaseHost(mongoUri),
   port: toNumber(process.env.PORT, 4000),
   host: process.env.API_HOST || "0.0.0.0",
-  mongoUri: process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/date_harvest_hub",
+  mongoUri,
   mongoDbName: process.env.MONGODB_DB_NAME || "date_harvest_hub",
   jwtSecret: resolveJwtSecret(nodeEnv, process.env.JWT_SECRET),
   jwtExpiresInSeconds: toNumber(process.env.JWT_EXPIRES_IN_SECONDS, 60 * 60 * 8),

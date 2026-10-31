@@ -6,9 +6,10 @@
  */
 import { createHmac, randomUUID } from "node:crypto";
 
-import { resolveTestApi } from "./lib/api-target-guard.mjs";
+import { assertTestStack, resolveTestApi } from "./lib/api-target-guard.mjs";
 
 const apiBase = resolveTestApi(process.env.API_URL);
+await assertTestStack(apiBase);
 const secret = process.env.CCP_SIMULATOR_SECRET;
 if (!secret) throw new Error("CCP_SIMULATOR_SECRET is required.");
 

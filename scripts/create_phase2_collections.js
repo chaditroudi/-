@@ -7,6 +7,12 @@
  */
 
 const DB_NAME = 'date_harvest_hub';
+
+// These scripts change validators. A remote server needs CONFIRM_REMOTE_DB=<database name>.
+const connectedTo = String(db.getMongo()._uri || '');
+if (!/^mongodb:\/\/([^@/]*@)?(127\.0\.0\.1|localhost)[:/]/.test(connectedTo) && process.env.CONFIRM_REMOTE_DB !== DB_NAME) {
+  throw new Error('Refusing a remote server: set CONFIRM_REMOTE_DB to the database name.');
+}
 const db = db.getSiblingDB(DB_NAME);
 
 // ─── Helper ────────────────────────────────────────────────────────────────

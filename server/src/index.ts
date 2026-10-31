@@ -1,6 +1,7 @@
 import "reflect-metadata";
 
 import { env } from "./config/env.js";
+import { describeUnlabelledTarget, refuseDatabaseTarget } from "./config/runtime-env.js";
 import { ensureTrustIndexes } from "./db/indexes.js";
 import { connectToDatabase, setNextDatabaseRetry } from "./db/mongoose.js";
 import { createApp } from "./app.js";
@@ -34,11 +35,17 @@ const connectAndSeedDatabase = async () => {
 };
 
 const start = async () => {
+  const refusal = refuseDatabaseTarget(env.appEnv, env.nodeEnv, env.databaseHostClass);
+  if (refusal) throw new Error(`Refusing to start: ${refusal}`);
+  const unlabelled = describeUnlabelledTarget(env.appEnv, env.databaseHostClass);
+  if (unlabelled) console.warn(unlabelled);
+
   const app = await createApp();
   const server = await app.listen(env.port, env.host);
 
   console.log(`API listening on http://${env.host}:${env.port}`);
-  console.log(`Mongo database target: ${env.mongoDbName}`);
+  console.log(`Mongo database target: ${env.mongoDbName} (${env.databaseHostClass})`);
+  console.log(`Environment: ${env.appEnv ?? "not declared"}`);
   console.log("Backend mode: NestJS");
 
   void connectAndSeedDatabase();

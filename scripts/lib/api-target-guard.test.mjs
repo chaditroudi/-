@@ -4,7 +4,7 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-import { findForbiddenBundleHosts, resolveTestApi } from "./api-target-guard.mjs";
+import { findForbiddenBundleHosts, resolveTestApi, refuseHealthReport } from "./api-target-guard.mjs";
 
 describe("test API target", () => {
   it("has no default", () => {
@@ -43,5 +43,25 @@ describe("findForbiddenBundleHosts", () => {
 
   it("finds a path Git Bash rewrote", () => {
     expect(findForbiddenBundleHosts(bundleWith('const api = "C:/Program Files/Git/api";'))).toHaveLength(1);
+  });
+});
+
+describe("refuseHealthReport", () => {
+  it("accepts a disposable local stack", () => {
+    expect(refuseHealthReport({ environment: "test", database_host_class: "local" })).toBeNull();
+    expect(refuseHealthReport({ environment: "dev", database_host_class: "local" })).toBeNull();
+  });
+
+  it.each(["live-dev", "staging", "production", null, undefined])("refuses environment %s", (environment) => {
+    expect(refuseHealthReport({ environment, database_host_class: "local" })).toMatch(/environment/);
+  });
+
+  it("refuses a test label on a remote database", () => {
+    expect(refuseHealthReport({ environment: "test", database_host_class: "remote" })).toMatch(/not local/);
+  });
+
+  it("refuses an API too old to say what it is", () => {
+    expect(refuseHealthReport({ ok: true })).toMatch(/environment/);
+    expect(refuseHealthReport(null)).toMatch(/environment/);
   });
 });

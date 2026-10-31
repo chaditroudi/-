@@ -9,6 +9,7 @@
  *      npm run migrate:membership -- --dry-run
  */
 import mongoose from "mongoose";
+import { assertSafeDbTarget } from "./lib/db-target-guard.mjs";
 
 const FORCE = process.argv.includes("--force");
 const DRY_RUN = process.argv.includes("--dry-run");
@@ -204,6 +205,7 @@ const sameArray = (a, b) => {
 const mongoUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/date_harvest_hub";
 const mongoDbName = process.env.MONGODB_DB_NAME || "date_harvest_hub";
 
+assertSafeDbTarget({ uri: mongoUri, dbName: mongoDbName });
 await mongoose.connect(mongoUri, { dbName: mongoDbName });
 
 const users = await AuthUser.find({}).lean().exec();

@@ -5,12 +5,13 @@
  *
  * Requires API up (npm run server) and .env.
  */
-import { resolveTestApi } from "./lib/api-target-guard.mjs";
+import { assertTestStack, resolveTestApi } from "./lib/api-target-guard.mjs";
 import { spawn } from "node:child_process";
 import { syntheticIntakeFields } from "./lib/intake-contract.mjs";
 import { releaseThroughQc } from "./lib/qc-release.mjs";
 
 const API = resolveTestApi();
+await assertTestStack(API);
 const PASSWORD = process.env.SMOKE_PASSWORD || "Test123!";
 
 const STAGES = [

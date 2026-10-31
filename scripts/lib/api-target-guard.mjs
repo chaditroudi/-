@@ -24,6 +24,24 @@ export const resolveTestApi = (value = process.env.SMOKE_API_URL) => {
   return value.replace(/\/$/, "");
 };
 
+const TEST_ENVIRONMENTS = new Set(["test", "dev"]);
+
+/** Why a /health answer is not a disposable local stack, or null when it is. */
+export const refuseHealthReport = (health) => {
+  if (!TEST_ENVIRONMENTS.has(health?.environment)) {
+    return `it reports environment "${health?.environment ?? "none"}", not test or dev`;
+  }
+  if (health?.database_host_class !== "local") return "its database is not local";
+  return null;
+};
+
+/** A local port proves nothing about the database behind it, so ask before any write. */
+export const assertTestStack = async (api) => {
+  const response = await fetch(`${api}/api/health`);
+  const refusal = refuseHealthReport(await response.json().catch(() => null));
+  if (refusal) throw new Error(`Refusing ${api}: ${refusal}.`);
+};
+
 const filesUnder = (dir) => readdirSync(dir).flatMap((name) => {
   const full = path.join(dir, name);
   return statSync(full).isDirectory() ? filesUnder(full) : [full];

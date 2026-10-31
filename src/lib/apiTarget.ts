@@ -66,3 +66,18 @@ export const refuseBuildTarget = (raw: string | undefined | null, target: BuildT
   }
   return null;
 };
+
+const LIVE_DEV_PORT = 8080;
+const LIVE_DEV_API_PORT = "4000";
+
+/**
+ * The API on :4000 runs on live data, so only the :8080 stack may proxy to it. Any other
+ * dev server must name a target, because it looks identical and writes wherever it points.
+ */
+export const refuseDevProxy = (port: number, explicitTarget: string | undefined): string | null => {
+  if (port === LIVE_DEV_PORT) return null;
+  const target = (explicitTarget ?? '').trim();
+  if (!target) return `A dev server on port ${port} must set VITE_API_PROXY_TARGET: the default is the live development API.`;
+  if (new URL(target).port === LIVE_DEV_API_PORT) return `A dev server on port ${port} may not use the live development API (${target}).`;
+  return null;
+};

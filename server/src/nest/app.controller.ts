@@ -1,5 +1,6 @@
 import { Controller, Get, Req, Res } from "@nestjs/common";
 
+import { env } from "../config/env.js";
 import { getDatabaseStatus, isDatabaseConnected } from "../db/mongoose.js";
 import { Public } from "./route-metadata.js";
 
@@ -12,6 +13,8 @@ const buildHealthPayload = () => {
     body: {
       ok,
       status: ok ? "ready" : "database_unavailable",
+      environment: env.appEnv,
+      database_host_class: env.databaseHostClass,
       hint: ok ? undefined : "Add the Docker host public IP to MongoDB Atlas Network Access.",
       database,
     },

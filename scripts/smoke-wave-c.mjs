@@ -2,13 +2,14 @@
  * Wave C smoke: grade settlement from triage + export margin with FX.
  *   npm run smoke:wave-c
  */
-import { resolveTestApi } from "./lib/api-target-guard.mjs";
+import { assertTestStack, resolveTestApi } from "./lib/api-target-guard.mjs";
 import { randomUUID } from "node:crypto";
 import { spawn } from "node:child_process";
 import { syntheticIntakeFields } from "./lib/intake-contract.mjs";
 import { releaseThroughQc } from "./lib/qc-release.mjs";
 
 const API = resolveTestApi();
+await assertTestStack(API);
 const PASSWORD = process.env.SMOKE_PASSWORD || "Test123!";
 
 const request = async (method, path, token, body) => {

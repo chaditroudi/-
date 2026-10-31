@@ -4,10 +4,11 @@
  *
  *   npm run smoke:b0
  */
-import { resolveTestApi } from "./lib/api-target-guard.mjs";
+import { assertTestStack, resolveTestApi } from "./lib/api-target-guard.mjs";
 import { spawn } from "node:child_process";
 
 const API = resolveTestApi();
+await assertTestStack(API);
 const PASSWORD = process.env.SMOKE_PASSWORD || "Test123!";
 
 const request = async (method, path, token, body) => {

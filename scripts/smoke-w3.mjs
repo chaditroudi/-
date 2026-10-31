@@ -1,9 +1,10 @@
-import { resolveTestApi } from "./lib/api-target-guard.mjs";
+import { assertTestStack, resolveTestApi } from "./lib/api-target-guard.mjs";
 import { createHmac, randomUUID } from "node:crypto";
 import { spawn } from "node:child_process";
 import { syntheticIntakeFields } from "./lib/intake-contract.mjs";
 
 const API = resolveTestApi();
+await assertTestStack(API);
 const PASSWORD = process.env.SMOKE_PASSWORD || "Test123!";
 const SIM_SECRET = process.env.WEIGHBRIDGE_SIMULATOR_SECRET;
 if (!SIM_SECRET) throw new Error("WEIGHBRIDGE_SIMULATOR_SECRET is required.");

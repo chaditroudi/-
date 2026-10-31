@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseApiUrl, refuseBuildTarget, resolveApiBaseUrl, resolveBuildTarget } from './apiTarget';
+import { parseApiUrl, refuseBuildTarget, refuseDevProxy, resolveApiBaseUrl, resolveBuildTarget } from './apiTarget';
 
 const LIVE = 'https://api-production.up.railway.app/api';
 
@@ -72,5 +72,25 @@ describe('refuseBuildTarget', () => {
     expect(refuseBuildTarget('/api', 'production')).toBeNull();
     expect(refuseBuildTarget('http://127.0.0.1:4000/api', 'production')).toMatch(/https/);
     expect(refuseBuildTarget('http://api.example.com/api', 'production')).toMatch(/https/);
+  });
+});
+
+describe('refuseDevProxy', () => {
+  it('leaves the existing development stack alone', () => {
+    expect(refuseDevProxy(8080, undefined)).toBeNull();
+    expect(refuseDevProxy(8080, 'http://127.0.0.1:4000')).toBeNull();
+  });
+
+  it('refuses another port that falls back to the live API', () => {
+    expect(refuseDevProxy(8090, undefined)).toMatch(/VITE_API_PROXY_TARGET/);
+    expect(refuseDevProxy(8090, '  ')).toMatch(/VITE_API_PROXY_TARGET/);
+  });
+
+  it('refuses another port that names the live API', () => {
+    expect(refuseDevProxy(8090, 'http://127.0.0.1:4000')).toMatch(/live development API/);
+  });
+
+  it('allows a private API', () => {
+    expect(refuseDevProxy(8090, 'http://127.0.0.1:4090')).toBeNull();
   });
 });
