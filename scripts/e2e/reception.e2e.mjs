@@ -185,7 +185,10 @@ const addPhotos = async (page) => {
 };
 
 const stepOne = async (page, { supplier, note, plate = "123 TU 4567", orderNumber }) => {
-  await clickByText(page, "Nouvelle réception");
+  // Toasts last 5 s but pause under the pointer, so move it away and let them clear.
+  await page.mouse.move(600, 700);
+  await until(async () => !(await page.$("[data-sonner-toast]")), "notifications cleared", 12000);
+  await clickByText(page, "Nouvelle réception", { exact: true });
   await waitText(page, "Fournisseur & livraison");
   await pickSupplier(page, supplier);
   if (orderNumber) {
@@ -227,6 +230,22 @@ const backToList = async (page) => {
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.waitForFunction(() => document.body.innerText.includes("Réception des dattes"), { timeout: 90000 });
 };
+
+const readOutbox = (page) => page.evaluate(() => new Promise((resolve) => {
+  const open = indexedDB.open("royal-palm-edge", 1);
+  open.onerror = () => resolve([]);
+  open.onsuccess = () => {
+    const request = open.result.transaction("outbox").objectStore("outbox").getAll();
+    request.onsuccess = () => resolve(request.result.map((item) => item.status));
+  };
+}));
+
+/** After sign-in the app redirects to Accueil, so this keeps asking until Réception is on screen. */
+const openReceptions = (page) => until(async () => {
+  await page.evaluate(() => { window.location.hash = "#/?tab=receptions"; });
+  await sleep(700);
+  return hasText(page, "Réception des dattes");
+}, "Réception open", 30000);
 
 const receptionByNote = (note) => col("receptions_v2").findOne({ delivery_note_number: note });
 
@@ -551,28 +570,23 @@ await run("H", "Offline, session expiry and server restart recovery", async () =
   await until(() => page.$('[aria-label="Mode de pesée"]'), "draft resumed");
   await goToReview(page);
 
-  // Session expired at the moment of confirming: nothing is lost.
+  // Session ends at the moment of confirming: the app returns to sign-in and nothing is lost.
   const good = await page.evaluate(() => localStorage.getItem("date-harvest-hub-session"));
   await page.evaluate(() => {
     const session = JSON.parse(localStorage.getItem("date-harvest-hub-session"));
     session.access_token = "expired.token.value";
     localStorage.setItem("date-harvest-hub-session", JSON.stringify(session));
+    [...document.querySelectorAll("button")].find((b) => b.innerText.includes("Confirmer la réception")).click();
   });
-  await clickByText(page, "Confirmer la réception");
-  await waitText(page, "Session expirée : réception gardée sur cet appareil");
+  await until(() => page.url().includes("/auth"), "session end returns to sign-in");
+  await waitText(page, "Mot de passe");
+  await until(async () => (await readOutbox(page)).length === 1, "delivery kept in the outbox");
   await shot(page, "session-expired");
-  check(await hasText(page, "Ce n'est pas encore une réception enregistrée"), "no false confirmation");
   check(await col("receptions_v2").countDocuments({ delivery_note_number: "BL-H" }) === 0, "nothing booked yet");
 
+  // Survives a reload on the sign-in page.
   await page.reload({ waitUntil: "domcontentloaded" });
-  const queued = await page.evaluate(() => new Promise((resolve) => {
-    const open = indexedDB.open("royal-palm-edge", 1);
-    open.onsuccess = () => {
-      const request = open.result.transaction("outbox").objectStore("outbox").getAll();
-      request.onsuccess = () => resolve(request.result.map((item) => ({ status: item.status, waiting: item.waitingForLogin ?? false })));
-    };
-  }));
-  check(queued.length === 1, "delivery survives a reload in the outbox", queued);
+  check((await readOutbox(page)).length === 1, "delivery survives a reload in the outbox");
 
   // Same user signs in again: it goes out once, by itself.
   await page.evaluate((value) => localStorage.setItem("date-harvest-hub-session", value), good);
@@ -580,10 +594,40 @@ await run("H", "Offline, session expiry and server restart recovery", async () =
   await until(async () => (await col("receptions_v2").countDocuments({ delivery_note_number: "BL-H" })) === 1, "synced after sign-in", 30000);
   await sleep(1500);
   check(await col("receptions_v2").countDocuments({ delivery_note_number: "BL-H" }) === 1, "exactly one reception");
+  check((await readOutbox(page)).length === 0, "outbox emptied");
 
-  // Network drop, then back. Signing in lands on Accueil, so go back to Réception first.
-  await page.goto(`${APP}/#/?tab=receptions`, { waitUntil: "domcontentloaded" });
-  await backToList(page);
+  // Session ends while a delivery is only half entered: typed weights come back.
+  await openReceptions(page);
+  await stepOne(page, { supplier: "Oasis Essai Alpha", note: "BL-H1", plate: "666 TU 6667" });
+  await fill(page, "Poids brut", "720");
+  await sleep(600);
+  await page.evaluate(() => {
+    const session = JSON.parse(localStorage.getItem("date-harvest-hub-session"));
+    session.access_token = "expired.token.value";
+    localStorage.setItem("date-harvest-hub-session", JSON.stringify(session));
+  });
+  await clickByText(page, "Enregistrer et quitter");
+  await until(() => page.url().includes("/auth"), "half-entered delivery: return to sign-in");
+  await page.evaluate((value) => localStorage.setItem("date-harvest-hub-session", value), good);
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await openReceptions(page);
+  await clickByText(page, "En attente");
+  await until(() => hasText(page, "BL BL-H1"), "draft listed after sign-in");
+  const row = await page.evaluateHandle(() =>
+    [...document.querySelectorAll("button")].find((button) =>
+      button.innerText.trim() === "Reprendre" && button.parentElement.innerText.includes("BL BL-H1")));
+  await row.asElement().click();
+  await until(() => page.$('[aria-label="Mode de pesée"]'), "draft resumed");
+  await waitText(page, "Mode", 100).catch(() => undefined);
+  const gross = await page.evaluate(() => {
+    const label = [...document.querySelectorAll("label")].find((node) => node.innerText.startsWith("Poids brut"));
+    return document.getElementById(label.getAttribute("for"))?.value;
+  });
+  check(gross === "720", "typed weight restored after sign-in", gross);
+  await clickByText(page, "Abandonner");
+  await waitText(page, "Réception des dattes");
+
+  // Network drop, then back.
   await stepOne(page, { supplier: "Oasis Essai Alpha", note: "BL-H2", plate: "666 TU 7777" });
   await stepTwoManual(page, { gross: 300, tare: 100 });
   await goToReview(page);
@@ -780,7 +824,7 @@ await run("R", "Tablet and phone widths", async () => {
   for (const [name, viewport] of [["tablet", { width: 768, height: 1024 }], ["phone", { width: 375, height: 812 }]]) {
     const page = await openApp(operator, { viewport });
     await shot(page, `workspace-${name}`);
-    await clickByText(page, "Nouvelle réception");
+    await clickByText(page, "Nouvelle réception", { exact: true });
     await until(() => page.$('[data-testid="intake-actions"]'), "intake open");
     await shot(page, `step1-${name}`);
     await page.evaluate(() => window.scrollTo({ top: document.body.scrollHeight / 3 }));
