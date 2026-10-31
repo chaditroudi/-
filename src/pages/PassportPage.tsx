@@ -44,13 +44,13 @@ export default function PassportPage() {
 
   return (
     <div className="min-h-screen bg-[#eef3ef] text-slate-900">
-      <div className="mx-auto max-w-2xl px-4 py-10 space-y-6">
+      <div className="mx-auto max-w-2xl px-4 py-10 space-y-4">
         <header className="space-y-3">
           <div className="inline-flex items-center gap-2 rounded-full bg-emerald-900 text-emerald-50 px-3 py-1 text-xs font-medium">
             <Leaf className="h-3.5 w-3.5" />
             Passeport digital acheteur
           </div>
-          <h1 className="text-3xl font-semibold tracking-tight">{data.brand}</h1>
+          <h1 className="text-2xl font-semibold">{data.brand}</h1>
           <p className="text-slate-600">
             {data.plant} · Lot <span className="font-mono font-semibold">{data.lotNumber}</span>
           </p>
@@ -103,7 +103,7 @@ export default function PassportPage() {
         </header>
 
         <section className="rounded-2xl border bg-white p-5 space-y-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Claims vérifiables</h2>
+          <h2 className="text-sm font-semibold text-slate-500">Claims vérifiables</h2>
           <div className="divide-y">
             {data.claims
               .filter((claim) => claim.key !== 'tip_hash')
@@ -122,7 +122,7 @@ export default function PassportPage() {
         </section>
 
         <section className="rounded-2xl border bg-white p-5 space-y-2">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Empreinte tip</h2>
+          <h2 className="text-sm font-semibold text-slate-500">Empreinte tip</h2>
           <p className="font-mono text-xs break-all text-slate-700">{data.tipHash || '—'}</p>
           <p className="text-xs text-slate-500">{data.disclaimer}</p>
           <p className="text-[11px] text-slate-400">Vérifié le {new Date(data.verifiedAt).toLocaleString('fr-TN')}</p>

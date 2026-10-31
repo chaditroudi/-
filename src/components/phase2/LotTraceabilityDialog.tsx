@@ -71,7 +71,7 @@ function SummaryCard({
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <div className="text-xs uppercase tracking-wide text-muted-foreground">{title}</div>
+            <div className="text-xs text-muted-foreground">{title}</div>
             <div className="mt-1 text-lg font-semibold">{value}</div>
             <div className="mt-1 text-xs text-muted-foreground">{detail}</div>
           </div>
@@ -163,7 +163,7 @@ export function LotTraceabilityDialog({ open, onOpenChange, lotNumber }: Props) 
           ) : error ? (
             <div className="py-10 text-center text-red-600 text-sm">Erreur: {(error as Error).message}</div>
           ) : !data ? null : (
-            <div className="space-y-6">
+            <div className="space-y-4">
               {recentChanges.length > 0 && (
                 <section className="rounded-xl border border-primary/20 bg-primary/5 p-4">
                   <div className="flex items-center gap-2 mb-3">

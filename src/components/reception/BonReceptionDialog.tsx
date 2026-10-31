@@ -383,7 +383,7 @@ export const BonReceptionDialog = ({ open, onOpenChange, reception, lots }: BonR
           {/* Section 1: Read-only summary */}
           <Card className="bg-muted/30">
             <CardHeader className="pb-2 pt-3 px-4">
-              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Informations réception
               </CardTitle>
             </CardHeader>
@@ -406,7 +406,7 @@ export const BonReceptionDialog = ({ open, onOpenChange, reception, lots }: BonR
           {/* Section 2: Editable fields */}
           <Card>
             <CardHeader className="pb-2 pt-3 px-4">
-              <CardTitle className="text-sm font-medium uppercase tracking-wide">
+              <CardTitle className="text-sm font-medium">
                 Champs à compléter
               </CardTitle>
             </CardHeader>

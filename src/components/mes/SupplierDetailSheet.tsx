@@ -235,11 +235,11 @@ export const SupplierDetailSheet = ({ supplier, open, onOpenChange, onEdit }: Pr
           </TabsList>
 
           {/* ── Performance ─────────────────────────────────────────────── */}
-          <TabsContent value="performance" className="space-y-6 mt-4">
+          <TabsContent value="performance" className="space-y-4 mt-4">
 
             {/* Score summary */}
             <div className={`rounded-2xl border p-5 text-center ${gradeClass}`}>
-              <p className="text-xs font-semibold uppercase tracking-widest opacity-70 mb-1">
+              <p className="text-xs font-semibold opacity-70 mb-1">
                 Score fournisseur — §1.2
               </p>
               <p className="text-6xl font-black leading-none tabular-nums">
@@ -255,7 +255,7 @@ export const SupplierDetailSheet = ({ supplier, open, onOpenChange, onEdit }: Pr
 
             {/* Radar chart — 5 criteria */}
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+              <p className="text-xs font-semibold text-muted-foreground mb-3">
                 Vue radar des 5 critères
               </p>
               <ResponsiveContainer width="100%" height={220}>
@@ -283,7 +283,7 @@ export const SupplierDetailSheet = ({ supplier, open, onOpenChange, onEdit }: Pr
 
             {/* Criteria bars */}
             <div className="space-y-4">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="text-xs font-semibold text-muted-foreground">
                 Décomposition par critère — §1.2
               </p>
               <CriterionBar label="Qualité des lots" score={score.qualityScore} weight={40}
@@ -305,7 +305,7 @@ export const SupplierDetailSheet = ({ supplier, open, onOpenChange, onEdit }: Pr
             {/* Score trend (last 12 snapshots from performance_history) */}
             {(supplier.performance_history ?? []).length >= 2 && (
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                <p className="text-xs font-semibold text-muted-foreground mb-3">
                   Évolution du score qualité
                 </p>
                 <ResponsiveContainer width="100%" height={160}>
@@ -364,7 +364,7 @@ export const SupplierDetailSheet = ({ supplier, open, onOpenChange, onEdit }: Pr
             </div>
 
             <div className="space-y-4">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Bloc Identité</p>
+              <p className="text-xs font-semibold text-muted-foreground">Bloc Identité</p>
               <div className="grid grid-cols-2 gap-x-6 gap-y-3">
                 <Field label="Code fournisseur" value={supplier.code} />
                 <Field label="Type d'acteur" value={supplier.actor_type?.replace(/_/g, ' ')} />
@@ -378,7 +378,7 @@ export const SupplierDetailSheet = ({ supplier, open, onOpenChange, onEdit }: Pr
               </div>
 
               <Separator />
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Bloc Oasis et Production</p>
+              <p className="text-xs font-semibold text-muted-foreground">Bloc Oasis et Production</p>
               <div className="grid grid-cols-2 gap-x-6 gap-y-3">
                 <Field label="Région" value={supplier.region} />
                 <Field label="Ville / Localité" value={supplier.locality || supplier.city} />
@@ -392,7 +392,7 @@ export const SupplierDetailSheet = ({ supplier, open, onOpenChange, onEdit }: Pr
               </div>
 
               <Separator />
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Bloc Commercial et Contractuel</p>
+              <p className="text-xs font-semibold text-muted-foreground">Bloc Commercial et Contractuel</p>
               <div className="grid grid-cols-2 gap-x-6 gap-y-3">
                 <Field label="Type de contrat" value={supplier.contract_type} />
                 <Field label="Date début contrat" value={supplier.contract_start_date} />
@@ -420,7 +420,7 @@ export const SupplierDetailSheet = ({ supplier, open, onOpenChange, onEdit }: Pr
               )}
 
               <Separator />
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Bloc Statut et Qualification</p>
+              <p className="text-xs font-semibold text-muted-foreground">Bloc Statut et Qualification</p>
               <div className="grid grid-cols-2 gap-x-6 gap-y-3">
                 <Field label="Statut" value={getSupplierStatusLabel(status)} />
                 <Field label="Qualification" value={supplier.qualification_status} />
@@ -471,7 +471,7 @@ export const SupplierDetailSheet = ({ supplier, open, onOpenChange, onEdit }: Pr
 
           {/* ── Actions ─────────────────────────────────────────────────── */}
           <TabsContent value="actions" className="space-y-5 mt-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <p className="text-xs font-semibold text-muted-foreground">
               Workflow agrément — §1.4.1
             </p>
 
@@ -552,7 +552,7 @@ export const SupplierDetailSheet = ({ supplier, open, onOpenChange, onEdit }: Pr
             <Separator />
 
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="text-xs font-semibold text-muted-foreground">
                 Modifier la fiche complète
               </p>
               <Button
@@ -674,7 +674,7 @@ function SupplierDocumentsTab({ supplier }: { supplier: import('@/types/mes').Su
     <div className="space-y-5">
       {/* CIN / ID document */}
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+        <p className="text-xs font-semibold text-muted-foreground mb-2">
           Document identité
         </p>
         {supplier.cin_document_url ? (
@@ -695,7 +695,7 @@ function SupplierDocumentsTab({ supplier }: { supplier: import('@/types/mes').Su
       {/* Certifications */}
       {certs.length > 0 && (
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+          <p className="text-xs font-semibold text-muted-foreground mb-2">
             Certifications
           </p>
           <div className="space-y-1.5">
@@ -725,7 +725,7 @@ function SupplierDocumentsTab({ supplier }: { supplier: import('@/types/mes').Su
       {/* Contract documents */}
       {contractDocs.length > 0 && (
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+          <p className="text-xs font-semibold text-muted-foreground mb-2">
             Documents contractuels
           </p>
           <div className="space-y-1.5">

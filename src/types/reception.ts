@@ -366,13 +366,13 @@ export const receptionStatusLabels: Record<ReceptionHeaderStatus, string> = {
 };
 
 export const receptionStatusColors: Record<ReceptionHeaderStatus, string> = {
-  BROUILLON: 'bg-gray-500',
-  EN_ATTENTE_QC: 'bg-yellow-500',
-  EN_QC: 'bg-blue-500',
-  LIBERE: 'bg-green-500',
-  BLOQUE: 'bg-orange-500',
-  REJETE: 'bg-red-500',
-  ANNULE: 'bg-gray-400'
+  BROUILLON: 'border-gray-300 bg-gray-100 text-gray-800',
+  EN_ATTENTE_QC: 'border-amber-300 bg-amber-100 text-amber-900',
+  EN_QC: 'border-blue-300 bg-blue-100 text-blue-900',
+  LIBERE: 'border-emerald-300 bg-emerald-100 text-emerald-900',
+  BLOQUE: 'border-amber-500 bg-amber-200 text-amber-950',
+  REJETE: 'border-red-300 bg-red-100 text-red-900',
+  ANNULE: 'border-gray-300 bg-transparent text-gray-600'
 };
 
 export const stockStatusLabels: Record<StockLotStatus, string> = {
@@ -385,8 +385,8 @@ export const stockStatusLabels: Record<StockLotStatus, string> = {
 export const stockStatusColors: Record<StockLotStatus, string> = {
   NON_STOCKE: 'bg-gray-500',
   EN_QUARANTAINE: 'bg-orange-500',
-  STOCK_LIBERE: 'bg-green-500',
-  STOCK_REJETE: 'bg-red-500'
+  STOCK_LIBERE: 'border-emerald-300 bg-emerald-100 text-emerald-900',
+  STOCK_REJETE: 'border-red-300 bg-red-100 text-red-900'
 };
 
 export const qcDecisionLabels: Record<QCDecisionType, string> = {

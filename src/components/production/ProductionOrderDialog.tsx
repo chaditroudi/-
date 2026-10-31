@@ -247,7 +247,7 @@ export const ProductionOrderDialog = ({ open, onOpenChange, receptions }: Produc
                     </SelectItem>
                   )}
                   {v2Selectable.length > 0 && (
-                    <div className="px-2 py-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                    <div className="px-2 py-1 text-[11px] font-semibold text-muted-foreground">
                       Réceptions V2 — Libérées
                     </div>
                   )}
@@ -257,7 +257,7 @@ export const ProductionOrderDialog = ({ open, onOpenChange, receptions }: Produc
                     </SelectItem>
                   ))}
                   {v1Selectable.filter((r) => !v2Ids.has(r.id)).length > 0 && (
-                    <div className="px-2 py-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                    <div className="px-2 py-1 text-[11px] font-semibold text-muted-foreground">
                       Réceptions classiques — Acceptées
                     </div>
                   )}

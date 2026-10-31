@@ -128,7 +128,7 @@ export function Phase2AlertsPanel() {
               <Badge
                 variant="outline"
                 className={cn(
-                  'rounded-full border px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.14em]',
+                  'rounded-full border px-2.5 py-1 text-xs font-semibold',
                   highestLevel === 'URGENCE' && 'border-red-200 bg-red-50 text-red-700',
                   highestLevel === 'CRITIQUE' && 'border-red-100 bg-red-50 text-red-700',
                   highestLevel === 'IMPORTANT' && 'border-amber-200 bg-amber-50 text-amber-700',

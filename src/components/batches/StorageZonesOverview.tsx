@@ -182,7 +182,7 @@ const KpiTile = ({ label, value, sub, icon: Icon, tone = "default" }: {
     <Card className="rounded-2xl border-border/60">
       <CardContent className="flex items-center justify-between gap-3 p-4">
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
+          <p className="text-xs font-semibold text-muted-foreground">{label}</p>
           <p className="mt-1.5 truncate text-2xl font-bold text-foreground">{value}</p>
           <p className="mt-0.5 truncate text-xs text-muted-foreground">{sub}</p>
         </div>
@@ -515,12 +515,6 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
 
       {/* ── Header ── */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Gestion du stock</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            Suivi des lots, zones de stockage et mouvements en temps réel
-          </p>
-        </div>
         <div className="flex items-center gap-2">
           {/* Real-time indicator */}
           <div className="flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5">
@@ -832,7 +826,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                   <div key={key} className={cn("flex flex-col gap-2 rounded-xl border p-3.5", color.split(" ").slice(2).join(" "))}>
                     <div className="flex items-center gap-2">
                       <Icon className={cn("h-4 w-4 shrink-0", color.split(" ").slice(1, 2).join(" "))} />
-                      <span className={cn("text-xs font-semibold uppercase tracking-[0.15em]", color.split(" ").slice(1, 2).join(" "))}>{label}</span>
+                      <span className={cn("text-xs font-semibold", color.split(" ").slice(1, 2).join(" "))}>{label}</span>
                     </div>
                     <p className={cn("text-2xl font-bold", color.split(" ").slice(1, 2).join(" "))}>{lots.length}</p>
                     <p className="text-xs text-muted-foreground">
@@ -1493,7 +1487,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
             TAB 6 — GESTION (zones + emplacements CRUD)
         ════════════════════════════════════════════════ */}
         {canManage && (
-          <TabsContent value="gestion" className="space-y-6">
+          <TabsContent value="gestion" className="space-y-4">
 
             {/* ── Zones ── */}
             <Card className="rounded-2xl border-border/60">

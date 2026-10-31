@@ -165,8 +165,8 @@ export const QrScannerDialog = ({ open, onOpenChange, onDetected }: QrScannerDia
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 p-6">
-          <div className="relative overflow-hidden rounded-[28px] border border-border/70 bg-slate-950">
+        <div className="space-y-4">
+          <div className="relative overflow-hidden rounded-lg border border-border/70 bg-slate-950">
             <div className="aspect-[4/3] w-full">
               <video
                 ref={videoRef}
@@ -177,7 +177,7 @@ export const QrScannerDialog = ({ open, onOpenChange, onDetected }: QrScannerDia
             </div>
 
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <div className="relative h-48 w-48 rounded-[28px] border-2 border-white/80 shadow-[0_0_0_9999px_rgba(2,6,23,0.42)]">
+              <div className="relative h-48 w-48 rounded-lg border-2 border-white/80 shadow-[0_0_0_9999px_rgba(2,6,23,0.42)]">
                 <div className="absolute inset-x-6 top-1/2 h-0.5 -translate-y-1/2 bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.85)]" />
               </div>
             </div>

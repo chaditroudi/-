@@ -363,7 +363,7 @@ export const BonReclamationDialog = ({ open, onOpenChange, reception, lots, insp
           {/* Read-only summary */}
           <Card className="bg-muted/30">
             <CardHeader className="pb-2 pt-3 px-4">
-              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Informations réception
               </CardTitle>
             </CardHeader>
@@ -388,7 +388,7 @@ export const BonReclamationDialog = ({ open, onOpenChange, reception, lots, insp
           {/* Header refs */}
           <Card>
             <CardHeader className="pb-2 pt-3 px-4">
-              <CardTitle className="text-sm font-medium uppercase tracking-wide">Références</CardTitle>
+              <CardTitle className="text-sm font-medium">Références</CardTitle>
             </CardHeader>
             <CardContent className="px-4 pb-4 grid grid-cols-2 gap-3">
               <div className="space-y-1">
@@ -474,7 +474,7 @@ export const BonReclamationDialog = ({ open, onOpenChange, reception, lots, insp
           {/* Signatures */}
           <Card>
             <CardHeader className="pb-2 pt-3 px-4">
-              <CardTitle className="text-sm font-medium uppercase tracking-wide">Observation & signatures</CardTitle>
+              <CardTitle className="text-sm font-medium">Observation & signatures</CardTitle>
             </CardHeader>
             <CardContent className="px-4 pb-4 space-y-3">
               <div className="space-y-1">

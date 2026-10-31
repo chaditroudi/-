@@ -95,7 +95,7 @@ function ActiveCycleSummary() {
 
   return (
     <div className="space-y-1.5">
-      <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">Cycles actifs maintenant</p>
+      <p className="text-[11px] text-muted-foreground font-semibold mb-2">Cycles actifs maintenant</p>
       {activeFum.map((c: any) => (
         <div key={c.id} className="flex items-center gap-2 text-xs px-2 py-1.5 bg-orange-50 border border-orange-200 rounded-lg">
           <Flame className="h-3.5 w-3.5 text-orange-600 shrink-0" />

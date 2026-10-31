@@ -157,12 +157,6 @@ export const HomePage = ({ onNavigate, accessibleTabs, metrics }: HomePageProps)
   return (
     <div className="mx-auto w-full max-w-4xl space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            {plantLabel || "Usine"}
-          </p>
-          <h1 className="text-xl font-semibold tracking-tight">Accueil atelier</h1>
-        </div>
         <div className="flex gap-2">
           {accessibleTabs.includes("alerts") && (
             <Button
@@ -194,7 +188,7 @@ export const HomePage = ({ onNavigate, accessibleTabs, metrics }: HomePageProps)
 
       {tasks.length > 0 ? (
         <div className="space-y-1.5">
-          <p className="px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="px-1 text-xs font-semibold text-muted-foreground">
             À faire aujourd&apos;hui
           </p>
           {tasks.map((task) => (

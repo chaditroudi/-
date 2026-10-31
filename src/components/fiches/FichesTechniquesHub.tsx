@@ -68,10 +68,10 @@ export function FichesTechniquesHub({
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
-      <Card className="surface-card overflow-hidden rounded-[28px] border-primary/20">
+      <Card className="surface-card overflow-hidden rounded-lg border-primary/20">
         <CardHeader className="space-y-3 border-b bg-muted/20 pb-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/70">
+            <p className="text-xs font-semibold text-muted-foreground/70">
               Aide atelier
             </p>
             <CardTitle className="mt-1 flex items-center gap-2 text-xl">
@@ -92,9 +92,9 @@ export function FichesTechniquesHub({
             />
           </div>
         </CardHeader>
-        <CardContent className="space-y-6 pt-5">
+        <CardContent className="space-y-4 pt-5">
           <section className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <p className="text-xs font-semibold text-muted-foreground">
               Parcours lot (1 → 8)
             </p>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -116,7 +116,7 @@ export function FichesTechniquesHub({
 
           {docFiches.length > 0 && (
             <section className="space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs font-semibold text-muted-foreground">
                 Documents (BRA / BDE)
               </p>
               <div className="grid gap-3 sm:grid-cols-2">

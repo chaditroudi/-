@@ -136,7 +136,7 @@ export function BonExpeditionForm({ initial, onSubmit, isSaving }: Props) {
           </Select>
         </div>
 
-        <div className="flex gap-6">
+        <div className="flex gap-4">
           <label className="flex items-center gap-2 text-sm cursor-pointer">
             <Checkbox checked={conventionnel} onCheckedChange={(c) => setConventionnel(!!c)} />
             Conventionnel

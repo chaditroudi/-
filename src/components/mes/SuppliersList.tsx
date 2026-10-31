@@ -146,7 +146,7 @@ export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProp
 
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-4">
         <ModuleHero
           kicker="Référentiel • Fournisseurs"
           title="Gestion fournisseurs claire et exploitable"
@@ -183,25 +183,25 @@ export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProp
           <Card className="metric-tile">
             <CardContent className="p-4">
               <p className="text-sm text-muted-foreground">Fournisseurs actifs</p>
-              <p className="text-3xl font-semibold">{stats.active}</p>
+              <p className="text-2xl font-semibold">{stats.active}</p>
             </CardContent>
           </Card>
           <Card className="metric-tile">
             <CardContent className="p-4">
               <p className="text-sm text-muted-foreground">Sous surveillance score</p>
-              <p className="text-3xl font-semibold text-amber-600">{stats.watch}</p>
+              <p className="text-2xl font-semibold text-amber-600">{stats.watch}</p>
             </CardContent>
           </Card>
           <Card className="metric-tile">
             <CardContent className="p-4">
               <p className="text-sm text-muted-foreground">Fournisseurs bloques</p>
-              <p className="text-3xl font-semibold text-red-600">{stats.blocked}</p>
+              <p className="text-2xl font-semibold text-red-600">{stats.blocked}</p>
             </CardContent>
           </Card>
           <Card className="metric-tile">
             <CardContent className="p-4">
               <p className="text-sm text-muted-foreground">Agrements valides</p>
-              <p className="text-3xl font-semibold text-emerald-600">{stats.approved}</p>
+              <p className="text-2xl font-semibold text-emerald-600">{stats.approved}</p>
             </CardContent>
           </Card>
         </div>

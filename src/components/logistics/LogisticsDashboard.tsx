@@ -589,8 +589,8 @@ const ShipmentDetailDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 xl:grid-cols-[1.2fr,0.8fr] gap-6">
-          <div className="space-y-6">
+        <div className="grid grid-cols-1 xl:grid-cols-[1.2fr,0.8fr] gap-4">
+          <div className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle>Entete expedition</CardTitle>
@@ -779,7 +779,7 @@ const ShipmentDetailDialog = ({
             </Card>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle>Readiness export</CardTitle>
@@ -928,17 +928,8 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
   }).length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-3">
-            <Ship className="h-7 w-7 text-primary" />
-            Logistics & Export
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Expédition, Bon BDE, préparation lots, documents export et exercices de rappel.
-          </p>
-        </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={() => setMainTab('bde')}>
             <Printer className="h-4 w-4 mr-2" />

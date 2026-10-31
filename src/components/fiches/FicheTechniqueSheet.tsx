@@ -161,7 +161,7 @@ export function FicheTechniqueSheet({
           </div>
 
           <section className="space-y-2">
-            <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <h3 className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
               <CheckCircle2 className="h-3.5 w-3.5" /> Étapes
             </h3>
             <ul className="space-y-2">
@@ -201,7 +201,7 @@ export function FicheTechniqueSheet({
           </section>
 
           <section className="space-y-3 rounded-xl border border-primary/20 bg-primary/5 p-3">
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-primary">
+            <h3 className="text-xs font-semibold text-primary">
               Accusé shift — lu / appliqué
             </h3>
             {ackToday ? (
@@ -248,7 +248,7 @@ export function FicheTechniqueSheet({
           </section>
 
           <section className="space-y-2">
-            <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <h3 className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
               <AlertTriangle className="h-3.5 w-3.5" /> Limites critiques
             </h3>
             <div className="space-y-2">
@@ -265,7 +265,7 @@ export function FicheTechniqueSheet({
           </section>
 
           <section className="space-y-2">
-            <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <h3 className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
               <Wrench className="h-3.5 w-3.5" /> Outils & documents
             </h3>
             <div className="grid gap-2 sm:grid-cols-2">
@@ -289,7 +289,7 @@ export function FicheTechniqueSheet({
           </section>
 
           <div className="rounded-xl border border-red-200 bg-red-50/80 px-3 py-3 text-sm text-red-900">
-            <p className="text-xs font-semibold uppercase tracking-wide text-red-800">Si bloqué</p>
+            <p className="text-xs font-semibold text-red-800">Si bloqué</p>
             <p className="mt-1">{fiche.ifBlocked}</p>
           </div>
         </div>

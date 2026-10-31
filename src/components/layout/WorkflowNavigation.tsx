@@ -502,7 +502,7 @@ export function WorkflowNavigation({
             {/* Row: section label + dot indicator */}
             <div className="mb-3 flex items-center justify-between gap-4">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                <p className="text-xs font-bold text-muted-foreground">
                   Flux de travail
                 </p>
                 <p className="mt-0.5 text-xs text-muted-foreground/55">
@@ -592,7 +592,7 @@ export function WorkflowNavigation({
                         </p>
                         {isActive && (
                           <span className="relative flex h-2 w-2 shrink-0">
-                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/50" />
+                            <span className="absolute inline-flex h-full w-full hidden rounded-full bg-primary/50" />
                             <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
                           </span>
                         )}
@@ -604,7 +604,7 @@ export function WorkflowNavigation({
 
                     {/* Helper + CTA */}
                     <div className="mt-3 flex items-center justify-between gap-2">
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/50">
+                      <span className="text-[11px] font-semibold text-muted-foreground/50">
                         {card.helper}
                       </span>
                       <span

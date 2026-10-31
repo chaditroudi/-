@@ -34,7 +34,7 @@ export const AdvancedProductionPanel = ({ period }: AdvancedProductionPanelProps
 
   if (isLoading) {
     return (
-      <div className="grid gap-6 animate-pulse">
+      <div className="grid gap-4 animate-pulse">
         {[...Array(3)].map((_, i) => (
           <Card key={i}>
             <CardContent className="p-6">
@@ -50,7 +50,7 @@ export const AdvancedProductionPanel = ({ period }: AdvancedProductionPanelProps
   const yieldStatus = getKPIStatus(kpis?.yieldRate || 0, KPI_THRESHOLDS.yieldRate);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Main KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {/* Yield Rate - Main KPI */}
@@ -61,7 +61,7 @@ export const AdvancedProductionPanel = ({ period }: AdvancedProductionPanelProps
                 <Gauge className={`h-6 w-6 ${KPI_STATUS_COLORS[yieldStatus]}`} />
               </div>
               <div>
-                <p className="text-3xl font-bold">{(kpis?.yieldRate || 0).toFixed(1)}%</p>
+                <p className="text-2xl font-bold">{(kpis?.yieldRate || 0).toFixed(1)}%</p>
                 <p className="text-xs text-muted-foreground">Rendement</p>
               </div>
             </div>
@@ -154,7 +154,7 @@ export const AdvancedProductionPanel = ({ period }: AdvancedProductionPanelProps
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Production vs Planned Trend */}
         <Card className="lg:col-span-2">
           <CardHeader className="pb-2">
@@ -230,7 +230,7 @@ export const AdvancedProductionPanel = ({ period }: AdvancedProductionPanelProps
       </div>
 
       {/* Status Distribution & Performance Metrics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Order Status Distribution */}
         <Card>
           <CardHeader className="pb-2">
@@ -288,7 +288,7 @@ export const AdvancedProductionPanel = ({ period }: AdvancedProductionPanelProps
             <CardTitle className="text-base">Bilan des Volumes</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 rounded-lg border">
                   <div className="flex items-center gap-2 mb-2">

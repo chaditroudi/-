@@ -106,18 +106,18 @@ export function DocumentsWorkspace({
         )}
       </div>
 
-      <header className={cn('rounded-[24px] border px-5 py-5 sm:px-6', meta.accent)}>
+      <header className={cn('rounded-lg border px-5 py-5 sm:px-6', meta.accent)}>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-background/80">
                 <Icon className="h-5 w-5" />
               </span>
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              <p className="text-xs font-semibold text-muted-foreground">
                 Document {meta.code}
               </p>
             </div>
-            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{meta.title}</h1>
+            <h1 className="text-2xl font-bold sm:text-2xl">{meta.title}</h1>
             <p className="max-w-xl text-sm text-muted-foreground">{meta.subtitle}</p>
             <p className="max-w-2xl text-xs text-muted-foreground/90">{meta.howTo}</p>
           </div>

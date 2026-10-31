@@ -49,7 +49,7 @@ export function ReceptionPhase1Panel({ period }: { period: Period }) {
               <Truck className="h-3.5 w-3.5 text-blue-600" />
               <span className="text-xs text-blue-600 font-medium">Réceptions</span>
             </div>
-            <div className="text-3xl font-black text-blue-700">{r?.total ?? 0}</div>
+            <div className="text-2xl font-black text-blue-700">{r?.total ?? 0}</div>
             <div className="text-xs text-blue-600 mt-0.5">
               {r?.totalKg ? (r.totalKg >= 1000 ? `${(r.totalKg / 1000).toFixed(2)} t` : `${r.totalKg.toFixed(0)} kg`) : '0 kg'}
             </div>
@@ -62,7 +62,7 @@ export function ReceptionPhase1Panel({ period }: { period: Period }) {
               <CheckCircle2 className={`h-3.5 w-3.5 ${(r?.acceptanceRate ?? 0) >= 80 ? 'text-green-600' : 'text-amber-600'}`} />
               <span className={`text-xs font-medium ${(r?.acceptanceRate ?? 0) >= 80 ? 'text-green-600' : 'text-amber-600'}`}>Taux acceptation</span>
             </div>
-            <div className={`text-3xl font-black ${(r?.acceptanceRate ?? 0) >= 80 ? 'text-green-700' : 'text-amber-700'}`}>
+            <div className={`text-2xl font-black ${(r?.acceptanceRate ?? 0) >= 80 ? 'text-green-700' : 'text-amber-700'}`}>
               {(r?.acceptanceRate ?? 0).toFixed(1)}%
             </div>
             <div className="text-xs text-muted-foreground mt-0.5">{r?.accepted ?? 0} acceptées</div>
@@ -75,7 +75,7 @@ export function ReceptionPhase1Panel({ period }: { period: Period }) {
               <XCircle className="h-3.5 w-3.5 text-red-500" />
               <span className="text-xs text-muted-foreground">Rejetées</span>
             </div>
-            <div className={`text-3xl font-black ${(r?.rejected ?? 0) > 0 ? 'text-red-600' : 'text-muted-foreground/50'}`}>{r?.rejected ?? 0}</div>
+            <div className={`text-2xl font-black ${(r?.rejected ?? 0) > 0 ? 'text-red-600' : 'text-muted-foreground/50'}`}>{r?.rejected ?? 0}</div>
             <div className="text-xs text-muted-foreground mt-0.5">{r?.quarantine ?? 0} en quarantaine</div>
           </CardContent>
         </Card>
@@ -86,7 +86,7 @@ export function ReceptionPhase1Panel({ period }: { period: Period }) {
               <Layers className="h-3.5 w-3.5 text-violet-600" />
               <span className="text-xs text-muted-foreground">Lots reçus</span>
             </div>
-            <div className="text-3xl font-black text-violet-700">{data?.lots.total ?? 0}</div>
+            <div className="text-2xl font-black text-violet-700">{data?.lots.total ?? 0}</div>
             <div className="text-xs text-muted-foreground mt-0.5">
               {data?.lots.totalKg ? (data.lots.totalKg >= 1000 ? `${(data.lots.totalKg / 1000).toFixed(2)} t` : `${data.lots.totalKg.toFixed(0)} kg`) : '—'}
             </div>

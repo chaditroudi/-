@@ -435,7 +435,7 @@ export const SupplierDialog = ({ open, onOpenChange, supplier, onSave, isLoading
           </div>
 
           <ScrollArea className="h-[62vh] pr-5">
-            <div className="space-y-6">
+            <div className="space-y-4">
               <section className={sectionClass('identite')}>
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-semibold">Identite</h3>

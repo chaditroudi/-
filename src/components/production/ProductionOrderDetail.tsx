@@ -105,7 +105,7 @@ export const ProductionOrderDetail = ({ open, onOpenChange, orderId }: Productio
               <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="outline" className="rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.14em]">
+                    <Badge variant="outline" className="rounded-full px-2.5 py-1 text-xs font-semibold">
                       Ordre de fabrication
                     </Badge>
                     <Badge className={cn('rounded-full border px-2.5 py-1 text-xs font-semibold', STATUS_BADGE[order.status])}>
@@ -362,7 +362,7 @@ function DetailMetric({
           <Icon className="h-4 w-4" />
         </div>
         <div className="min-w-0">
-          <p className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">{label}</p>
+          <p className="text-xs font-medium text-muted-foreground">{label}</p>
           <p className="mt-2 text-sm font-semibold text-foreground">{value}</p>
           {helper && <p className="mt-1 text-xs text-muted-foreground">{helper}</p>}
         </div>

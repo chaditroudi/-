@@ -101,24 +101,19 @@ const ReceptionRow = ({ reception, onOpen }: { reception: ReceptionV2; onOpen: (
   <button
     type="button"
     onClick={() => onOpen(reception)}
-    className="flex min-h-16 w-full items-center gap-3 rounded-2xl border bg-card p-3 text-left transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 px-3 py-2 text-left hover:bg-muted/60 lg:grid-cols-[10.5rem_minmax(0,1.4fr)_7rem_6.5rem_minmax(0,1fr)_6.5rem_9rem]"
   >
-    <div className="min-w-0 flex-1">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="font-mono text-sm font-semibold">{reception.reception_number}</span>
-        {reception.variety && <Badge variant="outline" className="text-[11px]">{reception.variety}</Badge>}
-      </div>
-      <p className="truncate text-sm">
-        {reception.supplier?.name || reception.supplier_name_snapshot || 'Fournisseur non renseigné'} · {reception.quantity_total} {reception.unit}
-      </p>
-      <p className="text-xs text-muted-foreground">
-        BL {reception.delivery_note_number || '—'} · {format(new Date(reception.created_at), 'dd/MM HH:mm', { locale: fr })}
-        {reception.purchase_order_number ? ` · ${reception.purchase_order_number}` : ''}
-      </p>
-    </div>
-    <Badge className={cn('shrink-0 text-xs', receptionStatusColors[reception.status])}>
+    <span className="font-mono text-sm">{reception.reception_number}</span>
+    <Badge className={cn('justify-self-end text-xs lg:order-last', receptionStatusColors[reception.status])}>
       {receptionStatusLabels[reception.status]}
     </Badge>
+    <span className="truncate text-sm">{reception.supplier?.name || reception.supplier_name_snapshot || 'Fournisseur non renseigné'}</span>
+    <span className="truncate text-sm text-muted-foreground lg:text-foreground">{reception.variety || '—'}</span>
+    <span className="text-sm lg:text-right">{reception.quantity_total} {reception.unit}</span>
+    <span className="truncate text-xs text-muted-foreground lg:text-sm">
+      BL {reception.delivery_note_number || '—'}{reception.purchase_order_number ? ` · ${reception.purchase_order_number}` : ''}
+    </span>
+    <span className="text-xs text-muted-foreground lg:text-sm">{format(new Date(reception.created_at), 'dd/MM HH:mm', { locale: fr })}</span>
   </button>
 );
 
@@ -408,14 +403,13 @@ export const ReceptionDashboardV2 = ({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
-        <h1 className="text-xl font-semibold">Réception des dattes</h1>
         <div className="ml-auto flex flex-wrap gap-2">
-          <Button type="button" variant="outline" className="h-12 gap-2" onClick={() => setNoticeOpen(true)}>
+          <Button type="button" variant="outline" className="gap-2" onClick={() => setNoticeOpen(true)}>
             <Bell className="h-4 w-4" />
             Pré-annonces{todayNotices.length > 0 ? ` (${todayNotices.length})` : ''}
           </Button>
           {canManageReception && (
-            <Button type="button" className="h-12 gap-2 px-5 text-base" onClick={() => setIntake({})}>
+            <Button type="button" className="gap-2" onClick={() => setIntake({})}>
               <Plus className="h-5 w-5" />
               {t('receptions.new')}
             </Button>
@@ -469,7 +463,7 @@ export const ReceptionDashboardV2 = ({
           </div>
         </div>
 
-        <TabsContent value="today" className="mt-4 space-y-2">
+        <TabsContent value="today" className="mt-3 overflow-hidden divide-y rounded-lg border bg-card">
           {todayError ? <ListError /> : todayLoading ? <Loading /> : todayRows.length === 0 ? (
             <div className="flex items-center justify-center gap-3 rounded-2xl border border-dashed p-8 text-sm text-muted-foreground">
               <CheckCircle2 className="h-5 w-5" />

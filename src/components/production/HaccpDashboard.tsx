@@ -384,7 +384,7 @@ export function HaccpDashboard() {
       <Card className="surface-card border-border">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-widest">
+            <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[11px] font-semibold">
               Points critiques
             </Badge>
             <CardTitle className="text-base font-semibold">CCP1 &amp; CCP2</CardTitle>
@@ -431,7 +431,7 @@ export function HaccpDashboard() {
       <Card className="surface-card border-border">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-widest">
+            <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[11px] font-semibold">
               PRP
             </Badge>
             <CardTitle className="text-base font-semibold">

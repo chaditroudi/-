@@ -34,7 +34,7 @@ export const AdvancedQualityPanel = ({ period }: AdvancedQualityPanelProps) => {
 
   if (isLoading) {
     return (
-      <div className="grid gap-6 animate-pulse">
+      <div className="grid gap-4 animate-pulse">
         {[...Array(3)].map((_, i) => (
           <Card key={i}>
             <CardContent className="p-6">
@@ -51,7 +51,7 @@ export const AdvancedQualityPanel = ({ period }: AdvancedQualityPanelProps) => {
   const rejectRateStatus = getKPIStatus(kpis?.rejectRate || 0, KPI_THRESHOLDS.rejectRate, false);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Main KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {/* Pass Rate - Main KPI */}
@@ -62,7 +62,7 @@ export const AdvancedQualityPanel = ({ period }: AdvancedQualityPanelProps) => {
                 <Award className={`h-6 w-6 ${KPI_STATUS_COLORS[passRateStatus]}`} />
               </div>
               <div>
-                <p className="text-3xl font-bold">{(kpis?.passRate || 0).toFixed(1)}%</p>
+                <p className="text-2xl font-bold">{(kpis?.passRate || 0).toFixed(1)}%</p>
                 <p className="text-xs text-muted-foreground">Taux Conformité</p>
               </div>
             </div>
@@ -154,7 +154,7 @@ export const AdvancedQualityPanel = ({ period }: AdvancedQualityPanelProps) => {
       </div>
 
       {/* Charts Row 1 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Quality Trend */}
         <Card>
           <CardHeader className="pb-2">
@@ -250,7 +250,7 @@ export const AdvancedQualityPanel = ({ period }: AdvancedQualityPanelProps) => {
       </div>
 
       {/* Loss Analysis & Supplier Quality */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Loss Pareto */}
         <Card>
           <CardHeader className="pb-2">

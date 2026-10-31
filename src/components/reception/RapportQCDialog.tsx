@@ -329,7 +329,7 @@ export const RapportQCDialog = ({ open, onOpenChange, reception, lots, inspectio
           {/* Section 1: Read-only summary */}
           <Card className="bg-muted/30">
             <CardHeader className="pb-2 pt-3 px-4">
-              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Informations réception
               </CardTitle>
             </CardHeader>
@@ -348,7 +348,7 @@ export const RapportQCDialog = ({ open, onOpenChange, reception, lots, inspectio
           {/* Section 2: Editable fields */}
           <Card>
             <CardHeader className="pb-2 pt-3 px-4">
-              <CardTitle className="text-sm font-medium uppercase tracking-wide">Champs à compléter</CardTitle>
+              <CardTitle className="text-sm font-medium">Champs à compléter</CardTitle>
             </CardHeader>
             <CardContent className="px-4 pb-4 space-y-4">
               <div className="grid grid-cols-2 gap-3">
@@ -403,7 +403,7 @@ export const RapportQCDialog = ({ open, onOpenChange, reception, lots, inspectio
 
               {/* Criteria table */}
               <div>
-                <Label className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-2 block">Critères du Contrôle (% par test)</Label>
+                <Label className="text-xs font-medium text-muted-foreground mb-2 block">Critères du Contrôle (% par test)</Label>
                 <div className="border rounded-md overflow-hidden">
                   <table className="w-full text-xs">
                     <thead>

@@ -38,7 +38,7 @@ export const OverviewPanel = ({ period }: OverviewPanelProps) => {
 
   if (isLoading) {
     return (
-      <div className="grid gap-6 animate-pulse">
+      <div className="grid gap-4 animate-pulse">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
             <Card key={i}>
@@ -99,7 +99,7 @@ export const OverviewPanel = ({ period }: OverviewPanelProps) => {
   const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))'];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {kpiCards.map((kpi) => (
@@ -108,7 +108,7 @@ export const OverviewPanel = ({ period }: OverviewPanelProps) => {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">{kpi.title}</p>
-                  <p className="text-3xl font-bold mt-1">{kpi.value}</p>
+                  <p className="text-2xl font-bold mt-1">{kpi.value}</p>
                   <p className="text-xs text-muted-foreground mt-1">{kpi.subtitle}</p>
                 </div>
                 <div className={`p-3 rounded-xl ${kpi.bg}`}>
@@ -128,7 +128,7 @@ export const OverviewPanel = ({ period }: OverviewPanelProps) => {
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Reception Trend */}
         <Card>
           <CardHeader className="pb-2">
@@ -214,7 +214,7 @@ export const OverviewPanel = ({ period }: OverviewPanelProps) => {
       </div>
 
       {/* Bottom Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Quality Distribution */}
         <Card>
           <CardHeader className="pb-2">

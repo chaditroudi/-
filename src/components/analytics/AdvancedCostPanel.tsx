@@ -32,7 +32,7 @@ export const AdvancedCostPanel = ({ period }: AdvancedCostPanelProps) => {
 
   if (isLoading) {
     return (
-      <div className="grid gap-6 animate-pulse">
+      <div className="grid gap-4 animate-pulse">
         {[...Array(3)].map((_, i) => (
           <Card key={i}>
             <CardContent className="p-6">
@@ -57,7 +57,7 @@ export const AdvancedCostPanel = ({ period }: AdvancedCostPanelProps) => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">{basisLabel}</p>
         <Badge variant="outline">base standard</Badge>
@@ -72,7 +72,7 @@ export const AdvancedCostPanel = ({ period }: AdvancedCostPanelProps) => {
                 <DollarSign className={`h-6 w-6 ${isOverBudget ? 'text-red-500' : 'text-emerald-500'}`} />
               </div>
               <div>
-                <p className="text-3xl font-bold">{(kpis?.costPerKg || 0).toFixed(2)}</p>
+                <p className="text-2xl font-bold">{(kpis?.costPerKg || 0).toFixed(2)}</p>
                 <p className="text-xs text-muted-foreground">TND/kg</p>
               </div>
             </div>
@@ -163,7 +163,7 @@ export const AdvancedCostPanel = ({ period }: AdvancedCostPanelProps) => {
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Cost Breakdown Pie */}
         <Card>
           <CardHeader className="pb-2">
@@ -246,7 +246,7 @@ export const AdvancedCostPanel = ({ period }: AdvancedCostPanelProps) => {
       </div>
 
       {/* Cost per Ton Details & Variance */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Cost per Ton by Category */}
         <Card>
           <CardHeader className="pb-2">
@@ -283,7 +283,7 @@ export const AdvancedCostPanel = ({ period }: AdvancedCostPanelProps) => {
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Analyse des Écarts</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4">
             {/* Main Variance */}
             <div className={`p-4 rounded-lg ${isOverBudget ? 'bg-red-50 dark:bg-red-900/20' : 'bg-emerald-50 dark:bg-emerald-900/20'}`}>
               <div className="flex items-center justify-between mb-2">

@@ -33,17 +33,17 @@ export function AppLoader({
       </div>
 
       <div className="animate-page-enter relative z-10 w-full max-w-3xl">
-        <div className="glass-panel overflow-hidden rounded-[28px] border-white/70 bg-white/78 p-4 shadow-[0_30px_90px_-45px_rgba(15,23,42,0.45)] backdrop-blur-xl sm:p-6">
-          <div className="rounded-[24px] border border-slate-200/70 bg-white/85 p-6 sm:p-8">
+        <div className="glass-panel overflow-hidden rounded-lg border-white/70 bg-white/78 p-4 shadow-[0_30px_90px_-45px_rgba(15,23,42,0.45)] backdrop-blur-xl sm:p-6">
+          <div className="rounded-lg border border-slate-200/70 bg-white/85 p-6 sm:p-8">
             <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
               <div className="max-w-xl space-y-5">
-                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50/90 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-emerald-700">
+                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50/90 px-3 py-1 text-xs font-semibold text-emerald-700">
                   <span className="h-2 w-2 rounded-full bg-emerald-500 badge-pulse" />
                   Date Harvest Hub
                 </div>
 
                 <div className="space-y-3">
-                  <h1 className="text-3xl font-extrabold tracking-[-0.04em] text-slate-950 sm:text-4xl">
+                  <h1 className="text-2xl font-extrabold text-slate-950 sm:text-4xl">
                     {title}
                   </h1>
                   <p className="max-w-lg text-sm leading-6 text-slate-600 sm:text-base">
@@ -91,7 +91,7 @@ export function AppLoader({
                 <span className="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
                 Initialisation en cours
               </div>
-              <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
+              <p className="text-xs text-slate-400">
                 Secure factory workspace
               </p>
             </div>

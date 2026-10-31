@@ -44,7 +44,7 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
 
   if (isLoading) {
     return (
-      <div className="grid gap-6 animate-pulse">
+      <div className="grid gap-4 animate-pulse">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[...Array(8)].map((_, i) => (
             <Card key={i}>
@@ -139,7 +139,7 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* KPI Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {kpiCards.map((kpi) => (
@@ -173,7 +173,7 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Production vs Planned */}
         <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-background to-muted/20">
           <CardHeader className="pb-2">
@@ -316,7 +316,7 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
       </div>
 
       {/* Bottom Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Quality Trend */}
         <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-background to-emerald-500/5">
           <CardHeader className="pb-2">

@@ -782,7 +782,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                         const current = organoleptic[field as keyof typeof organoleptic];
                         return (
                           <div key={field} className="space-y-1.5">
-                            <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                            <Label className="text-xs font-semibold text-muted-foreground">
                               {label}
                             </Label>
                             <div className="flex gap-1">
@@ -1259,7 +1259,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
           )}
 
           {phase === "confirmed" && confirmedDecision && (
-            <div className="space-y-6 p-4">
+            <div className="space-y-4 p-4">
               <div className="text-center space-y-2">
                 <div className="flex justify-center">
                   {confirmedDecision === "ACCEPTE" ? (
@@ -1271,7 +1271,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                   )}
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold tracking-tight">
+                  <h3 className="text-xl font-bold">
                     {confirmedDecision === "ACCEPTE" ? "LOT LIBÉRÉ — CONFORME" : confirmedDecision}
                   </h3>
                   <p className="text-muted-foreground text-sm">

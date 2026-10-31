@@ -63,9 +63,9 @@ function ScoreCard({ supplier }: { supplier: Supplier }) {
           : 'bg-red-50 border-red-200 text-red-700';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className={`rounded-2xl border p-5 text-center ${gradeClass}`}>
-        <p className="text-xs font-semibold uppercase tracking-widest opacity-70 mb-1">
+        <p className="text-xs font-semibold opacity-70 mb-1">
           Score qualité — §1.2
         </p>
         <p className="text-6xl font-black leading-none tabular-nums">{score.finalScore.toFixed(1)}</p>
@@ -209,7 +209,7 @@ function PaiementsSection({ supplierId, totalPaid }: { supplierId: string; total
     <div className="space-y-3">
       <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4 text-center">
         <p className="text-xs text-emerald-700 mb-1">Montant total payé</p>
-        <p className="text-3xl font-black tabular-nums text-emerald-800">
+        <p className="text-2xl font-black tabular-nums text-emerald-800">
           {paid.toLocaleString('fr-TN', { minimumFractionDigits: 2 })} TND
         </p>
       </div>

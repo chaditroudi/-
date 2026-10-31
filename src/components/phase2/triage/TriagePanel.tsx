@@ -398,7 +398,7 @@ export function TriagePanel({ currentUser = 'Utilisateur' }: { currentUser?: str
               </div>
             </div>
             <Separator />
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Erreurs de tri (nb dattes mal classées)</div>
+            <div className="text-xs font-semibold text-muted-foreground">Erreurs de tri (nb dattes mal classées)</div>
             {([['extra_err', 'Extra', 'emerald'], ['cat1_err', 'Cat. I', 'blue'], ['cat2_err', 'Cat. II', 'amber'], ['reject_err', 'Rejet', 'red']] as const).map(([key, label]) => (
               <div key={key} className="flex items-center gap-3">
                 <Label className="text-xs w-16">{label}</Label>

@@ -94,7 +94,7 @@ const ConnectedWeighing = ({ draft, update, reading, online }: {
       ) : (
         <div className="flex flex-wrap items-center gap-3 rounded-xl border border-primary/30 bg-primary/5 p-3">
           <div className="min-w-0 flex-1">
-            <p className="text-3xl font-semibold tabular-nums">{reading.weight_kg} kg</p>
+            <p className="text-2xl font-semibold tabular-nums">{reading.weight_kg} kg</p>
             <p className="text-xs text-muted-foreground">
               {reading.device_code} · {formatTime(reading.captured_at)}{reading.signature_verified ? ' · lecture signée' : ''}
             </p>
@@ -194,7 +194,7 @@ export const StepLotWeighing = ({ draft, update, declaredGap, orderGap, expected
     update({ lots: draft.lots.map((lot, position) => (position === index ? { ...lot, ...patch } : lot)) });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <section className="space-y-3">
         <h3 className="flex items-center gap-2 text-sm font-semibold"><Scale className="h-4 w-4 text-primary" />Pesée</h3>
         <div role="radiogroup" aria-label="Mode de pesée" className="grid gap-2 sm:grid-cols-2">

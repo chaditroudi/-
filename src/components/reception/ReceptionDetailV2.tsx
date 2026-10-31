@@ -268,7 +268,7 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
             <Play className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
           )}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Prochaine étape</p>
+            <p className="text-xs font-semibold text-muted-foreground">Prochaine étape</p>
             <p className="font-semibold">{nextStep.title}</p>
             <p className="text-sm text-muted-foreground">
               {isCancelled && reception.cancellation_reason

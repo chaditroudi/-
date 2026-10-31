@@ -212,7 +212,7 @@ const NotificationDetailView = ({
 
         {/* Info grid */}
         <div className="px-4 pb-4 pt-4">
-          <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground/50">
+          <p className="mb-3 text-[11px] font-bold text-muted-foreground/50">
             Informations
           </p>
           <div className="space-y-2.5">
@@ -237,7 +237,7 @@ const NotificationDetailView = ({
           <>
             <Separator />
             <div className="px-4 pb-4 pt-4">
-              <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground/50">
+              <p className="mb-3 text-[11px] font-bold text-muted-foreground/50">
                 Contexte
               </p>
               <div className="space-y-2.5">
@@ -464,7 +464,7 @@ export const NotificationCenter = () => {
             {/* Live / recent strip */}
             {recentLive.length > 0 && (
               <div className="border-b px-3 py-3">
-                <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground/50">
+                <p className="mb-2 text-[11px] font-bold text-muted-foreground/50">
                   Récentes
                 </p>
                 <div className="space-y-1.5">

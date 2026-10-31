@@ -49,7 +49,7 @@ export const BonReceptionAchatPrint = forwardRef<HTMLDivElement, Props>(({ bon }
         {/* Center title */}
         <div className="flex-1 flex flex-col items-center justify-center border-r border-[#1a5276] px-4 py-2">
           <div className="text-[#1a5276] font-bold text-base text-center">BON DE RECEPTION ACHAT</div>
-          <div className="flex gap-6 mt-2 text-[11px]">
+          <div className="flex gap-4 mt-2 text-[11px]">
             <label className="flex items-center gap-1">
               <span className="flex h-4 w-4 items-center justify-center border border-[#1a5276] text-center">
                 {bon.convention ? "✓" : ""}

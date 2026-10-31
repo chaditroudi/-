@@ -43,7 +43,7 @@ export function NotificationsPanel({ settings }: Props) {
   };
 
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="max-w-3xl space-y-4">
       <Card>
         <CardHeader>
           <CardTitle className="text-sm">Canaux & digest</CardTitle>

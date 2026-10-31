@@ -136,7 +136,7 @@ export function EmployeeDialog({ open, onOpenChange, employeeId, employees, onSa
           <DialogDescription>{isEditing ? t('employees.editEmployeeDesc') : t('employees.newEmployeeDesc')}</DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <FormField control={form.control} name="first_name" render={({ field }) => (
                 <FormItem><FormLabel>{t('employees.firstName')} *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>

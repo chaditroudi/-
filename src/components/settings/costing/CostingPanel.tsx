@@ -43,7 +43,7 @@ export function CostingPanel({ settings }: Props) {
   };
 
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="max-w-3xl space-y-4">
       <MarginCockpitPanel />
       <Card>
         <CardHeader>

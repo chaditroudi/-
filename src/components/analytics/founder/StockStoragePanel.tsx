@@ -41,7 +41,7 @@ export function StockStoragePanel({ period }: { period: Period }) {
               <Package className="h-3.5 w-3.5 text-violet-600" />
               <span className="text-xs text-violet-600 font-medium">Lots en stock</span>
             </div>
-            <div className="text-3xl font-black text-violet-700">{st?.totalLots ?? 0}</div>
+            <div className="text-2xl font-black text-violet-700">{st?.totalLots ?? 0}</div>
             <div className="text-xs text-violet-600 mt-0.5">
               {st?.totalKg ? (st.totalKg >= 1000 ? `${(st.totalKg / 1000).toFixed(2)} t` : `${st.totalKg.toFixed(0)} kg`) : '0 kg'}
             </div>
@@ -54,7 +54,7 @@ export function StockStoragePanel({ period }: { period: Period }) {
               <ArrowUpRight className="h-3.5 w-3.5 text-green-600" />
               <span className="text-xs text-green-600 font-medium">Entrées période</span>
             </div>
-            <div className="text-3xl font-black text-green-700">
+            <div className="text-2xl font-black text-green-700">
               {mv?.totalIn ? (mv.totalIn >= 1000 ? `${(mv.totalIn / 1000).toFixed(1)} t` : `${mv.totalIn.toFixed(0)} kg`) : '0'}
             </div>
             <div className="text-xs text-green-600 mt-0.5">{mv?.count ?? 0} mouvements</div>
@@ -67,7 +67,7 @@ export function StockStoragePanel({ period }: { period: Period }) {
               <ArrowDownRight className="h-3.5 w-3.5 text-red-600" />
               <span className="text-xs text-red-600 font-medium">Sorties période</span>
             </div>
-            <div className="text-3xl font-black text-red-700">
+            <div className="text-2xl font-black text-red-700">
               {mv?.totalOut ? (mv.totalOut >= 1000 ? `${(mv.totalOut / 1000).toFixed(1)} t` : `${mv.totalOut.toFixed(0)} kg`) : '0'}
             </div>
             <div className="text-xs text-red-600 mt-0.5">
@@ -82,7 +82,7 @@ export function StockStoragePanel({ period }: { period: Period }) {
               <Thermometer className={`h-3.5 w-3.5 ${(sr?.condCompliance ?? 100) >= 95 ? 'text-green-600' : 'text-amber-600'}`} />
               <span className={`text-xs font-medium ${(sr?.condCompliance ?? 100) >= 95 ? 'text-green-600' : 'text-amber-600'}`}>Conformité conditions</span>
             </div>
-            <div className={`text-3xl font-black ${(sr?.condCompliance ?? 100) >= 95 ? 'text-green-700' : 'text-amber-700'}`}>
+            <div className={`text-2xl font-black ${(sr?.condCompliance ?? 100) >= 95 ? 'text-green-700' : 'text-amber-700'}`}>
               {(sr?.condCompliance ?? 100).toFixed(0)}%
             </div>
             <div className="text-xs text-muted-foreground mt-0.5">{sr?.condReadings ?? 0} lectures</div>

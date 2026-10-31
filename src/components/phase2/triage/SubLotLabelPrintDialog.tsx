@@ -110,7 +110,7 @@ export function SubLotLabelPrintDialog({ open, onOpenChange, subLots, sessionNum
                   className="border-2 rounded-lg p-3 space-y-2"
                   style={{ borderColor: GRADE_BG[sl.grade] }}
                 >
-                  <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wide">
+                  <div className="text-xs text-muted-foreground font-semibold">
                     Sous-lot triage
                   </div>
                   <div

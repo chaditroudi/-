@@ -143,17 +143,8 @@ export const MaintenanceDashboard = () => {
   ];
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold">
-            <Wrench className="h-6 w-6 text-primary" />
-            Maintenance
-          </h1>
-          <p className="text-muted-foreground">
-            Demandes d&apos;intervention — validation département → Maintenance → DAF.
-          </p>
-        </div>
         {isLoading && <div className="text-xs text-muted-foreground">Chargement...</div>}
       </div>
 

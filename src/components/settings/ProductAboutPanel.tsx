@@ -31,7 +31,7 @@ export function ProductAboutPanel({ onOpenFiches }: ProductAboutPanelProps) {
   };
 
   return (
-    <Card className="rounded-[24px] border-primary/20">
+    <Card className="rounded-lg border-primary/20">
       <CardHeader>
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline" className="font-mono">

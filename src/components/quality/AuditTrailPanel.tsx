@@ -83,7 +83,7 @@ export const AuditTrailPanel = () => {
   const handleFilterChange = () => setPage(0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Stats cards */}
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

@@ -23,7 +23,7 @@ export const QualityAnalyticsPanel = ({ period }: QualityAnalyticsPanelProps) =>
 
   if (isLoading) {
     return (
-      <div className="grid gap-6 animate-pulse">
+      <div className="grid gap-4 animate-pulse">
         {[...Array(3)].map((_, i) => (
           <Card key={i}>
             <CardContent className="p-6">
@@ -44,7 +44,7 @@ export const QualityAnalyticsPanel = ({ period }: QualityAnalyticsPanelProps) =>
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* KPI Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         <Card>
@@ -133,7 +133,7 @@ export const QualityAnalyticsPanel = ({ period }: QualityAnalyticsPanelProps) =>
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Pass Rate Gauge */}
         <Card>
           <CardHeader className="pb-2">
@@ -233,7 +233,7 @@ export const QualityAnalyticsPanel = ({ period }: QualityAnalyticsPanelProps) =>
           <CardTitle className="text-base">Métriques Qualité</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="p-4 rounded-lg bg-muted/50 text-center">
               <Droplets className="h-8 w-8 mx-auto text-blue-500 mb-2" />
               <p className="text-2xl font-bold">--</p>

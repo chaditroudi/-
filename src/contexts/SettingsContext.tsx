@@ -26,14 +26,10 @@ const applyTheme = (settings: SiteSettings) => {
   if (/^#[0-9a-f]{6}$/i.test(settings.primary_color)) {
     const hsl = hexToHsl(settings.primary_color);
     root.style.setProperty('--primary', hsl);
-    root.style.setProperty('--ring', hsl);
-    root.style.setProperty('--sidebar-primary', hsl);
-    root.style.setProperty('--sidebar-ring', hsl);
   }
   if (/^#[0-9a-f]{6}$/i.test(settings.accent_color)) {
     const accentHsl = hexToHsl(settings.accent_color);
     root.style.setProperty('--accent', accentHsl);
-    root.style.setProperty('--sidebar-accent', accentHsl);
   }
   root.dataset.uiDensity = settings.interface.ui_density;
   root.dataset.uiAnimations = settings.interface.enable_animations ? 'on' : 'off';

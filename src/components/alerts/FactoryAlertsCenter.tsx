@@ -218,7 +218,7 @@ export const FactoryAlertsCenter = () => {
            {recentNotifications.length > 0 && (
              <div className="mt-4 rounded-xl border bg-muted/20 p-3">
                <div className="mb-2 flex items-center justify-between gap-2">
-                 <span className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                 <span className="text-xs font-semibold text-muted-foreground">
                    {t('alerts.realtime')}
                  </span>
                  <Badge variant="outline" className="rounded-full">

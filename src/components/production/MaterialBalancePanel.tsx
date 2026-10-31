@@ -229,7 +229,7 @@ export function MaterialBalancePanel() {
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-widest">
+              <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[11px] font-semibold">
                 Bilan matière indicatif
               </Badge>
               <CardTitle className="mt-2 text-base font-semibold">
@@ -297,7 +297,7 @@ export function MaterialBalancePanel() {
           <CardHeader className="pb-3">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-widest">
+                <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[11px] font-semibold">
                   Bilan réel
                 </Badge>
                 <CardTitle className="mt-2 text-base font-semibold">
@@ -336,7 +336,7 @@ export function MaterialBalancePanel() {
       <Card className="surface-card border-border">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-widest">
+            <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[11px] font-semibold">
               Flux supports
             </Badge>
             <CardTitle className="text-base font-semibold">

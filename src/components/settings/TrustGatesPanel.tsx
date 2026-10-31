@@ -36,7 +36,7 @@ export function TrustGatesPanel() {
   });
 
   return (
-    <Card className="rounded-[24px] border-primary/20">
+    <Card className="rounded-lg border-primary/20">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <Shield className="h-4 w-4 text-primary" />

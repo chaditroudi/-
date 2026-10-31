@@ -61,7 +61,7 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
 
   return (
     <>
-            <Card className="surface-card rounded-[24px]">
+            <Card className="surface-card rounded-lg">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <QrCode className="h-5 w-5 text-primary" />
@@ -132,7 +132,7 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                 {/* Awaiting QC mini-list */}
                 {awaitingQc.length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    <p className="text-xs font-semibold text-muted-foreground">
                       Lots en attente QC ({awaitingQc.length})
                     </p>
                     {awaitingQc.map((r) => (
@@ -158,7 +158,7 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                 {/* In-progress QC mini-list — interrupted inspections stay findable here */}
                 {inQc.length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    <p className="text-xs font-semibold text-muted-foreground">
                       Inspections en cours ({inQc.length})
                     </p>
                     {inQc.map((r) => (
@@ -184,7 +184,7 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                 {/* Lab pending results — RG-Q07 */}
                 {labPendingInspections.length > 0 && (
                   <div className="space-y-2 pt-1">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-sky-700">
+                    <p className="text-xs font-semibold text-sky-700">
                       Résultats labo en attente ({labPendingInspections.length})
                     </p>
                     {labPendingInspections.slice(0, 5).map((insp) => {

@@ -607,7 +607,7 @@ export const BonExpeditionDialog = ({ open, onOpenChange, reception, lots }: Bon
                 <CardTitle className="text-sm">Lignes produit</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="hidden md:grid md:grid-cols-[1.2fr_1fr_1fr_1.5fr] gap-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <div className="hidden md:grid md:grid-cols-[1.2fr_1fr_1fr_1.5fr] gap-3 text-xs font-semibold text-muted-foreground">
                   <div>Produit</div>
                   <div>Nature de caisse</div>
                   <div>Quantité de caisse</div>

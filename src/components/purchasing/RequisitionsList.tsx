@@ -633,7 +633,7 @@ export const RequisitionsList = ({
                   {/* Circuit d'approbation par seuils (§5.1) */}
                   {requiredSteps.length > 0 && (
                     <div className="space-y-1.5">
-                      <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+                      <Label className="text-xs text-muted-foreground">
                         Circuit d'approbation ({signed.length}/{requiredSteps.length})
                       </Label>
                       <div className="rounded-xl border divide-y">
@@ -673,7 +673,7 @@ export const RequisitionsList = ({
                   )}
 
                   <div className="rounded-xl border bg-muted/20 p-3 text-sm">
-                    <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Valideur (session)</p>
+                    <p className="text-muted-foreground text-xs mb-1">Valideur (session)</p>
                     <p className="font-medium">{currentUser || 'Utilisateur connecté'}</p>
                     <p className="text-xs text-muted-foreground mt-1">
                       L&apos;identité est prise depuis votre session authentifiée — aucun nom saisi manuellement.
@@ -707,7 +707,7 @@ export const RequisitionsList = ({
           </DialogHeader>
           <div className="space-y-4">
             <div className="rounded-xl border bg-muted/20 p-3 text-sm">
-              <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Acteur (session)</p>
+              <p className="text-muted-foreground text-xs mb-1">Acteur (session)</p>
               <p className="font-medium">{currentUser || 'Utilisateur connecté'}</p>
             </div>
             <div className="space-y-2">

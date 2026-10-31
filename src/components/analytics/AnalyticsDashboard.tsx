@@ -30,7 +30,7 @@ export const AnalyticsDashboard = () => {
 
   if (isFounder) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         <ModuleHero
           kicker="Pilotage • Fondateur"
           title="Tableau de bord Fondateur"
@@ -43,7 +43,7 @@ export const AnalyticsDashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <ModuleHero
         kicker="Pilotage • Analytics"
         title={t('analytics.title')}
@@ -56,7 +56,7 @@ export const AnalyticsDashboard = () => {
 
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div className="rounded-2xl border border-border/70 bg-card/80 px-4 py-3">
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Lecture manageriale</p>
+          <p className="text-xs text-muted-foreground">Lecture manageriale</p>
           <p className="mt-1 text-sm text-foreground">Synthèse, comparaisons et indicateurs consolidés.</p>
         </div>
         <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
@@ -88,7 +88,7 @@ export const AnalyticsDashboard = () => {
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="flex h-auto w-full justify-start gap-1 overflow-x-auto rounded-2xl bg-card/80 p-1 shadow-card [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:grid lg:w-auto lg:grid-cols-5 lg:overflow-visible">
           <TabsTrigger value="direction" className="shrink-0 gap-2">
             <Crown className="h-4 w-4" />

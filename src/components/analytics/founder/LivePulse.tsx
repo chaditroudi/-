@@ -38,7 +38,7 @@ export function LivePulse() {
           <div>
             <div className="flex items-center gap-2">
               <span className="font-bold text-lg">Usine en temps réel</span>
-              <span className="flex items-center gap-1 text-[11px] bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-full px-2 py-0.5 font-semibold uppercase tracking-wider">
+              <span className="flex items-center gap-1 text-[11px] bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-full px-2 py-0.5 font-semibold">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 LIVE
               </span>
@@ -73,7 +73,7 @@ export function LivePulse() {
                 </div>
                 <span className="text-xs font-medium text-muted-foreground">{label}</span>
               </div>
-              <div className={`text-3xl font-black ${count > 0 ? text : 'text-muted-foreground/50'}`}>{isLoading ? '—' : count}</div>
+              <div className={`text-2xl font-black ${count > 0 ? text : 'text-muted-foreground/50'}`}>{isLoading ? '—' : count}</div>
               <div className="text-[11px] text-muted-foreground mt-0.5">{count > 0 ? 'cycle(s) actif(s)' : 'aucun actif'}</div>
             </div>
           );
@@ -84,7 +84,7 @@ export function LivePulse() {
       {data && (data.today.fumKgIn > 0 || data.today.netKgIn > 0 || data.today.hydKgIn > 0 || data.today.triKgIn > 0) && (
         <Card>
           <CardContent className="pt-3 pb-3">
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2.5">
+            <div className="text-xs font-semibold text-muted-foreground mb-2.5">
               Rendements Phase 2 — aujourd'hui
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -123,29 +123,29 @@ export function LivePulse() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <Card className="bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200">
           <CardContent className="pt-4 pb-3">
-            <div className="text-xs text-blue-600 font-semibold uppercase tracking-wide mb-1">Réceptions auj.</div>
-            <div className="text-3xl font-black text-blue-700">{data?.receptions.today ?? '—'}</div>
+            <div className="text-xs text-blue-600 font-semibold mb-1">Réceptions auj.</div>
+            <div className="text-2xl font-black text-blue-700">{data?.receptions.today ?? '—'}</div>
             <div className="text-xs text-blue-600 mt-0.5">{data?.receptions.kgToday ? `${data.receptions.kgToday.toFixed(0)} kg` : '0 kg'}</div>
           </CardContent>
         </Card>
         <Card className="bg-gradient-to-br from-violet-50 to-violet-100/50 border-violet-200">
           <CardContent className="pt-4 pb-3">
-            <div className="text-xs text-violet-600 font-semibold uppercase tracking-wide mb-1">Phase 2 auj.</div>
-            <div className="text-3xl font-black text-violet-700">{data?.today.totalKgProcessed.toFixed(0) ?? '—'} <span className="text-lg font-normal">kg</span></div>
+            <div className="text-xs text-violet-600 font-semibold mb-1">Phase 2 auj.</div>
+            <div className="text-2xl font-black text-violet-700">{data?.today.totalKgProcessed.toFixed(0) ?? '—'} <span className="text-lg font-normal">kg</span></div>
             <div className="text-xs text-violet-600 mt-0.5">traités aujourd'hui</div>
           </CardContent>
         </Card>
         <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 border-emerald-200">
           <CardContent className="pt-4 pb-3">
-            <div className="text-xs text-emerald-600 font-semibold uppercase tracking-wide mb-1">Cond. auj.</div>
-            <div className="text-3xl font-black text-emerald-700">{data?.today.pkgUnits ?? '—'} <span className="text-lg font-normal">un.</span></div>
+            <div className="text-xs text-emerald-600 font-semibold mb-1">Cond. auj.</div>
+            <div className="text-2xl font-black text-emerald-700">{data?.today.pkgUnits ?? '—'} <span className="text-lg font-normal">un.</span></div>
             <div className="text-xs text-emerald-600 mt-0.5">unités conditionnées</div>
           </CardContent>
         </Card>
         <Card className={`border-2 ${(data?.alerts.critique ?? 0) > 0 ? 'bg-red-50 border-red-300' : (data?.alerts.avertissement ?? 0) > 0 ? 'bg-amber-50 border-amber-300' : 'bg-green-50 border-green-300'}`}>
           <CardContent className="pt-4 pb-3">
-            <div className={`text-xs font-semibold uppercase tracking-wide mb-1 ${(data?.alerts.critique ?? 0) > 0 ? 'text-red-600' : (data?.alerts.avertissement ?? 0) > 0 ? 'text-amber-600' : 'text-green-600'}`}>Alertes actives</div>
-            <div className={`text-3xl font-black ${(data?.alerts.critique ?? 0) > 0 ? 'text-red-700' : (data?.alerts.avertissement ?? 0) > 0 ? 'text-amber-700' : 'text-green-700'}`}>{data?.alerts.total ?? '—'}</div>
+            <div className={`text-xs font-semibold mb-1 ${(data?.alerts.critique ?? 0) > 0 ? 'text-red-600' : (data?.alerts.avertissement ?? 0) > 0 ? 'text-amber-600' : 'text-green-600'}`}>Alertes actives</div>
+            <div className={`text-2xl font-black ${(data?.alerts.critique ?? 0) > 0 ? 'text-red-700' : (data?.alerts.avertissement ?? 0) > 0 ? 'text-amber-700' : 'text-green-700'}`}>{data?.alerts.total ?? '—'}</div>
             <div className="flex gap-1 mt-1 flex-wrap">
               {(data?.alerts.critique ?? 0) > 0 && <Badge className="text-[11px] h-4 bg-red-500 text-white px-1">{data!.alerts.critique} critique</Badge>}
               {(data?.alerts.avertissement ?? 0) > 0 && <Badge className="text-[11px] h-4 bg-amber-500 text-white px-1">{data!.alerts.avertissement} avert.</Badge>}
@@ -158,7 +158,7 @@ export function LivePulse() {
       {(data?.active.packagingDetail?.length ?? 0) > 0 && (
         <Card>
           <CardContent className="pt-3 pb-3">
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Ordres de conditionnement actifs</div>
+            <div className="text-xs font-semibold text-muted-foreground mb-2">Ordres de conditionnement actifs</div>
             <div className="divide-y">
               {data!.active.packagingDetail.map((o: Record<string, unknown>) => {
                 const pct = o.target_units > 0 ? Math.round((o.produced_units / o.target_units) * 100) : 0;

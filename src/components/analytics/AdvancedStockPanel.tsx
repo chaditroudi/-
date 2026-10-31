@@ -29,7 +29,7 @@ export const AdvancedStockPanel = () => {
 
   if (isLoading) {
     return (
-      <div className="grid gap-6 animate-pulse">
+      <div className="grid gap-4 animate-pulse">
         {[...Array(3)].map((_, i) => (
           <Card key={i}>
             <CardContent className="p-6">
@@ -55,7 +55,7 @@ export const AdvancedStockPanel = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Main KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {/* Total Stock */}
@@ -66,7 +66,7 @@ export const AdvancedStockPanel = () => {
                 <Boxes className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="text-3xl font-bold">{((kpis?.totalStockKg || 0) / 1000).toFixed(1)}T</p>
+                <p className="text-2xl font-bold">{((kpis?.totalStockKg || 0) / 1000).toFixed(1)}T</p>
                 <p className="text-xs text-muted-foreground">Stock Total</p>
               </div>
             </div>
@@ -156,7 +156,7 @@ export const AdvancedStockPanel = () => {
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Stock by Category */}
         <Card>
           <CardHeader className="pb-2">
@@ -252,7 +252,7 @@ export const AdvancedStockPanel = () => {
       </div>
 
       {/* Stock Aging & Category Details */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Stock Aging */}
         <Card>
           <CardHeader className="pb-2">

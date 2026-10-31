@@ -60,7 +60,7 @@ export function BrandingPanel({ settings }: Props) {
   const logoSrc = logoBase64 || form.logo_url || null;
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-4 max-w-2xl">
       <Card>
         <CardHeader><CardTitle className="text-sm">Identité visuelle</CardTitle></CardHeader>
         <CardContent className="space-y-4">

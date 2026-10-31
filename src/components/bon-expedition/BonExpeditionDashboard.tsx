@@ -136,7 +136,7 @@ export function BonExpeditionDashboard({
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-3 rounded-[24px] border border-dashed bg-muted/20 py-16 text-center">
+        <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed bg-muted/20 py-16 text-center">
           <FileText className="h-10 w-10 opacity-30" />
           <div className="space-y-1">
             <p className="font-medium text-foreground">

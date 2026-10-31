@@ -181,7 +181,7 @@ export const AiGuide = () => {
           </SheetTitle>
           <SheetDescription className="text-xs">
             {contextLabel}
-            <span className="mt-1 block text-[10px] uppercase tracking-wide text-muted-foreground">
+            <span className="mt-1 block text-[10px] text-muted-foreground">
               {modeLabel}
               {status?.model ? ` · ${status.model}` : ""}
             </span>
@@ -207,7 +207,7 @@ export const AiGuide = () => {
         <div className="min-h-[7rem] flex-1 overflow-y-auto rounded-md border border-border/60 bg-muted/30 p-3 text-sm leading-relaxed">
           {pending ? t("aiGuide.thinking") : reply?.message || t("aiGuide.placeholder")}
           {reply?.fallbackUsed && !pending && (
-            <p className="mt-2 text-[10px] uppercase tracking-wide text-muted-foreground">
+            <p className="mt-2 text-[10px] text-muted-foreground">
               {t("aiGuide.fallback")}
             </p>
           )}

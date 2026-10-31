@@ -271,7 +271,7 @@ export function ProductionKpiPanel() {
 
       {/* Summary card */}
       <Card className="surface-card border-border">
-        <CardContent className="flex flex-wrap items-center gap-6 p-4">
+        <CardContent className="flex flex-wrap items-center gap-4 p-4">
           {isLoading ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" /> Chargement des données…

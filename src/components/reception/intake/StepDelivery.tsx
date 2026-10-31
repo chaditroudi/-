@@ -64,7 +64,7 @@ export const StepDelivery = ({ draft, update, policy, varieties, lastDelivery, s
   const bioBlocked = draft.bio_declared && !hasValidBioCertification(supplier);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <section className="space-y-4">
         <Field label="Fournisseur" required>
           <SupplierPicker suppliers={activeSuppliers} value={draft.supplier_id} label={draft.supplier_label} onSelect={selectSupplier} />

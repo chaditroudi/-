@@ -184,7 +184,7 @@ const NodeList = ({
   nodes: RecallDrillResult['upstream'];
 }) => (
   <div className="rounded border p-2 space-y-1">
-    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{title}</p>
+    <p className="text-xs font-semibold text-muted-foreground">{title}</p>
     <div className="max-h-40 overflow-auto space-y-1">
       {nodes.length === 0 ? (
         <p className="text-xs text-muted-foreground italic">Aucun</p>

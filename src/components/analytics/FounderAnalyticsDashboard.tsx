@@ -61,7 +61,7 @@ function ExecutiveStrip({ period }: { period: Period }) {
       <div className="rounded-xl border border-blue-200 bg-blue-50 p-2.5">
         <div className="flex items-center gap-1 mb-0.5">
           <Truck className="h-3 w-3 text-blue-500" />
-          <span className="text-[11px] text-blue-600 font-semibold uppercase tracking-wide">Volume reçu</span>
+          <span className="text-[11px] text-blue-600 font-semibold">Volume reçu</span>
         </div>
         <div className={`text-lg font-black text-blue-700 leading-tight ${loading ? 'opacity-40' : ''}`}>
           {loading ? '…' : totalKg > 0 ? fmtKg(totalKg) : '—'}
@@ -73,7 +73,7 @@ function ExecutiveStrip({ period }: { period: Period }) {
       <div className={`rounded-xl border p-2.5 ${p2Yield >= 90 ? 'border-green-200 bg-green-50' : p2Yield > 0 ? 'border-amber-200 bg-amber-50' : 'border-border bg-card'}`}>
         <div className="flex items-center gap-1 mb-0.5">
           <TrendingUp className="h-3 w-3 text-muted-foreground" />
-          <span className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wide">Rendement P2</span>
+          <span className="text-[11px] text-muted-foreground font-semibold">Rendement P2</span>
         </div>
         <div className={`text-lg font-black leading-tight ${loading ? 'opacity-40' : ''} ${p2Yield >= 90 ? 'text-green-700' : p2Yield > 0 ? 'text-amber-700' : 'text-muted-foreground'}`}>
           {loading ? '…' : p2Yield > 0 ? `${p2Yield.toFixed(1)}%` : '—'}
@@ -85,7 +85,7 @@ function ExecutiveStrip({ period }: { period: Period }) {
       <div className={`rounded-xl border p-2.5 ${oee >= 85 ? 'border-green-200 bg-green-50' : oee > 0 ? 'border-amber-200 bg-amber-50' : 'border-border bg-card'}`}>
         <div className="flex items-center gap-1 mb-0.5">
           <Package className="h-3 w-3 text-muted-foreground" />
-          <span className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wide">OEE Cond.</span>
+          <span className="text-[11px] text-muted-foreground font-semibold">OEE Cond.</span>
         </div>
         <div className={`text-lg font-black leading-tight ${loading ? 'opacity-40' : ''} ${oee >= 85 ? 'text-green-700' : oee > 0 ? 'text-amber-700' : 'text-muted-foreground'}`}>
           {loading ? '…' : oee > 0 ? `${oee.toFixed(1)}%` : '—'}
@@ -97,7 +97,7 @@ function ExecutiveStrip({ period }: { period: Period }) {
       <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-2.5">
         <div className="flex items-center gap-1 mb-0.5">
           <Layers className="h-3 w-3 text-emerald-500" />
-          <span className="text-[11px] text-emerald-600 font-semibold uppercase tracking-wide">Palettes PF</span>
+          <span className="text-[11px] text-emerald-600 font-semibold">Palettes PF</span>
         </div>
         <div className={`text-lg font-black text-emerald-700 leading-tight ${loading ? 'opacity-40' : ''}`}>
           {loading ? '…' : palettes > 0 ? palettes : '—'}
@@ -109,7 +109,7 @@ function ExecutiveStrip({ period }: { period: Period }) {
       <div className={`rounded-xl border p-2.5 ${cycles > 0 ? 'border-violet-200 bg-violet-50' : 'border-border bg-card'}`}>
         <div className="flex items-center gap-1 mb-0.5">
           <Activity className="h-3 w-3 text-muted-foreground" />
-          <span className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wide">Cycles actifs</span>
+          <span className="text-[11px] text-muted-foreground font-semibold">Cycles actifs</span>
         </div>
         <div className={`text-lg font-black leading-tight ${loading ? 'opacity-40' : ''} ${cycles > 0 ? 'text-violet-700' : 'text-muted-foreground'}`}>
           {loading ? '…' : cycles}
@@ -121,7 +121,7 @@ function ExecutiveStrip({ period }: { period: Period }) {
       <div className={`rounded-xl border p-2.5 ${alertsCrit > 0 ? 'border-red-300 bg-red-50' : alertsTotal > 0 ? 'border-amber-200 bg-amber-50' : 'border-green-200 bg-green-50'}`}>
         <div className="flex items-center gap-1 mb-0.5">
           <Bell className="h-3 w-3 text-muted-foreground" />
-          <span className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wide">Alertes</span>
+          <span className="text-[11px] text-muted-foreground font-semibold">Alertes</span>
         </div>
         <div className={`text-lg font-black leading-tight ${loading ? 'opacity-40' : ''} ${alertsCrit > 0 ? 'text-red-700' : alertsTotal > 0 ? 'text-amber-700' : 'text-green-700'}`}>
           {loading ? '…' : alertsTotal}
@@ -161,7 +161,7 @@ function PlantHealthHeader({ period }: { period: Period }) {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-bold text-lg">Score de santé usine</span>
-              <Badge className={`${clr.badge} text-white text-[11px] uppercase tracking-wide`}>{clr.label}</Badge>
+              <Badge className={`${clr.badge} text-white text-[11px]`}>{clr.label}</Badge>
             </div>
             <div className="text-xs text-muted-foreground mt-0.5">
               Indicateur composite — Réception · Phase 2 · Conditionnement · Alertes
@@ -202,7 +202,7 @@ export function FounderAnalyticsDashboard() {
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-primary" />
           <span className="font-bold text-lg">Analytics Fondateur</span>
-          <span className="flex items-center gap-1 text-[11px] bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-full px-2 py-0.5 font-semibold uppercase tracking-wider">
+          <span className="flex items-center gap-1 text-[11px] bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-full px-2 py-0.5 font-semibold">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
             TEMPS RÉEL
           </span>

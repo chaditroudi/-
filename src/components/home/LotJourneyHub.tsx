@@ -1,3 +1,4 @@
+import { useAllReceptionLots } from '@/hooks/useStock';
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
@@ -159,6 +160,8 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
     );
   }, [passport.data?.lotNumber, settlements.data]);
 
+  const { data: receptionLots = [] } = useAllReceptionLots();
+  const lotNumbers = new Map(receptionLots.map((row) => [row.id, row.lot_internal]));
   const inProgressLots = (golden.data?.lots || []).filter((l) => !l.goldenThreadComplete).slice(0, 8);
 
   const handleSearch = async (raw?: string) => {
@@ -208,7 +211,7 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
   };
 
   return (
-    <Card className="surface-card overflow-hidden rounded-[28px] border-primary/20">
+    <Card className="surface-card overflow-hidden rounded-lg border-primary/20">
       <CardHeader className="space-y-3 border-b bg-muted/15 pb-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -293,7 +296,7 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
         {/* In-progress picker */}
         {inProgressLots.length > 0 && (
           <div className="space-y-2">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            <p className="text-xs font-medium text-muted-foreground">
               Lots en cours — cliquer pour suivre
             </p>
             <div className="flex gap-2 overflow-x-auto pb-1">
@@ -309,7 +312,7 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
                       : 'hover:bg-muted/40',
                   )}
                 >
-                  <p className="truncate font-mono text-[11px]">{lot.lotId.slice(0, 14)}…</p>
+                  <p className="truncate font-mono text-sm">{lotNumbers.get(lot.lotId) ?? 'Lot sans numéro'}</p>
                   <p className="text-xs text-muted-foreground">
                     {LOT_JOURNEY_STAGE_LABELS[(lot.stage as LotJourneyStage) || 'SUPPLIER_INTAKE'] ||
                       lot.stage ||
@@ -431,7 +434,7 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
                         <p className="text-xs font-semibold leading-tight">
                           {LOT_JOURNEY_STAGE_LABELS[stage]}
                         </p>
-                        <p className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+                        <p className="mt-1 text-[10px] text-muted-foreground">
                           {status === 'done'
                             ? 'fait'
                             : status === 'current'
@@ -449,7 +452,7 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
 
             {/* Next action — one job, few buttons */}
             <div className="rounded-xl border border-primary/25 bg-primary/5 p-3.5">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-primary">
+              <p className="text-[11px] font-semibold text-primary">
                 Prochaine action
               </p>
               <h3 className="mt-0.5 text-base font-semibold">{next.title}</h3>

@@ -24,7 +24,7 @@ export const ProductionAnalyticsPanel = ({ period }: ProductionAnalyticsPanelPro
 
   if (isLoading) {
     return (
-      <div className="grid gap-6 animate-pulse">
+      <div className="grid gap-4 animate-pulse">
         {[...Array(3)].map((_, i) => (
           <Card key={i}>
             <CardContent className="p-6">
@@ -46,7 +46,7 @@ export const ProductionAnalyticsPanel = ({ period }: ProductionAnalyticsPanelPro
   ].filter(d => d.value > 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* KPI Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         <Card>
@@ -135,7 +135,7 @@ export const ProductionAnalyticsPanel = ({ period }: ProductionAnalyticsPanelPro
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Status Distribution */}
         <Card>
           <CardHeader className="pb-2">
@@ -232,7 +232,7 @@ export const ProductionAnalyticsPanel = ({ period }: ProductionAnalyticsPanelPro
           <CardTitle className="text-base">Indicateurs de Performance</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Taux de complétion</span>

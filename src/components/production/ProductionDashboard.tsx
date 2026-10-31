@@ -90,11 +90,11 @@ export const ProductionDashboard = ({ orders }: ProductionDashboardProps) => {
         : 'Le tableau de bord est pret pour la prochaine vague d ordres de fabrication.';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <Card className="surface-card border-border">
         <CardContent className="flex flex-col gap-4 p-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0">
-            <Badge variant="outline" className="rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.14em]">
+            <Badge variant="outline" className="rounded-full px-2.5 py-1 text-xs font-semibold">
               Pilotage production
             </Badge>
             <h3 className="mt-3 text-xl font-semibold text-foreground">{summaryTitle}</h3>

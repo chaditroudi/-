@@ -370,7 +370,7 @@ export function ExportOrderDialog({ open, onOpenChange, initial, onSubmit, isSav
               })}
             </div>
 
-            <div className="mt-3 flex justify-end gap-6 text-sm font-semibold border-t pt-3">
+            <div className="mt-3 flex justify-end gap-4 text-sm font-semibold border-t pt-3">
               <span>Poids total: {totalWeight.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} kg</span>
               <span className="text-primary">Montant total: {totalAmount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} {currency}</span>
             </div>

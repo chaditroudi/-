@@ -33,7 +33,7 @@ export const StockDashboard = () => {
   const categories: ProductCategory[] = ['MP', 'WIP', 'PF', 'EMB'];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <ModuleHero
         kicker="Stock • Occupation & vigilance"
         title="Vision simple du stock et des zones"

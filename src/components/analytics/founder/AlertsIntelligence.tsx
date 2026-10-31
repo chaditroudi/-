@@ -31,7 +31,7 @@ export function AlertsIntelligence({ period }: { period: Period }) {
                   <div className={`h-2 w-2 rounded-full ${style.bg}`} />
                   <span className="text-xs text-muted-foreground">{style.label}</span>
                 </div>
-                <div className={`text-3xl font-black ${count > 0 && (sev === 'URGENCE' || sev === 'CRITIQUE') ? 'text-red-600' : 'text-foreground'}`}>{count}</div>
+                <div className={`text-2xl font-black ${count > 0 && (sev === 'URGENCE' || sev === 'CRITIQUE') ? 'text-red-600' : 'text-foreground'}`}>{count}</div>
                 <div className="text-[11px] text-muted-foreground">sur la période</div>
               </CardContent>
             </Card>

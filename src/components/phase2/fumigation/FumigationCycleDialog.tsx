@@ -244,7 +244,7 @@ function CycleSummary({ cycle }: { cycle: FumigationCycle }) {
 
       {lots.length > 0 && (
         <div className="space-y-1">
-          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+          <div className="text-xs font-semibold text-muted-foreground">
             Lots ({lots.length})
           </div>
           <div className="border rounded-lg divide-y max-h-40 overflow-y-auto">
@@ -366,7 +366,7 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
           {/* Phase-specific content */}
           {(cycle.status === 'PREPARATION' || cycle.status === 'CHARGEMENT') && (
             <div className="space-y-3">
-              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Dosage produit</div>
+              <div className="text-xs font-semibold text-muted-foreground">Dosage produit</div>
               <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs">Dose appliquée (g)</Label>
@@ -404,7 +404,7 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
           {/* Validation / residual test */}
           {cycle.status === 'VALIDATION' && (
             <div className="space-y-3">
-              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Test résiduel post-ventilation (RG-FUM-09)</div>
+              <div className="text-xs font-semibold text-muted-foreground">Test résiduel post-ventilation (RG-FUM-09)</div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs">Concentration résiduelle (ppm)</Label>
@@ -441,7 +441,7 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
             <>
               <Separator />
               <div className="space-y-3">
-                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                <div className="text-xs font-semibold text-muted-foreground">
                   Double signature CCP obligatoire (RG-FUM-12)
                 </div>
                 <p className="text-[11px] text-muted-foreground">

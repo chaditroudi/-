@@ -125,7 +125,7 @@ export const TareCalculator = ({
       <CardContent className="space-y-4">
         {/* A. Contenants */}
         <div className="space-y-3">
-          <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+          <Label className="text-xs font-semibold text-muted-foreground">
             A. Contenants
           </Label>
           
@@ -222,7 +222,7 @@ export const TareCalculator = ({
 
         {/* B. Calcul automatique */}
         <div className="space-y-3">
-          <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+          <Label className="text-xs font-semibold text-muted-foreground">
             B. Calcul automatique
           </Label>
           

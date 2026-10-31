@@ -174,11 +174,11 @@ export function PointageExpressPanel({
 
   return (
     <div className="space-y-5">
-      <Card className="surface-card overflow-hidden rounded-[28px] border-border/70 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.98),rgba(238,247,240,0.92)_38%,rgba(255,255,255,0.96)_100%)]">
+      <Card className="surface-card overflow-hidden rounded-lg border-border/70 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.98),rgba(238,247,240,0.92)_38%,rgba(255,255,255,0.96)_100%)]">
         <CardHeader className="pb-3">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
+              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
                 <Sparkles className="h-3.5 w-3.5" />
                 Pointage Express
               </div>
@@ -190,19 +190,19 @@ export function PointageExpressPanel({
 
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               <div className="rounded-2xl border bg-white/80 px-4 py-3 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Actifs</p>
+                <p className="text-xs text-muted-foreground">Actifs</p>
                 <p className="mt-1 text-2xl font-semibold text-foreground">{summary.activeCount}</p>
               </div>
               <div className="rounded-2xl border bg-white/80 px-4 py-3 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Présents</p>
+                <p className="text-xs text-muted-foreground">Présents</p>
                 <p className="mt-1 text-2xl font-semibold text-emerald-700">{summary.presentNow}</p>
               </div>
               <div className="rounded-2xl border bg-white/80 px-4 py-3 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Sortis</p>
+                <p className="text-xs text-muted-foreground">Sortis</p>
                 <p className="mt-1 text-2xl font-semibold text-slate-800">{summary.checkedOut}</p>
               </div>
               <div className="rounded-2xl border bg-white/80 px-4 py-3 shadow-sm">
-                <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">À pointer</p>
+                <p className="text-xs text-muted-foreground">À pointer</p>
                 <p className="mt-1 text-2xl font-semibold text-amber-700">{summary.notStarted}</p>
               </div>
             </div>
@@ -247,7 +247,7 @@ export function PointageExpressPanel({
       </Card>
 
       <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-        <Card className="surface-card rounded-[28px]">
+        <Card className="surface-card rounded-lg">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-xl">
               <Users className="h-5 w-5 text-primary" />
@@ -274,7 +274,7 @@ export function PointageExpressPanel({
                   const isBusy = busyEmployeeId === row.employee.id;
 
                   return (
-                    <div key={row.employee.id} className="rounded-[24px] border border-border/70 bg-background/80 p-4 shadow-sm">
+                    <div key={row.employee.id} className="rounded-lg border border-border/70 bg-background/80 p-4 shadow-sm">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-3">
                           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 font-semibold text-primary">
@@ -334,7 +334,7 @@ export function PointageExpressPanel({
           </CardContent>
         </Card>
 
-        <Card className="surface-card rounded-[28px]">
+        <Card className="surface-card rounded-lg">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-xl">
               <Clock3 className="h-5 w-5 text-primary" />

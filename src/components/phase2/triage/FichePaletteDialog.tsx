@@ -307,7 +307,7 @@ export const FichePaletteDialog = ({ open, onOpenChange, session, subLots = [] }
           {/* Section 1: Read-only summary */}
           <Card className="bg-muted/30">
             <CardHeader className="pb-2 pt-3 px-4">
-              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Informations triage
               </CardTitle>
             </CardHeader>
@@ -339,11 +339,11 @@ export const FichePaletteDialog = ({ open, onOpenChange, session, subLots = [] }
           {/* Section 2: Editable fields */}
           <Card>
             <CardHeader className="pb-2 pt-3 px-4">
-              <CardTitle className="text-sm font-medium uppercase tracking-wide">Champs à compléter</CardTitle>
+              <CardTitle className="text-sm font-medium">Champs à compléter</CardTitle>
             </CardHeader>
             <CardContent className="px-4 pb-4 space-y-4">
               <div>
-                <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2 block">Traitement thermique</Label>
+                <Label className="text-xs font-medium text-muted-foreground mb-2 block">Traitement thermique</Label>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <Label className="text-xs">Date hydratation</Label>
@@ -377,7 +377,7 @@ export const FichePaletteDialog = ({ open, onOpenChange, session, subLots = [] }
               </div>
 
               <div>
-                <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2 block">Taux qualité (V = Validé)</Label>
+                <Label className="text-xs font-medium text-muted-foreground mb-2 block">Taux qualité (V = Validé)</Label>
                 <div className="grid grid-cols-2 gap-2">
                   {[
                     { key: 'taux_infestation_v' as const, label: 'Taux infestation' },

@@ -289,7 +289,7 @@ function ActiveRunBadge({ run }: { run: FluxRun }) {
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="relative flex h-2.5 w-2.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
+              <span className="absolute inline-flex h-full w-full hidden rounded-full bg-emerald-500 opacity-75" />
               <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-600" />
             </span>
             <span className="text-xs font-semibold text-emerald-800">En production</span>
@@ -339,7 +339,7 @@ function RecentRunsList({ runs }: { runs: FluxRun[] }) {
 
   return (
     <div className="mt-2">
-      <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+      <p className="mb-1.5 text-[11px] font-semibold text-muted-foreground">
         Historique récent
       </p>
       <div className="space-y-1.5">
@@ -566,7 +566,7 @@ function ProductionLineCard({
 
           {isExpanded && (
             <div className="mt-3 space-y-2 border-t border-border pt-3">
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Étapes</p>
+              <p className="text-[11px] font-semibold text-muted-foreground">Étapes</p>
               <div className="divide-y divide-border rounded-xl border border-border text-xs">
                 {def.steps.map((step) => (
                   <div key={step.code} className="flex items-center gap-3 px-3 py-2">
@@ -604,7 +604,7 @@ function ProductionLineCard({
               </div>
               {def.params.packagingFormats && (
                 <div className="mt-2">
-                  <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Formats emballage</p>
+                  <p className="text-[11px] font-semibold text-muted-foreground">Formats emballage</p>
                   <div className="mt-1 flex flex-wrap gap-1">
                     {def.params.packagingFormats.map((fmt) => (
                       <Badge key={fmt} variant="outline" className="rounded-full text-[11px]">
@@ -663,7 +663,7 @@ function CommonTrunk() {
     <Card className="surface-card border-border">
       <CardHeader className="pb-2">
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="rounded-full text-xs font-semibold uppercase tracking-widest">
+          <Badge variant="outline" className="rounded-full text-xs font-semibold">
             Tronc commun
           </Badge>
           <span className="text-xs text-muted-foreground">— toutes lignes F1–F8</span>

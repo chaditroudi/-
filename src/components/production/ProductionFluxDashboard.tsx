@@ -50,7 +50,7 @@ export function ProductionFluxDashboard() {
       {/* Header strip */}
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-widest">
+          <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[11px] font-semibold">
             Dossier industriel v3.0
           </Badge>
           <span className="text-xs text-muted-foreground">

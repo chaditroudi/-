@@ -350,7 +350,7 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
                 <Input id="f-heure" type="time" value={heureArrivee} onChange={(e) => setHeureArrivee(e.target.value)} className="mt-1" />
               </div>
             </div>
-            <div className="flex gap-6">
+            <div className="flex gap-4">
               <label className="flex cursor-pointer items-center gap-2 text-sm">
                 <Checkbox checked={convention} onCheckedChange={(c) => setConvention(!!c)} />
                 Convention

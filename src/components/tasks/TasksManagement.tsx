@@ -34,7 +34,7 @@
    });
 
    return (
-     <div className="space-y-6">
+     <div className="space-y-4">
        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
          <Card className="border-l-4 border-l-slate-400">
            <CardContent className="pt-4">

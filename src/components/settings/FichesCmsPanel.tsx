@@ -117,7 +117,7 @@ export function FichesCmsPanel({ settings }: Props) {
 
   return (
     <div className="space-y-4">
-      <Card className="rounded-[24px]">
+      <Card className="rounded-lg">
         <CardHeader>
           <CardTitle className="text-base">Fiches techniques — CMS site</CardTitle>
           <CardDescription>

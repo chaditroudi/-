@@ -306,7 +306,7 @@ export const ReclamationFournisseurDialog = ({ open, onOpenChange, reception, lo
           {/* Section 1: Read-only summary */}
           <Card className="bg-muted/30">
             <CardHeader className="pb-2 pt-3 px-4">
-              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Informations réception
               </CardTitle>
             </CardHeader>
@@ -331,7 +331,7 @@ export const ReclamationFournisseurDialog = ({ open, onOpenChange, reception, lo
           {/* Section 2: Editable fields */}
           <Card>
             <CardHeader className="pb-2 pt-3 px-4">
-              <CardTitle className="text-sm font-medium uppercase tracking-wide">Champs à compléter</CardTitle>
+              <CardTitle className="text-sm font-medium">Champs à compléter</CardTitle>
             </CardHeader>
             <CardContent className="px-4 pb-4 space-y-3">
               <div className="space-y-1">

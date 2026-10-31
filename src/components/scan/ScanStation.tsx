@@ -121,7 +121,7 @@ const PROD_STATUS: Record<string, string> = {
 
 const Kv = ({ label, value, mono }: { label: string; value?: React.ReactNode; mono?: boolean }) => (
   <div>
-    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">{label}</p>
+    <p className="text-[11px] font-medium text-muted-foreground">{label}</p>
     <p className={cn('text-sm font-semibold mt-0.5', mono && 'font-mono')}>{value ?? '—'}</p>
   </div>
 );
@@ -163,7 +163,7 @@ const ChainNode = ({ done, active, label, Icon }: { done: boolean; active?: bool
     )}>
       <Icon className="h-4 w-4" />
     </div>
-    <span className={cn('text-[11px] font-semibold text-center leading-tight uppercase tracking-wide',
+    <span className={cn('text-[11px] font-semibold text-center leading-tight',
       done ? 'text-emerald-700' : active ? 'text-blue-600' : 'text-gray-300',
     )}>{label}</span>
   </div>
@@ -877,7 +877,7 @@ const LotPassport = ({ lotCode, onClose }: { lotCode: string; onClose: () => voi
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-mono font-black text-2xl tracking-tight">{lot.lot_internal || lot.lot_supplier}</span>
+              <span className="font-mono font-black text-2xl">{lot.lot_internal || lot.lot_supplier}</span>
               {lot.lot_internal && lot.lot_supplier && lot.lot_internal !== lot.lot_supplier && (
                 <span className="font-mono text-sm text-muted-foreground">({lot.lot_supplier})</span>
               )}
@@ -945,7 +945,7 @@ const LotPassport = ({ lotCode, onClose }: { lotCode: string; onClose: () => voi
             { label: 'Pays origine', value: lot.origin_country },
           ].map(({ label, value, mono }) => (
             <div key={label} className="rounded-lg bg-white/70 border px-2.5 py-2 backdrop-blur-sm">
-              <p className="text-[11px] text-muted-foreground uppercase tracking-wide font-medium">{label}</p>
+              <p className="text-[11px] text-muted-foreground font-medium">{label}</p>
               <p className={cn('text-sm font-bold truncate mt-0.5', mono && 'font-mono', !value && 'text-muted-foreground')}>
                 {value || '—'}
               </p>
@@ -967,7 +967,7 @@ const LotPassport = ({ lotCode, onClose }: { lotCode: string; onClose: () => voi
         {/* Process chain */}
         {trace && (
           <div className="bg-white/60 rounded-lg border p-3">
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">Chaîne de transformation</p>
+            <p className="text-[11px] font-semibold text-muted-foreground mb-2">Chaîne de transformation</p>
             <ProcessBar data={trace} />
           </div>
         )}

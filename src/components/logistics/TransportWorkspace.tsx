@@ -175,7 +175,7 @@ const MetricCard = ({
     <CardContent className="pt-5">
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1">
-          <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{title}</div>
+          <div className="text-xs font-medium text-muted-foreground">{title}</div>
           <div className="text-2xl font-semibold">{value}</div>
           <div className="text-xs text-muted-foreground">{description}</div>
         </div>
@@ -720,8 +720,8 @@ function MissionDetailDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-6 xl:grid-cols-[1.3fr_0.9fr]">
-          <div className="space-y-6">
+        <div className="grid gap-4 xl:grid-cols-[1.3fr_0.9fr]">
+          <div className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle>Pilotage mission</CardTitle>
@@ -906,7 +906,7 @@ function MissionDetailDialog({
             </Card>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle>État live mission</CardTitle>
@@ -1035,7 +1035,7 @@ export function TransportWorkspace() {
   const assignedDrivers = drivers.filter((driver) => activeMissionDriverIds.has(driver.id)).length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div>
           <h2 className="text-xl font-semibold flex items-center gap-3">
@@ -1089,7 +1089,7 @@ export function TransportWorkspace() {
         />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+      <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
         <Card>
           <CardHeader>
             <CardTitle>Tableau des missions</CardTitle>
@@ -1266,7 +1266,7 @@ export function TransportWorkspace() {
         </Card>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid gap-4 xl:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Flotte camions</CardTitle>

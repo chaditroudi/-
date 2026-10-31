@@ -27,7 +27,7 @@ export function MarginCockpitPanel() {
     data != null && data.totals.cost_tnd_per_kg > data.totals.target_cost_tnd_per_kg;
 
   return (
-    <Card className="rounded-[24px] border-primary/20">
+    <Card className="rounded-lg border-primary/20">
       <CardHeader className="pb-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <CardTitle className="flex items-center gap-2 text-base">

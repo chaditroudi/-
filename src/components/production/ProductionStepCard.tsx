@@ -137,7 +137,7 @@ export const ProductionStepCard = ({ step, isActive, allSteps }: ProductionStepC
           <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline" className="rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.12em]">
+                <Badge variant="outline" className="rounded-full px-2.5 py-1 text-xs font-semibold">
                   Etape {step.sequence_order}
                 </Badge>
                 <Badge className={cn('rounded-full border px-2.5 py-1 text-xs font-semibold', STEP_BADGE[step.status])}>
@@ -193,7 +193,7 @@ export const ProductionStepCard = ({ step, isActive, allSteps }: ProductionStepC
             <div className="rounded-xl border border-border bg-muted/20 p-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label className="flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                  <Label className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
                     <User className="h-3 w-3" />
                     {t('production.operator')}
                   </Label>
@@ -206,7 +206,7 @@ export const ProductionStepCard = ({ step, isActive, allSteps }: ProductionStepC
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                  <Label className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
                     <Scale className="h-3 w-3" />
                     {t('production.outputQuantity')}
                   </Label>
@@ -220,7 +220,7 @@ export const ProductionStepCard = ({ step, isActive, allSteps }: ProductionStepC
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                  <Label className="text-xs font-semibold text-muted-foreground">
                     {t('production.waste')}
                   </Label>
                   <Input
@@ -234,7 +234,7 @@ export const ProductionStepCard = ({ step, isActive, allSteps }: ProductionStepC
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                  <Label className="text-xs font-semibold text-muted-foreground">
                     {t('common.notes')}
                   </Label>
                   <Textarea

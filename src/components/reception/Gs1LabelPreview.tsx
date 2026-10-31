@@ -134,7 +134,7 @@ export function Gs1LabelPreview({ lot, onClose }: Gs1LabelPreviewProps) {
 
             {/* AI breakdown */}
             <div className="rounded-lg border p-3 space-y-0.5">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+              <p className="text-xs font-semibold text-muted-foreground mb-2">
                 Application Identifiers
               </p>
               <AiRow ai="(01)" value={payload.gtin14} label="GTIN-14" />

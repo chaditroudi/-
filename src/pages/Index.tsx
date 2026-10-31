@@ -1,7 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { TopHeader } from "@/components/layout/TopHeader";
 import { WorkflowNavigation } from "@/components/layout/WorkflowNavigation";
-import { FlowStepper } from "@/components/layout/FlowStepper";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { CommandMenu } from "@/components/layout/CommandMenu";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
@@ -61,7 +60,7 @@ const TabLoader = () => (
       <div className="absolute inset-0 animate-spin rounded-full border-2 border-primary/10 border-t-primary" />
       <div className="absolute inset-[5px] animate-spin rounded-full border-2 border-transparent border-b-primary/40" style={{ animationDirection: 'reverse', animationDuration: '0.7s' }} />
     </div>
-    <p className="text-xs font-semibold tracking-wider text-muted-foreground/40 animate-pulse uppercase">
+    <p className="text-xs font-semibold text-muted-foreground/40 animate-pulse uppercase">
       Chargement
     </p>
   </div>
@@ -436,16 +435,13 @@ const Index = () => {
             {waitingLots.length > 0 && features.phase2_enabled && (
               <div className="flex items-center gap-3 rounded-xl border border-amber-200/70 bg-amber-50/80 px-4 py-2.5 text-sm backdrop-blur-sm">
                 <span className="relative flex h-2 w-2 shrink-0">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-60" />
+                  <span className="absolute inline-flex h-full w-full hidden rounded-full bg-amber-400 opacity-60" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" />
                 </span>
                 <span className="font-semibold text-amber-700">
-                  {waitingLots.length} lot{waitingLots.length > 1 ? 's' : ''} en attente de Phase 2
+                  {waitingLots.length} lot{waitingLots.length > 1 ? 's' : ''} à transformer
                 </span>
-                <span className="flex-1 truncate text-xs text-amber-600/80">
-                  {waitingLots.map(l => l.reception_number).slice(0, 5).join(' · ')}
-                  {waitingLots.length > 5 ? ` +${waitingLots.length - 5}` : ''}
-                </span>
+                <span className="flex-1" />
                 <button
                   onClick={handleGoToProduction}
                   className="shrink-0 rounded-lg border border-amber-300/60 bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700 transition-colors hover:bg-amber-200 hover:text-amber-900"
@@ -521,19 +517,6 @@ const Index = () => {
                 ? 'Accueil'
                 : currentMeta.pageTitle
           }
-          pageSubtitle={
-            activeTab === 'home'
-              ? undefined
-              : currentMeta.pageSubtitle
-          }
-          sectionLabel={
-            activeTab === 'home'
-              ? undefined
-              : TAB_SECTION_LABEL[activeTab]
-          }
-          onHomeClick={handleGoHome}
-          roleLabel={roleLabel}
-          plantLabel={[settings.plant_name, settings.site_code].filter(Boolean).join(' · ') || undefined}
         />
 
         {/* Mobile chrome only off-home — Accueil stays calm for operators */}
@@ -554,16 +537,7 @@ const Index = () => {
         )}
 
         <main className="flex-1 min-w-0 overflow-x-hidden overflow-y-auto">
-          <div className="mx-auto w-full max-w-[1800px] px-3 py-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-5 md:pb-8 lg:px-6 lg:py-6">
-            <div className="mb-4 empty:hidden">
-              {['receptions', 'storage', 'production', 'packaging', 'logistics'].includes(activeTab) && (
-                <FlowStepper
-                  activeTab={activeTab}
-                  accessibleTabs={accessibleTabs}
-                  onNavigate={handleNavigate}
-                />
-              )}
-            </div>
+          <div className="mx-auto w-full max-w-[1800px] px-3 py-3 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-5 md:pb-8 lg:px-6 lg:py-6">
             <div key={activeTab} className="animate-page-enter w-full">
               <Suspense fallback={<TabLoader />}>
                 {renderContent()}

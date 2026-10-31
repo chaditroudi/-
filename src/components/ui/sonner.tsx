@@ -16,7 +16,7 @@ const Toaster = ({ ...props }: ToasterProps) => (
       classNames: {
         toast:
           "group toast rounded-2xl border border-border/70 bg-background/95 text-foreground shadow-[0_18px_48px_-18px_rgba(15,23,42,0.45)] backdrop-blur-xl",
-        title: "text-sm font-semibold tracking-tight",
+        title: "text-sm font-semibold",
         description: "text-[13px] leading-relaxed text-muted-foreground",
         actionButton:
           "rounded-xl bg-primary text-primary-foreground hover:bg-primary/90",
