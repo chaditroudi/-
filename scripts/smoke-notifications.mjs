@@ -10,6 +10,7 @@
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { syntheticIntakeFields } from "./lib/intake-contract.mjs";
 
 const API = (process.env.SMOKE_API_URL || `http://127.0.0.1:${process.env.PORT || 4000}`).replace(/\/$/, "");
 const PASSWORD = process.env.SMOKE_PASSWORD || "Test123!";
@@ -137,6 +138,7 @@ async function intakeLot(token, supplierId) {
   const stamp = new Date().toISOString().replace(/[-:TZ.]/g, "").slice(0, 14);
   const { status, body } = await api(token, "POST", "/api/receptions/intake", {
     supplier_id: supplierId,
+    ...syntheticIntakeFields(),
     spontaneous_delivery: true,
     unit: "kg",
     quantity_total: 250,

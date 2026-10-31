@@ -102,10 +102,8 @@ const buildProfileFromSession = (session: Session | null): Profile | null => {
 const getSessionRoles = (session: Session | null) => {
   const metadata = session?.user?.user_metadata || {};
   const rawRoles = [
-    // signUp stores a single string under 'role'; other sources use 'roles' array or 'domains'
     ...(metadata.role ? [String(metadata.role)] : []),
     ...toStringArray(metadata.roles),
-    ...toStringArray(metadata.domains),
   ];
 
   return toActorRoles(rawRoles);

@@ -85,8 +85,19 @@ const seed = () => {
 };
 
 /** Gross 1000.3 − tare 100.1 = 900.2 kg: catches float drift (900.1999…). */
+let requestSequence = 0;
 const intakePayload = (overrides: TestRow = {}) => ({
+  client_request_id: `req-auto-${(requestSequence += 1)}`,
   supplier_id: "sup-1",
+  delivery_note_number: "BL-1",
+  vehicle_number: "123 TU 4567",
+  variety: "Deglet Nour",
+  maturity_stage: "Tamar",
+  harvest_method: "Manuelle traditionnelle",
+  arrival_temperature_c: 24,
+  storage_zone_code: "ZR-01",
+  delivery_note_photos: ["photo-1", "photo-2"],
+  weighing_source: "SCALE",
   reception_type: "DATTE",
   unit: "kg",
   gross_weight_kg: 1000.3,
@@ -419,15 +430,67 @@ describe("reception lifecycle", () => {
       const lotId = String(lots[0].id);
       await inspect(String(reception.id), "ACCEPTE");
 
-      await receptionsService.recordWeighing(lotId, { type: "GROSS", weight_kg: 1000, manual_reason: "contrôle" }, operator);
-      await receptionsService.recordWeighing(lotId, { type: "TARE", weight_kg: 99.9, manual_reason: "contrôle" }, operator);
+      const reason = "contrôle sur bascule certifiée";
+      const supervisor = { canAmend: true };
+
+      await receptionsService.recordWeighing(lotId, { type: "GROSS", weight_kg: 1000, manual_reason: reason }, operator, supervisor);
+      await receptionsService.recordWeighing(lotId, { type: "TARE", weight_kg: 99.9, manual_reason: reason }, operator, supervisor);
       expect(one("reception_lots", lotId).net_weight_kg).toBe(900.1);
       expect(one("receptions_v2", reception.id).status).toBe("LIBERE");
 
       await expect(
-        receptionsService.recordWeighing(lotId, { type: "TARE", weight_kg: 2000 }, operator),
+        receptionsService.recordWeighing(lotId, { type: "TARE", weight_kg: 2000, manual_reason: reason }, operator, supervisor),
       ).rejects.toMatchObject({ code: "NET_WEIGHT_NOT_POSITIVE" });
+      // Intake evidence is kept: two original weighings plus the two amendments.
+      expect(rows("weighing_records")).toHaveLength(4);
+    });
+
+    it("the person who registered a delivery cannot decide or release it, at any QC step", async () => {
+      const both = { id: "op-1", user_metadata: { roles: ["responsable_qualite"] } } as any;
+      const { reception, lots } = await receptionsService.intake(intakePayload(), both);
+
+      await expect(receptionsService.startQcInspection({ reception_id: reception.id }, both)).rejects.toMatchObject({ code: "QC_ROLE_SEPARATION" });
+      const inspection = await receptionsService.startQcInspection({ reception_id: reception.id }, inspector as any);
+      await expect(
+        receptionsService.submitQcDecision({ inspectionId: String(inspection.id), decision: "ACCEPTE" }, both),
+      ).rejects.toMatchObject({ code: "QC_ROLE_SEPARATION" });
+
+      await receptionsService.submitQcDecision({ inspectionId: String(inspection.id), decision: "QUARANTAINE", comment: "lab" }, inspector as any);
+      await expect(
+        receptionsService.changeLotQualityStatus(String(lots[0].id), { action: "RELEASE", reason: "ok" }, both),
+      ).rejects.toMatchObject({ code: "QC_ROLE_SEPARATION" });
+      expect(stockFor(lots[0].id).status).toBe("QUARANTINE");
+    });
+
+    it("refuses a weighing correction without the role or without a reason, and keeps the evidence", async () => {
+      const { reception, lots } = await receptionsService.intake(intakePayload(), operator);
+      const lotId = String(lots[0].id);
+      await inspect(String(reception.id), "ACCEPTE");
+
+      await expect(
+        receptionsService.recordWeighing(lotId, { type: "GROSS", weight_kg: 1000, manual_reason: "motif suffisant" }, operator),
+      ).rejects.toMatchObject({ code: "FORBIDDEN" });
+      await expect(
+        receptionsService.recordWeighing(lotId, { type: "GROSS", weight_kg: 1000 }, operator, { canAmend: true }),
+      ).rejects.toMatchObject({ code: "WEIGHING_REASON_REQUIRED" });
       expect(rows("weighing_records")).toHaveLength(2);
+    });
+
+    it("a corrected net that differs from stock raises an alert and moves no stock", async () => {
+      const { reception, lots } = await receptionsService.intake(intakePayload(), operator);
+      const lotId = String(lots[0].id);
+      await inspect(String(reception.id), "ACCEPTE");
+
+      await receptionsService.recordWeighing(
+        lotId,
+        { type: "GROSS", weight_kg: 950.1, manual_reason: "erreur de saisie du brut" },
+        operator,
+        { canAmend: true },
+      );
+      expect(stockFor(lotId).current_quantity).toBe(900.2);
+      expect(rows("reception_alerts")).toEqual([
+        expect.objectContaining({ alert_type: "RECEPTION_WEIGHT_GAP", title: "Pesée corrigée différente du stock" }),
+      ]);
     });
 
     it("a draft goes to QC only once it has a supplier and a weighed lot", async () => {
@@ -454,7 +517,10 @@ describe("reception lifecycle", () => {
       await receptionsService.cancelReception(String(reception.id), { reason: "BL erroné" }, operator);
 
       const logs = await receptionsService.listReceptionAuditLogs(String(reception.id));
-      expect(logs).toEqual([expect.objectContaining({ action: "CANCELLED", performed_by: "op-1", performed_by_name: "Sami Ben Ali" })]);
+      expect(logs.map((log: TestRow) => log.action).sort()).toEqual(["CANCELLED", "RECEPTION_CONFIRMED"]);
+      for (const log of logs) {
+        expect(log).toMatchObject({ performed_by: "op-1", performed_by_name: "Sami Ben Ali" });
+      }
     });
 
     it("generic database writes cannot change QC or reception status", async () => {

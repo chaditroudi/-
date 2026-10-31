@@ -188,6 +188,8 @@ export interface ReceptionAuditLog {
 
 const AUDIT_ACTION_LABELS: Record<string, string> = {
   CANCELLED: 'Réception annulée',
+  CORRECTED: 'Réception corrigée',
+  RECEPTION_CONFIRMED: 'Réception confirmée',
   STATUS_CHANGE: 'Changement de statut',
   STOCK_MOVE: 'Lot rangé en stock',
   LOT_RELEASED: 'Lot libéré',
@@ -220,6 +222,12 @@ export const describeReceptionAuditEvent = (log: ReceptionAuditLog) => {
   if (next.stock_status != null && action !== 'STOCK_MOVE') details.push(statusLabel(next.stock_status));
   if (next.zone) details.push(`Zone ${String(next.zone)}${next.position ? ` · ${String(next.position)}` : ''}`);
   if (next.weight_kg != null) details.push(`${String(next.weight_kg)} kg`);
+  if (next.net_kg != null) details.push(`Net ${String(next.net_kg)} kg`);
+  if (action === 'CORRECTED') {
+    for (const [field, value] of Object.entries(previous)) {
+      details.push(`${field} : ${String(value ?? '—')} → ${String(next[field] ?? '—')}`);
+    }
+  }
   const reason = next.reason ?? next.quarantine_reason ?? next.cancellation_reason;
   if (reason) details.push(`Motif : ${String(reason)}`);
 

@@ -1,14 +1,18 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import { apiRequest } from '@/integrations/mongodb/client';
-import { ApiRequestError } from '@/lib/axiosClient';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { ApiRequestError, axiosClient } from '@/lib/axiosClient';
+import { deleteLocalDraft } from '@/lib/offline/draftStore';
 import {
   discardOutboxItem,
   enqueueReceptionIntake,
+  isOutboxRetryable,
+  isSessionExpiredError,
 } from '@/lib/offline/outbox';
 import { useAppDispatch } from '@/store/hooks';
 import { fetchReceptions, receptionUpserted } from '@/store/slices/receptionsSlice';
+import { receptionsApi } from '@/store/api/receptionsApi';
 import { ReceptionLot, ReceptionUnit, ReceptionV2 } from '@/types/reception';
 
 export interface ReceptionIntakeLotInput {
@@ -27,16 +31,15 @@ export interface ReceptionIntakeLotInput {
 }
 
 export interface ReceptionIntakePayload {
-  client_request_id?: string;
+  client_request_id: string;
+  draft_version?: number;
   supplier_id: string;
   purchase_order_id?: string | null;
   purchase_order_line_id?: string | null;
-  spontaneous_delivery?: boolean;
   reception_type: 'DATTE' | 'EMBALLAGE' | 'AUTRE';
   material_id?: string | null;
   quantity_total?: number;
   unit?: string;
-  packaging_type?: string | null;
   presentation?: 'En caisses' | 'En regimes' | 'En vrac' | 'Melange';
   delivery_note_number?: string | null;
   delivery_note_photos: string[];
@@ -53,30 +56,25 @@ export interface ReceptionIntakePayload {
   manufacturing_route?: 'PREMIUM_WHOLE' | 'GENERIC';
   maturity_stage: string;
   harvest_method: string;
-  harvest_datetime?: string | null;
   estimated_harvest_date?: string | null;
   bio_declared?: boolean;
   arrival_temperature_c: number;
   departure_time?: string | null;
+  origin_gps?: string | null;
+  phase1_alerts?: string[];
   transport_condition?: string | null;
   quick_visual_state?: string | null;
   quick_check_notes?: string | null;
   storage_zone_code: string;
-  transport_duration_hours?: number | null;
   origin_oasis?: string | null;
-  origin_gps?: string | null;
   gate_arrival_at?: string | null;
   gross_weight_captured_at?: string | null;
-  unloading_started_at?: string | null;
-  unloading_completed_at?: string | null;
   tare_weight_captured_at?: string | null;
-  phase1_alerts?: string[];
   unit_count: number;
   unit_type: 'PALETTE' | 'CAISSE' | 'VRAC' | 'PL' | 'GC' | 'PLOX' | 'LAMME';
+  /** SCALE = read on the scale and typed; MANUAL = no scale. Connected weighings send reading ids instead. */
   weighing_source?: 'SCALE' | 'MANUAL';
-  weighing_supervisor: string;
   weighing_manual_reason?: string | null;
-  created_by?: string | null;
   lots: ReceptionIntakeLotInput[];
 }
 
@@ -86,30 +84,43 @@ export interface ReceptionIntakeResponse {
   units: ReceptionUnit[];
   alerts: Array<Record<string, unknown>>;
   notifications: Array<Record<string, unknown>>;
+  /** Held on this device: not a reception yet, whatever the screen shows. */
   offline_queued?: boolean;
+  session_expired?: boolean;
   queue_id?: string;
 }
+
+/** Past this the delivery waits in the queue: a replay is safe, a frozen button is not. */
+const INTAKE_TIMEOUT_MS = 30_000;
 
 export const useCreateReceptionIntake = () => {
   const queryClient = useQueryClient();
   const dispatch = useAppDispatch();
+  const { user } = useAuthContext();
 
   return useMutation({
-    mutationFn: async (payload: ReceptionIntakePayload) => {
-      const queued = await enqueueReceptionIntake(payload as unknown as Record<string, unknown>);
-      try {
-        const response = await apiRequest<{ data: ReceptionIntakeResponse }>('/receptions/intake', {
-          method: 'POST',
-          body: JSON.stringify(queued.payload),
+    mutationFn: async (payload: ReceptionIntakePayload): Promise<ReceptionIntakeResponse> => {
+      // Queued before sending: a dropped connection or a closed tablet loses nothing.
+      // The queue is a safety net: when local storage fails, the request still goes out.
+      const queued = await enqueueReceptionIntake(payload as unknown as Record<string, unknown>, user?.id ?? null)
+        .catch((error) => {
+          if (error instanceof ApiRequestError) throw error;
+          return null;
         });
-        return response.data;
+      try {
+        const response = await axiosClient.post<{ data: ReceptionIntakeResponse }>(
+          '/receptions/intake',
+          queued?.payload ?? payload,
+          { timeout: INTAKE_TIMEOUT_MS },
+        );
+        if (queued) await discardOutboxItem(queued.id).catch(() => undefined);
+        await deleteLocalDraft(payload.client_request_id).catch(() => undefined);
+        return response.data.data;
       } catch (error) {
-        const temporary = !(error instanceof ApiRequestError)
-          || error.isNetworkError
-          || error.status === 409
-          || (error.status ?? 500) >= 500;
-        if (!temporary) {
-          await discardOutboxItem(queued.id);
+        if (!queued) throw error;
+        if (!isOutboxRetryable(error)) {
+          // The employee is on the form and sees why: the draft is intact for correction.
+          await discardOutboxItem(queued.id).catch(() => undefined);
           throw error;
         }
 
@@ -130,17 +141,13 @@ export const useCreateReceptionIntake = () => {
           alerts: [],
           notifications: [],
           offline_queued: true,
+          session_expired: isSessionExpiredError(error),
           queue_id: queued.id,
         };
       }
     },
     onSuccess: (data) => {
-      if (data.offline_queued) {
-        toast.warning('Réception enregistrée hors ligne', {
-          description: 'Le numéro officiel et les étiquettes seront disponibles après synchronisation.',
-        });
-        return;
-      }
+      if (data.offline_queued) return;
       dispatch(receptionUpserted(data.reception));
       void dispatch(fetchReceptions());
       queryClient.invalidateQueries({ queryKey: ['receptions-v2'] });
@@ -148,14 +155,11 @@ export const useCreateReceptionIntake = () => {
       queryClient.invalidateQueries({ queryKey: ['reception-lots', data.reception.id] });
       queryClient.invalidateQueries({ queryKey: ['stock_lots'] });
       queryClient.invalidateQueries({ queryKey: ['stock_summary'] });
+      queryClient.invalidateQueries({ queryKey: ['purchase_orders'] });
+      dispatch(receptionsApi.util.invalidateTags(['Reception', 'ReceptionDraft']));
       data.lots.forEach((lot) => {
         queryClient.invalidateQueries({ queryKey: ['reception-units', lot.id] });
       });
-      toast.success(`Reception ${data.reception.reception_number} enregistree`);
-    },
-    onError: (error) => {
-      toast.error(error instanceof Error ? error.message : 'Erreur lors de la reception');
-      console.error(error);
     },
   });
 };

@@ -2,23 +2,11 @@ import { randomUUID } from "node:crypto";
 
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
+import { isInTransaction } from "../../db/transaction.js";
 import { lotLedgerService } from "../trust/lot-ledger.service.js";
 
 const StockLotModel = () => getCollectionModel("stock_lots");
 const ReceptionLotModel = () => getCollectionModel("reception_lots");
-
-const DEFAULT_RAW_PRODUCT = {
-  code: "MP-DN-001",
-  name: "Deglet Nour Fraiche",
-  category: "MP",
-  unit: "kg",
-  variety: "Deglet Nour",
-  threshold_min: 1000,
-  threshold_security: 2000,
-  threshold_max: 10000,
-  rotation_rule: "FIFO",
-  is_active: true,
-};
 
 const ensureProductHasBusinessId = async (productModel: any, product: any) => {
   if (!product) return null;
@@ -31,17 +19,24 @@ const ensureProductHasBusinessId = async (productModel: any, product: any) => {
   return id;
 };
 
-const resolveProductId = async () => {
+/**
+ * The raw-material product of this variety, created on first delivery. Never
+ * another variety's product or a finished good: stock would count the wrong thing.
+ */
+const resolveProductId = async (variety: string) => {
   const Product = getCollectionModel("products");
-  const product =
-    (await Product.findOne({ code: DEFAULT_RAW_PRODUCT.code }).lean().exec()) ||
-    (await Product.findOne({ is_active: true, category: "MP" }).lean().exec()) ||
-    (await Product.findOne({ is_active: true }).lean().exec());
-
+  const product = await Product.findOne({ is_active: true, category: "MP", variety }).lean().exec();
   const productId = await ensureProductHasBusinessId(Product, product);
   if (productId) return productId;
 
-  const prepared = await prepareInsertDocument("products", DEFAULT_RAW_PRODUCT);
+  const prepared = await prepareInsertDocument("products", {
+    code: `MP-${variety.toUpperCase().replace(/[^A-Z0-9]+/g, "-")}`,
+    name: variety,
+    category: "MP",
+    unit: "kg",
+    variety,
+    is_active: true,
+  });
   await Product.create([prepared]);
   return String(prepared.id);
 };
@@ -75,19 +70,19 @@ const appendStockSyncEvent = async (input: {
       process.env.TRUST_STAGE_GATE || process.env.TRUST_LEDGER_STAGE_GATE || "warn",
     ).toLowerCase();
     console.error("[W0] STOCK_SYNCED ledger append failed:", { mode, error });
-    if (mode === "enforce") throw error;
+    if (mode === "enforce" || isInTransaction()) throw error;
   }
 };
 
 export const syncReceptionLotsToStock = async (lots: any[], options?: { reception?: any; actorId?: string }) => {
   const stockLotModel = StockLotModel();
-  const fallbackProductId = await resolveProductId();
 
   for (const rawLot of lots) {
     const lot = sanitizeDocument(rawLot);
     const existing = await stockLotModel.findOne({ reception_lot_id: lot.id }).lean().exec();
+    const variety = String(lot.variety || options?.reception?.variety || "Non renseignée");
     const payload = {
-      product_id: lot.product_id || options?.reception?.product_id || fallbackProductId,
+      product_id: existing?.product_id || lot.product_id || options?.reception?.product_id || await resolveProductId(variety),
       reception_lot_id: lot.id,
       // W0 identity: stock lot projects the reception entry lot; keep both codes.
       entry_lot_id: lot.id,
@@ -101,7 +96,7 @@ export const syncReceptionLotsToStock = async (lots: any[], options?: { receptio
       source_status: lot.stock_status || "EN_QUARANTAINE",
       source_sync_reason: existing ? "SYNC_UPDATE" : "SYNC_CREATE",
       origin_farm: lot.origin_farm || null,
-      origin_country: lot.origin_country || "Tunisie",
+      origin_country: lot.origin_country || null,
       supplier_id: options?.reception?.supplier_id || null,
       variety: lot.variety || options?.reception?.variety || null,
       harvest_date: lot.harvest_date || null,

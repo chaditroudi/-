@@ -16,6 +16,8 @@ export interface WeighingRecord {
   supervisor: string | null;
   recorded_by: string | null;
   notes: string | null;
+  manual_reason?: string | null;
+  signature_verified?: boolean;
   created_at: string;
 }
 

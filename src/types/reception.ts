@@ -36,7 +36,9 @@ export interface ReceptionV2 {
   packaging_type: string | null;
   delivery_note_number: string | null;
   delivery_note_file_url: string | null;
-  delivery_note_photos: string[] | null;
+  /** Only on the detail read: lists carry delivery_note_photo_count instead. */
+  delivery_note_photos?: string[] | null;
+  delivery_note_photo_count?: number;
   status: ReceptionHeaderStatus;
   qc_decision: QCDecisionType | null;
   qc_score?: number | null;
@@ -52,6 +54,13 @@ export interface ReceptionV2 {
   tare_weight_kg?: number | null;
   declared_weight_kg?: number | null;
   weight_gap_percent?: number | null;
+  weight_gap_kg?: number | null;
+  net_weight_kg?: number | null;
+  weighing_source?: string | null;
+  weighing_verified_device?: boolean | null;
+  weighing_manual_reason?: string | null;
+  po_expected_kg?: number | null;
+  po_variance_kg?: number | null;
   crate_count?: number | null;
   pallet_count?: number | null;
   average_weight_per_crate?: number | null;

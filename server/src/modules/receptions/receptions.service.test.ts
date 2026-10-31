@@ -27,10 +27,10 @@ vi.mock("../../db/dynamic-model.js", () => ({
 
     if (collection === "receptions_v2") {
       return {
-        findOne: vi.fn((query: { $or?: Array<{ id?: string }> }) => ({
+        findOne: vi.fn((query: { id?: string; $or?: Array<{ id?: string }> }) => ({
           lean: () => ({
             exec: async () => {
-              const clauses = query?.$or || [];
+              const clauses = query?.id ? [{ id: query.id }] : query?.$or || [];
               for (const clause of clauses) {
                 if (clause.id && receptions.has(clause.id)) {
                   return receptions.get(clause.id) || null;
@@ -91,7 +91,17 @@ describe("receptionsService", () => {
   it("accepts supplier code and stores the canonical supplier id during intake", async () => {
     const result = await receptionsService.intake(
       {
+        client_request_id: `req-${Math.random()}`,
         supplier_id: "SUP-0001",
+        delivery_note_number: "BL-1",
+        vehicle_number: "123 TU 4567",
+        variety: "Deglet Nour",
+        maturity_stage: "Tamar",
+        harvest_method: "Manuelle traditionnelle",
+        arrival_temperature_c: 24,
+        storage_zone_code: "ZR-01",
+        delivery_note_photos: ["photo-1", "photo-2"],
+        weighing_source: "SCALE",
         reception_type: "DATTE",
         unit: "kg",
         gross_weight_kg: 1000,
@@ -112,7 +122,17 @@ describe("receptionsService", () => {
 
     await receptionsService.intake(
       {
+        client_request_id: `req-${Math.random()}`,
         supplier_id: "SUP-0001",
+        delivery_note_number: "BL-1",
+        vehicle_number: "123 TU 4567",
+        variety: "Deglet Nour",
+        maturity_stage: "Tamar",
+        harvest_method: "Manuelle traditionnelle",
+        arrival_temperature_c: 24,
+        storage_zone_code: "ZR-01",
+        delivery_note_photos: ["photo-1", "photo-2"],
+        weighing_source: "SCALE",
         reception_type: "DATTE",
         unit: "kg",
         gross_weight_kg: 1000,
@@ -124,8 +144,8 @@ describe("receptionsService", () => {
     );
 
     const events = (created.lot_events || []) as unknown as LotEventRecord[];
-    expect(events).toHaveLength(1);
-    expect(events[0].event_type).toBe("LOT_CREATED");
+    expect(events.map((event) => event.event_type)).toEqual(["LOT_CREATED", "LOT_WEIGHED"]);
+    expect(events[1].payload).toMatchObject({ stage: "WEIGHED", source: "SCALE", signature_verified: false, net_kg: 900 });
     expect(events[0].actor_id).toBe("user-1");
     expect(events[0].payload).toMatchObject({ stage: "SUPPLIER_INTAKE", route: "PREMIUM_WHOLE" });
     expect(verifyLotEventChain(events).valid).toBe(true);
@@ -170,6 +190,7 @@ describe("receptionsService", () => {
   });
 
   it("appends WEIGHED after a verified gross+tare pair", async () => {
+    receptions.set("rec-w", { id: "rec-w", status: "BROUILLON" });
     created.reception_lots = [{ id: "lot-w", reception_id: "rec-w", lot_internal: "LOT-W", stock_status: "EN_QUARANTAINE" }];
     created.lot_events = [
       {

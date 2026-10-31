@@ -20,13 +20,6 @@ const RECEPTION_LIFECYCLE_FIELDS = [
   "qc_decision", "qc_score", "qc_grade", "qc_auto_reject_reasons", "qc_closed_at", "qc_closed_by",
   "validated_at", "validated_by", "cancelled_at", "cancelled_by", "cancellation_reason",
 ];
-/** Once a delivery is booked its supplier, quantities and weights feed stock and the PO. */
-const RECEPTION_BOOKED_FIELDS = [
-  ...RECEPTION_LIFECYCLE_FIELDS,
-  "supplier_id", "supplier_code_snapshot", "supplier_name_snapshot", "quantity_total", "unit",
-  "gross_weight_kg", "tare_weight_kg", "gross_reading_id", "tare_reading_id",
-  "weighing_verified_device", "weight_gap_percent", "manufacturing_route",
-];
 const LOT_SYSTEM_FIELDS = [
   "_id", "id", "lot_internal", "stock_status", "qr_code_payload", "created_at", "cancelled_at",
   "release_date", "released_by", "release_pin_verified", "release_reason", "quarantine_date", "quarantine_reason",
@@ -101,8 +94,14 @@ export class ReceptionsExtController {
     if (reception.status === "ANNULE") {
       throw conflict("RECEPTION_CANCELLED", `La réception ${reception.reception_number} est annulée : elle n'est plus modifiable.`);
     }
+    if (reception.status !== "BROUILLON") {
+      throw conflict(
+        "RECEPTION_CORRECTION_REQUIRED",
+        "Une réception confirmée se modifie par une correction motivée : POST /api/receptions/:id/corrections.",
+      );
+    }
 
-    const values = without(body, reception.status === "BROUILLON" ? RECEPTION_LIFECYCLE_FIELDS : RECEPTION_BOOKED_FIELDS);
+    const values = without(body, RECEPTION_LIFECYCLE_FIELDS);
     if (Object.keys(values).length === 0) return { data: reception };
 
     const { after } = await this.cs.update({
@@ -239,6 +238,13 @@ export class ReceptionsExtController {
     ) as Record<string, unknown> | null;
     if (!lot) throw notFound("RECEPTION_LOT_NOT_FOUND", "Reception lot not found.");
     if (Object.keys(values).length === 0) return { data: lot };
+    const reception = await findReception(String(lot.reception_id || ""));
+    if (reception?.status !== "BROUILLON") {
+      throw conflict(
+        "RECEPTION_CORRECTION_REQUIRED",
+        "Le lot d'une réception confirmée ne se modifie plus directement : passez par une correction motivée.",
+      );
+    }
 
     // Status changes use POST /reception-lots/:lotId/quality-status; the generic
     // update re-projects the lot into stock_lots with its reception.

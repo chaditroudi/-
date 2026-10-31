@@ -22,6 +22,7 @@ vi.mock('@/hooks/useReceptionsV2', () => ({
   useUpdateReceptionV2Status: () => ({ mutateAsync: vi.fn(), isPending: false }),
 }));
 vi.mock('@/store/api/receptionsApi', () => ({ useListReceptionAuditQuery: () => ({ data: data.audit }) }));
+vi.mock('./ReceptionCorrectionDialog', () => ({ ReceptionCorrectionDialog: () => <div data-testid="correction-dialog" /> }));
 
 // Children own their behaviour and tests; the workspace decides what is offered to whom.
 const stub = (name: string) => () => <div data-testid={name} />;

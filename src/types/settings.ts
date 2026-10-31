@@ -39,6 +39,11 @@ export interface SiteOperationsSettings {
   allow_spontaneous_reception: boolean;
   require_purchase_order_for_reception: boolean;
   require_vehicle_number_on_reception: boolean;
+  /** Date varieties offered at reception. */
+  reception_varieties: string[];
+  /** Delivery-note weight gap (%) that raises an alert; above critical it needs review (RG-R03). */
+  reception_weight_gap_warning_pct: number;
+  reception_weight_gap_critical_pct: number;
   auto_assign_material_from_po: boolean;
   shift_model: ShiftModel;
   shift_handover_notes_required: boolean;
@@ -232,6 +237,9 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     allow_spontaneous_reception: true,
     require_purchase_order_for_reception: false,
     require_vehicle_number_on_reception: true,
+    reception_varieties: ['Deglet Nour', 'Allig', 'Khouat Allig', 'Kenta', 'Arechti', 'Melange', 'Autre'],
+    reception_weight_gap_warning_pct: 5,
+    reception_weight_gap_critical_pct: 10,
     auto_assign_material_from_po: true,
     shift_model: '2x8',
     shift_handover_notes_required: true,

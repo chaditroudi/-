@@ -4,7 +4,6 @@
 import { apiRequest } from '@/integrations/mongodb/client';
 
 const STAGES = [
-  'WEIGHED',
   'QC_DECIDED',
   'COLD_STORE',
   'FUMIGATION_CCP',
@@ -19,6 +18,10 @@ export type DemoSeasonResult = {
   lotNumber: string;
   passportPath: string;
 };
+
+/** 1×1 JPEG: the demo has no camera, and RG-R06 requires two arrival photos. */
+const DEMO_PHOTO =
+  'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAAA//EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AN//Z';
 
 async function ensureSupplierId(): Promise<string> {
   const listed = await apiRequest<{ data: Array<{ id: string }> }>('/db/query', {
@@ -60,13 +63,24 @@ export async function runDemoSeasonInApp(): Promise<DemoSeasonResult> {
     body: JSON.stringify({
       client_request_id: crypto.randomUUID(),
       supplier_id: supplierId,
-      spontaneous_delivery: true,
+      reception_type: 'DATTE',
+      delivery_note_number: `BL-${lotSupplier}`,
+      vehicle_number: 'DEMO-0000',
       unit: 'kg',
       quantity_total: 750,
       gross_weight_kg: 780,
       tare_weight_kg: 30,
+      weighing_source: 'MANUAL',
+      weighing_manual_reason: 'Démonstration sans bascule',
+      unit_count: 1,
+      unit_type: 'PALETTE',
       variety: 'Deglet Nour',
-      notes: 'demo:season UI — lab humidity=22.4 defects=3.1',
+      maturity_stage: 'Tamar',
+      harvest_method: 'Manuelle traditionnelle',
+      arrival_temperature_c: 24,
+      storage_zone_code: 'ZR-DEMO',
+      delivery_note_photos: [DEMO_PHOTO, DEMO_PHOTO],
+      remarks: 'demo:season UI — lab humidity=22.4 defects=3.1',
       lots: [{ lot_supplier: lotSupplier, variety: 'Deglet Nour', quantity: 750, unit: 'kg' }],
     }),
   });

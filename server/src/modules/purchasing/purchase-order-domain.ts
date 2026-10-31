@@ -301,14 +301,14 @@ export const resolvePurchaseOrderReceiptTarget = async ({
   if (!RECEIVABLE_STATUSES.has(canonicalStatus)) {
     throw badRequest(
       "PURCHASE_ORDER_NOT_RECEIVABLE",
-      `Purchase order ${order.order_number || purchaseOrderId} is not open for receipt.`,
+      `Le bon de commande ${order.order_number || purchaseOrderId} n'est pas ouvert à la réception.`,
     );
   }
 
   if (String(order.supplier_id || "") !== String(supplierId || "")) {
     throw badRequest(
       "PURCHASE_ORDER_SUPPLIER_MISMATCH",
-      "The selected purchase order does not belong to the chosen supplier.",
+      "Ce bon de commande n'appartient pas au fournisseur sélectionné.",
     );
   }
 
@@ -327,7 +327,7 @@ export const resolvePurchaseOrderReceiptTarget = async ({
     if (!targetLine) {
       throw badRequest(
         "PURCHASE_ORDER_LINE_NOT_FOUND",
-        "The selected purchase order line was not found on this order.",
+        "Cette ligne n'existe pas sur le bon de commande, ou elle est déjà soldée.",
       );
     }
   } else if (materialId) {
@@ -337,7 +337,7 @@ export const resolvePurchaseOrderReceiptTarget = async ({
     } else if (matchingLines.length > 1) {
       throw badRequest(
         "PURCHASE_ORDER_LINE_REQUIRED",
-        "Multiple order lines match this material. Please choose the exact purchase order line.",
+        "Plusieurs lignes correspondent à cet article : choisissez la ligne exacte du bon de commande.",
       );
     }
   } else if (eligibleLines.length === 1) {
@@ -347,7 +347,7 @@ export const resolvePurchaseOrderReceiptTarget = async ({
   if (!targetLine) {
     throw badRequest(
       "PURCHASE_ORDER_LINE_REQUIRED",
-      "A purchase order line must be selected before receiving this delivery.",
+      "Choisissez la ligne du bon de commande avant de recevoir cette livraison.",
     );
   }
 
@@ -382,7 +382,7 @@ export const assertReceiptWithinTolerance = (
   if (nextReceived > maxReceivable + 0.0001) {
     throw badRequest(
       "OVERDELIVERY_TOLERANCE_EXCEEDED",
-      `The receipt exceeds the authorized quantity for order ${resolution.order.order_number || resolution.order.id}.`,
+      `La quantité reçue dépasse le reliquat autorisé du bon de commande ${resolution.order.order_number || resolution.order.id}.`,
       { remaining_quantity: roundQuantity(Math.max(0, maxReceivable - previousReceived)), requested_quantity: receiptQuantity },
     );
   }
@@ -432,7 +432,7 @@ export const registerReceptionAgainstPurchaseOrder = async ({
     if (!fresh || attempt >= 4) {
       throw badRequest(
         "PURCHASE_ORDER_LINE_CONCURRENT_UPDATE",
-        "The purchase order line changed while receiving. Retry the reception.",
+        "La ligne du bon de commande vient de changer. Relancez la confirmation.",
       );
     }
     line = fresh;

@@ -13,7 +13,13 @@ type CommandRow = {
   response?: unknown;
   error?: string | null;
   attempts?: number;
+  fingerprint?: string | null;
+  updated_at?: string;
+  created_at?: string;
 };
+
+/** A crash leaves a command IN_PROGRESS; past this age a retry may take it over. */
+const IN_PROGRESS_LEASE_MS = 2 * 60 * 1000;
 
 const Commands = () => getCollectionModel("idempotency_commands");
 const isDuplicateKey = (error: unknown) =>
@@ -25,6 +31,8 @@ export class IdempotencyService {
     scope: string;
     key?: string | null;
     actorId?: string | null;
+    /** Business content of the request: the same key with other content is refused, not replayed. */
+    fingerprint?: string | null;
     run: () => Promise<T>;
   }): Promise<{ data: T; replayed: boolean }> {
     const key = String(input.key || "").trim();
@@ -39,6 +47,7 @@ export class IdempotencyService {
         actor_id: input.actorId || null,
         status: "IN_PROGRESS",
         attempts: 1,
+        fingerprint: input.fingerprint || null,
         response: null,
         error: null,
       });
@@ -54,16 +63,29 @@ export class IdempotencyService {
       ) as CommandRow | null;
 
       if (existing?.status === "COMPLETED") {
+        if (input.fingerprint && existing.fingerprint && input.fingerprint !== existing.fingerprint) {
+          throw conflict(
+            "IDEMPOTENT_PAYLOAD_MISMATCH",
+            "Cette opération est déjà enregistrée avec d'autres valeurs. Ouvrez l'enregistrement existant pour le corriger.",
+            { response: existing.response },
+          );
+        }
         return { data: existing.response as T, replayed: true };
       }
 
-      if (existing?.status === "FAILED") {
+      const lastTouched = Date.parse(String(existing?.updated_at || existing?.created_at || ""));
+      const staleInProgress = existing?.status === "IN_PROGRESS"
+        && Number.isFinite(lastTouched)
+        && Date.now() - lastTouched > IN_PROGRESS_LEASE_MS;
+
+      if (existing?.status === "FAILED" || staleInProgress) {
         const reclaimed = await Commands().findOneAndUpdate(
-          { ...filter, status: "FAILED" },
+          { ...filter, status: existing.status, updated_at: existing.updated_at },
           {
             $set: {
               status: "IN_PROGRESS",
               actor_id: input.actorId || existing.actor_id || null,
+              fingerprint: input.fingerprint || null,
               error: null,
               updated_at: new Date().toISOString(),
             },

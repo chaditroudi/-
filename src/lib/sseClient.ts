@@ -38,15 +38,18 @@ export type DbChangeEvent = {
   at?: string;
 };
 
-type SseMessage =
+export type SseMessage =
   | { eventName: 'db_change'; payload: DbChangeEvent }
-  | { eventName: 'connected'; payload: { clientId: string; connectedClients: number; at: string } }
+  | { eventName: 'connected'; payload: { clientId: string; connectedClients: number; at: string; reconnected?: boolean } }
   | { eventName: 'ping'; payload: { at: string; connectedClients: number } };
 
 export type SseSubscriber = (msg: SseMessage) => void;
 
 const RECONNECT_DELAY_MS = 3_000;
 const MAX_RECONNECT_DELAY_MS = 30_000;
+/** The server pings every 25 s. A dropped link raises no error, so silence is the only sign. */
+const SILENT_STREAM_MS = 40_000;
+const WATCHDOG_INTERVAL_MS = 5_000;
 
 export class SseConnection {
   private es: EventSource | null = null;
@@ -54,9 +57,22 @@ export class SseConnection {
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private reconnectDelay = RECONNECT_DELAY_MS;
   private closed = false;
+  private connectedOnce = false;
+  private lastMessageAt = 0;
+  private watchdog: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
     this.connect();
+  }
+
+  private startWatchdog() {
+    if (this.watchdog) return;
+    this.watchdog = setInterval(() => {
+      if (!this.es || Date.now() - this.lastMessageAt < SILENT_STREAM_MS) return;
+      this.es.close();
+      this.es = null;
+      this.scheduleReconnect();
+    }, WATCHDOG_INTERVAL_MS);
   }
 
   private connect() {
@@ -65,9 +81,12 @@ export class SseConnection {
     if (!url) return; // no token — will retry when subscribe() is called
 
     this.es = new EventSource(url);
+    this.lastMessageAt = Date.now();
+    this.startWatchdog();
 
     // Backend emits event name "db-change"
     this.es.addEventListener('db-change', (e: MessageEvent) => {
+      this.lastMessageAt = Date.now();
       try {
         const payload: DbChangeEvent = JSON.parse(e.data);
         this.emit({ eventName: 'db_change', payload });
@@ -75,14 +94,18 @@ export class SseConnection {
     });
 
     this.es.addEventListener('connected', (e: MessageEvent) => {
+      this.lastMessageAt = Date.now();
       try {
         this.reconnectDelay = RECONNECT_DELAY_MS; // reset backoff on success
         const payload = JSON.parse(e.data);
-        this.emit({ eventName: 'connected', payload });
+        const reconnected = this.connectedOnce;
+        this.connectedOnce = true;
+        this.emit({ eventName: 'connected', payload: { ...payload, reconnected } });
       } catch { /* ignore */ }
     });
 
     this.es.addEventListener('ping', (e: MessageEvent) => {
+      this.lastMessageAt = Date.now();
       try {
         const payload = JSON.parse(e.data);
         this.emit({ eventName: 'ping', payload });
@@ -119,6 +142,7 @@ export class SseConnection {
   close() {
     this.closed = true;
     if (this.reconnectTimer) { clearTimeout(this.reconnectTimer); this.reconnectTimer = null; }
+    if (this.watchdog) { clearInterval(this.watchdog); this.watchdog = null; }
     this.es?.close();
     this.es = null;
     this.subscribers.clear();

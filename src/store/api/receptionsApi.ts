@@ -12,6 +12,25 @@ import type { MoveReceptionLotToStorageInput, MoveReceptionLotToStorageResponse,
 
 type Envelope<T> = { data: T };
 
+export type ReceptionSearchParams = {
+  q?: string;
+  status?: string;
+  supplierId?: string;
+  from?: string;
+  to?: string;
+  limit?: number;
+  before?: string;
+};
+export type ReceptionSearchPage = { rows: ReceptionV2[]; nextBefore: string | null };
+export type ReceptionDraftRow = {
+  id: string;
+  version: number;
+  status: 'OPEN' | 'CONFIRMED' | 'ABANDONED';
+  updated_at: string;
+  updated_by: string | null;
+  summary: { supplier: string; deliveryNote: string; vehicle: string; waitingFor: string } | null;
+};
+
 export const receptionsApi = createApi({
   reducerPath: 'receptionsApi',
   baseQuery: axiosBaseQuery,
@@ -25,6 +44,7 @@ export const receptionsApi = createApi({
     'ReceptionAudit',
     'StockMovement',
     'LiberedLot',
+    'ReceptionDraft',
   ],
   endpoints: (b) => ({
 
@@ -40,6 +60,31 @@ export const receptionsApi = createApi({
       query: (id) => ({ url: `/receptions/${id}` }),
       transformResponse: (r: Envelope<ReceptionV2>) => r.data,
       providesTags: (_r, _e, id) => [{ type: 'Reception', id }],
+    }),
+
+    searchReceptions: b.query<ReceptionSearchPage, ReceptionSearchParams>({
+      query: (params) => ({ url: '/receptions/search', params }),
+      transformResponse: (r: Envelope<ReceptionSearchPage>) => r.data,
+      providesTags: ['Reception'],
+    }),
+
+    correctReception: b.mutation<ReceptionV2, { id: string; reason: string; fields: Record<string, string> }>({
+      query: ({ id, ...body }) => ({ url: `/receptions/${id}/corrections`, method: 'POST', data: body }),
+      transformResponse: (r: Envelope<ReceptionV2>) => r.data,
+      invalidatesTags: (_r, _e, { id }) => ['Reception', { type: 'Reception', id }, { type: 'ReceptionAudit', id }],
+    }),
+
+    // ── Deliveries in progress ─────────────────────────────────────────────────
+
+    listReceptionDrafts: b.query<ReceptionDraftRow[], void>({
+      query: () => ({ url: '/reception-drafts' }),
+      transformResponse: (r: Envelope<ReceptionDraftRow[]>) => r.data ?? [],
+      providesTags: ['ReceptionDraft'],
+    }),
+
+    abandonReceptionDraft: b.mutation<unknown, string>({
+      query: (id) => ({ url: `/reception-drafts/${id}`, method: 'DELETE' }),
+      invalidatesTags: ['ReceptionDraft'],
     }),
 
     createReception: b.mutation<ReceptionV2, Record<string, unknown>>({
@@ -247,6 +292,10 @@ export const receptionsApi = createApi({
 });
 
 export const {
+  useSearchReceptionsQuery,
+  useCorrectReceptionMutation,
+  useListReceptionDraftsQuery,
+  useAbandonReceptionDraftMutation,
   useListReceptionsQuery,
   useGetReceptionQuery,
   useCreateReceptionMutation,

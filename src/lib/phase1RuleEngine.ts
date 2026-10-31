@@ -260,7 +260,7 @@ export const requiresTareReweigh = (
 
 // ─── RG-R07: Blocked/rejected lot cannot be moved to storage ────────────────
 
-export type StorageGuardResult = { allowed: true } | { allowed: false; reason: string };
+export type StorageGuardResult = { allowed: boolean; reason?: string };
 
 export const checkLotStorageAllowed = (params: {
   lotStockStatus: string;

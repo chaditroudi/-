@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 
 import { badRequest, notFound } from "../../core/app-error.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
+import { isInTransaction } from "../../db/transaction.js";
 import {
   DIRECTION_ROLES,
   QUALITY_ROLES,
@@ -285,6 +286,8 @@ export class LotLifecycleService {
     try {
       return await this.recordStage(input);
     } catch (error) {
+      // Inside a transaction the failure aborts the unit: no record without its ledger event.
+      if (isInTransaction()) throw error;
       // Dual-run default (warn): never block shop-floor writes on ledger/FSM failures.
       // B0 enforce: still emit alert + GATE_BLOCKED, then rethrow so the write fails closed.
       swallowedStageFailures += 1;

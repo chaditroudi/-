@@ -4,6 +4,8 @@ type IndexDefinition = {
   collection: string;
   keys: Record<string, 1 | -1>;
   options: Record<string, unknown>;
+  /** Older index on the same keys, dropped only once this one exists. */
+  replaces?: string;
 };
 
 const INDEXES: IndexDefinition[] = [
@@ -15,7 +17,49 @@ const INDEXES: IndexDefinition[] = [
   {
     collection: "receptions_v2",
     keys: { client_request_id: 1 },
-    options: { unique: true, sparse: true, name: "client_request_id_unique" },
+    // sparse still indexes null: a second row with client_request_id: null is a
+    // duplicate key. Only real keys are unique; historical rows keep their null.
+    options: {
+      unique: true,
+      name: "client_request_id_string_unique",
+      partialFilterExpression: { client_request_id: { $type: "string" } },
+    },
+    replaces: "client_request_id_unique",
+  },
+  {
+    collection: "receptions_v2",
+    keys: { created_at: -1 },
+    options: { name: "created_at_desc" },
+  },
+  {
+    collection: "receptions_v2",
+    keys: { status: 1, created_at: -1 },
+    options: { name: "status_created_at" },
+  },
+  {
+    collection: "receptions_v2",
+    keys: { supplier_id: 1, created_at: -1 },
+    options: { name: "supplier_created_at" },
+  },
+  {
+    collection: "reception_lots",
+    keys: { reception_id: 1 },
+    options: { name: "reception_id" },
+  },
+  {
+    collection: "stock_lots",
+    keys: { reception_lot_id: 1 },
+    options: { name: "reception_lot_id" },
+  },
+  {
+    collection: "weighing_records",
+    keys: { lot_id: 1, created_at: 1 },
+    options: { name: "lot_created_at" },
+  },
+  {
+    collection: "reception_drafts",
+    keys: { status: 1, updated_at: -1 },
+    options: { name: "status_updated_at" },
   },
   {
     collection: "scan_events",
@@ -72,6 +116,11 @@ export const ensureTrustIndexes = async () => {
         definition.keys,
         definition.options,
       );
+      if (definition.replaces) {
+        await db.collection(definition.collection).dropIndex(definition.replaces).catch((error: { codeName?: string }) => {
+          if (error?.codeName !== "IndexNotFound" && error?.codeName !== "NamespaceNotFound") throw error;
+        });
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.error(

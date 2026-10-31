@@ -15,6 +15,11 @@ interface QrScannerDialogProps {
   onDetected: (value: string) => void;
 }
 
+declare class BarcodeDetector {
+  constructor(options?: { formats?: string[] });
+  detect(source: CanvasImageSource): Promise<Array<{ rawValue?: string }>>;
+}
+
 export const QrScannerDialog = ({ open, onOpenChange, onDetected }: QrScannerDialogProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);

@@ -63,6 +63,9 @@ const DEFAULT_SETTINGS = {
     allow_spontaneous_reception: true,
     require_purchase_order_for_reception: false,
     require_vehicle_number_on_reception: true,
+    reception_varieties: ["Deglet Nour", "Allig", "Khouat Allig", "Kenta", "Arechti", "Melange", "Autre"],
+    reception_weight_gap_warning_pct: 5,
+    reception_weight_gap_critical_pct: 10,
     auto_assign_material_from_po: true,
     shift_model: "2x8",
     shift_handover_notes_required: true,
@@ -236,6 +239,31 @@ const normalizeSettings = (value?: Record<string, any> | null) => ({
       : DEFAULT_SETTINGS.fiche_overrides,
 });
 
+/** RG-R03 thresholds: a gap alert that can never fire is not a setting, it is a removed control. */
+export const assertReceptionPolicy = (operations: Record<string, unknown>) => {
+  const varieties = operations.reception_varieties;
+  if (!Array.isArray(varieties) || varieties.filter((name) => String(name).trim()).length === 0) {
+    throw badRequest("RECEPTION_VARIETIES_REQUIRED", "Indiquez au moins une variété de dattes.");
+  }
+  const warning = Number(operations.reception_weight_gap_warning_pct);
+  const critical = Number(operations.reception_weight_gap_critical_pct);
+  const valid = Number.isFinite(warning) && Number.isFinite(critical)
+    && warning > 0 && critical >= warning && critical <= 25;
+  if (!valid) {
+    throw badRequest(
+      "RECEPTION_GAP_POLICY_INVALID",
+      "Seuils d'écart de poids invalides : 0 < alerte ≤ blocage ≤ 25 %.",
+      { warning, critical },
+    );
+  }
+  if (operations.require_purchase_order_for_reception === true && operations.allow_spontaneous_reception === true) {
+    throw badRequest(
+      "RECEPTION_ORDER_POLICY_INVALID",
+      "Le bon de commande obligatoire exclut la livraison spontanée.",
+    );
+  }
+};
+
 const assertKnownRoles = (roles: string[]) => {
   const unknown = roles.filter((role) => !ALL_ROLES.includes(role));
   if (unknown.length > 0 || roles.length === 0) {
@@ -273,6 +301,8 @@ export class SettingsService implements OnModuleInit {
   async updateSettings(patch: Record<string, unknown>, updatedBy: string | null) {
     const current = await this.getSettings();
     const { id: _id, ...safeUpdate } = patch as any;
+
+    assertReceptionPolicy({ ...current.operations, ...(safeUpdate.operations || {}) });
 
     const merged = normalizeSettings({
       ...current,

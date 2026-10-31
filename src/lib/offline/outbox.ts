@@ -1,6 +1,7 @@
 import { axiosClient, ApiRequestError } from '@/lib/axiosClient';
+import { openIndexedDb } from '@/lib/offline/idb';
 
-export type OutboxStatus = 'pending' | 'syncing' | 'failed' | 'done';
+export type OutboxStatus = 'pending' | 'syncing' | 'failed';
 
 export type OutboxItem<T = Record<string, unknown>> = {
   id: string;
@@ -12,7 +13,10 @@ export type OutboxItem<T = Record<string, unknown>> = {
   attempts: number;
   nextAttemptAt: number;
   lastError: string | null;
-  response?: unknown;
+  /** Who entered it: a shared tablet must not book one employee's delivery under another's session. */
+  ownerUserId: string | null;
+  /** The session ended: nothing is wrong with the delivery, it waits for the next sign-in. */
+  waitingForLogin?: boolean;
 };
 
 const DB_NAME = 'royal-palm-edge';
@@ -22,17 +26,11 @@ const listeners = new Set<() => void>();
 let draining = false;
 
 const openDb = () =>
-  new Promise<IDBDatabase>((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
-    request.onupgradeneeded = () => {
-      const db = request.result;
-      if (!db.objectStoreNames.contains(STORE)) {
-        const store = db.createObjectStore(STORE, { keyPath: 'id' });
-        store.createIndex('status', 'status');
-      }
-    };
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
+  openIndexedDb(DB_NAME, DB_VERSION, (db) => {
+    if (!db.objectStoreNames.contains(STORE)) {
+      const store = db.createObjectStore(STORE, { keyPath: 'id' });
+      store.createIndex('status', 'status');
+    }
   });
 
 const transact = async <T>(
@@ -67,7 +65,10 @@ export const subscribeOutbox = (listener: () => void) => {
   return () => listeners.delete(listener);
 };
 
-export const enqueueReceptionIntake = async <T extends Record<string, unknown>>(payload: T) => {
+export const enqueueReceptionIntake = async <T extends Record<string, unknown>>(
+  payload: T,
+  ownerUserId: string | null,
+) => {
   const photos = Array.isArray(payload.delivery_note_photos)
     ? payload.delivery_note_photos.filter((photo): photo is string => typeof photo === 'string')
     : [];
@@ -100,6 +101,7 @@ export const enqueueReceptionIntake = async <T extends Record<string, unknown>>(
     attempts: 0,
     nextAttemptAt: Date.now(),
     lastError: null,
+    ownerUserId,
   };
   await put(item as OutboxItem);
   return item;
@@ -118,18 +120,27 @@ export const discardOutboxItem = async (id: string) => {
 
 export const isOutboxRetryable = (error: unknown) => {
   if (!(error instanceof ApiRequestError)) return true;
-  return error.isNetworkError || error.status === 409 || (error.status ?? 500) >= 500;
+  // 401 means the session ended, not that the delivery is wrong: keep it for after sign-in.
+  if (error.status === 401) return true;
+  // Only "still running" clears up alone. Other conflicts need a person.
+  if (error.status === 409) return error.code === 'IDEMPOTENT_IN_PROGRESS' || !error.code;
+  return error.isNetworkError || (error.status ?? 500) >= 500;
 };
 
+export const isSessionExpiredError = (error: unknown) =>
+  error instanceof ApiRequestError && error.status === 401;
+
 export const drainOutbox = async (
+  userId: string | null,
   onSynced?: (item: OutboxItem, response: unknown) => void | Promise<void>,
 ) => {
-  if (draining || !navigator.onLine) return;
+  if (draining || !navigator.onLine || !userId) return;
   draining = true;
   try {
     const items = (await listOutbox())
       .filter((item) =>
         (item.status === 'pending' || item.status === 'syncing')
+        && (item.ownerUserId ?? userId) === userId
         && item.nextAttemptAt <= Date.now())
       .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 
@@ -145,15 +156,9 @@ export const drainOutbox = async (
       try {
         const response = await axiosClient.post('/receptions/intake', syncing.payload);
         const data = response.data?.data ?? response.data;
-        const done: OutboxItem = {
-          ...syncing,
-          status: 'done',
-          response: data,
-          lastError: null,
-          updatedAt: new Date().toISOString(),
-        };
-        await put(done);
-        await onSynced?.(done, data);
+        // The server holds it now, photos included: nothing is kept on the device.
+        await discardOutboxItem(syncing.id);
+        await onSynced?.(syncing, data);
       } catch (error) {
         const retryable = isOutboxRetryable(error);
         const backoff = Math.min(60_000, 1_000 * (2 ** Math.min(syncing.attempts, 6)));
@@ -162,6 +167,7 @@ export const drainOutbox = async (
           status: retryable ? 'pending' : 'failed',
           nextAttemptAt: retryable ? Date.now() + backoff : Number.MAX_SAFE_INTEGER,
           lastError: error instanceof Error ? error.message : String(error),
+          waitingForLogin: isSessionExpiredError(error),
           updatedAt: new Date().toISOString(),
         });
         if (!retryable) continue;

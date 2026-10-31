@@ -1,55 +1,62 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { format, isToday } from 'date-fns';
-import { fr, enUS, ar } from 'date-fns/locale';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import { DateRange } from 'react-day-picker';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent } from '@/components/ui/tabs';
-import { ModuleHero } from '@/components/layout/ModuleHero';
-import { cn } from '@/lib/utils';
 import {
   AlertTriangle,
   Bell,
-  Camera,
   CheckCircle2,
   Clock3,
-  FlaskConical,
-  List,
+  FileText,
+  History,
+  ListChecks,
+  Loader2,
   Plus,
   Printer,
   QrCode,
   Search,
-  Shield,
-  TabletSmartphone,
+  Trash2,
   Truck,
 } from 'lucide-react';
-import { useMaterials } from '@/hooks/useMaterials';
+
+import { BonReceptionAchatDashboard } from '@/components/bon-reception-achat/BonReceptionAchatDashboard';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { useTodayPendingNotices } from '@/hooks/useInboundNotices';
+import { useReceptionAlerts } from '@/hooks/useReceptionsV2';
 import { useSuppliers } from '@/hooks/useSuppliers';
-import { findReceptionLotByScan, useLabPendingInspections, useReceptionAlerts, useReceptionsV2, useReceptionStats } from '@/hooks/useReceptionsV2';
-import { QCInspection, ReceptionV2, receptionStatusColors, receptionStatusLabels } from '@/types/reception';
-import { ReceptionWizard } from './ReceptionWizard';
+import { listLocalDrafts, type LocalIntakeDraft } from '@/lib/offline/draftStore';
+import { listOutbox, subscribeOutbox, type OutboxItem } from '@/lib/offline/outbox';
+import { getDraftWaitingFor } from '@/lib/receptionIntake';
+import { getReceptionPermissions } from '@/lib/receptionWorkflow';
+import { canPerformAction } from '@/lib/roleAccess';
+import { cn } from '@/lib/utils';
+import {
+  useAbandonReceptionDraftMutation,
+  useListReceptionDraftsQuery,
+  useSearchReceptionsQuery,
+  type ReceptionDraftRow,
+} from '@/store/api/receptionsApi';
+import { ReceptionV2, receptionStatusColors, receptionStatusLabels } from '@/types/reception';
+
+import { AlertsPanel } from './AlertsPanel';
+import { DateRangeFilter } from './DateRangeFilter';
+import { InboundNoticeDialog } from './InboundNoticeDialog';
+import { ReceptionIntakeFlow } from './intake/ReceptionIntakeFlow';
 import { printDailyReceptionReport } from './printDailyReceptionReport';
 import { ReceptionDetailV2, type ReceptionWorkspaceSection } from './ReceptionDetailV2';
-import { QCInspectionDialog } from './QCInspectionDialog';
-import { LabResultsDialog } from './LabResultsDialog';
-import { AlertsPanel } from './AlertsPanel';
-import { DateRangeFilter, filterByDateRange } from './DateRangeFilter';
-import { QrScannerDialog } from './QrScannerDialog';
-import { ReceptionTabletOperatorScreen } from './ReceptionTabletOperatorScreen';
-import { InboundNoticeDialog } from './InboundNoticeDialog';
-import { useAuthContext } from '@/contexts/AuthContext';
-import { canPerformAction } from '@/lib/roleAccess';
-import { getReceptionPermissions } from '@/lib/receptionWorkflow';
-import { useTodayPendingNotices } from '@/hooks/useInboundNotices';
-import { usePhase2Pipeline } from '@/hooks/usePhase2Pipeline';
-import { BonReceptionAchatDashboard } from '@/components/bon-reception-achat/BonReceptionAchatDashboard';
+import { ReceptionQcQueue } from './ReceptionQcQueue';
 
-type SubTab = 'today' | 'qc' | 'registry' | 'bra' | 'tablet' | 'alerts';
+type SubTab = 'today' | 'pending' | 'registry' | 'qc' | 'bra' | 'alerts';
 
-const VALID_SUB_TABS: SubTab[] = ['today', 'qc', 'registry', 'bra', 'tablet', 'alerts'];
+const VALID_SUB_TABS: SubTab[] = ['today', 'pending', 'registry', 'qc', 'bra', 'alerts'];
+const ACTIVE_STATUSES = 'BROUILLON,EN_ATTENTE_QC,EN_QC,BLOQUE';
+const HISTORY_PAGE_SIZE = 25;
+const SEARCH_DELAY_MS = 300;
 
 interface WorkspaceTarget {
   id: string;
@@ -57,47 +64,253 @@ interface WorkspaceTarget {
   autoStartQc?: boolean;
 }
 
-interface ActionQueueItem {
-  reception: ReceptionV2;
-  urgencyLabel: string;
-  urgencyClassName: string;
-  helperText: string;
+interface IntakeTarget {
+  draftId?: string | null;
+  prefillPurchaseOrderId?: string;
 }
-
-const getPriorityRank = (reception: ReceptionV2) => {
-  const ageHours = (Date.now() - new Date(reception.created_at).getTime()) / (1000 * 60 * 60);
-  if (reception.status === 'EN_ATTENTE_QC' && ageHours >= 12) return 0;
-  if (reception.status === 'EN_ATTENTE_QC') return 1;
-  if (reception.status === 'EN_QC') return 2;
-  if (reception.status === 'BROUILLON') return 3;
-  if (reception.status === 'BLOQUE') return 4;
-  return 5;
-};
-
-const getUrgencyMeta = (reception: ReceptionV2) => {
-  const ageHours = (Date.now() - new Date(reception.created_at).getTime()) / (1000 * 60 * 60);
-  if (reception.status === 'EN_ATTENTE_QC' && ageHours >= 12)
-    return { label: 'Urgent', className: 'bg-red-600 text-white hover:bg-red-600', helper: 'Contrôle qualité en attente depuis plus de 12 heures.' };
-  if (reception.status === 'EN_ATTENTE_QC')
-    return { label: 'À traiter', className: 'bg-amber-500 text-white hover:bg-amber-500', helper: 'Cette réception attend le lancement du contrôle qualité.' };
-  if (reception.status === 'EN_QC')
-    return { label: 'En cours', className: 'bg-sky-600 text-white hover:bg-sky-600', helper: 'Le contrôle qualité est en cours et peut être repris.' };
-  if (reception.status === 'BROUILLON')
-    return { label: 'À compléter', className: 'bg-slate-700 text-white hover:bg-slate-700', helper: 'La réception a été démarrée mais demande encore une validation.' };
-  if (reception.status === 'BLOQUE')
-    return { label: 'Bloqué', className: 'bg-orange-600 text-white hover:bg-orange-600', helper: 'La réception demande une décision avant de poursuivre le flux.' };
-  return { label: 'Suivi', className: 'bg-emerald-600 text-white hover:bg-emerald-600', helper: 'Réception disponible en consultation.' };
-};
 
 const ss = {
   get: (key: string, fallback: string) => { try { return sessionStorage.getItem(key) ?? fallback; } catch { return fallback; } },
   set: (key: string, v: string) => { try { sessionStorage.setItem(key, v); } catch { /* sessionStorage unavailable */ } },
 };
 
-const getSamplingGuidance = (quantityTotal: number) => {
-  if (quantityTotal <= 1000) return "Échantillonnage recommandé: minimum 2 kg pour un lot jusqu'à 1 tonne.";
-  if (quantityTotal > 5000) return 'Échantillonnage recommandé: minimum 5 kg pour un lot au-delà de 5 tonnes.';
-  return 'Échantillonnage recommandé: entre 2 kg et 5 kg selon la représentativité du lot.';
+const startOfToday = () => {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  return date.toISOString();
+};
+
+const EmptyState = ({ children }: { children: React.ReactNode }) => (
+  <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">{children}</div>
+);
+
+const ListError = () => (
+  <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-700">
+    Impossible de charger les réceptions. Vérifiez la connexion puis réessayez.
+  </div>
+);
+
+const Loading = () => (
+  <div className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground">
+    <Loader2 className="h-4 w-4 animate-spin" />
+    Chargement…
+  </div>
+);
+
+const ReceptionRow = ({ reception, onOpen }: { reception: ReceptionV2; onOpen: (reception: ReceptionV2) => void }) => (
+  <button
+    type="button"
+    onClick={() => onOpen(reception)}
+    className="flex min-h-16 w-full items-center gap-3 rounded-2xl border bg-card p-3 text-left transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+  >
+    <div className="min-w-0 flex-1">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="font-mono text-sm font-semibold">{reception.reception_number}</span>
+        {reception.variety && <Badge variant="outline" className="text-[11px]">{reception.variety}</Badge>}
+      </div>
+      <p className="truncate text-sm">
+        {reception.supplier?.name || reception.supplier_name_snapshot || 'Fournisseur non renseigné'} · {reception.quantity_total} {reception.unit}
+      </p>
+      <p className="text-xs text-muted-foreground">
+        BL {reception.delivery_note_number || '—'} · {format(new Date(reception.created_at), 'dd/MM HH:mm', { locale: fr })}
+        {reception.purchase_order_number ? ` · ${reception.purchase_order_number}` : ''}
+      </p>
+    </div>
+    <Badge className={cn('shrink-0 text-xs', receptionStatusColors[reception.status])}>
+      {receptionStatusLabels[reception.status]}
+    </Badge>
+  </button>
+);
+
+const HistoryPage = ({ params, isLast, onMore, onOpen, onRows }: {
+  params: Record<string, string | number | undefined>;
+  isLast: boolean;
+  onMore: (before: string) => void;
+  onOpen: (reception: ReceptionV2) => void;
+  onRows?: (count: number) => void;
+}) => {
+  const { data, isLoading, isError } = useSearchReceptionsQuery(params);
+  useEffect(() => { if (data) onRows?.(data.rows.length); }, [data, onRows]);
+  if (isError) return <ListError />;
+  if (isLoading || !data) return <Loading />;
+  return (
+    <>
+      {data.rows.map((reception) => <ReceptionRow key={reception.id} reception={reception} onOpen={onOpen} />)}
+      {isLast && data.nextBefore && (
+        <Button type="button" variant="outline" className="w-full" onClick={() => onMore(data.nextBefore!)}>
+          Afficher les suivantes
+        </Button>
+      )}
+    </>
+  );
+};
+
+const HistorySection = ({ onOpen, onDailyReport }: { onOpen: (reception: ReceptionV2) => void; onDailyReport: () => void }) => {
+  const [search, setSearch] = useState(() => ss.get('rdv2-search', ''));
+  const [term, setTerm] = useState(search);
+  const [status, setStatus] = useState('');
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [cursors, setCursors] = useState<Array<string | undefined>>([undefined]);
+  const [firstPageCount, setFirstPageCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => { setTerm(search); ss.set('rdv2-search', search); }, SEARCH_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [search]);
+  useEffect(() => { setCursors([undefined]); setFirstPageCount(null); }, [term, status, dateRange]);
+
+  const base = useMemo(() => ({
+    q: term || undefined,
+    status: status || undefined,
+    from: dateRange?.from?.toISOString(),
+    to: dateRange?.to ? new Date(dateRange.to.getTime() + 24 * 60 * 60 * 1000 - 1).toISOString() : undefined,
+    limit: HISTORY_PAGE_SIZE,
+  }), [dateRange, status, term]);
+
+  return (
+    <div className="space-y-3">
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          aria-label="Rechercher une réception"
+          placeholder="N° réception, fournisseur, BL, lot, véhicule, commande"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          className="h-12 pl-10"
+        />
+      </div>
+      <div className="flex flex-wrap items-center gap-1.5">
+        {[
+          { value: '', label: 'Toutes' },
+          { value: 'EN_ATTENTE_QC,EN_QC', label: 'En contrôle' },
+          { value: 'LIBERE', label: 'Libérées' },
+          { value: 'BLOQUE', label: 'Bloquées' },
+          { value: 'REJETE', label: 'Rejetées' },
+          { value: 'ANNULE', label: 'Annulées' },
+        ].map((filter) => (
+          <Button
+            key={filter.label}
+            type="button"
+            size="sm"
+            variant={status === filter.value ? 'secondary' : 'ghost'}
+            onClick={() => setStatus(filter.value)}
+          >
+            {filter.label}
+          </Button>
+        ))}
+        <DateRangeFilter dateRange={dateRange} onDateRangeChange={setDateRange} />
+        <Button type="button" size="sm" variant="outline" className="ml-auto gap-1.5" onClick={onDailyReport}>
+          <Printer className="h-4 w-4" />
+          Rapport du jour
+        </Button>
+      </div>
+      <div className="space-y-2">
+        {cursors.map((before, index) => (
+          <HistoryPage
+            key={before ?? 'first'}
+            params={{ ...base, before }}
+            isLast={index === cursors.length - 1}
+            onMore={(next) => setCursors((current) => [...current, next])}
+            onOpen={onOpen}
+            onRows={index === 0 ? setFirstPageCount : undefined}
+          />
+        ))}
+        {firstPageCount === 0 && <EmptyState>Aucune réception ne correspond à cette recherche.</EmptyState>}
+      </div>
+    </div>
+  );
+};
+
+const PendingSection = ({ canManage, userId, activeReceptions, onOpen, onResume }: {
+  canManage: boolean;
+  userId: string | null;
+  activeReceptions: ReceptionV2[];
+  onOpen: (reception: ReceptionV2) => void;
+  onResume: (draftId: string) => void;
+}) => {
+  const { data: serverDrafts = [], isLoading } = useListReceptionDraftsQuery();
+  const [abandon] = useAbandonReceptionDraftMutation();
+  const [localDrafts, setLocalDrafts] = useState<LocalIntakeDraft[]>([]);
+  const [outbox, setOutbox] = useState<OutboxItem[]>([]);
+
+  const refreshLocal = useCallback(() => {
+    void listLocalDrafts().then(setLocalDrafts).catch(() => setLocalDrafts([]));
+    void listOutbox().then(setOutbox).catch(() => setOutbox([]));
+  }, []);
+  useEffect(() => {
+    refreshLocal();
+    const unsubscribe = subscribeOutbox(refreshLocal);
+    return () => { unsubscribe(); };
+  }, [refreshLocal, serverDrafts]);
+
+  const serverIds = useMemo(() => new Set(serverDrafts.map((draft) => draft.id)), [serverDrafts]);
+  const deviceOnly = localDrafts.filter(
+    (local) => !serverIds.has(local.draft.id) && (local.ownerUserId ?? userId) === userId && Boolean(local.draft.supplier_id),
+  );
+  const queueState = (id: string) => outbox.find((item) => item.id === id);
+
+  const DraftRow = ({ id, title, detail, note }: { id: string; title: string; detail: string; note?: string }) => (
+    <div className="flex min-h-16 items-center gap-2 rounded-2xl border bg-card p-3">
+      <button type="button" className="min-w-0 flex-1 text-left" onClick={() => onResume(id)} disabled={!canManage}>
+        <p className="truncate text-sm font-semibold">{title || 'Fournisseur à choisir'}</p>
+        <p className="text-xs text-muted-foreground">{detail}</p>
+        {note && <p className="text-xs font-medium text-amber-800">{note}</p>}
+      </button>
+      {canManage && <Button type="button" size="sm" onClick={() => onResume(id)}>Reprendre</Button>}
+      {canManage && serverIds.has(id) && (
+        <Button
+          type="button"
+          size="icon"
+          variant="ghost"
+          aria-label={`Abandonner le brouillon ${title}`}
+          onClick={() => { if (window.confirm('Abandonner ce brouillon ? La saisie sera perdue.')) void abandon(id); }}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      )}
+    </div>
+  );
+
+  const describeServerDraft = (draft: ReceptionDraftRow) =>
+    [draft.summary?.waitingFor, draft.summary?.deliveryNote && `BL ${draft.summary.deliveryNote}`, format(new Date(draft.updated_at), 'dd/MM HH:mm', { locale: fr })]
+      .filter(Boolean).join(' · ');
+
+  const hasDrafts = serverDrafts.length > 0 || deviceOnly.length > 0;
+
+  return (
+    <div className="space-y-5">
+      <section className="space-y-2">
+        <h3 className="flex items-center gap-2 text-sm font-semibold"><Truck className="h-4 w-4 text-primary" />Livraisons en cours de saisie</h3>
+        {isLoading ? <Loading /> : !hasDrafts ? <EmptyState>Aucune livraison en cours de saisie.</EmptyState> : (
+          <>
+            {serverDrafts.map((draft) => (
+              <DraftRow key={draft.id} id={draft.id} title={draft.summary?.supplier ?? ''} detail={describeServerDraft(draft)} note={queueState(draft.id)?.lastError ?? undefined} />
+            ))}
+            {deviceOnly.map(({ draft, savedAt }) => {
+              const queued = queueState(draft.id);
+              return (
+                <DraftRow
+                  key={draft.id}
+                  id={draft.id}
+                  title={draft.supplier_label}
+                  detail={`${getDraftWaitingFor(draft)} · ${format(new Date(savedAt), 'dd/MM HH:mm', { locale: fr })}`}
+                  note={queued
+                    ? queued.status === 'failed' ? `Refusée par le serveur : ${queued.lastError}` : 'En attente de synchronisation'
+                    : 'Gardé sur cet appareil uniquement'}
+                />
+              );
+            })}
+          </>
+        )}
+      </section>
+      <section className="space-y-2">
+        <h3 className="flex items-center gap-2 text-sm font-semibold"><ListChecks className="h-4 w-4 text-primary" />En attente du contrôle qualité</h3>
+        {activeReceptions.length === 0
+          ? <EmptyState>Aucune réception en attente du contrôle qualité.</EmptyState>
+          : activeReceptions.map((reception) => <ReceptionRow key={reception.id} reception={reception} onOpen={onOpen} />)}
+      </section>
+    </div>
+  );
 };
 
 export const ReceptionDashboardV2 = ({
@@ -108,19 +321,15 @@ export const ReceptionDashboardV2 = ({
   /** Deep-link: bra opens Bon de Réception Achat. */
   initialView?: string;
 }) => {
-  const { t, i18n } = useTranslation();
-  const { roles } = useAuthContext();
+  const { t } = useTranslation();
+  const { roles, user } = useAuthContext();
   const permissions = useMemo(() => getReceptionPermissions(roles), [roles]);
   const canManageReception = useMemo(
     () => permissions.canRegister && (canPerformAction(roles, 'reception_data_entry') || canPerformAction(roles, 'reception_weighing')),
     [permissions.canRegister, roles],
   );
-  const canUseTablet = canManageReception;
   // QC is offered only to the roles the server accepts for inspections (RG-Q12 keeps reception staff out).
   const canRunQc = permissions.canRunQc;
-  const [search, setSearch] = useState(() => ss.get('rdv2-search', ''));
-  const [statusFilter, setStatusFilter] = useState<string>(() => ss.get('rdv2-status', 'active'));
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [subTab, setSubTab] = useState<SubTab>(() => {
     // Inspectors land on their queue; everyone else on the day's work.
     const roleDefault: SubTab = canRunQc && !canManageReception ? 'qc' : 'today';
@@ -128,162 +337,38 @@ export const ReceptionDashboardV2 = ({
     return VALID_SUB_TABS.includes(saved as SubTab) ? (saved as SubTab) : roleDefault;
   });
   const [workspace, setWorkspace] = useState<WorkspaceTarget | null>(null);
+  const [intake, setIntake] = useState<IntakeTarget | null>(null);
+  const [noticeOpen, setNoticeOpen] = useState(false);
 
-  const updateSearch = useCallback((v: string) => { setSearch(v); ss.set('rdv2-search', v); }, []);
-  const updateStatusFilter = useCallback((v: string) => { setStatusFilter(v); ss.set('rdv2-status', v); }, []);
   const updateSubTab = useCallback((v: SubTab) => { setSubTab(v); ss.set('rdv2-subtab', v); }, []);
-  const [wizardOpen, setWizardOpen] = useState(false);
-  const [selectedReception, setSelectedReception] = useState<ReceptionV2 | null>(null);
 
   useEffect(() => {
-    if (prefillPurchaseOrderId) setWizardOpen(true);
+    if (prefillPurchaseOrderId) setIntake({ prefillPurchaseOrderId });
   }, [prefillPurchaseOrderId]);
 
   useEffect(() => {
-    if (initialView && VALID_SUB_TABS.includes(initialView as SubTab)) {
+    if (!initialView) return;
+    const target = initialView === 'tablet' ? 'today' : initialView;
+    if (VALID_SUB_TABS.includes(target as SubTab)) {
       setWorkspace(null);
-      updateSubTab(initialView as SubTab);
+      updateSubTab(target as SubTab);
     }
   }, [initialView, updateSubTab]);
-  const [qcDialogOpen, setQcDialogOpen] = useState(false);
-  const [labDialogOpen, setLabDialogOpen] = useState(false);
-  const [selectedInspection, setSelectedInspection] = useState<QCInspection | null>(null);
-  const [scanValue, setScanValue] = useState('');
-  const [scanMessage, setScanMessage] = useState<string | null>(null);
-  const [isScanLoading, setIsScanLoading] = useState(false);
-  const [scannerOpen, setScannerOpen] = useState(false);
-  const [noticeOpen, setNoticeOpen] = useState(false);
 
-  const getLocale = useCallback(() => {
-    switch (i18n.language) {
-      case 'ar': return ar;
-      case 'en': return enUS;
-      default: return fr;
-    }
-  }, [i18n.language]);
-
-  const { data: receptions = [], isLoading, isError } = useReceptionsV2();
-  const { data: stats } = useReceptionStats();
+  const todayStart = useMemo(startOfToday, []);
+  const { data: todayPage, isLoading: todayLoading, isError: todayError } = useSearchReceptionsQuery({ from: todayStart, limit: 100 });
+  const { data: activePage, isLoading: activeLoading } = useSearchReceptionsQuery({ status: ACTIVE_STATUSES, limit: 100 });
+  const { data: drafts = [] } = useListReceptionDraftsQuery();
   const { data: alerts = [] } = useReceptionAlerts();
-  const { data: labPendingInspections = [] } = useLabPendingInspections();
-  const { lotStages } = usePhase2Pipeline();
   const { data: suppliers = [] } = useSuppliers();
-  const { data: materials = [] } = useMaterials();
   const { data: todayNotices = [] } = useTodayPendingNotices();
 
+  const todayRows = useMemo(() => todayPage?.rows ?? [], [todayPage]);
+  const activeRows = useMemo(() => activePage?.rows ?? [], [activePage]);
+  const awaitingQcCount = useMemo(() => activeRows.filter((r) => r.status === 'EN_ATTENTE_QC' || r.status === 'EN_QC').length, [activeRows]);
+  const blockedCount = useMemo(() => activeRows.filter((r) => r.status === 'BLOQUE').length, [activeRows]);
 
-  const receptionsToday = useMemo(() => receptions.filter((r) => isToday(new Date(r.created_at))), [receptions]);
-  const awaitingQc = useMemo(() => receptions.filter((r) => r.status === 'EN_ATTENTE_QC'), [receptions]);
-  const inQc = useMemo(() => receptions.filter((r) => r.status === 'EN_QC'), [receptions]);
-  const draftReceptions = useMemo(() => receptions.filter((r) => r.status === 'BROUILLON'), [receptions]);
-  const blockedReceptions = useMemo(() => receptions.filter((r) => r.status === 'BLOQUE'), [receptions]);
-  const activeQueueBase = useMemo(
-    () => receptions.filter((r) => ['BROUILLON', 'EN_ATTENTE_QC', 'EN_QC', 'BLOQUE'].includes(r.status)),
-    [receptions],
-  );
-
-  const overdueInspections = useMemo(
-    () => receptions.filter((r) => {
-      if (!['EN_ATTENTE_QC', 'EN_QC'].includes(r.status)) return false;
-      return Date.now() - new Date(r.created_at).getTime() > 4 * 60 * 60 * 1000;
-    }),
-    [receptions],
-  );
-  const criticalOverdueInspections = useMemo(
-    () => overdueInspections.filter((r) => Date.now() - new Date(r.created_at).getTime() > 12 * 60 * 60 * 1000),
-    [overdueInspections],
-  );
-
-  const actionQueue = useMemo<ActionQueueItem[]>(
-    () => [...activeQueueBase]
-      .sort((a, b) => {
-        const byPriority = getPriorityRank(a) - getPriorityRank(b);
-        return byPriority !== 0 ? byPriority : new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      })
-      .slice(0, 5)
-      .map((reception) => {
-        const urgency = getUrgencyMeta(reception);
-        return { reception, urgencyLabel: urgency.label, urgencyClassName: urgency.className, helperText: urgency.helper };
-      }),
-    [activeQueueBase],
-  );
-
-  const filteredReceptions = useMemo(() => {
-    const dateFiltered = filterByDateRange(receptions, dateRange);
-    const searchLower = search.toLowerCase();
-    return dateFiltered.filter((r) => {
-      const supplierName = r.supplier?.name || r.supplier_name_snapshot || '';
-      const matchesSearch =
-        r.reception_number.toLowerCase().includes(searchLower) ||
-        supplierName.toLowerCase().includes(searchLower) ||
-        r.delivery_note_number?.toLowerCase().includes(searchLower);
-      if (!matchesSearch) return false;
-      if (statusFilter === 'all') return true;
-      if (statusFilter === 'active') return ['BROUILLON', 'EN_ATTENTE_QC', 'EN_QC', 'BLOQUE'].includes(r.status);
-      if (statusFilter === 'today') return isToday(new Date(r.created_at));
-      return r.status === statusFilter;
-    });
-  }, [receptions, dateRange, search, statusFilter]);
-
-  const handleOpenDetail = useCallback((reception: ReceptionV2) => { setWorkspace({ id: reception.id }); }, []);
-  const handleStartQC = useCallback((reception: ReceptionV2) => { setSelectedReception(reception); setQcDialogOpen(true); }, []);
-
-  const handleScanLot = useCallback(async (explicitValue?: string) => {
-    const normalizedValue = (explicitValue ?? scanValue).trim();
-    if (!normalizedValue) return;
-    setIsScanLoading(true);
-    setScanMessage(null);
-    if (explicitValue) setScanValue(normalizedValue);
-    try {
-      const match = await findReceptionLotByScan(normalizedValue);
-      if (!match?.reception) {
-        setScanMessage("Aucun LOT-ID ou QR code correspondant n'a été trouvé.");
-        return;
-      }
-      setSelectedReception(match.reception);
-      setScanMessage(`${match.lot_internal || match.lot_supplier || normalizedValue} chargé. ${getSamplingGuidance(match.reception.quantity_total)}`);
-      setQcDialogOpen(true);
-    } catch (error) {
-      setScanMessage(error instanceof Error ? error.message : 'Erreur pendant la recherche du LOT-ID.');
-    } finally {
-      setIsScanLoading(false);
-    }
-  }, [scanValue]);
-
-  const metricChips = useMemo(() => [
-    {
-      icon: Truck,
-      label: "Aujourd'hui",
-      value: stats?.today ?? receptionsToday.length,
-      color: 'text-emerald-600',
-      bg: 'bg-emerald-50 border-emerald-200',
-      onClick: () => { updateSubTab('registry'); updateStatusFilter('today'); },
-    },
-    {
-      icon: Shield,
-      label: 'En attente QC',
-      value: awaitingQc.length,
-      color: 'text-amber-600',
-      bg: awaitingQc.length > 0 ? 'bg-amber-50 border-amber-200' : 'bg-muted/30 border-border',
-      onClick: () => { updateSubTab('qc'); },
-    },
-    {
-      icon: AlertTriangle,
-      label: 'Alertes',
-      value: alerts.length,
-      color: 'text-red-600',
-      bg: alerts.length > 0 ? 'bg-red-50 border-red-200' : 'bg-muted/30 border-border',
-      onClick: () => updateSubTab('alerts'),
-    },
-    {
-      icon: Clock3,
-      label: 'En QC',
-      value: inQc.length,
-      color: 'text-sky-600',
-      bg: inQc.length > 0 ? 'bg-sky-50 border-sky-200' : 'bg-muted/30 border-border',
-      onClick: () => { updateSubTab('registry'); updateStatusFilter('EN_QC'); },
-    },
-  ], [stats, receptionsToday.length, awaitingQc.length, alerts.length, inQc.length, updateSubTab, updateStatusFilter]);
+  const openReception = useCallback((reception: ReceptionV2) => setWorkspace({ id: reception.id }), []);
 
   if (workspace) {
     return (
@@ -296,719 +381,133 @@ export const ReceptionDashboardV2 = ({
     );
   }
 
-  return (
-    <div className="space-y-5">
-      {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <ModuleHero
-        kicker="Réception • Poste de travail"
-        title="Lancer, suivre et décider sans détour"
-        description="Démarrez une réception, lancez le contrôle qualité ou consultez le registre."
-        primaryAction={{
-          label: canManageReception ? t('receptions.new') : 'Voir les réceptions du jour',
-          onClick: () => {
-            if (canManageReception) {
-              setWizardOpen(true);
-              return;
-            }
-            updateSubTab('registry');
-            updateStatusFilter('today');
-          },
-          icon: <Plus className="h-4 w-4" />,
-        }}
-        secondaryAction={{
-          label: `Pré-annonces${todayNotices.length > 0 ? ` (${todayNotices.length})` : ''}`,
-          onClick: () => setNoticeOpen(true),
-          icon: <Bell className="h-4 w-4" />,
-          variant: 'secondary',
+  if (intake) {
+    return (
+      <ReceptionIntakeFlow
+        draftId={intake.draftId}
+        prefillPurchaseOrderId={intake.prefillPurchaseOrderId}
+        canRunQc={canRunQc}
+        onClose={() => setIntake(null)}
+        onOpenReception={(id, next) => {
+          setIntake(null);
+          setWorkspace({ id, autoStartQc: next === 'qc' });
         }}
       />
+    );
+  }
 
-      {/* ── Notice banner ────────────────────────────────────────────────── */}
+  const tabs: Array<{ value: SubTab; icon: typeof Clock3; label: string; badge: number | null; badgeClass?: string }> = [
+    { value: 'today', icon: Clock3, label: "Réceptions du jour", badge: todayRows.length || null },
+    { value: 'pending', icon: ListChecks, label: 'En attente', badge: (drafts.length + awaitingQcCount + blockedCount) || null, badgeClass: 'bg-amber-500 text-white' },
+    { value: 'registry', icon: History, label: 'Historique', badge: null },
+    ...(canRunQc ? [{ value: 'qc' as SubTab, icon: QrCode, label: 'Contrôle QC', badge: awaitingQcCount || null, badgeClass: 'bg-amber-500 text-white' }] : []),
+    { value: 'bra', icon: FileText, label: 'Bons BRA', badge: null },
+    { value: 'alerts', icon: AlertTriangle, label: 'Alertes', badge: alerts.length || null, badgeClass: 'bg-red-600 text-white' },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-3">
+        <h1 className="text-xl font-semibold">Réception des dattes</h1>
+        <div className="ml-auto flex flex-wrap gap-2">
+          <Button type="button" variant="outline" className="h-12 gap-2" onClick={() => setNoticeOpen(true)}>
+            <Bell className="h-4 w-4" />
+            Pré-annonces{todayNotices.length > 0 ? ` (${todayNotices.length})` : ''}
+          </Button>
+          {canManageReception && (
+            <Button type="button" className="h-12 gap-2 px-5 text-base" onClick={() => setIntake({})}>
+              <Plus className="h-5 w-5" />
+              {t('receptions.new')}
+            </Button>
+          )}
+        </div>
+      </div>
+
       {todayNotices.length > 0 && (
         <button
           type="button"
           onClick={() => setNoticeOpen(true)}
-          className="flex w-full items-center gap-3 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-left text-sm text-sky-900 hover:bg-sky-100 transition-colors"
+          className="flex w-full items-center gap-3 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-left text-sm text-sky-900 transition-colors hover:bg-sky-100"
         >
           <Bell className="h-4 w-4 shrink-0 text-sky-600" />
           <span>
-            <span className="font-semibold">
-              {todayNotices.length}{' '}
-              {todayNotices.length > 1 ? 'pre-annonces' : 'pre-annonce'}{' '}
-              en attente
-            </span>
+            <span className="font-semibold">{todayNotices.length} {todayNotices.length > 1 ? 'camions annoncés' : 'camion annoncé'}</span>
             {' — '}
             {todayNotices.map((n) => `${n.vehicle_number} (${n.supplier_name ?? n.supplier_code ?? '-'})`).join(', ')}
           </span>
-          <span className="ml-auto text-xs underline shrink-0">Voir</span>
         </button>
       )}
 
-      {/* ── One navigation bar for the whole module ───────────────────────── */}
-        <Tabs value={subTab} onValueChange={(v) => updateSubTab(v as SubTab)}>
-          {/* Sub-tab bar — scrollable, clearly clickable */}
-          <div className="overflow-x-auto scrollbar-hide">
-            <div className="flex gap-1 border-b border-border pb-0 min-w-max">
-              {([
-                {
-                  value: 'today' as SubTab,
-                  icon: Clock3,
-                  label: 'Travail du jour',
-                  badge: actionQueue.length > 0 ? actionQueue.length : null,
-                  badgeClass: 'bg-primary text-primary-foreground',
-                },
-                ...(canRunQc ? [{
-                  value: 'qc' as SubTab,
-                  icon: QrCode,
-                  label: 'Contrôle QC',
-                  badge: awaitingQc.length > 0 ? awaitingQc.length : null,
-                  badgeClass: 'bg-amber-500 text-white',
-                }] : []),
-                { value: 'registry' as SubTab, icon: List, label: 'Registre', badge: null, badgeClass: '' },
-                { value: 'bra' as SubTab, icon: Printer, label: 'Bon BRA', badge: null, badgeClass: '' },
-                ...(canUseTablet ? [{ value: 'tablet' as SubTab, icon: TabletSmartphone, label: 'Tablette', badge: null, badgeClass: '' }] : []),
-                {
-                  value: 'alerts' as SubTab,
-                  icon: AlertTriangle,
-                  label: 'Alertes',
-                  badge: alerts.length > 0 ? alerts.length : null,
-                  badgeClass: 'bg-red-600 text-white',
-                },
-              ]).map((tab) => {
-                const active = subTab === tab.value;
-                return (
-                  <button
-                    key={tab.value}
-                    type="button"
-                    onClick={() => updateSubTab(tab.value)}
-                    className={cn(
-                      'group relative flex cursor-pointer select-none items-center gap-2 whitespace-nowrap px-4 py-3 text-sm font-medium outline-none transition-colors',
-                      active
-                        ? 'text-primary'
-                        : 'text-muted-foreground hover:text-foreground',
-                    )}
-                  >
-                    <tab.icon className={cn('h-4 w-4 shrink-0 transition-colors', active ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground')} />
-                    {tab.label}
-                    {tab.badge != null && (
-                      <span className={cn('flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold leading-none', tab.badgeClass)}>
-                        {tab.badge}
-                      </span>
-                    )}
-                    {/* Active underline */}
-                    <span
-                      className={cn(
-                        'absolute bottom-0 left-0 h-0.5 w-full rounded-full transition-all duration-200',
-                        active ? 'bg-primary scale-x-100' : 'bg-transparent scale-x-0 group-hover:bg-border group-hover:scale-x-100',
-                      )}
-                    />
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* ── Tab: Travail du jour ─────────────────────────────────────── */}
-          <TabsContent value="today" className="mt-5 space-y-4">
-            {/* Metric chips row */}
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {metricChips.map((chip) => (
+      <Tabs value={subTab} onValueChange={(v) => updateSubTab(v as SubTab)}>
+        <div className="overflow-x-auto scrollbar-hide">
+          <div className="flex min-w-max gap-1 border-b" role="tablist" aria-label="Sections de la réception">
+            {tabs.map((tab) => {
+              const active = subTab === tab.value;
+              return (
                 <button
-                  key={chip.label}
+                  key={tab.value}
                   type="button"
-                  onClick={chip.onClick}
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => updateSubTab(tab.value)}
                   className={cn(
-                    'flex flex-col gap-1 rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5 hover:shadow-md',
-                    chip.bg,
+                    'relative flex min-h-11 items-center gap-2 whitespace-nowrap px-4 py-3 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring',
+                    active ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
                   )}
                 >
-                  <div className="flex items-center gap-2">
-                    <chip.icon className={cn('h-4 w-4', chip.color)} />
-                    <span className="text-xs font-medium text-muted-foreground">{chip.label}</span>
-                  </div>
-                  <p className={cn('text-3xl font-semibold', chip.color)}>{chip.value}</p>
-                </button>
-              ))}
-            </div>
-
-            {/* Document shortcut — full-page BRA workspace via Parcours is preferred; keep in-module too */}
-            <button
-              type="button"
-              onClick={() => updateSubTab('bra')}
-              className="flex w-full items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50/80 px-4 py-3 text-left transition-colors hover:bg-amber-100"
-            >
-              <div className="flex items-center gap-3">
-                <Printer className="h-5 w-5 shrink-0 text-amber-700" />
-                <div>
-                  <p className="text-sm font-semibold">Bon de Réception Achat (BRA)</p>
-                  <p className="text-xs text-muted-foreground">
-                    Créer · valider · imprimer le bon fournisseur
-                  </p>
-                </div>
-              </div>
-              <span className="text-xs font-medium text-amber-800">Ouvrir →</span>
-            </button>
-
-            <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-              {/* Action queue */}
-              <Card className="surface-card rounded-[24px]">
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <Clock3 className="h-4 w-4 text-primary" />
-                    File de travail
-                  </CardTitle>
-                  <CardDescription className="text-xs">Réceptions qui demandent une action maintenant.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2 pt-1">
-                  {actionQueue.length === 0 ? (
-                    <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
-                      <CheckCircle2 className="h-5 w-5 shrink-0" />
-                      Aucune réception urgente en attente.
-                    </div>
-                  ) : (
-                    actionQueue.map((item) => (
-                      <button
-                        key={item.reception.id}
-                        type="button"
-                        onClick={() => handleOpenDetail(item.reception)}
-                        className="flex w-full items-center gap-3 rounded-2xl border border-border/60 bg-background/85 p-3 text-left transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                      >
-                        <div className={cn('h-10 w-1 shrink-0 rounded-full', receptionStatusColors[item.reception.status])} />
-                        <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-center gap-1.5">
-                            <span className="font-mono text-sm font-semibold">{item.reception.reception_number}</span>
-                            <Badge className={cn('text-[11px] px-1.5 py-px', item.urgencyClassName)}>{item.urgencyLabel}</Badge>
-                          </div>
-                          <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                            {item.reception.supplier?.name || item.reception.supplier_name_snapshot || '—'} • {item.reception.quantity_total} {item.reception.unit}
-                          </p>
-                        </div>
-                        <div className="flex shrink-0 items-center gap-1">
-                          {canRunQc && (item.reception.status === 'EN_ATTENTE_QC' || item.reception.status === 'EN_QC') && (
-                            <Button
-                              type="button"
-                              size="sm"
-                              className={cn('h-9 rounded-xl px-2.5 text-xs', item.reception.status === 'EN_QC' && 'bg-sky-600 hover:bg-sky-700')}
-                              variant={item.reception.status === 'EN_QC' ? 'default' : 'outline'}
-                              onClick={(e) => { e.stopPropagation(); handleStartQC(item.reception); }}
-                            >
-                              <Shield className="mr-1 h-3 w-3" />
-                              {item.reception.status === 'EN_QC' ? 'Reprendre' : 'Lancer QC'}
-                            </Button>
-                          )}
-                        </div>
-                      </button>
-                    ))
-                  )}
-                  {actionQueue.length > 0 && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full rounded-xl text-xs text-muted-foreground"
-                      onClick={() => { updateSubTab('registry'); updateStatusFilter('active'); }}
-                    >
-                      Voir tout le registre →
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Watch panel */}
-              <Card className="surface-card rounded-[24px]">
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <AlertTriangle className="h-4 w-4 text-primary" />
-                    Points à surveiller
-                  </CardTitle>
-                  <CardDescription className="text-xs">Retards, alertes et vue rapide du jour.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3 pt-1">
-                  {/* Overdue QC */}
-                  <div className={cn(
-                    'rounded-2xl border p-3',
-                    criticalOverdueInspections.length > 0 ? 'border-red-200 bg-red-50' :
-                    overdueInspections.length > 0 ? 'border-orange-200 bg-orange-50' :
-                    'border-emerald-200 bg-emerald-50',
-                  )}>
-                    <div className="flex items-center gap-2">
-                      <Clock3 className={cn('h-4 w-4', criticalOverdueInspections.length > 0 ? 'text-red-600' : overdueInspections.length > 0 ? 'text-orange-600' : 'text-emerald-600')} />
-                      <p className="text-sm font-medium">Retards QC</p>
-                    </div>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {overdueInspections.length > 0
-                        ? `${overdueInspections.length} réception(s) en retard, dont ${criticalOverdueInspections.length} critique(s).`
-                        : 'Aucun retard QC pour le moment.'}
-                    </p>
-                  </div>
-
-                  {/* Alerts summary */}
-                  <div className="rounded-2xl border border-border/60 bg-background/85 p-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Bell className="h-4 w-4 text-primary" />
-                        <p className="text-sm font-medium">Alertes réception</p>
-                      </div>
-                      {alerts.length > 0 && (
-                        <Badge variant="destructive" className="text-xs">{alerts.length}</Badge>
-                      )}
-                    </div>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {alerts.length > 0 ? `${alerts.length} alerte(s) active(s).` : 'Aucune alerte active.'}
-                    </p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="mt-2 h-9 rounded-xl text-xs"
-                      onClick={() => updateSubTab('alerts')}
-                    >
-                      Voir les alertes
-                    </Button>
-                  </div>
-
-                  {/* Day snapshot */}
-                  <div className="grid grid-cols-3 gap-2">
-                    {[
-                      { label: 'Brouillons', value: draftReceptions.length },
-                      { label: 'En QC', value: inQc.length },
-                      { label: 'Bloqués', value: blockedReceptions.length },
-                    ].map((stat) => (
-                      <div key={stat.label} className="rounded-2xl bg-muted/35 p-2.5 text-center">
-                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{stat.label}</p>
-                        <p className="mt-0.5 text-xl font-semibold">{stat.value}</p>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          {/* ── Tab: Contrôle QC ────────────────────────────────────────── */}
-          <TabsContent value="qc" className="mt-5">
-            <Card className="surface-card rounded-[24px]">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <QrCode className="h-5 w-5 text-primary" />
-                  Contrôle Qualité Entrée
-                </CardTitle>
-                <CardDescription>
-                  Scannez ou saisissez un LOT-ID pour charger la fiche et ouvrir le contrôle qualité entrant.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Scan row */}
-                <div className="flex flex-col gap-2 sm:flex-row">
-                  <Input
-                    value={scanValue}
-                    onChange={(e) => setScanValue(e.target.value)}
-                    placeholder="LOT-ID / QR code / référence lot"
-                    className="h-12 flex-1 rounded-2xl bg-background/85"
-                    onKeyDown={(e) => { if (e.key === 'Enter') void handleScanLot(); }}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="h-12 rounded-2xl px-4 shrink-0"
-                    onClick={() => setScannerOpen(true)}
-                  >
-                    <Camera className="mr-2 h-4 w-4" />
-                    Caméra QR
-                  </Button>
-                  <Button
-                    type="button"
-                    className="h-12 rounded-2xl px-5 shrink-0"
-                    onClick={() => void handleScanLot()}
-                    disabled={isScanLoading || !scanValue.trim()}
-                  >
-                    <QrCode className="mr-2 h-4 w-4" />
-                    {isScanLoading ? 'Chargement…' : 'Scanner'}
-                  </Button>
-                </div>
-
-                {/* Scan result */}
-                {scanMessage && (
-                  <div className={cn(
-                    'rounded-2xl border p-4 text-sm',
-                    selectedReception ? 'border-emerald-200 bg-emerald-50 text-emerald-900' : 'border-amber-200 bg-amber-50 text-amber-900',
-                  )}>
-                    {scanMessage}
-                  </div>
-                )}
-
-                {/* Info panels side by side */}
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-border/60 bg-muted/25 p-4 text-sm">
-                    <p className="font-medium text-foreground">Règles d'échantillonnage</p>
-                    <ul className="mt-2 space-y-1 text-muted-foreground text-xs leading-5">
-                      <li>• Lot ≤ 1 tonne → minimum 2 kg</li>
-                      <li>• Lot &gt; 5 tonnes → minimum 5 kg</li>
-                      <li>• Entre les deux → prélèvement représentatif</li>
-                    </ul>
-                  </div>
-                  <div className="rounded-2xl border border-border/60 bg-muted/25 p-4 text-sm">
-                    <p className="font-medium text-foreground">Ce qui est chargé après scan</p>
-                    <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                      Fournisseur, variété, poids, statut et lot — aucune ressaisie avant le contrôle.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Awaiting QC mini-list */}
-                {awaitingQc.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                      Lots en attente QC ({awaitingQc.length})
-                    </p>
-                    {awaitingQc.slice(0, 4).map((r) => (
-                      <button
-                        key={r.id}
-                        type="button"
-                        onClick={() => handleStartQC(r)}
-                        className="flex w-full items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50/60 px-4 py-3 text-left hover:bg-amber-50 transition-colors"
-                      >
-                        <div>
-                          <span className="font-mono text-sm font-semibold">{r.reception_number}</span>
-                          <span className="ml-2 text-xs text-muted-foreground">{r.supplier?.name || r.supplier_name_snapshot || '—'} • {r.quantity_total} {r.unit}</span>
-                        </div>
-                        <Button type="button" size="sm" className="h-9 rounded-xl text-xs" onClick={(e) => { e.stopPropagation(); handleStartQC(r); }}>
-                          <Shield className="mr-1 h-3 w-3" />
-                          Lancer QC
-                        </Button>
-                      </button>
-                    ))}
-                    {awaitingQc.length > 4 && (
-                      <p className="text-center text-xs text-muted-foreground">+ {awaitingQc.length - 4} autres dans le registre</p>
-                    )}
-                  </div>
-                )}
-
-                {/* In-progress QC mini-list — interrupted inspections stay findable here */}
-                {inQc.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                      Inspections en cours ({inQc.length})
-                    </p>
-                    {inQc.slice(0, 4).map((r) => (
-                      <button
-                        key={r.id}
-                        type="button"
-                        onClick={() => handleStartQC(r)}
-                        className="flex w-full items-center justify-between gap-3 rounded-2xl border border-sky-200 bg-sky-50/60 px-4 py-3 text-left hover:bg-sky-50 transition-colors"
-                      >
-                        <div>
-                          <span className="font-mono text-sm font-semibold">{r.reception_number}</span>
-                          <span className="ml-2 text-xs text-muted-foreground">{r.supplier?.name || r.supplier_name_snapshot || '—'} • {r.quantity_total} {r.unit}</span>
-                        </div>
-                        <Button type="button" size="sm" className="h-9 rounded-xl bg-sky-600 text-xs hover:bg-sky-700" onClick={(e) => { e.stopPropagation(); handleStartQC(r); }}>
-                          <Shield className="mr-1 h-3 w-3" />
-                          Reprendre
-                        </Button>
-                      </button>
-                    ))}
-                    {inQc.length > 4 && (
-                      <p className="text-center text-xs text-muted-foreground">+ {inQc.length - 4} autres dans le registre</p>
-                    )}
-                  </div>
-                )}
-
-                {/* Lab pending results — RG-Q07 */}
-                {labPendingInspections.length > 0 && (
-                  <div className="space-y-2 pt-1">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-sky-700">
-                      Résultats labo en attente ({labPendingInspections.length})
-                    </p>
-                    {labPendingInspections.slice(0, 5).map((insp) => {
-                      const rec = receptions.find((r) => r.id === insp.reception_id);
-                      if (!rec) return null;
-                      return (
-                        <div
-                          key={insp.id}
-                          className="flex w-full items-center justify-between gap-3 rounded-2xl border border-sky-200 bg-sky-50/60 px-4 py-3"
-                        >
-                          <div className="min-w-0">
-                            <span className="font-mono text-sm font-semibold">{rec.reception_number}</span>
-                            <span className="ml-2 text-xs text-muted-foreground">
-                              {rec.supplier?.name || rec.supplier_name_snapshot || '—'} • {(insp.lab_analyses ?? []).join(', ')}
-                            </span>
-                          </div>
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            className="h-9 rounded-xl text-xs border-sky-300 text-sky-700 hover:bg-sky-50 shrink-0"
-                            onClick={() => {
-                              setSelectedReception(rec);
-                              setSelectedInspection(insp as QCInspection);
-                              setLabDialogOpen(true);
-                            }}
-                          >
-                            <FlaskConical className="mr-1 h-3 w-3" />
-                            Saisir résultats
-                          </Button>
-                        </div>
-                      );
-                    })}
-                    {labPendingInspections.length > 5 && (
-                      <p className="text-center text-xs text-muted-foreground">
-                        + {labPendingInspections.length - 5} autres en attente
-                      </p>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* ── Tab: Registre ───────────────────────────────────────────── */}
-          <TabsContent value="registry" className="mt-5">
-            <Card className="surface-card rounded-[24px]">
-              <CardHeader className="border-b border-border/50 pb-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="section-kicker">Historique et recherche</p>
-                    <CardTitle className="mt-1 text-xl">Registre réception</CardTitle>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="rounded-2xl"
-                      onClick={() => printDailyReceptionReport(receptions)}
-                    >
-                      <Printer className="mr-2 h-4 w-4" />
-                      Rapport J
-                    </Button>
-                    {canManageReception && (
-                      <Button type="button" onClick={() => setWizardOpen(true)} className="rounded-2xl">
-                        <Plus className="mr-2 h-4 w-4" />
-                        {t('receptions.new')}
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4 pt-5">
-                {/* Search + filters */}
-                <div className="flex flex-col gap-2">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      placeholder={t('common.search')}
-                      value={search}
-                      onChange={(e) => updateSearch(e.target.value)}
-                      className="h-11 rounded-2xl border-border/80 bg-background/85 pl-10"
-                    />
-                  </div>
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    {[
-                      { value: 'active', label: 'Actives' },
-                      { value: 'today', label: "Aujourd'hui" },
-                      { value: 'all', label: t('common.all') },
-                      { value: 'EN_ATTENTE_QC', label: t('receptions.toProcess') },
-                      { value: 'EN_QC', label: t('receptions.inQC') },
-                      { value: 'BLOQUE', label: t('receptions.blocked') },
-                    ].map((filter) => (
-                      <Button
-                        key={filter.value}
-                        type="button"
-                        variant={statusFilter === filter.value ? 'secondary' : 'ghost'}
-                        size="sm"
-                        className="h-9 rounded-2xl text-xs"
-                        onClick={() => updateStatusFilter(filter.value)}
-                      >
-                        {filter.label}
-                      </Button>
-                    ))}
-                    <DateRangeFilter dateRange={dateRange} onDateRangeChange={setDateRange} />
-                    {(dateRange?.from || statusFilter !== 'active' || search) && (
-                      <span className="ml-auto text-xs text-muted-foreground">{filteredReceptions.length} résultat(s)</span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Status legend */}
-                <div className="flex flex-wrap gap-1.5">
-                  {[
-                    { status: 'BROUILLON',    label: 'Brouillon — à compléter' },
-                    { status: 'EN_ATTENTE_QC', label: 'En attente QC' },
-                    { status: 'EN_QC',         label: 'Contrôle en cours' },
-                    { status: 'LIBERE',        label: 'Libéré — conforme' },
-                    { status: 'BLOQUE',        label: 'Bloqué — décision requise' },
-                    { status: 'REJETE',        label: 'Rejeté' },
-                  ].map(({ status, label }) => (
-                    <span key={status} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <span className={cn('inline-block h-2.5 w-2.5 rounded-full', receptionStatusColors[status as keyof typeof receptionStatusColors])} />
-                      {label}
+                  <tab.icon className="h-4 w-4 shrink-0" />
+                  {tab.label}
+                  {tab.badge != null && (
+                    <span className={cn('flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-bold leading-none text-primary-foreground', tab.badgeClass)}>
+                      {tab.badge}
                     </span>
-                  ))}
-                </div>
-
-                {/* List */}
-                <div className="space-y-2">
-                  {isError ? (
-                    <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-700">
-                      Erreur de chargement des réceptions. Vérifiez votre connexion et rechargez la page.
-                    </div>
-                  ) : isLoading ? (
-                    <div className="py-8 text-center text-sm text-muted-foreground">{t('common.loading')}</div>
-                  ) : filteredReceptions.length === 0 ? (
-                    <div className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-                      {t('common.noResults')}
-                    </div>
-                  ) : (
-                    filteredReceptions.map((reception) => {
-                      const ageHours = (Date.now() - new Date(reception.created_at).getTime()) / (1000 * 60 * 60);
-                      const isPendingQc = ['EN_ATTENTE_QC', 'EN_QC'].includes(reception.status);
-                      const isCriticalDelay = isPendingQc && ageHours >= 12;
-                      const isDelayed = isPendingQc && ageHours >= 4;
-                      return (
-                        <div
-                          key={reception.id}
-                          className="group surface-card cursor-pointer rounded-[20px] p-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card-hover"
-                          onClick={() => handleOpenDetail(reception)}
-                        >
-                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <div className="flex items-start gap-3">
-                              <div className={cn('mt-1 h-12 w-1 shrink-0 rounded-full', receptionStatusColors[reception.status])} />
-                              <div className="min-w-0">
-                                <div className="flex flex-wrap items-center gap-1.5">
-                                  <span className="font-mono text-sm font-semibold">{reception.reception_number}</span>
-                                  <Badge variant="outline" className="text-[11px] px-1.5">{reception.reception_type}</Badge>
-                                  {reception.variety && (
-                                    <Badge className="bg-secondary text-secondary-foreground hover:bg-secondary text-[11px] px-1.5">{reception.variety}</Badge>
-                                  )}
-                                </div>
-                                <p className="mt-0.5 text-sm font-medium">
-                                  {reception.supplier?.name || reception.supplier_name_snapshot || 'Fournisseur non renseigné'} • {reception.quantity_total} {reception.unit}
-                                </p>
-                                <div className="mt-1 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                                  <span>BL: {reception.delivery_note_number || '-'}</span>
-                                  <span>{format(new Date(reception.created_at), 'dd/MM HH:mm', { locale: getLocale() })}</span>
-                                  {reception.storage_zone_code && <span>Zone {reception.storage_zone_code}</span>}
-                                  {reception.arrival_temperature_c != null && <span>Temp. {reception.arrival_temperature_c}°C</span>}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2 sm:flex-col sm:items-end">
-                              <Badge className={cn('text-xs', receptionStatusColors[reception.status])}>
-                                {receptionStatusLabels[reception.status]}
-                              </Badge>
-                              {(() => {
-                                const p2 = lotStages.get(reception.id);
-                                if (!p2) return null;
-                                const STAGE_STYLE: Record<string, string> = {
-                                  fumigation:  'bg-orange-100 text-orange-700 border-orange-300',
-                                  nettoyage:   'bg-blue-100 text-blue-700 border-blue-300',
-                                  hydratation: 'bg-cyan-100 text-cyan-700 border-cyan-300',
-                                  triage:      'bg-violet-100 text-violet-700 border-violet-300',
-                                  completed:   'bg-green-100 text-green-700 border-green-300',
-                                };
-                                return (
-                                  <Badge variant="outline" className={cn('text-[11px] px-1.5 border', STAGE_STYLE[p2.stage] ?? 'bg-gray-100 text-gray-600')}>
-                                    {p2.label}
-                                  </Badge>
-                                );
-                              })()}
-                              {isDelayed && (
-                                <Badge className={cn('text-[11px] px-1.5', isCriticalDelay ? 'bg-red-600 text-white' : 'bg-amber-500 text-white')}>
-                                  <Clock3 className="mr-0.5 h-2.5 w-2.5" />
-                                  {Math.round(ageHours)}h
-                                </Badge>
-                              )}
-                              {canRunQc && reception.status === 'EN_ATTENTE_QC' && (
-                                <Button
-                                  type="button"
-                                  size="sm"
-                                  variant="outline"
-                                  className="h-9 rounded-xl bg-white text-xs"
-                                  onClick={(e) => { e.stopPropagation(); handleStartQC(reception); }}
-                                >
-                                  <Shield className="mr-1 h-3 w-3" />
-                                  Lancer QC
-                                </Button>
-                              )}
-                              {canRunQc && reception.status === 'EN_QC' && (
-                                <Button
-                                  type="button"
-                                  size="sm"
-                                  className="h-9 rounded-xl bg-sky-600 hover:bg-sky-700 text-xs"
-                                  onClick={(e) => { e.stopPropagation(); handleStartQC(reception); }}
-                                >
-                                  <Shield className="mr-1 h-3 w-3" />
-                                  {t('common.continueQC')}
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })
                   )}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                  {active && <span className="absolute bottom-0 left-0 h-0.5 w-full rounded-full bg-primary" />}
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
-          {/* ── Tab: Bons de Réception Achat ─────────────────────────────── */}
-          <TabsContent value="bra" className="mt-5 space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border bg-muted/30 px-4 py-2.5 text-sm">
-              <span className="text-muted-foreground">
-                <span className="font-medium text-foreground">BRA</span> = bon d&apos;entrée fournisseur
-              </span>
+        <TabsContent value="today" className="mt-4 space-y-2">
+          {todayError ? <ListError /> : todayLoading ? <Loading /> : todayRows.length === 0 ? (
+            <div className="flex items-center justify-center gap-3 rounded-2xl border border-dashed p-8 text-sm text-muted-foreground">
+              <CheckCircle2 className="h-5 w-5" />
+              Aucune réception aujourd'hui pour le moment.
             </div>
-            <BonReceptionAchatDashboard />
-          </TabsContent>
+          ) : todayRows.map((reception) => <ReceptionRow key={reception.id} reception={reception} onOpen={openReception} />)}
+        </TabsContent>
 
-          {canUseTablet && (
-            <TabsContent value="tablet" className="mt-5">
-              <ReceptionTabletOperatorScreen />
-            </TabsContent>
-          )}
-          <TabsContent value="alerts" className="mt-5">
-            <AlertsPanel />
-          </TabsContent>
-        </Tabs>
-
-      {/* ── Dialogs ───────────────────────────────────────────────────────── */}
-      {canManageReception && (
-        <ReceptionWizard
-          open={wizardOpen}
-          onOpenChange={setWizardOpen}
-          suppliers={suppliers}
-          materials={materials}
-          prefillPurchaseOrderId={prefillPurchaseOrderId}
-          canRunQc={canRunQc}
-          onOpenReception={(id, next) => setWorkspace({ id, autoStartQc: next === 'qc' })}
-        />
-      )}
-
-      {canRunQc && (
-        <QrScannerDialog
-          open={scannerOpen}
-          onOpenChange={setScannerOpen}
-          onDetected={(value) => { void handleScanLot(value); }}
-        />
-      )}
-
-      {selectedReception && (
-        <>
-          <QCInspectionDialog
-            open={qcDialogOpen}
-            onOpenChange={setQcDialogOpen}
-            reception={selectedReception}
-            onAssignStorage={() => setWorkspace({ id: selectedReception.id, section: 'stock' })}
-          />
-          {selectedInspection && (
-            <LabResultsDialog
-              open={labDialogOpen}
-              onOpenChange={setLabDialogOpen}
-              inspection={selectedInspection}
-              reception={selectedReception}
+        <TabsContent value="pending" className="mt-4">
+          {activeLoading ? <Loading /> : (
+            <PendingSection
+              canManage={canManageReception}
+              userId={user?.id ?? null}
+              activeReceptions={activeRows}
+              onOpen={openReception}
+              onResume={(draftId) => setIntake({ draftId })}
             />
           )}
-        </>
-      )}
+        </TabsContent>
+
+        <TabsContent value="registry" className="mt-4">
+          <HistorySection onOpen={openReception} onDailyReport={() => printDailyReceptionReport(todayRows)} />
+        </TabsContent>
+
+        {canRunQc && (
+          <TabsContent value="qc" className="mt-4">
+            <ReceptionQcQueue receptions={activeRows} onOpenStorage={(id) => setWorkspace({ id, section: 'stock' })} />
+          </TabsContent>
+        )}
+
+        <TabsContent value="bra" className="mt-4">
+          <BonReceptionAchatDashboard />
+        </TabsContent>
+
+        <TabsContent value="alerts" className="mt-4">
+          <AlertsPanel />
+        </TabsContent>
+      </Tabs>
 
       <InboundNoticeDialog open={noticeOpen} onOpenChange={setNoticeOpen} suppliers={suppliers} />
     </div>

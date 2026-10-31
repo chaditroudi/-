@@ -1,5 +1,6 @@
 import { createHmac, randomUUID } from "node:crypto";
 import { spawn } from "node:child_process";
+import { syntheticIntakeFields } from "./lib/intake-contract.mjs";
 
 const API = (process.env.SMOKE_API_URL || `http://127.0.0.1:${process.env.PORT || 4000}`).replace(/\/$/, "");
 const PASSWORD = process.env.SMOKE_PASSWORD || "Test123!";
@@ -95,6 +96,7 @@ const main = async () => {
   const intakePayload = {
     client_request_id: clientRequestId,
     supplier_id: supplierId,
+    ...syntheticIntakeFields(),
     spontaneous_delivery: true,
     unit: "kg",
     quantity_total: 250,

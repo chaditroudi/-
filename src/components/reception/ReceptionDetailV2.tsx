@@ -12,9 +12,11 @@ import {
   FileText,
   FlaskConical,
   History,
+  Image as ImageIcon,
   Lock,
   LockOpen,
   Package,
+  Pencil,
   Play,
   Printer,
   QrCode,
@@ -37,6 +39,7 @@ import {
   getReceptionPermissions,
   type ReceptionAuditLog,
 } from '@/lib/receptionWorkflow';
+import { describeWeighingSource } from '@/lib/receptionIntake';
 import { useListReceptionAuditQuery } from '@/store/api/receptionsApi';
 import {
   receptionErrorMessage,
@@ -70,6 +73,7 @@ import { Gs1LabelPreview } from './Gs1LabelPreview';
 import { LotCostCard } from './LotCostCard';
 import { ReceptionLotStatusDialog } from './ReceptionLotStatusDialog';
 import { ReceptionCancelDialog } from './ReceptionCancelDialog';
+import { ReceptionCorrectionDialog } from './ReceptionCorrectionDialog';
 
 export type ReceptionWorkspaceSection = 'overview' | 'lots' | 'qc' | 'stock' | 'documents' | 'history';
 
@@ -127,6 +131,7 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
   const [lotToQuarantine, setLotToQuarantine] = useState<ReceptionLot | null>(null);
   const [lotToRelease, setLotToRelease] = useState<ReceptionLot | null>(null);
   const [cancelOpen, setCancelOpen] = useState(false);
+  const [correctionOpen, setCorrectionOpen] = useState(false);
 
   // BLOQUE = quarantined delivery that can be re-inspected.
   const canStartQC = Boolean(reception) && permissions.canRunQc
@@ -242,6 +247,12 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
             Annuler la réception
           </Button>
         )}
+        {permissions.canCancel && !isCancelled && (
+          <Button type="button" size="sm" variant="outline" className={cn('gap-1.5', !canCancel && 'ml-auto')} onClick={() => setCorrectionOpen(true)}>
+            <Pencil className="h-3.5 w-3.5" />
+            Corriger
+          </Button>
+        )}
       </div>
 
       {/* ── Next step ── */}
@@ -301,6 +312,12 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
                   label="Bon de commande"
                   value={reception.purchase_order_number || (reception.purchase_order_id ? 'Lié' : 'Livraison spontanée')}
                 />
+                {reception.po_expected_kg != null && (
+                  <>
+                    <InfoRow label="Attendu sur la commande" value={`${reception.po_expected_kg} kg`} />
+                    <InfoRow label="Écart avec la commande" value={reception.po_variance_kg != null ? `${reception.po_variance_kg} kg` : '0 kg'} />
+                  </>
+                )}
               </CardContent>
             </Card>
 
@@ -312,6 +329,7 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
                 <InfoRow label="Poids brut" value={reception.gross_weight_kg != null ? `${reception.gross_weight_kg} kg` : '-'} />
                 <InfoRow label="Tare" value={reception.tare_weight_kg != null ? `${reception.tare_weight_kg} kg` : '-'} />
                 <InfoRow label="Poids net" value={`${reception.quantity_total} ${reception.unit}`} />
+                <InfoRow label="Provenance du poids" value={describeWeighingSource(reception.weighing_source, reception.weighing_verified_device)} />
                 <InfoRow label="Écart avec le BL" value={reception.weight_gap_percent != null ? `${reception.weight_gap_percent} %` : '-'} />
                 <InfoRow label="Variété" value={reception.variety} />
                 <InfoRow label="Présentation" value={reception.presentation} />
@@ -439,12 +457,10 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
                     )}
 
                     <div className="flex flex-wrap gap-2 border-t border-dashed border-muted-foreground/20 pt-1">
-                      {(hasNet || canEditLots) && (
-                        <Button type="button" size="sm" variant="outline" className="gap-1.5 rounded-xl" onClick={() => setWeighingLot(lot)}>
-                          <Scale className="h-3.5 w-3.5 text-emerald-600" />
-                          {hasNet ? 'Voir la pesée' : 'Peser le lot'}
-                        </Button>
-                      )}
+                      <Button type="button" size="sm" variant="outline" className="gap-1.5 rounded-xl" onClick={() => setWeighingLot(lot)}>
+                        <Scale className="h-3.5 w-3.5 text-emerald-600" />
+                        Voir la pesée
+                      </Button>
                       {canEditLots && (
                         <Button
                           type="button"
@@ -566,6 +582,20 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
 
         {/* ── DOCUMENTS ── */}
         <TabsContent value="documents" className="mt-4 space-y-4">
+          {(reception.delivery_note_photos?.length ?? 0) > 0 && (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-sm"><ImageIcon className="h-4 w-4" />Photos à l'arrivée</CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-2 gap-2 md:grid-cols-4">
+                {reception.delivery_note_photos?.map((photo, index) => (
+                  <a key={index} href={photo} target="_blank" rel="noreferrer">
+                    <img src={photo} alt={`Photo d'arrivée ${index + 1}`} className="aspect-square w-full rounded-xl border object-cover" />
+                  </a>
+                ))}
+              </CardContent>
+            </Card>
+          )}
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm">Documents de réception</CardTitle>
@@ -714,10 +744,13 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
         inspection={inspections[0] ?? null}
       />
 
-      {weighingLot && <WeighingRecordDialog lot={weighingLot} onClose={() => setWeighingLot(null)} />}
+      {weighingLot && (
+        <WeighingRecordDialog lot={weighingLot} canCorrect={permissions.canCancel && !isCancelled} onClose={() => setWeighingLot(null)} />
+      )}
       {gs1Lot && <Gs1LabelPreview lot={gs1Lot} onClose={() => setGs1Lot(null)} />}
 
       <ReceptionCancelDialog reception={reception} open={cancelOpen} onOpenChange={setCancelOpen} />
+      <ReceptionCorrectionDialog reception={reception} open={correctionOpen} onOpenChange={setCorrectionOpen} />
       <ReceptionLotStatusDialog lot={lotToQuarantine} receptionId={reception.id} mode="quarantine" onClose={() => setLotToQuarantine(null)} />
       <ReceptionLotStatusDialog lot={lotToRelease} receptionId={reception.id} mode="release" onClose={() => setLotToRelease(null)} />
 

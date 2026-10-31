@@ -8,9 +8,11 @@
  * — the frontend never sees raw MongoDB collection names.
  */
 import { useEffect, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useAppDispatch } from '@/store/hooks';
 import { fetchNotifications } from '@/store/slices/notificationsSlice';
+import { fetchReceptions } from '@/store/slices/receptionsSlice';
 import { getSseConnection } from '@/lib/sseClient';
 import { receptionsApi } from '@/store/api/receptionsApi';
 import { productionApi } from '@/store/api/productionApi';
@@ -37,7 +39,7 @@ type TagGroup = { api: ApiName; tags: string[] };
 
 const RESOURCE_TAGS: Record<string, TagGroup[]> = {
   receptions: [
-    { api: 'receptions', tags: ['Reception', 'ReceptionLot', 'ReceptionUnit', 'QcInspection', 'ReceptionAlert', 'LiberedLot', 'StockMovement'] },
+    { api: 'receptions', tags: ['Reception', 'ReceptionLot', 'ReceptionUnit', 'QcInspection', 'ReceptionAlert', 'LiberedLot', 'StockMovement', 'ReceptionDraft', 'ReceptionAudit'] },
   ],
   suppliers: [
     { api: 'suppliers', tags: ['Supplier'] },
@@ -68,16 +70,26 @@ const RESOURCE_TAGS: Record<string, TagGroup[]> = {
 export const useBackendRealtimeSync = () => {
   const { user } = useAuthContext();
   const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
   const seen = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (!user?.id) return;
+
+    const refreshAfterReconnect = () => {
+      dispatch(receptionsApi.util.invalidateTags(RESOURCE_TAGS.receptions[0].tags as any));
+      dispatch(stockApi.util.invalidateTags(RESOURCE_TAGS.stock[0].tags as any));
+      void dispatch(fetchReceptions());
+      void queryClient.invalidateQueries({ queryKey: ['purchase_orders'] });
+    };
 
     const sse = getSseConnection();
 
     return sse.subscribe((msg) => {
       if (msg.eventName === 'connected') {
         window.dispatchEvent(new Event('backend-sse-connected'));
+        // Events sent while disconnected are gone: anything on screen may be stale.
+        if (msg.payload.reconnected) refreshAfterReconnect();
         return;
       }
       if (msg.eventName !== 'db_change') return;
@@ -111,10 +123,14 @@ export const useBackendRealtimeSync = () => {
         }
       }
 
+      if (resourcesToInvalidate.has('purchase_orders') || resourcesToInvalidate.has('purchase_order_lines')) {
+        void queryClient.invalidateQueries({ queryKey: ['purchase_orders'] });
+      }
+
       // Notifications resource also refreshes the Redux slice (which drives toasts)
       if (resourcesToInvalidate.has('notifications')) {
         void dispatch(fetchNotifications({ force: true }));
       }
     });
-  }, [dispatch, user?.id]);
+  }, [dispatch, queryClient, user?.id]);
 };

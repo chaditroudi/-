@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto";
 
+import { afterCommit, isInTransaction } from "../../db/transaction.js";
+
 type RealtimeClient = {
   id: string;
   userId: string | null;
@@ -17,6 +19,7 @@ const COLLECTION_TO_RESOURCE: Record<string, string> = {
   receptions_v2: "receptions",
   reception_lots: "receptions",
   reception_units: "receptions",
+  reception_drafts: "receptions",
   reception_alerts: "receptions",
   reception_stock_movements: "receptions",
   qc_inspections: "receptions",
@@ -130,6 +133,12 @@ export const closeAllClients = () => {
 };
 
 export const publishRealtimeDbChange = (event: RealtimeDbChangeEvent) => {
+  // Clients must never hear about a write that can still roll back.
+  if (isInTransaction()) {
+    afterCommit(() => publishRealtimeDbChange(event));
+    return;
+  }
+
   const resource = resolveResource(event.table, event.resource);
   // relatedResources: deduplicate resource names for all related tables
   const relatedResources = Array.from(

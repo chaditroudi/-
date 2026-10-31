@@ -28,7 +28,7 @@ export function OperationsPanel({ settings }: Props) {
     setInterfaceSettings((prev) => ({ ...prev, [key]: value }));
   };
 
-  const setOperationsField = (key: keyof typeof operations, value: string | boolean) => {
+  const setOperationsField = (key: keyof typeof operations, value: string | boolean | number | string[]) => {
     setOperations((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -139,6 +139,38 @@ export function OperationsPanel({ settings }: Props) {
               <Switch
                 checked={operations.require_vehicle_number_on_reception}
                 onCheckedChange={(checked) => setOperationsField('require_vehicle_number_on_reception', checked)}
+              />
+            </label>
+            <label className="col-span-2 space-y-1 rounded-lg border px-3 py-2 text-sm">
+              <span>Variétés proposées à la réception (séparées par des virgules)</span>
+              <Input
+                aria-label="Variétés proposées à la réception"
+                value={(operations.reception_varieties ?? []).join(', ')}
+                onChange={(event) => setOperationsField('reception_varieties', event.target.value.split(',').map((name) => name.trimStart()))}
+              />
+            </label>
+            <label className="space-y-1 rounded-lg border px-3 py-2 text-sm">
+              <span>Écart de poids : alerte à partir de (%)</span>
+              <Input
+                type="number"
+                inputMode="decimal"
+                min={0.1}
+                max={25}
+                aria-label="Seuil d'alerte d'écart de poids"
+                value={operations.reception_weight_gap_warning_pct}
+                onChange={(event) => setOperationsField('reception_weight_gap_warning_pct', Number(event.target.value))}
+              />
+            </label>
+            <label className="space-y-1 rounded-lg border px-3 py-2 text-sm">
+              <span>Écart de poids : revue responsable à partir de (%)</span>
+              <Input
+                type="number"
+                inputMode="decimal"
+                min={0.1}
+                max={25}
+                aria-label="Seuil de revue d'écart de poids"
+                value={operations.reception_weight_gap_critical_pct}
+                onChange={(event) => setOperationsField('reception_weight_gap_critical_pct', Number(event.target.value))}
               />
             </label>
             <label className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">

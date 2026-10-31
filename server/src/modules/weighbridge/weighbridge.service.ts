@@ -4,6 +4,7 @@ import { Injectable } from "@nestjs/common";
 import { badRequest, notFound, unauthorized } from "../../core/app-error.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
+import { STAFF_READ_ROLES } from "../../middleware/authorization.js";
 import { publishRealtimeDbChange } from "../realtime/realtime.bus.js";
 import { assertDeviceAllowed, simulatorSecret } from "./device-policy.js";
 import { signReading } from "./weighbridge-signature.js";
@@ -64,7 +65,8 @@ export class WeighbridgeService {
       status: payload.status || "ACTIVE",
       protocol: payload.protocol || "HTTP_PUSH",
       unit: payload.unit || "kg",
-      calibration_valid_until: payload.calibration_valid_until || "2099-12-31T23:59:59.999Z",
+      // Unknown stays unknown: the screens say so instead of showing a fake date.
+      calibration_valid_until: payload.calibration_valid_until || null,
     });
     await Devices().create([doc]);
     return withoutSecret(doc);
@@ -171,7 +173,7 @@ export class WeighbridgeService {
       table: "weighbridge_readings",
       action: "INSERT",
       rowIds: [String(row.id)],
-      rows: [sanitizeDocument(row)],
+      targetRoles: STAFF_READ_ROLES,
     });
     return { reading: sanitizeDocument(row), replayed: false };
   }

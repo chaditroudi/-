@@ -47,6 +47,7 @@ export const REGULATED_COLLECTIONS = new Set<string>([
   "reception_audit_logs_v2",
   "epcis_events",
   "non_conformities",
+  "reception_drafts",
 ]);
 
 /** Append-only logs — no update, no delete via generic API. */
