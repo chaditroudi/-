@@ -1,3 +1,4 @@
+import { PRODUCTION_VIEWS, type ProductionView } from '@/components/production/views';
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { TopHeader } from "@/components/layout/TopHeader";
 import { WorkflowNavigation } from "@/components/layout/WorkflowNavigation";
@@ -35,10 +36,7 @@ const SuppliersList          = lazy(() => import('@/components/mes/SuppliersList
 const MaterialsList          = lazy(() => import('@/components/mes/MaterialsList').then(m => ({ default: m.MaterialsList })));
 const AlertsDashboard        = lazy(() => import('@/components/batches/AlertsDashboard').then(m => ({ default: m.AlertsDashboard })));
 const StorageZonesOverview   = lazy(() => import('@/components/batches/StorageZonesOverview').then(m => ({ default: m.StorageZonesOverview })));
-const Phase2Dashboard        = lazy(() => import('@/components/phase2/Phase2Dashboard').then(m => ({ default: m.Phase2Dashboard })));
-const ProductionDashboard    = lazy(() => import('@/components/production/ProductionDashboard').then(m => ({ default: m.ProductionDashboard })));
-const ProductionFluxDashboard= lazy(() => import('@/components/production/ProductionFluxDashboard').then(m => ({ default: m.ProductionFluxDashboard })));
-const ProductionOrdersList   = lazy(() => import('@/components/production/ProductionOrdersList').then(m => ({ default: m.ProductionOrdersList })));
+const ProductionWorkspace    = lazy(() => import('@/components/production/ProductionWorkspace').then(m => ({ default: m.ProductionWorkspace })));
 const PackagingDashboard     = lazy(() => import('@/components/packaging/PackagingDashboard').then(m => ({ default: m.PackagingDashboard })));
 const QualityDashboard       = lazy(() => import('@/components/quality/QualityDashboard').then(m => ({ default: m.QualityDashboard })));
 const SettingsDashboard      = lazy(() => import('@/components/settings/SettingsDashboard').then(m => ({ default: m.SettingsDashboard })));
@@ -258,10 +256,7 @@ const Index = () => {
   // ── Navigation callbacks ──────────────────────────────────────────────────
 
   const [phase2PreselectedLot, setPhase2PreselectedLot] = useState<string | undefined>();
-  const [phase2Module, setPhase2Module] = useState<'fumigation' | 'nettoyage' | 'hydratation' | 'triage' | 'alertes' | 'pipeline'>('fumigation');
-  const [productionView, setProductionView] = useState<string>(() =>
-    features.phase2_enabled ? 'phase2' : 'overview',
-  );
+  const [productionView, setProductionView] = useState<ProductionView>('today');
   const [purchasingFocus, setPurchasingFocus] = useState<string | undefined>();
   const [prefillReceptionPOId, setPrefillReceptionPOId] = useState<string | undefined>();
   const [receptionView, setReceptionView] = useState<string | undefined>(() =>
@@ -284,11 +279,8 @@ const Index = () => {
     const opts = typeof options === 'string' ? { prefillPOId: options } : (options || {});
     setPrefillReceptionPOId(tab === 'receptions' ? opts.prefillPOId : undefined);
     if (tab === 'production') {
-      if (opts.view) setProductionView(opts.view);
-      else if (features.phase2_enabled) setProductionView('phase2');
-      if (opts.module && ['fumigation', 'nettoyage', 'hydratation', 'triage', 'alertes', 'pipeline'].includes(opts.module)) {
-        setPhase2Module(opts.module as typeof phase2Module);
-      }
+      const requested = (opts.module ?? opts.view) as ProductionView | undefined;
+      setProductionView(requested && PRODUCTION_VIEWS.includes(requested) ? requested : 'today');
       if (opts.lot) setPhase2PreselectedLot(opts.lot);
     }
     if (tab === 'purchasing' && opts.focus) setPurchasingFocus(opts.focus);
@@ -371,38 +363,16 @@ const Index = () => {
       case 'alerts':
         return <AlertsDashboard />;
       case 'production':
-        // Sub-tabs instead of stacking 4 dashboards in one endless scroll.
         return (
-          <Tabs
-            value={productionView === 'phase2' && features.phase2_enabled ? 'phase2' : (['overview', 'flux', 'orders'].includes(productionView) ? productionView : (features.phase2_enabled ? 'phase2' : 'overview'))}
-            onValueChange={setProductionView}
-            className="w-full"
-          >
-            <TabsList className="mb-4 h-auto w-full flex-wrap justify-start gap-1 sm:w-auto">
-              {features.phase2_enabled && <TabsTrigger value="phase2">Transformation</TabsTrigger>}
-              <TabsTrigger value="overview">Vue d&apos;ensemble</TabsTrigger>
-              <TabsTrigger value="flux">Flux</TabsTrigger>
-              <TabsTrigger value="orders">Ordres de fabrication</TabsTrigger>
-            </TabsList>
-            {features.phase2_enabled && (
-              <TabsContent value="phase2">
-                <Phase2Dashboard
-                  currentUser={profile?.full_name ?? workspaceProfile.workspaceLabel}
-                  defaultModule={phase2Module}
-                  preSelectedLot={phase2PreselectedLot}
-                />
-              </TabsContent>
-            )}
-            <TabsContent value="overview">
-              <ProductionDashboard orders={productionOrders} />
-            </TabsContent>
-            <TabsContent value="flux">
-              <ProductionFluxDashboard />
-            </TabsContent>
-            <TabsContent value="orders">
-              <ProductionOrdersList orders={productionOrders} receptions={receptions} />
-            </TabsContent>
-          </Tabs>
+          <ProductionWorkspace
+            orders={productionOrders}
+            receptions={receptions}
+            currentUser={profile?.full_name ?? workspaceProfile.workspaceLabel}
+            stagesEnabled={!!features.phase2_enabled}
+            view={productionView}
+            onViewChange={setProductionView}
+            preSelectedLot={phase2PreselectedLot}
+          />
         );
       case 'packaging':
         return (
