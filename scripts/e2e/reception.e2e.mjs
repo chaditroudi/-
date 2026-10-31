@@ -12,7 +12,7 @@ import path from "node:path";
 import mongoose from "mongoose";
 import puppeteer from "puppeteer-core";
 
-import { resolveTestApi } from "../lib/api-target-guard.mjs";
+import { assertTestStack, resolveTestApi } from "../lib/api-target-guard.mjs";
 import { assertSafeDbTarget } from "../lib/db-target-guard.mjs";
 import { syntheticIntakeFields } from "../lib/intake-contract.mjs";
 
@@ -379,6 +379,7 @@ const run = async (id, title, scenario) => {
 
 await mongoose.connect(MONGO, { dbName: DB });
 if (!(await fetch(`${API}/api/health`).then((response) => response.ok).catch(() => false))) await startApi();
+await assertTestStack(API);
 for (const name of [
   "receptions_v2", "reception_lots", "reception_units", "stock_lots", "weighing_records", "lot_events", "reception_drafts",
   "idempotency_commands", "purchase_orders", "purchase_order_lines", "purchase_order_receiving_lots", "suppliers",
@@ -1064,7 +1065,7 @@ async function stopApi() {
 }
 
 async function startApi() {
-  apiProcess = spawn(process.execPath, ["server-dist/index.js"], { stdio: "ignore", env: process.env });
+  apiProcess = spawn(process.execPath, ["server-dist/index.js"], { stdio: "ignore", env: { ...process.env, APP_ENV: "test" } });
   await until(async () => fetch(`${API}/api/health`).then((response) => response.ok).catch(() => false), "API restarted", 30000);
 }
 

@@ -7,7 +7,7 @@ Verdict: **DESIGN NOT FINISHED.** The checks below pass, but most routes have no
 | Check | Result |
 |---|---|
 | Browser scenarios through the dev proxy | PASS, 17 of 17 |
-| Browser scenarios on a frozen build with the service worker, through `vite preview` | FAIL, 15 of 17 at the last run, before the final edits. H and J fail here and pass through the dev proxy. The cause is not established, so offline and reconnect on a real deployment remain NOT VERIFIED until staging |
+| Browser scenarios on a frozen build with the service worker | See `docs/plans/PHASE_0_REPORT.md`. Run on a static host with a cross-origin API, not `vite preview`. Staging remains NOT VERIFIED |
 | Unit and integration tests | PASS, 553 of 553 |
 | Client type errors | 213, the same as the baseline |
 | Server type errors | 0 |
@@ -61,9 +61,8 @@ Branch: `feature/ui-redesign`. Nothing here has been pushed, merged or served on
 ## Open questions for review
 
 - Production managers trigger 403 on `reception-alerts`, `stock/reception-lots`, `stock/lots` and `stock/shipments`. Those screens may be quietly empty for that role. Traced to the requests, not to the cause.
-- `vite preview` is not a production server. A staging run must confirm scenarios H and J.
+- A staging run must still confirm scenarios H and J.
 - The lot thread lists record ids, because `GoldenThreadLotState` carries no lot number.
-- A production build calls the hard-coded Railway URL when `VITE_API_URL` is unset (`src/lib/axiosClient.ts`).
 
 ## Where to resume
 

@@ -29,6 +29,7 @@ const ACTORS = [
   ["directeur_achat", "Karim Dir. Achats", ["achat"], ["purchasing"], "purchasing", ["employee", "purchasing_manager"]],
   ["directeur_usine", "Driss Directeur Usine", ["direction"], ["direction"], "direction", ["employee", "finance_director"]],
   ["auditeur_externe", "Aziz Auditeur", ["qualite"], ["quality"], "quality", ["employee"]],
+  ["fournisseur_externe", "Farid Fournisseur", ["achat"], ["purchasing"], "purchasing", ["employee"]],
 ];
 
 const authUserSchema = new mongoose.Schema(

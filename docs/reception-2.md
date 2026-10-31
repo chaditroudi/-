@@ -123,7 +123,7 @@ PORT=4127 MONGODB_URI="mongodb://127.0.0.1:27327/?replicaSet=rs-reception" MONGO
 ```
 
 ```bash
-PORT=4127 API_HOST=127.0.0.1 MONGODB_URI="mongodb://127.0.0.1:27327/?replicaSet=rs-reception" MONGODB_DB_NAME=reception_e2e JWT_SECRET=local-e2e-secret-of-any-value WEIGHBRIDGE_SIMULATOR_SECRET=local-e2e-sim-secret node scripts/e2e/reception.e2e.mjs
+APP_ENV=test NUMERIC_SIGNATURE_GATE=enforce PORT=4127 API_HOST=127.0.0.1 MONGODB_URI="mongodb://127.0.0.1:27327/?replicaSet=rs-reception" MONGODB_DB_NAME=reception_e2e JWT_SECRET=local-e2e-secret-of-any-value WEIGHBRIDGE_SIMULATOR_SECRET=local-e2e-sim-secret node scripts/e2e/reception.e2e.mjs
 ```
 
 ## Known limits
@@ -142,4 +142,4 @@ node scripts/build-test-bundle.mjs <dir> http://127.0.0.1:4131/api
 node scripts/e2e/static-server.mjs <dir> 8131
 ```
 
-Then run the suite with `E2E_APP=http://127.0.0.1:8131` and `CORS_ORIGINS=http://127.0.0.1:8131` on its API. The build refuses anything but a local API or a same-origin path, and the browser resolves only this machine.
+Then run the suite with `APP_ENV=test`, `E2E_APP=http://127.0.0.1:8131` and `CORS_ORIGINS=http://127.0.0.1:8131` on its API. It refuses an API that does not report a local test stack. The build refuses anything but a local API or a same-origin path, and the browser resolves only this machine.
