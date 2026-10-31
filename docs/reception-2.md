@@ -132,3 +132,14 @@ PORT=4127 API_HOST=127.0.0.1 MONGODB_URI="mongodb://127.0.0.1:27327/?replicaSet=
 - Maturity stages, harvest methods and transport conditions stay fixed domain lists.
 - Lot numbers remain the `LOT-0001` serial. The `RP-…` format the old wizard previewed was never what intake stored.
 - Printed GS1 labels use a placeholder GTIN: there is no GS1 company prefix in the system.
+
+## Testing a frozen build
+
+Production is a static site calling the API on another origin. Test it that way, not through `vite preview`, whose proxy holds the realtime stream open after the API stops and fails scenarios H and J for reasons that do not exist in production.
+
+```bash
+node scripts/build-test-bundle.mjs <dir> http://127.0.0.1:4131/api
+node scripts/e2e/static-server.mjs <dir> 8131
+```
+
+Then run the suite with `E2E_APP=http://127.0.0.1:8131` and `CORS_ORIGINS=http://127.0.0.1:8131` on its API. The build refuses anything but a local API or a same-origin path, and the browser resolves only this machine.
