@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const siteSettingsSchema = new mongoose.Schema(
   {
     id: { type: String, default: "global", unique: true, index: true },
-    company_name: { type: String, default: "MES Dattes" },
+    company_name: { type: String, default: "Date Harvest Hub" },
     company_short_name: { type: String, default: "MES" },
     company_legal_name: { type: String, default: null },
     site_code: { type: String, default: "USINE-01" },

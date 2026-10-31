@@ -181,7 +181,7 @@ export const AiGuide = () => {
           </SheetTitle>
           <SheetDescription className="text-xs">
             {contextLabel}
-            <span className="mt-1 block text-[10px] text-muted-foreground">
+            <span className="mt-1 block text-xs text-muted-foreground">
               {modeLabel}
               {status?.model ? ` · ${status.model}` : ""}
             </span>
@@ -195,7 +195,7 @@ export const AiGuide = () => {
               type="button"
               variant="outline"
               size="sm"
-              className="h-auto justify-start whitespace-normal px-2 py-1.5 text-start text-[11px] leading-snug"
+              className="h-auto justify-start whitespace-normal px-2 py-1.5 text-start text-xs leading-snug"
               disabled={pending}
               onClick={() => void quickQuestion(key)}
             >
@@ -207,7 +207,7 @@ export const AiGuide = () => {
         <div className="min-h-[7rem] flex-1 overflow-y-auto rounded-md border border-border/60 bg-muted/30 p-3 text-sm leading-relaxed">
           {pending ? t("aiGuide.thinking") : reply?.message || t("aiGuide.placeholder")}
           {reply?.fallbackUsed && !pending && (
-            <p className="mt-2 text-[10px] text-muted-foreground">
+            <p className="mt-2 text-xs text-muted-foreground">
               {t("aiGuide.fallback")}
             </p>
           )}

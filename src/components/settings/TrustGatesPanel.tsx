@@ -90,7 +90,7 @@ export function TrustGatesPanel() {
               <p className="text-xs leading-relaxed">{data.next}</p>
             </div>
 
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Échecs d'étape non remontés par le processus : {data.swallowed_stage_failures_process}
               {' · '}
               Env: TRUST_SCAN_GATE / TRUST_CCP_GATE / TRUST_STAGE_GATE / TRUST_MASS_BALANCE_GATE

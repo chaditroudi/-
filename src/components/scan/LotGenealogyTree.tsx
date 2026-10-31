@@ -122,12 +122,12 @@ const NodeDetail = ({ node }: { node: GenealogyNode }) => {
         </div>
         <div className="min-w-0">
           <p className={cn('text-xs font-bold truncate', s.text)}>{node.label}</p>
-          <p className="text-[11px] text-muted-foreground">{s.label}</p>
+          <p className="text-xs text-muted-foreground">{s.label}</p>
         </div>
       </div>
 
       {node.status && (
-        <span className={cn('inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold', STATUS_BADGE[node.status] ?? 'bg-gray-100 text-gray-600')}>
+        <span className={cn('inline-flex px-2 py-0.5 rounded-full text-xs font-semibold', STATUS_BADGE[node.status] ?? 'bg-gray-100 text-gray-600')}>
           {node.status}
         </span>
       )}
@@ -271,14 +271,14 @@ const NodeCard = ({ node, isActive, onClick }: NodeCardProps) => {
         <div className="min-w-0 flex-1">
           <p className={cn('text-xs font-bold truncate leading-tight', s.text)}>{node.label}</p>
           {node.sublabel && (
-            <p className="text-[11px] text-muted-foreground truncate leading-tight">{node.sublabel}</p>
+            <p className="text-xs text-muted-foreground truncate leading-tight">{node.sublabel}</p>
           )}
         </div>
       </div>
       <div className="px-2.5 pb-2 flex items-center justify-between">
-        <span className="text-[11px] font-semibold text-muted-foreground/60">{s.label}</span>
+        <span className="text-xs font-semibold text-muted-foreground/60">{s.label}</span>
         {node.status && (
-          <span className={cn('text-[11px] px-1.5 py-0.5 rounded-full font-semibold', STATUS_BADGE[node.status] ?? 'bg-gray-100 text-gray-500')}>
+          <span className={cn('text-xs px-1.5 py-0.5 rounded-full font-semibold', STATUS_BADGE[node.status] ?? 'bg-gray-100 text-gray-500')}>
             {node.status.replace(/_/g, ' ')}
           </span>
         )}
@@ -312,7 +312,7 @@ const ColumnHeaders = ({ positioned }: { positioned: PositionedNode[] }) => {
         return (
           <div
             key={col}
-            className="absolute text-[11px] font-bold text-slate-400 whitespace-nowrap"
+            className="absolute text-xs font-bold text-slate-400 whitespace-nowrap"
             style={{ left: x, top: 8, width: NODE_W, textAlign: 'center' }}
           >
             {COL_LABELS[col] ?? `Col ${col}`}
@@ -492,22 +492,22 @@ export const LotGenealogyTree = ({ lotNumber, open, onOpenChange }: LotGenealogy
 
         {/* Legend */}
         <div className="px-5 py-2.5 border-t bg-slate-50/80 shrink-0 flex items-center gap-3 flex-wrap">
-          <span className="text-[11px] font-bold text-slate-400">Légende</span>
+          <span className="text-xs font-bold text-slate-400">Légende</span>
           {(Object.entries(NODE_STYLE) as [GenealogyNodeType, NodeStyle][])
             .filter(([type]) => positioned.some((n) => n.type === type))
             .map(([type, s]) => (
               <div key={type} className="flex items-center gap-1.5">
                 <span className={cn('h-2.5 w-2.5 rounded-full', s.dot)} />
-                <span className="text-[11px] text-muted-foreground">{s.label}</span>
+                <span className="text-xs text-muted-foreground">{s.label}</span>
               </div>
             ))}
           <div className="flex items-center gap-1.5 ml-2">
             <svg width="20" height="6"><line x1="0" y1="3" x2="20" y2="3" stroke="#94a3b8" strokeWidth="1.5" markerEnd="url(#arrowhead)" /></svg>
-            <span className="text-[11px] text-muted-foreground">Flux</span>
+            <span className="text-xs text-muted-foreground">Flux</span>
           </div>
           <div className="flex items-center gap-1.5">
             <svg width="20" height="6"><line x1="0" y1="3" x2="20" y2="3" stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="4,2" /></svg>
-            <span className="text-[11px] text-muted-foreground">Sortie</span>
+            <span className="text-xs text-muted-foreground">Sortie</span>
           </div>
         </div>
       </DialogContent>

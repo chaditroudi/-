@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { PRODUCT } from '@/lib/productMeta';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowRight, Eye, EyeOff, Lock, Mail, ShieldCheck } from 'lucide-react';
@@ -147,7 +148,7 @@ export default function Auth() {
                   type="button"
                   onClick={() => setShowPwd((v) => !v)}
                   className="absolute end-1.5 top-1/2 -translate-y-1/2 rounded-lg p-2.5 text-muted-foreground/50 transition-colors hover:bg-muted/60 hover:text-foreground"
-                  aria-label={showPwd ? 'Hide' : 'Show'}
+                  aria-label={showPwd ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                 >
                   {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -194,12 +195,9 @@ export default function Auth() {
 
       {/* ── Footer ── */}
       <footer className="absolute bottom-0 inset-x-0 border-t border-border/30 bg-white/50 py-3 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-[900px] items-center justify-between gap-3 px-5 text-[11px] text-muted-foreground/40">
+        <div className="mx-auto flex max-w-[900px] items-center justify-between gap-3 px-5 text-xs text-muted-foreground/40">
           <span>© {new Date().getFullYear()} {companyName}</span>
-          <span className="hidden sm:inline">Manufacturing Execution System</span>
-          <span className="rounded-full border border-primary/16 bg-primary/5 px-2 py-0.5 font-bold text-primary/50">
-            v2.0
-          </span>
+          <span>v{PRODUCT.version}</span>
         </div>
       </footer>
     </div>

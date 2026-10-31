@@ -72,7 +72,7 @@ export function ProductAboutPanel({ onOpenFiches }: ProductAboutPanelProps) {
             </Button>
           )}
         </div>
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           {PRODUCT.name} © {PRODUCT.year} — licence commerciale. Personnalisez marque et logo dans
           Paramètres → Marque.
         </p>

@@ -182,14 +182,14 @@ const NotificationDetailView = ({
 
         <div className="min-w-0 flex-1 overflow-hidden">
           <div className="flex flex-wrap items-center gap-1.5">
-            <Badge variant="outline" className={cn('h-4 border px-1.5 text-[11px]', cfg.color, cfg.border)}>
+            <Badge variant="outline" className={cn('h-4 border px-1.5 text-xs', cfg.color, cfg.border)}>
               {cfg.label}
             </Badge>
-            <Badge variant="outline" className="h-4 px-1.5 text-[11px]">
+            <Badge variant="outline" className="h-4 px-1.5 text-xs">
               {notification.category}
             </Badge>
             {!notification.is_read && (
-              <Badge className="h-4 bg-primary px-1.5 text-[11px]">Nouveau</Badge>
+              <Badge className="h-4 bg-primary px-1.5 text-xs">Nouveau</Badge>
             )}
           </div>
         </div>
@@ -212,7 +212,7 @@ const NotificationDetailView = ({
 
         {/* Info grid */}
         <div className="px-4 pb-4 pt-4">
-          <p className="mb-3 text-[11px] font-bold text-muted-foreground/50">
+          <p className="mb-3 text-xs font-bold text-muted-foreground/50">
             Informations
           </p>
           <div className="space-y-2.5">
@@ -237,7 +237,7 @@ const NotificationDetailView = ({
           <>
             <Separator />
             <div className="px-4 pb-4 pt-4">
-              <p className="mb-3 text-[11px] font-bold text-muted-foreground/50">
+              <p className="mb-3 text-xs font-bold text-muted-foreground/50">
                 Contexte
               </p>
               <div className="space-y-2.5">
@@ -382,7 +382,7 @@ export const NotificationCenter = () => {
             <span className="absolute inset-0 rounded-[9px] border border-primary/30 animate-pulse" />
           )}
           {unreadCount > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[11px] font-bold text-destructive-foreground">
+            <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-xs font-bold text-destructive-foreground">
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}
@@ -413,7 +413,7 @@ export const NotificationCenter = () => {
                 <div className="mt-0.5 flex items-center gap-2">
                   <Badge
                     variant={livePulseActive ? 'default' : 'outline'}
-                    className="h-4 rounded-full px-2 text-[11px]"
+                    className="h-4 rounded-full px-2 text-xs"
                   >
                     Live
                   </Badge>
@@ -455,7 +455,7 @@ export const NotificationCenter = () => {
                 { label: t('alerts.warnings'),  value: warningCount,  accent: 'text-amber-600' },
               ].map(({ label, value, accent }) => (
                 <div key={label} className="rounded-lg border bg-background px-2.5 py-1.5">
-                  <p className="text-[11px] leading-none text-muted-foreground">{label}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{label}</p>
                   <p className={cn('mt-1 text-[15px] font-semibold leading-none', accent)}>{value}</p>
                 </div>
               ))}
@@ -464,7 +464,7 @@ export const NotificationCenter = () => {
             {/* Live / recent strip */}
             {recentLive.length > 0 && (
               <div className="border-b px-3 py-3">
-                <p className="mb-2 text-[11px] font-bold text-muted-foreground/50">
+                <p className="mb-2 text-xs font-bold text-muted-foreground/50">
                   Récentes
                 </p>
                 <div className="space-y-1.5">
@@ -477,7 +477,7 @@ export const NotificationCenter = () => {
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span className="truncate text-[12.5px] font-medium">{n.title}</span>
-                        <span className="shrink-0 text-[11px] text-muted-foreground">
+                        <span className="shrink-0 text-xs text-muted-foreground">
                           {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale })}
                         </span>
                       </div>

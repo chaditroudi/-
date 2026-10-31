@@ -431,7 +431,7 @@ export function ExportDashboard() {
                           {order.order_ref}
                           {order.atp_ship_week && (
                             <span
-                              className="mt-0.5 block text-[10px] font-normal text-muted-foreground"
+                              className="mt-0.5 block text-xs font-normal text-muted-foreground"
                               title={`Promis ${order.atp_confidence} · ${order.atp_basis ?? ''}`}
                             >
                               ATP {order.atp_ship_week}

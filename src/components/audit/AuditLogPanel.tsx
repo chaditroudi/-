@@ -187,7 +187,7 @@ export const AuditLogPanel = () => {
 
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <Badge variant="outline" className={cn('px-1.5 py-0 text-[11px]', aColor)}>
+                        <Badge variant="outline" className={cn('px-1.5 py-0 text-xs', aColor)}>
                           {aLabel}
                         </Badge>
                         {log.module && (

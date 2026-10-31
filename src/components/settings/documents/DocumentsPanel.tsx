@@ -141,7 +141,7 @@ export function DocumentsPanel({ settings }: Props) {
               placeholder="09999999"
               className="font-mono"
             />
-            <p className="text-[11px] text-amber-900/80">
+            <p className="text-xs text-amber-900/80">
               {String(documents.gs1_company_prefix || '09999999') === '09999999'
                 ? 'Placeholder — non conforme retail. Remplacer après adhésion GS1 Tunisie.'
                 : 'Préfixe configuré — vérifier auprès de GS1 Tunisie avant production retail.'}

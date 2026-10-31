@@ -87,11 +87,11 @@ export function PalettePanel({ currentUser = 'Utilisateur' }: { currentUser?: st
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-mono font-semibold text-sm">{pal.palette_number}</span>
-                    <Badge className={`text-[11px] px-1.5 ${STATUS_STYLE[pal.status]}`}>
+                    <Badge className={`text-xs px-1.5 ${STATUS_STYLE[pal.status]}`}>
                       {STATUS_LABELS[pal.status]}
                     </Badge>
                     {order && (
-                      <Badge variant="outline" className="text-[11px] px-1">{order.order_number}</Badge>
+                      <Badge variant="outline" className="text-xs px-1">{order.order_number}</Badge>
                     )}
                   </div>
                   <div className="text-xs text-muted-foreground mt-0.5 flex gap-3 flex-wrap">
@@ -104,7 +104,7 @@ export function PalettePanel({ currentUser = 'Utilisateur' }: { currentUser?: st
                       <span>Scellée: {format(new Date(pal.sealed_at), 'dd/MM HH:mm', { locale: fr })}</span>
                     )}
                     {pal.sscc && (
-                      <span className="font-mono text-[11px]">SSCC: {pal.sscc}</span>
+                      <span className="font-mono text-xs">SSCC: {pal.sscc}</span>
                     )}
                   </div>
                 </div>

@@ -5,7 +5,7 @@
 export const PRODUCT = {
   name: 'Date Harvest Hub',
   /** Shown when company_name is not configured yet */
-  commercialName: 'MES Dattes',
+  commercialName: 'Date Harvest Hub',
   tagline: 'MES + Connect pour usines de dattes — du quai à l’export.',
   version: '2.1.0',
   edition: 'Multi-usine',

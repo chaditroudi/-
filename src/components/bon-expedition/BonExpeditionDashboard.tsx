@@ -170,10 +170,10 @@ export function BonExpeditionDashboard({
                       {statBadge.label}
                     </Badge>
                     {b.bio_certifie && (
-                      <Badge variant="outline" className="text-[10px] border-emerald-300 text-emerald-700">BIO</Badge>
+                      <Badge variant="outline" className="text-xs border-emerald-300 text-emerald-700">BIO</Badge>
                     )}
                     {b.ggp && (
-                      <Badge variant="outline" className="text-[10px] border-sky-300 text-sky-700">GGP</Badge>
+                      <Badge variant="outline" className="text-xs border-sky-300 text-sky-700">GGP</Badge>
                     )}
                   </div>
                   <p className="text-sm font-medium text-foreground truncate">

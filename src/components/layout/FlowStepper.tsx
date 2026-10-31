@@ -137,7 +137,7 @@ export function FlowStepper({ activeTab, accessibleTabs, onNavigate }: FlowStepp
               >
                 <span
                   className={cn(
-                    "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold",
+                    "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold",
                     isCurrent
                       ? "bg-primary text-primary-foreground"
                       : isDone

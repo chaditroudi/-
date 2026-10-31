@@ -53,19 +53,19 @@ export function AtpPromisePanel() {
         {summary.data && (
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             <div className="rounded-xl border px-3 py-2">
-              <p className="text-[11px] text-muted-foreground">Stock validé</p>
+              <p className="text-xs text-muted-foreground">Stock validé</p>
               <p className="font-semibold">{summary.data.available_validated_kg.toLocaleString('fr-TN')} kg</p>
             </div>
             <div className="rounded-xl border px-3 py-2">
-              <p className="text-[11px] text-muted-foreground">Palettes scellées</p>
+              <p className="text-xs text-muted-foreground">Palettes scellées</p>
               <p className="font-semibold">{summary.data.sealed_ready_kg.toLocaleString('fr-TN')} kg</p>
             </div>
             <div className="rounded-xl border px-3 py-2">
-              <p className="text-[11px] text-muted-foreground">Capacité libre</p>
+              <p className="text-xs text-muted-foreground">Capacité libre</p>
               <p className="font-semibold">{summary.data.free_storage_capacity_kg.toLocaleString('fr-TN')} kg</p>
             </div>
             <div className="rounded-xl border px-3 py-2">
-              <p className="text-[11px] text-muted-foreground">Exemple semaine</p>
+              <p className="text-xs text-muted-foreground">Exemple semaine</p>
               <p className="font-semibold">{summary.data.next_ship_week_sample}</p>
             </div>
           </div>

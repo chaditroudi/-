@@ -84,15 +84,15 @@ export function MarginCockpitPanel() {
           <>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <div className="rounded-xl border px-3 py-2.5">
-                <p className="text-[11px] text-muted-foreground">Coût / kg</p>
+                <p className="text-xs text-muted-foreground">Coût / kg</p>
                 <p className="text-lg font-semibold">{hasProduction ? fmt(data.totals.cost_tnd_per_kg, 3) : '—'}</p>
               </div>
               <div className="rounded-xl border px-3 py-2.5">
-                <p className="text-[11px] text-muted-foreground">Cible</p>
+                <p className="text-xs text-muted-foreground">Cible</p>
                 <p className="text-lg font-semibold">{fmt(data.totals.target_cost_tnd_per_kg, 3)}</p>
               </div>
               <div className="rounded-xl border px-3 py-2.5">
-                <p className="text-[11px] text-muted-foreground">Écart vs cible</p>
+                <p className="text-xs text-muted-foreground">Écart vs cible</p>
                 {hasProduction ? (
                   <p className={`flex items-center gap-1 text-lg font-semibold ${overTarget ? 'text-amber-700' : 'text-emerald-700'}`}>
                     {overTarget ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
@@ -103,7 +103,7 @@ export function MarginCockpitPanel() {
                 )}
               </div>
               <div className="rounded-xl border px-3 py-2.5">
-                <p className="text-[11px] text-muted-foreground">Déchets</p>
+                <p className="text-xs text-muted-foreground">Déchets</p>
                 <p className="text-lg font-semibold">{fmt(data.totals.waste_kg, 1)} kg</p>
               </div>
             </div>
@@ -130,7 +130,7 @@ export function MarginCockpitPanel() {
               </div>
             </div>
 
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Sources: {data.sources.triage_sessions} triage · {data.sources.packaging_orders} OF ·{' '}
               {data.sources.reception_lots_with_purchase_cost} lots avec achat
               {data.sources.mass_balance_unbalanced != null && data.sources.mass_balance_unbalanced > 0

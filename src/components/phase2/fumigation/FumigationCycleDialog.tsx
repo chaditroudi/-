@@ -444,7 +444,7 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
                 <div className="text-xs font-semibold text-muted-foreground">
                   Double signature CCP obligatoire (RG-FUM-12)
                 </div>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   Chaque visa demande le code signature numérique (4–6 chiffres) du signataire.
                 </p>
                 <div className="grid grid-cols-2 gap-3">
@@ -456,7 +456,7 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
                           <div className="text-sm font-semibold">{cycle.operator_name}</div>
                           <div className="text-xs">{new Date(cycle.operator_signed_at).toLocaleString('fr-FR')}</div>
                           {cycle.operator_pin_verified ? (
-                            <div className="text-[10px] text-emerald-700">PIN vérifié</div>
+                            <div className="text-xs text-emerald-700">PIN vérifié</div>
                           ) : null}
                         </div>
                       </div>
@@ -481,7 +481,7 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
                           <div className="text-sm font-semibold">{cycle.quality_inspector_name}</div>
                           <div className="text-xs">{new Date(cycle.quality_signed_at).toLocaleString('fr-FR')}</div>
                           {cycle.quality_pin_verified ? (
-                            <div className="text-[10px] text-emerald-700">PIN vérifié</div>
+                            <div className="text-xs text-emerald-700">PIN vérifié</div>
                           ) : null}
                         </div>
                       </div>

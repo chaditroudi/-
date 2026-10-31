@@ -1,11 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap');
+@import './assets/fonts/barlow.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ═══════════════════════════════════════════════════════════════
-   ROYAL PALM — Design System Tokens
+   DATE HARVEST HUB — Design System Tokens
    ═══════════════════════════════════════════════════════════════ */
 @layer base {
   :root {
@@ -161,8 +161,13 @@
 
   /* Touch devices: guarantee comfortable hit areas on small toggle controls */
   @media (pointer: coarse) {
+    /* Fixed heights set on a single button still reach a finger on the factory floor. */
+    button, [role='button'], [role='tab'], [role='menuitem'], a[href] {
+      min-height: 2.75rem;
+    }
     [role='checkbox'], [role='radio'], [role='switch'] {
       position: relative;
+      min-height: 0;
     }
     [role='checkbox']::after, [role='radio']::after, [role='switch']::after {
       content: '';

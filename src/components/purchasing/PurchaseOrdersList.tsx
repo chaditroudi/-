@@ -144,12 +144,12 @@ export const PurchaseOrdersList = ({
                             <span className="font-mono text-sm">{order.order_number}</span>
                             <div className="flex flex-wrap gap-1">
                               {order.order_type && (
-                                <Badge className={`${orderTypeColors[order.order_type]} text-white text-[11px] py-0`}>
+                                <Badge className={`${orderTypeColors[order.order_type]} text-white text-xs py-0`}>
                                   {orderTypeLabels[order.order_type]}
                                 </Badge>
                               )}
                               {isLate && (
-                                <Badge className="bg-red-600 text-white text-[11px] py-0">
+                                <Badge className="bg-red-600 text-white text-xs py-0">
                                   Retard {lateDays} j
                                 </Badge>
                               )}
@@ -210,12 +210,12 @@ export const PurchaseOrdersList = ({
                             </Badge>
                             <div className="flex flex-wrap gap-1">
                               {order.receipt_status && order.receipt_status !== 'not_received' && (
-                                <Badge variant="outline" className={`text-[11px] py-0 ${purchaseOrderReceiptStatusColors[order.receipt_status]}`}>
+                                <Badge variant="outline" className={`text-xs py-0 ${purchaseOrderReceiptStatusColors[order.receipt_status]}`}>
                                   {purchaseOrderReceiptStatusLabels[order.receipt_status]}
                                 </Badge>
                               )}
                               {order.invoice_status && order.invoice_status !== 'not_invoiced' && (
-                                <Badge variant="outline" className={`text-[11px] py-0 ${purchaseOrderInvoiceStatusColors[order.invoice_status]}`}>
+                                <Badge variant="outline" className={`text-xs py-0 ${purchaseOrderInvoiceStatusColors[order.invoice_status]}`}>
                                   {purchaseOrderInvoiceStatusLabels[order.invoice_status]}
                                 </Badge>
                               )}

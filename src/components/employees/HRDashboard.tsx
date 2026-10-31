@@ -976,7 +976,7 @@ export function HRDashboard() {
             <ClipboardList className="h-3.5 w-3.5" />
             Tâches
             {(urgentTasks > 0 || pendingCount > 0) && (
-              <Badge className="ml-1 h-4 px-1.5 text-[11px] bg-amber-500 text-white">
+              <Badge className="ml-1 h-4 px-1.5 text-xs bg-amber-500 text-white">
                 {urgentTasks > 0 ? `${urgentTasks} urgent` : pendingCount}
               </Badge>
             )}

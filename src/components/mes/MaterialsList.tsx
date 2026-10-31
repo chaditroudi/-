@@ -116,7 +116,7 @@ export const MaterialsList = ({ materials, canManage = true }: MaterialsListProp
                                 {current} / {material.min_stock}
                               </span>
                               {isBelow && (
-                                <Badge className="bg-amber-500 text-white text-[11px]">Sous seuil</Badge>
+                                <Badge className="bg-amber-500 text-white text-xs">Sous seuil</Badge>
                               )}
                             </div>
                           );

@@ -232,7 +232,7 @@ export function Phase2AlertsPanel() {
                     )}
                   >
                     <span>{module}</span>
-                    <span className={cn('rounded-full px-1.5 py-0.5 text-[11px]', isActive ? 'bg-white/16 text-primary-foreground' : 'bg-muted text-foreground')}>
+                    <span className={cn('rounded-full px-1.5 py-0.5 text-xs', isActive ? 'bg-white/16 text-primary-foreground' : 'bg-muted text-foreground')}>
                       {count}
                     </span>
                   </button>
@@ -247,13 +247,13 @@ export function Phase2AlertsPanel() {
             <TabsList className="border">
               <TabsTrigger value="active" className="px-3 py-2 sm:text-sm">
                 Actives
-                <span className="ml-2 rounded-full bg-red-100 px-1.5 py-0.5 text-[11px] font-semibold text-red-700">
+                <span className="ml-2 rounded-full bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-700">
                   {filteredActive.length}
                 </span>
               </TabsTrigger>
               <TabsTrigger value="history" className="px-3 py-2 sm:text-sm">
                 Historique
-                <span className="ml-2 rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-foreground">
+                <span className="ml-2 rounded-full bg-muted px-1.5 py-0.5 text-xs font-semibold text-foreground">
                   {filteredAcknowledged.length}
                 </span>
               </TabsTrigger>
@@ -432,10 +432,10 @@ function AlertRow({
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-sm font-semibold text-foreground">{alert.title}</p>
-            <Badge className={cn('rounded-full border px-2 py-0.5 text-[11px] font-semibold', LEVEL_BADGE[level])}>
+            <Badge className={cn('rounded-full border px-2 py-0.5 text-xs font-semibold', LEVEL_BADGE[level])}>
               {level}
             </Badge>
-            <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[11px]">
+            <Badge variant="outline" className="rounded-full px-2 py-0.5 text-xs">
               {catalog.module}
             </Badge>
             <span className="font-mono text-xs text-muted-foreground">{notificationCode}</span>

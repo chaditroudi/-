@@ -121,7 +121,7 @@ const PROD_STATUS: Record<string, string> = {
 
 const Kv = ({ label, value, mono }: { label: string; value?: React.ReactNode; mono?: boolean }) => (
   <div>
-    <p className="text-[11px] font-medium text-muted-foreground">{label}</p>
+    <p className="text-xs font-medium text-muted-foreground">{label}</p>
     <p className={cn('text-sm font-semibold mt-0.5', mono && 'font-mono')}>{value ?? '—'}</p>
   </div>
 );
@@ -163,7 +163,7 @@ const ChainNode = ({ done, active, label, Icon }: { done: boolean; active?: bool
     )}>
       <Icon className="h-4 w-4" />
     </div>
-    <span className={cn('text-[11px] font-semibold text-center leading-tight',
+    <span className={cn('text-xs font-semibold text-center leading-tight',
       done ? 'text-emerald-700' : active ? 'text-blue-600' : 'text-gray-300',
     )}>{label}</span>
   </div>
@@ -632,7 +632,7 @@ const StockTab = ({ data }: { data: LotTraceabilityData }) => {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-gray-100 border">{m.movement_type}</span>
+                    <span className="font-mono text-xs px-1.5 py-0.5 rounded bg-gray-100 border">{m.movement_type}</span>
                     <span className="font-medium">{fmtKg(m.quantity)} {m.unit || 'kg'}</span>
                     {m.performed_by && <span className="text-muted-foreground">· {m.performed_by}</span>}
                   </div>
@@ -728,11 +728,11 @@ const HistoriqueTab = ({ data, liveAt }: { data: LotTraceabilityData; liveAt: st
                 <div className="pb-2 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-xs font-semibold">{ev.title}</span>
-                    <span className="text-[11px] text-muted-foreground">{fmtDT(ev.timestamp)}</span>
-                    {ev.stage && <span className="text-[11px] px-1.5 py-0.5 rounded bg-gray-100 border font-mono">{ev.stage}</span>}
+                    <span className="text-xs text-muted-foreground">{fmtDT(ev.timestamp)}</span>
+                    {ev.stage && <span className="text-xs px-1.5 py-0.5 rounded bg-gray-100 border font-mono">{ev.stage}</span>}
                   </div>
                   {ev.detail && <p className="text-xs text-muted-foreground mt-0.5">{ev.detail}</p>}
-                  {ev.actor && <p className="text-[11px] text-muted-foreground">👤 {ev.actor}{ev.document_number ? ` · ${ev.document_number}` : ''}</p>}
+                  {ev.actor && <p className="text-xs text-muted-foreground">👤 {ev.actor}{ev.document_number ? ` · ${ev.document_number}` : ''}</p>}
                 </div>
               </div>
             ))}
@@ -760,7 +760,7 @@ const HistoriqueTab = ({ data, liveAt }: { data: LotTraceabilityData; liveAt: st
                   {log.module && <span className="text-muted-foreground"> · [{log.module}]</span>}
                   <p className="text-muted-foreground">{fmtDT(log.performed_at)}</p>
                   {log.changed_fields && log.changed_fields.length > 0 && (
-                    <p className="text-[11px] text-muted-foreground font-mono">Champs : {log.changed_fields.join(', ')}</p>
+                    <p className="text-xs text-muted-foreground font-mono">Champs : {log.changed_fields.join(', ')}</p>
                   )}
                 </div>
               </div>
@@ -945,7 +945,7 @@ const LotPassport = ({ lotCode, onClose }: { lotCode: string; onClose: () => voi
             { label: 'Pays origine', value: lot.origin_country },
           ].map(({ label, value, mono }) => (
             <div key={label} className="rounded-lg bg-white/70 border px-2.5 py-2 backdrop-blur-sm">
-              <p className="text-[11px] text-muted-foreground font-medium">{label}</p>
+              <p className="text-xs text-muted-foreground font-medium">{label}</p>
               <p className={cn('text-sm font-bold truncate mt-0.5', mono && 'font-mono', !value && 'text-muted-foreground')}>
                 {value || '—'}
               </p>
@@ -967,7 +967,7 @@ const LotPassport = ({ lotCode, onClose }: { lotCode: string; onClose: () => voi
         {/* Process chain */}
         {trace && (
           <div className="bg-white/60 rounded-lg border p-3">
-            <p className="text-[11px] font-semibold text-muted-foreground mb-2">Chaîne de transformation</p>
+            <p className="text-xs font-semibold text-muted-foreground mb-2">Chaîne de transformation</p>
             <ProcessBar data={trace} />
           </div>
         )}
@@ -1023,7 +1023,7 @@ const LotPassport = ({ lotCode, onClose }: { lotCode: string; onClose: () => voi
                 <Icon className="h-3.5 w-3.5" />
                 {label}
                 {count > 0 && (
-                  <span className="ml-1 inline-flex items-center justify-center h-4 min-w-[16px] px-1 rounded-full bg-primary/15 text-[11px] font-bold">
+                  <span className="ml-1 inline-flex items-center justify-center h-4 min-w-[16px] px-1 rounded-full bg-primary/15 text-xs font-bold">
                     {count}
                   </span>
                 )}

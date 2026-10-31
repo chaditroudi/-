@@ -183,14 +183,14 @@ function FicheCard({
               {index}
             </span>
           )}
-          <Badge variant="outline" className="font-mono text-[11px]">
+          <Badge variant="outline" className="font-mono text-xs">
             {fiche.code}
           </Badge>
-          <Badge variant="secondary" className="text-[11px]">
+          <Badge variant="secondary" className="text-xs">
             {ficheStageLabel(fiche)}
           </Badge>
         </div>
-        <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
           <Clock3 className="h-3 w-3" /> {fiche.durationMin} min
         </span>
       </div>

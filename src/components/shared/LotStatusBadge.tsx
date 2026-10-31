@@ -146,7 +146,7 @@ export const LotStatusBadge: React.FC<LotStatusBadgeProps> = ({
   const Icon = meta.icon;
 
   const sizeClasses = {
-    xs: "text-[10px] px-1.5 py-0.5 gap-1 leading-none rounded-md",
+    xs: "text-xs px-1.5 py-0.5 gap-1 leading-none rounded-md",
     sm: "text-xs px-2 py-0.5 gap-1.5 leading-tight rounded-md",
     default: "text-xs px-2.5 py-1 gap-1.5 leading-normal rounded-full",
   }[size];

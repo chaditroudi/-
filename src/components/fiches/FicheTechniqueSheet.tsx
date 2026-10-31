@@ -270,7 +270,7 @@ export function FicheTechniqueSheet({
             </h3>
             <div className="grid gap-2 sm:grid-cols-2">
               <div className="rounded-xl border p-3">
-                <p className="mb-1 text-[11px] font-semibold uppercase text-muted-foreground">Outils</p>
+                <p className="mb-1 text-xs font-semibold uppercase text-muted-foreground">Outils</p>
                 <ul className="space-y-1 text-sm">
                   {fiche.tools.map((t) => (
                     <li key={t}>· {t}</li>
@@ -278,7 +278,7 @@ export function FicheTechniqueSheet({
                 </ul>
               </div>
               <div className="rounded-xl border p-3">
-                <p className="mb-1 text-[11px] font-semibold uppercase text-muted-foreground">Documents</p>
+                <p className="mb-1 text-xs font-semibold uppercase text-muted-foreground">Documents</p>
                 <ul className="space-y-1 text-sm">
                   {fiche.documents.map((d) => (
                     <li key={d}>· {d}</li>

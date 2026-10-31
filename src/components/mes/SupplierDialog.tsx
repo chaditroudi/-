@@ -526,7 +526,7 @@ export const SupplierDialog = ({ open, onOpenChange, supplier, onSave, isLoading
                   <div className="space-y-2">
                     <Label>Email <span className="text-muted-foreground font-normal">(requis pour notifier le BC)</span></Label>
                     <Input type="email" value={formData.email} onChange={(event) => setField('email', event.target.value)} placeholder="achat@fournisseur.tn" />
-                    <p className="text-[11px] text-muted-foreground">À l&apos;envoi du bon de commande, un email est envoyé à cette adresse.</p>
+                    <p className="text-xs text-muted-foreground">À l&apos;envoi du bon de commande, un email est envoyé à cette adresse.</p>
                   </div>
                   <div className="space-y-2">
                     <Label>Document CIN / registre</Label>

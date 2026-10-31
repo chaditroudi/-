@@ -957,7 +957,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
           <TabsTrigger value="stock-pf" className="gap-1">
             Stock PF
             {finishedLots.filter((lot) => lot.status === 'VALIDATED').length > 0 && (
-              <span className="text-[11px] bg-emerald-100 text-emerald-700 rounded-full px-1.5 py-0.5 leading-none font-semibold">
+              <span className="text-xs bg-emerald-100 text-emerald-700 rounded-full px-1.5 py-0.5 leading-none font-semibold">
                 {finishedLots.filter((lot) => lot.status === 'VALIDATED').length}
               </span>
             )}
@@ -1105,7 +1105,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
                           <TableCell>
                             <div className="font-mono font-semibold text-sm">{lot.lot_number}</div>
                             {(lot as { quality_notes?: string }).quality_notes && (
-                              <div className="text-[11px] text-muted-foreground mt-0.5">{(lot as { quality_notes?: string }).quality_notes}</div>
+                              <div className="text-xs text-muted-foreground mt-0.5">{(lot as { quality_notes?: string }).quality_notes}</div>
                             )}
                           </TableCell>
                           <TableCell>
@@ -1113,7 +1113,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
                           </TableCell>
                           <TableCell>
                             <div className="text-xs">{lot.variety || '—'}</div>
-                            <div className="text-[11px] text-muted-foreground">{lot.origin_country || '—'}</div>
+                            <div className="text-xs text-muted-foreground">{lot.origin_country || '—'}</div>
                           </TableCell>
                           <TableCell>
                             <span className="font-medium">{Number(lot.current_quantity || 0).toLocaleString('fr-FR')}</span>

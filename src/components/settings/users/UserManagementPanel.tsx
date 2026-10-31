@@ -201,30 +201,30 @@ export function UserManagementPanel() {
                     <div className="text-xs text-muted-foreground truncate">{u.email}</div>
                     <div className="mt-1 flex flex-wrap gap-1">
                       {u.has_signature_pin ? (
-                        <Badge variant="outline" className="text-[10px] border-emerald-500 text-emerald-700">
+                        <Badge variant="outline" className="text-xs border-emerald-500 text-emerald-700">
                           <Lock className="h-2.5 w-2.5 mr-0.5" />
                           PIN
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className="text-[10px] text-amber-700 border-amber-300">
+                        <Badge variant="outline" className="text-xs text-amber-700 border-amber-300">
                           Sans PIN
                         </Badge>
                       )}
                       {(u.departments || []).map((dept) => (
-                        <Badge key={dept} variant="outline" className="text-[10px]">
+                        <Badge key={dept} variant="outline" className="text-xs">
                           {DEPARTMENT_LABELS[dept as DepartmentCode] || dept}
                           {u.primary_department === dept ? ' ★' : ''}
                         </Badge>
                       ))}
                       {(u.org_roles || []).map((role) => (
-                        <Badge key={role} className="text-[10px] bg-slate-700">
+                        <Badge key={role} className="text-xs bg-slate-700">
                           {ORG_ROLE_LABELS[role as OrgRole] || role}
                         </Badge>
                       ))}
                     </div>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
-                    <Badge variant={u.is_active ? 'default' : 'secondary'} className="text-[10px]">
+                    <Badge variant={u.is_active ? 'default' : 'secondary'} className="text-xs">
                       {u.is_active ? 'Actif' : 'Inactif'}
                     </Badge>
                     <Button variant="ghost" className="h-7 w-7" onClick={() => openEdit(u)}>
@@ -331,7 +331,7 @@ export function UserManagementPanel() {
                   </button>
                 ))}
               </div>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Un employé Stock voit Stock ; seul le responsable Stock de son département reçoit
                 la notification d&apos;approbation — pas tous les rôles stock.
               </p>
@@ -342,7 +342,7 @@ export function UserManagementPanel() {
                 <Lock className="h-3.5 w-3.5" />
                 Code signature numérique
               </Label>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 {editUser?.has_signature_pin
                   ? 'PIN déjà défini — saisissez un nouveau code pour le remplacer (laisse vide pour ne pas changer).'
                   : 'Aucun PIN — définir 4 à 6 chiffres pour les visas CCP / réglementés.'}

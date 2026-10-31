@@ -123,7 +123,7 @@ export default function PassportPage() {
                     <p className="text-sm font-medium">{claim.label}</p>
                     <p className="text-sm text-slate-700 mt-0.5">{formatValue(claim.value)}</p>
                   </div>
-                  <span className={`text-[11px] font-semibold ${claim.verified ? 'text-emerald-700' : 'text-amber-700'}`}>
+                  <span className={`text-xs font-semibold ${claim.verified ? 'text-emerald-700' : 'text-amber-700'}`}>
                     {claim.verified ? 'Vérifié' : 'Non vérifié'}
                   </span>
                 </div>
@@ -135,7 +135,7 @@ export default function PassportPage() {
           <h2 className="text-sm font-semibold text-slate-500">Empreinte de l'historique</h2>
           <p className="font-mono text-xs break-all text-slate-700">{data.tipHash || '—'}</p>
           <p className="text-xs text-slate-500">{data.disclaimer}</p>
-          <p className="text-[11px] text-slate-400">Vérifié le {new Date(data.verifiedAt).toLocaleString('fr-TN')}</p>
+          <p className="text-xs text-slate-400">Vérifié le {new Date(data.verifiedAt).toLocaleString('fr-TN')}</p>
         </section>
       </div>
     </div>

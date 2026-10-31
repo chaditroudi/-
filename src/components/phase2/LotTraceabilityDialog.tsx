@@ -645,7 +645,7 @@ export function LotTraceabilityDialog({ open, onOpenChange, lotNumber }: Props) 
                               <div className="min-w-0 flex-1">
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <span className="text-sm font-medium">{event.title}</span>
-                                  <Badge variant="outline" className="text-[11px]">{event.stage}</Badge>
+                                  <Badge variant="outline" className="text-xs">{event.stage}</Badge>
                                 </div>
                                 <div className="text-xs text-muted-foreground mt-0.5">{event.detail}</div>
                                 <div className="text-xs text-muted-foreground mt-1">

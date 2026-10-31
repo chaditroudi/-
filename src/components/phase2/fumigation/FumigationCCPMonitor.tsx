@@ -101,7 +101,7 @@ export function FumigationCCPMonitor({ cycle }: Props) {
                 )}
               </Badge>
               {deviceVerifiedCount > 0 && (
-                <span className="text-[11px] text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   {deviceVerifiedCount} lecture{deviceVerifiedCount > 1 ? 's' : ''} appareil
                   {latest?.device_code ? ` · ${latest.device_code}` : ''}
                 </span>

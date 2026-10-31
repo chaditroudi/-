@@ -20,7 +20,7 @@ import { setMassBalanceToleranceReader } from "../trust/mass-balance.js";
 
 const DEFAULT_SETTINGS = {
   id: "global",
-  company_name: "MES Dattes",
+  company_name: "Date Harvest Hub",
   company_short_name: "MES",
   company_legal_name: null,
   site_code: "USINE-01",

@@ -643,7 +643,7 @@ export const RequisitionsList = ({
                           return (
                             <div key={step.level} className="flex items-center gap-2.5 px-3 py-2 text-sm">
                               <span className={cn(
-                                'flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold',
+                                'flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold',
                                 sig ? 'bg-emerald-600 text-white' : isNext ? 'bg-amber-500 text-white' : 'bg-muted text-muted-foreground',
                               )}>
                                 {sig ? '✓' : '•'}
@@ -654,7 +654,7 @@ export const RequisitionsList = ({
                                   {sig.approved_by} · {format(new Date(sig.approved_at), 'dd/MM HH:mm', { locale: fr })}
                                 </span>
                               ) : isNext ? (
-                                <Badge className="bg-amber-500 text-white text-[11px]">À signer</Badge>
+                                <Badge className="bg-amber-500 text-white text-xs">À signer</Badge>
                               ) : (
                                 <span className="text-xs text-muted-foreground/60">En attente</span>
                               )}

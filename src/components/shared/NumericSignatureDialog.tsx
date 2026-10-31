@@ -91,7 +91,7 @@ export function NumericSignaturePad({
         })}
       </div>
 
-      <p className="text-[11px] text-muted-foreground text-center">
+      <p className="text-xs text-muted-foreground text-center">
         Code signature à 4–6 chiffres (personnel)
       </p>
 
