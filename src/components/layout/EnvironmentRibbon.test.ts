@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { describeEnvironment } from './EnvironmentRibbon';
+import { describeEnvironment } from '@/lib/environmentLabel';
 
 describe('describeEnvironment', () => {
   it('stays out of the way in production', () => {

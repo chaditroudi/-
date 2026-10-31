@@ -1,5 +1,6 @@
 import { resolveApiBaseUrl } from './apiTarget';
 import { axiosClient } from './axiosClient';
+import { setRealtimeState } from './realtimeStatus';
 
 /**
  * Native EventSource-based SSE client for the NestJS realtime endpoint.
@@ -78,23 +79,31 @@ export class SseConnection {
       if (!this.es || Date.now() - this.lastMessageAt < SILENT_STREAM_MS) return;
       this.es.close();
       this.es = null;
+      setRealtimeState('reconnecting');
       this.scheduleReconnect();
     }, WATCHDOG_INTERVAL_MS);
   }
 
   private async connect() {
     if (this.closed || this.connecting) return;
-    if (!hasSession()) return; // no session — will retry when subscribe() is called
+    if (!hasSession()) { // no session — will retry when subscribe() is called
+      setRealtimeState('idle');
+      return;
+    }
 
     const generation = this.generation;
     this.connecting = true;
+    setRealtimeState(this.connectedOnce ? 'reconnecting' : 'connecting');
     let url: string;
     try {
       url = await requestStreamUrl();
     } catch {
       if (generation !== this.generation) return;
       this.connecting = false;
-      if (!this.closed) this.scheduleReconnect();
+      if (!this.closed) {
+        setRealtimeState('reconnecting');
+        this.scheduleReconnect();
+      }
       return;
     }
     if (generation !== this.generation) return;
@@ -121,6 +130,7 @@ export class SseConnection {
         const payload = JSON.parse(e.data);
         const reconnected = this.connectedOnce;
         this.connectedOnce = true;
+        setRealtimeState('live');
         this.emit({ eventName: 'connected', payload: { ...payload, reconnected } });
       } catch { /* ignore */ }
     });
@@ -129,6 +139,7 @@ export class SseConnection {
       this.lastMessageAt = Date.now();
       try {
         const payload = JSON.parse(e.data);
+        setRealtimeState('live');
         this.emit({ eventName: 'ping', payload });
       } catch { /* ignore */ }
     });
@@ -136,7 +147,10 @@ export class SseConnection {
     this.es.onerror = () => {
       this.es?.close();
       this.es = null;
-      if (!this.closed) this.scheduleReconnect();
+      if (!this.closed) {
+        setRealtimeState('reconnecting');
+        this.scheduleReconnect();
+      }
     };
   }
 
@@ -169,6 +183,7 @@ export class SseConnection {
     this.es = null;
     this.connectedOnce = false;
     this.reconnectDelay = RECONNECT_DELAY_MS;
+    setRealtimeState('idle');
     void this.connect();
   }
 
@@ -180,6 +195,7 @@ export class SseConnection {
     this.es?.close();
     this.es = null;
     this.subscribers.clear();
+    setRealtimeState('idle');
   }
 }
 

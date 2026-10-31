@@ -1,4 +1,6 @@
 import { useEffect } from 'react';
+import { failureMessage } from '@/lib/apiErrors';
+import { ApiRequestError } from '@/lib/axiosClient';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { getSseConnection } from '@/lib/sseClient';
@@ -13,6 +15,7 @@ import {
   receptionUpserted,
   selectAllReceptions,
   selectReceptionsError,
+  selectReceptionsErrorStatus,
   selectReceptionsInitialized,
   selectReceptionsStatus,
   selectReceptionStats as selectReceptionStatsFromStore,
@@ -51,6 +54,7 @@ export const useReceptionsV2 = (options?: QueryOptions) => {
   const data = useAppSelector(selectAllReceptions);
   const status = useAppSelector(selectReceptionsStatus);
   const errorMessage = useAppSelector(selectReceptionsError);
+  const errorStatus = useAppSelector(selectReceptionsErrorStatus);
   const initialized = useAppSelector(selectReceptionsInitialized);
 
   useEffect(() => {
@@ -73,7 +77,7 @@ export const useReceptionsV2 = (options?: QueryOptions) => {
     isLoading: enabled && (!initialized || status === 'loading'),
     isFetching: status === 'loading',
     isError: Boolean(errorMessage),
-    error: errorMessage ? new Error(errorMessage) : null,
+    error: errorMessage ? new ApiRequestError({ message: errorMessage, status: errorStatus }) : null,
     refetch: () => dispatch(fetchReceptions()).unwrap(),
   };
 };
@@ -261,7 +265,7 @@ export const useCreateReceptionLot = () => {
 
 /** RTK Query rejects with the server message as a plain string. */
 export const receptionErrorMessage = (error: unknown, fallback: string) =>
-  typeof error === 'string' ? error : error instanceof Error ? error.message : fallback;
+  failureMessage(error, fallback);
 
 /**
  * Post-QC lot status change. The server checks the QC decision, the signature

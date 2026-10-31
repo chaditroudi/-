@@ -331,8 +331,8 @@ export const useLotSuggestions = (productId: string, requestedQty: number) => {
 
 // ── All reception lots (unified storage view) ──────────────────────────────────
 
-export const useAllReceptionLots = (stockStatus?: StockLotStatus) => {
-  const result = useListAllReceptionLotsQuery(stockStatus ? { stockStatus } : undefined);
+export const useAllReceptionLots = (stockStatus?: StockLotStatus, options?: { enabled?: boolean }) => {
+  const result = useListAllReceptionLotsQuery(stockStatus ? { stockStatus } : undefined, { skip: !(options?.enabled ?? true) });
   return {
     ...result,
     data: (result.data ?? []) as Array<{

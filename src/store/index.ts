@@ -1,4 +1,5 @@
-import { combineReducers, configureStore, createAction, type UnknownAction } from '@reduxjs/toolkit';
+import { combineReducers, configureStore, createAction, isPlain, type UnknownAction } from '@reduxjs/toolkit';
+import { ApiRequestError } from '@/lib/axiosClient';
 import { receptionsApi } from './api/receptionsApi';
 import { productionApi } from './api/productionApi';
 import { batchesApi } from './api/batchesApi';
@@ -39,7 +40,8 @@ const rootReducer = (state: CombinedState | undefined, action: UnknownAction) =>
 export const store = configureStore({
   reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(
+    // A failure keeps its class in the store, so its status reaches the screen.
+    getDefaultMiddleware({ serializableCheck: { isSerializable: (value: unknown) => isPlain(value) || value instanceof ApiRequestError } }).concat(
       receptionsApi.middleware,
       productionApi.middleware,
       batchesApi.middleware,

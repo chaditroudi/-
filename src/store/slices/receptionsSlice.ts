@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { ApiRequestError } from '@/lib/axiosClient';
 
 import { receptionsApi } from '@/lib/api/receptions';
 import type { ReceptionHeaderStatus, ReceptionV2, QCDecisionType } from '@/types/reception';
@@ -10,6 +11,7 @@ interface ReceptionsState {
   items: ReceptionV2[];
   status: AsyncStatus;
   error: string | null;
+  errorStatus: number | null;
   initialized: boolean;
   lastSyncedAt: string | null;
 }
@@ -18,6 +20,7 @@ const initialState: ReceptionsState = {
   items: [],
   status: 'idle',
   error: null,
+  errorStatus: null,
   initialized: false,
   lastSyncedAt: null,
 };
@@ -54,13 +57,16 @@ const upsertReceptionList = (items: ReceptionV2[], reception: ReceptionV2) => {
   return sortReceptions(next);
 };
 
-export const fetchReceptions = createAsyncThunk<ReceptionV2[], void, { rejectValue: string }>(
+export const fetchReceptions = createAsyncThunk<ReceptionV2[], void, { rejectValue: { message: string; status: number | null } }>(
   'receptions/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
       return await receptionsApi.list();
     } catch (error) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Impossible de charger les réceptions.');
+      return rejectWithValue({
+        message: error instanceof Error ? error.message : 'Impossible de charger les réceptions.',
+        status: error instanceof ApiRequestError ? error.status : null,
+      });
     }
   },
 );
@@ -128,7 +134,8 @@ const receptionsSlice = createSlice({
       })
       .addCase(fetchReceptions.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload || action.error.message || 'Impossible de charger les réceptions.';
+        state.error = action.payload?.message || action.error.message || 'Impossible de charger les réceptions.';
+        state.errorStatus = action.payload?.status ?? null;
       })
       .addCase(hydrateReceptionById.fulfilled, (state, action) => {
         state.items = upsertReceptionList(state.items, action.payload);
@@ -158,6 +165,8 @@ export const selectReceptionsStatus = createSelector(
   [selectReceptionsState],
   (state) => state.status,
 );
+
+export const selectReceptionsErrorStatus = (state: { receptions: ReceptionsState }) => state.receptions.errorStatus;
 
 export const selectReceptionsError = createSelector(
   [selectReceptionsState],

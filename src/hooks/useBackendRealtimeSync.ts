@@ -23,6 +23,20 @@ import { stockApi } from '@/store/api/stockApi';
 import { storageApi } from '@/store/api/storageApi';
 import { notificationsApi } from '@/store/api/notificationsApi';
 import type { ServerRealtimeEvent } from '@/integrations/mongodb/client';
+import type { AppDispatch } from '@/store';
+
+const invalidateApiTags = (dispatch: AppDispatch, apiName: string, tags: unknown) => {
+  switch (apiName) {
+    case 'receptions':    dispatch(receptionsApi.util.invalidateTags(tags as any)); break;
+    case 'production':    dispatch(productionApi.util.invalidateTags(tags as any)); break;
+    case 'batches':       dispatch(batchesApi.util.invalidateTags(tags as any)); break;
+    case 'suppliers':     dispatch(suppliersApi.util.invalidateTags(tags as any)); break;
+    case 'materials':     dispatch(materialsApi.util.invalidateTags(tags as any)); break;
+    case 'stock':         dispatch(stockApi.util.invalidateTags(tags as any)); break;
+    case 'storage':       dispatch(storageApi.util.invalidateTags(tags as any)); break;
+    case 'notifications': dispatch(notificationsApi.util.invalidateTags(tags as any)); break;
+  }
+};
 
 export const shouldRefetchNotificationsForEvent = (
   event: ServerRealtimeEvent,
@@ -77,10 +91,12 @@ export const useBackendRealtimeSync = () => {
     if (!user?.id) return;
 
     const refreshAfterReconnect = () => {
-      dispatch(receptionsApi.util.invalidateTags(RESOURCE_TAGS.receptions[0].tags as any));
-      dispatch(stockApi.util.invalidateTags(RESOURCE_TAGS.stock[0].tags as any));
+      for (const entries of Object.values(RESOURCE_TAGS)) {
+        for (const { api: apiName, tags } of entries) invalidateApiTags(dispatch, apiName, tags);
+      }
       void dispatch(fetchReceptions());
-      void queryClient.invalidateQueries({ queryKey: ['purchase_orders'] });
+      void dispatch(fetchNotifications({ force: true }));
+      void queryClient.invalidateQueries();
     };
 
     const sse = getSseConnection();
@@ -110,16 +126,7 @@ export const useBackendRealtimeSync = () => {
 
       for (const res of resourcesToInvalidate) {
         for (const { api: apiName, tags } of (RESOURCE_TAGS[res] ?? [])) {
-          switch (apiName) {
-            case 'receptions':    dispatch(receptionsApi.util.invalidateTags(tags as any)); break;
-            case 'production':    dispatch(productionApi.util.invalidateTags(tags as any)); break;
-            case 'batches':       dispatch(batchesApi.util.invalidateTags(tags as any)); break;
-            case 'suppliers':     dispatch(suppliersApi.util.invalidateTags(tags as any)); break;
-            case 'materials':     dispatch(materialsApi.util.invalidateTags(tags as any)); break;
-            case 'stock':         dispatch(stockApi.util.invalidateTags(tags as any)); break;
-            case 'storage':       dispatch(storageApi.util.invalidateTags(tags as any)); break;
-            case 'notifications': dispatch(notificationsApi.util.invalidateTags(tags as any)); break;
-          }
+          invalidateApiTags(dispatch, apiName, tags);
         }
       }
 

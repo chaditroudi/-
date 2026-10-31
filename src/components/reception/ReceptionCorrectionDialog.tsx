@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { failureMessage } from '@/lib/apiErrors';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -51,7 +52,7 @@ export const ReceptionCorrectionDialog = ({ reception, open, onOpenChange }: {
       toast.success('Correction enregistrée dans l\'historique');
       onOpenChange(false);
     } catch (error) {
-      toast.error(typeof error === 'string' ? error : 'Correction refusée');
+      toast.error(failureMessage(error, 'Correction refusée'));
     }
   };
 

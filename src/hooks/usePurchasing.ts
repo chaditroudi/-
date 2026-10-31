@@ -362,7 +362,7 @@ export const useCreatePurchaseOrder = () => {
         error?.message ||
         error?.details ||
         error?.hint ||
-        (typeof error === 'string' ? error : null) ||
+        (error instanceof Error ? error.message : typeof error === 'string' ? error : null) ||
         'Erreur lors de la création du BC';
       toast.error(msg);
     },

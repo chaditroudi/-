@@ -75,8 +75,10 @@ axiosClient.interceptors.response.use(
     const message =
       data?.error?.message ||
       (error.response?.status === 403
-        ? "You do not have permission to perform this action."
-        : `Request failed: ${error.response?.status ?? "network error"}`);
+        ? "Votre rôle ne permet pas cette action."
+        : error.response
+          ? `Le serveur a répondu par une erreur (${error.response.status}).`
+          : "Le serveur ne répond pas.");
     throw new ApiRequestError({
       message,
       status: error.response?.status ?? null,

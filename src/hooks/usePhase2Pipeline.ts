@@ -30,6 +30,10 @@ export interface Phase2PipelineSummary {
   totalKgWaiting: number;
   /** reception_id → stage info */
   lotStages: Map<string, LotPipelineInfo>;
+  isLoading: boolean;
+  /** First failure among the sources: the figures above are not reliable while it is set. */
+  error: unknown;
+  refetch: () => void;
 }
 
 const ACTIVE_STATUSES = new Set([
@@ -49,11 +53,24 @@ const FUM_LABEL: Record<string, string> = {
 
 export function usePhase2Pipeline(options?: { enabled?: boolean }): Phase2PipelineSummary {
   const enabled = options?.enabled ?? true;
-  const { data: availableLots = [] } = useAvailableLotsForPhase2({ enabled });
-  const { data: fumCycles = [] } = useFumigationCycles(undefined, { enabled });
-  const { data: netCycles = [] } = useCleaningCycles(undefined, { enabled });
-  const { data: hydCycles = [] } = useHydrationCycles(undefined, { enabled });
-  const { data: triSessions = [] } = useTriageSessions(undefined, { enabled });
+  const lotsQuery = useAvailableLotsForPhase2({ enabled });
+  const fumQuery = useFumigationCycles(undefined, { enabled });
+  const netQuery = useCleaningCycles(undefined, { enabled });
+  const hydQuery = useHydrationCycles(undefined, { enabled });
+  const triQuery = useTriageSessions(undefined, { enabled });
+  const { data: availableLots = [] } = lotsQuery;
+  const { data: fumCycles = [] } = fumQuery;
+  const { data: netCycles = [] } = netQuery;
+  const { data: hydCycles = [] } = hydQuery;
+  const { data: triSessions = [] } = triQuery;
+  const queries = [lotsQuery, fumQuery, netQuery, hydQuery, triQuery];
+  const isLoading = queries.some((query) => query.isLoading);
+  const error = queries.find((query) => query.error)?.error ?? null;
+  const refetchLots = lotsQuery.refetch;
+  const refetchFumigation = fumQuery.refetch;
+  const refetchCleaning = netQuery.refetch;
+  const refetchHydration = hydQuery.refetch;
+  const refetchTriage = triQuery.refetch;
 
   return useMemo(() => {
     const lotStages = new Map<string, LotPipelineInfo>();
@@ -153,6 +170,15 @@ export function usePhase2Pipeline(options?: { enabled?: boolean }): Phase2Pipeli
       completedToday,
       totalKgWaiting,
       lotStages,
+      isLoading,
+      error,
+      refetch: () => {
+        void refetchLots();
+        void refetchFumigation();
+        void refetchCleaning();
+        void refetchHydration();
+        void refetchTriage();
+      },
     };
-  }, [availableLots, fumCycles, netCycles, hydCycles, triSessions]);
+  }, [availableLots, fumCycles, netCycles, hydCycles, triSessions, isLoading, error, refetchLots, refetchFumigation, refetchCleaning, refetchHydration, refetchTriage]);
 }
