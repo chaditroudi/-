@@ -3,10 +3,20 @@ import { useQuery } from '@tanstack/react-query';
 import { trustApi } from '@/lib/api/trust';
 import { BadgeCheck, ShieldAlert, Leaf } from 'lucide-react';
 
+const VALUE_LABELS: Record<string, string> = {
+  EN_QUARANTAINE: 'En quarantaine',
+  STOCK_LIBERE: 'Libéré',
+  STOCK_REJETE: 'Rejeté',
+  NON_STOCKE: 'Non affecté',
+  ACCEPTE: 'Accepté',
+  REJETE: 'Rejeté',
+  QUARANTAINE: 'En quarantaine',
+};
+
 const formatValue = (value: string | number | boolean | null) => {
   if (value === null || value === undefined) return '—';
   if (typeof value === 'boolean') return value ? 'Oui' : 'Non';
-  return String(value);
+  return VALUE_LABELS[String(value)] ?? String(value);
 };
 
 export default function PassportPage() {
@@ -61,7 +71,7 @@ export default function PassportPage() {
               }`}
             >
               {data.valid ? <BadgeCheck className="h-3.5 w-3.5" /> : <ShieldAlert className="h-3.5 w-3.5" />}
-              {data.valid ? 'Chaîne hash vérifiée' : 'Chaîne compromise'}
+              {data.valid ? 'Historique vérifié' : 'Historique compromis'}
             </span>
             <span className="inline-flex rounded-full bg-white border px-3 py-1 text-xs font-medium">
               Fil d'or {data.goldenThread.progress.percent}%
@@ -81,7 +91,7 @@ export default function PassportPage() {
                       }`}
                     >
                       {ccpSensor.verified ? <BadgeCheck className="h-3.5 w-3.5" /> : <ShieldAlert className="h-3.5 w-3.5" />}
-                      CCP capteurs {ccpSensor.verified ? 'vérifiés' : 'non ancrés'}
+                      CCP capteurs {ccpSensor.verified ? 'vérifiés' : 'non vérifiés'}
                     </span>
                   )}
                   {coldIntact && (
@@ -103,7 +113,7 @@ export default function PassportPage() {
         </header>
 
         <section className="rounded-2xl border bg-white p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-slate-500">Claims vérifiables</h2>
+          <h2 className="text-sm font-semibold text-slate-500">Informations vérifiables</h2>
           <div className="divide-y">
             {data.claims
               .filter((claim) => claim.key !== 'tip_hash')
@@ -114,7 +124,7 @@ export default function PassportPage() {
                     <p className="text-sm text-slate-700 mt-0.5">{formatValue(claim.value)}</p>
                   </div>
                   <span className={`text-[11px] font-semibold ${claim.verified ? 'text-emerald-700' : 'text-amber-700'}`}>
-                    {claim.verified ? 'Ancré' : 'Non ancré'}
+                    {claim.verified ? 'Vérifié' : 'Non vérifié'}
                   </span>
                 </div>
               ))}
@@ -122,7 +132,7 @@ export default function PassportPage() {
         </section>
 
         <section className="rounded-2xl border bg-white p-5 space-y-2">
-          <h2 className="text-sm font-semibold text-slate-500">Empreinte tip</h2>
+          <h2 className="text-sm font-semibold text-slate-500">Empreinte de l'historique</h2>
           <p className="font-mono text-xs break-all text-slate-700">{data.tipHash || '—'}</p>
           <p className="text-xs text-slate-500">{data.disclaimer}</p>
           <p className="text-[11px] text-slate-400">Vérifié le {new Date(data.verifiedAt).toLocaleString('fr-TN')}</p>

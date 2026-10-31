@@ -56,7 +56,7 @@ export const GoldenThreadPanel = ({ onOpenScan }: { onOpenScan?: () => void }) =
           <Link2 className="h-4 w-4" />
           Fil d'or — Deglet Nour premium
         </CardTitle>
-        <Button size="sm" variant="ghost" onClick={() => refetch()} disabled={isFetching}>
+        <Button size="sm" variant="ghost" aria-label="Actualiser le fil d'or" onClick={() => refetch()} disabled={isFetching}>
           <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? 'animate-spin' : ''}`} />
         </Button>
       </CardHeader>

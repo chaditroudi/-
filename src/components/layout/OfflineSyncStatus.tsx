@@ -101,7 +101,7 @@ export const OfflineSyncStatus = () => {
 
   return (
     <div
-      className={`fixed bottom-20 right-4 z-[100] flex max-w-sm items-center gap-3 rounded-xl border px-4 py-3 text-sm backdrop-blur ${
+      className={`fixed inset-x-4 top-14 z-[100] flex md:inset-x-auto md:bottom-4 md:left-[248px] md:top-auto md:max-w-sm items-center gap-3 rounded-xl border px-4 py-3 text-sm backdrop-blur ${
         !online || needsLogin
           ? 'border-amber-300 bg-amber-50/95 text-amber-950'
           : 'bg-background/95 shadow-lg'

@@ -348,7 +348,7 @@ export const PurchasingDashboard = ({
         },
         {
           label: t('common.total'),
-          value: `${((stats?.orders.monthlyAmount || 0) / 1000).toFixed(1)}k`,
+          value: (stats?.orders.monthlyAmount || 0).toLocaleString('fr-FR', { maximumFractionDigits: 0 }),
           icon: TrendingUp,
           color: 'text-emerald-500',
           bg: 'bg-emerald-500/10',

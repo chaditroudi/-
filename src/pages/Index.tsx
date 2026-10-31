@@ -34,7 +34,7 @@ const DocumentsWorkspace     = lazy(() => import('@/components/documents/Documen
 const FichesTechniquesHub    = lazy(() => import('@/components/fiches').then(m => ({ default: m.FichesTechniquesHub })));
 const SuppliersList          = lazy(() => import('@/components/mes/SuppliersList').then(m => ({ default: m.SuppliersList })));
 const MaterialsList          = lazy(() => import('@/components/mes/MaterialsList').then(m => ({ default: m.MaterialsList })));
-const AlertsDashboard        = lazy(() => import('@/components/batches/AlertsDashboard').then(m => ({ default: m.AlertsDashboard })));
+const AlertsCenter           = lazy(() => import('@/pages/AlertsCenter'));
 const StorageZonesOverview   = lazy(() => import('@/components/batches/StorageZonesOverview').then(m => ({ default: m.StorageZonesOverview })));
 const ProductionWorkspace    = lazy(() => import('@/components/production/ProductionWorkspace').then(m => ({ default: m.ProductionWorkspace })));
 const PackagingDashboard     = lazy(() => import('@/components/packaging/PackagingDashboard').then(m => ({ default: m.PackagingDashboard })));
@@ -361,7 +361,7 @@ const Index = () => {
       case 'storage':
         return <StorageZonesOverview canManage={canManageStorageZones} />;
       case 'alerts':
-        return <AlertsDashboard />;
+        return <AlertsCenter embedded />;
       case 'production':
         return (
           <ProductionWorkspace
@@ -506,7 +506,7 @@ const Index = () => {
           </div>
         )}
 
-        <main className="min-w-0 flex-1 overflow-x-clip">
+        <div className="min-w-0 flex-1 overflow-x-clip">
           <div className="mx-auto w-full max-w-[1800px] px-3 py-3 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-5 md:pb-8 lg:px-6 lg:py-6">
             <div key={activeTab} className="animate-page-enter w-full">
               <Suspense fallback={<TabLoader />}>
@@ -514,7 +514,7 @@ const Index = () => {
               </Suspense>
             </div>
           </div>
-        </main>
+        </div>
 
         <footer className="flex items-center justify-between gap-2 border-t border-border/40 px-4 py-2 text-[11px] text-muted-foreground/50 sm:px-5 lg:px-6">
           <span>

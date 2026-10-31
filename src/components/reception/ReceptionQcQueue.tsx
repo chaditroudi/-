@@ -114,8 +114,8 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                     {awaitingQc.map((r) => (
                       <div key={r.id} className="flex w-full items-center justify-between gap-3 px-3 py-2">
                         <div>
-                          <span className="font-mono text-sm font-semibold">{r.reception_number}</span>
-                          <span className="ml-2 text-xs text-muted-foreground">{r.supplier?.name || r.supplier_name_snapshot || '—'} • {r.quantity_total} {r.unit}</span>
+                          <span className="block whitespace-nowrap font-mono text-sm font-semibold">{r.reception_number}</span>
+                          <span className="text-xs text-muted-foreground">{r.supplier?.name || r.supplier_name_snapshot || '—'} • {r.quantity_total} {r.unit}</span>
                         </div>
                         <Button type="button" size="sm" className="text-xs" onClick={(e) => { e.stopPropagation(); handleStartQC(r); }}>
                           <Shield className="mr-1 h-3 w-3" />
@@ -135,8 +135,8 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                     {inQc.map((r) => (
                       <div key={r.id} className="flex w-full items-center justify-between gap-3 px-3 py-2">
                         <div>
-                          <span className="font-mono text-sm font-semibold">{r.reception_number}</span>
-                          <span className="ml-2 text-xs text-muted-foreground">{r.supplier?.name || r.supplier_name_snapshot || '—'} • {r.quantity_total} {r.unit}</span>
+                          <span className="block whitespace-nowrap font-mono text-sm font-semibold">{r.reception_number}</span>
+                          <span className="text-xs text-muted-foreground">{r.supplier?.name || r.supplier_name_snapshot || '—'} • {r.quantity_total} {r.unit}</span>
                         </div>
                         <Button type="button" size="sm" className="bg-sky-600 text-xs hover:bg-sky-700" onClick={(e) => { e.stopPropagation(); handleStartQC(r); }}>
                           <Shield className="mr-1 h-3 w-3" />
@@ -162,7 +162,7 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                           className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left hover:bg-muted/60"
                         >
                           <div className="min-w-0">
-                            <span className="font-mono text-sm font-semibold">{rec.reception_number}</span>
+                            <span className="block whitespace-nowrap font-mono text-sm font-semibold">{rec.reception_number}</span>
                             <span className="ml-2 text-xs text-muted-foreground">
                               {rec.supplier?.name || rec.supplier_name_snapshot || '—'} • {(insp.lab_analyses ?? []).join(', ')}
                             </span>

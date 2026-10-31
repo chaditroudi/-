@@ -505,9 +505,9 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
 
       {/* ── Header ── */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Real-time indicator */}
-          <div className="flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5">
+          <div className="flex items-center gap-1.5 whitespace-nowrap rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
             <Zap className="h-3 w-3 text-emerald-600" />
             <span className="text-xs font-semibold text-emerald-700">

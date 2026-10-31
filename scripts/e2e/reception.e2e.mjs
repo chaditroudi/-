@@ -192,7 +192,7 @@ const addPhotos = async (page) => {
 
 const stepOne = async (page, { supplier, note, plate = "123 TU 4567", orderNumber }) => {
   // Toasts last 5 s but pause under the pointer, so move it away and let them clear.
-  await page.mouse.move(600, 700);
+  await page.mouse.move(1000, 300);
   await until(async () => !(await page.$("[data-sonner-toast]")), "notifications cleared", 12000);
   await clickByText(page, "Nouvelle réception", { exact: true });
   await waitText(page, "Fournisseur & livraison");

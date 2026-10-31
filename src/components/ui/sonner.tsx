@@ -14,7 +14,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       // Every primary action sits on the right and the phone's sit at the bottom, so notifications
       // take the free corner: beside the sidebar on a desk, at the top on a phone.
       position={isMobile ? "top-center" : "bottom-left"}
-      offset={{ bottom: 16, left: 248 }}
+      offset={{ bottom: 88, left: 248 }}
       mobileOffset={{ top: 56 }}
       richColors
       theme="light"

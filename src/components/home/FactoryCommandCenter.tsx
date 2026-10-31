@@ -78,7 +78,7 @@ const ProcessNode = ({ label, Icon, count, subtext, isActive, colorText, colorBo
       {isActive && (
         <span className={cn('absolute inset-[-3px] rounded-full border hidden opacity-30', colorBorder)} />
       )}
-      <Icon className={cn('h-6 w-6 transition-colors duration-500', isActive ? colorText : 'text-slate-600')} />
+      <Icon className={cn('h-6 w-6 transition-colors duration-500', isActive ? colorText : 'text-slate-300')} />
       {isActive && count > 0 && (
         <span className={cn(
           'absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full text-[11px] font-bold flex items-center justify-center bg-slate-950',
@@ -90,12 +90,12 @@ const ProcessNode = ({ label, Icon, count, subtext, isActive, colorText, colorBo
     </div>
     <div className="text-center">
       <p className={cn('text-[11px] font-bold uppercase transition-colors duration-500',
-        isActive ? colorText : 'text-slate-600'
+        isActive ? colorText : 'text-slate-300'
       )}>
         {label}
       </p>
       {subtext && (
-        <p className={cn('text-[11px] tabular-nums mt-0.5', isActive ? 'text-slate-400' : 'text-slate-700')}>
+        <p className={cn('text-[11px] tabular-nums mt-0.5', isActive ? 'text-slate-400' : 'text-slate-300')}>
           {subtext}
         </p>
       )}
@@ -150,13 +150,13 @@ const KpiCard = ({ label, value, sub, icon, accent, glow }: KpiProps) => (
   )}>
     <div className={cn('absolute inset-0 opacity-5 rounded-xl', accent)} />
     <div className="flex items-center justify-between">
-      <span className="text-xs font-semibold text-slate-500">{label}</span>
+      <span className="text-xs font-semibold text-slate-300">{label}</span>
       <span className={cn('h-8 w-8 rounded-lg flex items-center justify-center', accent + '/20')}>
         <span className={cn('text-current', accent.replace('bg-', 'text-'))}>{icon}</span>
       </span>
     </div>
     <p className="text-2xl font-black tabular-nums text-white leading-none">{value}</p>
-    {sub && <p className="text-xs text-slate-500">{sub}</p>}
+    {sub && <p className="text-xs text-slate-300">{sub}</p>}
   </div>
 );
 
@@ -167,7 +167,7 @@ const YieldRow = ({ label, kgIn, yieldPct, colorClass }: { label: string; kgIn: 
     <div className="flex items-center justify-between text-xs">
       <span className="text-slate-400">{label}</span>
       <div className="flex items-center gap-3">
-        <span className="text-slate-500 tabular-nums">{fmtKg(kgIn)}</span>
+        <span className="text-slate-300 tabular-nums">{fmtKg(kgIn)}</span>
         <span className={cn('font-bold tabular-nums', colorClass)}>{fmtPct(yieldPct)}</span>
       </div>
     </div>
@@ -334,7 +334,7 @@ export const FactoryCommandCenter = () => {
               <Activity className="h-5 w-5 text-emerald-400" />
             </div>
             <div>
-              <p className="text-[11px] font-bold text-slate-500">{footprint || companyName}</p>
+              <p className="text-[11px] font-bold text-slate-300">{footprint || companyName}</p>
               <p className="text-base font-bold text-white leading-tight">Centre de Commande Usine</p>
             </div>
           </div>
@@ -343,7 +343,7 @@ export const FactoryCommandCenter = () => {
             {/* LIVE badge */}
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-red-500/30 bg-red-500/10">
               <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-              <span className="text-xs font-bold text-red-400">EN DIRECT</span>
+              <span className="text-xs font-bold text-red-300">EN DIRECT</span>
             </div>
 
             {/* Clock */}
@@ -351,7 +351,7 @@ export const FactoryCommandCenter = () => {
               <p className="text-xl font-mono font-bold text-white tabular-nums">
                 {clock.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
               </p>
-              <p className="text-[11px] text-slate-500 capitalize">
+              <p className="text-[11px] text-slate-300 capitalize">
                 {clock.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}
               </p>
             </div>
@@ -361,7 +361,7 @@ export const FactoryCommandCenter = () => {
               <Button
                 size="icon"
                 variant="ghost"
-                className="h-9 w-9 text-slate-500 hover:text-white hover:bg-slate-800"
+                className="h-9 w-9 text-slate-300 hover:text-white hover:bg-slate-800"
                 onClick={() => void refetch()}
                 disabled={isFetching}
                 title="Actualiser"
@@ -371,7 +371,7 @@ export const FactoryCommandCenter = () => {
               <Button
                 size="icon"
                 variant="ghost"
-                className="h-9 w-9 text-slate-500 hover:text-white hover:bg-slate-800"
+                className="h-9 w-9 text-slate-300 hover:text-white hover:bg-slate-800"
                 onClick={toggleFs}
                 title={isFs ? 'Quitter le plein écran' : 'Plein écran'}
               >
@@ -384,7 +384,7 @@ export const FactoryCommandCenter = () => {
         {/* ── Alert banner ─────────────────────────────────────────────────── */}
         {(critiques + urgences) > 0 && (
           <div className="flex items-center gap-3 px-5 py-2.5 bg-red-950/60 border-b border-red-800/50 shrink-0">
-            <AlertTriangle className="h-4 w-4 text-red-400 shrink-0 animate-pulse" />
+            <AlertTriangle className="h-4 w-4 text-red-300 shrink-0 animate-pulse" />
             <span className="text-sm font-semibold text-red-300">
               {urgences > 0 ? `${urgences} URGENCE${urgences > 1 ? 'S' : ''} · ` : ''}
               {critiques > 0 ? `${critiques} alerte${critiques > 1 ? 's' : ''} critique${critiques > 1 ? 's' : ''}` : ''}
@@ -406,9 +406,9 @@ export const FactoryCommandCenter = () => {
           {/* ── Process flow ───────────────────────────────────────────────── */}
           <div className="bg-slate-900/60 rounded-xl border border-slate-800 p-5">
             <div className="flex items-center gap-2 mb-5">
-              <span className="text-[11px] font-bold text-slate-500">Flux de production</span>
+              <span className="text-[11px] font-bold text-slate-300">Flux de production</span>
               {lf && (
-                <span className="text-[11px] text-slate-600">
+                <span className="text-[11px] text-slate-300">
                   · {active?.total ?? 0} processus actif{(active?.total ?? 0) !== 1 ? 's' : ''}
                 </span>
               )}
@@ -484,7 +484,7 @@ export const FactoryCommandCenter = () => {
               </div>
 
               {packagingDetail.length === 0 ? (
-                <p className="text-sm text-slate-600 py-4 text-center">Aucune ligne active en ce moment</p>
+                <p className="text-sm text-slate-300 py-4 text-center">Aucune ligne active en ce moment</p>
               ) : (
                 <div className="space-y-2.5">
                   {packagingDetail.map((p) => {
@@ -495,11 +495,11 @@ export const FactoryCommandCenter = () => {
                           <div className="flex items-center gap-2">
                             <span className="h-1.5 w-1.5 rounded-full bg-orange-400 animate-pulse" />
                             <span className="text-xs font-mono font-semibold text-orange-300">{p.order_number}</span>
-                            {p.line && <span className="text-[11px] text-slate-500">· {p.line}</span>}
+                            {p.line && <span className="text-[11px] text-slate-300">· {p.line}</span>}
                           </div>
                           <div className="flex items-center gap-2 text-xs text-slate-400">
                             <span className="tabular-nums">{fmtN(p.produced_units)}/{fmtN(p.target_units)} u.</span>
-                            {p.started_at && <span className="text-slate-600">{elapsed(p.started_at)}</span>}
+                            {p.started_at && <span className="text-slate-300">{elapsed(p.started_at)}</span>}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -530,7 +530,7 @@ export const FactoryCommandCenter = () => {
               </div>
 
               {!today ? (
-                <p className="text-sm text-slate-600 py-4 text-center">En attente de données…</p>
+                <p className="text-sm text-slate-300 py-4 text-center">En attente de données…</p>
               ) : (
                 <div className="space-y-3 pt-1">
                   <YieldRow label="Fumigation"   kgIn={today.fumKgIn} yieldPct={today.fumYield} colorClass="text-violet-400" />
@@ -540,7 +540,7 @@ export const FactoryCommandCenter = () => {
 
                   {today.totalKgProcessed > 0 && (
                     <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
-                      <span className="text-xs text-slate-500">Total traité aujourd'hui</span>
+                      <span className="text-xs text-slate-300">Total traité aujourd'hui</span>
                       <span className="text-sm font-bold text-white tabular-nums">{fmtKg(today.totalKgProcessed)}</span>
                     </div>
                   )}
@@ -550,7 +550,7 @@ export const FactoryCommandCenter = () => {
               {/* Alert type breakdown */}
               {alertData?.topTypes && alertData.topTypes.length > 0 && (
                 <div className="pt-3 border-t border-slate-800 space-y-1.5">
-                  <p className="text-[11px] font-bold text-slate-600">Notifications par type</p>
+                  <p className="text-[11px] font-bold text-slate-300">Notifications par type</p>
                   {alertData.topTypes.slice(0, 3).map((t) => (
                     <div key={t.code} className="flex items-center justify-between text-xs">
                       <span className="text-slate-400">{ALERT_TYPE_LABELS[t.code] ?? t.code.replace(/_/g, ' ').toLowerCase()}</span>
@@ -563,7 +563,7 @@ export const FactoryCommandCenter = () => {
           </div>
 
           {/* ── Footer ─────────────────────────────────────────────────────── */}
-          <div className="flex items-center justify-between text-[11px] text-slate-700 pt-1">
+          <div className="flex items-center justify-between text-[11px] text-slate-300 pt-1">
             <span>{printFooter}</span>
             {lastUpdateStr && <span>Dernière actualisation : {lastUpdateStr}</span>}
           </div>

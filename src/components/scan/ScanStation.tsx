@@ -928,7 +928,7 @@ const LotPassport = ({ lotCode, onClose }: { lotCode: string; onClose: () => voi
             <Button size="icon" variant="ghost" className="h-9 w-9" onClick={() => window.print()} title="Imprimer">
               <Printer className="h-3.5 w-3.5" />
             </Button>
-            <Button size="icon" variant="ghost" className="h-9 w-9" onClick={onClose}>
+            <Button size="icon" variant="ghost" className="h-9 w-9" aria-label="Fermer" onClick={onClose}>
               <X className="h-3.5 w-3.5" />
             </Button>
           </div>
@@ -1169,6 +1169,7 @@ export const ScanStation = () => {
                 size="lg"
                 variant="outline"
                 className="h-12 shrink-0 px-5"
+                aria-label="Rechercher ce lot"
                 onClick={() => manualInput.trim() && loadLot(manualInput)}
                 disabled={!manualInput.trim()}
               >
