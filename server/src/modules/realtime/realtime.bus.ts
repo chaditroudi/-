@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 
 import { afterCommit, isInTransaction } from "../../db/transaction.js";
+import { EXTERNAL_ROLES } from "../../middleware/authorization.js";
 
 type RealtimeClient = {
   id: string;
@@ -80,25 +81,27 @@ export type RealtimeDbChangeEvent = {
   action: RealtimeDbAction;
   actorId?: string | null;
   rowIds?: string[];
-  rows?: unknown[];
-  before?: unknown[];
   relatedTables?: string[];
   at?: string;
   /**
    * When non-empty, the event is delivered only to clients whose roles
    * intersect targetRoles, or whose userId is in targetUserIds (directors/admins
-   * always receive it). Empty/omitted → broadcast to everyone (legacy behavior).
+   * always receive it). Empty/omitted → factory staff only, never external accounts.
    */
   targetRoles?: string[];
   targetUserIds?: string[];
 };
+
+const EXTERNAL = new Set(EXTERNAL_ROLES);
 
 const clientMatchesTarget = (
   client: RealtimeClient,
   targetRoles: string[],
   targetUserIds: string[],
 ): boolean => {
-  if (targetRoles.length === 0 && targetUserIds.length === 0) return true;
+  if (targetRoles.length === 0 && targetUserIds.length === 0) {
+    return client.seesAll || client.roles.some((role) => !EXTERNAL.has(role));
+  }
   if (client.seesAll) return true;
   if (client.userId && targetUserIds.includes(client.userId)) return true;
   return client.roles.some((role) => targetRoles.includes(role));
@@ -148,6 +151,7 @@ export const publishRealtimeDbChange = (event: RealtimeDbChangeEvent) => {
   const targetRoles = Array.from(new Set((event.targetRoles ?? []).map((r) => String(r || "").toLowerCase()).filter(Boolean)));
   const targetUserIds = Array.from(new Set((event.targetUserIds ?? []).map((u) => String(u || "")).filter(Boolean)));
 
+  // Ids only: a client reads the record through the API, where its role is checked.
   const payload = {
     id: nextEventId(),
     type: event.type || "db_change",
@@ -157,7 +161,6 @@ export const publishRealtimeDbChange = (event: RealtimeDbChangeEvent) => {
     action: event.action,
     actorId: event.actorId || null,
     rowIds: event.rowIds || [],
-    rows: event.rows || [],
   };
 
   for (const client of clients.values()) {

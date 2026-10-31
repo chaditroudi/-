@@ -46,7 +46,6 @@ export class PackagingController {
       type: "packaging_bom_created",
       table: "packaging_bom",
       action: "INSERT",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || "")].filter(Boolean),
     });
     return { data };
@@ -60,7 +59,6 @@ export class PackagingController {
       type: "packaging_bom_updated",
       table: "packaging_bom",
       action: "UPDATE",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || id)].filter(Boolean),
     });
     return { data };
@@ -74,7 +72,6 @@ export class PackagingController {
       type: "packaging_bom_toggled",
       table: "packaging_bom",
       action: "UPDATE",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || id)].filter(Boolean),
     });
     return { data };
@@ -95,7 +92,6 @@ export class PackagingController {
       type: "label_template_created",
       table: "label_templates",
       action: "INSERT",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || "")].filter(Boolean),
     });
     return { data };
@@ -109,7 +105,6 @@ export class PackagingController {
       type: "label_template_updated",
       table: "label_templates",
       action: "UPDATE",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || id)].filter(Boolean),
       relatedTables: ["packaging_bom"],
     });
@@ -124,7 +119,6 @@ export class PackagingController {
       type: "label_template_approved",
       table: "label_templates",
       action: "UPDATE",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || id)].filter(Boolean),
       relatedTables: ["packaging_bom"],
     });
@@ -139,7 +133,6 @@ export class PackagingController {
       type: "label_template_archived",
       table: "label_templates",
       action: "UPDATE",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || id)].filter(Boolean),
     });
     return { data };
@@ -160,7 +153,6 @@ export class PackagingController {
       type: "private_label_client_created",
       table: "private_label_clients",
       action: "INSERT",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || "")].filter(Boolean),
     });
     return { data };
@@ -174,7 +166,6 @@ export class PackagingController {
       type: "private_label_client_toggled",
       table: "private_label_clients",
       action: "UPDATE",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || id)].filter(Boolean),
     });
     return { data };
@@ -201,7 +192,6 @@ export class PackagingController {
       type: "packaging_order_created",
       table: "packaging_orders",
       action: "INSERT",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || "")].filter(Boolean),
       relatedTables: ["stock_lots", "stock_movements"],
     });
@@ -216,7 +206,6 @@ export class PackagingController {
       type: "packaging_order_started",
       table: "packaging_orders",
       action: "UPDATE",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || id)].filter(Boolean),
     });
     return { data };
@@ -230,7 +219,6 @@ export class PackagingController {
       type: "packaging_order_progress_updated",
       table: "packaging_orders",
       action: "UPDATE",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || id)].filter(Boolean),
     });
     return { data };
@@ -257,7 +245,6 @@ export class PackagingController {
       type: "packaging_order_closed",
       table: "packaging_orders",
       action: "UPDATE",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || id)].filter(Boolean),
     });
     return { data };
@@ -284,7 +271,6 @@ export class PackagingController {
       type: "packaging_palette_created",
       table: "packaging_palettes",
       action: "INSERT",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || "")].filter(Boolean),
     });
     return { data };

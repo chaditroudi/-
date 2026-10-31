@@ -165,7 +165,6 @@ export class NotificationEmitter {
       action: "INSERT",
       actorId: input.actorId || null,
       rowIds: [String(row.id || "")].filter(Boolean),
-      rows: [row],
       targetRoles,
       targetUserIds,
     });

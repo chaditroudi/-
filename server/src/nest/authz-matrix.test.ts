@@ -56,6 +56,7 @@ const ANY_ROLE_ROUTES = [
   "POST /api/auth/logout",
   "POST /api/auth/signature-pin",
   "POST /api/notifications/mark-all-read",
+  "POST /api/realtime/ticket",
   "POST /api/rpc/:name",
 ];
 
@@ -245,9 +246,33 @@ describe("authorization matrix", () => {
     expect((await call("GET", "/api/audit/stats", tokenFor("user-3", 4))).status).toBe(401);
   });
 
-  it("accepts a query token only on the realtime stream", async () => {
+  it("accepts no session token in a URL", async () => {
     const token = addUser("user-4", ["administrateur_systeme"]);
     expect((await call("GET", `/api/audit/stats?token=${token}`)).status).toBe(401);
+    expect((await call("GET", `/api/realtime/events?token=${token}`)).status).toBe(401);
+  });
+
+  it("opens the realtime stream with a single-use ticket", async () => {
+    const token = addUser("user-41", ["operateur_reception"]);
+    const issued = await call("POST", "/api/realtime/ticket", token);
+    expect(issued.status).toBe(201);
+    const { ticket } = (await issued.json()).data;
+
+    const stream = await call("GET", `/api/realtime/events?ticket=${ticket}`);
+    expect(stream.status).toBe(200);
+    await stream.body?.cancel();
+
+    expect((await call("GET", `/api/realtime/events?ticket=${ticket}`)).status).toBe(401);
+    expect((await call("GET", "/api/realtime/events")).status).toBe(401);
+  });
+
+  it("issues no realtime ticket without a session", async () => {
+    expect((await call("POST", "/api/realtime/ticket")).status).toBe(401);
+  });
+
+  it("marks answers as not to be stored", async () => {
+    const response = await call("GET", "/api/audit/stats", addUser("user-42", ["administrateur_systeme"]));
+    expect(response.headers.get("cache-control")).toBe("no-store");
   });
 
   it("holds an account with a pending password change at the change screen", async () => {

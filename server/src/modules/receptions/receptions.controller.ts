@@ -65,7 +65,7 @@ export class ReceptionsController {
   ) {}
 
   private publish(event: Parameters<typeof publishRealtimeDbChange>[0]) {
-    publishRealtimeDbChange({ ...event, rows: [], targetRoles: RECEPTION_EVENT_ROLES });
+    publishRealtimeDbChange({ ...event, targetRoles: RECEPTION_EVENT_ROLES });
   }
 
   @Get("receptions")

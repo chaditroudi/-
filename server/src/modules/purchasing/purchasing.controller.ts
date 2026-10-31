@@ -65,7 +65,6 @@ export class PurchasingController {
       type: "purchase_requisition_created",
       table: "purchase_requisitions",
       action: "INSERT",
-      rows: (data.requisitions as any[]) ?? [],
       rowIds: ((data.requisitions as any[]) ?? []).map((row) => String(row?.id || "")).filter(Boolean),
       relatedTables: ["purchasing_stats"],
     });
@@ -89,7 +88,6 @@ export class PurchasingController {
       type: "purchase_requisition_created",
       table: "purchase_requisitions",
       action: "INSERT",
-      rows: (data.requisitions as any[]) ?? [],
       rowIds: ((data.requisitions as any[]) ?? []).map((row) => String(row?.id || "")).filter(Boolean),
       relatedTables: ["purchasing_stats"],
     });
@@ -111,7 +109,6 @@ export class PurchasingController {
       type: "purchase_requisition_created",
       table: "purchase_requisitions",
       action: "INSERT",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || "")].filter(Boolean),
       relatedTables: ["purchasing_stats"],
     });
@@ -130,7 +127,6 @@ export class PurchasingController {
       type: "purchase_requisition_submitted",
       table: "purchase_requisitions",
       action: "UPDATE",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || id)].filter(Boolean),
       relatedTables: ["purchasing_stats"],
     });
@@ -145,7 +141,6 @@ export class PurchasingController {
       type: "purchase_requisition_updated",
       table: "purchase_requisitions",
       action: "UPDATE",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || id)].filter(Boolean),
       relatedTables: ["purchasing_stats"],
     });
@@ -164,7 +159,6 @@ export class PurchasingController {
       type: "purchase_requisition_approved",
       table: "purchase_requisitions",
       action: "UPDATE",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || id)].filter(Boolean),
       relatedTables: ["purchasing_stats"],
     });
@@ -184,7 +178,6 @@ export class PurchasingController {
       type: "purchase_requisition_rejected",
       table: "purchase_requisitions",
       action: "UPDATE",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || id)].filter(Boolean),
       relatedTables: ["purchasing_stats"],
     });
@@ -203,7 +196,6 @@ export class PurchasingController {
       type: "purchase_requisition_returned",
       table: "purchase_requisitions",
       action: "UPDATE",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || id)].filter(Boolean),
       relatedTables: ["purchasing_stats"],
     });
@@ -222,7 +214,6 @@ export class PurchasingController {
       type: "purchase_requisition_cancelled",
       table: "purchase_requisitions",
       action: "UPDATE",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || id)].filter(Boolean),
       relatedTables: ["purchasing_stats"],
     });
@@ -264,7 +255,6 @@ export class PurchasingController {
       type: "purchase_order_created",
       table: "purchase_orders",
       action: "INSERT",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || "")].filter(Boolean),
       relatedTables: ["purchase_order_lines", "purchase_requisitions", "purchasing_stats"],
     });
@@ -279,7 +269,6 @@ export class PurchasingController {
       type: "purchase_order_updated",
       table: "purchase_orders",
       action: "UPDATE",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || id)].filter(Boolean),
       relatedTables: ["purchase_order_lines", "purchase_requisitions", "purchasing_stats"],
     });
@@ -294,7 +283,6 @@ export class PurchasingController {
       type: "purchase_order_sent",
       table: "purchase_orders",
       action: "UPDATE",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || id)].filter(Boolean),
       relatedTables: ["purchasing_stats"],
     });
@@ -309,7 +297,6 @@ export class PurchasingController {
       type: "purchase_order_confirmed",
       table: "purchase_orders",
       action: "UPDATE",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || id)].filter(Boolean),
       relatedTables: ["purchasing_stats"],
     });
@@ -324,7 +311,6 @@ export class PurchasingController {
       type: "purchase_order_approved",
       table: "purchase_orders",
       action: "UPDATE",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || id)].filter(Boolean),
       relatedTables: ["purchasing_stats"],
     });
@@ -353,7 +339,6 @@ export class PurchasingController {
       type: "purchase_order_three_way_match_saved",
       table: "purchase_orders",
       action: "UPDATE",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || id)].filter(Boolean),
       relatedTables: ["purchasing_stats"],
     });
@@ -397,7 +382,6 @@ export class PurchasingController {
       type: "purchase_order_line_created",
       table: "purchase_order_lines",
       action: "INSERT",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || "")].filter(Boolean),
       relatedTables: ["purchase_orders", "purchasing_stats"],
     });
@@ -412,7 +396,6 @@ export class PurchasingController {
       type: "purchase_order_line_updated",
       table: "purchase_order_lines",
       action: "UPDATE",
-      rows: data ? [data] : [],
       rowIds: [String((data as any)?.id || id)].filter(Boolean),
       relatedTables: ["purchase_orders", "purchasing_stats"],
     });

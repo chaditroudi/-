@@ -12,13 +12,7 @@ import { auditTrailMiddleware } from "./middleware/security-audit.js";
 import { AppExceptionFilter } from "./nest/app-exception.filter.js";
 import { AppModule } from "./nest/app.module.js";
 
-/** EventSource cannot send headers, so only the realtime stream may use ?token=. */
-const REALTIME_EVENTS_PATH = "/api/realtime/events";
-
 const readToken = (req: any) => {
-  const queryToken = typeof req.query?.token === "string" ? req.query.token : "";
-  if (queryToken && req.path === REALTIME_EVENTS_PATH) return queryToken;
-
   const header = String(req.headers?.authorization || "");
   if (!header.startsWith("Bearer ")) {
     return null;
@@ -45,6 +39,11 @@ export const createApp = async () => {
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
   app.use(requestContextMiddleware);
+  // Answers depend on who asks, so nothing between here and the browser may keep one.
+  app.use((req: any, res: any, next: any) => {
+    if (req.path.startsWith("/api/")) res.setHeader("Cache-Control", "no-store");
+    next();
+  });
   app.use(async (req: any, _res: any, next: any) => {
     req.auth = await resolveAuthToken(readToken(req));
     next();

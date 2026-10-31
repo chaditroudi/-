@@ -29,7 +29,6 @@ const pub = (table: string, action: RealtimeDbAction, row: Record<string, unknow
     type: `${table}_${action.toLowerCase()}`,
     table,
     action,
-    rows: [row],
     rowIds: [String(row.id || "")].filter(Boolean),
   });
 

@@ -43,7 +43,6 @@ const publish = (type: string, action: "INSERT" | "UPDATE" | "DELETE", data: any
     type,
     table: "maintenance_requests",
     action,
-    rows: action === "DELETE" ? [] : data ? [data] : [],
     rowIds: [String((data as any)?.id || fallbackId || "")].filter(Boolean),
     relatedTables: ["maintenance_stats"],
   });

@@ -19,7 +19,7 @@ describe('useBackendRealtimeSync notification refresh rules', () => {
     const event: ServerRealtimeEvent = {
       table: 'system_notifications',
       action: 'INSERT',
-      rows: [{ id: 'notif-1' }],
+      rowIds: ['notif-1'],
     };
 
     expect(shouldRefetchNotificationsForEvent(event, 'system_notifications')).toBe(false);

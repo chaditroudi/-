@@ -42,26 +42,6 @@ type RelationOverride = {
   foreignKey?: string;
 };
 
-type RealtimeHandler = {
-  event: string;
-  filter: {
-    event?: string;
-    schema?: string;
-    table?: string;
-    filter?: string;
-  };
-  callback: (payload: {
-    eventType: string;
-    table?: string;
-    new?: unknown;
-    old?: unknown;
-    rows?: unknown[];
-    before?: unknown[];
-    relatedTables?: string[];
-    serverEvent?: ServerRealtimeEvent;
-  }) => void;
-};
-
 export type ServerRealtimeEvent = {
   id?: string;
   type?: string;
@@ -70,8 +50,6 @@ export type ServerRealtimeEvent = {
   action: 'INSERT' | 'UPDATE' | 'DELETE' | 'UPSERT' | 'SYNC' | string;
   actorId?: string | null;
   rowIds?: string[];
-  rows?: unknown[];
-  before?: unknown[];
   relatedTables?: string[];
 };
 
@@ -80,10 +58,6 @@ import { axiosClient, SESSION_ENDED_EVENT } from '../../lib/axiosClient';
 const AUTH_STORAGE_KEY = 'date-harvest-hub-session';
 
 const authListeners = new Set<(event: AuthChangeEvent, session: Session | null) => void>();
-const activeChannels = new Set<RealtimeChannel>();
-let eventSource: EventSource | null = null;
-let eventSourceToken: string | null = null;
-let reconnectTimer: number | null = null;
 
 const RELATION_OVERRIDES: Record<string, Record<string, RelationOverride>> = {
   alerts: {
@@ -395,182 +369,6 @@ const enrichRows = async (
   return enriched;
 };
 
-const parseRealtimeFilter = (value?: string) => {
-  if (!value) return null;
-  const match = value.match(/^([^=]+)=eq\.(.+)$/);
-  if (!match) return null;
-  return { column: match[1], value: match[2] };
-};
-
-const shouldDispatch = (handler: RealtimeHandler, table: string, eventType: string, payload: { new?: unknown; old?: unknown }) => {
-  if (handler.filter.table && handler.filter.table !== table) return false;
-  if (handler.filter.event && handler.filter.event !== '*' && handler.filter.event !== eventType) return false;
-
-  const condition = parseRealtimeFilter(handler.filter.filter);
-  if (!condition) return true;
-
-  const target = (payload.new || payload.old || {}) as Record<string, unknown>;
-  return String(target?.[condition.column] ?? '') === String(condition.value);
-};
-
-const emitRealtime = (table: string, eventType: string, payload: { new?: unknown; old?: unknown }) => {
-  activeChannels.forEach((channel) => {
-    channel.handlers.forEach((handler) => {
-      if (shouldDispatch(handler, table, eventType, payload)) {
-        handler.callback({ eventType, table, ...payload });
-      }
-    });
-  });
-};
-
-const getRealtimeUrl = (token: string) => {
-  const base = (axiosClient.defaults.baseURL || '/api').replace(/\/$/, '');
-  return `${base}/realtime/events?token=${encodeURIComponent(token)}`;
-};
-
-const closeRealtimeConnection = () => {
-  if (reconnectTimer !== null) {
-    window.clearTimeout(reconnectTimer);
-    reconnectTimer = null;
-  }
-
-  if (eventSource) {
-    eventSource.close();
-    eventSource = null;
-  }
-
-  eventSourceToken = null;
-};
-
-type RealtimeDispatchEntry = {
-  table: string;
-  new?: unknown;
-  old?: unknown;
-};
-
-export const getRealtimeDispatchEntries = (event: ServerRealtimeEvent): RealtimeDispatchEntry[] => {
-  const rows = Array.isArray(event.rows) ? event.rows : [];
-  const before = Array.isArray(event.before) ? event.before : [];
-  const primaryTable = String(event.table || '').trim();
-  const relatedTables = Array.from(
-    new Set((event.relatedTables || []).map((table) => String(table || '').trim()).filter(Boolean)),
-  ).filter((table) => table !== primaryTable);
-
-  const primaryEntries =
-    primaryTable.length === 0
-      ? []
-      : rows.length > 0
-        ? rows.map((row, index) => ({
-            table: primaryTable,
-            new: row,
-            old: before[index],
-          }))
-        : [{ table: primaryTable, new: undefined, old: undefined }];
-
-  const relatedEntries = relatedTables.map((table) => ({
-    table,
-    new: undefined,
-    old: undefined,
-  }));
-
-  return [...primaryEntries, ...relatedEntries];
-};
-
-const dispatchServerRealtimeEvent = (event: ServerRealtimeEvent) => {
-  const action = event.action || 'SYNC';
-  const rows = Array.isArray(event.rows) ? event.rows : [];
-  const before = Array.isArray(event.before) ? event.before : [];
-
-  activeChannels.forEach((channel) => {
-    channel.handlers.forEach((handler) => {
-      getRealtimeDispatchEntries(event).forEach((entry) => {
-        const payload = {
-          new: entry.new,
-          old: entry.old,
-        };
-
-        if (shouldDispatch(handler, entry.table, action, payload)) {
-          handler.callback({
-            eventType: action,
-            table: entry.table,
-            new: payload.new,
-            old: payload.old,
-            rows,
-            before,
-            relatedTables: event.relatedTables || [],
-            serverEvent: event,
-          });
-        }
-      });
-    });
-  });
-};
-
-const scheduleRealtimeReconnect = () => {
-  if (reconnectTimer !== null || activeChannels.size === 0) return;
-
-  reconnectTimer = window.setTimeout(() => {
-    reconnectTimer = null;
-    ensureRealtimeConnection(true);
-  }, 3000);
-};
-
-const ensureRealtimeConnection = (forceReconnect = false) => {
-  if (typeof window === 'undefined' || typeof EventSource === 'undefined') return;
-
-  const token = readStoredSession()?.access_token || null;
-  if (!token || activeChannels.size === 0) {
-    closeRealtimeConnection();
-    return;
-  }
-
-  if (!forceReconnect && eventSource && eventSourceToken === token) return;
-
-  closeRealtimeConnection();
-  eventSourceToken = token;
-  eventSource = new EventSource(getRealtimeUrl(token));
-
-  eventSource.addEventListener('db-change', (message) => {
-    try {
-      dispatchServerRealtimeEvent(JSON.parse((message as MessageEvent).data) as ServerRealtimeEvent);
-    } catch (error) {
-      console.error('Realtime event parse error:', error);
-    }
-  });
-
-  eventSource.onerror = () => {
-    closeRealtimeConnection();
-    scheduleRealtimeReconnect();
-  };
-};
-
-class RealtimeChannel {
-  name: string;
-  handlers: RealtimeHandler[] = [];
-
-  constructor(name: string) {
-    this.name = name;
-  }
-
-  on(event: string, filter: RealtimeHandler['filter'], callback: RealtimeHandler['callback']) {
-    this.handlers.push({ event, filter, callback });
-    return this;
-  }
-
-  subscribe() {
-    activeChannels.add(this);
-    ensureRealtimeConnection();
-    return this;
-  }
-
-  unsubscribe() {
-    activeChannels.delete(this);
-    if (activeChannels.size === 0) {
-      closeRealtimeConnection();
-    }
-  }
-}
-
 class MongoQueryBuilder implements PromiseLike<{ data: unknown; error: Error | null }> {
   private table: string;
   private mode: 'select' | 'insert' | 'update' | 'delete' = 'select';
@@ -681,7 +479,6 @@ class MongoQueryBuilder implements PromiseLike<{ data: unknown; error: Error | n
 
         const rows = response.data || [];
         resultData = this.withSelection ? await enrichRows(rows, this.table, this.selection) : rows;
-        rows.forEach((row) => emitRealtime(this.table, 'INSERT', { new: row }));
       }
 
       if (this.mode === 'update') {
@@ -696,8 +493,6 @@ class MongoQueryBuilder implements PromiseLike<{ data: unknown; error: Error | n
 
         const rows = response.data || [];
         resultData = this.withSelection ? await enrichRows(rows, this.table, this.selection) : rows;
-        const beforeMap = new Map((response.before || []).map((row) => [row.id, row]));
-        rows.forEach((row) => emitRealtime(this.table, 'UPDATE', { old: beforeMap.get(row.id), new: row }));
       }
 
       if (this.mode === 'delete') {
@@ -711,7 +506,6 @@ class MongoQueryBuilder implements PromiseLike<{ data: unknown; error: Error | n
 
         const rows = response.data || [];
         resultData = rows;
-        rows.forEach((row) => emitRealtime(this.table, 'DELETE', { old: row }));
       }
 
       if (this.expectSingle) {
@@ -796,7 +590,6 @@ export const mongodb = {
 
       writeStoredSession(response.data);
       emitAuthChange('SIGNED_IN', response.data);
-      ensureRealtimeConnection(true);
       return {
         data: response.data,
         error: null,
@@ -811,7 +604,6 @@ export const mongodb = {
 
       writeStoredSession(response.data);
       emitAuthChange('TOKEN_REFRESHED', response.data);
-      ensureRealtimeConnection(true);
       return { data: response.data, error: null };
     },
 
@@ -819,7 +611,6 @@ export const mongodb = {
       // Best effort: a dead network must not keep this device signed in.
       await request('/auth/logout', { method: 'POST' }).catch(() => undefined);
       writeStoredSession(null);
-      closeRealtimeConnection();
       emitAuthChange('SIGNED_OUT', null);
       return { error: null };
     },
@@ -844,19 +635,11 @@ export const mongodb = {
     }
   },
 
-  channel(name: string) {
-    return new RealtimeChannel(name);
-  },
-
-  removeChannel(channel: RealtimeChannel) {
-    channel.unsubscribe();
-  },
 };
 
 if (typeof window !== 'undefined') {
   window.addEventListener(SESSION_ENDED_EVENT, () => {
     writeStoredSession(null);
-    closeRealtimeConnection();
     emitAuthChange('SIGNED_OUT', null);
   });
 }

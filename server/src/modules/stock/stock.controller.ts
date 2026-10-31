@@ -140,7 +140,6 @@ export class StockController {
       table: "products",
       action: "INSERT",
       actorId: req.auth?.user?.id || null,
-      rows: [data[0]].filter(Boolean),
       rowIds: compactIds(data[0]?.id),
     });
     return { data: data[0] };
@@ -154,7 +153,6 @@ export class StockController {
       table: "products",
       action: "UPDATE",
       actorId: req.auth?.user?.id || null,
-      rows: [after[0]].filter(Boolean),
       rowIds: compactIds(id),
     });
     return { data: after[0] };
@@ -178,7 +176,6 @@ export class StockController {
       table: "stock_lots",
       action: "INSERT",
       actorId: req.auth?.user?.id || null,
-      rows: [data[0]].filter(Boolean),
       rowIds: compactIds(data[0]?.id),
       relatedTables: ["stock_summary"],
     });
@@ -193,7 +190,6 @@ export class StockController {
       table: "stock_lots",
       action: "UPDATE",
       actorId: req.auth?.user?.id || null,
-      rows: [after[0]].filter(Boolean),
       rowIds: compactIds(id),
       relatedTables: ["stock_summary"],
     });
@@ -216,7 +212,6 @@ export class StockController {
       table: "stock_locations",
       action: "UPDATE",
       actorId: req.auth?.user?.id || null,
-      rows: [after[0]].filter(Boolean),
       rowIds: compactIds(id),
     });
     return { data: after[0] };
@@ -261,7 +256,6 @@ export class StockController {
       table: "stock_movements",
       action: "INSERT",
       actorId: req.auth?.user?.id || null,
-      rows: [data[0]].filter(Boolean),
       rowIds: compactIds(data[0]?.id),
       relatedTables: ["stock_lots", "stock_summary"],
     });
@@ -328,7 +322,6 @@ export class StockController {
       table: "stock_alerts",
       action: "UPDATE",
       actorId: req.auth?.user?.id || null,
-      rows: [after[0]].filter(Boolean),
       rowIds: compactIds(id),
     });
     return { data: after[0] };
@@ -350,7 +343,6 @@ export class StockController {
       table: "inventory_counts",
       action: "INSERT",
       actorId: req.auth?.user?.id || null,
-      rows: [data[0]].filter(Boolean),
       rowIds: compactIds(data[0]?.id),
     });
     return { data: data[0] };
@@ -372,7 +364,6 @@ export class StockController {
       table: "shipment_preparations",
       action: "INSERT",
       actorId: req.auth?.user?.id || null,
-      rows: [data[0]].filter(Boolean),
       rowIds: compactIds(data[0]?.id),
     });
     return { data: data[0] };
@@ -386,7 +377,6 @@ export class StockController {
       table: "shipment_preparations",
       action: "UPDATE",
       actorId: req.auth?.user?.id || null,
-      rows: [after[0]].filter(Boolean),
       rowIds: compactIds(id),
     });
     return { data: after[0] };
@@ -410,7 +400,6 @@ export class StockController {
       table: "shipment_lines",
       action: "INSERT",
       actorId: req.auth?.user?.id || null,
-      rows: [data[0]].filter(Boolean),
       rowIds: compactIds(data[0]?.id),
       relatedTables: ["shipment_preparations"],
     });
@@ -425,7 +414,6 @@ export class StockController {
       table: "shipment_lines",
       action: "UPDATE",
       actorId: req.auth?.user?.id || null,
-      rows: [after[0]].filter(Boolean),
       rowIds: compactIds(id),
       relatedTables: ["shipment_preparations"],
     });
@@ -440,7 +428,6 @@ export class StockController {
       table: "shipment_lines",
       action: "DELETE",
       actorId: req.auth?.user?.id || null,
-      rows: [data[0]].filter(Boolean),
       rowIds: compactIds(id),
       relatedTables: ["shipment_preparations"],
     });
@@ -584,7 +571,6 @@ export class StockController {
       table: "stock_movements",
       action: "INSERT",
       actorId: req.auth?.user?.id || null,
-      rows: movementDocs,
       rowIds: compactIds(...movementDocs.map((doc) => doc.id), shipmentId, ...lotIds),
       relatedTables: ["stock_lots", "stock_summary", "shipment_preparations"],
     });

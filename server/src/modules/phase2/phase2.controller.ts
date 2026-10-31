@@ -79,7 +79,6 @@ export class Phase2Controller {
       action: "INSERT",
       actorId: req.auth?.user?.id || null,
       rowIds: compactIds((data as any)?.id),
-      rows: [data].filter(Boolean),
     });
     return { data };
   }
@@ -94,7 +93,6 @@ export class Phase2Controller {
       action: "UPDATE",
       actorId: req.auth?.user?.id || null,
       rowIds: compactIds(id),
-      rows: [data].filter(Boolean),
     });
     return { data };
   }
@@ -109,7 +107,6 @@ export class Phase2Controller {
       action: "UPDATE",
       actorId: req.auth?.user?.id || null,
       rowIds: compactIds(id),
-      rows: [data].filter(Boolean),
     });
     return { data };
   }
@@ -124,7 +121,6 @@ export class Phase2Controller {
       action: "UPDATE",
       actorId: req.auth?.user?.id || null,
       rowIds: compactIds(id),
-      rows: [data].filter(Boolean),
     });
     return { data };
   }
@@ -140,7 +136,6 @@ export class Phase2Controller {
       action: "INSERT",
       actorId: req.auth?.user?.id || null,
       rowIds: compactIds((result.data as any)?.id),
-      rows: [result.data].filter(Boolean),
       relatedTables: ["fumigation_cycles"],
     });
     return { data: result.data };
@@ -175,7 +170,6 @@ export class Phase2Controller {
       action: "INSERT",
       actorId: req.auth?.user?.id || null,
       rowIds: compactIds((data as any)?.id),
-      rows: [data].filter(Boolean),
     });
     return { data };
   }
@@ -190,7 +184,6 @@ export class Phase2Controller {
       action: "UPDATE",
       actorId: req.auth?.user?.id || null,
       rowIds: compactIds(id),
-      rows: result.cycle ? [result.cycle] : [],
     });
     return { data: result.data };
   }
@@ -205,7 +198,6 @@ export class Phase2Controller {
       action: "UPDATE",
       actorId: req.auth?.user?.id || null,
       rowIds: compactIds(id),
-      rows: [data].filter(Boolean),
     });
     return { data };
   }
@@ -239,7 +231,6 @@ export class Phase2Controller {
       action: "INSERT",
       actorId: req.auth?.user?.id || null,
       rowIds: compactIds((data as any)?.id),
-      rows: [data].filter(Boolean),
     });
     return { data };
   }
@@ -254,7 +245,6 @@ export class Phase2Controller {
       action: "UPDATE",
       actorId: req.auth?.user?.id || null,
       rowIds: compactIds(id),
-      rows: result.cycle ? [result.cycle] : [],
     });
     return { data: result.data };
   }
@@ -269,7 +259,6 @@ export class Phase2Controller {
       action: "UPDATE",
       actorId: req.auth?.user?.id || null,
       rowIds: compactIds(id),
-      rows: [data].filter(Boolean),
     });
     return { data };
   }
@@ -284,7 +273,6 @@ export class Phase2Controller {
       action: "UPDATE",
       actorId: req.auth?.user?.id || null,
       rowIds: compactIds(id),
-      rows: [data].filter(Boolean),
     });
     return { data };
   }
@@ -330,7 +318,6 @@ export class Phase2Controller {
       action: "INSERT",
       actorId: req.auth?.user?.id || null,
       rowIds: compactIds((data as any)?.id),
-      rows: [data].filter(Boolean),
     });
     return { data };
   }
@@ -345,7 +332,6 @@ export class Phase2Controller {
       action: "UPDATE",
       actorId: req.auth?.user?.id || null,
       rowIds: compactIds(id),
-      rows: result.session ? [result.session] : [],
     });
     return { data: result.data };
   }
@@ -361,7 +347,6 @@ export class Phase2Controller {
       action: "INSERT",
       actorId: req.auth?.user?.id || null,
       rowIds: compactIds((result.data as any)?.id),
-      rows: [result.data].filter(Boolean),
       relatedTables: ["triage_sessions"],
     });
     return { data: result.data };
@@ -377,7 +362,6 @@ export class Phase2Controller {
       action: "UPDATE",
       actorId: req.auth?.user?.id || null,
       rowIds: compactIds(id),
-      rows: result.session ? [result.session] : [],
       relatedTables: ["triage_sublots", "stock_lots", "stock_movements"],
     });
     return { data: result.data };
@@ -393,7 +377,6 @@ export class Phase2Controller {
       action: "UPDATE",
       actorId: req.auth?.user?.id || null,
       rowIds: compactIds(id),
-      rows: result.session ? [result.session] : [],
     });
     return { data: result.data };
   }
@@ -431,7 +414,6 @@ export class Phase2Controller {
         action: "UPDATE",
         actorId: req.auth?.user?.id || null,
         rowIds: compactIds((data as any)?.id),
-        rows: [data],
       });
     }
     return { data };
@@ -450,7 +432,6 @@ export class Phase2Controller {
         action: "UPDATE",
         actorId: req.auth?.user?.id || null,
         rowIds: compactIds(result.notifications.map((row: any) => row?.id)),
-        rows: result.notifications,
       });
     }
     return { data: result.data };

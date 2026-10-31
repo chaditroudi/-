@@ -1,29 +1,32 @@
 import { resolveApiBaseUrl } from './apiTarget';
+import { axiosClient } from './axiosClient';
 
 /**
  * Native EventSource-based SSE client for the NestJS realtime endpoint.
  *
  * Replaces the mongodb.channel() Supabase-facade with a plain HTTP SSE
  * connection to /api/realtime/events — no MongoDB SDK involved.
+ *
+ * EventSource cannot send headers, so the session token buys a single-use ticket
+ * and only that ticket goes in the URL.
  */
 
 const AUTH_STORAGE_KEY = 'date-harvest-hub-session';
 
-const getToken = (): string | null => {
+const hasSession = (): boolean => {
   try {
     const raw = localStorage.getItem(AUTH_STORAGE_KEY);
     const session = raw ? JSON.parse(raw) : null;
-    return session?.access_token ?? null;
+    return Boolean(session?.access_token);
   } catch {
-    return null;
+    return false;
   }
 };
 
-const getRealtimeUrl = (): string | null => {
-  const token = getToken();
-  if (!token) return null;
+const requestStreamUrl = async (): Promise<string> => {
+  const response = await axiosClient.post<{ data: { ticket: string } }>('/realtime/ticket');
   const base = resolveApiBaseUrl(import.meta.env.VITE_API_URL);
-  return `${base}/realtime/events?token=${encodeURIComponent(token)}`;
+  return `${base}/realtime/events?ticket=${encodeURIComponent(response.data.data.ticket)}`;
 };
 
 export type DbChangeEvent = {
@@ -36,7 +39,6 @@ export type DbChangeEvent = {
   action: 'INSERT' | 'UPDATE' | 'DELETE' | 'UPSERT' | 'SYNC';
   actorId?: string | null;
   rowIds?: string[];
-  rows?: unknown[];
   at?: string;
 };
 
@@ -62,9 +64,12 @@ export class SseConnection {
   private connectedOnce = false;
   private lastMessageAt = 0;
   private watchdog: ReturnType<typeof setInterval> | null = null;
+  private connecting = false;
+  /** Rises with each session, so a ticket bought for the previous one is thrown away. */
+  private generation = 0;
 
   constructor() {
-    this.connect();
+    void this.connect();
   }
 
   private startWatchdog() {
@@ -77,10 +82,24 @@ export class SseConnection {
     }, WATCHDOG_INTERVAL_MS);
   }
 
-  private connect() {
+  private async connect() {
+    if (this.closed || this.connecting) return;
+    if (!hasSession()) return; // no session — will retry when subscribe() is called
+
+    const generation = this.generation;
+    this.connecting = true;
+    let url: string;
+    try {
+      url = await requestStreamUrl();
+    } catch {
+      if (generation !== this.generation) return;
+      this.connecting = false;
+      if (!this.closed) this.scheduleReconnect();
+      return;
+    }
+    if (generation !== this.generation) return;
+    this.connecting = false;
     if (this.closed) return;
-    const url = getRealtimeUrl();
-    if (!url) return; // no token — will retry when subscribe() is called
 
     this.es = new EventSource(url);
     this.lastMessageAt = Date.now();
@@ -126,7 +145,7 @@ export class SseConnection {
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null;
       this.reconnectDelay = Math.min(this.reconnectDelay * 1.5, MAX_RECONNECT_DELAY_MS);
-      this.connect();
+      void this.connect();
     }, this.reconnectDelay);
   }
 
@@ -137,12 +156,25 @@ export class SseConnection {
   subscribe(cb: SseSubscriber): () => void {
     this.subscribers.add(cb);
     // If we aren't connected yet (e.g. no token at construction time), try now
-    if (!this.es && !this.reconnectTimer && !this.closed) this.connect();
+    if (!this.es && !this.reconnectTimer && !this.closed) void this.connect();
     return () => { this.subscribers.delete(cb); };
+  }
+
+  /** The session changed: drop the stream, which carries the old account's audience. */
+  restart() {
+    this.generation += 1;
+    this.connecting = false;
+    if (this.reconnectTimer) { clearTimeout(this.reconnectTimer); this.reconnectTimer = null; }
+    this.es?.close();
+    this.es = null;
+    this.connectedOnce = false;
+    this.reconnectDelay = RECONNECT_DELAY_MS;
+    void this.connect();
   }
 
   close() {
     this.closed = true;
+    this.generation += 1;
     if (this.reconnectTimer) { clearTimeout(this.reconnectTimer); this.reconnectTimer = null; }
     if (this.watchdog) { clearInterval(this.watchdog); this.watchdog = null; }
     this.es?.close();
@@ -159,7 +191,7 @@ export const getSseConnection = (): SseConnection => {
   return _singleton;
 };
 
-export const resetSseConnection = () => {
-  _singleton?.close();
-  _singleton = null;
+/** Subscribers stay: screens keep listening, on a stream opened for the new session. */
+export const restartSseConnection = () => {
+  _singleton?.restart();
 };

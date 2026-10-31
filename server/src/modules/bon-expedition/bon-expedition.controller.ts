@@ -56,7 +56,6 @@ export class BonExpeditionController {
       table: "bon_expeditions",
       action: "INSERT",
       actorId: req.auth?.user?.id || null,
-      rows: [data[0]].filter(Boolean),
       rowIds: compactIds(data[0]?.id),
       relatedTables: ["lot_events", "stock_lots"],
     });
@@ -78,7 +77,6 @@ export class BonExpeditionController {
       table: "bon_expeditions",
       action: "UPDATE",
       actorId: req.auth?.user?.id || null,
-      rows: [after[0]].filter(Boolean),
       rowIds: compactIds(id),
       relatedTables: ["lot_events", "stock_lots"],
     });
@@ -97,7 +95,6 @@ export class BonExpeditionController {
       table: "bon_expeditions",
       action: "DELETE",
       actorId: req.auth?.user?.id || null,
-      rows: [data[0]].filter(Boolean),
       rowIds: compactIds(id),
     });
     return { data: data[0] };

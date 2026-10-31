@@ -86,7 +86,6 @@ export class NotificationsController {
       action: "UPDATE",
       actorId: req.auth?.user?.id || null,
       rowIds: compactIds(id),
-      rows: [data].filter(Boolean),
     });
 
     return { data };
@@ -107,7 +106,6 @@ export class NotificationsController {
       action: "UPDATE",
       actorId: req.auth?.user?.id || null,
       rowIds: result.ids,
-      rows: result.notifications,
     });
 
     return { data: result.notifications };
@@ -145,7 +143,6 @@ export class NotificationsController {
       action: "INSERT",
       actorId: req.auth?.user?.id || null,
       rowIds: compactIds(data?.id),
-      rows: [data].filter(Boolean),
     });
 
     return { data };

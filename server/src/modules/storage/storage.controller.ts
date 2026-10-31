@@ -29,7 +29,6 @@ const publishRows = (
     table,
     action,
     actorId,
-    rows,
     rowIds: compactIds(rows.map((row: any) => row?.id)),
     relatedTables,
   });
@@ -89,7 +88,7 @@ export class StorageController {
   @Delete("module3/zones/:id")
   async deleteZone(@Req() req: any, @Param("id") id: string) {
     const data = await this.storageService.deleteZone(id);
-    publishRealtimeDbChange({ type: "storage_zone_deleted", table: "storage_zones", action: "DELETE", actorId: req.auth?.user?.id || null, rows: [data], rowIds: [id], relatedTables: ["storage_locations"] });
+    publishRealtimeDbChange({ type: "storage_zone_deleted", table: "storage_zones", action: "DELETE", actorId: req.auth?.user?.id || null, rowIds: [id], relatedTables: ["storage_locations"] });
     return { data };
   }
 
@@ -111,7 +110,7 @@ export class StorageController {
   @Delete("module3/locations/:id")
   async deleteLocation(@Req() req: any, @Param("id") id: string) {
     const data = await this.storageService.deleteLocation(id);
-    publishRealtimeDbChange({ type: "storage_location_deleted", table: "storage_locations", action: "DELETE", actorId: req.auth?.user?.id || null, rows: [data], rowIds: [id] });
+    publishRealtimeDbChange({ type: "storage_location_deleted", table: "storage_locations", action: "DELETE", actorId: req.auth?.user?.id || null, rowIds: [id] });
     return { data };
   }
 
@@ -135,7 +134,6 @@ export class StorageController {
       type: "storage_reading",
       table: "storage_condition_readings",
       action: "INSERT",
-      rows: [(data as any)?.reading].filter(Boolean),
       rowIds: compactIds((data as any)?.reading?.id),
       relatedTables: ["storage_zones", "module3-storage-readings", "alerts"],
     });
@@ -152,7 +150,6 @@ export class StorageController {
       type: "storage_door_event",
       table: "storage_door_events",
       action: "INSERT",
-      rows: [(data as any)?.event].filter(Boolean),
       rowIds: compactIds((data as any)?.event?.id),
       relatedTables: ["storage_zones", "module3-storage-door-events", "alerts"],
     });
@@ -200,7 +197,6 @@ export class StorageController {
       type: "stock_moved",
       table: "stock_movements",
       action: "INSERT",
-      rows: [(data as any)?.movement].filter(Boolean),
       rowIds: compactIds((data as any)?.movement?.id),
       relatedTables: ["stock_lots", "stock_locations", "stock_summary", "storage_location_movements", "module3-storage-location-movements", "alerts"],
     });

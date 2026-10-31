@@ -140,6 +140,8 @@ export const STAFF_ROLES = ALL_ROLES.filter((role) => !NON_STAFF_ROLES.has(role)
 export const STAFF_READ_ROLES = [...STAFF_ROLES, "auditeur_externe"];
 
 export const SUPPLIER_PORTAL_ROLE = "fournisseur_externe";
+/** Accounts outside the factory. They hear only about what is addressed to them. */
+export const EXTERNAL_ROLES = [SUPPLIER_PORTAL_ROLE, "client_externe", "partenaire_client_export", "auditeur_externe"];
 
 export const MASTER_DATA_ROLES = [...PURCHASING_ROLES, "technico_commercial"];
 export const SUPPLIER_WRITE_ROLES = [...MASTER_DATA_ROLES, ...RECEPTION_ROLES];
