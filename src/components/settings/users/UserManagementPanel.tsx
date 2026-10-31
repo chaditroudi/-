@@ -115,8 +115,8 @@ export function UserManagementPanel() {
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPassword.length < 6) {
-      toast.error('Le mot de passe doit contenir au moins 6 caractères.');
+    if (newPassword.length < 10) {
+      toast.error('Le mot de passe doit contenir au moins 10 caractères.');
       return;
     }
     try {
@@ -440,7 +440,7 @@ export function UserManagementPanel() {
                   onChange={(e) => setNewPassword(e.target.value)}
                   className="pl-9 pr-9"
                   required
-                  minLength={6}
+                  minLength={10}
                 />
                 <button
                   type="button"

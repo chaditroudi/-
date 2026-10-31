@@ -3,6 +3,7 @@ export interface User {
   email: string;
   user_metadata?: Record<string, unknown>;
   has_signature_pin?: boolean;
+  must_change_password?: boolean;
 }
 
 export interface Session {
@@ -74,7 +75,7 @@ export type ServerRealtimeEvent = {
   relatedTables?: string[];
 };
 
-import { axiosClient } from '../../lib/axiosClient';
+import { axiosClient, SESSION_ENDED_EVENT } from '../../lib/axiosClient';
 
 const AUTH_STORAGE_KEY = 'date-harvest-hub-session';
 
@@ -787,18 +788,6 @@ export const mongodb = {
       };
     },
 
-    async signUp(payload: { email: string; password: string; options?: { data?: Record<string, unknown> } }) {
-      const response = await request<{ data: { user: User; session: Session | null } }>('/auth/signup', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      });
-
-      return {
-        data: response.data,
-        error: null,
-      };
-    },
-
     async signInWithPassword(payload: { email: string; password: string }) {
       const response = await request<{ data: Session }>('/auth/signin', {
         method: 'POST',
@@ -814,7 +803,21 @@ export const mongodb = {
       };
     },
 
+    async changePassword(currentPassword: string, newPassword: string) {
+      const response = await request<{ data: Session }>('/auth/change-password', {
+        method: 'POST',
+        body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+      });
+
+      writeStoredSession(response.data);
+      emitAuthChange('TOKEN_REFRESHED', response.data);
+      ensureRealtimeConnection(true);
+      return { data: response.data, error: null };
+    },
+
     async signOut() {
+      // Best effort: a dead network must not keep this device signed in.
+      await request('/auth/logout', { method: 'POST' }).catch(() => undefined);
       writeStoredSession(null);
       closeRealtimeConnection();
       emitAuthChange('SIGNED_OUT', null);
@@ -849,3 +852,11 @@ export const mongodb = {
     channel.unsubscribe();
   },
 };
+
+if (typeof window !== 'undefined') {
+  window.addEventListener(SESSION_ENDED_EVENT, () => {
+    writeStoredSession(null);
+    closeRealtimeConnection();
+    emitAuthChange('SIGNED_OUT', null);
+  });
+}

@@ -10,6 +10,7 @@ import {
   Factory,
   Home,
   Landmark,
+  KeyRound,
   LogOut,
   Package,
   PackageCheck,
@@ -26,6 +27,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { ChangePasswordForm } from "@/components/auth/ChangePasswordForm";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useBranding } from "@/hooks/useBranding";
 import { ROLE_CONFIG } from "@/types/roles";
 import {
@@ -69,6 +72,7 @@ const STORAGE_SUBTABS = new Set([
 
 export function AppSidebar({ activeTab, onTabChange, activeAlertsCount, accessibleTabs }: AppSidebarProps) {
   const { user, profile, roles, signOut, isAdmin } = useAuthContext();
+  const [passwordOpen, setPasswordOpen] = useState(false);
   const { companyName, companyShortName } = useBranding();
 
   const canSee = (id: string) =>
@@ -370,6 +374,17 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount, accessib
 
           {user && (
             <button
+              onClick={() => setPasswordOpen(true)}
+              title="Changer mon mot de passe"
+              aria-label="Changer mon mot de passe"
+              className="shrink-0 rounded-lg p-1.5 text-white/28 transition-all duration-150 hover:bg-white/10 hover:text-white/70 group-data-[collapsible=icon]:hidden"
+            >
+              <KeyRound className="h-3.5 w-3.5" />
+            </button>
+          )}
+
+          {user && (
+            <button
               onClick={signOut}
               title="Se déconnecter"
               className="shrink-0 rounded-lg p-1.5 text-white/28 transition-all duration-150 hover:bg-red-500/15 hover:text-red-400 group-data-[collapsible=icon]:hidden"
@@ -381,6 +396,16 @@ export function AppSidebar({ activeTab, onTabChange, activeAlertsCount, accessib
       </SidebarFooter>
 
       <SidebarRail />
+
+      <Dialog open={passwordOpen} onOpenChange={setPasswordOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Changer mon mot de passe</DialogTitle>
+            <DialogDescription>Vos autres appareils seront déconnectés.</DialogDescription>
+          </DialogHeader>
+          <ChangePasswordForm onDone={() => setPasswordOpen(false)} />
+        </DialogContent>
+      </Dialog>
     </Sidebar>
   );
 }

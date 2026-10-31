@@ -14,7 +14,7 @@ npm run dev
 
 Optional rich data: `npm run demo:golden-thread`
 
-Login: `admin@ecodatte.local` / `Admin123!` → **change password after demo**.
+Login: the first admin from `INITIAL_ADMIN_EMAIL`, who must set a new password at first sign-in.
 
 ## Script
 

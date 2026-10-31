@@ -118,7 +118,8 @@ export const discardOutboxItem = async (id: string) => {
 
 export const isOutboxRetryable = (error: unknown) => {
   if (!(error instanceof ApiRequestError)) return true;
-  return error.isNetworkError || error.status === 409 || (error.status ?? 500) >= 500;
+  // 401 means the session ended, not that the delivery is wrong: keep it for after sign-in.
+  return error.isNetworkError || error.status === 401 || error.status === 409 || (error.status ?? 500) >= 500;
 };
 
 export const drainOutbox = async (

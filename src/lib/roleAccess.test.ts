@@ -49,4 +49,14 @@ describe("roleAccess", () => {
     const portal = getRoleWorkspaceProfile(["client_externe"]);
     expect(portal.defaultTab).toBe("logistics");
   });
+
+  it("shows only the home screen to an account with no known role", () => {
+    expect(getAccessibleTabs([])).toEqual(["home"]);
+  });
+
+  it("keeps plant-wide screens away from portal accounts", () => {
+    const tabs = getAccessibleTabs(["fournisseur_externe"]);
+    expect(tabs).not.toContain("scan");
+    expect(tabs).not.toContain("live");
+  });
 });

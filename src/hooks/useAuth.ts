@@ -50,7 +50,7 @@ const BUSINESS_ROLE_TO_APP_ROLES: Record<string, ActorRole[]> = {
   // Admin
   admin: ['administrateur_systeme'],
   administrateur: ['administrateur_systeme'],
-  // Opérateur générique (défaut signUp) → saisie réception
+  // Anciens comptes au rôle générique → saisie réception
   operateur: ['operateur_reception'],
 };
 
@@ -102,14 +102,14 @@ const buildProfileFromSession = (session: Session | null): Profile | null => {
 const getSessionRoles = (session: Session | null) => {
   const metadata = session?.user?.user_metadata || {};
   const rawRoles = [
-    // signUp stores a single string under 'role'; other sources use 'roles' array or 'domains'
     ...(metadata.role ? [String(metadata.role)] : []),
     ...toStringArray(metadata.roles),
-    ...toStringArray(metadata.domains),
   ];
 
   return toActorRoles(rawRoles);
 };
+
+const SESSION_REFRESH_MS = 30 * 60 * 1000;
 
 export function useAuth() {
   const [state, setState] = useState<AuthState>({
@@ -154,22 +154,13 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, [applySessionState]);
 
-  const signUp = async (email: string, password: string, fullName: string, role: ActorRole) => {
-    const { data, error } = await mongodb.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-          role
-        }
-      }
-    });
-
-    if (error) throw error;
-
-    return data;
-  };
+  // Sessions last 8 hours: refresh well inside that so a long shift is not cut off.
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      void mongodb.auth.getSession().then(({ data: { session } }) => applySessionState(session));
+    }, SESSION_REFRESH_MS);
+    return () => window.clearInterval(timer);
+  }, [applySessionState]);
 
   const signIn = async (email: string, password: string) => {
     const { data, error } = await mongodb.auth.signInWithPassword({
@@ -184,6 +175,10 @@ export function useAuth() {
   const signOut = async () => {
     const { error } = await mongodb.auth.signOut();
     if (error) throw error;
+  };
+
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    await mongodb.auth.changePassword(currentPassword, newPassword);
   };
 
   const refreshSession = async () => {
@@ -201,9 +196,9 @@ export function useAuth() {
 
   return {
     ...state,
-    signUp,
     signIn,
     signOut,
+    changePassword,
     refreshSession,
     hasRole,
     hasAnyRole

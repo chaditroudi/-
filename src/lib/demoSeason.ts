@@ -21,29 +21,23 @@ export type DemoSeasonResult = {
 };
 
 async function ensureSupplierId(): Promise<string> {
-  const listed = await apiRequest<{ data: Array<{ id: string }> }>('/db/query', {
-    method: 'POST',
-    body: JSON.stringify({ table: 'suppliers', filters: [], limit: 1 }),
-  });
+  const listed = await apiRequest<{ data: Array<{ id: string }> }>('/suppliers');
   if (listed.data?.[0]?.id) return listed.data[0].id;
 
   const today = new Date().toISOString().slice(0, 10);
-  const created = await apiRequest<{ data: Array<{ id: string }> }>('/db/insert', {
+  const created = await apiRequest<{ data: { id: string } }>('/suppliers', {
     method: 'POST',
     body: JSON.stringify({
-      table: 'suppliers',
-      values: {
-        code: `SEASON-UI-${Date.now()}`,
-        name: 'Season Demo (UI)',
-        supplier_status: 'active',
-        is_active: true,
-        country: 'TN',
-        contract_start_date: today,
-        contract_end_date: '2099-12-31',
-      },
+      code: `SEASON-UI-${Date.now()}`,
+      name: 'Season Demo (UI)',
+      supplier_status: 'active',
+      is_active: true,
+      country: 'TN',
+      contract_start_date: today,
+      contract_end_date: '2099-12-31',
     }),
   });
-  const id = created.data?.[0]?.id;
+  const id = created.data?.id;
   if (!id) throw new Error('Impossible de créer le fournisseur démo');
   return id;
 }
