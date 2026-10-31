@@ -3,7 +3,8 @@ import tailwindcssAnimate from "tailwindcss-animate";
 import plugin from "tailwindcss/plugin";
 
 const palme = { 50: "#EAF3F0", 100: "#CFE3DC", 200: "#A3CABD", 300: "#6FAB99", 400: "#3F8B76", 500: "#1E705C", 600: "#0E5A4B", 700: "#0B4A3E", 800: "#093A31", 900: "#062A24", 950: "#031B17" };
-const deglet = { 50: "#FBF4E4", 100: "#F5E5BF", 200: "#ECCE8A", 300: "#E0B155", 400: "#D49A2E", 500: "#C98A1B", 600: "#A86F0C", 700: "#87580C", 800: "#6B460F", 900: "#53370F", 950: "#2E1E07" };
+// 500 and darker hold AA with white text; the bright Deglet (400) is for the thread and large marks.
+const deglet = { 50: "#FBF4E4", 100: "#F5E5BF", 200: "#ECCE8A", 300: "#E0B155", 400: "#C98A1B", 500: "#9A6509", 600: "#87580C", 700: "#6B460F", 800: "#53370F", 900: "#3F2A0B", 950: "#2E1E07" };
 const danger = { 50: "#FBEDEB", 100: "#F6D5D1", 200: "#ECABA4", 300: "#DF7C72", 400: "#CF5246", 500: "#B3261E", 600: "#9A1F18", 700: "#7E1913", 800: "#651511", 900: "#4E110E", 950: "#2C0907" };
 const djerid = { 50: "#E9F1F6", 100: "#CCDFEA", 200: "#9FC3D8", 300: "#6CA2C1", 400: "#4286A9", 500: "#1F6287", 600: "#1A5374", 700: "#154560", 800: "#11384E", 900: "#0D2B3C", 950: "#071A25" };
 const pierre = { 50: "#F6F7F6", 100: "#ECEEEC", 200: "#DDE0DD", 300: "#C5C9C5", 400: "#9A9F9A", 500: "#6F746F", 600: "#555A55", 700: "#424642", 800: "#2E312E", 900: "#1F211F", 950: "#121312" };
