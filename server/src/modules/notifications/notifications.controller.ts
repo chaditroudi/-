@@ -16,7 +16,9 @@ import { getRequestRoles, hasAnyRole, AUDIT_READ_ROLES, STAFF_ROLES } from "../.
 import { RequireAuthGuard } from "../../nest/route-guards.js";
 import { publishRealtimeDbChange } from "../realtime/realtime.bus.js";
 import { NotificationsService } from "./notifications.service.js";
-import type { Request } from 'express';
+type NotificationRequest = {
+  auth?: { user?: { id?: string; user_metadata?: Record<string, unknown> } } | null;
+};
 
 const compactIds = (...values: unknown[]) =>
   values.flat().map((value) => String(value || "")).filter(Boolean);
@@ -48,7 +50,7 @@ export class NotificationsController {
 
   @Get('summary')
   @Authenticated()
-  async getSummary(@Req() req: Request) {
+  async getSummary(@Req() req: NotificationRequest) {
     return { data: await this.notificationsService.getSummary({
       roles: getRequestRoles(req), userId: req.auth?.user?.id || null,
     }) };
@@ -56,7 +58,7 @@ export class NotificationsController {
 
   @Get('stats')
   @Authenticated()
-  async getStats(@Req() req: Request) {
+  async getStats(@Req() req: NotificationRequest) {
     return { data: await this.notificationsService.getStats({
       roles: getRequestRoles(req), userId: req.auth?.user?.id || null,
     }, hasAnyRole(req, AUDIT_READ_ROLES)) };
