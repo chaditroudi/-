@@ -1,3 +1,4 @@
+import { DataState } from '@/components/shared/DataState';
 import { useReceptionPhase1Analytics } from '@/hooks/useFounderAnalytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +20,8 @@ const BATCH_STATUS_LABEL: Record<string, string> = {
 };
 
 export function ReceptionPhase1Panel({ period }: { period: Period }) {
-  const { data, isLoading } = useReceptionPhase1Analytics(period);
+  const source = useReceptionPhase1Analytics(period);
+  const { data, isLoading } = source;
 
   if (isLoading) return <div className="py-20 text-center text-sm text-muted-foreground animate-pulse">Analyse Réception & Phase 1…</div>;
 
@@ -40,6 +42,7 @@ export function ReceptionPhase1Panel({ period }: { period: Period }) {
   })).filter(d => d.value > 0);
 
   return (
+    <DataState source={{ ...source, updatedAt: source.dataUpdatedAt }} data={data} what="les indicateurs de la période">
     <div className="space-y-4">
       {/* Reception KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -222,5 +225,6 @@ export function ReceptionPhase1Panel({ period }: { period: Period }) {
         </Card>
       </div>
     </div>
+    </DataState>
   );
 }

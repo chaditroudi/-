@@ -1,4 +1,5 @@
-﻿import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+﻿import { DataState } from '@/components/shared/DataState';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
@@ -28,7 +29,9 @@ interface AdvancedCostPanelProps {
 }
 
 export const AdvancedCostPanel = ({ period }: AdvancedCostPanelProps) => {
-  const { data, isLoading } = useAdvancedCostAnalytics(period);
+  const source = useAdvancedCostAnalytics(period);
+  const { data, isLoading } = source;
+  if (!data && !isLoading) return <DataState source={source} data={data} what="les indicateurs">{null}</DataState>;
 
   if (isLoading) {
     return (
@@ -57,6 +60,7 @@ export const AdvancedCostPanel = ({ period }: AdvancedCostPanelProps) => {
   ];
 
   return (
+    <DataState source={{ ...source, updatedAt: source.dataUpdatedAt }} data={data} what="les indicateurs">
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">{basisLabel}</p>
@@ -342,6 +346,7 @@ export const AdvancedCostPanel = ({ period }: AdvancedCostPanelProps) => {
         </Card>
       )}
     </div>
+    </DataState>
   );
 };
 

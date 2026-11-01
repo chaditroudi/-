@@ -8,7 +8,7 @@
  */
 import { spawn, spawnSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 import mongoose from "mongoose";
@@ -115,7 +115,8 @@ const env = {
 };
 
 const WIDTHS = {
-  desktop: { width: 1280, height: 800 },
+  desktop: { width: 1440, height: 900 },
+  mobile: { width: 390, height: 844, isMobile: true, hasTouch: true },
   tablet: { width: 768, height: 1024, isMobile: true, hasTouch: true },
 };
 
@@ -140,9 +141,11 @@ const openFor = async (session, layout = "desktop") => {
     if (response.url().includes("/api/")) responses.push({ status: response.status(), url: response.url() });
   });
   await page.setRequestInterception(true);
-  page.on("request", (request) => {
+  page.on("request", async (request) => {
     const rule = request.method() !== "OPTIONS" && rules.find((candidate) => candidate.pattern.test(request.url()));
     if (!rule) return void request.continue();
+    if (rule.delayMs) await sleep(rule.delayMs);
+    if (rule.passthrough) return void request.continue();
     void request.respond({
       status: rule.status,
       contentType: "application/json",
@@ -213,7 +216,7 @@ try {
     for (const label of role.nav) check(role.key, `navigation offers ${label}`, nav.includes(label), nav);
     for (const label of role.notNav) check(role.key, `navigation hides ${label}`, !nav.includes(label), nav);
     check(role.key, "says the stream is live", (await text(page)).includes("En direct"));
-    await shot(page, `${role.key}-home-1280`);
+    await shot(page, `${role.key}-home-1440`);
     if (role.key === "operateur") {
       const home = await text(page);
       check(role.key, "is not offered QC work reserved to inspectors", !/contrôles? QC à faire|Ouvrir QC réception/.test(home), home.slice(0, 200));
@@ -233,14 +236,14 @@ try {
       check(role.key, `direct address ${tab} says access is reserved`, /accès réservé/i.test(body), body.slice(0, 160));
       check(role.key, `direct address ${tab} stays on that address`, (await page.url()).includes(`tab=${tab}`), page.url());
       check(role.key, `direct address ${tab} shows no figures`, !/\d+ lots? (disponibles|en quarantaine)/.test(body));
-      await shot(page, `${role.key}-denied-${tab}-1280`);
+      await shot(page, `${role.key}-denied-${tab}-1440`);
     }
 
     const { tab, view, route, text: expected } = role.primary;
     const extra = view ? `&view=${view}` : "";
 
     await visit(page, tab, extra);
-    await shot(page, `${role.key}-${tab}-1280`);
+    await shot(page, `${role.key}-${tab}-1440`);
 
     // The server fails.
     rules.push({ pattern: route, status: 500, body: { error: { code: "BOOM", message: "boom" } } });
@@ -248,7 +251,7 @@ try {
     let body = await text(page);
     check(role.key, `500 on ${tab} is stated as unavailable`, /indisponibles/i.test(body), body.slice(0, 200));
     check(role.key, `500 on ${tab} is not an empty result`, !FALSE_CALM.some((pattern) => pattern.test(body)) && !/Aucune réception aujourd|Aucun lot en attente|Rien pour le moment/.test(body), body.slice(0, 200));
-    await shot(page, `${role.key}-${tab}-500-1280`);
+    await shot(page, `${role.key}-${tab}-500-1440`);
     rules.length = 0;
 
     // The server refuses something this screen normally gets.
@@ -258,7 +261,7 @@ try {
     check(role.key, `403 on ${tab} says access is reserved`, /accès réservé/i.test(body), body.slice(0, 200));
     check(role.key, `403 on ${tab} is not an empty result`, !/Aucune réception aujourd|Aucun lot en attente|Rien pour le moment|0 lots disponibles/.test(body), body.slice(0, 200));
     check(role.key, `403 on ${tab} offers no retry`, !/Réessayer/.test(body));
-    await shot(page, `${role.key}-${tab}-403-1280`);
+    await shot(page, `${role.key}-${tab}-403-1440`);
     rules.length = 0;
 
     // A true empty answer is allowed to say so.
@@ -269,7 +272,7 @@ try {
       check(role.key, `a real empty ${tab} says so`, body.includes(expected), body.slice(0, 200));
     }
     check(role.key, `empty ${tab} shows no failure`, !/indisponibles|Accès réservé/.test(body), body.slice(0, 200));
-    await shot(page, `${role.key}-${tab}-empty-1280`);
+    await shot(page, `${role.key}-${tab}-empty-1440`);
     rules.length = 0;
 
     // Lost connection, then back.
@@ -277,11 +280,128 @@ try {
     await page.setOfflineMode(true);
     const offline = await until(async () => /Hors ligne/.test(await text(page)), 8_000);
     check(role.key, "says it is offline", offline);
-    await shot(page, `${role.key}-${tab}-offline-1280`);
+    await shot(page, `${role.key}-${tab}-offline-1440`);
     await page.setOfflineMode(false);
     const back = await until(() => page.evaluate(() => document.querySelector('[data-testid="realtime-status"]')?.textContent.includes("En direct")), 45_000);
     check(role.key, "goes back to live on its own", back);
 
+    await context.close();
+  }
+
+  if (process.env.PHASE1_MATRIX_FILE) {
+    const matrix = JSON.parse(readFileSync(process.env.PHASE1_MATRIX_FILE, 'utf8'));
+    for (const item of matrix) {
+      const email = item.role.replaceAll('_', '.') + '@test.local';
+      const session = await signIn(email);
+      if (!session?.access_token) throw new Error('Missing role fixture: ' + item.role);
+      for (const { route, allowed } of Object.values(item.reads)) {
+        const result = await api('GET', route.replace('GET /api', ''), session.access_token);
+        check(item.role, route + ' matches backend authorization', allowed ? result.status === 200 : result.status === 403, result.status);
+      }
+      const { page, context, responses } = await openFor(session);
+      await visit(page, 'home');
+      const body = await text(page);
+      const externalClient = ['client_externe', 'partenaire_client_export'].includes(item.role);
+      if (externalClient) {
+        check(item.role, 'external client sees no internal navigation', (await navLabels(page)).length === 0 && body.includes('Espace client'));
+      } else if (item.role !== 'fournisseur_externe') {
+        check(item.role, 'home identifies the operational responsibility', body.includes(item.profile.workspaceLabel), body.slice(0, 180));
+        check(item.role, 'home performs no unauthorized requests', !responses.some(row => row.status === 403), responses.filter(row => row.status === 403));
+        if (item.action) {
+          const clicked = await page.evaluate(label => {
+            const button = [...document.querySelectorAll('button')].find(button => button.textContent.includes(label));
+            button?.click(); return Boolean(button);
+          }, item.action.label);
+          await settle(page);
+          check(item.role, 'the primary daily action is reachable', clicked && page.url().includes('tab=' + item.action.tab), page.url());
+        }
+      }
+      check(item.role, 'desktop has no horizontal overflow', await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+      await shot(page, item.role + '-daily-1440');
+      for (const layout of ['tablet', 'mobile']) {
+        await page.setViewport(WIDTHS[layout]);
+        await sleep(250);
+        check(item.role, layout + ' has no horizontal overflow', await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+        await shot(page, item.role + '-daily-' + WIDTHS[layout].width);
+      }
+      await context.close();
+    }
+  }
+
+  console.log('\nNotification and settings boundaries');
+  {
+    const session = await signIn('administrateur.systeme@test.local');
+    const { page, context, rules } = await openFor(session);
+    for (const status of [403, 500]) {
+      rules.push({ pattern: /\/api\/settings$/, status, body: { error: { code: 'TEST_FAILURE', message: 'Refus de test' } } });
+      await visit(page, 'settings');
+      const body = await text(page);
+      check('admin', 'settings ' + status + ' never opens editable defaults', /Accès réservé|Données indisponibles/.test(body) && !body.includes('Infos Usine'), body.slice(0, 180));
+      await shot(page, 'settings-' + status + '-1440');
+      rules.length = 0;
+      rules.push({ pattern: /\/api\/notifications(?:\?|$)/, status, body: { error: { code: 'TEST_FAILURE', message: 'Refus de test' } } });
+      await visit(page, 'home');
+      await page.click('button[aria-label^="Notifications"]');
+      await sleep(500);
+      check('admin', 'notification ' + status + ' explains failure', /Accès réservé|Données indisponibles/.test(await text(page)));
+      await shot(page, 'notifications-' + status + '-1440');
+      rules.length = 0;
+    }
+    await context.close();
+  }
+
+  console.log('\nIndependent viewers and committed notification refresh');
+  {
+    const viewer = await openFor(await signIn('operateur.reception@test.local'));
+    const outsider = await openFor(await signIn('fournisseur.externe@test.local'));
+    await visit(viewer.page, 'home'); await visit(outsider.page, 'home');
+    const title = 'Notification de réception isolée ' + Date.now();
+    const created = await api('POST', '/notifications', director.access_token, {
+      notification_type: 'PHASE1_ACCEPTANCE', category: 'RECEPTION', title,
+      message: 'Événement fictif local', severity: 'info', target_roles: ['operateur_reception'],
+      action_url: '/?tab=receptions',
+    });
+    check('realtime', 'authorized notification committed', created.status === 201, created.status);
+    await viewer.page.click('button[aria-label^="Notifications"]');
+    const refreshed = await until(async () => (await text(viewer.page)).includes(title), 15000);
+    check('realtime', 'IDs-only committed change refetches the authorized viewer', refreshed);
+    const supplierList = await api('GET', '/notifications', (await signIn('fournisseur.externe@test.local')).access_token);
+    check('realtime', 'external viewer receives no sensitive notification content', !JSON.stringify(supplierList.body).includes(title) && !(await text(outsider.page)).includes(title));
+    await shot(viewer.page, 'notifications-committed-1440');
+    await viewer.context.close(); await outsider.context.close();
+  }
+
+  console.log('\nLoading, expiration and RTL');
+  {
+    const { page, context, rules } = await openFor(await signIn('administrateur.systeme@test.local'));
+    rules.push({ pattern: /\/api\/settings$/, delayMs: 1800, passthrough: true });
+    await page.goto(`${APP}/#/?tab=settings`, { waitUntil: 'domcontentloaded' });
+    check('states', 'settings loading is visible before the real response', await until(async () => (await text(page)).includes('Chargement : les paramètres'), 8000));
+    await shot(page, 'settings-loading-1440');
+    rules.length = 0;
+    await settle(page);
+    await context.close();
+  }
+  {
+    const { page, context, rules } = await openFor(await signIn('operateur.reception@test.local'));
+    await visit(page, 'receptions');
+    rules.push({ pattern: /\/api\/receptions\/search/, status: 401, body: { error: { code: 'SESSION_REQUIRED', message: 'Session expirée' } } });
+    await visit(page, 'receptions');
+    check('states', 'session expiry returns to sign-in', await until(() => page.$('input[type="email"]'), 10000));
+    check('states', 'expired session retains no account token', await page.evaluate(key => localStorage.getItem(key) === null, SESSION_KEY));
+    await shot(page, 'session-expired-1440');
+    await context.close();
+  }
+  {
+    const { page, context } = await openFor(await signIn('inspecteur.qualite@test.local'), 'mobile');
+    await visit(page, 'receptions', '&view=qc');
+    await page.click('button[aria-label^="Langue"]');
+    const menu = await page.$$('[role="menuitem"]');
+    for (const item of menu) if ((await item.evaluate(node => node.textContent)).includes('العربية')) { await item.click(); break; }
+    await sleep(250);
+    check('rtl', 'Arabic preference sets document direction and language', await page.evaluate(() => document.documentElement.dir === 'rtl' && document.documentElement.lang === 'ar'));
+    check('rtl', 'Arabic mobile QC has no horizontal overflow', await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+    await shot(page, 'inspecteur-qc-rtl-390');
     await context.close();
   }
 
@@ -298,7 +418,7 @@ try {
     check("fournisseur", "sees no factory navigation", (await navLabels(page)).length === 0);
     const refused = responses.filter((response) => response.status === 403);
     check("fournisseur", "asks for nothing refused", refused.length === 0, refused.map((row) => row.url.replace(API, "")));
-    await shot(page, "fournisseur-portail-1280");
+    await shot(page, "fournisseur-portail-1440");
     await context.close();
   }
 
@@ -314,7 +434,7 @@ try {
     const body = await text(page);
     check("magasinier", "a failed refresh says the data may be old", stale, body.slice(0, 200));
     check("magasinier", "and keeps showing it", /Bloqué, non utilisable/.test(body), body.slice(0, 200));
-    await shot(page, "magasinier-storage-stale-1280");
+    await shot(page, "magasinier-storage-stale-1440");
     await context.close();
   }
 
@@ -327,7 +447,7 @@ try {
     apiProcess.kill();
     const lost = await until(async () => /Reconnexion/.test(await text(page)), 50_000);
     check("directeur", "a dropped stream stops claiming to be live", lost);
-    await shot(page, "directeur-reconnecting-1280");
+    await shot(page, "directeur-reconnecting-1440");
     apiProcess = spawn(process.execPath, ["server-dist/index.js"], { stdio: "ignore", env });
     await apiReady();
     const back = await until(async () => (await text(page)).includes("En direct"), 60_000);
@@ -355,18 +475,22 @@ try {
   }
 
   console.log("\nTablet, touch");
-  for (const { name, email, tab, extra = "" } of [
+  for (const layout of ["tablet", "mobile"]) for (const { name, email, tab, extra = "" } of [
     { name: "operateur", email: "operateur.reception@test.local", tab: "receptions" },
     { name: "inspecteur", email: "inspecteur.qualite@test.local", tab: "receptions", extra: "&view=qc" },
     { name: "production", email: "responsable.production@test.local", tab: "production" },
     { name: "magasinier", email: "magasinier.wms@test.local", tab: "storage" },
   ]) {
     const session = await signIn(email);
-    const { page, context, rules } = await openFor(session, "tablet");
+    const { page, context, rules } = await openFor(session, layout);
     await visit(page, "home");
-    await shot(page, `${name}-home-768-touch`);
+    await shot(page, `${name}-home-${WIDTHS[layout].width}-touch`);
     await visit(page, tab, extra);
-    await shot(page, `${name}-${tab}-768-touch`);
+    await shot(page, `${name}-${tab}-${WIDTHS[layout].width}-touch`);
+    if (layout === 'mobile') {
+      const scanner = await page.evaluate(() => [...document.querySelectorAll('button')].some(button => button.textContent.trim() === 'Scan'));
+      check(name, 'mobile navigation retains the authorized scanner', scanner);
+    }
     const small = await page.evaluate(() => [...document.querySelectorAll("button, [role='tab']")]
       .filter((element) => {
         const box = element.getBoundingClientRect();
@@ -384,12 +508,15 @@ try {
         return !box || !tab.contains(covering);
       });
       check(name, "the active QC tab is not covered", !hidden);
+      await page.focus('[role="tab"][data-state="active"]');
+      await page.keyboard.press('ArrowLeft');
+      check(name, 'reception tabs support arrow-key focus and activation', await page.evaluate(() => document.activeElement?.getAttribute('role') === 'tab' && document.activeElement?.getAttribute('aria-selected') === 'true'));
     }
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1);
     check(name, `${tab} does not scroll sideways`, !overflow);
     rules.push({ pattern: /\/api\/(stock\/reception-lots|receptions\/search|production\/orders)/, status: 500, body: { error: { code: "BOOM", message: "boom" } } });
     await visit(page, tab, extra);
-    await shot(page, `${name}-${tab}-500-768-touch`);
+    await shot(page, `${name}-${tab}-500-${WIDTHS[layout].width}-touch`);
     await context.close();
   }
 
@@ -401,7 +528,7 @@ try {
     await visit(page, "storage");
     let body = await text(page);
     check("magasinier", "a crash in one screen keeps the navigation", /Cet écran a rencontré un problème/.test(body) && body.includes("Accueil"), body.slice(0, 200));
-    await shot(page, "magasinier-crash-1280");
+    await shot(page, "magasinier-crash-1440");
     rules.length = 0;
     rules.push({ pattern: /\/api\/stock\/reception-lots/, status: 200, body: { data: "not a list" } });
     await visit(page, "home");
@@ -417,6 +544,7 @@ try {
   await mongoose.disconnect();
 }
 
+if (process.env.ROLES_RESULTS) writeFileSync(process.env.ROLES_RESULTS, JSON.stringify(results, null, 2));
 const failed = results.filter((row) => !row.passed).length;
 console.log(`\n${results.length - failed}/${results.length} role checks passed across ${new Set(results.map((row) => row.role)).size} accounts`);
 process.exit(failed ? 1 : 0);

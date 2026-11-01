@@ -1,4 +1,5 @@
-﻿import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+﻿import { DataState } from '@/components/shared/DataState';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -30,7 +31,9 @@ interface AdvancedProductionPanelProps {
 }
 
 export const AdvancedProductionPanel = ({ period }: AdvancedProductionPanelProps) => {
-  const { data, isLoading } = useAdvancedProductionAnalytics(period);
+  const source = useAdvancedProductionAnalytics(period);
+  const { data, isLoading } = source;
+  if (!data && !isLoading) return <DataState source={source} data={data} what="les indicateurs">{null}</DataState>;
 
   if (isLoading) {
     return (
@@ -50,6 +53,7 @@ export const AdvancedProductionPanel = ({ period }: AdvancedProductionPanelProps
   const yieldStatus = getKPIStatus(kpis?.yieldRate || 0, KPI_THRESHOLDS.yieldRate);
 
   return (
+    <DataState source={{ ...source, updatedAt: source.dataUpdatedAt }} data={data} what="les indicateurs">
     <div className="space-y-4">
       {/* Main KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -327,6 +331,7 @@ export const AdvancedProductionPanel = ({ period }: AdvancedProductionPanelProps
         </Card>
       </div>
     </div>
+    </DataState>
   );
 };
 

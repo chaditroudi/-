@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { useAuthContext } from '@/contexts/AuthContext';
+import { canWrite, type WriteAction } from '@/lib/apiAccess';
 import {
   CommandDialog,
   CommandEmpty,
@@ -7,7 +9,6 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-  CommandShortcut,
 } from "@/components/ui/command";
 import { APP_TAB_META } from "@/lib/appTabs";
 import type { AppTab } from "@/lib/roleAccess";
@@ -24,6 +25,7 @@ type QuickAction = {
   label: string;
   icon: typeof QrCode;
   tab: AppTab;
+  capability?: WriteAction;
   run: (nav: AppNavigateFn) => void;
 };
 
@@ -31,9 +33,9 @@ type QuickAction = {
 // rather than modules. Each is gated by tab access below.
 const QUICK_ACTIONS: QuickAction[] = [
   { id: "scan",   label: "Scanner un lot",     icon: QrCode,         tab: "scan",       run: (nav) => nav("scan") },
-  { id: "move",   label: "Déplacer un lot",    icon: ArrowRightLeft, tab: "storage",    run: (nav) => nav("storage") },
-  { id: "buy",    label: "Demander un achat",  icon: ShoppingCart,   tab: "purchasing", run: (nav) => nav("purchasing") },
-  { id: "recept", label: "Nouvelle réception", icon: Truck,          tab: "receptions", run: (nav) => nav("receptions") },
+  { id: "move",   label: "Ouvrir les mouvements de stock", icon: ArrowRightLeft, tab: "storage", capability: 'storageMove', run: (nav) => nav("storage") },
+  { id: "buy",    label: "Ouvrir les demandes d’achat", icon: ShoppingCart, tab: "purchasing", capability: 'requisitionCreate', run: (nav) => nav("purchasing") },
+  { id: "recept", label: "Nouvelle réception", icon: Truck, tab: "receptions", capability: 'receptionCreate', run: (nav) => nav("receptions", { view: 'new' }) },
 ];
 
 /**
@@ -42,6 +44,7 @@ const QUICK_ACTIONS: QuickAction[] = [
  * exposes a destination the current role cannot already open.
  */
 export function CommandMenu({ accessibleTabs, onNavigate }: CommandMenuProps) {
+  const { roles } = useAuthContext();
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -70,8 +73,8 @@ export function CommandMenu({ accessibleTabs, onNavigate }: CommandMenuProps) {
   );
 
   const quickItems = useMemo(
-    () => QUICK_ACTIONS.filter((a) => accessibleTabs.includes(a.tab)),
-    [accessibleTabs],
+    () => QUICK_ACTIONS.filter((a) => accessibleTabs.includes(a.tab) && (!a.capability || canWrite(roles, a.capability))),
+    [accessibleTabs, roles],
   );
 
   const go = (fn: () => void) => {

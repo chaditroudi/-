@@ -1,3 +1,4 @@
+import { DataState } from '@/components/shared/DataState';
 import { useStockStorageAnalytics } from '@/hooks/useFounderAnalytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,7 +14,8 @@ const occupancyColor = (pct: number) => pct >= 90 ? '#ef4444' : pct >= 75 ? '#f5
 const occupancyLabel = (pct: number) => pct >= 90 ? 'CRITIQUE' : pct >= 75 ? 'ÉLEVÉ' : 'NORMAL';
 
 export function StockStoragePanel({ period }: { period: Period }) {
-  const { data, isLoading } = useStockStorageAnalytics(period);
+  const source = useStockStorageAnalytics(period);
+  const { data, isLoading } = source;
 
   if (isLoading) return <div className="py-20 text-center text-sm text-muted-foreground animate-pulse">Analyse Stock & Stockage…</div>;
 
@@ -22,6 +24,7 @@ export function StockStoragePanel({ period }: { period: Period }) {
   const sr = data?.storage;
 
   return (
+    <DataState source={{ ...source, updatedAt: source.dataUpdatedAt }} data={data} what="les indicateurs de la période">
     <div className="space-y-4">
       {/* Critical storage alerts */}
       {(st?.criticalAlerts ?? 0) > 0 && (
@@ -189,5 +192,6 @@ export function StockStoragePanel({ period }: { period: Period }) {
         </Card>
       </div>
     </div>
+    </DataState>
   );
 }

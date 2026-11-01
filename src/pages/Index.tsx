@@ -107,7 +107,7 @@ const MATERIAL_TABS = ['materials', 'purchasing', 'receptions'] as const;
 
 const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { roles, profile, isAdmin } = useAuthContext();
+  const { roles, profile, isAdmin, signOut } = useAuthContext();
   const { settings } = useSettingsContext();
   const { companyName } = useBranding();
   const queryClient = useQueryClient();
@@ -132,8 +132,9 @@ const Index = () => {
   );
 
   const quickTabs = useMemo(
-    () => workspaceProfile.quickTabs.filter(tab => accessibleTabs.includes(tab)),
-    [workspaceProfile.quickTabs, accessibleTabs],
+    () => Array.from(new Set([...workspaceProfile.quickTabs, ...accessibleTabs]))
+      .filter(tab => accessibleTabs.includes(tab) && !primaryTabs.includes(tab)),
+    [workspaceProfile.quickTabs, accessibleTabs, primaryTabs],
   );
 
   // ── Permission flags ──────────────────────────────────────────────────────
@@ -342,7 +343,7 @@ const Index = () => {
           );
         }
         return (
-          <HomePage
+          <HomePage roles={roles}
             canInspect={getReceptionPermissions(roles).canRunQc}
             onNavigate={handleNavigate}
             accessibleTabs={accessibleTabs}
@@ -460,7 +461,7 @@ const Index = () => {
         return <HRDashboard />;
       default:
         return (
-          <HomePage
+          <HomePage roles={roles}
             canInspect={getReceptionPermissions(roles).canRunQc}
             onNavigate={handleNavigate}
             accessibleTabs={accessibleTabs}
@@ -471,6 +472,13 @@ const Index = () => {
   };
 
   if (landsOnSupplierPortal(roles)) return <Navigate to="/portail" replace />;
+  if (roles.length > 0 && roles.every(role => role === 'client_externe' || role === 'partenaire_client_export')) {
+    return <div className="mx-auto max-w-lg space-y-4 p-6">
+      <h1 className="font-display text-2xl">Espace client</h1>
+      <p>Le portail client n’est pas encore disponible. Votre compte ne donne pas accès aux espaces internes de l’usine.</p>
+      <button className="rounded-lg border px-4 py-3 focus-visible:outline focus-visible:outline-2" onClick={() => void signOut()}>Se déconnecter</button>
+    </div>;
+  }
 
   return (
     <AiGuideProvider

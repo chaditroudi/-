@@ -1,3 +1,5 @@
+import { useAuthContext } from '@/contexts/AuthContext';
+import { canRead } from '@/lib/apiAccess';
 import { useTranslation } from 'react-i18next';
 import { AlertAnalyticsPanel, FactoryAlertsCenter, TraceabilityTimeline } from '@/components/alerts';
 import { AlertsDashboard } from '@/components/batches/AlertsDashboard';
@@ -7,6 +9,8 @@ import { Bell, BoxIcon, Clock, BarChart2 } from 'lucide-react';
 /** Every alert in one place: the shell's Alertes tab and the /alerts route show the same thing. */
 const AlertsCenter = ({ embedded = false }: { embedded?: boolean }) => {
   const { t } = useTranslation();
+  const { roles } = useAuthContext();
+  const canAudit = canRead(roles, 'auditLogs');
   
   return (
     <div className={embedded ? 'space-y-4' : 'container mx-auto space-y-4 py-6'}>
@@ -20,10 +24,10 @@ const AlertsCenter = ({ embedded = false }: { embedded?: boolean }) => {
             <BoxIcon className="h-4 w-4" />
             Stock et DLC
           </TabsTrigger>
-          <TabsTrigger value="traceability" className="flex items-center gap-2">
+          {canAudit && <TabsTrigger value="traceability" className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
             {t('alerts.traceability')}
-          </TabsTrigger>
+          </TabsTrigger>}
           <TabsTrigger value="analytics" className="flex items-center gap-2">
             <BarChart2 className="h-4 w-4" />
             {t('alerts.analytics', { defaultValue: 'Analytiques' })}

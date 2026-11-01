@@ -1,3 +1,4 @@
+import { DataState } from '@/components/shared/DataState';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -40,7 +41,7 @@ interface ExecutiveDashboardProps {
 }
 
 export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
-  const { production, quality, stock, cost, isLoading } = useExecutiveDashboard(period);
+  const { production, quality, stock, cost, isLoading, error, refetch } = useExecutiveDashboard(period);
 
   if (isLoading) {
     return (
@@ -57,6 +58,8 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
       </div>
     );
   }
+
+  if (error || !production || !quality || !stock || !cost) return <DataState source={{ error, isLoading, refetch }} data={undefined} what="la synthèse des indicateurs">{null}</DataState>;
 
   const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 

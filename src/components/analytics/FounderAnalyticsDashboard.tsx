@@ -1,9 +1,9 @@
+import { DataState } from '@/components/shared/DataState';
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 import {
-  usePlantHealthScore,
   useSupplyFunnel,
   useLiveFactory,
   usePackagingAnalytics,
@@ -31,10 +31,17 @@ const PERIOD_LABELS: Record<Period, string> = {
 };
 
 function ExecutiveStrip({ period }: { period: Period }) {
-  const { data: funnel, isLoading: fl } = useSupplyFunnel(period);
-  const { data: live, isLoading: ll } = useLiveFactory();
-  const { data: pkg, isLoading: pl } = usePackagingAnalytics(period);
-  const { data: rec, isLoading: rl } = useReceptionPhase1Analytics(period);
+  const funnelSource = useSupplyFunnel(period);
+  const { data: funnel, isLoading: fl } = funnelSource;
+  const liveSource = useLiveFactory();
+  const { data: live, isLoading: ll } = liveSource;
+  const packagingSource = usePackagingAnalytics(period);
+  const { data: pkg, isLoading: pl } = packagingSource;
+  const receptionSource = useReceptionPhase1Analytics(period);
+  const { data: rec, isLoading: rl } = receptionSource;
+  const sources = [funnelSource, liveSource, packagingSource, receptionSource];
+  const error = sources.find(source => source.error)?.error;
+  const complete = sources.every(source => source.data !== undefined);
 
   const loading = fl || ll || pl || rl;
   const totalKg = rec?.receptions.totalKg ?? 0;
@@ -49,10 +56,12 @@ function ExecutiveStrip({ period }: { period: Period }) {
   const fmtKg = (v: number) => v >= 1000 ? `${(v / 1000).toFixed(1)} t` : `${v.toFixed(0)} kg`;
 
   return (
+    <DataState source={{ isLoading: loading, error, refetch: () => Promise.all(sources.map(source => source.refetch())) }} data={complete ? { funnel, live, pkg, rec } : undefined} what="la synthèse de l’usine">
+    <p className="mb-2 text-xs text-muted-foreground">Source : réceptions, étapes et conditionnement enregistrés · {PERIOD_LABELS[period]}. Cycles et alertes : état actuel.</p>
     <SummaryStrip items={[
       { label: 'Volume reçu', value: loading ? '…' : totalKg > 0 ? fmtKg(totalKg) : '—', helper: `${rec?.receptions.total ?? 0} réceptions` },
-      { label: 'Rendement étapes', value: loading ? '…' : p2Yield > 0 ? `${p2Yield.toFixed(1)} %` : '—', helper: 'cible 90 % ou plus' },
-      { label: 'OEE conditionnement', value: loading ? '…' : oee > 0 ? `${oee.toFixed(1)} %` : '—', helper: 'cible 85 % ou plus' },
+      { label: 'Rendement étapes', value: loading ? '…' : p2Yield > 0 ? `${p2Yield.toFixed(1)} %` : '—', helper: 'sur les étapes enregistrées' },
+      { label: 'OEE conditionnement', value: loading ? '…' : oee > 0 ? `${oee.toFixed(1)} %` : '—', helper: 'indicateur calculé sur la période' },
       { label: 'Palettes scellées', value: loading ? '…' : palettes > 0 ? palettes : '—', helper: palettesKg > 0 ? `${fmtKg(palettesKg)} net` : undefined },
       { label: 'Cycles actifs', value: loading ? '…' : cycles, helper: 'en production' },
       {
@@ -62,40 +71,15 @@ function ExecutiveStrip({ period }: { period: Period }) {
         tone: alertsCrit > 0 ? 'bad' : alertsTotal > 0 ? 'watch' : 'default',
       },
     ]} />
+    </DataState>
   );
 }
 
-function PlantHealthHeader({ period }: { period: Period }) {
-  const { data, isLoading } = usePlantHealthScore(period);
-  const parts = [
-    { label: 'Réception', value: data?.breakdown.reception ?? 0, weight: 20 },
-    { label: 'Étapes', value: data?.breakdown.phase2 ?? 0, weight: 30 },
-    { label: 'Conditionnement', value: data?.breakdown.packaging ?? 0, weight: 25 },
-    { label: 'Alertes', value: data?.breakdown.alerts ?? 0, weight: 25 },
-  ];
-
-  return (
-    <section aria-labelledby="plant-score-title" className="rounded-lg border bg-card p-3">
-      <div className="flex flex-wrap items-baseline gap-x-3">
-        <h2 id="plant-score-title" className="text-base">Score indicatif de l'usine</h2>
-        <span className="font-display text-xl font-semibold">{isLoading ? '…' : Math.round(data?.score ?? 0)} / 100</span>
-      </div>
-      <p className="text-sm text-muted-foreground">Une étape sans activité sur la période compte pour 100 : à lire avec les volumes ci-dessous.</p>
-      <dl className="mt-2 grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-4">
-        {parts.map((part) => (
-          <div key={part.label}>
-            <dt className="flex justify-between text-xs text-muted-foreground">
-              <span>{part.label} ({part.weight} %)</span>
-              <span className="font-medium text-foreground">{isLoading ? '—' : Math.round(part.value)}</span>
-            </dt>
-            <dd className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
-              <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(100, part.value)}%` }} />
-            </dd>
-          </div>
-        ))}
-      </dl>
-    </section>
-  );
+function PlantHealthHeader() {
+  return <section aria-labelledby="plant-score-title" className="rounded-lg border bg-card p-3">
+    <h2 id="plant-score-title" className="text-base">Score global non mesuré</h2>
+    <p className="text-sm text-muted-foreground">La méthode actuelle attribue une valeur par défaut aux étapes sans activité. Ce score n’est pas présenté comme une mesure de conformité. Consultez les volumes et les exceptions enregistrés ci-dessous.</p>
+  </section>;
 }
 
 export function FounderAnalyticsDashboard() {
@@ -118,7 +102,7 @@ export function FounderAnalyticsDashboard() {
       </div>
 
       {/* Plant Health Score */}
-      <PlantHealthHeader period={period} />
+      <PlantHealthHeader />
 
       {/* Executive KPI strip */}
       <ExecutiveStrip period={period} />

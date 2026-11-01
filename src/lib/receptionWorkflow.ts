@@ -1,4 +1,4 @@
-import { ADMIN_ROLES, type ActorRole } from '@/types/roles';
+import { type ActorRole } from '@/types/roles';
 import {
   receptionStatusLabels,
   stockStatusLabels,
@@ -8,20 +8,7 @@ import {
   type StockLotStatus,
 } from '@/types/reception';
 
-/**
- * Mirror of server/src/modules/receptions/reception-roles.ts. The server enforces
- * these sets; the UI uses them only to hide actions the API would refuse.
- */
-const RECEPTION_WRITE_ROLES: ActorRole[] = [
-  'responsable_reception', 'chef_reception', 'operateur_reception', 'responsable_qualite',
-];
-const RECEPTION_CANCEL_ROLES: ActorRole[] = ['responsable_reception', 'chef_reception', 'responsable_qualite'];
-const QUALITY_ROLES: ActorRole[] = [
-  'responsable_qualite', 'inspecteur_qualite', 'resp_management_qualite', 'resp_qualite_haccp',
-];
-const STORAGE_MOVE_ROLES: ActorRole[] = [
-  ...RECEPTION_WRITE_ROLES, 'responsable_stock', 'magasinier_wms', 'responsable_logistique',
-];
+import { canWrite } from './apiAccess';
 
 export interface ReceptionPermissions {
   canRegister: boolean;
@@ -31,13 +18,11 @@ export interface ReceptionPermissions {
 }
 
 export const getReceptionPermissions = (roles: ActorRole[]): ReceptionPermissions => {
-  const isAdmin = roles.some((role) => ADMIN_ROLES.includes(role));
-  const has = (allowed: ActorRole[]) => isAdmin || roles.some((role) => allowed.includes(role));
   return {
-    canRegister: has(RECEPTION_WRITE_ROLES),
-    canRunQc: has(QUALITY_ROLES),
-    canCancel: has(RECEPTION_CANCEL_ROLES),
-    canMoveStock: has(STORAGE_MOVE_ROLES),
+    canRegister: canWrite(roles, 'receptionCreate'),
+    canRunQc: canWrite(roles, 'receptionQc'),
+    canCancel: canWrite(roles, 'receptionCancel'),
+    canMoveStock: canWrite(roles, 'storageMove'),
   };
 };
 

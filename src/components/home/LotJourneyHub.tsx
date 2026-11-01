@@ -1,7 +1,8 @@
 import { useAllReceptionLots } from '@/hooks/useStock';
 import { getReceptionPermissions } from '@/lib/receptionWorkflow';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { canRead } from '@/lib/apiAccess';
+import { canRead, canWrite } from '@/lib/apiAccess';
+import { DataState } from '@/components/shared/DataState';
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
@@ -53,6 +54,7 @@ interface LotJourneyHubProps {
 }
 
 export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: LotJourneyHubProps) {
+  const { roles } = useAuthContext();
   const [query, setQuery] = useState('');
   const [selectedLotId, setSelectedLotId] = useState<string | null>(null);
   const [showStages, setShowStages] = useState(!compact);
@@ -124,7 +126,7 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
   const lotCost = useQuery({
     queryKey: ['lot-journey-cost', activeLotId],
     queryFn: () => costingApi.getLotCost(activeLotId!),
-    enabled: Boolean(activeLotId) && !compact,
+    enabled: Boolean(activeLotId) && !compact && canRead(roles, 'costing'),
     retry: false,
   });
 
@@ -133,7 +135,7 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
     queryFn: () => settlementsApi.list(),
     staleTime: 60_000,
     retry: false,
-    enabled: !compact,
+    enabled: !compact && canRead(roles, 'settlements'),
   });
 
   const state = lotState.data;
@@ -163,7 +165,6 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
     );
   }, [passport.data?.lotNumber, settlements.data]);
 
-  const { roles } = useAuthContext();
   const { data: receptionLots = [] } = useAllReceptionLots(undefined, { enabled: canRead(roles, 'receptionLots') });
   const lotNumbers = new Map(receptionLots.map((row) => [row.id, row.lot_internal]));
   const inProgressLots = (golden.data?.lots || []).filter((l) => !l.goldenThreadComplete).slice(0, 8);
@@ -283,10 +284,10 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
                 BDE
               </Button>
             )}
-            <Button size="sm" variant="outline" className="h-8 gap-1" onClick={printCurrentPfLabel}>
+            {state?.progress.completed.includes('PACKED') && <Button size="sm" variant="outline" className="h-8 gap-1" onClick={printCurrentPfLabel}>
               <Tag className="h-3.5 w-3.5" />
               Étiquette PF
-            </Button>
+            </Button>}
             <Button
               size="sm"
               variant="ghost"
@@ -299,6 +300,7 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
           </div>
         )}
 
+        <DataState source={{ ...golden, updatedAt: golden.dataUpdatedAt }} data={golden.data} what="les lots en cours" isEmpty={false}>
         {/* In-progress picker */}
         {inProgressLots.length > 0 && (
           <div className="space-y-2">
@@ -331,25 +333,14 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
           </div>
         )}
 
-        {!activeLotId && (
+        </DataState>
+        {!activeLotId && golden.data && !golden.error && (
           <p className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">
-            Aucun lot sélectionné. Recherchez un n° lot, scannez un QR, ou créez une réception Deglet
-            Nour pour démarrer le parcours.
+            Aucun lot sélectionné. Recherchez un n° lot ou scannez un QR pour ouvrir son parcours.
           </p>
         )}
 
-        {activeLotId && lotState.isLoading && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> Chargement du parcours…
-          </div>
-        )}
-
-        {activeLotId && lotState.isError && (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
-            Lot introuvable ou non suivi sur le fil d&apos;or : <span className="font-mono">{activeLotId}</span>
-          </div>
-        )}
-
+        {activeLotId && <DataState source={{ ...lotState, updatedAt: lotState.dataUpdatedAt }} data={lotState.data} what="le parcours du lot">
         {activeLotId && state && (
           <>
             {/* Identity + integrity */}
@@ -459,9 +450,10 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
             {/* Next action — one job, few buttons */}
             <div className="rounded-xl border border-primary/25 bg-primary/5 p-3.5">
               <p className="text-xs font-semibold text-primary">
-                Prochaine action
+                {canOpenNext ? 'Prochaine action autorisée' : 'Prochaine étape du lot'}
               </p>
               <h3 className="mt-0.5 text-base font-semibold">{next.title}</h3>
+              {!canOpenNext && <p className="mt-1 text-sm text-muted-foreground">Cette étape relève d’un autre poste. Consultez le parcours et les fiches disponibles.</p>}
               {!compact && (
                 <p className="mt-1 text-sm text-muted-foreground">{next.description}</p>
               )}
@@ -488,7 +480,7 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
                     Fiche
                   </Button>
                 )}
-                {next.secondary && canGo(next.secondary.tab) && (
+                {next.secondary && canGo(next.secondary.tab) && (next.secondary.tab !== 'receptions' || canWrite(roles, 'receptionCreate')) && (
                   <Button
                     variant="outline"
                     size="sm"
@@ -517,7 +509,7 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
                 >
                   Passport <ExternalLink className="h-3.5 w-3.5" />
                 </Button>
-                <Button
+                {canWrite(roles, 'recall') && <Button
                   type="button"
                   variant="ghost"
                   size="sm"
@@ -526,13 +518,13 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
                   onClick={() => void runRecallReport()}
                 >
                   {recallBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileDown className="h-3.5 w-3.5" />}
-                  Recall
-                </Button>
+                  Rapport de rappel
+                </Button>}
               </div>
             </div>
 
             {/* Money — direction only, never on shop-floor compact home */}
-            {!compact && (
+            {!compact && canRead(roles, 'costing') && canRead(roles, 'settlements') && (
               <div className="grid gap-3 sm:grid-cols-3">
               <div className="rounded-xl border p-3">
                 <p className="text-xs text-muted-foreground">Coût lot (TND/kg)</p>
@@ -610,6 +602,7 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
             )}
           </>
         )}
+        </DataState>}
       </CardContent>
 
       <FicheTechniqueSheet

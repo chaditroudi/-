@@ -31,6 +31,15 @@ const ACTORS = [
   ["auditeur_externe", "Aziz Auditeur", ["qualite"], ["quality"], "quality", ["employee"]],
   ["fournisseur_externe", "Farid Fournisseur", ["achat"], ["purchasing"], "purchasing", ["employee"]],
   ["administrateur_systeme", "Salma Admin", ["direction"], ["direction"], "direction", ["employee"]],
+  ["directeur_general", "Direction générale fictive", ["direction"], ["direction"], "direction", ["employee"]],
+  ["operateur_nettoyage", "Nettoyage fictif", ["production"], ["production"], "production", ["employee"]],
+  ["operateur_emballage", "Emballage fictif", ["production"], ["production"], "production", ["employee"]],
+  ["client_externe", "Client fictif", [], [], null, []],
+  ["partenaire_client_export", "Partenaire fictif", [], [], null, []],
+  ["technico_commercial", "Commercial fictif", [], ["logistics"], "logistics", ["employee"]],
+  ["resp_management_qualite", "Management qualité fictif", [], ["quality"], "quality", ["employee"]],
+  ["resp_qualite_haccp", "Qualité HACCP fictive", [], ["quality"], "quality", ["employee"]],
+  ["responsable_reception", "Responsable réception fictif", [], ["reception"], "reception", ["employee"]],
 ];
 
 const authUserSchema = new mongoose.Schema(

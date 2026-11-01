@@ -1,3 +1,4 @@
+import { DataState } from '@/components/shared/DataState';
 import { usePackagingAnalytics } from '@/hooks/useFounderAnalytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,7 +15,8 @@ const oeeColor = (v: number) => v >= 85 ? '#22c55e' : v >= 70 ? '#f59e0b' : '#ef
 const oeeLabel = (v: number) => v >= 85 ? 'EXCELLENT' : v >= 70 ? 'ACCEPTABLE' : 'FAIBLE';
 
 export function PackagingPerformance({ period }: { period: Period }) {
-  const { data, isLoading } = usePackagingAnalytics(period);
+  const source = usePackagingAnalytics(period);
+  const { data, isLoading } = source;
 
   if (isLoading) return <div className="py-20 text-center text-sm text-muted-foreground animate-pulse">Analyse Conditionnement…</div>;
 
@@ -24,6 +26,7 @@ export function PackagingPerformance({ period }: { period: Period }) {
   const radialData = [{ name: 'OEE', value: Math.round(oee), fill: oeeColor(oee) }];
 
   return (
+    <DataState source={{ ...source, updatedAt: source.dataUpdatedAt }} data={data} what="les indicateurs de la période">
     <div className="space-y-4">
       {/* Metal detection alert */}
       {(kpis?.metalFailures ?? 0) > 0 && (
@@ -118,5 +121,6 @@ export function PackagingPerformance({ period }: { period: Period }) {
         </CardContent>
       </Card>
     </div>
+    </DataState>
   );
 }

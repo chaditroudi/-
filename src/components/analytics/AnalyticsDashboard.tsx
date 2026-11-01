@@ -1,3 +1,4 @@
+import { canRead } from '@/lib/apiAccess';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -16,10 +17,18 @@ type Period = 'week' | 'month' | 'quarter';
 
 export const AnalyticsDashboard = () => {
   const { t } = useTranslation();
-  const { hasAnyRole } = useAuthContext();
+  const { hasAnyRole, roles } = useAuthContext();
   const [period, setPeriod] = useState<Period>('month');
   const [activeTab, setActiveTab] = useState('direction');
 
+  const allowed = {
+    production: canRead(roles, 'productionOrders'),
+    quality: canRead(roles, 'receptions') && canRead(roles, 'stageLots'),
+    stock: canRead(roles, 'stockLots'),
+    costs: canRead(roles, 'costing'),
+    direction: canRead(roles, 'productionOrders') && canRead(roles, 'receptions') && canRead(roles, 'stageLots') && canRead(roles, 'stockLots') && canRead(roles, 'costing'),
+  };
+  const visibleTab = allowed[activeTab as keyof typeof allowed] ? activeTab : Object.keys(allowed).find(key => allowed[key as keyof typeof allowed]);
   const isFounder = hasAnyRole(['directeur_general', 'administrateur_systeme', 'directeur_usine']);
 
   const periodLabels: Record<Period, string> = {
@@ -32,10 +41,10 @@ export const AnalyticsDashboard = () => {
     return (
       <div className="space-y-4">
         <ModuleHero
-          kicker="Pilotage • Fondateur"
-          title="Tableau de bord Fondateur"
-          description="Vue complète temps réel — toutes unités · tous modules · tous KPI"
-          stats={[{ label: 'Rafraîchissement', value: '15 s' }, { label: 'Couverture', value: '100%' }]}
+          kicker="Direction"
+          title="Vue de l’usine"
+          description="Indicateurs issus des opérations enregistrées. La source et la période accompagnent les données."
+
         />
         <FounderAnalyticsDashboard />
       </div>
@@ -88,28 +97,28 @@ export const AnalyticsDashboard = () => {
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="flex w-full justify-start gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:grid lg:w-auto lg:grid-cols-5 lg:overflow-visible">
-          <TabsTrigger value="direction" className="shrink-0 gap-2">
+      <Tabs value={visibleTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="flex w-full justify-start gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:w-auto lg:overflow-visible">
+          {allowed.direction && <TabsTrigger value="direction" className="shrink-0 gap-2">
             <Crown className="h-4 w-4" />
             <span className="hidden sm:inline">{t('analytics.executive')}</span>
-          </TabsTrigger>
-          <TabsTrigger value="production" className="shrink-0 gap-2">
+          </TabsTrigger>}
+          {allowed.production && <TabsTrigger value="production" className="shrink-0 gap-2">
             <Factory className="h-4 w-4" />
             <span className="hidden sm:inline">{t('nav.production')}</span>
-          </TabsTrigger>
-          <TabsTrigger value="quality" className="shrink-0 gap-2">
+          </TabsTrigger>}
+          {allowed.quality && <TabsTrigger value="quality" className="shrink-0 gap-2">
             <CheckCircle className="h-4 w-4" />
             <span className="hidden sm:inline">{t('nav.quality')}</span>
-          </TabsTrigger>
-          <TabsTrigger value="stock" className="shrink-0 gap-2">
+          </TabsTrigger>}
+          {allowed.stock && <TabsTrigger value="stock" className="shrink-0 gap-2">
             <Boxes className="h-4 w-4" />
             <span className="hidden sm:inline">{t('nav.stock')}</span>
-          </TabsTrigger>
-          <TabsTrigger value="costs" className="shrink-0 gap-2">
+          </TabsTrigger>}
+          {allowed.costs && <TabsTrigger value="costs" className="shrink-0 gap-2">
             <DollarSign className="h-4 w-4" />
             <span className="hidden sm:inline">{t('analytics.costs')}</span>
-          </TabsTrigger>
+          </TabsTrigger>}
         </TabsList>
 
         <TabsContent value="direction"><ExecutiveDashboard period={period} /></TabsContent>

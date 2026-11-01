@@ -384,6 +384,7 @@ export function WorkflowNavigation({
   const activeAppTab = activeTab as AppTab;
   const mobileTabs = unique<AppTab>([
     ...primaryTabs.slice(0, 3),
+    ...(allTabs.includes('scan') ? ['scan' as AppTab] : []),
     ...(quickTabs.length > 0 ? quickTabs : ["home" as AppTab]),
   ]).slice(0, 4);
   const isOverflowActive = !mobileTabs.includes(activeAppTab);

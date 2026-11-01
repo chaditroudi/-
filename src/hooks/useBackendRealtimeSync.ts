@@ -10,6 +10,7 @@
 import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { canRead } from '@/lib/apiAccess';
 import { useAppDispatch } from '@/store/hooks';
 import { fetchNotifications } from '@/store/slices/notificationsSlice';
 import { fetchReceptions } from '@/store/slices/receptionsSlice';
@@ -82,19 +83,21 @@ const RESOURCE_TAGS: Record<string, TagGroup[]> = {
 // ── Hook ───────────────────────────────────────────────────────────────────────
 
 export const useBackendRealtimeSync = () => {
-  const { user } = useAuthContext();
+  const { user, roles } = useAuthContext();
   const dispatch = useAppDispatch();
   const queryClient = useQueryClient();
   const seen = useRef<Set<string>>(new Set());
+  const canReadReceptions = canRead(roles, 'receptions');
 
   useEffect(() => {
     if (!user?.id) return;
+    seen.current.clear();
 
     const refreshAfterReconnect = () => {
       for (const entries of Object.values(RESOURCE_TAGS)) {
         for (const { api: apiName, tags } of entries) invalidateApiTags(dispatch, apiName, tags);
       }
-      void dispatch(fetchReceptions());
+      if (canReadReceptions) void dispatch(fetchReceptions());
       void dispatch(fetchNotifications({ force: true }));
       void queryClient.invalidateQueries();
     };
@@ -130,6 +133,10 @@ export const useBackendRealtimeSync = () => {
         }
       }
 
+      // TanStack powers the stage, packaging and indicator screens. Only active,
+      // authorized observers refetch; IDs-only events are never treated as records.
+      void queryClient.invalidateQueries({ refetchType: 'active' });
+
       if (resourcesToInvalidate.has('purchase_orders') || resourcesToInvalidate.has('purchase_order_lines')) {
         void queryClient.invalidateQueries({ queryKey: ['purchase_orders'] });
       }
@@ -139,5 +146,5 @@ export const useBackendRealtimeSync = () => {
         void dispatch(fetchNotifications({ force: true }));
       }
     });
-  }, [dispatch, queryClient, user?.id]);
+  }, [dispatch, queryClient, user?.id, canReadReceptions]);
 };

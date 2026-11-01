@@ -1,3 +1,4 @@
+import { DataState } from '@/components/shared/DataState';
 import { usePhase2Analytics } from '@/hooks/useFounderAnalytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -16,18 +17,20 @@ const yieldColor = (v: number) => v >= 95 ? 'text-green-600' : v >= 88 ? 'text-a
 const yieldBg = (v: number) => v >= 95 ? 'bg-green-500' : v >= 88 ? 'bg-amber-500' : 'bg-red-500';
 
 export function Phase2Performance({ period }: { period: Period }) {
-  const { data, isLoading } = usePhase2Analytics(period);
+  const source = usePhase2Analytics(period);
+  const { data, isLoading } = source;
 
   if (isLoading) return <div className="py-20 text-center text-sm text-muted-foreground animate-pulse">Analyse Phase 2…</div>;
 
   const modules = [
-    { key: 'fumigation', label: 'Fumigation', icon: Flame, extra: `CCP ${data?.fumigation.ccpCompliance.toFixed(0)}%` },
+    { key: 'fumigation', label: 'Fumigation', icon: Flame, extra: data?.fumigation.done ? `CCP ${data.fumigation.ccpCompliance.toFixed(0)}% (indicateur calculé)` : 'CCP non mesuré : aucun cycle terminé' },
     { key: 'nettoyage', label: 'Nettoyage', icon: Droplets, extra: data?.nettoyage.avgTurbidity ? `Turbidité ${data.nettoyage.avgTurbidity.toFixed(0)} NTU` : '' },
     { key: 'hydratation', label: 'Hydratation', icon: Wind, extra: data?.hydratation.avgHumidityGain ? `+${data.hydratation.avgHumidityGain.toFixed(1)}% hum.` : '' },
     { key: 'triage', label: 'Triage', icon: Scissors, extra: data?.triage.avgRejetePct ? `${data.triage.avgRejetePct.toFixed(1)}% rejeté` : '' },
   ] as const;
 
   return (
+    <DataState source={{ ...source, updatedAt: source.dataUpdatedAt }} data={data} what="les indicateurs de la période">
     <div className="space-y-4">
       {/* Module yield cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -131,5 +134,6 @@ export function Phase2Performance({ period }: { period: Period }) {
         </Card>
       )}
     </div>
+    </DataState>
   );
 }

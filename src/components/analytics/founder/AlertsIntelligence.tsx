@@ -1,3 +1,4 @@
+import { DataState } from '@/components/shared/DataState';
 import { useAlertIntelligence } from '@/hooks/useFounderAnalytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,11 +15,13 @@ const SEV_STYLE: Record<string, { bg: string; text: string; label: string }> = {
 };
 
 export function AlertsIntelligence({ period }: { period: Period }) {
-  const { data, isLoading } = useAlertIntelligence(period);
+  const source = useAlertIntelligence(period);
+  const { data, isLoading } = source;
 
   if (isLoading) return <div className="py-20 text-center text-sm text-muted-foreground animate-pulse">Analyse alertes…</div>;
 
   return (
+    <DataState source={{ ...source, updatedAt: source.dataUpdatedAt }} data={data} what="les indicateurs de la période">
     <div className="space-y-4">
       {/* Severity breakdown */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -117,5 +120,6 @@ export function AlertsIntelligence({ period }: { period: Period }) {
         </Card>
       )}
     </div>
+    </DataState>
   );
 }

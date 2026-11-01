@@ -1,3 +1,5 @@
+import { DataState } from '@/components/shared/DataState';
+import { RealtimeIndicator } from '@/components/layout/RealtimeIndicator';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -14,7 +16,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
-  useNotifications, useMarkNotificationRead, useMarkAllRead, useNotificationRealtimeState,
+  useNotifications, useMarkNotificationRead, useMarkAllRead, useNotificationRealtimeState, useNotificationSummary,
 } from '@/hooks/useNotifications';
 import type { SystemNotification } from '@/types/notifications';
 import { cn } from '@/lib/utils';
@@ -305,7 +307,9 @@ export const NotificationCenter = () => {
   // is_read flips immediately when the markRead mutation resolves.
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const { data: notifications = [], isLoading } = useNotifications();
+  const notificationSource = useNotifications();
+  const { data: notifications = [] } = notificationSource;
+  const summary = useNotificationSummary();
   const { recentNotifications, lastRealtimeAt } = useNotificationRealtimeState();
   const markRead   = useMarkNotificationRead();
   const markAllRead = useMarkAllRead();
@@ -316,9 +320,9 @@ export const NotificationCenter = () => {
     ? (notifications.find((n) => n.id === selectedId) ?? null)
     : null;
 
-  const unreadCount   = notifications.filter((n) => !n.is_read).length;
-  const criticalCount = notifications.filter((n) => !n.is_read && n.severity === 'error').length;
-  const warningCount  = notifications.filter((n) => !n.is_read && n.severity === 'warning').length;
+  const unreadCount = summary.error ? null : summary.data?.unread ?? null;
+  const criticalCount = summary.error ? null : summary.data?.critical ?? null;
+  const warningCount = summary.error ? null : summary.data?.warning ?? null;
 
   const livePulseActive =
     Boolean(lastRealtimeAt) &&
@@ -392,6 +396,7 @@ export const NotificationCenter = () => {
       {/* ── Panel ── */}
       <PopoverContent className="w-[min(400px,calc(100vw-1rem))] p-0 shadow-xl" align="end" sideOffset={8}>
 
+        <DataState source={notificationSource} data={notificationSource.data} what="les notifications" isEmpty={false}>
         {selectedNotification ? (
           // ── Detail view ──────────────────────────────────────────────────
           <NotificationDetailView
@@ -411,12 +416,7 @@ export const NotificationCenter = () => {
               <div>
                 <h3 className="text-[13.5px] font-semibold">{t('notifications.title')}</h3>
                 <div className="mt-0.5 flex items-center gap-2">
-                  <Badge
-                    variant={livePulseActive ? 'default' : 'outline'}
-                    className="h-4 rounded-full px-2 text-xs"
-                  >
-                    Live
-                  </Badge>
+                  <RealtimeIndicator />
                   {lastRealtimeAt && (
                     <span className="text-xs text-muted-foreground">
                       {formatDistanceToNow(new Date(lastRealtimeAt), { addSuffix: true, locale })}
@@ -429,7 +429,7 @@ export const NotificationCenter = () => {
                   <button
                     type="button"
                     onClick={handleMarkAllRead}
-                    disabled={markAllRead.isPending}
+                    disabled={markAllRead.isPending || Boolean(summary.error) || notificationSource.isFetching}
                     className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground disabled:opacity-50"
                   >
                     <CheckCheck className="h-3.5 w-3.5" />
@@ -456,11 +456,13 @@ export const NotificationCenter = () => {
               ].map(({ label, value, accent }) => (
                 <div key={label} className="rounded-lg border bg-background px-2.5 py-1.5">
                   <p className="text-xs leading-none text-muted-foreground">{label}</p>
-                  <p className={cn('mt-1 text-[15px] font-semibold leading-none', accent)}>{value}</p>
+                  <p className={cn('mt-1 text-[15px] font-semibold leading-none', accent)}>{value ?? '—'}</p>
                 </div>
               ))}
             </div>
 
+            <DataState compact source={summary} data={summary.data} what="les compteurs de notifications" isEmpty={false}><span className="sr-only">Compteurs disponibles</span></DataState>
+            <p className="px-4 py-2 text-xs text-muted-foreground">{notifications.length} notifications récentes affichées{summary.data ? ` sur ${summary.data.total}` : ""}. Les compteurs portent sur toutes vos notifications autorisées.</p>
             {/* Live / recent strip */}
             {recentLive.length > 0 && (
               <div className="border-b px-3 py-3">
@@ -492,7 +494,7 @@ export const NotificationCenter = () => {
 
             {/* Full list */}
             <ScrollArea className="h-[360px]">
-              {isLoading ? (
+              {notificationSource.isLoading ? (
                 <div className="flex items-center justify-center py-10 text-[13px] text-muted-foreground">
                   {t('common.loading')}
                 </div>
@@ -517,6 +519,7 @@ export const NotificationCenter = () => {
           </div>
         )}
 
+        </DataState>
       </PopoverContent>
     </Popover>
   );

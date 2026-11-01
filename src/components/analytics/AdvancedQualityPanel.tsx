@@ -1,4 +1,5 @@
-﻿import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+﻿import { DataState } from '@/components/shared/DataState';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -30,7 +31,9 @@ interface AdvancedQualityPanelProps {
 }
 
 export const AdvancedQualityPanel = ({ period }: AdvancedQualityPanelProps) => {
-  const { data, isLoading } = useAdvancedQualityAnalytics(period);
+  const source = useAdvancedQualityAnalytics(period);
+  const { data, isLoading } = source;
+  if (!data && !isLoading) return <DataState source={source} data={data} what="les indicateurs">{null}</DataState>;
 
   if (isLoading) {
     return (
@@ -51,6 +54,7 @@ export const AdvancedQualityPanel = ({ period }: AdvancedQualityPanelProps) => {
   const rejectRateStatus = getKPIStatus(kpis?.rejectRate || 0, KPI_THRESHOLDS.rejectRate, false);
 
   return (
+    <DataState source={{ ...source, updatedAt: source.dataUpdatedAt }} data={data} what="les indicateurs">
     <div className="space-y-4">
       {/* Main KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -375,6 +379,7 @@ export const AdvancedQualityPanel = ({ period }: AdvancedQualityPanelProps) => {
         </Card>
       )}
     </div>
+    </DataState>
   );
 };
 

@@ -18,8 +18,11 @@ import { LotJourneyHub } from "./LotJourneyHub";
 import type { AppNavigateFn } from "@/lib/appNavigate";
 import type { AppTab } from "@/lib/roleAccess";
 import { useSiteSettings } from "@/hooks/useSettings";
+import { RoleLanding } from './RoleLanding';
+import type { ActorRole } from '@/types/roles';
 
 interface HomePageProps {
+  roles?: ActorRole[];
   onNavigate: AppNavigateFn;
   accessibleTabs: AppTab[];
   /** Reception staff see the queue's size on their post, but the work is not theirs. */
@@ -45,7 +48,7 @@ interface HomePageProps {
 }
 
 /** Accueil atelier — one urgent signal, lot hub, four posts. Nothing else. */
-export const HomePage = ({ onNavigate, accessibleTabs, canInspect, metrics }: HomePageProps) => {
+export const HomePage = ({ onNavigate, accessibleTabs, canInspect, metrics, roles = [] }: HomePageProps) => {
   const { data: settings } = useSiteSettings();
   const {
     qualityLots,
@@ -160,6 +163,7 @@ export const HomePage = ({ onNavigate, accessibleTabs, canInspect, metrics }: Ho
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-4">
+      <RoleLanding roles={roles} tabs={accessibleTabs} onNavigate={onNavigate} />
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex gap-2">
           {accessibleTabs.includes("alerts") && (

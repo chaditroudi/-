@@ -1,4 +1,4 @@
-import EcodatteLogo from '@/assets/EcodatteLogo.png';
+import productLogo from '@/assets/date-harvest-mark.svg';
 import { useSettingsContext } from '@/contexts/SettingsContext';
 import { DEFAULT_SETTINGS } from '@/types/settings';
 import { PRINT_BRAND_FALLBACK, PRODUCT } from '@/lib/productMeta';
@@ -54,8 +54,8 @@ export function useBranding() {
     footprint,
     printFooter,
     customLogoSrc,
-    fallbackLogoSrc: EcodatteLogo,
-    logoSrc: customLogoSrc || EcodatteLogo,
+    fallbackLogoSrc: productLogo,
+    logoSrc: customLogoSrc || productLogo,
     primaryColor: settings.primary_color || DEFAULT_SETTINGS.primary_color,
     accentColor: settings.accent_color || DEFAULT_SETTINGS.accent_color,
   };

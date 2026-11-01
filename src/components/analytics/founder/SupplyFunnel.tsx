@@ -1,3 +1,4 @@
+import { DataState } from '@/components/shared/DataState';
 import { useSupplyFunnel } from '@/hooks/useFounderAnalytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -147,7 +148,8 @@ function FunnelStage({
 }
 
 export function SupplyFunnel({ period }: { period: Period }) {
-  const { data, isLoading } = useSupplyFunnel(period);
+  const source = useSupplyFunnel(period);
+  const { data, isLoading } = source;
 
   if (isLoading)
     return (
@@ -163,6 +165,7 @@ export function SupplyFunnel({ period }: { period: Period }) {
   const phase2Empty = stages.slice(1).every((s) => s.value === 0);
 
   return (
+    <DataState source={{ ...source, updatedAt: source.dataUpdatedAt }} data={data} what="les indicateurs de la période">
     <div className="space-y-4">
       {/* Benchmark KPI cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -234,5 +237,6 @@ export function SupplyFunnel({ period }: { period: Period }) {
         </CardContent>
       </Card>
     </div>
+    </DataState>
   );
 }

@@ -1,3 +1,4 @@
+import { DataState } from '@/components/shared/DataState';
 import { useSupplierIntelligence } from '@/hooks/useFounderAnalytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +11,8 @@ const acceptColor = (v: number) => v >= 90 ? '#22c55e' : v >= 75 ? '#f59e0b' : '
 const acceptLabel = (v: number) => v >= 90 ? 'Excellent' : v >= 75 ? 'Moyen' : 'Faible';
 
 export function SupplierScorecard({ period }: { period: Period }) {
-  const { data, isLoading } = useSupplierIntelligence(period);
+  const source = useSupplierIntelligence(period);
+  const { data, isLoading } = source;
 
   if (isLoading) return <div className="py-20 text-center text-sm text-muted-foreground animate-pulse">Analyse fournisseurs…</div>;
 
@@ -18,6 +20,7 @@ export function SupplierScorecard({ period }: { period: Period }) {
   const totalKg = suppliers.reduce((s, r) => s + r.kgReceived, 0);
 
   return (
+    <DataState source={{ ...source, updatedAt: source.dataUpdatedAt }} data={data} what="les indicateurs de la période">
     <div className="space-y-4">
       {/* Summary KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -114,5 +117,6 @@ export function SupplierScorecard({ period }: { period: Period }) {
         </Card>
       )}
     </div>
+    </DataState>
   );
 }

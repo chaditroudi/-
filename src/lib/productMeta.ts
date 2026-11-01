@@ -8,7 +8,7 @@ export const PRODUCT = {
   commercialName: 'Date Harvest Hub',
   tagline: 'MES + Connect pour usines de dattes — du quai à l’export.',
   version: '2.1.0',
-  edition: 'Multi-usine',
+  edition: 'Édition usine',
   year: 2026,
   stack: 'React · NestJS · MongoDB',
   waves: [
@@ -21,7 +21,7 @@ export const PRODUCT = {
     'Fiches + ack shift · BRA/BDE · étiquette PF',
     'Mass balance · costing · settlements',
     'QC lab · facture TVA · portail fournisseur',
-    'Prêt multi-usine (branding Settings)',
+    'Identité visuelle configurable par usine',
   ],
 } as const;
 

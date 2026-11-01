@@ -1,3 +1,4 @@
+import { DataState } from '@/components/shared/DataState';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -34,7 +35,9 @@ const SEVERITY_META = {
 
 export const AlertAnalyticsPanel = () => {
   const { t } = useTranslation();
-  const { data: stats, isLoading } = useNotificationStats();
+  const source = useNotificationStats();
+  const { data: stats, isLoading } = source;
+  if (!stats && !isLoading) return <DataState source={source} data={stats} what="les statistiques de notifications">{null}</DataState>;
 
   if (isLoading || !stats) {
     return (
@@ -208,7 +211,7 @@ export const AlertAnalyticsPanel = () => {
               <p className="text-xs text-muted-foreground">{t('alerts.unread', { defaultValue: 'Non lues' })}</p>
             </div>
             <div>
-              <p className="text-xl font-bold text-blue-600">{stats.auditLogsLast24h}</p>
+              <p className="text-xl font-bold text-blue-600">{stats.auditLogsLast24h ?? '—'}</p>
               <p className="text-xs text-muted-foreground">{t('alerts.auditEvents24h', { defaultValue: 'Événements audit (24h)' })}</p>
             </div>
             <div>

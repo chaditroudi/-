@@ -1,3 +1,5 @@
+import { DataState } from '@/components/shared/DataState';
+import { RealtimeIndicator } from '@/components/layout/RealtimeIndicator';
 import { useEffect, useState } from 'react';
 import { useLiveFactory } from '@/hooks/useFounderAnalytics';
 import { Card, CardContent } from '@/components/ui/card';
@@ -25,7 +27,8 @@ function LiveClock() {
 }
 
 export function LivePulse() {
-  const { data, isLoading, dataUpdatedAt } = useLiveFactory();
+  const source = useLiveFactory();
+  const { data, isLoading, dataUpdatedAt } = source;
 
   return (
     <div className="space-y-4">
@@ -38,10 +41,7 @@ export function LivePulse() {
           <div>
             <div className="flex items-center gap-2">
               <span className="font-bold text-lg">Usine en temps réel</span>
-              <span className="flex items-center gap-1 text-xs bg-emerald-100 text-emerald-700 border border-border rounded-full px-2 py-0.5 font-semibold">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                LIVE
-              </span>
+              <RealtimeIndicator />
             </div>
             <div className="text-xs text-muted-foreground">
               {dataUpdatedAt ? `Mis à jour ${formatDistanceToNow(new Date(dataUpdatedAt), { locale: fr, addSuffix: true })}` : 'Chargement…'}
@@ -51,6 +51,7 @@ export function LivePulse() {
         <LiveClock />
       </div>
 
+      <DataState source={{ ...source, updatedAt: dataUpdatedAt }} data={data} what="l’activité de l’usine">
       {/* Alert banner */}
       {(data?.alerts.critique ?? 0) > 0 && (
         <div className="flex items-center gap-3 rounded-xl bg-card border border-red-200 px-4 py-3 animate-pulse">
@@ -160,7 +161,7 @@ export function LivePulse() {
           <CardContent className="pt-3 pb-3">
             <div className="text-xs font-semibold text-muted-foreground mb-2">Ordres de conditionnement actifs</div>
             <div className="divide-y">
-              {data!.active.packagingDetail.map((o: Record<string, unknown>) => {
+              {data!.active.packagingDetail.map((o) => {
                 const pct = o.target_units > 0 ? Math.round((o.produced_units / o.target_units) * 100) : 0;
                 return (
                   <div key={o.id} className="py-2 flex items-center gap-3">
@@ -182,6 +183,7 @@ export function LivePulse() {
           </CardContent>
         </Card>
       )}
+      </DataState>
     </div>
   );
 }

@@ -43,18 +43,18 @@ const queryClient = new QueryClient({
 
 /** A tablet is shared: nothing one account loaded or subscribed to may reach the next. */
 const SessionBoundary = () => {
-  const { user } = useAuthContext();
+  const { user, roles } = useAuthContext();
   const client = useQueryClient();
-  const userId = user?.id ?? null;
-  const previous = useRef(userId);
+  const identity = user?.id ? `${user.id}:${[...roles].sort().join(',')}` : null;
+  const previous = useRef(identity);
 
   useEffect(() => {
-    if (previous.current === userId) return;
+    if (previous.current === identity) return;
     const hadAccount = previous.current !== null;
-    previous.current = userId;
+    previous.current = identity;
     restartSseConnection();
     if (hadAccount) void clearSessionData(client);
-  }, [client, userId]);
+  }, [client, identity]);
 
   return null;
 };

@@ -4,13 +4,17 @@
  * Lives under scripts because it needs both the client and the server sources.
  */
 import { ModulesContainer } from "@nestjs/core";
+import { writeFileSync } from 'node:fs';
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { createApp } from "../server/src/app.ts";
 import { ALL_ROLES } from "../server/src/middleware/authorization.ts";
 import { ANY_ROLE_KEY, IS_PUBLIC_KEY, ROLES_KEY } from "../server/src/nest/route-metadata.ts";
-import { canRead, READ_ACCESS, TAB_REQUIRES } from "../src/lib/apiAccess";
+import { canRead, canCallRoute, READ_ACCESS, ACTION_ACCESS, TAB_REQUIRES } from "../src/lib/apiAccess";
+import contract from '../src/lib/serverAccess.generated.json';
 import { getAccessibleTabs } from "../src/lib/roleAccess";
+import { getRoleWorkspaceProfile } from '../src/lib/roleAccess';
+import { getDailyAction } from '../src/lib/roleLanding';
 
 const BYPASS = new Set(["admin", "administrateur_systeme", "directeur_general", "directeur_usine"]);
 const METHODS = ["GET", "POST", "PUT", "DELETE", "PATCH", "ALL", "OPTIONS", "HEAD"];
@@ -43,6 +47,23 @@ describe("role contract", () => {
   beforeAll(async () => {
     app = await createApp();
     routes = readRoutes(app);
+    if (process.env.UPDATE_ROLE_CONTRACT === '1') {
+      const projected = Object.fromEntries([
+        ...Object.values(READ_ACCESS).map(entry => entry.route), ...Object.values(ACTION_ACCESS),
+      ].map(route => {
+        if (!routes.has(route)) throw new Error(`Unknown capability route: ${route}`);
+        return [route, roles.filter(role => serverAllows(routes.get(route), role))];
+      }));
+      writeFileSync('src/lib/serverAccess.generated.json', JSON.stringify(projected, null, 2).replace(/\n/g, '\r\n') + '\r\n');
+      Object.assign(contract, projected);
+    }
+    if (process.env.PHASE1_MATRIX_FILE) {
+      writeFileSync(process.env.PHASE1_MATRIX_FILE, JSON.stringify(roles.map(role => ({
+        role, tabs: getAccessibleTabs([role]), profile: getRoleWorkspaceProfile([role]),
+        action: getDailyAction([role], getAccessibleTabs([role])),
+        reads: Object.fromEntries(Object.entries(READ_ACCESS).map(([resource, entry]) => [resource, { route: entry.route, allowed: canRead([role], resource) }])),
+      })), null, 2));
+    }
   });
   afterAll(() => app?.close());
 
@@ -60,6 +81,13 @@ describe("role contract", () => {
       }
     }
     expect(differences).toEqual([]);
+  });
+
+  it('projects action permissions without widening the server policy', () => {
+    for (const route of Object.values(ACTION_ACCESS)) {
+      expect(routes.has(route), route).toBe(true);
+      for (const role of roles) expect(canCallRoute([role], route), `${role} ${route}`).toBe(serverAllows(routes.get(route), role));
+    }
   });
 
   it("offers no role a tab whose main data the server refuses", () => {

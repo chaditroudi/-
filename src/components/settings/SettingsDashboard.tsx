@@ -15,9 +15,10 @@ import { CostingPanel } from './costing/CostingPanel';
 import { ProductAboutPanel } from './ProductAboutPanel';
 import { TrustGatesPanel } from './TrustGatesPanel';
 import { FichesCmsPanel } from './FichesCmsPanel';
-import { DEFAULT_SETTINGS } from '@/types/settings';
+import { DataState } from '@/components/shared/DataState';
+import { useOnline } from '@/hooks/useOnline';
+import { useSearchParams } from 'react-router-dom';
 import type { AppNavigateFn } from '@/lib/appNavigate';
-import { PRODUCT } from '@/lib/productMeta';
 import {
   Palette,
   ToggleLeft,
@@ -35,19 +36,16 @@ import {
 } from 'lucide-react';
 
 export function SettingsDashboard({ onNavigate }: { onNavigate?: AppNavigateFn } = {}) {
-  const { data: settings = DEFAULT_SETTINGS, isLoading } = useSiteSettings();
-
-  if (isLoading) {
-    return (
-      <div className="py-12 text-center text-sm text-muted-foreground">
-        Chargement des paramètres…
-      </div>
-    );
-  }
+  const source = useSiteSettings();
+  const settings = source.data;
+  const online = useOnline();
+  const [params, setParams] = useSearchParams();
+  const view = params.get('view') || 'plant';
 
   return (
-    <div className="space-y-4">
-      <Tabs defaultValue="plant">
+    <DataState source={{ ...source, updatedAt: source.dataUpdatedAt }} data={settings} what="les paramètres">
+    {settings && <fieldset disabled={Boolean(source.error) || source.isFetching || !online} className="space-y-4 min-w-0">
+      <Tabs value={view} onValueChange={(value) => setParams(previous => { const next = new URLSearchParams(previous); next.set('view', value); return next; }, { replace: true })}>
         <TabsList className="flex w-full flex-wrap justify-start gap-1">
           <TabsTrigger value="fiches" className="shrink-0 gap-1.5">
             <BookOpen className="h-3.5 w-3.5" />
@@ -147,6 +145,7 @@ export function SettingsDashboard({ onNavigate }: { onNavigate?: AppNavigateFn }
           <UserManagementPanel />
         </TabsContent>
       </Tabs>
-    </div>
+    </fieldset>}
+    </DataState>
   );
 }

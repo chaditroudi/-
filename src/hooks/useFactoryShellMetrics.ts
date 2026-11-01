@@ -108,7 +108,7 @@ export const useFactoryShellMetrics = (options: FactoryShellMetricOptions = {}) 
     const receptionAlertCount = enableReceptionAlerts ? knownCount(conditionOf(1), receptionAlerts, (rows) => rows.length) : 0;
     const activeAlertsCount = sum(receptionAlertCount, batchAlertCount);
 
-    const pipelineKnown = conditionOf(5) !== "restricted" && conditionOf(5) !== "error" && conditionOf(5) !== "loading" && conditionOf(5) !== "offline";
+    const pipelineKnown = ['ready', 'empty', 'stale'].includes(conditionOf(5));
     const phase2Active = pipelineKnown ? pipeline.inFumigation + pipeline.inCleaning + pipeline.inHydration + pipeline.inTriage : null;
     const phase2Waiting = pipelineKnown ? pipeline.waiting.length : null;
     const waitingLots: AvailableLot[] = pipeline.waiting;
@@ -140,7 +140,7 @@ export const useFactoryShellMetrics = (options: FactoryShellMetricOptions = {}) 
         loading: consulted.some((source) => source.condition === "loading"),
         /** What could not be checked, in words. "Nothing urgent" may not be said while this has entries. */
         unavailable: consulted
-          .filter((source) => ["error", "offline", "restricted", "stale"].includes(source.condition))
+          .filter((source) => ["error", "offline", "restricted", "session", "notFound", "stale"].includes(source.condition))
           .map((source) => source.label),
       },
     };

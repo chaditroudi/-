@@ -92,7 +92,7 @@ export function AppSidebar({ activeTab, onTabChange, activeView, activeAlertsCou
   const { companyName } = useBranding();
 
   const canSee = (id: string) =>
-    !accessibleTabs || accessibleTabs.length === 0 || accessibleTabs.includes(id) || id === "home";
+    id === "home" || Boolean(accessibleTabs?.includes(id));
 
   const identityLabel = profile?.full_name || user?.email || "Utilisateur";
   const primaryRole = roles?.[0];

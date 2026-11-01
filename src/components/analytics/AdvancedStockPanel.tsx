@@ -1,4 +1,5 @@
-﻿import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+﻿import { DataState } from '@/components/shared/DataState';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
@@ -25,7 +26,9 @@ import {
 import { KPI_THRESHOLDS, getKPIStatus, KPI_STATUS_COLORS, KPI_STATUS_BG } from '@/types/analytics';
 
 export const AdvancedStockPanel = () => {
-  const { data, isLoading } = useAdvancedStockAnalytics();
+  const source = useAdvancedStockAnalytics();
+  const { data, isLoading } = source;
+  if (!data && !isLoading) return <DataState source={source} data={data} what="les indicateurs">{null}</DataState>;
 
   if (isLoading) {
     return (
@@ -55,6 +58,7 @@ export const AdvancedStockPanel = () => {
   ];
 
   return (
+    <DataState source={{ ...source, updatedAt: source.dataUpdatedAt }} data={data} what="les indicateurs">
     <div className="space-y-4">
       {/* Main KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -358,6 +362,7 @@ export const AdvancedStockPanel = () => {
         </Card>
       )}
     </div>
+    </DataState>
   );
 };
 

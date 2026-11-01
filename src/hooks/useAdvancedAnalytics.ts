@@ -454,6 +454,8 @@ export const useExecutiveDashboard = (period: Period = 'month') => {
   const cost = useAdvancedCostAnalytics(period);
 
   return {
+    error: [production, quality, stock, cost].find(source => source.error)?.error,
+    refetch: () => Promise.all([production, quality, stock, cost].map(source => source.refetch())),
     production: production.data,
     quality: quality.data,
     stock: stock.data,

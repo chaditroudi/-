@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DataState } from '@/components/shared/DataState';
 import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
@@ -25,7 +25,7 @@ import { BonReceptionAchatDashboard } from '@/components/bon-reception-achat/Bon
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useTodayPendingNotices } from '@/hooks/useInboundNotices';
 import { useReceptionAlerts } from '@/hooks/useReceptionsV2';
@@ -354,6 +354,10 @@ export const ReceptionDashboardV2 = ({
   const [workspace, setWorkspace] = useState<WorkspaceTarget | null>(null);
   const [intake, setIntake] = useState<IntakeTarget | null>(null);
   const [noticeOpen, setNoticeOpen] = useState(false);
+  const activeTabRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    activeTabRef.current?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+  }, [subTab]);
 
   const updateSubTab = useCallback((v: SubTab) => { setSubTab(v); ss.set('rdv2-subtab', v); onViewChange?.(v); }, [onViewChange]);
 
@@ -363,12 +367,16 @@ export const ReceptionDashboardV2 = ({
 
   useEffect(() => {
     if (!initialView) return;
+    if (initialView === 'new' && permissions.canRegister) {
+      setIntake({});
+      return;
+    }
     const target = initialView === 'tablet' ? 'today' : initialView;
     if (VALID_SUB_TABS.includes(target as SubTab)) {
       setWorkspace(null);
       updateSubTab(target as SubTab);
     }
-  }, [initialView, updateSubTab]);
+  }, [initialView, updateSubTab, permissions.canRegister]);
 
   const todayStart = useMemo(startOfToday, []);
   const todayQuery = useSearchReceptionsQuery({ from: todayStart, limit: 100 });
@@ -445,18 +453,16 @@ export const ReceptionDashboardV2 = ({
       <Tabs value={subTab} onValueChange={(v) => updateSubTab(v as SubTab)}>
         <div className="flex flex-wrap-reverse items-center gap-x-3 gap-y-2 border-b">
           <div className="min-w-0 flex-1 overflow-x-auto scrollbar-hide max-lg:basis-full">
-          <div className="flex min-w-max gap-1" role="tablist" aria-label="Sections de la réception">
+          <TabsList className="flex h-auto min-w-max justify-start gap-1 rounded-none bg-transparent p-0" aria-label="Sections de la réception">
             {tabs.map((tab) => {
               const active = subTab === tab.value;
               return (
-                <button
+                <TabsTrigger
                   key={tab.value}
-                  type="button"
-                  role="tab"
-                  aria-selected={active}
-                  onClick={() => updateSubTab(tab.value)}
+                  value={tab.value}
+                  ref={active ? activeTabRef : undefined}
                   className={cn(
-                    'relative flex min-h-11 items-center gap-2 whitespace-nowrap px-4 py-3 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring',
+                    'relative flex min-h-11 items-center gap-2 whitespace-nowrap rounded-none px-4 py-3 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring data-[state=active]:bg-transparent data-[state=active]:shadow-none',
                     active ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
                   )}
                 >
@@ -468,10 +474,10 @@ export const ReceptionDashboardV2 = ({
                     </span>
                   )}
                   {active && <span className="absolute bottom-0 left-0 h-0.5 w-full rounded-full bg-primary" />}
-                </button>
+                </TabsTrigger>
               );
             })}
-          </div>
+          </TabsList>
         </div>
           <div className="ml-auto flex shrink-0 gap-2 pb-1.5">
           <Button type="button" variant="outline" className="gap-2" onClick={() => setNoticeOpen(true)}>

@@ -1,3 +1,5 @@
+import { DataState } from '@/components/shared/DataState';
+import { RealtimeIndicator } from '@/components/layout/RealtimeIndicator';
 import { useState } from 'react';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { canRead } from '@/lib/apiAccess';
@@ -16,7 +18,7 @@ import {
   Search, RefreshCw, Eye, CalendarDays, BellOff,
 } from 'lucide-react';
 import {
-  useNotifications,
+  useNotifications, useNotificationSummary,
   useNotificationRealtimeState,
   useAuditLogs,
   useMarkAllRead,
@@ -48,7 +50,7 @@ export const FactoryAlertsCenter = () => {
    const [dateFrom, setDateFrom] = useState<string>('');
    const [dateTo, setDateTo] = useState<string>('');
    const [mutedIds, setMutedIds] = useState<Set<string>>(new Set());
-   
+
    const getLocale = () => {
      switch (i18n.language) {
        case 'ar': return ar;
@@ -85,23 +87,28 @@ export const FactoryAlertsCenter = () => {
      APPROVE: t('alerts.actions.APPROVE'),
      REJECT: t('alerts.actions.REJECT')
    };
-   
+
    // Data hooks
-   const { data: notifications = [], isLoading: notifLoading, refetch: refetchNotifications } = useNotifications();
+   const notificationSource = useNotifications();
+   const summary = useNotificationSummary();
+   const { data: notifications = [], isLoading: notifLoading, refetch: refetchNotifications } = notificationSource;
    const { recentNotifications, lastRealtimeAt } = useNotificationRealtimeState();
-   const { data: auditLogs = [], isLoading: auditLoading, refetch: refetchAudit } = useAuditLogs();
    const { roles } = useAuthContext();
-   const { data: receptionAlerts = [] } = useReceptionAlerts({ enabled: canRead(roles, 'receptionAlerts') });
-   
+   const canAudit = canRead(roles, 'auditLogs');
+   const canReadReceptionAlerts = canRead(roles, 'receptionAlerts');
+   const auditSource = useAuditLogs(undefined, undefined, canAudit);
+   const { data: auditLogs = [], isLoading: auditLoading, refetch: refetchAudit } = auditSource;
+   const receptionSource = useReceptionAlerts({ enabled: canReadReceptionAlerts });
+   const { data: receptionAlerts = [] } = receptionSource;
+
    // Cache invalidation is handled globally by useBackendRealtimeSync (SSE → RTK Query tags)
 
    // Stats
-   const unreadCount = notifications.filter(n => !n.is_read).length;
-   const criticalCount = notifications.filter(n => n.severity === 'error' && !n.is_read).length;
-   const warningCount = notifications.filter(n => n.severity === 'warning' && !n.is_read).length;
-   const activeReceptionAlerts = receptionAlerts.filter(a => a.status === 'ACTIVE').length;
-   const livePulseActive = Boolean(lastRealtimeAt) && Date.now() - new Date(lastRealtimeAt as string).getTime() < 30_000;
-   
+   const unreadCount = summary.error ? null : summary.data?.unread ?? null;
+   const criticalCount = summary.error ? null : summary.data?.critical ?? null;
+   const warningCount = summary.error ? null : summary.data?.warning ?? null;
+   const activeReceptionAlerts = !receptionSource.data || receptionSource.error ? null : receptionAlerts.filter(a => a.status === 'ACTIVE').length;
+
    // Shared date-range check
    const inDateRange = (iso: string) => {
      const d = new Date(iso);
@@ -128,21 +135,23 @@ export const FactoryAlertsCenter = () => {
      if (!inDateRange(log.performed_at)) return false;
      return true;
    });
-   
+
    const handleRefresh = () => {
      refetchNotifications();
-     refetchAudit();
+     if (canAudit) void refetchAudit();
+     void summary.refetch();
    };
 
    return (
      <div className="space-y-4">
        <SummaryStrip items={[
-         { label: t('alerts.critical'), value: criticalCount, tone: criticalCount > 0 ? 'bad' : 'default' },
-         { label: t('alerts.warnings'), value: warningCount, tone: warningCount > 0 ? 'watch' : 'default' },
-         { label: t('alerts.unread'), value: unreadCount },
-         { label: t('alerts.receptionAlerts'), value: activeReceptionAlerts },
+         { label: t('alerts.critical'), value: criticalCount ?? '—', tone: criticalCount > 0 ? 'bad' : 'default' },
+         { label: t('alerts.warnings'), value: warningCount ?? '—', tone: warningCount > 0 ? 'watch' : 'default' },
+         { label: t('alerts.unread'), value: unreadCount ?? '—' },
+         { label: t('alerts.receptionAlerts'), value: activeReceptionAlerts ?? '—' },
        ]} />
 
+       <DataState source={summary} data={summary.data} what="les compteurs de notifications" isEmpty={false}><span className="sr-only">Compteurs disponibles</span></DataState>
        {/* Main Content */}
        <Card>
          <CardHeader className="pb-2">
@@ -150,9 +159,7 @@ export const FactoryAlertsCenter = () => {
              <CardTitle className="flex items-center gap-2">
                <Bell className="h-5 w-5" />
                {t('alerts.factoryAlerts')}
-               <Badge variant={livePulseActive ? "default" : "outline"} className="ml-2">
-                 {t('alerts.realtime')}
-               </Badge>
+               <RealtimeIndicator />
                {lastRealtimeAt && (
                  <span className="text-xs font-normal text-muted-foreground">
                    {formatDistanceToNow(new Date(lastRealtimeAt), { addSuffix: true, locale: getLocale() })}
@@ -192,7 +199,7 @@ export const FactoryAlertsCenter = () => {
                </div>
              </div>
            )}
-           
+
            {/* Filters */}
            <div className="flex items-center gap-2 mt-4 flex-wrap">
              <div className="relative flex-1 min-w-[200px]">
@@ -246,10 +253,10 @@ export const FactoryAlertsCenter = () => {
              </div>
            </div>
          </CardHeader>
-         
+
          <CardContent>
            <Tabs value={activeTab} onValueChange={setActiveTab}>
-             <TabsList className="grid w-full grid-cols-3">
+             <TabsList className="flex w-full flex-wrap justify-start gap-1">
                <TabsTrigger value="live" className="flex items-center gap-1">
                  <Bell className="h-4 w-4" />
                  {t('alerts.liveAlerts')}
@@ -259,11 +266,11 @@ export const FactoryAlertsCenter = () => {
                    </Badge>
                  )}
                </TabsTrigger>
-               <TabsTrigger value="audit" className="flex items-center gap-1">
+               {canAudit && <TabsTrigger value="audit" className="flex items-center gap-1">
                  <Clock className="h-4 w-4" />
                  {t('alerts.auditLog')}
-               </TabsTrigger>
-               <TabsTrigger value="reception" className="flex items-center gap-1">
+               </TabsTrigger>}
+               {canReadReceptionAlerts && <TabsTrigger value="reception" className="flex items-center gap-1">
                  <Package className="h-4 w-4" />
                  {t('alerts.receptionAlerts')}
                  {activeReceptionAlerts > 0 && (
@@ -271,10 +278,12 @@ export const FactoryAlertsCenter = () => {
                      {activeReceptionAlerts}
                    </Badge>
                  )}
-               </TabsTrigger>
+               </TabsTrigger>}
              </TabsList>
-             
+
              <TabsContent value="live" className="mt-4">
+               <DataState source={notificationSource} data={notificationSource.data} what="les notifications" isEmpty={false}>
+               <p className="mb-2 text-xs text-muted-foreground">{notifications.length} notifications récentes affichées{summary.data ? ` sur ${summary.data.total}` : ""}.</p>
                <LiveAlertsPanel
                  notifications={filteredNotifications}
                  isLoading={notifLoading}
@@ -284,26 +293,27 @@ export const FactoryAlertsCenter = () => {
                  mutedIds={mutedIds}
                  onMute={(id) => setMutedIds(prev => new Set([...prev, id]))}
                />
+               </DataState>
              </TabsContent>
-             
+
              <TabsContent value="audit" className="mt-4">
-               <AuditLogPanelInline 
-                 logs={filteredAuditLogs} 
+               <DataState source={auditSource} data={auditSource.data} what="le journal d’audit" isEmpty={false}><AuditLogPanelInline
+                 logs={filteredAuditLogs}
                  isLoading={auditLoading}
                  actionLabels={actionLabels}
                  getLocale={getLocale}
-               />
+               /></DataState>
              </TabsContent>
-             
+
              <TabsContent value="reception" className="mt-4">
-               <ReceptionAlertsPanel 
-                 alerts={receptionAlerts.filter(a => 
-                   !searchTerm || 
+               <DataState source={receptionSource} data={receptionSource.data} what="les alertes de réception" isEmpty={false}><ReceptionAlertsPanel
+                 alerts={receptionAlerts.filter(a =>
+                   !searchTerm ||
                    a.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                    a.message.toLowerCase().includes(searchTerm.toLowerCase())
                  )}
                  getLocale={getLocale}
-               />
+               /></DataState>
              </TabsContent>
            </Tabs>
          </CardContent>
@@ -335,23 +345,23 @@ export const FactoryAlertsCenter = () => {
   const { mutate: markAllRead } = useMarkAllRead();
   const { recentNotifications } = useNotificationRealtimeState();
   const recentLiveIds = new Set(recentNotifications.map((notification) => notification.id));
-   
+
    if (isLoading) {
      return <div className="text-center py-8 text-muted-foreground">{t('common.loading')}</div>;
    }
-   
+
    if (notifications.length === 0) {
      return (
        <div className="text-center py-12">
          <CheckCircle className="h-16 w-16 mx-auto text-green-500 mb-4" />
          <h3 className="text-lg font-semibold">{t('alerts.noAlerts')}</h3>
-         <p className="text-muted-foreground">{t('alerts.allSystemsNormal')}</p>
+         <p className="text-muted-foreground">Aucune notification dans les résultats affichés.</p>
        </div>
      );
    }
-   
+
    const unreadCount = notifications.filter(n => !n.is_read).length;
-   
+
    return (
      <div className="space-y-2">
        {unreadCount > 0 && (
@@ -362,15 +372,15 @@ export const FactoryAlertsCenter = () => {
            </Button>
          </div>
        )}
-       
+
        <ScrollArea className="h-[500px] pr-4">
          <div className="space-y-2">
            {notifications.map((notification) => {
              const config = severityConfig[notification.severity] || severityConfig.info;
              const Icon = alertTypeIcons[notification.category] || Bell;
-             
+
              return (
-               <Card 
+               <Card
                  key={notification.id}
                  className={cn(
                    "transition-all cursor-pointer hover:shadow-md",
@@ -433,23 +443,23 @@ export const FactoryAlertsCenter = () => {
  };
 
  // Audit Log Panel Component (inline)
- const AuditLogPanelInline = ({ 
-   logs, 
+ const AuditLogPanelInline = ({
+   logs,
    isLoading,
    actionLabels,
    getLocale
- }: { 
+ }: {
    logs: AuditLog[];
    isLoading: boolean;
    actionLabels: Record<string, string>;
    getLocale: () => Locale;
  }) => {
    const { t } = useTranslation();
-   
+
    if (isLoading) {
      return <div className="text-center py-8 text-muted-foreground">{t('common.loading')}</div>;
    }
-   
+
    if (logs.length === 0) {
      return (
        <div className="text-center py-12">
@@ -459,13 +469,13 @@ export const FactoryAlertsCenter = () => {
        </div>
      );
    }
-   
+
    return (
      <ScrollArea className="h-[500px] pr-4">
        <div className="space-y-2">
          {logs.map((log) => {
            const Icon = alertTypeIcons[log.entity_type] || Clock;
-           
+
            return (
              <Card key={log.id} className="hover:shadow-sm transition-shadow">
                <CardContent className="p-4">
@@ -509,17 +519,17 @@ const ReceptionAlertsPanel = ({ alerts, getLocale }: { alerts: ReceptionAlert[];
   const queryClient = useQueryClient();
   const acknowledgeAlert = useAcknowledgeReceptionAlert();
   const resolveAlert = useResolveReceptionAlert();
-  
+
   const handleAcknowledge = async (id: string, name: string) => {
     await acknowledgeAlert.mutateAsync({ alertId: id, actorName: name });
     queryClient.invalidateQueries({ queryKey: ['reception-alerts'] });
   };
-  
+
   const handleResolve = async (id: string, name: string) => {
     await resolveAlert.mutateAsync({ alertId: id, actorName: name });
     queryClient.invalidateQueries({ queryKey: ['reception-alerts'] });
   };
-   
+
    if (alerts.length === 0) {
      return (
        <div className="text-center py-12">
@@ -529,7 +539,7 @@ const ReceptionAlertsPanel = ({ alerts, getLocale }: { alerts: ReceptionAlert[];
        </div>
      );
    }
-   
+
    return (
      <ScrollArea className="h-[500px] pr-4">
        <div className="space-y-2">
@@ -539,9 +549,9 @@ const ReceptionAlertsPanel = ({ alerts, getLocale }: { alerts: ReceptionAlert[];
              MAJEUR: 'border-l-orange-500 bg-orange-50',
              MINEUR: 'border-l-yellow-500 bg-yellow-50'
            };
-           
+
            return (
-             <Card 
+             <Card
                key={alert.id}
                className={cn(
                  "border-l-4 transition-all",
@@ -572,15 +582,15 @@ const ReceptionAlertsPanel = ({ alerts, getLocale }: { alerts: ReceptionAlert[];
                    </div>
                    {alert.status === 'ACTIVE' && (
                      <div className="flex gap-1">
-                       <Button 
-                         variant="outline" 
+                       <Button
+                         variant="outline"
                          size="sm"
                          onClick={() => handleAcknowledge(alert.id, t('production.operator'))}
                        >
                          <Eye className="h-3 w-3 mr-1" />
                          {t('alerts.acknowledge')}
                        </Button>
-                       <Button 
+                       <Button
                          size="sm"
                          onClick={() => handleResolve(alert.id, t('production.operator'))}
                        >
