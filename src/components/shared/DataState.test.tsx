@@ -10,6 +10,11 @@ const broken = new ApiRequestError({ message: 'x', status: 500 });
 const secret = <p>Quarantaine : 12 lots</p>;
 
 describe('DataState', () => {
+  it('keeps register actions available after a successful empty answer', () => {
+    render(<DataState source={{}} data={[]} isEmpty={false} what="les ordres"><button>Créer un ordre</button><p>Aucun ordre enregistré</p></DataState>);
+    expect(screen.getByRole('button', { name: 'Créer un ordre' })).toBeInTheDocument();
+    expect(screen.getByText('Aucun ordre enregistré')).toBeInTheDocument();
+  });
   it.each([
     [401, 'Session expirée'], [404, 'Élément introuvable'],
   ])('hides old data on HTTP %s and explains the cause', (status, label) => {

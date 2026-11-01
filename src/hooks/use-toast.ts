@@ -16,7 +16,7 @@ type ToastOptions = {
   variant?: ToastVariant;
   duration?: number;
   action?: ToastActionElement;
-} & Partial<Pick<ExternalToast, "cancel" | "className" | "dismissible" | "important">>;
+} & Partial<Pick<ExternalToast, "cancel" | "className" | "dismissible">>;
 
 type ToastHandle = {
   id: string | number;
@@ -50,7 +50,6 @@ const normalizeToast = (input: ToastOptions, forcedId?: string | number) => {
       description,
       duration: input.duration,
       dismissible: input.dismissible,
-      important: input.important,
       className: input.className,
       cancel: input.cancel,
       action: toAction(input.action),

@@ -9,22 +9,22 @@ const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
       closeButton
-      expand
+      expand={!isMobile}
       pauseWhenPageIsHidden
-      // Every primary action sits on the right and the phone's sit at the bottom, so notifications
-      // take the free corner: beside the sidebar on a desk, at the top on a phone.
+      // A compact phone preview stays within the two-row header, above register actions.
+      // The notification centre retains every full message; desktop previews stay beside the sidebar.
       position={isMobile ? "top-center" : "bottom-left"}
       offset={{ bottom: 88, left: 248 }}
-      mobileOffset={{ top: 56 }}
+      mobileOffset={{ top: 8 }}
       richColors
       theme="light"
-      visibleToasts={4}
+      visibleToasts={isMobile ? 1 : 4}
       toastOptions={{
         classNames: {
           toast:
-            "group toast rounded-lg border border-border/70 bg-background/95 text-foreground shadow-[0_18px_48px_-18px_rgba(15,23,42,0.45)] backdrop-blur-xl",
-          title: "text-sm font-semibold",
-          description: "text-[13px] leading-relaxed text-muted-foreground",
+            "group toast rounded-lg border border-border/70 max-md:p-3 bg-background/95 text-foreground shadow-[0_18px_48px_-18px_rgba(15,23,42,0.45)] backdrop-blur-xl",
+          title: "text-sm font-semibold max-md:line-clamp-1",
+          description: "text-[13px] leading-relaxed text-muted-foreground max-md:line-clamp-2",
           actionButton:
             "bg-primary text-primary-foreground hover:bg-primary/90",
           cancelButton:

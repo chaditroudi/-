@@ -32,8 +32,8 @@ export const TopHeader = ({ onRefresh, pageTitle }: TopHeaderProps) => {
   const openSearch = () => window.dispatchEvent(new Event("open-command-menu"));
 
   return (
-    <header className="sticky top-0 z-40 flex h-12 items-center gap-2 border-b bg-card px-2 pointer-coarse:h-14 sm:px-3">
-      <SidebarTrigger className="h-9 w-9 shrink-0 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground" />
+    <header className="sticky top-0 z-40 flex min-h-12 flex-wrap items-center gap-x-2 gap-y-1 border-b bg-card px-2 py-1 pointer-coarse:min-h-14 sm:h-12 sm:flex-nowrap sm:px-3 sm:py-0">
+      <SidebarTrigger className="h-9 w-9 shrink-0 rounded-md text-muted-foreground pointer-coarse:h-11 pointer-coarse:w-11 hover:bg-muted hover:text-foreground" />
 
       <h1 className="min-w-0 flex-1 truncate font-display text-lg font-semibold">{pageTitle}</h1>
 
@@ -47,11 +47,11 @@ export const TopHeader = ({ onRefresh, pageTitle }: TopHeaderProps) => {
         <span className="flex-1 truncate text-left">Rechercher</span>
         <kbd className="text-xs">Ctrl K</kbd>
       </button>
-      <Button variant="ghost" size="icon" onClick={openSearch} aria-label="Rechercher" className="lg:hidden">
+      <Button variant="ghost" size="icon" onClick={openSearch} aria-label="Rechercher" className="h-11 w-11 sm:h-10 sm:w-10 lg:hidden">
         <Search className="h-5 w-5" />
       </Button>
 
-      <div className="flex shrink-0 items-center">
+      <div className="flex w-full shrink-0 items-center justify-end gap-1 pointer-coarse:[&_button]:min-h-11 pointer-coarse:[&_button]:min-w-11 sm:w-auto sm:gap-0">
         {isAdmin && (
           <Dialog open={auditOpen} onOpenChange={setAuditOpen}>
             <DialogTrigger asChild>

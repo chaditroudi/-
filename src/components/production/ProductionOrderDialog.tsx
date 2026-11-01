@@ -1,3 +1,4 @@
+import { toast as reportActionFailure } from 'sonner';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -9,7 +10,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useCreateProductionOrder, useProductionConfig } from '@/hooks/useProduction';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { canRead, canWrite } from '@/lib/apiAccess';
 import { MaterialReception } from '@/types/mes';
 import { type ProductionFluxCode } from '@/types/production';
 import { receptionsApi } from '@/lib/api/receptions';
@@ -39,7 +41,9 @@ type SelectableReception = {
 export const ProductionOrderDialog = ({ open, onOpenChange, receptions }: ProductionOrderDialogProps) => {
   const { t } = useTranslation();
   const { fluxCodes } = useProductionConfig();
-  const { profile, user } = useAuth();
+  const { profile, user, roles } = useAuthContext();
+  const mayReadReceptions = canRead(roles, 'receptions');
+  const mayCreate = canWrite(roles, 'productionCreate');
   const [productName, setProductName] = useState('');
   const [fluxCode, setFluxCode] = useState<ProductionFluxCode>(null);
   const [targetQuantity, setTargetQuantity] = useState('');
@@ -61,15 +65,16 @@ export const ProductionOrderDialog = ({ open, onOpenChange, receptions }: Produc
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch V2 LIBERE receptions directly (the ones users actually create)
-  const { data: v2Receptions = [] } = useQuery<ReceptionV2[]>({
+  const receptionSource = useQuery<ReceptionV2[]>({
     queryKey: ['receptions-v2-for-production-dialog'],
     queryFn: () => receptionsApi.list() as Promise<ReceptionV2[]>,
-    enabled: open,
+    enabled: open && mayReadReceptions,
     staleTime: 60_000,
   });
+  const v2Receptions = mayReadReceptions ? receptionSource.data ?? [] : [];
 
   // Old-system accepted receptions (backward compat)
-  const v1Selectable: SelectableReception[] = receptions
+  const v1Selectable: SelectableReception[] = (mayReadReceptions ? receptions : [])
     .filter((r) => r.status === 'accepted')
     .map((r) => ({
       id: r.id,
@@ -104,9 +109,9 @@ export const ProductionOrderDialog = ({ open, onOpenChange, receptions }: Produc
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createOrder.mutate(
-      {
-        reception_id: receptionId || undefined,
+    if (!mayCreate) return;
+    void createOrder.mutateAsync({
+        reception_id: mayReadReceptions ? receptionId || undefined : undefined,
         reception_number_snapshot: selectedRef?.reception_number,
         supplier_name_snapshot: selectedRef?.supplier_name ?? undefined,
         product_name: productName,
@@ -118,14 +123,10 @@ export const ProductionOrderDialog = ({ open, onOpenChange, receptions }: Produc
         planned_end_date: plannedEndDate || undefined,
         notes: notes || undefined,
         created_by: createdBy || undefined,
-      },
-      {
-        onSuccess: () => {
+      }).then(() => {
           resetForm();
           onOpenChange(false);
-        },
-      },
-    );
+        }).catch(error => reportActionFailure.error(error instanceof Error ? error.message : 'Action indisponible'));
   };
 
   const resetForm = () => {
@@ -150,8 +151,8 @@ export const ProductionOrderDialog = ({ open, onOpenChange, receptions }: Produc
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
-              <Label>{t('production.finishedProduct')} *</Label>
-              <Input value={productName} onChange={(e) => setProductName(e.target.value)} required />
+              <Label htmlFor="production-product-name">{t('production.finishedProduct')} *</Label>
+              <Input id="production-product-name" value={productName} onChange={(e) => setProductName(e.target.value)} required />
             </div>
 
             <div className="col-span-2">
@@ -178,8 +179,9 @@ export const ProductionOrderDialog = ({ open, onOpenChange, receptions }: Produc
             </div>
 
             <div>
-              <Label>{t('production.targetQuantity')} *</Label>
+              <Label htmlFor="production-target-quantity">{t('production.targetQuantity')} *</Label>
               <Input
+                id="production-target-quantity"
                 type="number"
                 step="0.01"
                 min="0"
@@ -235,7 +237,9 @@ export const ProductionOrderDialog = ({ open, onOpenChange, receptions }: Produc
                   </Badge>
                 )}
               </Label>
-              <Select value={receptionId || 'none'} onValueChange={(val) => setReceptionId(val === 'none' ? '' : val)}>
+              {!mayReadReceptions && <p className="text-xs text-muted-foreground">Votre rôle peut créer un ordre sans consulter les références de réception.</p>}
+              {receptionSource.error && <p role="status" className="text-xs text-muted-foreground">Les références sont indisponibles. Réessayez avant de choisir une référence.</p>}
+              <Select disabled={!mayReadReceptions || receptionSource.isLoading || !!receptionSource.error} value={receptionId || 'none'} onValueChange={(val) => setReceptionId(val === 'none' ? '' : val)}>
                 <SelectTrigger>
                   <SelectValue placeholder={t('common.optional')} />
                 </SelectTrigger>
@@ -243,7 +247,7 @@ export const ProductionOrderDialog = ({ open, onOpenChange, receptions }: Produc
                   <SelectItem value="none">{t('common.none')}</SelectItem>
                   {allSelectable.length === 0 && (
                     <SelectItem value="__empty__" disabled>
-                      Aucune réception libérée disponible
+                      {!mayReadReceptions ? 'Références réservées à un autre rôle' : receptionSource.isLoading ? 'Chargement des références…' : receptionSource.error ? 'Références indisponibles' : 'Aucune réception libérée disponible'}
                     </SelectItem>
                   )}
                   {v2Selectable.length > 0 && (
@@ -314,7 +318,7 @@ export const ProductionOrderDialog = ({ open, onOpenChange, receptions }: Produc
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               {t('common.cancel')}
             </Button>
-            <Button type="submit" disabled={createOrder.isPending}>
+            <Button type="submit" disabled={!mayCreate || createOrder.isPending}>
               {createOrder.isPending ? t('common.creating') : t('production.createOrder')}
             </Button>
           </div>

@@ -1,4 +1,5 @@
-﻿import { DataState } from '@/components/shared/DataState';
+﻿import { formatMeasurement } from '@/lib/analyticsPresentation';
+import { DataState } from '@/components/shared/DataState';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -100,7 +101,7 @@ export const AdvancedStockPanel = () => {
                 <Calendar className="h-5 w-5 text-blue-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{kpis?.rawMaterialCoverageDays || 0}j</p>
+                <p className="text-2xl font-bold">Non mesurée</p>
                 <p className="text-xs text-muted-foreground">Couverture MP</p>
               </div>
             </div>
@@ -111,12 +112,12 @@ export const AdvancedStockPanel = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${KPI_STATUS_BG[fifoStatus]}`}>
-                <RotateCcw className={`h-5 w-5 ${KPI_STATUS_COLORS[fifoStatus]}`} />
+              <div className={`p-2 rounded-lg bg-muted`}>
+                <RotateCcw className={`h-5 w-5 text-muted-foreground`} />
               </div>
               <div>
-                <p className={`text-2xl font-bold ${KPI_STATUS_COLORS[fifoStatus]}`}>
-                  {(kpis?.fifoCompliance || 0).toFixed(0)}%
+                <p className={`text-2xl font-bold text-muted-foreground`}>
+                  Non mesurée
                 </p>
                 <p className="text-xs text-muted-foreground">Respect FIFO</p>
               </div>
@@ -214,9 +215,9 @@ export const AdvancedStockPanel = () => {
           </CardHeader>
           <CardContent>
             <div className="h-[320px]">
-              {data?.zoneOccupancy && data.zoneOccupancy.length > 0 ? (
+              {data?.zoneOccupancy && data.zoneOccupancy.some(zone => zone.capacity > 0 && Number.isFinite(zone.current)) ? (
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={data.zoneOccupancy.slice(0, 8)} layout="vertical">
+                  <BarChart data={data.zoneOccupancy.filter(zone => zone.capacity > 0 && Number.isFinite(zone.current)).slice(0, 8)} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                     <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10 }} tickFormatter={(v) => `${v}%`} />
                     <YAxis dataKey="zone" type="category" width={80} tick={{ fontSize: 10 }} />
@@ -232,13 +233,13 @@ export const AdvancedStockPanel = () => {
                       }}
                     />
                     <Bar dataKey="occupancy" radius={[0, 4, 4, 0]}>
-                      {data.zoneOccupancy.slice(0, 8).map((entry, index) => (
+                      {data.zoneOccupancy.filter(zone => zone.capacity > 0 && Number.isFinite(zone.current)).slice(0, 8).map((entry, index) => (
                         <Cell 
                           key={`cell-${index}`} 
                           fill={
                             entry.occupancy > 90 ? 'hsl(var(--destructive))' : 
                             entry.occupancy > 70 ? 'hsl(45, 93%, 47%)' : 
-                            'hsl(142, 76%, 36%)'
+                            'hsl(var(--chart-1))'
                           }
                         />
                       ))}
@@ -247,7 +248,7 @@ export const AdvancedStockPanel = () => {
                 </ResponsiveContainer>
               ) : (
                 <div className="flex items-center justify-center h-full text-muted-foreground">
-                  Aucune zone configurée
+                  Occupation non mesurée : capacité ou charge absente
                 </div>
               )}
             </div>

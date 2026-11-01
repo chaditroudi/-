@@ -504,7 +504,8 @@ const ShipmentDetailDialog = ({
   const [lineNotes, setLineNotes] = useState('');
   const selectedProduct = products.find((product) => product.id === selectedProductId);
   const matchingLots = finishedLots.filter((lot) => lot.product_id === selectedProductId && lot.current_quantity > 0);
-  const suggestions = useLotSuggestions(selectedProductId, Number(requestedQuantity || 0)).data || [];
+  const suggestionSource = useLotSuggestions(selectedProductId, Number(requestedQuantity || 0));
+  const suggestions = suggestionSource.data ?? [];
 
   useEffect(() => {
     if (!shipment) return;
@@ -697,6 +698,7 @@ const ShipmentDetailDialog = ({
                   <Input value={lineNotes} onChange={(event) => setLineNotes(event.target.value)} />
                 </div>
 
+                {suggestionSource.error && <p role="status" className="rounded-lg border p-3 text-sm text-muted-foreground">{suggestionSource.error.message}</p>}
                 {suggestions.length > 0 && (
                   <div className="space-y-2 rounded-lg border border-dashed p-3">
                     <div className="text-sm font-medium">Suggestions systeme</div>

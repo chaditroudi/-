@@ -132,7 +132,12 @@ export const useAdvancedProductionAnalytics = (period: Period = 'month') => {
         { category: 'other', label: 'Autres', hours: parseFloat(oHours.toFixed(1)), percentage: (oHours / totalDT) * 100, color: 'hsl(var(--chart-5))' },
       ];
 
-      return { kpis, dailyTrend, downtimeBreakdown };
+      return { kpis, dailyTrend, downtimeBreakdown, measurement: {
+        mass: totalActual + totalWaste > 0,
+        plan: totalPlanned > 0,
+        output: orders.some(o => ['completed', 'in_progress'].includes(o.status) && Number.isFinite(o.actual_quantity)),
+        downtime: false,
+      } };
     },
   });
 };
@@ -257,13 +262,14 @@ export const useAdvancedQualityAnalytics = (period: Period = 'month') => {
       const totalLossKg = sortingKg + cleaningOrgKg + cleaningOtherKg + infestationKg + humidityKg || 1;
       const costPerKgEst = 2.2; // TND/kg estimated value for loss cost
 
-      const lossBreakdown: LossBreakdown[] = [
+      const lossBreakdown = [
         { type: 'sorting', label: 'Défauts tri / mauvaises dattes', quantityKg: sortingKg, percentage: (sortingKg / totalLossKg) * 100, costEstimate: sortingKg * costPerKgEst, color: 'hsl(var(--chart-1))' },
         { type: 'humidity', label: 'Pertes nettoyage (organique)', quantityKg: cleaningOrgKg, percentage: (cleaningOrgKg / totalLossKg) * 100, costEstimate: cleaningOrgKg * costPerKgEst, color: 'hsl(var(--chart-2))' },
         { type: 'packaging', label: 'Déchets inertes nettoyage', quantityKg: cleaningOtherKg, percentage: (cleaningOtherKg / totalLossKg) * 100, costEstimate: cleaningOtherKg * 0.5, color: 'hsl(var(--chart-3))' },
         { type: 'infestation', label: 'Infestation (NC)', quantityKg: infestationKg, percentage: (infestationKg / totalLossKg) * 100, costEstimate: infestationKg * costPerKgEst, color: 'hsl(var(--chart-4))' },
         { type: 'other', label: 'Autres non-conformités', quantityKg: humidityKg + (totalLossKg === 1 ? 0 : 0), percentage: (humidityKg / totalLossKg) * 100, costEstimate: humidityKg * costPerKgEst, color: 'hsl(var(--chart-5))' },
-      ].filter((item) => item.quantityKg > 0 || totalLossKg === 1);
+      ] satisfies LossBreakdown[];
+      const visibleLossBreakdown = lossBreakdown.filter(item => item.quantityKg > 0 || totalLossKg === 1);
 
       // Supplier quality — join inspection → reception → supplier
       const supplierQualityMap = new Map<string, SupplierQuality>();
@@ -312,7 +318,7 @@ export const useAdvancedQualityAnalytics = (period: Period = 'month') => {
         };
       });
 
-      return { kpis, gradeDistribution, lossBreakdown, supplierQuality, qualityTrend };
+      return { kpis, gradeDistribution, lossBreakdown: visibleLossBreakdown, supplierQuality, qualityTrend, measurement: { decisions: decidedInspections.length > 0 } };
     },
   });
 };
@@ -402,7 +408,10 @@ export const useAdvancedStockAnalytics = () => {
         fifoCompliance: 95,
       };
 
-      return { kpis, stockAging, zoneOccupancy };
+      return { kpis, stockAging, zoneOccupancy, measurement: {
+        occupancy: zoneOccupancy.length > 0 && zoneOccupancy.every(z => z.capacity > 0 && Number.isFinite(z.current)),
+        coverage: false, fifo: false,
+      } };
     },
   });
 };
@@ -454,6 +463,7 @@ export const useExecutiveDashboard = (period: Period = 'month') => {
   const cost = useAdvancedCostAnalytics(period);
 
   return {
+    updatedAt: Math.min(...[production, quality, stock, cost].map(source => source.dataUpdatedAt)),
     error: [production, quality, stock, cost].find(source => source.error)?.error,
     refetch: () => Promise.all([production, quality, stock, cost].map(source => source.refetch())),
     production: production.data,

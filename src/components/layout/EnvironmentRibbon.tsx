@@ -20,7 +20,7 @@ export const EnvironmentRibbon = () => {
   return (
     <div
       role="status"
-      className="pointer-events-none fixed bottom-0 left-1/2 z-[60] -translate-x-1/2 rounded-t bg-warning px-3 py-0.5 text-xs font-medium text-warning-foreground max-md:bottom-[calc(4rem+env(safe-area-inset-bottom))]"
+      className="pointer-events-none fixed bottom-0 left-1/2 z-[60] -translate-x-1/2 w-max max-w-[calc(100vw-2rem)] truncate rounded-t bg-warning px-3 py-0.5 text-xs font-medium text-warning-foreground max-md:bottom-[calc(5rem+env(safe-area-inset-bottom))]"
     >
       {label}
     </div>

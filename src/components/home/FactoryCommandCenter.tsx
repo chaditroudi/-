@@ -107,7 +107,7 @@ const ProcessNode = ({ label, Icon, count, subtext, isActive, colorText, colorBo
 // ── Flow connector ─────────────────────────────────────────────────────────────
 
 const FlowLine = ({ active }: { active: boolean }) => (
-  <div className="flex-1 flex items-center justify-center pb-[3.25rem] px-1 min-w-[20px]">
+  <div className="hidden flex-1 items-center justify-center pb-[3.25rem] px-1 min-w-[20px] xl:flex">
     <div className={cn(
       'w-full h-px transition-all duration-700',
       active
@@ -169,13 +169,13 @@ const YieldRow = ({ label, kgIn, yieldPct, colorClass }: { label: string; kgIn: 
       <span className="text-slate-400">{label}</span>
       <div className="flex items-center gap-3">
         <span className="text-slate-300 tabular-nums">{fmtKg(kgIn)}</span>
-        <span className={cn('font-bold tabular-nums', colorClass)}>{fmtPct(yieldPct)}</span>
+        <span className={cn('font-bold tabular-nums', colorClass)}>{kgIn > 0 && yieldPct > 0 ? fmtPct(yieldPct) : "Non mesuré"}</span>
       </div>
     </div>
     <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
       <div
         className={cn('h-full rounded-full transition-all duration-1000', colorClass.replace('text-', 'bg-'))}
-        style={{ width: `${Math.min(yieldPct, 100)}%` }}
+        style={{ width: kgIn > 0 && yieldPct > 0 ? `${Math.min(yieldPct, 100)}%` : "0%" }}
       />
     </div>
   </div>
@@ -419,9 +419,9 @@ export const FactoryCommandCenter = () => {
               )}
             </div>
 
-            <div className="flex items-start">
+            <div className="grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 xl:flex xl:items-start xl:gap-0">
               {stages.map((stage, i) => (
-                <div key={stage.label} className="flex items-start flex-1 min-w-0">
+                <div key={stage.label} className="flex min-w-0 items-start justify-center last:col-span-2 sm:last:col-span-3 xl:flex-1 xl:justify-start xl:last:col-span-1">
                   <ProcessNode {...stage} />
                   {i < stages.length - 1 && (
                     <FlowLine active={stage.isActive && stages[i + 1].isActive} />
@@ -434,9 +434,9 @@ export const FactoryCommandCenter = () => {
           {/* ── KPI strip ──────────────────────────────────────────────────── */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <KpiCard
-              label="Kg traités aujourd'hui"
+              label="Volumes déclarés aujourd'hui"
               value={fmtKg(today?.totalKgProcessed)}
-              sub={today?.avgYield ? `Rendement moyen : ${fmtPct(today.avgYield)}` : undefined}
+              sub={today?.avgYield ? `Rapport indicatif : ${fmtPct(today.avgYield)}` : undefined}
               icon={<BarChart3 className="h-4 w-4" />}
               accent="bg-emerald-500"
               glow={(today?.totalKgProcessed ?? 0) > 0}
@@ -525,13 +525,13 @@ export const FactoryCommandCenter = () => {
               <div className="flex items-center gap-2">
                 <Zap className="h-3.5 w-3.5 text-emerald-400" />
                 <span className="text-xs font-bold text-slate-400">
-                  Rendements du jour
+                  Rapports indicatifs des volumes déclarés
                 </span>
-                {today?.avgYield != null && (
+                {today?.avgYield > 0 ? (
                   <span className="ml-auto text-xs font-bold text-emerald-400 tabular-nums">
-                    Moy. {fmtPct(today.avgYield)}
+                    Moy. indicative {fmtPct(today.avgYield)}
                   </span>
-                )}
+                ) : <span className="ml-auto text-xs text-slate-400">Moyenne non mesurée</span>}
               </div>
 
               {!today ? (

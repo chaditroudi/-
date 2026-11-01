@@ -86,7 +86,7 @@ export function LivePulse() {
         <Card>
           <CardContent className="pt-3 pb-3">
             <div className="text-xs font-semibold text-muted-foreground mb-2.5">
-              Rendements Phase 2 — aujourd'hui
+              Rapports indicatifs des volumes déclarés — aujourd'hui
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
@@ -97,15 +97,15 @@ export function LivePulse() {
               ]
                 .filter((m) => m.kgIn > 0)
                 .map(({ key, label, kgIn, yld, icon: Icon }) => {
-                  const color = yld >= 95 ? 'text-green-600' : yld >= 88 ? 'text-amber-600' : 'text-red-600';
-                  const barColor = yld >= 95 ? 'bg-green-500' : yld >= 88 ? 'bg-amber-500' : 'bg-red-500';
+                  const color = 'text-foreground';
+                  const barColor = 'bg-primary';
                   return (
                     <div key={key} className="space-y-1">
                       <div className="flex items-center gap-1.5">
                         <Icon className="h-3 w-3 text-muted-foreground" />
                         <span className="text-xs text-muted-foreground font-medium">{label}</span>
                       </div>
-                      <div className={`text-xl font-black ${color}`}>{yld.toFixed(1)}%</div>
+                      <div className={`text-xl font-black ${color}`}>{yld > 0 ? `${yld.toFixed(1)}%` : "Non mesuré"}</div>
                       <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                         <div className={`h-1.5 rounded-full ${barColor}`} style={{ width: `${Math.min(yld, 100)}%` }} />
                       </div>

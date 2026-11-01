@@ -423,6 +423,8 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
     return pcts.length > 0 ? Math.round(pcts.reduce((s, p) => s + p, 0) / pcts.length) : 0;
   }, [zones, zoneLoadsKg]);
 
+  const occupancyKnown = zonesKnown && zones.length > 0 && zones.every(z => (z.capacity_kg ?? 0) > 0 || (z.capacity_palettes ?? 0) > 0);
+
   const liberatedKg = useMemo(
     () => allLots.filter(l => l.stock_status === "STOCK_LIBERE").reduce((s, l) => s + (l.quantity ?? 0), 0),
     [allLots],
@@ -612,7 +614,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
             </div>
             <div className="bg-card px-3 py-2">
               <dt className="text-xs text-muted-foreground">Occupation</dt>
-              <dd className="font-display text-xl font-semibold">{zonesKnown ? `${globalOccupancy} %` : "—"}</dd>
+              <dd className="font-display text-xl font-semibold">{occupancyKnown ? `${globalOccupancy} %` : "Non mesurée"}</dd>
               <dd className="text-xs text-muted-foreground">{zonesKnown ? `${zones.length} zones actives` : "Zones indisponibles"}</dd>
             </div>
             <div className="bg-card px-3 py-2">

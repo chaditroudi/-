@@ -277,9 +277,11 @@ export function useClosePackagingOrder() {
   });
 }
 
-export function usePackagingKpis(): { data: PackagingKpis | null } {
-  const { data: orders = [] } = usePackagingOrders();
-  const { data: palettes = [] } = useAllPackagingPalettes();
+export function usePackagingKpis() {
+  const orderSource = usePackagingOrders();
+  const { data: orders = [] } = orderSource;
+  const paletteSource = useAllPackagingPalettes();
+  const { data: palettes = [] } = paletteSource;
 
   const today = format(new Date(), 'yyyy-MM-dd');
   const active = orders.filter((o) => o.status === 'EN_COURS').length;
@@ -298,14 +300,18 @@ export function usePackagingKpis(): { data: PackagingKpis | null } {
     : null;
 
   return {
-    data: {
+    isLoading: orderSource.isLoading || paletteSource.isLoading,
+    error: orderSource.error ?? paletteSource.error,
+    refetch: () => Promise.all([orderSource.refetch(), paletteSource.refetch()]),
+    updatedAt: Math.min(orderSource.dataUpdatedAt, paletteSource.dataUpdatedAt),
+    data: orderSource.data && paletteSource.data ? {
       active_orders: active,
       planned_orders: planned,
       completed_today: todayDone.length,
       total_produced_today: totalProduced,
       palettes_sealed_today: palettesSealedToday,
       avg_yield_pct: avgYield,
-    },
+    } satisfies PackagingKpis : null,
   };
 }
 

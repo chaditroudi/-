@@ -62,6 +62,7 @@ describe("role contract", () => {
         role, tabs: getAccessibleTabs([role]), profile: getRoleWorkspaceProfile([role]),
         action: getDailyAction([role], getAccessibleTabs([role])),
         reads: Object.fromEntries(Object.entries(READ_ACCESS).map(([resource, entry]) => [resource, { route: entry.route, allowed: canRead([role], resource) }])),
+        actions: Object.fromEntries(Object.entries(ACTION_ACCESS).map(([action, route]) => [action, { route, allowed: canCallRoute([role], route) }])),
       })), null, 2));
     }
   });

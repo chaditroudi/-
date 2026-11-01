@@ -101,9 +101,9 @@ export function ReceptionPhase1Panel({ period }: { period: Period }) {
       {(q?.total ?? 0) > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: 'Taux défaut moy.', value: q?.avgDefectRate ? `${q.avgDefectRate.toFixed(1)}%` : '—', icon: AlertCircle, color: 'text-amber-600' },
-            { label: 'Brix moyen', value: q?.avgBrix ? `${q.avgBrix.toFixed(1)} °Bx` : '—', icon: FlaskConical, color: 'text-purple-600' },
-            { label: 'Humidité moy.', value: q?.avgMoisture ? `${q.avgMoisture.toFixed(1)}%` : '—', icon: FlaskConical, color: 'text-cyan-600' },
+            { label: 'Taux défaut moy.', value: q?.avgDefectRate ? `${q.avgDefectRate.toFixed(1)}%` : 'Non mesuré', icon: AlertCircle, color: 'text-amber-600' },
+            { label: 'Brix moyen', value: q?.avgBrix ? `${q.avgBrix.toFixed(1)} °Bx` : 'Non mesuré', icon: FlaskConical, color: 'text-purple-600' },
+            { label: 'Humidité moy.', value: q?.avgMoisture ? `${q.avgMoisture.toFixed(1)}%` : 'Non mesuré', icon: FlaskConical, color: 'text-cyan-600' },
             { label: 'Inspections QC', value: q?.total?.toString() ?? '0', icon: CheckCircle2, color: 'text-blue-600' },
           ].map(({ label, value, icon: Icon, color }) => (
             <Card key={label}>

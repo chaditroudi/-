@@ -1,3 +1,4 @@
+import { DataState } from '@/components/shared/DataState';
 import { useState } from 'react';
 import { usePackagingKpis, usePackagingOrders } from '@/hooks/usePackaging';
 import { PackagingOrderPanel } from './orders/PackagingOrderPanel';
@@ -25,8 +26,10 @@ export function PackagingDashboard({ currentUser = 'Utilisateur' }: Props) {
   const [tab, setTab] = useState('orders');
   const [quickPfOpen, setQuickPfOpen] = useState(false);
   const [quickLotNumber, setQuickLotNumber] = useState('');
-  const { data: kpis } = usePackagingKpis();
-  const { data: orders = [] } = usePackagingOrders();
+  const kpiSource = usePackagingKpis();
+  const { data: kpis } = kpiSource;
+  const source = usePackagingOrders();
+  const { data: orders = [] } = source;
   const { companyName } = useBranding();
   const { data: siteSettings } = useSiteSettings();
 
@@ -55,6 +58,7 @@ export function PackagingDashboard({ currentUser = 'Utilisateur' }: Props) {
   };
 
   return (
+<DataState source={source} data={source.data} isEmpty={false} what="les ordres de conditionnement">
     <div className="space-y-4">
       {gs1Placeholder && (
         <div className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2.5 text-sm text-amber-950">
@@ -84,7 +88,8 @@ export function PackagingDashboard({ currentUser = 'Utilisateur' }: Props) {
           variant="outline"
           size="sm"
           className="gap-1.5 text-xs"
-          onClick={() => printPackagingDailyReport(orders, kpis ?? null)}
+          disabled={!kpis}
+          onClick={() => { if (kpis) printPackagingDailyReport(orders, kpis); }}
         >
           <Printer className="h-3.5 w-3.5" />
           Rapport journalier
@@ -202,5 +207,6 @@ export function PackagingDashboard({ currentUser = 'Utilisateur' }: Props) {
         </DialogContent>
       </Dialog>
     </div>
+</DataState>
   );
 }

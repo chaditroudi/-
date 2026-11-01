@@ -85,7 +85,10 @@ export const AiGuide = () => {
       }, ac.signal);
       if (ac.signal.aborted || !openRef.current) return;
       setReply(data);
-      setHistory((prev) => [...prev, { role: "user", content: trimmed }, { role: "assistant", content: data.message }].slice(-6));
+      setHistory((prev) => {
+        const next: typeof prev = [...prev, { role: "user", content: trimmed }, { role: "assistant", content: data.message }];
+        return next.slice(-6);
+      });
       setQuestion("");
     } catch {
       if (ac.signal.aborted || !openRef.current) return;

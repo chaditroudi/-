@@ -1,3 +1,9 @@
+## 2026-11-01 continuation evidence (supersedes historical counts, not unseen-screen verdicts)
+
+Branch: codex/phase-1-completion; reconciliation HEAD d617d587eb0ffebde4d3bfa66bafcc11c9ac78ad. Current UI corrections remain uncommitted pending final acceptance. Dev preflight: 458/458 structural checks, 105 captures at 1440/768/390, under .local/evidence/visual-preflight-08. Opened representative screens: home desktop, alerts phone, live desktop/phone, reception QC desktop/phone, stock desktop/phone, production tablet. Capture-only rows do not become PASS. Frozen reception now passes 17/17 after correction of phone-toast obstruction R; both failed and successful evidence are retained. Role preflight 1687/1687 and isolation 23/23 pass on their recorded snapshots. Factory trial, staging, production and industrial-quantity-dependent workflows remain unaccepted. See the current Phase 1 report for precise gates and next actions.
+
+---
+
 # Visual acceptance
 
 Verdict: **DESIGN NOT FINISHED.** The checks below pass, but most routes have not met the acceptance criteria. See `SCREEN_MIGRATION_MATRIX.md`: 7 routes PASS, 1 is BLOCKED, the rest are NOT VERIFIED. No factory employee has tested any of this.

@@ -1,3 +1,4 @@
+import { formatMeasurement } from '@/lib/analyticsPresentation';
 import { DataState } from '@/components/shared/DataState';
 import { useStockStorageAnalytics } from '@/hooks/useFounderAnalytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,8 +11,8 @@ import { Warehouse, ArrowUpRight, ArrowDownRight, Thermometer, Droplets, AlertTr
 
 type Period = 'today' | 'week' | 'month' | 'quarter';
 
-const occupancyColor = (pct: number) => pct >= 90 ? '#ef4444' : pct >= 75 ? '#f59e0b' : '#22c55e';
-const occupancyLabel = (pct: number) => pct >= 90 ? 'CRITIQUE' : pct >= 75 ? 'ÉLEVÉ' : 'NORMAL';
+const occupancyColor = (_pct: number) => 'hsl(var(--primary))';
+const occupancyLabel = (_pct: number) => 'Charge déclarée';
 
 export function StockStoragePanel({ period }: { period: Period }) {
   const source = useStockStorageAnalytics(period);
@@ -79,16 +80,16 @@ export function StockStoragePanel({ period }: { period: Period }) {
           </CardContent>
         </Card>
 
-        <Card className={`border-2 ${(sr?.condCompliance ?? 100) >= 95 ? 'border-green-300 bg-card' : 'border-amber-300 bg-card'}`}>
+        <Card className={`border-2 bg-card`}>
           <CardContent className="pt-4 pb-3">
             <div className="flex items-center gap-1.5 mb-1">
-              <Thermometer className={`h-3.5 w-3.5 ${(sr?.condCompliance ?? 100) >= 95 ? 'text-green-600' : 'text-amber-600'}`} />
-              <span className={`text-xs font-medium ${(sr?.condCompliance ?? 100) >= 95 ? 'text-green-600' : 'text-amber-600'}`}>Conformité conditions</span>
+              <Thermometer className={`h-3.5 w-3.5 text-muted-foreground`} />
+              <span className={`text-xs font-medium text-muted-foreground`}>Lectures dans les bornes (historique)</span>
             </div>
-            <div className={`text-2xl font-black ${(sr?.condCompliance ?? 100) >= 95 ? 'text-green-700' : 'text-amber-700'}`}>
-              {(sr?.condCompliance ?? 100).toFixed(0)}%
+            <div className={`text-2xl font-black text-foreground`}>
+              {formatMeasurement(sr?.condCompliance, (sr?.condReadings ?? 0) > 0, "%", 0)}
             </div>
-            <div className="text-xs text-muted-foreground mt-0.5">{sr?.condReadings ?? 0} lectures</div>
+            <div className="text-xs text-muted-foreground mt-0.5">{sr?.condReadings ?? 0} lectures · calcul historique, sans validation qualité signée</div>
           </CardContent>
         </Card>
       </div>
@@ -102,7 +103,7 @@ export function StockStoragePanel({ period }: { period: Period }) {
               <div className="flex items-center gap-1.5">
                 <Warehouse className="h-3.5 w-3.5 text-muted-foreground" />
                 <span className="text-xs text-muted-foreground">
-                  {sr?.occupancyPct?.toFixed(0) ?? 0}% global
+                  {formatMeasurement(sr?.occupancyPct, !!sr?.zones.length && sr.zones.every(z => z.capacity > 0 && Number.isFinite(z.current)), "%", 0)} global
                 </span>
               </div>
             </div>
@@ -115,7 +116,7 @@ export function StockStoragePanel({ period }: { period: Period }) {
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{z.name}</span>
                       <Badge className="text-xs h-4 px-1" style={{ background: occupancyColor(z.occupancy) }}>
-                        {occupancyLabel(z.occupancy)}
+                        {z.capacity > 0 ? occupancyLabel(z.occupancy) : "Capacité absente"}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-3 text-xs text-muted-foreground">
@@ -129,11 +130,11 @@ export function StockStoragePanel({ period }: { period: Period }) {
                           <Droplets className="h-3 w-3" />{z.humidity.toFixed(0)}%
                         </span>
                       )}
-                      <span className="font-bold" style={{ color: occupancyColor(z.occupancy) }}>{z.occupancy.toFixed(0)}%</span>
+                      <span className="font-bold" style={{ color: occupancyColor(z.occupancy) }}>{formatMeasurement(z.occupancy, z.capacity > 0 && Number.isFinite(z.current), "%", 0)}</span>
                     </div>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div className="h-2 rounded-full transition-all" style={{ width: `${Math.min(z.occupancy, 100)}%`, background: occupancyColor(z.occupancy) }} />
+                    <div className="h-2 rounded-full transition-all" style={{ width: z.capacity > 0 ? `${Math.min(z.occupancy, 100)}%` : "0%", background: occupancyColor(z.occupancy) }} />
                   </div>
                   <div className="flex justify-between text-xs text-muted-foreground">
                     <span>{z.current >= 1000 ? `${(z.current / 1000).toFixed(2)} t` : `${z.current.toFixed(0)} kg`} occupé</span>

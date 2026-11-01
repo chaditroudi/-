@@ -1,3 +1,5 @@
+import { canWrite } from '@/lib/apiAccess';
+import { toast } from 'sonner';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -41,8 +43,9 @@ export const ProductionOrderDetail = ({ open, onOpenChange, orderId }: Productio
   const { data: order, isLoading } = useProductionOrder(orderId);
   const updateStatus = useUpdateOrderStatus();
   const { data: lotAllocations = [] } = useOrderLotAllocations(orderId);
-  const { user, profile } = useAuthContext();
+  const { user, profile, roles } = useAuthContext();
 
+  const canUpdate = canWrite(roles, 'productionUpdate');
   const actorName = profile?.full_name || user?.email || undefined;
 
   const getDateLocale = () => {
@@ -73,7 +76,8 @@ export const ProductionOrderDetail = ({ open, onOpenChange, orderId }: Productio
   if (!orderId) return null;
 
   const handleStatusChange = (newStatus: ProductionOrderStatus) => {
-    updateStatus.mutate({ id: orderId, status: newStatus, performed_by: actorName });
+    if (!canUpdate) return;
+    void updateStatus.mutateAsync({ id: orderId, status: newStatus, performed_by: actorName }).catch(error => toast.error(error instanceof Error ? error.message : "Modification indisponible"));
   };
 
   const statusMessage =
@@ -121,8 +125,8 @@ export const ProductionOrderDetail = ({ open, onOpenChange, orderId }: Productio
                 <div className="flex flex-col items-start gap-1 lg:items-end">
                   <div className="flex flex-wrap gap-2">
                     {order.status === 'draft' && (
-                      <ActionButton
-                        loading={updateStatus.isPending && updateStatus.variables?.status === 'planned'}
+                      <ActionButton disabled={!canUpdate}
+                        loading={updateStatus.isPending}
                         onClick={() => handleStatusChange('planned')}
                       >
                         {t('common.planOrder')}
@@ -131,9 +135,9 @@ export const ProductionOrderDetail = ({ open, onOpenChange, orderId }: Productio
 
                     {order.status === 'planned' && (
                       <ActionButton
-                        loading={updateStatus.isPending && updateStatus.variables?.status === 'in_progress'}
+                        loading={updateStatus.isPending}
                         onClick={() => handleStatusChange('in_progress')}
-                        disabled={lotAllocations.length === 0}
+                        disabled={!canUpdate || (lotAllocations.length === 0)}
                       >
                         <Play className="mr-2 h-4 w-4" />
                         {t('common.startProduction')}
@@ -142,17 +146,17 @@ export const ProductionOrderDetail = ({ open, onOpenChange, orderId }: Productio
 
                     {order.status === 'in_progress' && (
                       <>
-                        <ActionButton
+                        <ActionButton disabled={!canUpdate}
                           tone="danger"
-                          loading={updateStatus.isPending && updateStatus.variables?.status === 'cancelled'}
+                          loading={updateStatus.isPending}
                           onClick={() => handleStatusChange('cancelled')}
                         >
                           <XCircle className="mr-2 h-4 w-4" />
                           {t('common.cancel')}
                         </ActionButton>
-                        <ActionButton
+                        <ActionButton disabled={!canUpdate}
                           tone="success"
-                          loading={updateStatus.isPending && updateStatus.variables?.status === 'completed'}
+                          loading={updateStatus.isPending}
                           onClick={() => handleStatusChange('completed')}
                         >
                           <CheckCircle className="mr-2 h-4 w-4" />

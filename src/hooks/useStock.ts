@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import type { Product, ShipmentLine, ShipmentPreparation, StockAlert, StockLocation, StockLot, StockMovement, ProductCategory } from '@/types/stock';
+import type { Product, ShipmentLine, ShipmentPreparation, StockAlert, StockLocation, StockLot, StockMovement, StockMovementType, LotSuggestion, ProductCategory } from '@/types/stock';
 import type { StockLotStatus } from '@/types/reception';
 import {
   useListProductsQuery,
@@ -32,9 +32,9 @@ export const useProducts = (category?: ProductCategory) => {
   const result = useListProductsQuery();
   return {
     ...result,
-    data: (result.data as unknown as Product[] | undefined)
+    data: result.data
       ?.filter((p) => p.is_active !== false)
-      .filter((p) => !category || (p as any).category === category),
+      .filter((p) => !category || p.category === category),
   };
 };
 
@@ -67,8 +67,11 @@ export const useUpdateProduct = () => {
 
 // ── Stock Lots ─────────────────────────────────────────────────────────────────
 
-export const useStockLots = (status?: string) => {
-  return useListStockLotsQuery(status);
+export const useStockLots = (filter?: string | { status?: string; category?: ProductCategory }) => {
+  const status = typeof filter === 'string' ? filter : filter?.status;
+  const category = typeof filter === 'string' ? undefined : filter?.category;
+  const result = useListStockLotsQuery(status);
+  return { ...result, data: result.data?.filter(lot => !category || (lot.product?.category ?? lot.category) === category) };
 };
 
 export const useCreateStockLot = () => {
@@ -215,8 +218,11 @@ export const useUpdateStockLocation = () => {
 
 // ── Movements ──────────────────────────────────────────────────────────────────
 
-export const useStockMovements = (lotId?: string) => {
-  return useListStockMovementsQuery(lotId);
+export const useStockMovements = (filter?: string | { lotId?: string; type?: StockMovementType }) => {
+  const lotId = typeof filter === 'string' ? filter : filter?.lotId;
+  const type = typeof filter === 'string' ? undefined : filter?.type;
+  const result = useListStockMovementsQuery(lotId);
+  return { ...result, data: result.data?.filter(movement => !type || movement.movement_type === type) };
 };
 
 // ── Summary ────────────────────────────────────────────────────────────────────
@@ -310,25 +316,16 @@ export const useDeleteShipmentLine = () => {
   };
 };
 
-export const useLotSuggestions = (productId: string, requestedQty: number) => {
-  const [getSuggestions, state] = useGetExpeditionLotSuggestionsMutation();
-  const [data, setData] = useState<unknown[]>([]);
-
-  useEffect(() => {
-    if (productId && requestedQty > 0) {
-      getSuggestions({ product_id: productId, requested_qty: requestedQty })
-        .unwrap()
-        .then((res) => setData((res as any)?.suggestions ?? (Array.isArray(res) ? res : [])))
-        .catch(() => setData([]));
-    } else {
-      setData([]);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productId, requestedQty]);
-
-  return { data, isLoading: state.isLoading };
-};
-
+/** BLOCKED: /stock/expedition is a mutation, not a FIFO/FEFO read endpoint.
+ * Never call it while selecting a product. Domain work must supply a real reader.
+ */
+export const useLotSuggestions = (productId: string, requestedQty: number): {
+  data: LotSuggestion[] | undefined; isLoading: boolean; error: Error | null;
+} => ({
+  data: undefined,
+  isLoading: false,
+  error: productId && requestedQty > 0 ? new Error('Suggestions de lots indisponibles. Sélectionnez un lot autorisé manuellement.') : null,
+});
 // ── All reception lots (unified storage view) ──────────────────────────────────
 
 export const useAllReceptionLots = (stockStatus?: StockLotStatus, options?: { enabled?: boolean }) => {

@@ -1,4 +1,5 @@
-﻿import { DataState } from '@/components/shared/DataState';
+﻿import { formatMeasurement } from '@/lib/analyticsPresentation';
+import { DataState } from '@/components/shared/DataState';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -48,7 +49,8 @@ export const AdvancedCostPanel = ({ period }: AdvancedCostPanelProps) => {
   }
 
   const kpis = data?.kpis;
-  const isOverBudget = (kpis?.costVariancePercent || 0) > 0;
+  const hasProduction = (data?.totalProduced ?? 0) > 0;
+  const isOverBudget = hasProduction && (kpis?.costVariancePercent || 0) > 0;
   const basisLabel = data?.basis === 'standard' ? 'Coûts standards (paramètres site)' : 'Coûts';
 
 
@@ -72,19 +74,19 @@ export const AdvancedCostPanel = ({ period }: AdvancedCostPanelProps) => {
         <Card className="col-span-2 md:col-span-1">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className={`p-3 rounded-xl ${isOverBudget ? 'bg-red-500/10' : 'bg-emerald-500/10'}`}>
-                <DollarSign className={`h-6 w-6 ${isOverBudget ? 'text-red-500' : 'text-emerald-500'}`} />
+              <div className={`p-3 rounded-xl bg-muted`}>
+                <DollarSign className={`h-6 w-6 text-muted-foreground`} />
               </div>
               <div>
-                <p className="text-2xl font-bold">{(kpis?.costPerKg || 0).toFixed(2)}</p>
+                <p className="text-2xl font-bold">{formatMeasurement(kpis?.costPerKg, hasProduction, '', 2)}</p>
                 <p className="text-xs text-muted-foreground">TND/kg</p>
               </div>
             </div>
             <div className="mt-3 flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Cible: {kpis?.targetCostPerKg || 0} TND</span>
-              <Badge variant={isOverBudget ? 'destructive' : 'default'}>
-                {isOverBudget ? <ArrowUpRight className="h-3 w-3 mr-1" /> : <ArrowDownRight className="h-3 w-3 mr-1" />}
-                {Math.abs(kpis?.costVariancePercent || 0).toFixed(1)}%
+              <span className="text-xs text-muted-foreground">Paramètre site : {kpis?.targetCostPerKg || 0} TND</span>
+              <Badge variant="outline">
+                {hasProduction && (isOverBudget ? <ArrowUpRight className="h-3 w-3 mr-1" /> : <ArrowDownRight className="h-3 w-3 mr-1" />)}
+                {formatMeasurement(kpis ? Math.abs(kpis.costVariancePercent) : undefined, hasProduction, "%")}
               </Badge>
             </div>
           </CardContent>
@@ -98,7 +100,7 @@ export const AdvancedCostPanel = ({ period }: AdvancedCostPanelProps) => {
                 <Users className="h-5 w-5 text-blue-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{(kpis?.laborCostPerTon || 0).toFixed(0)}</p>
+                <p className="text-2xl font-bold">{formatMeasurement(kpis?.laborCostPerTon, hasProduction, '', 0)}</p>
                 <p className="text-xs text-muted-foreground">TND/Tonne MO</p>
               </div>
             </div>
@@ -113,7 +115,7 @@ export const AdvancedCostPanel = ({ period }: AdvancedCostPanelProps) => {
                 <Zap className="h-5 w-5 text-amber-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{(kpis?.energyCostPerTon || 0).toFixed(0)}</p>
+                <p className="text-2xl font-bold">{formatMeasurement(kpis?.energyCostPerTon, hasProduction, '', 0)}</p>
                 <p className="text-xs text-muted-foreground">TND/Tonne Énergie</p>
               </div>
             </div>
@@ -143,7 +145,7 @@ export const AdvancedCostPanel = ({ period }: AdvancedCostPanelProps) => {
                 <Wrench className="h-5 w-5 text-purple-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{((kpis?.maintenanceCost || 0) / 1000).toFixed(1)}k</p>
+                <p className="text-2xl font-bold">Non mesuré</p>
                 <p className="text-xs text-muted-foreground">TND Maintenance</p>
               </div>
             </div>
@@ -158,7 +160,7 @@ export const AdvancedCostPanel = ({ period }: AdvancedCostPanelProps) => {
                 <TrendingDown className="h-5 w-5 text-orange-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{(kpis?.lossPercentOfRevenue || 0).toFixed(1)}%</p>
+                <p className="text-2xl font-bold">Non mesuré</p>
                 <p className="text-xs text-muted-foreground">Pertes/Revenu</p>
               </div>
             </div>
@@ -269,9 +271,9 @@ export const AdvancedCostPanel = ({ period }: AdvancedCostPanelProps) => {
                   <div className="flex-1">
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-sm font-medium">{item.name}</span>
-                      <span className="font-bold">{item.value.toFixed(0)} TND/T</span>
+                      <span className="font-bold">{formatMeasurement(item.value, hasProduction, " TND/t", 0)}</span>
                     </div>
-                    <Progress 
+                    <Progress hidden={!hasProduction}
                       value={(item.value / (kpis?.materialCostPerTon || 1)) * 100} 
                       className="h-2" 
                     />
@@ -289,17 +291,17 @@ export const AdvancedCostPanel = ({ period }: AdvancedCostPanelProps) => {
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Main Variance */}
-            <div className={`p-4 rounded-lg ${isOverBudget ? 'bg-red-50 dark:bg-red-900/20' : 'bg-emerald-50 dark:bg-emerald-900/20'}`}>
+            <div className={`p-4 rounded-lg bg-muted`}>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">Écart Coût vs Objectif</span>
-                <Badge variant={isOverBudget ? 'destructive' : 'default'} className="text-lg px-3 py-1">
-                  {isOverBudget ? '+' : ''}{(kpis?.costVariancePercent || 0).toFixed(1)}%
+                <span className="text-sm font-medium">Écart standard / paramètre site</span>
+                <Badge variant="outline" className="text-lg px-3 py-1">
+                  {isOverBudget ? '+' : ''}{formatMeasurement(kpis?.costVariancePercent, hasProduction, "%")}
                 </Badge>
               </div>
               <div className="grid grid-cols-2 gap-4 mt-4">
                 <div>
-                  <p className="text-xs text-muted-foreground">Coût Réel</p>
-                  <p className="text-xl font-bold">{(kpis?.costPerKg || 0).toFixed(2)} TND/kg</p>
+                  <p className="text-xs text-muted-foreground">Coût standard calculé</p>
+                  <p className="text-xl font-bold">{formatMeasurement(kpis?.costPerKg, hasProduction, '', 2)} TND/kg</p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Objectif</p>
@@ -308,37 +310,22 @@ export const AdvancedCostPanel = ({ period }: AdvancedCostPanelProps) => {
               </div>
             </div>
 
-            {/* Trend Indicators */}
-            <div className="space-y-3">
-              <p className="text-sm font-medium">Tendances par Catégorie</p>
-              {data?.costBreakdown?.slice(0, 4).map((item) => (
-                <div key={item.label} className="flex items-center justify-between">
-                  <span className="text-sm">{item.label}</span>
-                  <Badge 
-                    variant={item.trend > 0 ? 'destructive' : item.trend < 0 ? 'default' : 'secondary'}
-                  >
-                    {item.trend > 0 ? <TrendingUp className="h-3 w-3 mr-1" /> : 
-                     item.trend < 0 ? <TrendingDown className="h-3 w-3 mr-1" /> : null}
-                    {item.trend > 0 ? '+' : ''}{item.trend.toFixed(1)}%
-                  </Badge>
-                </div>
-              ))}
-            </div>
+<p className="text-sm text-muted-foreground">Tendances non mesurées : aucune période de comparaison fournie.</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Efficiency Alert */}
       {isOverBudget && (
-        <Card className="border-red-200 bg-red-50/50 dark:bg-red-950/20">
+        <Card className="border-border bg-muted/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-4">
               <AlertTriangle className="h-6 w-6 text-red-600" />
               <div className="flex-1">
-                <p className="font-semibold text-red-800 dark:text-red-200">Alerte Dépassement Budget</p>
+                <p className="font-semibold text-red-800 dark:text-red-200">Écart du modèle standard</p>
                 <p className="text-sm text-red-700 dark:text-red-300 mt-1">
-                  Le coût de production actuel dépasse l'objectif de {Math.abs(kpis?.costVariancePercent || 0).toFixed(1)}%. 
-                  Analysez les postes Main-d'œuvre et Énergie pour identifier les opportunités d'optimisation.
+                  Le coût standard calculé dépasse la référence du modèle de {formatMeasurement(kpis ? Math.abs(kpis.costVariancePercent) : undefined, hasProduction, "%")}.
+                  La comparaison repose sur les paramètres standards ; les coûts réels restent à établir.
                 </p>
               </div>
             </div>

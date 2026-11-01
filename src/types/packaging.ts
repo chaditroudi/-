@@ -185,7 +185,6 @@ export interface PackagingOrder {
   duration_minutes: number | null;
 
   // Wave B — closed mass balance + standard cost (set on close)
-  source_weight_kg?: number | null;
   bom_net_weight_g?: number | null;
   produced_kg?: number | null;
   waste_kg?: number | null;

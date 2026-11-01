@@ -1,3 +1,4 @@
+import { toast as reportActionFailure } from 'sonner';
 import { useMemo, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -110,21 +111,14 @@ export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProp
 
   const handleSave = (data: Omit<Supplier, 'id' | 'created_at' | 'updated_at'>) => {
     if (selectedSupplier) {
-      updateMutation.mutate(
-        { id: selectedSupplier.id, ...data },
-        {
-          onSuccess: () => {
+      void updateMutation.mutateAsync({ id: selectedSupplier.id, ...data }).then(() => {
             setDialogOpen(false);
             setSelectedSupplier(null);
-          },
-        },
-      );
+          }).catch(error => reportActionFailure.error(error instanceof Error ? error.message : 'Action indisponible'));
       return;
     }
 
-    createMutation.mutate(data, {
-      onSuccess: () => setDialogOpen(false),
-    });
+    void createMutation.mutateAsync(data).then(() => setDialogOpen(false)).catch(error => reportActionFailure.error(error instanceof Error ? error.message : 'Action indisponible'));
   };
 
   const handleOpenSheet = (supplier: Supplier) => {
@@ -139,7 +133,7 @@ export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProp
 
   const handleDelete = (id: string) => {
     if (confirm('Supprimer cette fiche fournisseur ?')) {
-      deleteMutation.mutate(id);
+      void deleteMutation.mutateAsync(id).catch(error => reportActionFailure.error(error instanceof Error ? error.message : 'Action indisponible'));
     }
   };
 

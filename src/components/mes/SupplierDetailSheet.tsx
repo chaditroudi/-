@@ -1,3 +1,4 @@
+import type { SupplierLot, SupplierOrder, SupplierPayment, SupplierAuditEntry } from '@/types/supplier-history';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -53,10 +54,10 @@ import {
 } from '@/hooks/useSuppliers';
 import { CreditCard, ShoppingCart } from 'lucide-react';
 
-type SupplierLotRow    = { id: string; reception_number?: string; variety?: string; [k: string]: unknown };
-type PurchaseOrderRow  = { id: string; order_number?: string; order_date?: string; quantity_kg?: number; total_amount_tnd?: number; [k: string]: unknown };
-type PaymentRow        = { id: string; reference?: string; payment_date?: string; amount_tnd?: number; [k: string]: unknown };
-type AuditEntryRow     = { id: string; action_label?: string; action?: string; performed_at?: string; [k: string]: unknown };
+
+
+
+
 
 interface Props {
   supplier: Supplier | null;
@@ -633,7 +634,7 @@ function SupplierLotsTab({ supplierId }: { supplierId: string }) {
     <div className="space-y-1">
       <p className="text-xs text-muted-foreground mb-2">{lots.length} lot(s) — du plus récent au plus ancien</p>
       <div className="divide-y rounded-xl border overflow-hidden">
-        {(lots as SupplierLotRow[]).map((lot) => (
+        {(lots).map((lot) => (
           <div key={lot.id} className="flex items-center justify-between px-3 py-2.5 text-sm hover:bg-muted/30 transition-colors">
             <div className="min-w-0">
               <p className="font-mono text-xs text-muted-foreground">{lot.reception_number}</p>
@@ -794,7 +795,7 @@ function SupplierCommandesTab({ supplierId, agreedPrice }: { supplierId: string;
     </div>
   );
 
-  const typedOrders = orders as PurchaseOrderRow[];
+  const typedOrders = orders;
   const totalKg = typedOrders.reduce((sum, o) => sum + (o.quantity_kg ?? 0), 0);
   const totalTnd = typedOrders.reduce((sum, o) => sum + (o.total_amount_tnd ?? 0), 0);
 
@@ -867,7 +868,7 @@ function SupplierPaiementsTab({ supplierId, totalPaid }: { supplierId: string; t
     </div>
   );
 
-  const typedPayments = payments as PaymentRow[];
+  const typedPayments = payments;
   const total = typedPayments.reduce((sum, p) => sum + (p.amount_tnd ?? 0), 0);
 
   return (
@@ -933,7 +934,7 @@ function SupplierHistoriqueTab({ supplierId }: { supplierId: string }) {
     <div className="space-y-1">
       <p className="text-xs text-muted-foreground mb-2">{entries.length} entrée(s)</p>
       <div className="divide-y rounded-xl border overflow-hidden">
-        {(entries as AuditEntryRow[]).map((entry) => (
+        {(entries).map((entry) => (
           <div key={entry.id} className="px-3 py-2.5 text-sm">
             <div className="flex items-center justify-between gap-2">
               <span className="font-medium truncate">{entry.action_label || entry.action}</span>

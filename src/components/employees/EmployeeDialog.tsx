@@ -1,3 +1,5 @@
+import type { CreateEmployeeData } from '@/hooks/useEmployees';
+import type { ActorRole } from '@/types/roles';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
@@ -17,7 +19,7 @@ interface EmployeeDialogProps {
   onOpenChange: (open: boolean) => void;
   employeeId: string | null;
   employees: Employee[];
-  onSave: (data: Record<string, unknown>) => Promise<void>;
+  onSave: (data: CreateEmployeeData & { id?: string }) => Promise<void>;
 }
 
 export function EmployeeDialog({ open, onOpenChange, employeeId, employees, onSave }: EmployeeDialogProps) {
@@ -30,10 +32,10 @@ export function EmployeeDialog({ open, onOpenChange, employeeId, employees, onSa
     last_name: z.string().min(2, t('validation.minLength', { min: 2 })),
     email: z.string().email(t('validation.invalidEmail')).optional().or(z.literal('')),
     phone: z.string().optional(),
-    role: z.string().min(1, t('validation.required')),
+    role: z.custom<ActorRole>(value => typeof value === 'string' && Object.prototype.hasOwnProperty.call(ROLE_CONFIG, value), t('validation.required')),
     department: z.string().optional(),
     hire_date: z.string().min(1, t('validation.required')),
-    status: z.string().min(1, t('validation.required')),
+    status: z.enum(['active', 'inactive', 'on_leave', 'terminated']),
     hourly_rate: z.coerce.number().optional(),
     supervisor_id: z.string().optional(),
     notes: z.string().optional(),

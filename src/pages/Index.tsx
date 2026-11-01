@@ -262,7 +262,12 @@ const Index = () => {
   // ── Navigation callbacks ──────────────────────────────────────────────────
 
   const [phase2PreselectedLot, setPhase2PreselectedLot] = useState<string | undefined>();
-  const [productionView, setProductionView] = useState<ProductionView>('today');
+  const [productionView, setProductionView] = useState<ProductionView>(() => {
+    const requested = searchParams.get('tab') === 'production'
+      ? searchParams.get('module') ?? searchParams.get('view')
+      : null;
+    return PRODUCTION_VIEWS.find(view => view === requested) ?? 'today';
+  });
   const [purchasingFocus, setPurchasingFocus] = useState<string | undefined>();
   const [prefillReceptionPOId, setPrefillReceptionPOId] = useState<string | undefined>();
   const [receptionView, setReceptionView] = useState<string | undefined>(() =>

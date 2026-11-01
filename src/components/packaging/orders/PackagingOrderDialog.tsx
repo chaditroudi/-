@@ -1,3 +1,5 @@
+import { canWrite } from '@/lib/apiAccess';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useState } from 'react';
 import {
   usePackagingBOMs,
@@ -41,6 +43,7 @@ interface Props {
 }
 
 export function PackagingOrderDialog({ open, onOpenChange, order, currentUser = 'Utilisateur' }: Props) {
+  const { roles } = useAuthContext();
   const { data: boms = [] } = usePackagingBOMs();
   const { data: allLabels = [] } = useLabelTemplates();
   const { data: sublots = [] } = useAvailableSublotsForPackaging();
@@ -255,7 +258,7 @@ export function PackagingOrderDialog({ open, onOpenChange, order, currentUser = 
                 <Button
                   size="sm"
                   onClick={() => updateProgress.mutate({ id: order.id, order_number: order.order_number, target_units: order.target_units, ...progressForm })}
-                  disabled={updateProgress.isPending}
+                  disabled={!canWrite(roles, 'packagingProgress') || (updateProgress.isPending)}
                 >
                   {updateProgress.isPending && <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />}
                   Enregistrer avancement
@@ -268,7 +271,7 @@ export function PackagingOrderDialog({ open, onOpenChange, order, currentUser = 
               <div className="flex items-center justify-between">
                 <div className="text-xs font-semibold text-muted-foreground uppercase">Palettes ({palettes.length})</div>
                 {order.status === 'EN_COURS' && (
-                  <Button size="sm" variant="outline" className="h-9 text-xs" onClick={() => setShowPaletteCreate(true)}>
+                  <Button disabled={!canWrite(roles, 'packagingPalette')} size="sm" variant="outline" className="h-9 text-xs" onClick={() => setShowPaletteCreate(true)}>
                     <Plus className="h-3 w-3 mr-1" />
                     Palette
                   </Button>
@@ -299,7 +302,7 @@ export function PackagingOrderDialog({ open, onOpenChange, order, currentUser = 
                       setShowPaletteCreate(false);
                       setPaletteBoxCount('');
                     }}
-                    disabled={createPalette.isPending}
+                    disabled={!canWrite(roles, 'packagingPalette') || (createPalette.isPending)}
                   >
                     {createPalette.isPending && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
                     Créer
@@ -321,7 +324,7 @@ export function PackagingOrderDialog({ open, onOpenChange, order, currentUser = 
                       {pal.sscc && <span className="font-mono text-xs text-muted-foreground">SSCC: {pal.sscc}</span>}
                       <div className="ml-auto flex gap-1">
                         {pal.status === 'EN_COURS' && sealingId !== pal.id && (
-                          <Button size="sm" variant="outline" className="h-6 px-2 text-xs" onClick={() => setSealingId(pal.id)}>
+                          <Button disabled={!canWrite(roles, 'packagingSeal')} size="sm" variant="outline" className="h-6 px-2 text-xs" onClick={() => setSealingId(pal.id)}>
                             <ShieldCheck className="h-3 w-3 mr-1" />
                             Sceller
                           </Button>
@@ -358,7 +361,7 @@ export function PackagingOrderDialog({ open, onOpenChange, order, currentUser = 
                       const pal = palettes.find((p) => p.id === sealingId);
                       if (pal) handleSealPalette(pal.id, pal.palette_number);
                     }}
-                    disabled={sealPalette.isPending || !sealForm.seal_number}
+                    disabled={!canWrite(roles, 'packagingSeal') || (sealPalette.isPending || !sealForm.seal_number)}
                   >
                     {sealPalette.isPending && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
                     Confirmer scellage
@@ -378,7 +381,7 @@ export function PackagingOrderDialog({ open, onOpenChange, order, currentUser = 
                     const lbl = allLabels.find((l) => l.id === order.label_template_id);
                     startOrder.mutate({ id: order.id, label_status: lbl?.status ?? 'BROUILLON' });
                   }}
-                  disabled={startOrder.isPending}
+                  disabled={!canWrite(roles, 'packagingStart') || (startOrder.isPending)}
                 >
                   {startOrder.isPending ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Play className="h-4 w-4 mr-1.5" />}
                   Démarrer
@@ -389,7 +392,7 @@ export function PackagingOrderDialog({ open, onOpenChange, order, currentUser = 
                   size="sm"
                   variant="outline"
                   onClick={() => pauseResume.mutate({ id: order.id, currentStatus: order.status })}
-                  disabled={pauseResume.isPending}
+                  disabled={!canWrite(roles, 'packagingToggle') || (pauseResume.isPending)}
                 >
                   {order.status === 'EN_COURS'
                     ? <><Pause className="h-4 w-4 mr-1.5" />Pause</>
@@ -422,7 +425,7 @@ export function PackagingOrderDialog({ open, onOpenChange, order, currentUser = 
                       order_number: order.order_number,
                       waste_kg: wasteKg === '' ? undefined : Number(wasteKg),
                     })}
-                    disabled={closeOrder.isPending}
+                    disabled={!canWrite(roles, 'packagingClose') || (closeOrder.isPending)}
                   >
                     {closeOrder.isPending ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Square className="h-4 w-4 mr-1.5" />}
                     Clôturer
@@ -569,7 +572,7 @@ export function PackagingOrderDialog({ open, onOpenChange, order, currentUser = 
               <Button variant="ghost" onClick={() => onOpenChange(false)}>Annuler</Button>
               <Button
                 onClick={handleCreate}
-                disabled={createOrder.isPending || !createForm.source_sublot_id || !createForm.bom_id || !createForm.label_template_id}
+                disabled={!canWrite(roles, 'packagingCreate') || (createOrder.isPending || !createForm.source_sublot_id || !createForm.bom_id || !createForm.label_template_id)}
               >
                 {createOrder.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Créer l'OF

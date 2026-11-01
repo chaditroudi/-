@@ -1,3 +1,6 @@
+import { canWrite } from '@/lib/apiAccess';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -13,6 +16,8 @@ import { CheckCircle, XCircle, Clock } from 'lucide-react';
 interface QualityCheckDialogProps { open: boolean; onOpenChange: (open: boolean) => void; stepId: string; stepName: string; }
 
 export const QualityCheckDialog = ({ open, onOpenChange, stepId, stepName }: QualityCheckDialogProps) => {
+  const { roles } = useAuthContext();
+  const canAdd = canWrite(roles, 'productionCheck');
   const { t } = useTranslation();
   const [checkType, setCheckType] = useState('visual');
   const [parameterName, setParameterName] = useState('');
@@ -29,11 +34,12 @@ export const QualityCheckDialog = ({ open, onOpenChange, stepId, stepName }: Qua
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addCheck.mutate({
+    if (!canAdd) return;
+    void addCheck.mutateAsync({
       production_step_id: stepId, check_type: checkType, parameter_name: parameterName,
       expected_value: expectedValue || undefined, actual_value: actualValue || undefined,
       is_passed: isPassed === '' ? undefined : isPassed === 'true', checked_by: checkedBy || undefined, notes: notes || undefined
-    }, { onSuccess: () => { setCheckType('visual'); setParameterName(''); setExpectedValue(''); setActualValue(''); setIsPassed(''); setCheckedBy(''); setNotes(''); } });
+    }).then(() => { setCheckType('visual'); setParameterName(''); setExpectedValue(''); setActualValue(''); setIsPassed(''); setCheckedBy(''); setNotes(''); }).catch(error => toast.error(error instanceof Error ? error.message : 'Contrôle indisponible'));
   };
 
   return (
@@ -91,7 +97,7 @@ export const QualityCheckDialog = ({ open, onOpenChange, stepId, stepName }: Qua
           </div>
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.close')}</Button>
-            <Button type="submit" disabled={addCheck.isPending}>{addCheck.isPending ? t('common.saving') : t('production.addCheck')}</Button>
+            <Button type="submit" disabled={!canAdd || (addCheck.isPending)}>{addCheck.isPending ? t('common.saving') : t('production.addCheck')}</Button>
           </div>
         </form>
       </DialogContent>

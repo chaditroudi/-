@@ -1,4 +1,5 @@
-﻿import { DataState } from '@/components/shared/DataState';
+﻿import { formatMeasurement } from '@/lib/analyticsPresentation';
+import { DataState } from '@/components/shared/DataState';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -50,7 +51,7 @@ export const AdvancedProductionPanel = ({ period }: AdvancedProductionPanelProps
   }
 
   const kpis = data?.kpis;
-  const yieldStatus = getKPIStatus(kpis?.yieldRate || 0, KPI_THRESHOLDS.yieldRate);
+  const yieldStatus = 'unmeasured';
 
   return (
     <DataState source={{ ...source, updatedAt: source.dataUpdatedAt }} data={data} what="les indicateurs">
@@ -61,17 +62,17 @@ export const AdvancedProductionPanel = ({ period }: AdvancedProductionPanelProps
         <Card className="col-span-2 md:col-span-1">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className={`p-3 rounded-xl ${KPI_STATUS_BG[yieldStatus]}`}>
-                <Gauge className={`h-6 w-6 ${KPI_STATUS_COLORS[yieldStatus]}`} />
+              <div className={`p-3 rounded-xl bg-muted`}>
+                <Gauge className={`h-6 w-6 text-muted-foreground`} />
               </div>
               <div>
-                <p className="text-2xl font-bold">{(kpis?.yieldRate || 0).toFixed(1)}%</p>
+                <p className="text-2xl font-bold">{formatMeasurement(kpis?.yieldRate, data?.measurement.mass, "%")}</p>
                 <p className="text-xs text-muted-foreground">Rendement</p>
               </div>
             </div>
             <div className="mt-3">
-              <Progress value={kpis?.yieldRate || 0} className="h-2" />
-              <p className="text-xs text-muted-foreground mt-1">Cible: 90%</p>
+              {data?.measurement.mass && <Progress value={kpis?.yieldRate} className="h-2" />}
+              <p className="text-xs text-muted-foreground mt-1">Base : quantités renseignées</p>
             </div>
           </CardContent>
         </Card>
@@ -114,7 +115,7 @@ export const AdvancedProductionPanel = ({ period }: AdvancedProductionPanelProps
                 <Target className="h-5 w-5 text-purple-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{((kpis?.totalActual || 0) / 1000).toFixed(1)}T</p>
+                <p className="text-2xl font-bold">{formatMeasurement(kpis ? kpis.totalActual / 1000 : undefined, data?.measurement.output, " t")}</p>
                 <p className="text-xs text-muted-foreground">Produit</p>
               </div>
             </div>
@@ -125,15 +126,12 @@ export const AdvancedProductionPanel = ({ period }: AdvancedProductionPanelProps
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${(kpis?.variancePercent || 0) >= 0 ? 'bg-emerald-500/10' : 'bg-red-500/10'}`}>
-                {(kpis?.variancePercent || 0) >= 0 
-                  ? <TrendingUp className="h-5 w-5 text-emerald-500" />
-                  : <TrendingDown className="h-5 w-5 text-red-500" />
-                }
+              <div className={`p-2 rounded-lg bg-muted`}>
+                <Target className="h-5 w-5 text-muted-foreground" />
               </div>
               <div>
-                <p className={`text-2xl font-bold ${(kpis?.variancePercent || 0) >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                  {(kpis?.variancePercent || 0) >= 0 ? '+' : ''}{(kpis?.variancePercent || 0).toFixed(1)}%
+                <p className={`text-2xl font-bold text-foreground`}>
+                  {formatMeasurement(kpis?.variancePercent, data?.measurement.plan && data?.measurement.output, "%")}
                 </p>
                 <p className="text-xs text-muted-foreground">Écart plan</p>
               </div>
@@ -149,7 +147,7 @@ export const AdvancedProductionPanel = ({ period }: AdvancedProductionPanelProps
                 <AlertCircle className="h-5 w-5 text-amber-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{(kpis?.wasteRate || 0).toFixed(1)}%</p>
+                <p className="text-2xl font-bold">{formatMeasurement(kpis?.wasteRate, data?.measurement.mass, "%")}</p>
                 <p className="text-xs text-muted-foreground">Taux pertes</p>
               </div>
             </div>
@@ -171,7 +169,7 @@ export const AdvancedProductionPanel = ({ period }: AdvancedProductionPanelProps
           <CardContent>
             <div className="h-[320px]">
               <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={data?.dailyTrend || []}>
+                <ComposedChart data={data?.dailyTrend.map(day => ({ ...day, actual: data.measurement.output ? day.actual : null })) || []}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis dataKey="date" tick={{ fontSize: 10 }} />
                   <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `${(v/1000).toFixed(0)}T`} />
@@ -204,31 +202,7 @@ export const AdvancedProductionPanel = ({ period }: AdvancedProductionPanelProps
             <CardDescription>Classification des temps d'arrêt</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-[320px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data?.downtimeBreakdown || []} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={(v) => `${v}h`} />
-                  <YAxis dataKey="label" type="category" width={100} tick={{ fontSize: 10 }} />
-                  <Tooltip 
-                    formatter={(value: number, name: string, props: { payload: Record<string, number> }) => [
-                      `${value}h (${props.payload.percentage.toFixed(1)}%)`,
-                      ''
-                    ]}
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--background))', 
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px'
-                    }}
-                  />
-                  <Bar dataKey="hours" radius={[0, 4, 4, 0]}>
-                    {data?.downtimeBreakdown?.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+<p className="py-12 text-center text-sm text-muted-foreground">Arrêts non mesurés. Les estimations existantes ne constituent pas des relevés d’arrêt.</p>
           </CardContent>
         </Card>
       </div>
@@ -265,7 +239,7 @@ export const AdvancedProductionPanel = ({ period }: AdvancedProductionPanelProps
                 <div className="flex justify-between text-sm">
                   <span>Taux de complétion</span>
                   <span className="font-semibold">
-                    {kpis?.ordersTotal ? ((kpis?.ordersCompleted || 0) / kpis.ordersTotal * 100).toFixed(1) : 0}%
+                    {formatMeasurement(kpis?.ordersTotal ? kpis.ordersCompleted / kpis.ordersTotal * 100 : undefined, !!kpis?.ordersTotal, "%")}
                   </span>
                 </div>
                 <Progress 
@@ -276,11 +250,11 @@ export const AdvancedProductionPanel = ({ period }: AdvancedProductionPanelProps
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Rendement global</span>
-                  <span className={`font-semibold ${KPI_STATUS_COLORS[yieldStatus]}`}>
-                    {(kpis?.yieldRate || 0).toFixed(1)}%
+                  <span className={`font-semibold text-muted-foreground`}>
+                    {formatMeasurement(kpis?.yieldRate, data?.measurement.mass, "%")}
                   </span>
                 </div>
-                <Progress value={kpis?.yieldRate || 0} className="h-2" />
+                {data?.measurement.mass && <Progress value={kpis?.yieldRate} className="h-2" />}
               </div>
             </div>
           </CardContent>
@@ -306,7 +280,7 @@ export const AdvancedProductionPanel = ({ period }: AdvancedProductionPanelProps
                     <CheckCircle className="h-4 w-4 text-emerald-500" />
                     <span className="text-sm text-muted-foreground">Réalisé</span>
                   </div>
-                  <p className="text-2xl font-bold">{((kpis?.totalActual || 0) / 1000).toFixed(2)} T</p>
+                  <p className="text-2xl font-bold">{formatMeasurement(kpis ? kpis.totalActual / 1000 : undefined, data?.measurement.output, " t", 2)}</p>
                 </div>
               </div>
 
@@ -314,15 +288,15 @@ export const AdvancedProductionPanel = ({ period }: AdvancedProductionPanelProps
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">Écart Planifié/Réel</p>
-                    <p className={`text-xl font-bold ${(kpis?.variancePercent || 0) >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                      {((kpis?.totalActual || 0) - (kpis?.totalPlanned || 0)).toLocaleString('fr-FR')} kg
+                    <p className={`text-xl font-bold text-foreground`}>
+                      {data?.measurement.output && data?.measurement.plan ? `${(kpis.totalActual - kpis.totalPlanned).toLocaleString("fr-FR")} kg` : "Non mesuré"}
                     </p>
                   </div>
                   <Badge 
-                    variant={(kpis?.variancePercent || 0) >= 0 ? 'default' : 'destructive'}
+                    variant="outline"
                     className="text-lg px-3 py-1"
                   >
-                    {(kpis?.variancePercent || 0) >= 0 ? '+' : ''}{(kpis?.variancePercent || 0).toFixed(1)}%
+                    {formatMeasurement(kpis?.variancePercent, data?.measurement.plan && data?.measurement.output, "%")}
                   </Badge>
                 </div>
               </div>

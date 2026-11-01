@@ -11,8 +11,8 @@ import { Package, Layers, AlertTriangle, TrendingUp } from 'lucide-react';
 
 type Period = 'today' | 'week' | 'month' | 'quarter';
 
-const oeeColor = (v: number) => v >= 85 ? '#22c55e' : v >= 70 ? '#f59e0b' : '#ef4444';
-const oeeLabel = (v: number) => v >= 85 ? 'EXCELLENT' : v >= 70 ? 'ACCEPTABLE' : 'FAIBLE';
+const oeeColor = (_v: number) => 'hsl(var(--primary))';
+const oeeLabel = (_v: number) => 'Unités produites / cible';
 
 export function PackagingPerformance({ period }: { period: Period }) {
   const source = usePackagingAnalytics(period);
@@ -38,6 +38,7 @@ export function PackagingPerformance({ period }: { period: Period }) {
         </div>
       )}
 
+      <p className="text-xs text-muted-foreground">Rapport unités produites / cible. Ce calcul existant ne mesure pas le TRS : disponibilité, cadence et qualité ne sont pas établies.</p>
       {/* KPI row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <Card className="col-span-1 row-span-1">
@@ -49,8 +50,8 @@ export function PackagingPerformance({ period }: { period: Period }) {
                 </RadialBarChart>
               </ResponsiveContainer>
             </div>
-            <div className="text-2xl font-black -mt-10" style={{ color: oeeColor(oee) }}>{oee.toFixed(1)}%</div>
-            <div className="text-xs text-muted-foreground">OEE Global</div>
+            <div className="text-2xl font-black -mt-10" style={{ color: oeeColor(oee) }}>{kpis?.totalTarget > 0 ? `${oee.toFixed(1)}%` : "Non mesuré"}</div>
+            <div className="text-xs text-muted-foreground">Atteinte du volume cible</div>
             <Badge className="mt-1 text-xs" style={{ background: oeeColor(oee) }}>{oeeLabel(oee)}</Badge>
           </CardContent>
         </Card>
@@ -74,7 +75,7 @@ export function PackagingPerformance({ period }: { period: Period }) {
 
       {/* Line OEE */}
       <Card>
-        <CardHeader><CardTitle className="text-sm">OEE par ligne de conditionnement</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-sm">Volumes par ligne de conditionnement</CardTitle></CardHeader>
         <CardContent>
           {data?.lineOEE.every(l => l.count === 0) ? (
             <div className="py-8 text-center text-xs text-muted-foreground">Aucun ordre de conditionnement terminé sur cette période.</div>
@@ -86,7 +87,7 @@ export function PackagingPerformance({ period }: { period: Period }) {
                     <span className="font-medium">{l.line}</span>
                     <div className="flex items-center gap-2">
                       <span className="text-muted-foreground text-xs">{l.count} OF</span>
-                      <span className="font-bold" style={{ color: oeeColor(l.oee) }}>{l.oee.toFixed(1)}%</span>
+                      <span className="font-bold" style={{ color: oeeColor(l.oee) }}>{l.target > 0 ? `${l.oee.toFixed(1)}%` : "Non mesuré"}</span>
                     </div>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">

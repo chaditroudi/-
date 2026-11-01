@@ -99,7 +99,7 @@ function buildPrintHtml(
   return `<!DOCTYPE html>
 <html lang="fr"><head>
 <meta charset="UTF-8"/>
-<title>Fiche Palette ${session.lot_number}</title>
+<title>Fiche Palette ${session.parent_lot_number}</title>
 <style>
   @page{size:A4;margin:8mm 10mm;}
   *{box-sizing:border-box;}
@@ -135,12 +135,12 @@ function buildPrintHtml(
 <table style="border-collapse:collapse;width:100%;border:2px solid #333;border-top:none;">
   <tbody>
     <tr>
-      <td style="border:1px solid #444;width:40%;padding:3px 6px;"><span style="color:#777;">N° Lot :</span> <strong style="font-family:monospace;">${session.lot_number}</strong></td>
+      <td style="border:1px solid #444;width:40%;padding:3px 6px;"><span style="color:#777;">N° Lot :</span> <strong style="font-family:monospace;">${session.parent_lot_number}</strong></td>
       <td style="border:1px solid #444;border-left:none;padding:3px 6px;"><span style="color:#777;">Date triage :</span> <strong>${dateStr}</strong></td>
     </tr>
     <tr>
       <td style="border:1px solid #444;border-top:none;padding:3px 6px;">
-        <span style="color:#777;">Ligne triage :</span> <strong>${session.triage_line}</strong>
+        <span style="color:#777;">Ligne triage :</span> <strong>${session.line}</strong>
         ${session.chef_ligne ? `<span style="color:#999;font-size:8px;"> — Chef ligne : ${session.chef_ligne}</span>` : ''}
       </td>
       <td style="border:1px solid #444;border-top:none;border-left:none;padding:3px 6px;"><span style="color:#777;">Nb opérateurs :</span> <strong>${session.worker_count ?? '—'}</strong></td>
@@ -218,7 +218,7 @@ function buildPrintHtml(
     <tr>${qualiteRows}</tr>
   </tbody>
 </table>
-${session.notes ? `<table style="border-collapse:collapse;width:100%;border:2px solid #333;border-top:none;"><tbody><tr><td style="border:1px solid #444;padding:3px 8px;"><span style="color:#777;">Observations :</span> ${session.notes}</td></tr></tbody></table>` : ''}
+${'notes' in session && typeof session.notes === 'string' && session.notes ? `<table style="border-collapse:collapse;width:100%;border:2px solid #333;border-top:none;"><tbody><tr><td style="border:1px solid #444;padding:3px 8px;"><span style="color:#777;">Observations :</span> ${session.notes}</td></tr></tbody></table>` : ''}
 <table style="border-collapse:collapse;width:100%;border:2px solid #333;border-top:none;">
   <tbody>
     <tr>
@@ -280,7 +280,7 @@ export const FichePaletteDialog = ({ open, onOpenChange, session, subLots = [] }
   const handleSave = () => saveDoc.mutate({
     document_type: 'FICHE_PALETTE',
     source_id: session.id,
-    source_number: session.lot_number,
+    source_number: session.parent_lot_number,
     form_data: form,
   });
 
@@ -299,7 +299,7 @@ export const FichePaletteDialog = ({ open, onOpenChange, session, subLots = [] }
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
-            Fiche Palette — {session.lot_number}
+            Fiche Palette — {session.parent_lot_number}
           </DialogTitle>
         </DialogHeader>
 
@@ -313,9 +313,9 @@ export const FichePaletteDialog = ({ open, onOpenChange, session, subLots = [] }
             </CardHeader>
             <CardContent className="px-4 pb-3">
               <div className="grid grid-cols-2 gap-2 text-sm">
-                <div><span className="text-muted-foreground">N° Lot : </span><strong>{session.lot_number}</strong></div>
+                <div><span className="text-muted-foreground">N° Lot : </span><strong>{session.parent_lot_number}</strong></div>
                 <div><span className="text-muted-foreground">Date : </span><strong>{dateStr}</strong></div>
-                <div><span className="text-muted-foreground">Ligne triage : </span><strong>{session.triage_line}</strong></div>
+                <div><span className="text-muted-foreground">Ligne triage : </span><strong>{session.line}</strong></div>
                 <div><span className="text-muted-foreground">Total trié : </span><strong>{fmtW(totalKg)} kg</strong></div>
                 <div><span className="text-muted-foreground">Taux rejet : </span><strong className={parseFloat(rejectPct) > 8 ? 'text-red-600' : ''}>{rejectPct}%</strong></div>
                 {session.chef_ligne && <div><span className="text-muted-foreground">Chef ligne : </span><strong>{session.chef_ligne}</strong></div>}

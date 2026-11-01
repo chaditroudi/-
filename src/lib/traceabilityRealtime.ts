@@ -20,14 +20,13 @@ export interface TraceabilityRealtimeChange {
   kind: 'new' | 'updated';
 }
 
-const buildRecordMap = <T extends Record<string, unknown>>(
-  items: T[],
-  idField = 'id',
+const buildRecordMap = <T extends { id: string }>(
+  items: readonly T[],
 ) =>
   new Map(
     items
-      .filter((item) => typeof item[idField] === 'string' && item[idField])
-      .map((item) => [String(item[idField]), item]),
+      .filter((item) => typeof item.id === 'string' && item.id)
+      .map((item) => [String(item.id), item]),
   );
 
 const pushChange = (
@@ -63,12 +62,12 @@ export const diffLotTraceability = (
     });
   }
 
-  const compareRecords = (
+  const compareRecords = <T extends { id: string }>(
     scope: TraceabilityRealtimeChange['scope'],
-    prevItems: Array<Record<string, unknown>>,
-    nextItems: Array<Record<string, unknown>>,
-    labelField: string,
-    statusField = 'status',
+    prevItems: readonly T[],
+    nextItems: readonly T[],
+    labelField: keyof T,
+    statusField?: keyof T,
   ) => {
     const previousMap = buildRecordMap(prevItems);
     const nextMap = buildRecordMap(nextItems);
@@ -76,7 +75,7 @@ export const diffLotTraceability = (
     nextMap.forEach((item, id) => {
       const previousItem = previousMap.get(id);
       const label = String(item[labelField] ?? item.id ?? scope);
-      const nextStatus = item[statusField] ? String(item[statusField]) : null;
+      const nextStatus = statusField && item[statusField] ? String(item[statusField]) : null;
 
       if (!previousItem) {
         pushChange(changes, {
@@ -89,7 +88,7 @@ export const diffLotTraceability = (
         return;
       }
 
-      const previousStatus = previousItem[statusField] ? String(previousItem[statusField]) : null;
+      const previousStatus = statusField && previousItem[statusField] ? String(previousItem[statusField]) : null;
       if (previousStatus !== nextStatus && nextStatus) {
         pushChange(changes, {
           key: `${scope}-${id}`,
@@ -104,69 +103,76 @@ export const diffLotTraceability = (
 
   compareRecords(
     'qc',
-    previous.qc_inspections as Array<Record<string, unknown>>,
-    next.qc_inspections as Array<Record<string, unknown>>,
+    previous.qc_inspections,
+    next.qc_inspections,
     'inspection_number',
     'decision',
   );
   compareRecords(
     'fumigation',
-    previous.fumigation_cycles as Array<Record<string, unknown>>,
-    next.fumigation_cycles as Array<Record<string, unknown>>,
+    previous.fumigation_cycles,
+    next.fumigation_cycles,
     'cycle_number',
+    'status',
   );
   compareRecords(
     'cleaning',
-    previous.cleaning_cycles as Array<Record<string, unknown>>,
-    next.cleaning_cycles as Array<Record<string, unknown>>,
+    previous.cleaning_cycles,
+    next.cleaning_cycles,
     'cycle_number',
+    'status',
   );
   compareRecords(
     'hydration',
-    previous.hydration_cycles as Array<Record<string, unknown>>,
-    next.hydration_cycles as Array<Record<string, unknown>>,
+    previous.hydration_cycles,
+    next.hydration_cycles,
     'cycle_number',
+    'status',
   );
   compareRecords(
     'triage',
-    previous.triage_sessions as Array<Record<string, unknown>>,
-    next.triage_sessions as Array<Record<string, unknown>>,
+    previous.triage_sessions,
+    next.triage_sessions,
     'session_number',
+    'status',
   );
   compareRecords(
     'stock_lot',
-    previous.stock_lots as Array<Record<string, unknown>>,
-    next.stock_lots as Array<Record<string, unknown>>,
+    previous.stock_lots,
+    next.stock_lots,
     'lot_number',
+    'status',
   );
   compareRecords(
     'stock_movement',
-    previous.stock_movements as Array<Record<string, unknown>>,
-    next.stock_movements as Array<Record<string, unknown>>,
+    previous.stock_movements,
+    next.stock_movements,
     'movement_number',
     'movement_type',
   );
   compareRecords(
     'production',
-    previous.production_orders as Array<Record<string, unknown>>,
-    next.production_orders as Array<Record<string, unknown>>,
+    previous.production_orders,
+    next.production_orders,
     'order_number',
+    'status',
   );
   compareRecords(
     'output_lot',
-    previous.output_lots as Array<Record<string, unknown>>,
-    next.output_lots as Array<Record<string, unknown>>,
+    previous.output_lots,
+    next.output_lots,
     'lot_pf_number',
   );
   compareRecords(
     'shipment',
-    previous.shipments as Array<Record<string, unknown>>,
-    next.shipments as Array<Record<string, unknown>>,
+    previous.shipments,
+    next.shipments,
     'shipment_number',
+    'status',
   );
 
-  const previousSubLots = buildRecordMap(previous.sub_lots as Array<Record<string, unknown>>);
-  (next.sub_lots as Array<Record<string, unknown>>).forEach((subLot) => {
+  const previousSubLots = buildRecordMap(previous.sub_lots);
+  (next.sub_lots).forEach((subLot) => {
     const id = String(subLot.id ?? '');
     if (!id || previousSubLots.has(id)) return;
 

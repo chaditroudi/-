@@ -1,3 +1,4 @@
+import type { SupplierLot, SupplierOrder, SupplierPayment, SupplierAuditEntry } from '@/types/supplier-history';
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { axiosBaseQuery } from '@/lib/axiosBaseQuery';
 import type { Supplier } from '@/types/mes';
@@ -46,24 +47,24 @@ export const suppliersApi = createApi({
       }),
     }),
 
-    listSupplierLots: b.query<unknown[], string>({
+    listSupplierLots: b.query<SupplierLot[], string>({
       query: (id) => ({ url: `/suppliers/${id}/lots` }),
-      transformResponse: (r: Envelope<unknown[]>) => r.data ?? [],
+      transformResponse: (r: Envelope<SupplierLot[]>) => r.data ?? [],
     }),
 
-    listSupplierOrders: b.query<unknown[], string>({
+    listSupplierOrders: b.query<SupplierOrder[], string>({
       query: (id) => ({ url: `/suppliers/${id}/orders` }),
-      transformResponse: (r: Envelope<unknown[]>) => r.data ?? [],
+      transformResponse: (r: Envelope<SupplierOrder[]>) => r.data ?? [],
     }),
 
-    listSupplierPayments: b.query<unknown[], string>({
+    listSupplierPayments: b.query<SupplierPayment[], string>({
       query: (id) => ({ url: `/suppliers/${id}/payments` }),
-      transformResponse: (r: Envelope<unknown[]>) => r.data ?? [],
+      transformResponse: (r: Envelope<SupplierPayment[]>) => r.data ?? [],
     }),
 
-    listSupplierAuditLogs: b.query<unknown[], string>({
+    listSupplierAuditLogs: b.query<SupplierAuditEntry[], string>({
       query: (id) => ({ url: `/suppliers/${id}/audit-logs` }),
-      transformResponse: (r: Envelope<unknown[]>) => r.data ?? [],
+      transformResponse: (r: Envelope<SupplierAuditEntry[]>) => r.data ?? [],
       providesTags: (_r, _e, id) => [{ type: 'SupplierAudit', id }],
     }),
 

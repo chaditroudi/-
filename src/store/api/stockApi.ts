@@ -1,3 +1,4 @@
+import type { Product, StockLot, StockLocation, StockMovement, InventoryCount, StockAlert, ShipmentPreparation } from '@/types/stock';
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { axiosBaseQuery } from '@/lib/axiosBaseQuery';
 
@@ -11,9 +12,9 @@ export const stockApi = createApi({
 
     // ── Products ───────────────────────────────────────────────────────────────
 
-    listProducts: b.query<unknown[], void>({
+    listProducts: b.query<Product[], void>({
       query: () => ({ url: '/stock/products' }),
-      transformResponse: (r: Envelope<unknown[]>) => r.data ?? [],
+      transformResponse: (r: Envelope<Product[]>) => r.data ?? [],
       providesTags: ['StockProduct'],
     }),
 
@@ -29,17 +30,18 @@ export const stockApi = createApi({
 
     // ── Stock Lots ─────────────────────────────────────────────────────────────
 
-    listStockLots: b.query<unknown[], string | undefined>({
+    listStockLots: b.query<StockLot[], string | undefined>({
       query: (status) => ({
         url: '/stock/lots',
         params: status ? { status } : undefined,
       }),
-      transformResponse: (r: Envelope<unknown[]>) => r.data ?? [],
+      transformResponse: (r: Envelope<StockLot[]>) => r.data ?? [],
       providesTags: ['StockLot'],
     }),
 
-    createStockLot: b.mutation<unknown, Record<string, unknown>>({
+    createStockLot: b.mutation<StockLot, Record<string, unknown>>({
       query: (body) => ({ url: '/stock/lots', method: 'POST', data: body }),
+      transformResponse: (r: Envelope<StockLot>) => r.data,
       invalidatesTags: ['StockLot', 'StockSummary'],
     }),
 
@@ -50,9 +52,9 @@ export const stockApi = createApi({
 
     // ── Locations ──────────────────────────────────────────────────────────────
 
-    listStockLocations: b.query<unknown[], void>({
+    listStockLocations: b.query<StockLocation[], void>({
       query: () => ({ url: '/stock/locations' }),
-      transformResponse: (r: Envelope<unknown[]>) => r.data ?? [],
+      transformResponse: (r: Envelope<StockLocation[]>) => r.data ?? [],
       providesTags: ['StockLocation'],
     }),
 
@@ -63,12 +65,12 @@ export const stockApi = createApi({
 
     // ── Movements ──────────────────────────────────────────────────────────────
 
-    listStockMovements: b.query<unknown[], string | undefined>({
+    listStockMovements: b.query<StockMovement[], string | undefined>({
       query: (lotId) => ({
         url: '/stock/movements',
         params: lotId ? { lot_id: lotId } : undefined,
       }),
-      transformResponse: (r: Envelope<unknown[]>) => r.data ?? [],
+      transformResponse: (r: Envelope<StockMovement[]>) => r.data ?? [],
       providesTags: ['StockMovement'],
     }),
 
@@ -82,18 +84,18 @@ export const stockApi = createApi({
 
     // ── Inventory counts ───────────────────────────────────────────────────────
 
-    listInventoryCounts: b.query<unknown[], void>({
+    listInventoryCounts: b.query<InventoryCount[], void>({
       query: () => ({ url: '/stock/inventory-counts' }),
-      transformResponse: (r: Envelope<unknown[]>) => r.data ?? [],
+      transformResponse: (r: Envelope<InventoryCount[]>) => r.data ?? [],
       providesTags: ['StockLot'],
       keepUnusedDataFor: 60,
     }),
 
     // ── Stock alerts ───────────────────────────────────────────────────────────
 
-    listStockAlerts: b.query<unknown[], void>({
+    listStockAlerts: b.query<StockAlert[], void>({
       query: () => ({ url: '/stock/alerts' }),
-      transformResponse: (r: Envelope<unknown[]>) => r.data ?? [],
+      transformResponse: (r: Envelope<StockAlert[]>) => r.data ?? [],
       providesTags: ['StockSummary'],
       keepUnusedDataFor: 30,
     }),
@@ -105,9 +107,9 @@ export const stockApi = createApi({
 
     // ── Shipments ──────────────────────────────────────────────────────────────
 
-    listShipments: b.query<unknown[], void>({
+    listShipments: b.query<ShipmentPreparation[], void>({
       query: () => ({ url: '/stock/shipments' }),
-      transformResponse: (r: Envelope<unknown[]>) => r.data ?? [],
+      transformResponse: (r: Envelope<ShipmentPreparation[]>) => r.data ?? [],
       providesTags: ['StockMovement'],
     }),
 
