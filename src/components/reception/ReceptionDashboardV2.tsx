@@ -336,7 +336,7 @@ export const ReceptionDashboardV2 = ({
   /** Deep-link: bra opens Bon de Réception Achat. */
   initialView?: string;
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { roles, user } = useAuthContext();
   const permissions = useMemo(() => getReceptionPermissions(roles), [roles]);
   const canManageReception = useMemo(
@@ -357,7 +357,7 @@ export const ReceptionDashboardV2 = ({
   const activeTabRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     activeTabRef.current?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
-  }, [subTab]);
+  }, [subTab, i18n.language]);
 
   const updateSubTab = useCallback((v: SubTab) => { setSubTab(v); ss.set('rdv2-subtab', v); onViewChange?.(v); }, [onViewChange]);
 
@@ -450,10 +450,10 @@ export const ReceptionDashboardV2 = ({
         </button>
       )}
 
-      <Tabs value={subTab} onValueChange={(v) => updateSubTab(v as SubTab)}>
+      <Tabs dir={i18n.dir()} value={subTab} onValueChange={(v) => updateSubTab(v as SubTab)}>
         <div className="flex flex-wrap-reverse items-center gap-x-3 gap-y-2 border-b">
           <div className="min-w-0 flex-1 overflow-x-auto scrollbar-hide max-lg:basis-full">
-          <TabsList className="flex h-auto min-w-max justify-start gap-1 rounded-none bg-transparent p-0" aria-label="Sections de la réception">
+          <TabsList className="flex h-auto min-w-max justify-start gap-1 rounded-none bg-transparent p-0 max-sm:grid max-sm:w-full max-sm:min-w-0 max-sm:grid-cols-2" aria-label="Sections de la réception">
             {tabs.map((tab) => {
               const active = subTab === tab.value;
               return (
@@ -462,7 +462,7 @@ export const ReceptionDashboardV2 = ({
                   value={tab.value}
                   ref={active ? activeTabRef : undefined}
                   className={cn(
-                    'relative flex min-h-11 items-center gap-2 whitespace-nowrap rounded-none px-4 py-3 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring data-[state=active]:bg-transparent data-[state=active]:shadow-none',
+                    'relative flex min-h-11 items-center gap-2 whitespace-nowrap rounded-none px-4 py-3 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring data-[state=active]:bg-transparent data-[state=active]:shadow-none max-sm:gap-1 max-sm:px-2 max-sm:text-xs',
                     active ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
                   )}
                 >

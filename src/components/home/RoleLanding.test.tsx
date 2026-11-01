@@ -24,4 +24,10 @@ describe('daily role actions', () => {
   it('never offers restricted stock to the production manager', () => {
     expect(getDailyAction(['responsable_production'], getAccessibleTabs(['responsable_production']))?.tab).toBe('production');
   });
+  it.each([
+    ['responsable_maintenance', 'maintenance'], ['technicien_maintenance', 'maintenance'],
+    ['responsable_logistique', 'logistics'], ['technico_commercial', 'export'],
+  ] as const)('prioritizes %s’s daily work over secondary modules', (role, tab) => {
+    expect(getDailyAction([role], getAccessibleTabs([role]))?.tab).toBe(tab);
+  });
 });
