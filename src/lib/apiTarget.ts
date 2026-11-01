@@ -51,7 +51,7 @@ export const resolveBuildTarget = (raw: string | undefined | null, mode: string)
 /** Returns why this build must not be produced, or null when it may. */
 export const refuseBuildTarget = (raw: string | undefined | null, target: BuildTarget): string | null => {
   const parsed = parseApiUrl(raw);
-  if (!parsed.ok) return `${parsed.reason} A ${target} build must name its API.`;
+  if (parsed.ok === false) return `${parsed.reason} A ${target} build must name its API.`;
   if (parsed.kind === 'relative') return null;
 
   const { hostname, protocol } = new URL(parsed.url);

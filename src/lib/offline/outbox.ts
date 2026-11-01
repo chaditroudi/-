@@ -22,6 +22,8 @@ export type OutboxItem<T = Record<string, unknown>> = {
 const DB_NAME = 'royal-palm-edge';
 const DB_VERSION = 1;
 const STORE = 'outbox';
+/** A retry must settle too: otherwise it holds the drain lock until this page reloads. */
+export const RECEPTION_INTAKE_TIMEOUT_MS = 30_000;
 /** Longer than the form's own request, so a tablet closed mid-send is still retried. */
 const FORM_REQUEST_WINDOW_MS = 35_000;
 const listeners = new Set<() => void>();
@@ -111,10 +113,20 @@ export const enqueueReceptionIntake = async <T extends Record<string, unknown>>(
   return item;
 };
 
-export const retryOutboxItem = async (id: string) => {
+export const retryOutboxItem = async (id: string, error?: unknown) => {
   const item = await transact<OutboxItem | undefined>('readonly', (store) => store.get(id));
-  if (!item) return;
-  await put({ ...item, status: 'pending', nextAttemptAt: Date.now(), lastError: null });
+  if (!item || item.status === 'syncing') return;
+  // A manual retry must leave the form's first request alone. Only the form's
+  // failure, or a row already known to have failed, releases that protection.
+  if (error === undefined && item.status === 'pending' && !item.lastError) return;
+  await put({
+    ...item,
+    status: 'pending',
+    nextAttemptAt: Date.now(),
+    lastError: error === undefined ? item.lastError : error instanceof Error ? error.message : String(error),
+    waitingForLogin: error === undefined ? item.waitingForLogin : isSessionExpiredError(error),
+    updatedAt: new Date().toISOString(),
+  });
 };
 
 export const discardOutboxItem = async (id: string) => {
@@ -158,7 +170,9 @@ export const drainOutbox = async (
       await put(syncing);
 
       try {
-        const response = await axiosClient.post('/receptions/intake', syncing.payload);
+        const response = await axiosClient.post('/receptions/intake', syncing.payload, {
+          timeout: RECEPTION_INTAKE_TIMEOUT_MS,
+        });
         const data = response.data?.data ?? response.data;
         // The server holds it now, photos included: nothing is kept on the device.
         await discardOutboxItem(syncing.id);

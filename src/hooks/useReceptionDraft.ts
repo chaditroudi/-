@@ -75,7 +75,7 @@ export const useReceptionDraft = (draftId?: string | null) => {
   useEffect(() => () => { if (timer.current) window.clearTimeout(timer.current); }, []);
 
   /** Returns the version now on the server, or null when the draft stayed on this device. */
-  const saveShared = useCallback(async (next?: IntakeDraft): Promise<number | null> => {
+  const saveShared = useCallback(async (next?: IntakeDraft, rejectConflicts = false): Promise<number | null> => {
     const base = next ?? latest.current;
     if (!base?.supplier_id) return null;
     const current = { ...base, version: serverVersion.current };
@@ -111,12 +111,18 @@ export const useReceptionDraft = (draftId?: string | null) => {
         setClosedReceptionId((error.details as { reception_id?: string | null } | undefined)?.reception_id ?? '');
       }
       setSaveState('device');
+      // Confirmation must stop at a refused shared version. Background sharing
+      // still handles conflicts without an unhandled rejection on stage changes.
+      if (rejectConflicts && error instanceof ApiRequestError
+        && (error.code === 'DRAFT_STALE' || error.code === 'DRAFT_CLOSED')) {
+        throw error;
+      }
       return null;
     }
   }, [userId]);
 
-  const share = useCallback((next?: IntakeDraft) => {
-    const run = saveQueue.current.then(() => saveShared(next));
+  const share = useCallback((next?: IntakeDraft, options?: { rejectConflicts?: boolean }) => {
+    const run = saveQueue.current.then(() => saveShared(next, options?.rejectConflicts));
     saveQueue.current = run.catch(() => undefined);
     return run;
   }, [saveShared]);

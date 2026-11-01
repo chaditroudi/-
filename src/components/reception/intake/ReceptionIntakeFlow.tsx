@@ -72,15 +72,20 @@ const IntakeResult = ({ outcome, canRunQc, onOpenReception, onNew, onClose }: {
         <div className="flex items-center gap-3">
           {sessionExpired ? <AlertTriangle className="h-6 w-6 text-amber-700" /> : <CloudOff className="h-6 w-6 text-amber-700" />}
           <h2 className="text-lg font-semibold">
-            {sessionExpired ? 'Session expirée : réception gardée sur cet appareil' : 'Pas de connexion : réception gardée sur cet appareil'}
+            {sessionExpired ? 'Session expirée : réception gardée sur cet appareil'
+              : !navigator.onLine ? 'Pas de connexion : réception gardée sur cet appareil'
+                : 'Confirmation en attente : réception gardée sur cet appareil'}
           </h2>
         </div>
         <p className="text-sm text-amber-950">
           Ce n'est pas encore une réception enregistrée : aucun numéro, lot ni stock n'existe tant que le serveur ne l'a pas confirmée.
           {sessionExpired
             ? ' Reconnectez-vous avec le même compte : elle sera envoyée automatiquement.'
-            : ' Elle sera envoyée automatiquement au retour de la connexion.'}
+            : !navigator.onLine
+              ? ' Elle sera envoyée automatiquement au retour de la connexion.'
+              : ' Une nouvelle tentative d’envoi est prévue automatiquement.'}
         </p>
+        {response.queue_error && <p className="text-sm text-amber-950">{response.queue_error}</p>}
         <p className="text-sm text-amber-950">Le suivi s'affiche en bas de l'écran et dans « En attente ».</p>
         <div className="flex flex-wrap gap-2">
           <Button onClick={onNew}>Nouvelle réception</Button>
@@ -141,6 +146,7 @@ const FlowBody = ({ draftId, prefillPurchaseOrderId, canRunQc, onClose, onOpenRe
   const createIntake = useCreateReceptionIntake();
   const [outcome, setOutcome] = useState<IntakeOutcome | null>(null);
   const [submitError, setSubmitError] = useState<{ message: string; reception?: ReceptionV2 } | null>(null);
+  const [confirming, setConfirming] = useState(false);
   const submitting = useRef(false);
 
   const operations = settings?.operations;
@@ -221,6 +227,7 @@ const FlowBody = ({ draftId, prefillPurchaseOrderId, canRunQc, onClose, onOpenRe
   const weighingBlockers = getWeighingBlockers(draft);
 
   const goTo = (stage: IntakeStage) => {
+    if (submitting.current) return;
     const next: IntakeDraft = { ...draft, stage };
     update({ stage });
     void share(next);
@@ -228,6 +235,7 @@ const FlowBody = ({ draftId, prefillPurchaseOrderId, canRunQc, onClose, onOpenRe
   };
 
   const saveAndLeave = async () => {
+    if (submitting.current) return;
     await share();
     onClose();
   };
@@ -235,6 +243,7 @@ const FlowBody = ({ draftId, prefillPurchaseOrderId, canRunQc, onClose, onOpenRe
   const confirm = async () => {
     if (submitting.current) return;
     submitting.current = true;
+    setConfirming(true);
     setSubmitError(null);
     try {
       const signals = computeReceptionDraftSignals({
@@ -251,7 +260,7 @@ const FlowBody = ({ draftId, prefillPurchaseOrderId, canRunQc, onClose, onOpenRe
         ...(getWeighingSource(draft) === 'MANUAL' ? ['RG-R08 — Poids saisi sans bascule : validation direction requise'] : []),
       ];
       // A shared draft is confirmed at the version just saved. Offline it stays unversioned on this device.
-      await share();
+      await share(undefined, { rejectConflicts: true });
       const response = await createIntake.mutateAsync(buildIntakePayload({ ...draft, version: getServerVersion() }, alerts));
       setOutcome({ response, offline: Boolean(response.offline_queued), sessionExpired: Boolean(response.session_expired) });
     } catch (error) {
@@ -267,6 +276,7 @@ const FlowBody = ({ draftId, prefillPurchaseOrderId, canRunQc, onClose, onOpenRe
       }
     } finally {
       submitting.current = false;
+      setConfirming(false);
     }
   };
 
@@ -295,7 +305,7 @@ const FlowBody = ({ draftId, prefillPurchaseOrderId, canRunQc, onClose, onOpenRe
     >
       <div className="flex flex-wrap items-center gap-2">
         {draft.stage > 1 && (
-          <Button type="button" variant="outline" onClick={() => goTo((draft.stage - 1) as IntakeStage)}>
+          <Button type="button" variant="outline" disabled={confirming} onClick={() => goTo((draft.stage - 1) as IntakeStage)}>
             <ArrowLeft className="mr-1 h-4 w-4" />
             Retour
           </Button>
@@ -304,13 +314,14 @@ const FlowBody = ({ draftId, prefillPurchaseOrderId, canRunQc, onClose, onOpenRe
           type="button"
           variant="ghost"
           className="h-12 px-2 text-muted-foreground"
+          disabled={confirming}
           onClick={() => {
             if (window.confirm('Abandonner cette réception ? La saisie sera perdue.')) void discard().then(onClose);
           }}
         >
           Abandonner
         </Button>
-        <Button type="button" variant="outline" className="ml-auto h-12 px-3" onClick={() => void saveAndLeave()}>
+        <Button type="button" variant="outline" className="ml-auto h-12 px-3" disabled={confirming} onClick={() => void saveAndLeave()}>
           <span className="sm:hidden">Quitter</span>
           <span className="hidden sm:inline">Enregistrer et quitter</span>
         </Button>
@@ -323,10 +334,10 @@ const FlowBody = ({ draftId, prefillPurchaseOrderId, canRunQc, onClose, onOpenRe
           <Button
             type="button"
             className="h-12 flex-1 px-6 sm:flex-none"
-            disabled={allBlockers.length > 0 || createIntake.isPending || Boolean(conflict)}
+            disabled={allBlockers.length > 0 || confirming || createIntake.isPending || Boolean(conflict)}
             onClick={() => void confirm()}
           >
-            {createIntake.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Check className="mr-2 h-4 w-4" />}
+            {confirming || createIntake.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Check className="mr-2 h-4 w-4" />}
             Confirmer la réception
           </Button>
         )}
@@ -340,7 +351,7 @@ const FlowBody = ({ draftId, prefillPurchaseOrderId, canRunQc, onClose, onOpenRe
   return (
     <div data-work-in-progress className={cn('space-y-4', isMobile && 'pb-36')}>
       <div className="flex flex-wrap items-center gap-3">
-        <Button variant="ghost" className="gap-2 px-2" onClick={() => void saveAndLeave()}>
+        <Button variant="ghost" className="gap-2 px-2" disabled={confirming} onClick={() => void saveAndLeave()}>
           <ArrowLeft className="h-4 w-4" />
           Réceptions
         </Button>
@@ -357,7 +368,7 @@ const FlowBody = ({ draftId, prefillPurchaseOrderId, canRunQc, onClose, onOpenRe
             <li key={stage.id}>
               <button
                 type="button"
-                disabled={stage.id > draft.stage}
+                disabled={confirming || stage.id > draft.stage}
                 aria-current={current ? 'step' : undefined}
                 onClick={() => goTo(stage.id)}
                 className={cn(
