@@ -12,10 +12,11 @@ import {
 } from "@nestjs/common";
 
 import { Roles, Authenticated } from "../../nest/route-metadata.js";
-import { getRequestRoles, AUDIT_READ_ROLES, STAFF_ROLES } from "../../middleware/authorization.js";
+import { getRequestRoles, hasAnyRole, AUDIT_READ_ROLES, STAFF_ROLES } from "../../middleware/authorization.js";
 import { RequireAuthGuard } from "../../nest/route-guards.js";
 import { publishRealtimeDbChange } from "../realtime/realtime.bus.js";
 import { NotificationsService } from "./notifications.service.js";
+import type { Request } from 'express';
 
 const compactIds = (...values: unknown[]) =>
   values.flat().map((value) => String(value || "")).filter(Boolean);
@@ -43,6 +44,22 @@ export class NotificationsController {
         userId: req.auth?.user?.id || null,
       }),
     };
+  }
+
+  @Get('summary')
+  @Authenticated()
+  async getSummary(@Req() req: Request) {
+    return { data: await this.notificationsService.getSummary({
+      roles: getRequestRoles(req), userId: req.auth?.user?.id || null,
+    }) };
+  }
+
+  @Get('stats')
+  @Authenticated()
+  async getStats(@Req() req: Request) {
+    return { data: await this.notificationsService.getStats({
+      roles: getRequestRoles(req), userId: req.auth?.user?.id || null,
+    }, hasAnyRole(req, AUDIT_READ_ROLES)) };
   }
 
   @Post()
@@ -78,6 +95,7 @@ export class NotificationsController {
     const data = await this.notificationsService.markNotificationRead(
       id,
       actorNameFromRequest(req, body?.read_by || body?.readBy),
+      { roles: getRequestRoles(req), userId: req.auth?.user?.id || null },
     );
 
     publishRealtimeDbChange({

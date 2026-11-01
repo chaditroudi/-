@@ -377,7 +377,7 @@ const safeFind = async (
     return sanitizeDocument(await query.exec()) as Array<Record<string, unknown>>;
   } catch (error) {
     console.warn(`[analytics] ${collection} query failed:`, error);
-    return [];
+    throw error;
   }
 };
 

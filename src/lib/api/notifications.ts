@@ -58,6 +58,10 @@ const buildQueryString = (params: Record<string, string | number | boolean | und
 };
 
 export const notificationsApi = {
+  getSummary: async () => {
+    const response = await apiRequest<ApiEnvelope<NotificationSummary>>('/notifications/summary');
+    return response.data;
+  },
   listNotifications: async (options: ListNotificationsOptions = {}) => {
     const suffix = buildQueryString({
       unreadOnly: options.unreadOnly,
@@ -121,3 +125,5 @@ export const notificationsApi = {
     return response.data;
   },
 };
+
+export type NotificationSummary = { total: number; unread: number; critical: number; warning: number };

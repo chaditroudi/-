@@ -1,12 +1,18 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { axiosBaseQuery } from '@/lib/axiosBaseQuery';
 import type { AuditLog, NotificationStats, SystemNotification } from '@/types/notifications';
+import type { NotificationSummary } from '@/lib/api/notifications';
 
 export const notificationsApi = createApi({
   reducerPath: 'notificationsApi',
   baseQuery: axiosBaseQuery,
   tagTypes: ['Notification', 'AuditLog', 'NotificationStats'],
   endpoints: (b) => ({
+    getNotificationSummary: b.query<NotificationSummary, void>({
+      query: () => ({ url: '/notifications/summary' }),
+      transformResponse: (res: { data: NotificationSummary }) => res.data,
+      providesTags: ['Notification'],
+    }),
 
     getNotificationsStats: b.query<NotificationStats, void>({
       query: () => ({ url: '/notifications/stats' }),
@@ -72,6 +78,7 @@ export const notificationsApi = createApi({
 });
 
 export const {
+  useGetNotificationSummaryQuery,
   useGetNotificationsStatsQuery,
   useListNotificationsQuery,
   useCreateNotificationMutation,

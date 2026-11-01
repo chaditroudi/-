@@ -3,7 +3,7 @@ import { Injectable } from "@nestjs/common";
 import { badRequest, notFound } from "../../core/app-error.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
-import { notificationSeesAll } from "../../middleware/authorization.js";
+import { notificationViewerFilter, type NotificationViewer } from './notification-visibility.js';
 import { notificationEmitter } from "./notification-emitter.js";
 
 type NotificationRow = Record<string, unknown> & {
@@ -78,24 +78,6 @@ type CreateNotificationInput = {
   targetRoles?: string[];
   targetUserIds?: string[];
   actorId?: string | null;
-};
-
-/** Build the viewer-scoping filter so users only see notifications for their spaces. */
-const viewerFilter = (viewer?: { roles?: string[]; userId?: string | null }) => {
-  const roles = (viewer?.roles ?? []).map((r) => String(r || "").toLowerCase()).filter(Boolean);
-  const userId = viewer?.userId ? String(viewer.userId) : "";
-
-  // Directors/admins (and unscoped/legacy calls) see everything.
-  if (!viewer || notificationSeesAll(roles)) return {};
-
-  return {
-    $or: [
-      { target_roles: { $exists: false } },
-      { target_roles: { $size: 0 } },
-      { target_roles: { $in: roles } },
-      ...(userId ? [{ target_user_ids: userId }] : []),
-    ],
-  } as Record<string, unknown>;
 };
 
 const Notifications = () => getCollectionModel("system_notifications");
@@ -213,7 +195,7 @@ export class NotificationsService {
     roles?: string[];
     userId?: string | null;
   }) {
-    const scope = viewerFilter(opts && (opts.roles || opts.userId) ? opts : undefined);
+    const scope = notificationViewerFilter({ roles: opts?.roles ?? [], userId: opts?.userId ?? null });
     const filter = {
       ...scope,
       ...(opts?.unreadOnly ? { is_read: { $ne: true } } : {}),
@@ -225,17 +207,18 @@ export class NotificationsService {
     ) as NotificationRow[];
   }
 
-  async getStats() {
+  async getStats(viewer: NotificationViewer, canReadAudit = false) {
     const now = new Date();
     const since24h = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
 
+    const scope = notificationViewerFilter(viewer);
     const [all, unread, last24h, auditLogs24h] = await Promise.all([
-      Notifications().find({}).lean().exec(),
-      Notifications().find({ is_read: { $ne: true } }).lean().exec(),
-      Notifications().find({ created_at: { $gte: since24h } }).lean().exec(),
-      AuditLogs().countDocuments({
+      Notifications().find(scope).lean().exec(),
+      Notifications().find({ ...scope, is_read: { $ne: true } }).lean().exec(),
+      Notifications().find({ ...scope, created_at: { $gte: since24h } }).lean().exec(),
+      canReadAudit ? AuditLogs().countDocuments({
         $or: [{ performed_at: { $gte: since24h } }, { created_at: { $gte: since24h } }],
-      }).exec(),
+      }).exec() : Promise.resolve(null),
     ]);
 
     const byCategory: Record<string, number> = {};
@@ -315,13 +298,26 @@ export class NotificationsService {
     return row as NotificationRow;
   }
 
-  async markNotificationRead(id: string, readBy: string) {
-    const existing = sanitizeDocument(await Notifications().findOne({ id }).lean().exec()) as NotificationRow | null;
+  async getSummary(viewer: NotificationViewer) {
+    const scope = notificationViewerFilter(viewer);
+    const unread = { ...scope, is_read: { $ne: true } };
+    const [total, unreadCount, critical, warning] = await Promise.all([
+      Notifications().countDocuments(scope).exec(),
+      Notifications().countDocuments(unread).exec(),
+      Notifications().countDocuments({ ...unread, severity: 'error' }).exec(),
+      Notifications().countDocuments({ ...unread, severity: 'warning' }).exec(),
+    ]);
+    return { total, unread: unreadCount, critical, warning };
+  }
+
+  async markNotificationRead(id: string, readBy: string, viewer: NotificationViewer) {
+    const filter = { id, ...notificationViewerFilter(viewer) };
+    const existing = sanitizeDocument(await Notifications().findOne(filter).lean().exec()) as NotificationRow | null;
     if (!existing) throw notFound("NOTIFICATION_NOT_FOUND", "Notification introuvable.");
 
     const readAt = nowIso();
     await Notifications().updateOne(
-      { id },
+      filter,
       {
         $set: {
           is_read: true,
@@ -332,11 +328,11 @@ export class NotificationsService {
       },
     ).exec();
 
-    return sanitizeDocument(await Notifications().findOne({ id }).lean().exec()) as NotificationRow | null;
+    return sanitizeDocument(await Notifications().findOne(filter).lean().exec()) as NotificationRow | null;
   }
 
   async markAllNotificationsRead(readBy: string, viewer?: { roles?: string[]; userId?: string | null }) {
-    const scope = viewerFilter(viewer && (viewer.roles || viewer.userId) ? viewer : undefined);
+    const scope = notificationViewerFilter({ roles: viewer?.roles ?? [], userId: viewer?.userId ?? null });
     const unread = sanitizeDocument(
       await Notifications().find({ ...scope, is_read: { $ne: true } }).sort({ created_at: -1 }).lean().exec(),
     ) as NotificationRow[];

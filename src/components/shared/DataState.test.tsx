@@ -10,6 +10,14 @@ const broken = new ApiRequestError({ message: 'x', status: 500 });
 const secret = <p>Quarantaine : 12 lots</p>;
 
 describe('DataState', () => {
+  it.each([
+    [401, 'Session expirée'], [404, 'Élément introuvable'],
+  ])('hides old data on HTTP %s and explains the cause', (status, label) => {
+    render(<DataState source={{ error: new ApiRequestError({ message: 'x', status }), refetch: vi.fn() }} data={[{ id: 1 }]} what="le lot">{secret}</DataState>);
+    expect(screen.getByText(label)).toBeInTheDocument();
+    expect(screen.queryByText(/Quarantaine/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Réessayer' })).not.toBeInTheDocument();
+  });
   it('says a refused request is reserved, and shows no list', () => {
     render(<DataState source={{ error: refused }} data={undefined} what="les lots">{secret}</DataState>);
     expect(screen.getByText('Accès réservé')).toBeInTheDocument();

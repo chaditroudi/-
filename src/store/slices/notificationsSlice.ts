@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 import { notificationsApi } from '@/lib/api/notifications';
+import { ApiRequestError } from '@/lib/axiosClient';
 import type { SystemNotification } from '@/types/notifications';
 import type { RootState } from '@/store';
 
@@ -9,7 +10,8 @@ type AsyncStatus = 'idle' | 'loading' | 'succeeded' | 'failed';
 interface NotificationsState {
   items: SystemNotification[];
   status: AsyncStatus;
-  error: string | null;
+  error: ApiRequestError | null;
+  requestId: string | null;
   initialized: boolean;
   lastSyncedAt: string | null;
   lastRealtimeAt: string | null;
@@ -20,6 +22,7 @@ const initialState: NotificationsState = {
   items: [],
   status: 'idle',
   error: null,
+  requestId: null,
   initialized: false,
   lastSyncedAt: null,
   lastRealtimeAt: null,
@@ -52,7 +55,7 @@ const pushRecentRealtimeId = (ids: string[], id: string) => [id, ...ids.filter((
 export const fetchNotifications = createAsyncThunk<
   SystemNotification[],
   { force?: boolean } | void,
-  { state: RootState; rejectValue: string }
+  { state: RootState; rejectValue: ApiRequestError }
 >(
   'notifications/fetchAll',
   async (_arg, { rejectWithValue }) => {
@@ -62,10 +65,9 @@ export const fetchNotifications = createAsyncThunk<
         limit: 200,
       });
     } catch (error) {
-      if (error instanceof Error) {
-        return rejectWithValue(error.message || 'Impossible de charger les notifications.');
-      }
-      return rejectWithValue('Impossible de charger les notifications.');
+      return rejectWithValue(error instanceof ApiRequestError ? error : new ApiRequestError({
+        message: 'Impossible de charger les notifications.',
+      }));
     }
   },
   {
@@ -76,7 +78,7 @@ export const fetchNotifications = createAsyncThunk<
         return false;
       }
 
-      if (arg?.force) {
+      if (arg && arg.force) {
         return true;
       }
 
@@ -134,6 +136,7 @@ const notificationsSlice = createSlice({
       state.items = [];
       state.status = 'idle';
       state.error = null;
+      state.requestId = null;
       state.initialized = false;
       state.lastSyncedAt = null;
       state.lastRealtimeAt = null;
@@ -142,11 +145,14 @@ const notificationsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchNotifications.pending, (state) => {
+      .addCase(fetchNotifications.pending, (state, action) => {
+        state.requestId = action.meta.requestId;
         state.status = 'loading';
         state.error = null;
       })
       .addCase(fetchNotifications.fulfilled, (state, action) => {
+        if (state.requestId !== action.meta.requestId) return;
+        state.requestId = null;
         state.items = sortNotifications(action.payload);
         state.status = 'succeeded';
         state.error = null;
@@ -154,8 +160,14 @@ const notificationsSlice = createSlice({
         state.lastSyncedAt = new Date().toISOString();
       })
       .addCase(fetchNotifications.rejected, (state, action) => {
+        if (state.requestId !== action.meta.requestId) return;
+        state.requestId = null;
         state.status = 'failed';
-        state.error = action.payload || action.error.message || 'Impossible de charger les notifications.';
+        state.error = action.payload || new ApiRequestError({ message: 'Impossible de charger les notifications.' });
+        if (state.error.status === 401 || state.error.status === 403) {
+          state.items = [];
+          state.initialized = false;
+        }
       });
   },
 });
@@ -197,6 +209,8 @@ export const selectNotificationsLastRealtimeAt = createSelector(
   [selectNotificationsState],
   (state) => state.lastRealtimeAt,
 );
+
+export const selectNotificationsLastSyncedAt = (state: RootState) => state.notifications.lastSyncedAt;
 
 export const selectNotificationRecentRealtimeIds = createSelector(
   [selectNotificationsState],

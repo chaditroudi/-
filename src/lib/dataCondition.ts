@@ -1,7 +1,7 @@
 import { classifyFailure, type FailureKind } from './apiErrors';
 
 /** The condition of one piece of data on screen. Only `ready` and `stale` may show it. */
-export type DataCondition = 'loading' | 'ready' | 'empty' | 'error' | 'restricted' | 'offline' | 'stale';
+export type DataCondition = 'loading' | 'ready' | 'empty' | 'error' | 'restricted' | 'session' | 'notFound' | 'offline' | 'stale';
 
 export type DataConditionInput = {
   isLoading?: boolean;
@@ -19,7 +19,9 @@ export const isEmptyData = (data: unknown) => Array.isArray(data) && data.length
 export const resolveDataCondition = ({ isLoading, error, data, isEmpty, online = true }: DataConditionInput): DataCondition => {
   const failure: FailureKind | null = error ? classifyFailure(error, online) : null;
   // Whatever is held from before, this account may not see it.
-  if (failure === 'restricted' || failure === 'session') return 'restricted';
+  if (failure === 'session') return 'session';
+  if (failure === 'restricted') return 'restricted';
+  if (failure === 'notFound') return 'notFound';
   if (failure) {
     if (holdsData(data)) return 'stale';
     return failure === 'offline' ? 'offline' : 'error';
@@ -36,6 +38,8 @@ export const knownCount = <T>(condition: DataCondition, rows: T[] | undefined, c
 
 export const conditionLabel = (condition: DataCondition) => {
   if (condition === 'restricted') return 'Accès réservé';
+  if (condition === 'session') return 'Session expirée';
+  if (condition === 'notFound') return 'Introuvable';
   if (condition === 'offline') return 'Hors ligne';
   if (condition === 'error') return 'Indisponible';
   if (condition === 'loading') return 'Chargement…';

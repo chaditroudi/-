@@ -51,6 +51,8 @@ const PUBLIC_ROUTES = [
 const ANY_ROLE_ROUTES = [
   "DELETE /api/auth/signature-pin",
   "GET /api/notifications",
+  "GET /api/notifications/stats",
+  "GET /api/notifications/summary",
   "PATCH /api/notifications/:id/read",
   "POST /api/auth/change-password",
   "POST /api/auth/logout",

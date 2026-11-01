@@ -21,6 +21,7 @@ import {
   selectNotificationsInitialized,
   selectNotificationsLastRealtimeAt,
   selectNotificationsStatus,
+  selectNotificationsLastSyncedAt,
   selectRecentRealtimeNotifications,
   selectUnreadNotifications,
 } from '@/store/slices/notificationsSlice';
@@ -31,6 +32,7 @@ import {
   useMarkAllNotificationsReadMutation,
   useCreateAuditLogMutation,
   notificationsApi,
+  useGetNotificationSummaryQuery,
 } from '@/store/api/notificationsApi';
 import type { AuditLog, SystemNotification } from '@/types/notifications';
 
@@ -43,6 +45,7 @@ export const useNotifications = (unreadOnly = false) => {
   const initialized = useAppSelector(selectNotificationsInitialized);
   const status = useAppSelector(selectNotificationsStatus);
   const errorMessage = useAppSelector(selectNotificationsError);
+  const updatedAt = useAppSelector(selectNotificationsLastSyncedAt);
   const allNotifications = useAppSelector(selectAllNotifications);
   const unreadNotifications = useAppSelector(selectUnreadNotifications);
 
@@ -51,14 +54,17 @@ export const useNotifications = (unreadOnly = false) => {
   }, [dispatch, initialized, status]);
 
   return {
-    data: unreadOnly ? unreadNotifications : allNotifications,
+    data: initialized ? (unreadOnly ? unreadNotifications : allNotifications) : undefined,
     isLoading: status === 'loading' || (!initialized && status === 'idle'),
     isFetching: status === 'loading',
     isError: Boolean(errorMessage),
-    error: errorMessage ? new Error(errorMessage) : null,
+    error: errorMessage,
+    updatedAt,
     refetch: () => dispatch(fetchNotifications({ force: true })).unwrap(),
   };
 };
+
+export const useNotificationSummary = () => useGetNotificationSummaryQuery(undefined, { pollingInterval: 60_000 });
 
 export const useNotificationRealtimeState = () => ({
   recentNotifications: useAppSelector(selectRecentRealtimeNotifications),
@@ -67,12 +73,12 @@ export const useNotificationRealtimeState = () => ({
 
 // ── Audit logs (RTK Query) ─────────────────────────────────────────────────────
 
-export const useAuditLogs = (entityType?: string, entityId?: string) => {
+export const useAuditLogs = (entityType?: string, entityId?: string, enabled = true) => {
   // Primary invalidation comes from the SSE handler in useRealtimeNotifications.
   // 60s polling is a resilience fallback for when the SSE connection is down.
   return useListAuditLogsQuery(
     entityType || entityId ? { entityType, entityId, limit: 100 } : undefined,
-    { pollingInterval: 5 * 60_000 },
+    { pollingInterval: 5 * 60_000, skip: !enabled },
   );
 };
 
@@ -94,7 +100,8 @@ export const useMarkNotificationRead = () => {
     },
     isPending: state.isLoading,
     isError: !!state.error,
-    mutate: (id: string) => void mutate(id).unwrap().then((data) => dispatch(notificationUpserted(data))),
+    mutate: (id: string) => void mutate(id).unwrap().then((data) => dispatch(notificationUpserted(data)))
+      .catch(() => toast.error('Impossible de marquer la notification comme lue.')),
   };
 };
 
@@ -110,7 +117,8 @@ export const useMarkAllRead = () => {
     },
     isPending: state.isLoading,
     isError: !!state.error,
-    mutate: () => void mutate().unwrap().then((data) => data.forEach((n) => dispatch(notificationUpserted(n)))),
+    mutate: () => void mutate().unwrap().then((data) => data.forEach((n) => dispatch(notificationUpserted(n))))
+      .catch(() => toast.error('Impossible de marquer les notifications comme lues.')),
   };
 };
 

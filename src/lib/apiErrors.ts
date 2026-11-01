@@ -1,15 +1,14 @@
-import { ApiRequestError } from './axiosClient';
-
 /** Why data is missing. Screens state this; they never turn it into an empty result. */
 export type FailureKind = 'restricted' | 'session' | 'offline' | 'server' | 'notFound' | 'invalid';
 
 export const classifyFailure = (error: unknown, online = true): FailureKind => {
-  if (error instanceof ApiRequestError) {
-    if (error.status === 403) return 'restricted';
-    if (error.status === 401) return 'session';
-    if (error.status === 404) return 'notFound';
-    if (error.isNetworkError || error.status === null) return online ? 'server' : 'offline';
-    if (error.status >= 500) return 'server';
+  if (error && typeof error === 'object' && 'status' in error) {
+    const status = error.status;
+    if (status === 403) return 'restricted';
+    if (status === 401) return 'session';
+    if (status === 404) return 'notFound';
+    if (status === null || status === 'FETCH_ERROR') return online ? 'server' : 'offline';
+    if (typeof status === 'number' && status >= 500) return 'server';
     return 'invalid';
   }
   return online ? 'server' : 'offline';

@@ -31,7 +31,7 @@ export interface NotificationStats {
   bySeverity: { error: number; warning: number; info: number; success: number };
   avgAckTimeMinutes: number | null;
   resolutionRate: number;
-  auditLogsLast24h: number;
+  auditLogsLast24h: number | null;
 }
 
 export interface AuditLog {

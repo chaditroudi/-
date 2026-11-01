@@ -65,6 +65,14 @@ const Retry = ({ onClick }: { onClick: () => unknown }) => (
 const ICON = 'h-[18px] w-[18px]';
 
 const blocked = (condition: DataCondition, what: string): { icon: ReactNode; title: string; detail: string; tone: 'neutral' | 'danger' | 'warning' } | null => {
+  if (condition === 'session' || condition === 'notFound') {
+    return {
+      icon: <Lock className={ICON} aria-hidden />,
+      title: condition === 'session' ? 'Session expirée' : 'Élément introuvable',
+      detail: condition === 'session' ? 'Reconnectez-vous pour poursuivre votre travail.' : `Le serveur ne trouve pas ${what}. Vérifiez le lien ou revenez à la liste.`,
+      tone: 'neutral',
+    };
+  }
   if (condition === 'restricted') {
     return {
       icon: <Lock className={ICON} aria-hidden />,
@@ -77,7 +85,7 @@ const blocked = (condition: DataCondition, what: string): { icon: ReactNode; tit
     return {
       icon: <CloudOff className={ICON} aria-hidden />,
       title: 'Hors ligne',
-      detail: `Impossible d'afficher ${what} sans connexion. Rien n'est perdu : réessayez une fois reconnecté.`,
+      detail: `Connexion indisponible. Impossible d'afficher ${what} : réessayez une fois reconnecté.`,
       tone: 'warning',
     };
   }
@@ -112,7 +120,7 @@ export const DataState = ({ source, data, what, isEmpty, empty, compact, classNa
 
   const panel = blocked(condition, what);
   if (panel) {
-    const canRetry = condition !== 'restricted' && source.refetch;
+    const canRetry = !['restricted', 'session', 'notFound'].includes(condition) && source.refetch;
     return <Panel {...panel} compact={compact} className={className} action={canRetry ? <Retry onClick={source.refetch!} /> : undefined} />;
   }
 

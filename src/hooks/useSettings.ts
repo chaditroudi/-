@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/integrations/mongodb/client';
 import type { SiteSettings, ManagedUser } from '@/types/settings';
-import { DEFAULT_SETTINGS, normalizeSiteSettings } from '@/types/settings';
+import { normalizeSiteSettings } from '@/types/settings';
 
 const SETTINGS_KEY = ['site-settings'];
 const USERS_KEY = ['managed-users'];
@@ -11,7 +11,10 @@ export const useSiteSettings = () =>
     queryKey: SETTINGS_KEY,
     queryFn: async () => {
       const res = await apiRequest<{ data: SiteSettings }>('/settings');
-      return normalizeSiteSettings(res.data ?? DEFAULT_SETTINGS);
+      if (!res.data || typeof res.data !== 'object' || Array.isArray(res.data)) {
+        throw new Error('Réponse des paramètres invalide.');
+      }
+      return normalizeSiteSettings(res.data);
     },
     staleTime: 5 * 60 * 1000,
   });

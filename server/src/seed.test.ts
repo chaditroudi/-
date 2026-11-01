@@ -102,6 +102,7 @@ describe("seedDatabase", () => {
   });
 
   it("seeds configuration but no demo data in production", async () => {
+    vi.stubEnv("APP_ENV", "production");
     vi.stubEnv("NODE_ENV", "production");
     await seedDatabase();
     expect(created).toContain("production_step_definitions");
