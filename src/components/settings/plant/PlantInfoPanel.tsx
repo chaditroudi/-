@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { useEffect, useState } from 'react';
 import { useUpdateSiteSettings } from '@/hooks/useSettings';
 import type { SiteSettings } from '@/types/settings';
@@ -68,6 +69,7 @@ interface Props {
 }
 
 export function PlantInfoPanel({ settings }: Props) {
+  const fieldIdBase = useId();
   const update = useUpdateSiteSettings();
   const [form, setForm] = useState({
     company_legal_name: settings.company_legal_name ?? '',
@@ -157,8 +159,8 @@ export function PlantInfoPanel({ settings }: Props) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
-            <Label className="text-xs">Raison sociale</Label>
-            <Input
+            <Label htmlFor={`${fieldIdBase}-PlantInfoPanel-1`} className="text-xs">Raison sociale</Label>
+            <Input id={`${fieldIdBase}-PlantInfoPanel-1`}
               value={form.company_legal_name}
               onChange={(e) => set('company_legal_name', e.target.value)}
               placeholder="Raison sociale de l'usine"
@@ -166,16 +168,16 @@ export function PlantInfoPanel({ settings }: Props) {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-xs">Code site</Label>
-              <Input
+              <Label htmlFor={`${fieldIdBase}-PlantInfoPanel-2`} className="text-xs">Code site</Label>
+              <Input id={`${fieldIdBase}-PlantInfoPanel-2`}
                 value={form.site_code}
                 onChange={(e) => set('site_code', e.target.value)}
                 placeholder="RP-TOZ"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Code pays</Label>
-              <Input
+              <Label htmlFor={`${fieldIdBase}-PlantInfoPanel-3`} className="text-xs">Code pays</Label>
+              <Input id={`${fieldIdBase}-PlantInfoPanel-3`}
                 value={form.country_code}
                 onChange={(e) => set('country_code', e.target.value.toUpperCase())}
                 placeholder="TN"
@@ -184,16 +186,16 @@ export function PlantInfoPanel({ settings }: Props) {
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Nom usine</Label>
-            <Input
+            <Label htmlFor={`${fieldIdBase}-PlantInfoPanel-4`} className="text-xs">Nom usine</Label>
+            <Input id={`${fieldIdBase}-PlantInfoPanel-4`}
               value={form.plant_name}
               onChange={(e) => set('plant_name', e.target.value)}
               placeholder="Usine Tozeur"
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Adresse</Label>
-            <Input
+            <Label htmlFor={`${fieldIdBase}-PlantInfoPanel-5`} className="text-xs">Adresse</Label>
+            <Input id={`${fieldIdBase}-PlantInfoPanel-5`}
               value={form.plant_address}
               onChange={(e) => set('plant_address', e.target.value)}
               placeholder="Zone Industrielle, Tozeur 2200"
@@ -201,16 +203,16 @@ export function PlantInfoPanel({ settings }: Props) {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-xs">Téléphone</Label>
-              <Input
+              <Label htmlFor={`${fieldIdBase}-PlantInfoPanel-6`} className="text-xs">Téléphone</Label>
+              <Input id={`${fieldIdBase}-PlantInfoPanel-6`}
                 value={form.plant_phone}
                 onChange={(e) => set('plant_phone', e.target.value)}
                 placeholder="+216 76 000 000"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Email usine (Reply-To BC fournisseur)</Label>
-              <Input
+              <Label htmlFor={`${fieldIdBase}-PlantInfoPanel-7`} className="text-xs">Email usine (Reply-To BC fournisseur)</Label>
+              <Input id={`${fieldIdBase}-PlantInfoPanel-7`}
                 type="email"
                 value={form.plant_email}
                 onChange={(e) => set('plant_email', e.target.value)}
@@ -228,9 +230,9 @@ export function PlantInfoPanel({ settings }: Props) {
         <CardContent>
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-xs">Langue</Label>
+              <Label htmlFor={`${fieldIdBase}-PlantInfoPanel-8`} className="text-xs">Langue</Label>
               <Select value={form.default_language} onValueChange={(v) => set('default_language', v)}>
-                <SelectTrigger>
+                <SelectTrigger id={`${fieldIdBase}-PlantInfoPanel-8`}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -243,9 +245,9 @@ export function PlantInfoPanel({ settings }: Props) {
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Devise</Label>
+              <Label htmlFor={`${fieldIdBase}-PlantInfoPanel-9`} className="text-xs">Devise</Label>
               <Select value={form.currency} onValueChange={(v) => set('currency', v)}>
-                <SelectTrigger>
+                <SelectTrigger id={`${fieldIdBase}-PlantInfoPanel-9`}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -258,9 +260,9 @@ export function PlantInfoPanel({ settings }: Props) {
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Fuseau</Label>
+              <Label htmlFor={`${fieldIdBase}-PlantInfoPanel-10`} className="text-xs">Fuseau</Label>
               <Select value={form.timezone} onValueChange={(v) => set('timezone', v)}>
-                <SelectTrigger>
+                <SelectTrigger id={`${fieldIdBase}-PlantInfoPanel-10`}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

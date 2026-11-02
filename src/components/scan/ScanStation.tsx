@@ -1,3 +1,6 @@
+import { DataState } from '@/components/shared/DataState';
+import { canRead } from '@/lib/apiAccess';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -1099,7 +1102,10 @@ export const ScanStation = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { setEntityId } = useAiGuideUi();
 
-  const { data: allLots = [], isLoading: lotsLoading } = useAllReceptionLots();
+  const { roles } = useAuthContext();
+  const canBrowseLots = canRead(roles, 'receptionLots');
+  const lotSource = useAllReceptionLots(undefined, { enabled: canBrowseLots });
+  const { data: allLots = [], isLoading: lotsLoading } = lotSource;
 
   const loadLot = useCallback((code: string) => {
     const trimmed = code.trim();
@@ -1214,7 +1220,7 @@ export const ScanStation = () => {
       )}
 
       {/* ── All lots table ──────────────────────────────────────────────────── */}
-      <Card>
+      <DataState source={{ ...lotSource, updatedAt: lotSource.fulfilledTimeStamp, error: canBrowseLots ? lotSource.error : { status: 403 } }} data={lotSource.currentData} what="le registre des lots" isEmpty={false}>{<Card>
         <CardHeader className="pb-3">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             <div className="flex items-center gap-2 min-w-0">
@@ -1229,8 +1235,8 @@ export const ScanStation = () => {
               </CardTitle>
             </div>
 
-            <div className="flex flex-1 gap-2 items-center">
-              <div className="relative flex-1 max-w-xs">
+            <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center">
+              <div className="relative w-full min-w-0 sm:max-w-xs sm:flex-1">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <Input
                   value={tableSearch}
@@ -1371,7 +1377,7 @@ export const ScanStation = () => {
             </div>
           )}
         </CardContent>
-      </Card>
+      </Card>}</DataState>
 
       <QrScannerDialog open={scanOpen} onOpenChange={setScanOpen} onDetected={handleScanDetected} />
     </div>

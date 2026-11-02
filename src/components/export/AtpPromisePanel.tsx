@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { DataState } from '@/components/shared/DataState';
+import { useId, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,13 +10,14 @@ import { atpApi, type AtpPromise } from '@/lib/api/atp';
 import { CalendarClock, Loader2 } from 'lucide-react';
 
 const tone = (c: string) => {
-  if (c === 'committed') return 'bg-emerald-600 text-white';
+  if (c === 'committed') return 'bg-muted text-foreground';
   if (c === 'partial') return 'bg-amber-500 text-white';
   return 'bg-slate-500 text-white';
 };
 
 /** Wave D — available-to-promise ship week from FEFO stock. */
 export function AtpPromisePanel() {
+  const quantityFieldId = useId();
   const [qty, setQty] = useState('5000');
   const [promise, setPromise] = useState<AtpPromise | null>(null);
   const [busy, setBusy] = useState(false);
@@ -46,14 +48,16 @@ export function AtpPromisePanel() {
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-base">
           <CalendarClock className="h-4 w-4 text-primary" />
-          ATP — semaine de livraison
+          ATP — estimation de livraison
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 text-sm">
+        <p className="text-xs text-muted-foreground">Estimation du modèle à valider avant tout engagement de livraison.</p>
+        <DataState source={{ ...summary, updatedAt: summary.dataUpdatedAt }} data={summary.data} what="la disponibilité déclarée" isEmpty={false}>
         {summary.data && (
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             <div className="rounded-xl border px-3 py-2">
-              <p className="text-xs text-muted-foreground">Stock validé</p>
+              <p className="text-xs text-muted-foreground">Stock déclaré validé</p>
               <p className="font-semibold">{summary.data.available_validated_kg.toLocaleString('fr-TN')} kg</p>
             </div>
             <div className="rounded-xl border px-3 py-2">
@@ -61,8 +65,8 @@ export function AtpPromisePanel() {
               <p className="font-semibold">{summary.data.sealed_ready_kg.toLocaleString('fr-TN')} kg</p>
             </div>
             <div className="rounded-xl border px-3 py-2">
-              <p className="text-xs text-muted-foreground">Capacité libre</p>
-              <p className="font-semibold">{summary.data.free_storage_capacity_kg.toLocaleString('fr-TN')} kg</p>
+              <p className="text-xs text-muted-foreground">Capacité disponible</p>
+              <p className="font-semibold">{summary.data.free_storage_capacity_kg > 0 ? `${summary.data.free_storage_capacity_kg.toLocaleString('fr-TN')} kg déclarés` : 'Non mesurée'}</p>
             </div>
             <div className="rounded-xl border px-3 py-2">
               <p className="text-xs text-muted-foreground">Exemple semaine</p>
@@ -73,8 +77,8 @@ export function AtpPromisePanel() {
 
         <div className="flex flex-wrap items-end gap-2">
           <div className="space-y-1">
-            <Label className="text-xs">Quantité demandée (kg)</Label>
-            <Input
+            <Label htmlFor={quantityFieldId} className="text-xs">Quantité demandée (kg)</Label>
+            <Input id={quantityFieldId}
               type="number"
               min={1}
               className="h-9 w-36"
@@ -84,7 +88,7 @@ export function AtpPromisePanel() {
           </div>
           <Button size="sm" onClick={runPromise} disabled={busy}>
             {busy ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : null}
-            Promettre
+            Simuler la date
           </Button>
         </div>
 
@@ -93,7 +97,7 @@ export function AtpPromisePanel() {
         {promise && (
           <div className="rounded-xl border px-3 py-3 space-y-2">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge className={tone(promise.confidence)}>{promise.confidence}</Badge>
+              <Badge className={tone(promise.confidence)}>{promise.confidence === 'committed' ? 'Couverture du modèle complète' : promise.confidence === 'partial' ? 'Couverture du modèle partielle' : 'Estimation à valider'}</Badge>
               <span className="font-semibold text-base">{promise.ship_week}</span>
               <span className="text-xs text-muted-foreground">dès {promise.ship_week_start}</span>
             </div>
@@ -106,6 +110,7 @@ export function AtpPromisePanel() {
             </p>
           </div>
         )}
+        </DataState>
       </CardContent>
     </Card>
   );

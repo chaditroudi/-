@@ -380,6 +380,47 @@ try {
     }
   }
 
+  console.log("\nLegacy module source boundaries (injected HTTP failures)");
+  for (const target of [
+    { tab: 'scan', path: '/api/stock/reception-lots' },
+    { tab: 'suppliers', path: '/api/suppliers' },
+    { tab: 'materials', path: '/api/materials', actor: 'responsable.achats@test.local' },
+    { tab: 'customers', path: '/api/customers' },
+    { tab: 'logistics', path: '/api/stock/shipments' },
+    { tab: 'maintenance', path: '/api/maintenance/requests' },
+    { tab: 'purchasing', path: '/api/purchasing/stats' },
+    { tab: 'export', path: '/api/export-orders' },
+    { tab: 'export', path: '/api/atp/summary' },
+    { tab: 'quality', path: '/api/capa-tickets' },
+    { tab: 'quality', path: '/api/audit/logs', nested: "Journal d'audit" },
+    { tab: 'hr', path: '/api/timesheets' },
+    { tab: 'hr', path: '/api/employee-tasks', nested: 'Tâches' },
+  ]) {
+    for (const status of [403, 500]) {
+      const session = target.actor ? await signIn(target.actor) : director;
+      const { page, context, rules, responses } = await openFor(session);
+      const matches = new RegExp(target.path + '(?:[?]|$)');
+      rules.push({ pattern: matches, status, body: { error: { code: 'CONTROLLED_BROWSER_FAILURE', message: 'Controlled failure fixture' } } });
+      await visit(page, target.tab);
+      if (target.nested) {
+        const handle = await page.evaluateHandle(label => [...document.querySelectorAll('main [role="tab"]')].find(node => node.textContent.trim().startsWith(label)), target.nested);
+        const tab = handle.asElement();
+        if (tab) { await tab.click(); await page.waitForFunction(node => node.getAttribute('aria-selected') === 'true', { timeout: 5000 }, tab); }
+        const opened = Boolean(tab);
+        await handle.dispose();
+        check(target.tab, 'nested source tab exists: ' + target.nested, opened);
+      }
+      const expected = status === 403 ? 'Accès réservé' : 'Données indisponibles';
+      const visible = await until(async () => (await page.evaluate(() => document.querySelector('main')?.innerText || '')).includes(expected), 15_000);
+      const main = await page.evaluate(() => document.querySelector('main')?.innerText || '');
+      check(target.tab, 'injected ' + status + ' reaches the actual source ' + target.path, responses.some(response => response.status === status && matches.test(response.url)));
+      check(target.tab, 'injected ' + status + ' stays explicit for ' + (target.nested || target.tab), visible, main.slice(0, 300));
+      check(target.tab, 'a failed source does not render register rows', await page.evaluate(() => document.querySelectorAll('main tbody tr').length === 0));
+      await shot(page, target.tab + '-' + (target.nested ? target.path.split('/').at(-1) + '-' : '') + 'source-' + status + '-1440');
+      await context.close();
+    }
+  }
+
   console.log('\nNotification and settings boundaries');
   {
     const session = await signIn('administrateur.systeme@test.local');

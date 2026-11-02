@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { useEffect, useState } from 'react';
 import { useUpdateSiteSettings } from '@/hooks/useSettings';
 import type { SiteSettings } from '@/types/settings';
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export function DocumentsPanel({ settings }: Props) {
+  const fieldIdBase = useId();
   const update = useUpdateSiteSettings();
   const [documents, setDocuments] = useState({ ...settings.documents });
 
@@ -48,36 +50,36 @@ export function DocumentsPanel({ settings }: Props) {
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label className="text-xs">Réception</Label>
-            <Input value={documents.reception_prefix} onChange={(e) => setField('reception_prefix', e.target.value.toUpperCase())} />
+            <Label htmlFor={`${fieldIdBase}-DocumentsPanel-1`} className="text-xs">Réception</Label>
+            <Input id={`${fieldIdBase}-DocumentsPanel-1`} value={documents.reception_prefix} onChange={(e) => setField('reception_prefix', e.target.value.toUpperCase())} />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Bon de commande</Label>
-            <Input value={documents.purchase_order_prefix} onChange={(e) => setField('purchase_order_prefix', e.target.value.toUpperCase())} />
+            <Label htmlFor={`${fieldIdBase}-DocumentsPanel-2`} className="text-xs">Bon de commande</Label>
+            <Input id={`${fieldIdBase}-DocumentsPanel-2`} value={documents.purchase_order_prefix} onChange={(e) => setField('purchase_order_prefix', e.target.value.toUpperCase())} />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Ordre fabrication</Label>
-            <Input value={documents.production_order_prefix} onChange={(e) => setField('production_order_prefix', e.target.value.toUpperCase())} />
+            <Label htmlFor={`${fieldIdBase}-DocumentsPanel-3`} className="text-xs">Ordre fabrication</Label>
+            <Input id={`${fieldIdBase}-DocumentsPanel-3`} value={documents.production_order_prefix} onChange={(e) => setField('production_order_prefix', e.target.value.toUpperCase())} />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Ordre conditionnement</Label>
-            <Input value={documents.packaging_order_prefix} onChange={(e) => setField('packaging_order_prefix', e.target.value.toUpperCase())} />
+            <Label htmlFor={`${fieldIdBase}-DocumentsPanel-4`} className="text-xs">Ordre conditionnement</Label>
+            <Input id={`${fieldIdBase}-DocumentsPanel-4`} value={documents.packaging_order_prefix} onChange={(e) => setField('packaging_order_prefix', e.target.value.toUpperCase())} />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Expédition</Label>
-            <Input value={documents.shipment_prefix} onChange={(e) => setField('shipment_prefix', e.target.value.toUpperCase())} />
+            <Label htmlFor={`${fieldIdBase}-DocumentsPanel-5`} className="text-xs">Expédition</Label>
+            <Input id={`${fieldIdBase}-DocumentsPanel-5`} value={documents.shipment_prefix} onChange={(e) => setField('shipment_prefix', e.target.value.toUpperCase())} />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Palette</Label>
-            <Input value={documents.pallet_prefix} onChange={(e) => setField('pallet_prefix', e.target.value.toUpperCase())} />
+            <Label htmlFor={`${fieldIdBase}-DocumentsPanel-6`} className="text-xs">Palette</Label>
+            <Input id={`${fieldIdBase}-DocumentsPanel-6`} value={documents.pallet_prefix} onChange={(e) => setField('pallet_prefix', e.target.value.toUpperCase())} />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Lot</Label>
-            <Input value={documents.lot_prefix} onChange={(e) => setField('lot_prefix', e.target.value.toUpperCase())} />
+            <Label htmlFor={`${fieldIdBase}-DocumentsPanel-7`} className="text-xs">Lot</Label>
+            <Input id={`${fieldIdBase}-DocumentsPanel-7`} value={documents.lot_prefix} onChange={(e) => setField('lot_prefix', e.target.value.toUpperCase())} />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Padding séquence</Label>
-            <Input
+            <Label htmlFor={`${fieldIdBase}-DocumentsPanel-8`} className="text-xs">Longueur de séquence</Label>
+            <Input id={`${fieldIdBase}-DocumentsPanel-8`}
               type="number"
               min={3}
               max={10}
@@ -95,9 +97,9 @@ export function DocumentsPanel({ settings }: Props) {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-xs">Langue d’impression</Label>
+              <Label htmlFor={`${fieldIdBase}-DocumentsPanel-9`} className="text-xs">Langue d’impression</Label>
               <Select value={documents.print_language} onValueChange={(value) => setField('print_language', value)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger id={`${fieldIdBase}-DocumentsPanel-9`}><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="fr">Français</SelectItem>
                   <SelectItem value="en">English</SelectItem>
@@ -106,8 +108,8 @@ export function DocumentsPanel({ settings }: Props) {
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Signataire certificats</Label>
-              <Input
+              <Label htmlFor={`${fieldIdBase}-DocumentsPanel-10`} className="text-xs">Signataire certificats</Label>
+              <Input id={`${fieldIdBase}-DocumentsPanel-10`}
                 value={documents.certificate_signatory ?? ''}
                 onChange={(e) => setField('certificate_signatory', e.target.value)}
                 placeholder="Responsable qualité / direction"
@@ -124,8 +126,8 @@ export function DocumentsPanel({ settings }: Props) {
           </label>
 
           <div className="space-y-1.5">
-            <Label className="text-xs">Pied de page imprimé</Label>
-            <Textarea
+            <Label htmlFor={`${fieldIdBase}-DocumentsPanel-11`} className="text-xs">Pied de page imprimé</Label>
+            <Textarea id={`${fieldIdBase}-DocumentsPanel-11`}
               value={documents.report_footer ?? ''}
               onChange={(e) => setField('report_footer', e.target.value)}
               rows={3}
@@ -134,8 +136,8 @@ export function DocumentsPanel({ settings }: Props) {
           </div>
 
           <div className="space-y-1.5 rounded-lg border border-amber-200 bg-amber-50/80 p-3">
-            <Label className="text-xs">Préfixe société GS1 (SSCC)</Label>
-            <Input
+            <Label htmlFor={`${fieldIdBase}-DocumentsPanel-12`} className="text-xs">Préfixe société GS1 (SSCC)</Label>
+            <Input id={`${fieldIdBase}-DocumentsPanel-12`}
               value={documents.gs1_company_prefix ?? '09999999'}
               onChange={(e) => setField('gs1_company_prefix', e.target.value.replace(/\D/g, '').slice(0, 10))}
               placeholder="09999999"

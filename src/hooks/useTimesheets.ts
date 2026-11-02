@@ -1,4 +1,7 @@
-import { useState, useEffect } from 'react';
+import { canRead } from '@/lib/apiAccess';
+import { useEffect, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { hrApi } from '@/lib/api/hr';
 import { useToast } from '@/hooks/use-toast';
 import type { Timesheet, TimesheetStatus } from '@/types/roles';
@@ -27,29 +30,23 @@ interface EmployeePointageOptions {
 }
 
 export function useTimesheets(employeeId?: string) {
-  const [timesheets, setTimesheets] = useState<Timesheet[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-
-  const fetchTimesheets = async () => {
-    try {
-      const data = await hrApi.listTimesheets(employeeId ? { employee_id: employeeId } : undefined);
-      setTimesheets((data as Timesheet[]) || []);
-    } catch (error: any) {
-      console.error('Error fetching timesheets:', error);
-      toast({
-        title: 'Erreur',
-        description: 'Impossible de charger les feuilles de temps',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  const { user, roles } = useAuthContext();
+  const actorId = user?.id;
+  const permitted = canRead(roles, 'timesheets');
+  const source = useQuery<Timesheet[]>({
+    queryKey: ['hr', actorId, permitted, 'timesheets', employeeId ?? null],
+    queryFn: async () => (await hrApi.listTimesheets(employeeId ? { employee_id: employeeId } : undefined)) as Timesheet[],
+    enabled: Boolean(actorId) && permitted,
+    retry: false,
+    placeholderData: () => undefined,
+  });
+  const timesheets = source.data ?? [];
+  const isLoading = source.isLoading;
+  const fetchTimesheets = useCallback(async () => { await source.refetch(); }, [source.refetch]);
   useEffect(() => {
-    fetchTimesheets();
-  }, [employeeId]);
+    if (source.error) toast({ title: 'Erreur', description: 'Impossible de charger les feuilles de temps', variant: 'destructive' });
+  }, [source.error, toast]);
 
   const createTimesheetForEmployee = async (
     targetEmployeeId: string,
@@ -290,6 +287,9 @@ export function useTimesheets(employeeId?: string) {
   };
 
   return {
+    data: source.data,
+    error: actorId && !permitted ? { status: 403, message: 'Votre compte ne donne pas accès à ces données.' } : source.error,
+    updatedAt: source.dataUpdatedAt,
     timesheets,
     isLoading,
     createTimesheet,

@@ -1,3 +1,19 @@
+## Current Phase 1 evidence policy — 2026-11-02
+
+The candidate is codex/phase-1-completion in C:/Users/DELL/Desktop/date-harvest-hub-phase1-completion. The authoritative fresh-run ledger is [.local/evidence/acceptance-final/manifest.json](../../.local/evidence/acceptance-final/manifest.json). Its HEAD must match Git HEAD. Source, test and target metadata are recorded there after commit. The rows below are historical unless explicitly re-evidenced by that ledger and a manual review.
+
+Current inspection uses real pointer activation and verifies the active tab/panel after every viewport change; changing Puppeteer mobile emulation reloads the document. Earlier repeated nested-panel captures are invalidated, not promoted to PASS. The audit read-window restart defect was corrected and has regression coverage.
+
+The matrix separates structural fit/landmarks/source health, accessible control names, visible layout review, interaction proof and industrial acceptance. A screenshot does not prove saving, stock correctness, signed CCP compliance, physical hardware or tenant isolation. Factory-dependent production/stock/packaging redesigns and factory policy adoption remain BLOCKED. Existing dark theme tokens are retained; there is no new global dark-mode feature or acceptance claim.
+
+Reviewed root snapshots include desktop and phone home, scanner, alerts, live, reception QC, stock, production overview, packaging, logistics, quality, suppliers, purchasing, customers, export, HR, maintenance and settings. The Articles denial snapshot is valid only for its curated director workspace; its functional view uses the purchasing role. Genuine nested analytics and settings reviews must use selected-panel evidence, not the invalidated earlier sweep. Settings tab navigation is tested read-only; policy saves and industrial operations are not certified. Existing Arabic resources and RTL snapshots are preserved; linguistic/factory sign-off remains separate.
+
+Final image folders: .local/evidence/acceptance-final/visual, roles-screens, reception-frozen/screens and reception-dev/screens. Final stage counts and accessible-name findings are in the ledger. Local source verification is separate from staging/production and compatibility with the concurrent fix/supplier-simplify checkout.
+
+---
+
+## Historical matrix/checkpoint
+
 ## 2026-11-01 continuation evidence (supersedes historical counts, not unseen-screen verdicts)
 
 Branch: codex/phase-1-completion; reconciliation HEAD d617d587eb0ffebde4d3bfa66bafcc11c9ac78ad. Current UI corrections remain uncommitted pending final acceptance. Dev preflight: 458/458 structural checks, 105 captures at 1440/768/390, under .local/evidence/visual-preflight-08. Opened representative screens: home desktop, alerts phone, live desktop/phone, reception QC desktop/phone, stock desktop/phone, production tablet. Capture-only rows do not become PASS. Frozen reception now passes 17/17 after correction of phone-toast obstruction R; both failed and successful evidence are retained. Role preflight 1687/1687 and isolation 23/23 pass on their recorded snapshots. Factory trial, staging, production and industrial-quantity-dependent workflows remain unaccepted. See the current Phase 1 report for precise gates and next actions.

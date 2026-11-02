@@ -1,3 +1,4 @@
+import { DataState } from '@/components/shared/DataState';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -424,18 +425,20 @@ function filterByDateRange(timesheets: Timesheet[], range: DateRange): Timesheet
 }
 
 function PointagesPanel() {
-  const { employees } = useEmployees();
+  const employeeSource = useEmployees();
+  const { employees } = employeeSource;
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>('');
   const [dateRange, setDateRange] = useState<DateRange>('week');
   const [tsDialog, setTsDialog] = useState<{ mode: 'create' | 'edit'; ts?: Timesheet } | null>(null);
   const [rejectId, setRejectId] = useState<string | null>(null);
 
+  const timesheetSource = useTimesheets(selectedEmployeeId && selectedEmployeeId !== '__all__' ? selectedEmployeeId : undefined);
   const {
     timesheets, isLoading,
     clockInEmployee, clockOutEmployee,
     approveTimesheet, submitTimesheet, rejectTimesheet, deleteTimesheet,
     createTimesheetForEmployee, refetch,
-  } = useTimesheets(selectedEmployeeId && selectedEmployeeId !== '__all__' ? selectedEmployeeId : undefined);
+  } = timesheetSource;
 
   const today = new Date().toISOString().split('T')[0];
   const activeEmployees = employees.filter(e => e.status === 'active');
@@ -479,7 +482,7 @@ function PointagesPanel() {
     await refetch();
   };
 
-  return (
+  return <DataState source={{ isLoading: employeeSource.isLoading || timesheetSource.isLoading, error: employeeSource.error || timesheetSource.error, updatedAt: Math.min(employeeSource.updatedAt || Date.now(), timesheetSource.updatedAt || Date.now()), refetch: () => Promise.all([employeeSource.refetch(), timesheetSource.refetch()]) }} data={employeeSource.data !== undefined && timesheetSource.data !== undefined ? timesheetSource.data : undefined} what="les pointages et les employés" isEmpty={false}>{(
     <div className="space-y-4">
       <SummaryStrip items={[
         { label: 'Employés actifs', value: activeEmployees.length },
@@ -705,14 +708,16 @@ function PointagesPanel() {
         />
       )}
     </div>
-  );
+  )}</DataState>;
 }
 
 // ── TachesPanel ───────────────────────────────────────────────────────────────
 
 function TachesPanel() {
-  const { tasks, isLoading, createTask, updateTask, deleteTask } = useTasks();
-  const { employees } = useEmployees();
+  const taskSource = useTasks();
+  const { tasks, isLoading, createTask, updateTask, deleteTask } = taskSource;
+  const employeeSource = useEmployees();
+  const { employees } = employeeSource;
   const [statusFilter, setStatusFilter]     = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [taskDialog, setTaskDialog] = useState<{ mode: 'create' | 'edit'; task?: EmployeeTask } | null>(null);
@@ -754,7 +759,7 @@ function TachesPanel() {
     }
   };
 
-  return (
+  return <DataState source={{ isLoading: taskSource.isLoading || employeeSource.isLoading, error: taskSource.error || employeeSource.error, updatedAt: Math.min(taskSource.updatedAt || Date.now(), employeeSource.updatedAt || Date.now()), refetch: () => Promise.all([taskSource.refetch(), employeeSource.refetch()]) }} data={taskSource.data !== undefined && employeeSource.data !== undefined ? taskSource.data : undefined} what="les tâches et les employés" isEmpty={false}>{(
     <div className="space-y-4">
       <SummaryStrip items={[
         { label: 'En attente', value: pending },
@@ -953,7 +958,7 @@ function TachesPanel() {
         </Dialog>
       )}
     </div>
-  );
+  )}</DataState>;
 }
 
 // ── HRDashboard ───────────────────────────────────────────────────────────────

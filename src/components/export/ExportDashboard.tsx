@@ -1,3 +1,4 @@
+import { DataState } from '@/components/shared/DataState';
 import { useCallback, useMemo, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -150,9 +151,12 @@ function RegenerateDialog({
 // ── Main Dashboard ────────────────────────────────────────────────────────────
 
 export function ExportDashboard() {
-  const { data: orders    = [], isLoading: loadingOrders }    = useExportOrders();
-  const { data: contracts = [], isLoading: loadingContracts } = useExportContracts();
-  const { data: coaDocs   = [], isLoading: loadingCOA }       = useCOADocuments();
+  const orderSource = useExportOrders();
+  const { data: orders    = [], isLoading: loadingOrders }    = orderSource;
+  const contractSource = useExportContracts();
+  const { data: contracts = [], isLoading: loadingContracts } = contractSource;
+  const coaSource = useCOADocuments();
+  const { data: coaDocs   = [], isLoading: loadingCOA }       = coaSource;
   const { data: siteSettings } = useSiteSettings();
   const { companyName } = useBranding();
 
@@ -309,7 +313,7 @@ export function ExportDashboard() {
 
   // ── Render ────────────────────────────────────────────────────────────────
 
-  return (
+  return <DataState source={{ isLoading: orderSource.isLoading || contractSource.isLoading || coaSource.isLoading, error: orderSource.error || contractSource.error || coaSource.error, updatedAt: Math.min(orderSource.dataUpdatedAt || Date.now(), contractSource.dataUpdatedAt || Date.now(), coaSource.dataUpdatedAt || Date.now()), refetch: () => Promise.all([orderSource.refetch(), contractSource.refetch(), coaSource.refetch()]) }} data={orderSource.data !== undefined && contractSource.data !== undefined && coaSource.data !== undefined ? orderSource.data : undefined} what="les dossiers export" isEmpty={false}>{(
     <div className="flex flex-col gap-4 h-full">
       {/* Analytics */}
       {orders.length > 0 && (
@@ -837,5 +841,5 @@ export function ExportDashboard() {
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )}</DataState>;
 }

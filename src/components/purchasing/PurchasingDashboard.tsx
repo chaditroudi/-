@@ -1,3 +1,4 @@
+import { DataState } from '@/components/shared/DataState';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -181,21 +182,24 @@ export const PurchasingDashboard = ({
   }, [activeTab, canManagePurchaseOrders]);
 
   // Data
-  const { data: requisitions = [], isLoading: reqLoading } = useRequisitions(undefined, {
+  const requisitionSource = useRequisitions(undefined, {
     enabled: canManageRequisitions,
+  });
+  const { data: requisitions = [], isLoading: reqLoading } = requisitionSource;
+  const orderSource = usePurchaseOrders(undefined, {
+    enabled: canReadPurchaseOrders,
   });
   const {
     data: orders = [],
     isLoading: ordersLoading,
     error: ordersError,
-  } = usePurchaseOrders(undefined, {
-    enabled: canReadPurchaseOrders,
-  });
+  } = orderSource;
   const { data: suppliers = [] } = useSuppliers();
   const { data: materials = [] } = useMaterials();
-  const { data: stats } = usePurchasingStats({
+  const statSource = usePurchasingStats({
     enabled: hasPurchasingAccess,
   });
+  const { data: stats } = statSource;
   const { data: replenishmentNeeds = [] } = useReplenishmentNeeds({
     enabled: canManageRequisitions,
   });
@@ -410,7 +414,7 @@ export const PurchasingDashboard = ({
     );
   }
 
-  return (
+  return <DataState source={{ isLoading: requisitionSource.isLoading || orderSource.isLoading || statSource.isLoading, error: requisitionSource.error || orderSource.error || statSource.error, updatedAt: Math.min(requisitionSource.dataUpdatedAt || Date.now(), orderSource.dataUpdatedAt || Date.now(), statSource.dataUpdatedAt || Date.now()), refetch: () => Promise.all([requisitionSource.refetch(), orderSource.refetch(), statSource.refetch()]) }} data={statSource.data !== undefined && (!canManageRequisitions || requisitionSource.data !== undefined) && (!canReadPurchaseOrders || orderSource.data !== undefined) ? (canManageRequisitions ? requisitionSource.data : orderSource.data) : undefined} what="les achats" isEmpty={false}>{(
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         {(reqLoading || ordersLoading) && (
@@ -510,14 +514,14 @@ export const PurchasingDashboard = ({
          <TabsContent value="requisitions" className="mt-4 space-y-3">
            {/* §4.1 — Seuil de stock : proposition de réapprovisionnement */}
            {canManageRequisitions && pendingReplenishment.length > 0 && (
-             <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+             <div className="flex flex-col items-stretch gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:flex-row sm:items-center">
                <Package className="h-5 w-5 shrink-0 text-amber-600" />
                <div className="min-w-0 flex-1">
                  <p className="text-sm font-semibold text-amber-900">
                    {pendingReplenishment.length} matière{pendingReplenishment.length > 1 ? 's' : ''} sous
                    le point de commande
                  </p>
-                 <p className="truncate text-xs text-amber-700">
+                 <p className="break-words text-xs text-amber-700">
                    {pendingReplenishment
                      .slice(0, 4)
                      .map((need) => `${need.material_name} (${need.current_stock}/${need.min_stock} ${need.unit})`)
@@ -538,14 +542,14 @@ export const PurchasingDashboard = ({
 
            {/* TODO Priorité 1 — Seuil de sécurité stock : réappro auto liée au lot déclencheur */}
            {canManageRequisitions && pendingStockReorder.length > 0 && (
-             <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-4">
+             <div className="flex flex-col items-stretch gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 sm:flex-row sm:items-center">
                <Package className="h-5 w-5 shrink-0 text-red-600" />
                <div className="min-w-0 flex-1">
                  <p className="text-sm font-semibold text-red-900">
                    {pendingStockReorder.length} produit{pendingStockReorder.length > 1 ? 's' : ''} sous
                    le seuil de sécurité
                  </p>
-                 <p className="truncate text-xs text-red-700">
+                 <p className="break-words text-xs text-red-700">
                    {pendingStockReorder
                      .slice(0, 4)
                      .map((need) =>
@@ -738,5 +742,5 @@ export const PurchasingDashboard = ({
          }}
        />
      </div>
-   );
+   )}</DataState>;
  };

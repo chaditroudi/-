@@ -404,6 +404,50 @@
     "responsable_reception",
     "responsable_stock"
   ],
+  "GET /api/timesheets": [
+    "administrateur_systeme",
+    "directeur_general",
+    "directeur_usine",
+    "responsable_production",
+    "responsable_qualite",
+    "chef_reception",
+    "responsable_logistique",
+    "responsable_achats",
+    "responsable_maintenance",
+    "directeur_achat",
+    "resp_management_qualite",
+    "resp_qualite_haccp",
+    "responsable_reception",
+    "responsable_stock"
+  ],
+  "GET /api/employee-tasks": [
+    "administrateur_systeme",
+    "directeur_general",
+    "directeur_usine",
+    "responsable_production",
+    "responsable_qualite",
+    "chef_reception",
+    "responsable_logistique",
+    "responsable_achats",
+    "responsable_maintenance",
+    "directeur_achat",
+    "resp_management_qualite",
+    "resp_qualite_haccp",
+    "responsable_reception",
+    "responsable_stock"
+  ],
+  "GET /api/audit/logs": [
+    "administrateur_systeme",
+    "directeur_general",
+    "directeur_usine",
+    "auditeur_externe"
+  ],
+  "GET /api/audit/stats": [
+    "administrateur_systeme",
+    "directeur_general",
+    "directeur_usine",
+    "auditeur_externe"
+  ],
   "GET /api/notifications/audit": [
     "administrateur_systeme",
     "directeur_general",

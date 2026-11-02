@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { useEffect, useState } from 'react';
 import { useUpdateSiteSettings } from '@/hooks/useSettings';
 import type { SiteSettings } from '@/types/settings';
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export function NotificationsPanel({ settings }: Props) {
+  const fieldIdBase = useId();
   const update = useUpdateSiteSettings();
   const [form, setForm] = useState({
     ...settings.notifications,
@@ -62,8 +64,8 @@ export function NotificationsPanel({ settings }: Props) {
             <Switch checked={form.daily_digest_enabled} onCheckedChange={(checked) => setField('daily_digest_enabled', checked)} />
           </label>
           <div className="space-y-1.5 rounded-lg border px-3 py-2">
-            <Label className="text-xs">Heure du digest</Label>
-            <Input type="time" value={form.digest_hour} onChange={(e) => setField('digest_hour', e.target.value)} />
+            <Label htmlFor={`${fieldIdBase}-NotificationsPanel-1`} className="text-xs">Heure du digest</Label>
+            <Input id={`${fieldIdBase}-NotificationsPanel-1`} type="time" value={form.digest_hour} onChange={(e) => setField('digest_hour', e.target.value)} />
           </div>
         </CardContent>
       </Card>
@@ -82,9 +84,9 @@ export function NotificationsPanel({ settings }: Props) {
             {settings.plant_name ? ` · ${settings.plant_name}` : ""}). Produit standard multi-usine
             — configurez le branding dans Paramètres (Royale Palm, EcoDatte, Bioscha, …).
           </p>
-          <label className="flex items-center justify-between rounded-lg border px-3 py-2">
+          <label htmlFor={`${fieldIdBase}-NotificationsPanel-native-1`} className="flex items-center justify-between rounded-lg border px-3 py-2">
             Email BC au fournisseur
-            <Switch
+            <Switch id={`${fieldIdBase}-NotificationsPanel-native-1`}
               checked={Boolean(form.supplier_po_email_enabled)}
               onCheckedChange={(checked) => setField('supplier_po_email_enabled', checked)}
               disabled={!form.email_notifications_enabled}
@@ -131,12 +133,12 @@ export function NotificationsPanel({ settings }: Props) {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-xs">Alerte péremption avant (jours)</Label>
-              <Input type="number" min={1} value={form.expiry_alert_days} onChange={(e) => setField('expiry_alert_days', Number(e.target.value || 1))} />
+              <Label htmlFor={`${fieldIdBase}-NotificationsPanel-2`} className="text-xs">Alerte péremption avant (jours)</Label>
+              <Input id={`${fieldIdBase}-NotificationsPanel-2`} type="number" min={1} value={form.expiry_alert_days} onChange={(e) => setField('expiry_alert_days', Number(e.target.value || 1))} />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Escalade après (minutes)</Label>
-              <Input type="number" min={1} value={form.escalation_after_minutes} onChange={(e) => setField('escalation_after_minutes', Number(e.target.value || 1))} />
+              <Label htmlFor={`${fieldIdBase}-NotificationsPanel-3`} className="text-xs">Escalade après (minutes)</Label>
+              <Input id={`${fieldIdBase}-NotificationsPanel-3`} type="number" min={1} value={form.escalation_after_minutes} onChange={(e) => setField('escalation_after_minutes', Number(e.target.value || 1))} />
             </div>
           </div>
         </CardContent>

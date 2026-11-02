@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { useEffect, useState } from 'react';
 import { useUpdateSiteSettings } from '@/hooks/useSettings';
 import type { SiteSettings } from '@/types/settings';
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export function QualityPanel({ settings }: Props) {
+  const fieldIdBase = useId();
   const update = useUpdateSiteSettings();
   const [quality, setQuality] = useState({ ...settings.quality });
 
@@ -97,9 +99,9 @@ export function QualityPanel({ settings }: Props) {
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label className="text-xs">Suivi DLC / DDM</Label>
+            <Label htmlFor={`${fieldIdBase}-QualityPanel-1`} className="text-xs">Suivi DLC / DDM</Label>
             <Select value={quality.expiry_tracking_mode} onValueChange={(value) => setField('expiry_tracking_mode', value)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger id={`${fieldIdBase}-QualityPanel-1`}><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="optional">Optionnel</SelectItem>
                 <SelectItem value="recommended">Recommandé</SelectItem>
@@ -108,8 +110,8 @@ export function QualityPanel({ settings }: Props) {
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Échantillonnage QC (%)</Label>
-            <Input
+            <Label htmlFor={`${fieldIdBase}-QualityPanel-2`} className="text-xs">Échantillonnage QC (%)</Label>
+            <Input id={`${fieldIdBase}-QualityPanel-2`}
               type="number"
               min={0}
               max={100}
@@ -118,8 +120,8 @@ export function QualityPanel({ settings }: Props) {
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Escalade écart après (heures)</Label>
-            <Input
+            <Label htmlFor={`${fieldIdBase}-QualityPanel-3`} className="text-xs">Escalade écart après (heures)</Label>
+            <Input id={`${fieldIdBase}-QualityPanel-3`}
               type="number"
               min={1}
               value={quality.deviation_escalation_hours}
@@ -127,8 +129,8 @@ export function QualityPanel({ settings }: Props) {
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Tolérance bilan matière (%)</Label>
-            <Input
+            <Label htmlFor={`${fieldIdBase}-QualityPanel-4`} className="text-xs">Tolérance bilan matière (%)</Label>
+            <Input id={`${fieldIdBase}-QualityPanel-4`}
               type="number"
               min={0}
               max={20}
@@ -138,8 +140,8 @@ export function QualityPanel({ settings }: Props) {
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Responsable rappel</Label>
-            <Input
+            <Label htmlFor={`${fieldIdBase}-QualityPanel-5`} className="text-xs">Responsable rappel</Label>
+            <Input id={`${fieldIdBase}-QualityPanel-5`}
               value={quality.recall_coordinator ?? ''}
               onChange={(e) => setField('recall_coordinator', e.target.value)}
               placeholder="Nom, fonction ou email"

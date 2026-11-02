@@ -1,3 +1,48 @@
+## Phase 1 candidate and exact-HEAD acceptance — 2026-11-02
+
+Implementation branch: **codex/phase-1-completion**, isolated worktree: C:/Users/DELL/Desktop/date-harvest-hub-phase1-completion. This section supersedes the historical checkpoints below.
+
+**Acceptance authority:** [.local/evidence/acceptance-final/manifest.json](../../.local/evidence/acceptance-final/manifest.json), generated after the candidate commit. A local PASS is valid only when its head equals the current Git HEAD, sourceChangesDuringRun is false, every required stage passes, and the visual matrix review is complete. Historical test results are not substituted for this ledger. Staging, production, factory commissioning and integration of concurrent work remain unaccepted.
+
+### Implemented scope
+
+The preserved offline/intake reconciliation is committed as d617d587eb0ffebde4d3bfa66bafcc11c9ac78ad. The prior UI/type checkpoint is 9e8dd694d74af71f0953a5fa8f05813209244b59. This continuation retains both and adds shared loading/error/restricted/offline/stale presentation to the remaining legacy registers, quality audit, HR panels and ATP read preview. Registers keep their real creation controls after a successfully loaded empty response. First-load failures never become default empty lists or invented zero statistics. Composite screens require all necessary source responses.
+
+HR reads reuse the existing query cache, with account and employee-filter identities, while preserving write payloads and operations. The audit dashboard now uses a stable minute-resolution rolling window instead of restarting both queries with a new timestamp on every render. Header refresh also reaches active stock queries. No backend source, manufacturing transition, financial formula, stock calculation or tenant database architecture was changed in this continuation.
+
+The generated backend policy projection covers 29 selected read routes and 30 selected commands across 28 canonical factory roles; the legacy admin alias is retained. This is not a claim of complete endpoint or field-level SaaS authorization. Curated workspaces may expose a subset of permitted reads; Articles is exercised with its purchasing role.
+
+KPI presentation distinguishes missing measurement from measured zero. Unsupported idle yield/TRS, downtime, FIFO, coverage, occupancy, maintenance/revenue estimates and ungrounded trends are withheld or described by their model basis. ATP preview wording is explicitly indicative; its backend calculations and order-promise operation are preserved. Supplier rejection percentages without a delivery basis are withheld.
+
+The Datte/Palme/Sel shell remains. Phone tools and titles fit; live-flow and scanner filters wrap readably; dialogs use logical RTL positioning. Settings controls have explicit label associations, account-row actions have meaningful names and touch-sized targets, and remaining register filters have accessible names. French default wording and existing Arabic resources are preserved. RTL geometry does not constitute complete Arabic linguistic acceptance.
+
+### Recorded preflight proof and its limits
+
+- On committed 9e8dd69: 818 tests in 117 files and 1,687 role checks passed. These certify that snapshot only.
+- Current focused regressions: 13/13 HR ownership/filter/error and audit-window tests; final-read-regressions.log. Backend policy projection: 9/9; expanded-role-projection.log.
+- Pointer-driven settings inspection: 227/227 structural checks, 57 captures, zero unnamed inspected controls; visual-ax-stable.
+- Genuine analytics inspection after the audit-window fix: 259/259 checks, 48 captures, all panels selected after device-emulation reload and zero unnamed inspected controls; visual-analytics-regression.
+- Earlier nested-tab captures are explicitly invalidated where DOM click or mobile emulation reloaded the selected panel. Earlier failed cold-start and resource-pressure attempts remain available. The 1,861/1,869 role preflight exposed eight fixture/activation failures; its corrected full rerun is required in the exact-HEAD ledger.
+- Final CLI and browser counts, screenshots, target databases, start/end times and exit codes are in the acceptance-final ledger. Its visual stage includes 19 root routes, 16 role-specific analytic panels, 13 settings tabs, French/RTL auth, redirect, 404 and missing-passport states at 1440/768/390. Capturing is not manual visual acceptance.
+
+### Preservation and concurrent work
+
+The original checkout is now on fix/supplier-simplify at 3c7b695d79305a23346b1bc6ad998f7984e3e129, with concurrent uncommitted supplier, industrial and other changes. They were not overwritten, staged, reset, stashed, merged or incorporated. The original eight-file offline patch still matches its saved SHA-256 e67a9202f8ab37b5f15df28c587340cb75c110ab411e8d3db719c3ca5a92de11 exactly; see .local/evidence/preserved-eight-current.json. Its Git index has no staged diff. Existing untracked tests, Claude branches/worktrees and checkpoints remain preserved. Compatibility with the concurrent dirty checkout is **NOT VERIFIED** and must be reviewed separately before integration.
+
+### Gates and continuation boundary
+
+Local acceptance requires fresh client/backend TypeScript, lint, full unit/integration tests, safe production-mode bundles, 28-role API/navigation/denial checks, Phase 0 isolation, frozen and dev reception scenarios, real session/offline/reconnect cases, screenshots and matrix review on the exact candidate HEAD. Lint warnings are reported separately from errors. Test fixtures and injected browser failures are not customer/factory evidence.
+
+Staging requires reconciliation of concurrent work, immutable artifacts, approved company/site isolation and migrations, staging authorization/backup/rollback and authenticated device acceptance. Production additionally requires customer/site ownership, QMS/industrial and finance sign-off, commissioned equipment, validated recovery and explicit release approval. No push, deployment or merge is authorized here.
+
+Production/stock/packaging workflow-dependent redesigns remain **BLOCKED** by industrial integrity. External approval remains required for capacities and storage rules, CCP thresholds/residual evidence and signed release, supplier qualification, costing/tax/FX parameters, numbering/GS1 ownership, physical devices, Arabic operational terminology and customer/site access policy. No such policy is adopted by local UI tests. Company/site tenant isolation, provisioning and field-level scope remain SaaS gaps; Phase 0 user/session isolation is not tenant isolation.
+
+Stop after Phase 1. The safest continuation is review of this isolated candidate and its exact-HEAD evidence, followed by a separate compatibility review with the preserved concurrent supplier/industrial branch. Do not begin another phase or merge while that reconciliation and the required gates remain open.
+
+---
+
+## Historical checkpoint (not current acceptance)
+
 ## Phase 1 continuation checkpoint — 2026-11-01
 
 **Overall: PARTIAL. Final committed-HEAD acceptance is still required.**

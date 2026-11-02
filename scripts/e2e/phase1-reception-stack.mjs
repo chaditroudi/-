@@ -2,6 +2,7 @@
 import { spawn, spawnSync, execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import puppeteer from 'puppeteer-core';
 import { assertSafeDbTarget } from '../lib/db-target-guard.mjs';
 import { assertTestStack, findForbiddenBundleHosts } from '../lib/api-target-guard.mjs';
 
@@ -31,6 +32,19 @@ try {
   for (const url of [API + '/api/health', APP]) await until(() => fetch(url).then(r => r.ok).catch(() => false));
   if (owned.some(child => child.exitCode !== null)) throw Error('Owned stack process exited before acceptance.');
   await assertTestStack(API);
+  // Development compilation is setup, separate from the unchanged 17 scenarios.
+  // Record cold-start latency; scenario navigation retains its original deadline.
+  if (MODE === 'dev') {
+    const started = Date.now();
+    const warmBrowser = await puppeteer.launch({ executablePath: process.env.E2E_BROWSER || 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true, args: ['--no-sandbox', '--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE localhost, EXCLUDE 127.0.0.1'] });
+    try {
+      const page = await warmBrowser.newPage();
+      await page.goto(APP + '/#/auth', { waitUntil: 'domcontentloaded', timeout: 120_000 });
+      await page.waitForSelector('input[type="password"]', { timeout: 120_000 });
+      metadata.devCompilationSetup = { status: 'PASS', durationMs: Date.now() - started, scenarioAssertionsChanged: false };
+      console.log('Dev compilation setup: ' + metadata.devCompilationSetup.durationMs + ' ms; unchanged scenarios follow.');
+    } finally { await warmBrowser.close(); }
+  }
   env.E2E_API_PID = String(owned[0].pid);
   const suite = spawn(process.execPath, ['scripts/e2e/reception.e2e.mjs'], { env, stdio: 'inherit', windowsHide: true });
   metadata.exitCode = await new Promise(resolve => suite.on('exit', resolve));

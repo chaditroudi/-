@@ -292,7 +292,7 @@ export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProp
                         {tone === 'excellent' ? 'Solide' : tone === 'watch' ? 'À surveiller' : 'Risque'}
                       </span>
                     </TableCell>
-                    <TableCell className="hidden text-right md:table-cell">{supplier.rejection_rate ?? 0} %</TableCell>
+                    <TableCell className="hidden text-right md:table-cell">{(supplier.total_delivered_tons ?? 0) > 0 && supplier.rejection_rate != null ? `${supplier.rejection_rate} %` : 'Non mesuré'}</TableCell>
                     <TableCell className="hidden lg:table-cell">
                       {alerts.length === 0 ? <span className="text-muted-foreground">Aucune</span> : (
                         <span className="inline-flex items-center gap-1 text-amber-800" title={alerts.join('\n')}>

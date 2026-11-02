@@ -66,7 +66,7 @@ export function PackagingDashboard({ currentUser = 'Utilisateur' }: Props) {
           <div>
             <p className="font-semibold">Étiquettes SSCC provisoires</p>
             <p className="text-xs opacity-90">
-              Préfixe GS1 = 09999999 (placeholder). Paramètres → Documents → préfixe société GS1,
+              Préfixe GS1 = 09999999 (provisoire). Paramètres → Documents → préfixe société GS1,
               puis adhésion GS1 Tunisie.
             </p>
           </div>

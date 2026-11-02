@@ -1,4 +1,7 @@
-import { useState, useEffect } from 'react';
+import { canRead } from '@/lib/apiAccess';
+import { useEffect, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { hrApi } from '@/lib/api/hr';
 import { useToast } from '@/hooks/use-toast';
 import type { Employee, ActorRole, EmploymentStatus } from '@/types/roles';
@@ -38,29 +41,23 @@ const buildEmployeeWritePayload = (data: Omit<CreateEmployeeData, 'create_access
 });
 
 export function useEmployees() {
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-
-  const fetchEmployees = async () => {
-    try {
-      const data = await hrApi.listEmployees();
-      setEmployees((data as Employee[]) || []);
-    } catch (error: any) {
-      console.error('Error fetching employees:', error);
-      toast({
-        title: 'Erreur',
-        description: 'Impossible de charger les employés',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  const { user, roles } = useAuthContext();
+  const actorId = user?.id;
+  const permitted = canRead(roles, 'employees');
+  const source = useQuery<Employee[]>({
+    queryKey: ['hr', actorId, permitted, 'employees'],
+    queryFn: async () => (await hrApi.listEmployees()) as Employee[],
+    enabled: Boolean(actorId) && permitted,
+    retry: false,
+    placeholderData: () => undefined,
+  });
+  const employees = source.data ?? [];
+  const isLoading = source.isLoading;
+  const fetchEmployees = useCallback(async () => { await source.refetch(); }, [source.refetch]);
   useEffect(() => {
-    fetchEmployees();
-  }, []);
+    if (source.error) toast({ title: 'Erreur', description: 'Impossible de charger les employés', variant: 'destructive' });
+  }, [source.error, toast]);
 
   const createEmployee = async (data: CreateEmployeeData) => {
     try {
@@ -147,6 +144,9 @@ export function useEmployees() {
   };
 
   return {
+    data: source.data,
+    error: actorId && !permitted ? { status: 403, message: 'Votre compte ne donne pas accès à ces données.' } : source.error,
+    updatedAt: source.dataUpdatedAt,
     employees,
     isLoading,
     createEmployee,

@@ -1,3 +1,6 @@
+import { useAppDispatch } from '@/store/hooks';
+import { stockApi } from '@/store/api/stockApi';
+import { DataState } from '@/components/shared/DataState';
 import { PRODUCTION_VIEWS, type ProductionView } from '@/components/production/views';
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { TopHeader } from "@/components/layout/TopHeader";
@@ -164,8 +167,10 @@ const Index = () => {
   // Data is fetched eagerly (role-gated) so it is ready when the user opens a tab.
   // Only the component *code* is deferred via lazy().
 
-  const { data: suppliers = [], refetch: refetchSuppliers } = useSuppliers({ enabled: canReadSuppliers });
-  const { data: materials = [], refetch: refetchMaterials } = useMaterials({ enabled: canReadMaterials });
+  const supplierSource = useSuppliers({ enabled: canReadSuppliers });
+  const { data: suppliers = [], refetch: refetchSuppliers } = supplierSource;
+  const materialSource = useMaterials({ enabled: canReadMaterials });
+  const { data: materials = [], refetch: refetchMaterials } = materialSource;
   const { data: receptions = [] } = useReceptions({ enabled: canReadProduction });
   const productionQuery = useProductionOrders({ enabled: canReadProduction });
   const { data: productionOrders = [] } = productionQuery;
@@ -325,13 +330,17 @@ const Index = () => {
     handleNavigate('production', { lot: lotNumber, view: 'phase2', module: 'pipeline' });
   }, [handleNavigate]);
 
+  const refreshDispatch = useAppDispatch();
   const handleRefresh = useCallback(async () => {
+    refreshDispatch(stockApi.util.invalidateTags(['StockLot', 'StockLocation', 'StockMovement', 'StockProduct', 'StockSummary']));
     await Promise.all([
       canReadSuppliers ? refetchSuppliers() : Promise.resolve(),
       canReadMaterials ? refetchMaterials() : Promise.resolve(),
       queryClient.invalidateQueries(),
+      ...refreshDispatch(stockApi.util.getRunningQueriesThunk()),
+      ...(!productionQuery.isUninitialized ? [productionQuery.refetch()] : []),
     ]);
-  }, [canReadSuppliers, canReadMaterials, refetchSuppliers, refetchMaterials, queryClient]);
+  }, [canReadSuppliers, canReadMaterials, refetchSuppliers, refetchMaterials, queryClient, refreshDispatch, productionQuery]);
 
   // ── Page content ──────────────────────────────────────────────────────────
 
@@ -442,9 +451,9 @@ const Index = () => {
           </div>
         );
       case 'suppliers':
-        return <SuppliersList suppliers={suppliers} canManage={canManagePurchasingData} />;
+        return <DataState source={{ ...supplierSource, updatedAt: supplierSource.fulfilledTimeStamp }} data={supplierSource.data} what="les fournisseurs" isEmpty={false}><SuppliersList suppliers={suppliers} canManage={canManagePurchasingData} /></DataState>;
       case 'materials':
-        return <MaterialsList materials={materials} canManage={canManagePurchasingData} />;
+        return <DataState source={{ ...materialSource, updatedAt: materialSource.fulfilledTimeStamp }} data={materialSource.data} what="les matières" isEmpty={false}><MaterialsList materials={materials} canManage={canManagePurchasingData} /></DataState>;
       case 'purchasing':
         return <PurchasingDashboard onNavigate={handleNavigate} initialFocus={purchasingFocus} />;
       case 'maintenance':

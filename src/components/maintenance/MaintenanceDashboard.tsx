@@ -1,3 +1,4 @@
+import { DataState } from '@/components/shared/DataState';
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -81,10 +82,12 @@ export const MaintenanceDashboard = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selected, setSelected] = useState<MaintenanceRequest | null>(null);
 
-  const { data: requests = [], isLoading } = useMaintenanceRequests(undefined, {
+  const requestSource = useMaintenanceRequests(undefined, {
     enabled: hasAccess,
   });
-  const { data: stats } = useMaintenanceStats({ enabled: hasAccess });
+  const { data: requests = [], isLoading } = requestSource;
+  const statSource = useMaintenanceStats({ enabled: hasAccess });
+  const { data: stats } = statSource;
 
   const createRequest = useCreateMaintenanceRequest();
   const updateRequest = useUpdateMaintenanceRequest();
@@ -142,7 +145,7 @@ export const MaintenanceDashboard = () => {
     { label: 'Total', value: stats?.total ?? requests.length, icon: FileText, color: 'text-sky-500', bg: 'bg-sky-500/10' },
   ];
 
-  return (
+  return <DataState source={{ isLoading: requestSource.isLoading || statSource.isLoading, error: requestSource.error || statSource.error, updatedAt: Math.min(requestSource.dataUpdatedAt || Date.now(), statSource.dataUpdatedAt || Date.now()), refetch: () => Promise.all([requestSource.refetch(), statSource.refetch()]) }} data={requestSource.data !== undefined && statSource.data !== undefined ? requestSource.data : undefined} what="les demandes de maintenance" isEmpty={false}>{(
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         {isLoading && <div className="text-xs text-muted-foreground">Chargement...</div>}
@@ -175,5 +178,5 @@ export const MaintenanceDashboard = () => {
         isLoading={createRequest.isPending || updateRequest.isPending}
       />
     </div>
-  );
+  )}</DataState>;
 };

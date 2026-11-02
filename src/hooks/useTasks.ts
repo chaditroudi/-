@@ -1,4 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { canRead } from '@/lib/apiAccess';
+import { useEffect, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { hrApi } from '@/lib/api/hr';
 import { useToast } from '@/hooks/use-toast';
 
@@ -38,29 +41,23 @@ interface CreateTaskData {
 }
 
 export function useTasks() {
-  const [tasks, setTasks] = useState<EmployeeTask[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-
-  const fetchTasks = useCallback(async () => {
-    try {
-      const data = await hrApi.listTasks();
-      setTasks((data as EmployeeTask[]) || []);
-    } catch (error: any) {
-      console.error('Error fetching tasks:', error);
-      toast({
-        title: 'Erreur',
-        description: 'Impossible de charger les tâches',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [toast]);
-
+  const { user, roles } = useAuthContext();
+  const actorId = user?.id;
+  const permitted = canRead(roles, 'tasks');
+  const source = useQuery<EmployeeTask[]>({
+    queryKey: ['hr', actorId, permitted, 'tasks'],
+    queryFn: async () => (await hrApi.listTasks()) as EmployeeTask[],
+    enabled: Boolean(actorId) && permitted,
+    retry: false,
+    placeholderData: () => undefined,
+  });
+  const tasks = source.data ?? [];
+  const isLoading = source.isLoading;
+  const fetchTasks = useCallback(async () => { await source.refetch(); }, [source.refetch]);
   useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]);
+    if (source.error) toast({ title: 'Erreur', description: 'Impossible de charger les tâches', variant: 'destructive' });
+  }, [source.error, toast]);
 
   const createTask = async (data: CreateTaskData) => {
     try {
@@ -154,6 +151,9 @@ export function useTasks() {
   };
 
   return {
+    data: source.data,
+    error: actorId && !permitted ? { status: 403, message: 'Votre compte ne donne pas accès à ces données.' } : source.error,
+    updatedAt: source.dataUpdatedAt,
     tasks,
     isLoading,
     createTask,

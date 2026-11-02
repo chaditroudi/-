@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { useEffect, useState } from 'react';
 import { useUpdateSiteSettings } from '@/hooks/useSettings';
 import type { SiteSettings } from '@/types/settings';
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export function OperationsPanel({ settings }: Props) {
+  const fieldIdBase = useId();
   const update = useUpdateSiteSettings();
   const [interfaceSettings, setInterfaceSettings] = useState({ ...settings.interface });
   const [operations, setOperations] = useState({ ...settings.operations });
@@ -52,12 +54,12 @@ export function OperationsPanel({ settings }: Props) {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-xs">Espace de travail par défaut</Label>
+              <Label htmlFor={`${fieldIdBase}-OperationsPanel-1`} className="text-xs">Espace de travail par défaut</Label>
               <Select
                 value={interfaceSettings.default_home_tab}
                 onValueChange={(value) => setInterfaceField('default_home_tab', value)}
               >
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger id={`${fieldIdBase}-OperationsPanel-1`}><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="home">Accueil</SelectItem>
                   <SelectItem value="sage-operations">Chaîne Hub</SelectItem>
@@ -68,12 +70,12 @@ export function OperationsPanel({ settings }: Props) {
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Densité de l’interface</Label>
+              <Label htmlFor={`${fieldIdBase}-OperationsPanel-2`} className="text-xs">Densité de l’interface</Label>
               <Select
                 value={interfaceSettings.ui_density}
                 onValueChange={(value) => setInterfaceField('ui_density', value)}
               >
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger id={`${fieldIdBase}-OperationsPanel-2`}><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="compact">Compacte</SelectItem>
                   <SelectItem value="comfortable">Confort</SelectItem>
@@ -85,8 +87,8 @@ export function OperationsPanel({ settings }: Props) {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-xs">Lignes par page</Label>
-              <Input
+              <Label htmlFor={`${fieldIdBase}-OperationsPanel-3`} className="text-xs">Lignes par page</Label>
+              <Input id={`${fieldIdBase}-OperationsPanel-3`}
                 type="number"
                 min={10}
                 max={200}
@@ -212,9 +214,9 @@ export function OperationsPanel({ settings }: Props) {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-xs">Modèle d’équipe</Label>
+              <Label htmlFor={`${fieldIdBase}-OperationsPanel-4`} className="text-xs">Modèle d’équipe</Label>
               <Select value={operations.shift_model} onValueChange={(value) => setOperationsField('shift_model', value)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger id={`${fieldIdBase}-OperationsPanel-4`}><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="1x8">1x8</SelectItem>
                   <SelectItem value="2x8">2x8</SelectItem>
