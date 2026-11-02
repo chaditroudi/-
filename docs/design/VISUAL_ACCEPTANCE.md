@@ -1,3 +1,5 @@
+Full phone-matrix review additionally corrected expiry buckets that were mislabeled as time in storage, without changing their days-to-expiry calculations. The cockpit withholds coverage because its API omits a denominator and defaults to 100 for no receipts; its read state uses shared DataState. Passport loading exposes aria-busy and the visual gate requires the terminal missing-passport message. Current acceptance still requires a new clean committed HEAD and fresh evidence.
+
 Visual review additionally found and corrected clipped phone audit filters and operator-setting switches. The harness checks control reachability even when the shell clips horizontal overflow. CCP helper text is stacked, existing chart palette aliases are restored, and zero-amount cost pies show an explicit empty state. Checkpoint 051bc5c passed 831/831 tests in 119 files, types, lint and bundles; its interrupted browser run is retained under .local/evidence/acceptance-checkpoint-051bc5c and is not final-HEAD acceptance.
 
 ## Current Phase 1 evidence policy — 2026-11-02

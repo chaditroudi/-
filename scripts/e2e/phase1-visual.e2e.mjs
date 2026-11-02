@@ -91,7 +91,7 @@ async function open(role) {
   async function ready() {
     let stable = 0;
     return until(async () => {
-      const rendered = await page.evaluate(() => Boolean(document.querySelector('main')) && document.fonts.status === 'loaded' && !document.querySelector('main .animate-spin') && !/Chargement\s*:|Chargement de|Chargement des|جاري التحميل/.test(document.querySelector('main')?.innerText ?? ''));
+      const rendered = await page.evaluate(() => Boolean(document.querySelector('main')) && document.fonts.status === 'loaded' && !document.querySelector('main .animate-spin, main[aria-busy="true"], main [aria-busy="true"]') && !/Chargement\s*:|Chargement de|Chargement des|جاري التحميل/.test(document.querySelector('main')?.innerText ?? ''));
       stable = rendered && pending.size === 0 ? stable + 1 : 0;
       return stable >= 3;
     }, 60_000);
@@ -125,6 +125,8 @@ async function capture(client, key, width, tabKey) {
     }).map(control => ({ tag: control.tagName, name: control.getAttribute('aria-label') || control.getAttribute('placeholder') || control.textContent?.trim().slice(0, 80) })),
     mainCount: document.querySelectorAll('main').length,
     crash: document.body.innerText.includes('Cet écran a rencontré un problème'),
+    passportMissing: document.querySelector('main')?.innerText.includes('Passeport introuvable'),
+    cockpitCoverage: [...document.querySelectorAll('main p')].find(node => node.textContent === 'Traçabilité achat')?.nextElementSibling?.textContent,
     activeTab: document.querySelector('[role="tab"][aria-selected="true"]')?.textContent,
     activeTabKey: document.querySelector('main [role="tab"][aria-selected="true"]')?.id.split('-trigger-').at(-1),
   }));
@@ -133,6 +135,8 @@ async function capture(client, key, width, tabKey) {
     text: await page.evaluate(() => document.querySelector('main')?.innerText.slice(0, 500)),
   } : undefined);
   if (tabKey) check(key + ' correct panel at capture ' + width, result.activeTabKey === tabKey, result);
+  if (key === 'passport-missing') check('passport missing terminal state ' + width, result.passportMissing === true);
+  if (key === 'sage-operations') check('cockpit unknown denominator withheld ' + width, result.cockpitCoverage === 'Non mesurée');
   check(key + ' fits ' + width, !result.overflow);
   check(key + ' controls reachable ' + width, result.clippedControls.length === 0, result.clippedControls);
   check(key + ' main landmark ' + width, result.mainCount === 1);

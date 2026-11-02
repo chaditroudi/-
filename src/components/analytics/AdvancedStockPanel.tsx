@@ -173,6 +173,7 @@ export const AdvancedStockPanel = () => {
           </CardHeader>
           <CardContent>
             <div className="h-[320px]">
+              <DataState source={{}} data={data} what="la répartition du stock" isEmpty={!categoryData.some(row => row.value > 0)} empty="Aucune quantité positive à représenter.">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -200,6 +201,7 @@ export const AdvancedStockPanel = () => {
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
+              </DataState>
             </div>
           </CardContent>
         </Card>
@@ -263,9 +265,9 @@ export const AdvancedStockPanel = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <Clock className="h-4 w-4 text-orange-500" />
-              Vieillissement du Stock
+              Échéances des lots
             </CardTitle>
-            <CardDescription>Analyse par durée de stockage</CardDescription>
+            <CardDescription>Jours restants selon les dates de péremption renseignées. La première classe inclut les dates dépassées ; ces classes ne constituent pas un visa qualité.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -277,12 +279,12 @@ export const AdvancedStockPanel = () => {
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: aging.color }}
                       />
-                      <span className="text-sm font-medium">{aging.label}</span>
+                      <span className="text-sm font-medium">{aging.range === '0-30' ? '30 jours ou moins' : aging.label}</span>
                       <Badge 
                         variant={aging.riskLevel === 'high' ? 'destructive' : aging.riskLevel === 'medium' ? 'secondary' : 'outline'}
                         className="text-xs"
                       >
-                        {aging.riskLevel === 'high' ? 'Risque élevé' : aging.riskLevel === 'medium' ? 'À surveiller' : 'OK'}
+                        {aging.riskLevel === 'high' ? 'Proche / dépassée' : aging.riskLevel === 'medium' ? 'Intermédiaire' : 'Éloignée'}
                       </Badge>
                     </div>
                     <span className="font-bold">{(aging.quantityKg / 1000).toFixed(2)} T</span>

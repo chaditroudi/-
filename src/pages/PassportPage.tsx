@@ -30,8 +30,8 @@ export default function PassportPage() {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen bg-[#f4f7f5] flex items-center justify-center p-6">
-        <p className="text-sm text-slate-600">Vérification du passeport lot…</p>
+      <main aria-busy="true" className="min-h-screen bg-[#f4f7f5] flex items-center justify-center p-6">
+        <p role="status" className="text-sm text-slate-600">Vérification du passeport lot…</p>
       </main>
     );
   }
@@ -44,7 +44,7 @@ export default function PassportPage() {
           <p className="text-sm text-slate-600">
             {error instanceof Error ? error.message : `Aucun lot pour « ${lotId} ».`}
           </p>
-          <Link to="/auth" className="text-sm text-emerald-800 underline">
+          <Link to="/auth" className="inline-flex min-h-[44px] items-center text-sm text-emerald-800 underline">
             Accès usine
           </Link>
         </div>
