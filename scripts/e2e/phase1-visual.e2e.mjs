@@ -112,6 +112,17 @@ async function capture(client, key, width, tabKey) {
   const settled = await client.ready();
   const result = await page.evaluate(() => ({
     overflow: document.documentElement.scrollWidth > innerWidth + 1,
+    clippedControls: [...document.querySelectorAll('main button, main input, main select, main textarea, main a[href], main [role="combobox"]')].filter(control => {
+      const rect = control.getBoundingClientRect();
+      if (!rect.width || !rect.height || getComputedStyle(control).visibility !== 'visible' || control.closest('[hidden], [aria-hidden="true"]')) return false;
+      if (rect.left >= -1 && rect.right <= innerWidth + 1) return false;
+      // Tables and tab strips may intentionally scroll horizontally. Clipping
+      // by a non-scrollable shell must not disguise an unreachable control.
+      for (let ancestor = control.parentElement; ancestor && ancestor !== document.body; ancestor = ancestor.parentElement) {
+        if (['auto', 'scroll'].includes(getComputedStyle(ancestor).overflowX) && ancestor.scrollWidth > ancestor.clientWidth + 1) return false;
+      }
+      return true;
+    }).map(control => ({ tag: control.tagName, name: control.getAttribute('aria-label') || control.getAttribute('placeholder') || control.textContent?.trim().slice(0, 80) })),
     mainCount: document.querySelectorAll('main').length,
     crash: document.body.innerText.includes('Cet écran a rencontré un problème'),
     activeTab: document.querySelector('[role="tab"][aria-selected="true"]')?.textContent,
@@ -123,6 +134,7 @@ async function capture(client, key, width, tabKey) {
   } : undefined);
   if (tabKey) check(key + ' correct panel at capture ' + width, result.activeTabKey === tabKey, result);
   check(key + ' fits ' + width, !result.overflow);
+  check(key + ' controls reachable ' + width, result.clippedControls.length === 0, result.clippedControls);
   check(key + ' main landmark ' + width, result.mainCount === 1);
   check(key + ' no crash ' + width, !result.crash);
   const ax = await page.target().createCDPSession();

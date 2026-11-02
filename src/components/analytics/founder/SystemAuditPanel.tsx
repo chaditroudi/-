@@ -239,7 +239,7 @@ export function SystemAuditPanel() {
         <CardHeader>
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <CardTitle className="text-sm">Flux d'activité en temps réel</CardTitle>
-            <div className="flex items-center gap-2">
+            <div className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto">
               <div className="relative">
                 <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <Input

@@ -56,9 +56,21 @@
     --info: 201 63% 33%;             /* #1F6287 */
     --info-foreground: 0 0% 100%;
     --disabled: 120 2% 61%;
+
+    /* Existing chart components use these semantic palette aliases. */
+    --chart-1: 168 73% 20%;
+    --chart-2: 38 87% 35%;
+    --chart-3: 150 64% 29%;
+    --chart-4: 201 63% 33%;
+    --chart-5: 18 46% 28%;
   }
 
   .dark {
+    --chart-1: 168 50% 50%;
+    --chart-2: 38 80% 58%;
+    --chart-3: 150 50% 50%;
+    --chart-4: 201 65% 60%;
+    --chart-5: 24 50% 58%;
     --background: 222 20% 9%;
     --foreground: 210 18% 96%;
 

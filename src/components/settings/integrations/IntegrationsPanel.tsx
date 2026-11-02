@@ -52,7 +52,7 @@ export function IntegrationsPanel({ settings }: Props) {
             <Switch checked={integrations.label_printer_enabled} onCheckedChange={(checked) => setField('label_printer_enabled', checked)} />
           </label>
           <label className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
-            QR labels activés
+            Étiquettes QR activées
             <Switch checked={integrations.qr_labels_enabled} onCheckedChange={(checked) => setField('qr_labels_enabled', checked)} />
           </label>
         </CardContent>

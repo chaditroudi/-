@@ -12,15 +12,15 @@ export const PRODUCT = {
   year: 2026,
   stack: 'React · NestJS · MongoDB',
   waves: [
-    'Kernel — ledger · passport · recall',
-    'B0 — Harden claims (enforce · GS1)',
-    'Margin · settlement · ATP',
+    'Socle — registre · passeport · rappel',
+    'B0 — contrôles stricts (enforce · GS1)',
+    'Marge · règlements · disponibilité à promettre (ATP)',
   ],
   pillars: [
     'Parcours lot A→Z (fil d’or)',
-    'Fiches + ack shift · BRA/BDE · étiquette PF',
-    'Mass balance · costing · settlements',
-    'QC lab · facture TVA · portail fournisseur',
+    'Fiches + accusé de relève · BRA/BDE · étiquette PF',
+    'Bilan matière · coûts · règlements',
+    'Laboratoire qualité · facture TVA · portail fournisseur',
     'Identité visuelle configurable par usine',
   ],
 } as const;

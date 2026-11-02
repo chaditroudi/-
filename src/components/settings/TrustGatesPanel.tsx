@@ -18,6 +18,12 @@ type GateStatus = {
   next: string;
 };
 
+// Translate only known server advice; preserve any future server message verbatim.
+const adviceFr: Record<string, string> = {
+  "Claims are in enforce mode with a non-placeholder GS1 prefix.": "Les contrôles sont en mode strict, avec un préfixe GS1 non provisoire.",
+  "Run a warn-mode shift with zero LOT_LEDGER_STAGE_FAILED, then set TRUST_SCAN_GATE / TRUST_CCP_GATE / TRUST_STAGE_GATE=enforce and replace GS1 prefix.": "Effectuer une équipe en mode avertissement sans aucun LOT_LEDGER_STAGE_FAILED, puis passer TRUST_SCAN_GATE / TRUST_CCP_GATE / TRUST_STAGE_GATE à enforce et remplacer le préfixe GS1."
+};
+
 const tone = (mode: string) => {
   if (mode === 'enforce') return 'bg-emerald-600 text-white';
   if (mode === 'off') return 'bg-slate-500 text-white';
@@ -87,7 +93,7 @@ export function TrustGatesPanel() {
               ) : (
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
               )}
-              <p className="text-xs leading-relaxed">{data.next}</p>
+              <p className="text-xs leading-relaxed">{adviceFr[data.next] ?? data.next}</p>
             </div>
 
             <p className="text-xs text-muted-foreground">

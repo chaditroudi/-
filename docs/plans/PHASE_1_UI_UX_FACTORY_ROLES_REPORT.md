@@ -1,3 +1,5 @@
+Visual review additionally found and corrected clipped phone audit filters and operator-setting switches. The harness checks control reachability even when the shell clips horizontal overflow. CCP helper text is stacked, existing chart palette aliases are restored, and zero-amount cost pies show an explicit empty state. Checkpoint 051bc5c passed 831/831 tests in 119 files, types, lint and bundles; its interrupted browser run is retained under .local/evidence/acceptance-checkpoint-051bc5c and is not final-HEAD acceptance.
+
 ## Phase 1 candidate and exact-HEAD acceptance — 2026-11-02
 
 Implementation branch: **codex/phase-1-completion**, isolated worktree: C:/Users/DELL/Desktop/date-harvest-hub-phase1-completion. This section supersedes the historical checkpoints below.

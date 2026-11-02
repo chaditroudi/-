@@ -181,6 +181,7 @@ export const AdvancedCostPanel = ({ period }: AdvancedCostPanelProps) => {
           </CardHeader>
           <CardContent>
             <div className="h-[320px]">
+              <DataState source={{}} data={data?.costBreakdown} what="la ventilation des coûts" isEmpty={!data?.costBreakdown.some(row => row.amount !== 0)} empty="Aucun montant ventilé sur cette période.">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -211,6 +212,7 @@ export const AdvancedCostPanel = ({ period }: AdvancedCostPanelProps) => {
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
+              </DataState>
             </div>
           </CardContent>
         </Card>

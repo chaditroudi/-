@@ -96,15 +96,15 @@ export function OperationsPanel({ settings }: Props) {
                 onChange={(e) => setInterfaceField('rows_per_page', Number(e.target.value || 25))}
               />
             </div>
-            <div className="grid grid-cols-2 gap-3 pt-6">
-              <label className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
+            <div className="col-span-2 grid grid-cols-1 gap-3 sm:col-span-1 sm:pt-6">
+              <label className="flex min-w-0 items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm">
                 KPI visibles
                 <Switch
                   checked={interfaceSettings.show_kpi_cards}
                   onCheckedChange={(checked) => setInterfaceField('show_kpi_cards', checked)}
                 />
               </label>
-              <label className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
+              <label className="flex min-w-0 items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm">
                 Animations
                 <Switch
                   checked={interfaceSettings.enable_animations}
@@ -122,21 +122,21 @@ export function OperationsPanel({ settings }: Props) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
-            <label className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
+            <label className="flex min-w-0 items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm">
               Livraison spontanée autorisée
               <Switch
                 checked={operations.allow_spontaneous_reception}
                 onCheckedChange={(checked) => setOperationsField('allow_spontaneous_reception', checked)}
               />
             </label>
-            <label className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
+            <label className="flex min-w-0 items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm">
               BC obligatoire à la réception
               <Switch
                 checked={operations.require_purchase_order_for_reception}
                 onCheckedChange={(checked) => setOperationsField('require_purchase_order_for_reception', checked)}
               />
             </label>
-            <label className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
+            <label className="flex min-w-0 items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm">
               Immatriculation obligatoire
               <Switch
                 checked={operations.require_vehicle_number_on_reception}
@@ -175,35 +175,35 @@ export function OperationsPanel({ settings }: Props) {
                 onChange={(event) => setOperationsField('reception_weight_gap_critical_pct', Number(event.target.value))}
               />
             </label>
-            <label className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
+            <label className="flex min-w-0 items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm">
               Matière auto-associée depuis BC
               <Switch
                 checked={operations.auto_assign_material_from_po}
                 onCheckedChange={(checked) => setOperationsField('auto_assign_material_from_po', checked)}
               />
             </label>
-            <label className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
+            <label className="flex min-w-0 items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm">
               Auto-démarrage étape suivante
               <Switch
                 checked={operations.production_auto_start_next_step}
                 onCheckedChange={(checked) => setOperationsField('production_auto_start_next_step', checked)}
               />
             </label>
-            <label className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
+            <label className="flex min-w-0 items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm">
               Scan final requis au conditionnement
               <Switch
                 checked={operations.packaging_requires_final_scan}
                 onCheckedChange={(checked) => setOperationsField('packaging_requires_final_scan', checked)}
               />
             </label>
-            <label className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
+            <label className="flex min-w-0 items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm">
               Stock négatif autorisé
               <Switch
                 checked={operations.allow_negative_stock}
                 onCheckedChange={(checked) => setOperationsField('allow_negative_stock', checked)}
               />
             </label>
-            <label className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
+            <label className="flex min-w-0 items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm">
               Réservation stock activée
               <Switch
                 checked={operations.stock_reservation_enabled}

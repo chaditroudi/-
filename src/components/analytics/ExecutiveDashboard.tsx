@@ -263,6 +263,7 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
           </CardHeader>
           <CardContent>
             <div className="h-[280px]">
+              <DataState source={{}} data={cost?.costBreakdown} what="la ventilation des coûts" isEmpty={!cost?.costBreakdown.some(row => row.amount !== 0)} empty="Aucun montant ventilé sur cette période.">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <defs>
@@ -307,6 +308,7 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
                   />
                 </PieChart>
               </ResponsiveContainer>
+              </DataState>
             </div>
           </CardContent>
         </Card>

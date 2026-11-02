@@ -47,7 +47,7 @@ export function Phase2Performance({ period }: { period: Period }) {
                 <div className={`text-2xl font-black ${yieldColor(y)}`}>{m?.done > 0 && y > 0 ? `${y.toFixed(1)}%` : 'Non mesuré'}</div>
                 <div className="text-xs text-muted-foreground mt-0.5">rapport indicatif des volumes déclarés</div>
                 {m?.done > 0 && <Progress value={y} className="h-1 mt-2" indicatorClassName={yieldBg(y)} />}
-                <div className="flex items-center justify-between mt-1">
+                <div className="mt-1 flex flex-col gap-1">
                   <span className="text-xs text-muted-foreground">{m?.done ?? 0} cycle(s)</span>
                   {extra && <span className="text-xs text-muted-foreground">{extra}</span>}
                 </div>
