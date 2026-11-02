@@ -1,3 +1,5 @@
+The 29e9301 checkpoint passed every automated gate (831 tests, 1881 role checks, 23 isolation checks, 17 frozen and 17 dev scenarios, 928 visual checks), but manual review rejected the remaining one-instance/one-factory settings copy. That text now describes only the configured site; no tenant architecture changed. The checkpoint is preserved separately; fresh final-HEAD evidence is required below.
+
 Visual review additionally found and corrected clipped phone audit filters and operator-setting switches. The harness checks control reachability even when the shell clips horizontal overflow. CCP helper text is stacked, existing chart palette aliases are restored, and zero-amount cost pies show an explicit empty state. Checkpoint 051bc5c passed 831/831 tests in 119 files, types, lint and bundles; its interrupted browser run is retained under .local/evidence/acceptance-checkpoint-051bc5c and is not final-HEAD acceptance.
 
 ## Phase 1 candidate and exact-HEAD acceptance — 2026-11-02

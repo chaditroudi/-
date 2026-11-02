@@ -134,8 +134,8 @@ export function PlantInfoPanel({ settings }: Props) {
         </CardHeader>
         <CardContent className="space-y-3">
           <p className="text-xs text-muted-foreground">
-            Une instance = une usine. Choisissez un preset (Royale Palm, EcoDatte, Bioscha, …) ou saisissez
-            votre propre identité, puis enregistrez. Logo et couleurs : onglet Branding.
+            Identité du site configuré. Choisissez un modèle (Royale Palm, EcoDatte, Bioscha, …) ou saisissez
+            votre propre identité, puis enregistrez. Logo et couleurs : onglet Marque & Couleurs.
           </p>
           <div className="flex flex-wrap gap-2">
             {PLANT_PRESETS.map((preset) => (
