@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useSyncExternalStore } from 'react';
 import { DataState } from '@/components/shared/DataState';
 import {
   Activity,
@@ -26,7 +26,10 @@ import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { useLiveFactory, useAlertIntelligence } from '@/hooks/useFounderAnalytics';
 import { getSseConnection } from '@/lib/sseClient';
+import { describeRealtime, getRealtimeStatus, subscribeRealtimeStatus } from '@/lib/realtimeStatus';
 import { useBranding } from '@/hooks/useBranding';
+import { useOnline } from '@/hooks/useOnline';
+import { SummaryStrip } from '@/components/shared/SummaryStrip';
 
 // ── Formatters ─────────────────────────────────────────────────────────────────
 
@@ -107,29 +110,8 @@ const ProcessNode = ({ label, Icon, count, subtext, isActive, colorText, colorBo
 // ── Flow connector ─────────────────────────────────────────────────────────────
 
 const FlowLine = ({ active }: { active: boolean }) => (
-  <div className="flex-1 flex items-center justify-center pb-[3.25rem] px-1 min-w-[20px]">
-    <div className={cn(
-      'w-full h-px transition-all duration-700',
-      active
-        ? 'bg-emerald-500'
-        : 'bg-slate-800',
-    )}>
-      {active && (
-        <div
-          className="relative h-px w-full overflow-hidden"
-          style={{ WebkitMaskImage: 'none' }}
-        >
-          <span
-            className="absolute top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_8px_rgba(110,231,183,0.9)]"
-            style={{ animation: 'moveRight 1.4s linear infinite' }}
-          />
-          <span
-            className="absolute top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_8px_rgba(110,231,183,0.9)]"
-            style={{ animation: 'moveRight 1.4s linear infinite 0.7s' }}
-          />
-        </div>
-      )}
-    </div>
+  <div className="flex min-w-[20px] flex-1 items-center justify-center px-1 pb-[3.25rem]">
+    <div className={cn('h-px w-full', active ? 'bg-emerald-500' : 'bg-slate-800')} />
   </div>
 );
 
@@ -187,6 +169,9 @@ export const FactoryCommandCenter = () => {
   const [clock, setClock] = useState(() => new Date());
   const [isFs, setIsFs] = useState(false);
   const { companyName, footprint, printFooter } = useBranding();
+  const online = useOnline();
+  const realtime = useSyncExternalStore(subscribeRealtimeStatus, getRealtimeStatus);
+  const link = describeRealtime(realtime, online);
 
   const { data: lf, refetch, isFetching, isLoading: liveLoading, error: liveError, dataUpdatedAt } = useLiveFactory();
   const { data: alertData } = useAlertIntelligence('today');
@@ -317,25 +302,28 @@ export const FactoryCommandCenter = () => {
 
   return (
     <>
-      {/* Keyframes for flowing particle */}
-      <style>{`
-        @keyframes moveRight {
-          0%   { left: -8px; opacity: 0 }
-          10%  { opacity: 1 }
-          90%  { opacity: 1 }
-          100% { left: calc(100% + 8px); opacity: 0 }
-        }
-      `}</style>
-
       <div className={cn(
-        'bg-slate-950 rounded-2xl text-white overflow-hidden flex flex-col gap-0',
+        'flex flex-col gap-0 overflow-hidden rounded-lg bg-slate-950 text-white',
         isFs ? 'fixed inset-0 z-[9999] rounded-none' : 'min-h-[calc(100vh-7rem)]',
       )}>
+
+        <div className="shrink-0 border-b border-slate-800 px-4 py-3 sm:px-5">
+          <SummaryStrip
+            className="border-slate-700 bg-slate-800 [&_div]:bg-slate-900 [&_dt]:text-slate-400 [&_dd]:text-white"
+            items={[
+              { label: 'Réceptions du jour', value: fmtN(rec?.today), helper: fmtKg(rec?.kgToday) },
+              { label: 'Fumigation', value: fmtN(active?.fumigation), helper: fmtKg(today?.fumKgIn) },
+              { label: 'Nettoyage', value: fmtN(active?.nettoyage) },
+              { label: 'Triage', value: fmtN(active?.triage) },
+              { label: 'Alertes', value: fmtN(totalAlerts), tone: totalAlerts > 0 ? 'bad' : 'default' },
+            ]}
+          />
+        </div>
 
         {/* ── Top bar ──────────────────────────────────────────────────────── */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800 shrink-0">
           <div className="flex items-center gap-4">
-            <div className="h-9 w-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
+            <div className="h-9 w-9 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
               <Activity className="h-5 w-5 text-emerald-400" />
             </div>
             <div>
@@ -345,10 +333,15 @@ export const FactoryCommandCenter = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            {/* LIVE badge */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-red-500/30 bg-red-500/10">
-              <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-              <span className="text-xs font-bold text-red-300">EN DIRECT</span>
+            <div className={cn(
+              'flex items-center gap-2 rounded-md border px-3 py-1.5',
+              link?.tone === 'good' ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-amber-500/30 bg-amber-500/10',
+            )}>
+              <span className={cn(
+                'h-2 w-2 rounded-full',
+                link?.tone === 'good' ? 'bg-emerald-400' : link?.tone === 'bad' ? 'bg-red-400' : 'bg-amber-400',
+              )} />
+              <span className="text-xs font-bold text-slate-200">{link?.label ?? 'Flux non démarré'}</span>
             </div>
 
             {/* Clock */}

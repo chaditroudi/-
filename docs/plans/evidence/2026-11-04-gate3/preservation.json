@@ -1,0 +1,18 @@
+{
+  "indexUnchanged": true,
+  "indexSha256": "779cf0f9f9560da8e997a5d770b24f8bf4818ec29f1d29a410e5785c19226636",
+  "originalTrackedDiffFiles": 80,
+  "intentionallyExtendedExistingDiffs": [
+    "server/src/modules/stock/stock.controller.ts",
+    "server/src/seed.ts",
+    "src/components/layout/OfflineSyncStatus.tsx",
+    "src/components/reception/ReceptionDashboardV2.tsx",
+    "src/hooks/useReceptionDraft.ts",
+    "src/hooks/useReceptionIntake.ts",
+    "src/lib/offline/outbox.ts",
+    "src/lib/offline/outbox.test.ts"
+  ],
+  "unrelatedDiffFilesChecked": 72,
+  "changedUnrelated": [],
+  "preexistingFlowStepperDeletionPreserved": true
+}

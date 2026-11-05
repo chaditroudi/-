@@ -119,6 +119,19 @@
     text-size-adjust: 100%;
   }
 
+  /* Arabic / RTL: keep Barlow for Latin codes; Noto for Arabic script. */
+  html[lang='ar'],
+  html[dir='rtl'] {
+    font-family: 'Noto Sans Arabic', 'Segoe UI', 'Tahoma', 'Barlow', system-ui, sans-serif;
+  }
+
+  html[lang='ar'] .font-mono,
+  html[dir='rtl'] .font-mono {
+    font-family: 'Barlow Semi Condensed', 'Barlow', system-ui, sans-serif;
+    unicode-bidi: isolate;
+    direction: ltr;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-variant-numeric: tabular-nums;

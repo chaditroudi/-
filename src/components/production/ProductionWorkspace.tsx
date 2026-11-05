@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { DataSource } from '@/components/shared/DataState';
 import {
   Bell,
+  CheckCircle2,
   ClipboardList,
   Droplets,
   FlaskConical,
@@ -33,10 +34,19 @@ import { useHydrationCycles } from '@/hooks/useHydratation';
 import { useTriageSessions } from '@/hooks/useTriage';
 import { usePhase2Pipeline } from '@/hooks/usePhase2Pipeline';
 import { usePhase2AlertKpis } from '@/hooks/usePhase2Alerts';
+import {
+  defaultProductionView,
+  getOperatorProductionStage,
+  getProductionNavGroups,
+  isAllowedProductionView,
+  isProductionSupervisor,
+} from '@/lib/productionNav';
+import type { ActorRole } from '@/types/roles';
 import type { MaterialReception } from '@/types/mes';
 import type { ProductionOrder } from '@/types/production';
 import { HaccpDashboard } from './HaccpDashboard';
 import { MaterialBalancePanel } from './MaterialBalancePanel';
+import { ProductionDone } from './ProductionDone';
 import { ProductionKpiPanel } from './ProductionKpiPanel';
 import { ProductionLinesPanel } from './ProductionLinesPanel';
 import { ProductionOrderDetail } from './ProductionOrderDetail';
@@ -45,7 +55,21 @@ import { ProductionPipelinePanel } from './ProductionPipelinePanel';
 import { ProductionToday } from './ProductionToday';
 import type { ProductionView } from './views';
 
-type NavItem = { view: ProductionView; label: string; icon: LucideIcon; badge?: number; stage?: boolean };
+const ICONS: Record<ProductionView, LucideIcon> = {
+  today: ListTodo,
+  orders: ClipboardList,
+  pipeline: GitMerge,
+  done: CheckCircle2,
+  fumigation: Flame,
+  nettoyage: Droplets,
+  hydratation: Wind,
+  triage: Scissors,
+  alertes: Bell,
+  flux: Waypoints,
+  balance: FlaskConical,
+  haccp: ShieldAlert,
+  kpi: LineChart,
+};
 
 interface ProductionWorkspaceProps {
   orders: ProductionOrder[];
@@ -57,10 +81,22 @@ interface ProductionWorkspaceProps {
   view: ProductionView;
   onViewChange: (view: ProductionView) => void;
   preSelectedLot?: string;
+  roles?: ActorRole[];
 }
 
 /** One level of navigation for everything production does, opening on the work to do. */
-export function ProductionWorkspace({ orders, ordersSource, ordersData, receptions, currentUser, stagesEnabled, view, onViewChange, preSelectedLot }: ProductionWorkspaceProps) {
+export function ProductionWorkspace({
+  orders,
+  ordersSource,
+  ordersData,
+  receptions,
+  currentUser,
+  stagesEnabled,
+  view,
+  onViewChange,
+  preSelectedLot,
+  roles = [],
+}: ProductionWorkspaceProps) {
   const pipeline = usePhase2Pipeline({ enabled: stagesEnabled });
   const alerts = usePhase2AlertKpis();
   const { data: fumigation = [] } = useFumigationCycles(undefined, { enabled: stagesEnabled });
@@ -73,6 +109,10 @@ export function ProductionWorkspace({ orders, ordersSource, ordersData, receptio
   const [traceLot, setTraceLot] = useState(preSelectedLot ?? '');
   const [traceOpen, setTraceOpen] = useState(Boolean(preSelectedLot));
 
+  const operatorStage = useMemo(() => getOperatorProductionStage(roles), [roles]);
+  const supervisor = useMemo(() => isProductionSupervisor(roles), [roles]);
+  const groups = useMemo(() => getProductionNavGroups(roles, stagesEnabled), [roles, stagesEnabled]);
+
   useEffect(() => {
     if (!preSelectedLot) return;
     setLotQuery(preSelectedLot);
@@ -80,41 +120,21 @@ export function ProductionWorkspace({ orders, ordersSource, ordersData, receptio
     setTraceOpen(true);
   }, [preSelectedLot]);
 
+  useEffect(() => {
+    if (isAllowedProductionView(roles, stagesEnabled, view)) return;
+    onViewChange(defaultProductionView(roles, stagesEnabled));
+  }, [onViewChange, roles, stagesEnabled, view]);
+
   const openTraceability = () => {
     setTraceLot(lotQuery.trim());
     setTraceOpen(true);
   };
 
-  const allGroups: Array<{ label: string; items: NavItem[] }> = [
-    {
-      label: 'Travail',
-      items: [
-        { view: 'today', label: 'À faire', icon: ListTodo },
-        { view: 'orders', label: 'Ordres de fabrication', icon: ClipboardList },
-        { view: 'pipeline', label: 'Lots à lancer', icon: GitMerge, badge: pipeline.waiting.length, stage: true },
-      ],
-    },
-    {
-      label: 'Étapes',
-      items: [
-        { view: 'fumigation', label: 'Fumigation', icon: Flame, stage: true },
-        { view: 'nettoyage', label: 'Nettoyage', icon: Droplets, stage: true },
-        { view: 'hydratation', label: 'Hydratation', icon: Wind, stage: true },
-        { view: 'triage', label: 'Triage', icon: Scissors, stage: true },
-      ],
-    },
-    {
-      label: 'Suivi',
-      items: [
-        { view: 'alertes', label: 'Alertes', icon: Bell, badge: alerts.total, stage: true },
-        { view: 'flux', label: 'Lignes F1 à F8', icon: Waypoints },
-        { view: 'balance', label: 'Bilan matière', icon: FlaskConical },
-        { view: 'haccp', label: 'Plan HACCP', icon: ShieldAlert },
-        { view: 'kpi', label: 'Indicateurs', icon: LineChart },
-      ],
-    },
-  ];
-  const groups = allGroups.map((group) => ({ ...group, items: group.items.filter((item) => stagesEnabled || !item.stage) }));
+  const badgeFor = (navView: ProductionView) => {
+    if (navView === 'pipeline') return pipeline.waiting.length;
+    if (navView === 'alertes') return alerts.total;
+    return undefined;
+  };
 
   return (
     <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:gap-4">
@@ -123,29 +143,35 @@ export function ProductionWorkspace({ orders, ordersSource, ordersData, receptio
           {groups.map((group) => (
             <div key={group.label} className="flex gap-1 lg:block lg:space-y-px">
               <p className="hidden pb-1 text-xs font-medium text-muted-foreground lg:block">{group.label}</p>
-              {group.items.map((item) => (
-                <button
-                  key={item.view}
-                  type="button"
-                  aria-current={view === item.view ? 'page' : undefined}
-                  onClick={() => onViewChange(item.view)}
-                  className={cn(
-                    'flex min-h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-2 text-sm font-medium pointer-coarse:min-h-11 lg:w-full',
-                    view === item.view ? 'bg-card text-foreground ring-1 ring-border' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                  )}
-                >
-                  <item.icon className="h-4 w-4 shrink-0" />
-                  <span className="truncate">{item.label}</span>
-                  {Boolean(item.badge) && <span className="ml-auto rounded-sm bg-amber-100 px-1 text-xs font-semibold text-amber-900">{item.badge}</span>}
-                </button>
-              ))}
+              {group.items.map((item) => {
+                const Icon = ICONS[item.view];
+                const badge = badgeFor(item.view);
+                return (
+                  <button
+                    key={item.view}
+                    type="button"
+                    aria-current={view === item.view ? 'page' : undefined}
+                    onClick={() => onViewChange(item.view)}
+                    className={cn(
+                      'flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-2.5 text-sm font-medium lg:w-full',
+                      view === item.view ? 'bg-card text-foreground ring-1 ring-border' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                    )}
+                  >
+                    <Icon className="h-4 w-4 shrink-0" />
+                    <span className="truncate">{item.label}</span>
+                    {Boolean(badge) && (
+                      <span className="ml-auto rounded-sm bg-amber-100 px-1 text-xs font-semibold text-amber-900">{badge}</span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           ))}
         </div>
       </nav>
 
       <div className="min-w-0 flex-1 space-y-3">
-        {view === 'today' && stagesEnabled && (
+        {view === 'today' && stagesEnabled && supervisor && (
           <div className="flex flex-wrap items-center justify-end gap-2">
             <div className="flex gap-1">
               <Input
@@ -154,17 +180,16 @@ export function ProductionWorkspace({ orders, ordersSource, ordersData, receptio
                 value={lotQuery}
                 onChange={(event) => setLotQuery(event.target.value)}
                 onKeyDown={(event) => event.key === 'Enter' && lotQuery.trim() && openTraceability()}
-                className="h-9 w-44"
+                className="h-11 w-44"
               />
-              <Button type="button" size="icon" variant="outline" className="h-9 w-9" aria-label="Tracer ce lot" disabled={!lotQuery.trim()} onClick={openTraceability}>
+              <Button type="button" size="icon" variant="outline" className="h-11 w-11" aria-label="Tracer ce lot" disabled={!lotQuery.trim()} onClick={openTraceability}>
                 <Search className="h-4 w-4" />
               </Button>
             </div>
             <Button
               type="button"
-              size="sm"
               variant="outline"
-              className="h-9 gap-1.5"
+              className="h-11 gap-1.5"
               onClick={() => printPhase2DailyReport({ fumigation, cleaning, hydration, triage })}
             >
               <Printer className="h-4 w-4" />
@@ -173,7 +198,18 @@ export function ProductionWorkspace({ orders, ordersSource, ordersData, receptio
           </div>
         )}
 
-        {view === 'today' && <ProductionToday orders={orders} ordersSource={ordersSource} ordersData={ordersData} stagesEnabled={stagesEnabled} onOpenView={onViewChange} onOpenOrder={setOrderId} />}
+        {view === 'today' && (
+          <ProductionToday
+            orders={orders}
+            ordersSource={ordersSource}
+            ordersData={ordersData}
+            stagesEnabled={stagesEnabled}
+            stageFilter={operatorStage}
+            hideOrders={!supervisor && Boolean(operatorStage)}
+            onOpenView={onViewChange}
+            onOpenOrder={setOrderId}
+          />
+        )}
         {view === 'orders' && <ProductionOrdersList orders={orders} receptions={receptions} onOpenOrder={setOrderId} />}
         {view === 'pipeline' && (
           <ProductionPipelinePanel
@@ -183,6 +219,7 @@ export function ProductionWorkspace({ orders, ordersSource, ordersData, receptio
             }}
           />
         )}
+        {view === 'done' && <ProductionDone stagesEnabled={stagesEnabled} stageFilter={operatorStage} />}
         {view === 'fumigation' && <FumigationPanel currentUser={currentUser} />}
         {view === 'nettoyage' && <NettoyagePanel currentUser={currentUser} />}
         {view === 'hydratation' && <HydratationPanel currentUser={currentUser} />}
@@ -199,4 +236,3 @@ export function ProductionWorkspace({ orders, ordersSource, ordersData, receptio
     </div>
   );
 }
-

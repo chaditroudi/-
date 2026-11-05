@@ -4,6 +4,7 @@
  */
 
 import { AuthUserModel } from "../../models/auth-user.model.js";
+import { factoryUserFilter } from "../../db/factory-context.js";
 import {
   DEPARTMENT_LABELS,
   type DepartmentCode,
@@ -272,7 +273,7 @@ const toMembership = (user: UserLean): OrgMembership | null => {
 export const findDepartmentManagers = async (
   department: DepartmentCode,
 ): Promise<OrgMembership[]> => {
-  const users = (await AuthUserModel.find({ is_active: { $ne: false } })
+  const users = (await AuthUserModel.find(factoryUserFilter({ is_active: { $ne: false } }))
     .select("id email is_active user_metadata")
     .lean()
     .exec()) as UserLean[];
@@ -290,7 +291,7 @@ export const findDepartmentManagers = async (
 export const findPurchasingApprovers = async (
   level: "purchasing_officer" | "purchasing_manager",
 ): Promise<OrgMembership[]> => {
-  const users = (await AuthUserModel.find({ is_active: { $ne: false } })
+  const users = (await AuthUserModel.find(factoryUserFilter({ is_active: { $ne: false } }))
     .select("id email is_active user_metadata")
     .lean()
     .exec()) as UserLean[];
@@ -304,7 +305,7 @@ export const findPurchasingApprovers = async (
 export const findFinanceApprovers = async (
   level: "daf" | "general_direction",
 ): Promise<OrgMembership[]> => {
-  const users = (await AuthUserModel.find({ is_active: { $ne: false } })
+  const users = (await AuthUserModel.find(factoryUserFilter({ is_active: { $ne: false } }))
     .select("id email is_active user_metadata")
     .lean()
     .exec()) as UserLean[];
@@ -317,7 +318,7 @@ export const findFinanceApprovers = async (
 
 export const loadMembershipByUserId = async (userId: string): Promise<OrgMembership | null> => {
   if (!readString(userId)) return null;
-  const user = (await AuthUserModel.findOne({ id: userId })
+  const user = (await AuthUserModel.findOne(factoryUserFilter({ id: userId }))
     .select("id email is_active user_metadata")
     .lean()
     .exec()) as UserLean | null;

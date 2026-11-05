@@ -1,11 +1,14 @@
 import mongoose from "mongoose";
+import { factoryConnection } from "./factory-context.js";
+import { getSiteSettingsModel } from "../models/site-settings.model.js";
 
-const modelCache = new Map<string, any>();
-
-export const getCollectionModel = (collectionName: string) => {
-  if (modelCache.has(collectionName)) {
-    return modelCache.get(collectionName)!;
+export const getCollectionModel = (collectionName: string): any => {
+  const connection = factoryConnection();
+  if (!/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(collectionName) || collectionName === "auth_users") {
+    throw new Error("Invalid operational collection.");
   }
+  if (collectionName === "site_settings") return getSiteSettingsModel();
+  if (connection.models[collectionName]) return connection.models[collectionName];
 
   const schema = new mongoose.Schema(
     {},
@@ -20,10 +23,7 @@ export const getCollectionModel = (collectionName: string) => {
 
   schema.index({ id: 1 }, { unique: false, sparse: true });
 
-  const existingModel = (mongoose.models as any)[collectionName];
-  const model = existingModel || mongoose.model(collectionName, schema, collectionName);
-  modelCache.set(collectionName, model);
-  return model;
+  return connection.model(collectionName, schema, collectionName);
 };
 
 export const sanitizeDocument = <T>(value: T): T => {

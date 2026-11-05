@@ -4,8 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
-  Plus, Search, Pencil, Trash2, Globe, Mail, Phone,
-  Users, UserCheck, UserX,
+  Plus, Search, Pencil, Trash2, Mail, Phone,
 } from 'lucide-react';
 import {
   useCustomers, useCreateCustomer, useUpdateCustomer, useDeleteCustomer,
@@ -17,6 +16,7 @@ import {
   AlertDialogContent, AlertDialogDescription,
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { SummaryStrip } from '@/components/shared/SummaryStrip';
 
 const COUNTRY_BADGE: Record<string, string> = {
   EU:  'bg-blue-50 text-blue-700 border-blue-200',
@@ -81,41 +81,19 @@ export default function CustomersDashboard() {
 
   return (
     <div className="flex flex-col gap-4 h-full">
-      {/* Stats */}
       {customers.length > 0 && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div className="rounded-xl border bg-card p-4 flex items-center gap-3">
-            <div className="rounded-lg bg-slate-50 p-2"><Users className="h-5 w-5 text-slate-600" /></div>
-            <div>
-              <div className="text-2xl font-bold">{stats.total}</div>
-              <div className="text-xs text-muted-foreground">Total clients</div>
-            </div>
-          </div>
-          <div className="rounded-xl border bg-card p-4 flex items-center gap-3">
-            <div className="rounded-lg bg-emerald-50 p-2"><UserCheck className="h-5 w-5 text-emerald-600" /></div>
-            <div>
-              <div className="text-2xl font-bold">{stats.active}</div>
-              <div className="text-xs text-muted-foreground">Actifs</div>
-            </div>
-          </div>
-          <div className="rounded-xl border bg-card p-4 flex items-center gap-3">
-            <div className="rounded-lg bg-blue-50 p-2"><Globe className="h-5 w-5 text-blue-600" /></div>
-            <div>
-              <div className="text-2xl font-bold">{stats.byCountry.EU}</div>
-              <div className="text-xs text-muted-foreground">Clients EU</div>
-              <div className="text-xs text-muted-foreground mt-0.5">
-                USA {stats.byCountry.USA} · SA {stats.byCountry.SA}
-              </div>
-            </div>
-          </div>
-          <div className="rounded-xl border bg-card p-4 flex items-center gap-3">
-            <div className="rounded-lg bg-red-50 p-2"><UserX className="h-5 w-5 text-red-400" /></div>
-            <div>
-              <div className="text-2xl font-bold">{stats.inactive}</div>
-              <div className="text-xs text-muted-foreground">Inactifs</div>
-            </div>
-          </div>
-        </div>
+        <SummaryStrip
+          items={[
+            { label: 'Total clients', value: stats.total },
+            { label: 'Actifs', value: stats.active, tone: 'good' },
+            {
+              label: 'Marchés',
+              value: `EU ${stats.byCountry.EU}`,
+              helper: `USA ${stats.byCountry.USA} · SA ${stats.byCountry.SA}`,
+            },
+            { label: 'Inactifs', value: stats.inactive, tone: stats.inactive > 0 ? 'watch' : 'default' },
+          ]}
+        />
       )}
 
       {/* Toolbar */}

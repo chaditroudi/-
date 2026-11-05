@@ -1,4 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, vi } from "vitest";
+import { testInFactory } from "../../test/factory-test.js";
+const factory = { tenant_id: "company-a", factory_id: "site-a" };
+const it = testInFactory(factory);
 
 import { SettingsService } from "./settings.service.js";
 
@@ -9,13 +12,13 @@ const invalidate = vi.fn();
 vi.mock("../../models/auth-user.model.js", () => ({
   AuthUserModel: {
     findOne: (filter: Record<string, unknown>) => {
-      const row = users.find((item) => item.email === filter.email || item.id === filter.id) ?? null;
+      const row = users.find((item) => Object.entries(filter).every(([key, value]) => item[key] === value)) ?? null;
       const lean = () => ({ exec: async () => row });
       return { lean, select: () => ({ lean }) };
     },
     updateOne: (filter: Record<string, unknown>, update: Record<string, any>) => ({
       exec: async () => {
-        const row = users.find((item) => item.id === filter.id);
+        const row = users.find((item) => Object.entries(filter).every(([key, value]) => item[key] === value));
         if (row) Object.assign(row, update.$set || {});
       },
     }),
@@ -101,13 +104,20 @@ describe("managed users", () => {
   });
 
   it("rejects an unknown role on update", async () => {
+    users.push({ id: "user-1", ...factory, user_metadata: {} });
     await expect(service.updateUser("user-1", { roles: ["super_admin"] }))
       .rejects.toMatchObject({ code: "UNKNOWN_ROLE" });
   });
 
   it("applies an account change at once", async () => {
-    users.push({ id: "user-1", email: "a@b.c", user_metadata: {} });
+    users.push({ id: "user-1", email: "a@b.c", ...factory, user_metadata: {} });
     await service.updateUser("user-1", { is_active: false });
     expect(invalidate).toHaveBeenCalledWith("user-1");
+  });
+
+  it("rejects a foreign account before changing its active state or signature", async () => {
+    users.push({ id: "foreign", tenant_id: "company-b", factory_id: "site-a", is_active: true });
+    await expect(service.updateUser("foreign", { is_active: false, signature_pin: "1234" })).rejects.toMatchObject({ code: "USER_NOT_FOUND" });
+    expect(users[0].is_active).toBe(true);
   });
 });

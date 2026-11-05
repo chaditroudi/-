@@ -214,7 +214,7 @@ export const HomePage = ({ onNavigate, accessibleTabs, canInspect, metrics, role
               key={task.tab}
               type="button"
               onClick={() => onNavigate(task.tab, task.options)}
-              className="flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left transition-colors hover:bg-accent/40 active:scale-[0.99]"
+              className="flex min-h-12 w-full items-center justify-between gap-3 rounded-lg border border-border bg-card px-4 py-3 text-left transition-colors hover:bg-accent/40 active:scale-[0.99]"
             >
               <div className="flex min-w-0 items-center gap-2.5">
                 <Badge className={task.badgeClassName}>{task.badge}</Badge>
@@ -242,7 +242,7 @@ export const HomePage = ({ onNavigate, accessibleTabs, canInspect, metrics, role
             type="button"
             onClick={() => onNavigate(post.id)}
             className={cn(
-              "flex flex-col items-start gap-1 rounded-xl border px-3 py-3 text-left transition-colors active:scale-[0.98]",
+              "flex min-h-[4.5rem] flex-col items-start gap-1 rounded-lg border px-3 py-3 text-left transition-colors active:scale-[0.98]",
               post.tone,
             )}
           >

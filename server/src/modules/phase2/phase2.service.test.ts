@@ -96,6 +96,17 @@ describe("phase2Service golden-thread stages", () => {
         cost_source: "supplier.agreed_price_tnd_per_kg",
       },
     ];
+    store.stock_lots = [
+      {
+        id: "stock-parent-tri",
+        reception_lot_id: lotId,
+        lot_number: "LOT-TRI",
+        current_quantity: 175,
+        initial_quantity: 175,
+        status: "VALIDATED",
+        unit: "kg",
+      },
+    ];
     store.triage_sessions = [
       {
         id: "session-1",
@@ -132,10 +143,24 @@ describe("phase2Service golden-thread stages", () => {
     const extra = sublots.find((row) => row.grade === "EXTRA");
     expect(reject?.cost_tnd).toBe(0);
     expect(Number(extra?.cost_tnd_per_kg)).toBeCloseTo(10.4441, 3);
+    expect(store.stock_lots?.find((row) => row.id === "stock-parent-tri")).toMatchObject({
+      current_quantity: 0,
+      status: "CONSUMED",
+    });
+    const wipLots = (store.stock_lots || []).filter((row) => row.source_stage === "TRIAGE");
+    expect(wipLots.length).toBeGreaterThan(0);
+    expect(wipLots.every((row) => row.status === "VALIDATED")).toBe(true);
+    expect(store.stock_movements?.some((row) => row.movement_type === "CONSOMMATION")).toBe(true);
   });
 
   it("blocks triage close when grade splits do not reconcile under enforce", async () => {
-    vi.stubEnv("TRUST_MASS_BALANCE_GATE", "enforce");
+    store.stock_lots = [{
+      id: "stock-bad",
+      reception_lot_id: "lot-bad",
+      lot_number: "LOT-BAD",
+      current_quantity: 1000,
+      status: "VALIDATED",
+    }];
     store.triage_sessions = [
       {
         id: "session-unbalanced",
@@ -155,5 +180,6 @@ describe("phase2Service golden-thread stages", () => {
     await expect(phase2Service.closeTriageSession("session-unbalanced")).rejects.toMatchObject({
       code: "MASS_BALANCE_UNBALANCED",
     });
+    expect(store.stock_lots?.[0]?.current_quantity).toBe(1000);
   });
 });

@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
+import { Fragment, useEffect, useState, type ReactNode } from "react";
 import { Provider } from "react-redux";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuthContext } from "@/contexts/AuthContext";
@@ -14,6 +14,7 @@ import { OfflineSyncStatus } from "@/components/layout/OfflineSyncStatus";
 import { EnvironmentRibbon } from "@/components/layout/EnvironmentRibbon";
 import { restartSseConnection } from "@/lib/sseClient";
 import { clearSessionData } from "@/lib/sessionData";
+import { factorySessionIdentity } from "@/lib/factorySession";
 import { AppErrorBoundary } from "@/components/shared/AppErrorBoundary";
 import { shouldRetryQuery } from "@/lib/apiErrors";
 import { canAccessTab, isSupplierPortalRole } from "@/lib/roleAccess";
@@ -42,21 +43,21 @@ const queryClient = new QueryClient({
 });
 
 /** A tablet is shared: nothing one account loaded or subscribed to may reach the next. */
-const SessionBoundary = () => {
-  const { user, roles } = useAuthContext();
+const SessionBoundary = ({ children }: { children: ReactNode }) => {
+  const { user } = useAuthContext();
   const client = useQueryClient();
-  const identity = user?.id ? `${user.id}:${[...roles].sort().join(',')}` : null;
-  const previous = useRef(identity);
+  const identity = factorySessionIdentity(user);
+  const [readyIdentity, setReadyIdentity] = useState(identity);
 
   useEffect(() => {
-    if (previous.current === identity) return;
-    const hadAccount = previous.current !== null;
-    previous.current = identity;
+    if (readyIdentity === identity) return;
+    let active = true;
     restartSseConnection();
-    if (hadAccount) void clearSessionData(client);
-  }, [client, identity]);
+    void clearSessionData(client).then(() => { if (active) setReadyIdentity(identity); });
+    return () => { active = false; };
+  }, [client, identity, readyIdentity]);
 
-  return null;
+  return readyIdentity === identity ? <Fragment key={identity ?? 'anonymous'}>{children}</Fragment> : null;
 };
 
 const RealtimeSync = () => {
@@ -74,9 +75,9 @@ const App = () => (
   <Provider store={store}>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <SessionBoundary>
         <SettingsProvider>
           <HashRouter>
-            <SessionBoundary />
             <RealtimeSync />
             <NotificationsRealtimeBridge />
             <TooltipProvider>
@@ -97,6 +98,7 @@ const App = () => (
             </TooltipProvider>
           </HashRouter>
         </SettingsProvider>
+        </SessionBoundary>
       </AuthProvider>
     </QueryClientProvider>
   </Provider>

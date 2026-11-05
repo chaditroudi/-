@@ -31,7 +31,7 @@ export class DocumentPrintsController {
   @Post()
   @Roles(...DOC_ROLES)
   async upsert(@Body() body: Record<string, unknown>, @Req() req: any) {
-    const actor = req.user?.sub || req.user?.id || "system";
+    const actor = req.auth.user.id;
     const data = await this.service.upsert(body, actor);
     return { data };
   }
@@ -39,7 +39,7 @@ export class DocumentPrintsController {
   @Put(":id")
   @Roles(...DOC_ROLES)
   async update(@Param("id") id: string, @Body() body: Record<string, unknown>, @Req() req: any) {
-    const actor = req.user?.sub || req.user?.id || "system";
+    const actor = req.auth.user.id;
     const data = await this.service.update(id, body, actor);
     return { data };
   }

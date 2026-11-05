@@ -143,17 +143,19 @@ export const normalizeSupplierDocument = (input: Record<string, unknown>, existi
   doc.contact_name_ar = nullableString(doc.contact_name_ar);
   doc.address_ar = nullableString(doc.address_ar);
   doc.contact_name = nullableString(doc.contact_name);
-  doc.email = nullableString(doc.email);
+  doc.email = nullableString(doc.email)?.toLowerCase() ?? null;
   doc.phone = nullableString(doc.phone);
   doc.secondary_phone = nullableString(doc.secondary_phone);
   doc.address = nullableString(doc.address);
   doc.postal_address = nullableString(doc.postal_address);
   doc.city = nullableString(doc.city);
   doc.country = nullableString(doc.country) || "Tunisie";
-  doc.fiscal_identifier = nullableString(doc.fiscal_identifier);
+  // Identity keys are stored lowercased so duplicate checks are case-insensitive.
+  doc.fiscal_identifier = nullableString(doc.fiscal_identifier)?.toLowerCase() ?? null;
   doc.tax_registration_number = nullableString(doc.tax_registration_number);
   doc.id_document_type = nullableString(doc.id_document_type);
-  doc.id_document_number = nullableString(doc.id_document_number);
+  doc.id_document_number = nullableString(doc.id_document_number)?.toLowerCase() ?? null;
+  if (doc.code) doc.code = String(doc.code).trim().toLowerCase();
   doc.cin_document_url = nullableString(doc.cin_document_url);
   doc.identification_notes = nullableString(doc.identification_notes);
   doc.region = nullableString(doc.region) || "Tozeur";
@@ -192,16 +194,15 @@ export const normalizeSupplierDocument = (input: Record<string, unknown>, existi
   doc.total_paid_amount_tnd = boundedNumber(doc.total_paid_amount_tnd, 0, Number.MAX_SAFE_INTEGER);
   doc.last_delivery_date = normalizeDate(doc.last_delivery_date);
   doc.contract_type = normalizeEnum(doc.contract_type, CONTRACT_TYPES, "saisonnier");
-  doc.contract_start_date = requireDate(
-    doc.contract_start_date,
-    "CONTRACT_START_DATE_REQUIRED",
-    "Contract start date is required.",
-  );
-  doc.contract_end_date = requireDate(
-    doc.contract_end_date,
-    "CONTRACT_END_DATE_REQUIRED",
-    "Contract end date is required.",
-  );
+  // Minimal create: default a seasonal window when the worker only entered name/contact.
+  const today = nowIso().slice(0, 10);
+  const defaultEnd = (() => {
+    const end = new Date(`${today}T00:00:00.000Z`);
+    end.setUTCFullYear(end.getUTCFullYear() + 1);
+    return end.toISOString().slice(0, 10);
+  })();
+  doc.contract_start_date = normalizeDate(doc.contract_start_date) || today;
+  doc.contract_end_date = normalizeDate(doc.contract_end_date) || defaultEnd;
   assertDateOrder(doc.contract_start_date as string | null, doc.contract_end_date as string | null);
   doc.contract_expiry_alert_at = subtractDays(String(doc.contract_end_date), 30);
   const createdAt = typeof doc.created_at === "string" ? doc.created_at : null;

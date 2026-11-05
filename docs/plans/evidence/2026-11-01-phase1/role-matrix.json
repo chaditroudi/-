@@ -1,0 +1,3880 @@
+[
+  {
+    "role": "administrateur_systeme",
+    "tabs": [
+      "home",
+      "receptions",
+      "storage",
+      "production",
+      "packaging",
+      "logistics",
+      "purchasing",
+      "maintenance",
+      "analytics",
+      "alerts",
+      "suppliers",
+      "materials",
+      "quality",
+      "hr",
+      "sage-operations",
+      "export",
+      "customers",
+      "settings",
+      "live",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "Console admin web",
+      "workspaceLabel": "Administration système globale",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "receptions",
+        "storage",
+        "production",
+        "packaging",
+        "logistics",
+        "purchasing",
+        "maintenance",
+        "analytics",
+        "alerts",
+        "suppliers",
+        "materials",
+        "quality",
+        "hr",
+        "sage-operations",
+        "export",
+        "customers",
+        "settings"
+      ],
+      "quickTabs": [
+        "receptions",
+        "suppliers",
+        "purchasing",
+        "storage",
+        "production",
+        "logistics"
+      ],
+      "actions": [
+        "executive_dashboard",
+        "production_supervision",
+        "quality_supervision",
+        "qc_entry_scan",
+        "reception_weighing",
+        "reception_data_entry",
+        "qr_label_printing",
+        "line_cleaning_monitoring",
+        "fumigation_monitoring",
+        "sorting_override",
+        "conditioning_execution",
+        "packaging_execution",
+        "warehouse_operations",
+        "shipping_planning",
+        "purchasing_management",
+        "maintenance_management",
+        "maintenance_interventions",
+        "user_permissions_admin",
+        "supplier_portal_access",
+        "client_portal_access",
+        "audit_readonly_access"
+      ]
+    },
+    "action": {
+      "label": "Gérer les utilisateurs",
+      "tab": "settings",
+      "options": {
+        "view": "users"
+      }
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": true
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": true
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": true
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": true
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": true
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": true
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": true
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": true
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": true
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": true
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": true
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": true
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": true
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": true
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": true
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": true
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": true
+      }
+    }
+  },
+  {
+    "role": "directeur_general",
+    "tabs": [
+      "home",
+      "analytics",
+      "alerts",
+      "export",
+      "customers",
+      "sage-operations",
+      "production",
+      "packaging",
+      "receptions",
+      "quality",
+      "purchasing",
+      "logistics",
+      "suppliers",
+      "storage",
+      "maintenance",
+      "hr",
+      "settings",
+      "live",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "Dashboard exécutif web",
+      "workspaceLabel": "Direction et arbitrage",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "analytics",
+        "alerts",
+        "export",
+        "customers",
+        "sage-operations",
+        "production",
+        "packaging",
+        "receptions"
+      ],
+      "quickTabs": [
+        "quality",
+        "purchasing",
+        "logistics",
+        "suppliers",
+        "storage",
+        "maintenance",
+        "hr",
+        "settings"
+      ],
+      "actions": [
+        "executive_dashboard",
+        "production_supervision",
+        "quality_supervision",
+        "shipping_planning",
+        "purchasing_management",
+        "user_permissions_admin"
+      ]
+    },
+    "action": {
+      "label": "Voir l’activité de l’usine",
+      "tab": "live"
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": true
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": true
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": true
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": true
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": true
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": true
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": true
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": true
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": true
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": true
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": true
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": true
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": true
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": true
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": true
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": true
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": true
+      }
+    }
+  },
+  {
+    "role": "directeur_usine",
+    "tabs": [
+      "home",
+      "production",
+      "packaging",
+      "receptions",
+      "storage",
+      "alerts",
+      "analytics",
+      "export",
+      "customers",
+      "sage-operations",
+      "quality",
+      "suppliers",
+      "purchasing",
+      "logistics",
+      "maintenance",
+      "hr",
+      "settings",
+      "live",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "Dashboard exécutif web",
+      "workspaceLabel": "Pilotage global usine",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "production",
+        "packaging",
+        "receptions",
+        "storage",
+        "alerts",
+        "analytics",
+        "export",
+        "customers",
+        "sage-operations"
+      ],
+      "quickTabs": [
+        "quality",
+        "suppliers",
+        "purchasing",
+        "logistics",
+        "maintenance",
+        "hr",
+        "settings"
+      ],
+      "actions": [
+        "executive_dashboard",
+        "production_supervision",
+        "quality_supervision",
+        "shipping_planning",
+        "purchasing_management"
+      ]
+    },
+    "action": {
+      "label": "Voir l’activité de l’usine",
+      "tab": "live"
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": true
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": true
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": true
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": true
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": true
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": true
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": true
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": true
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": true
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": true
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": true
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": true
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": true
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": true
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": true
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": true
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": true
+      }
+    }
+  },
+  {
+    "role": "responsable_production",
+    "tabs": [
+      "home",
+      "production",
+      "packaging",
+      "alerts",
+      "maintenance",
+      "sage-operations",
+      "analytics",
+      "hr",
+      "live",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "Dashboard production web",
+      "workspaceLabel": "Supervision production",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "production",
+        "packaging",
+        "storage",
+        "alerts"
+      ],
+      "quickTabs": [
+        "maintenance",
+        "sage-operations",
+        "analytics",
+        "hr"
+      ],
+      "actions": [
+        "production_supervision"
+      ]
+    },
+    "action": {
+      "tab": "production",
+      "label": "Ouvrir le travail en cours"
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": false
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": false
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": false
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": false
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": false
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": false
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": false
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": true
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": true
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": true
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": true
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": true
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": true
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": true
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": true
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": true
+      }
+    }
+  },
+  {
+    "role": "responsable_qualite",
+    "tabs": [
+      "home",
+      "receptions",
+      "quality",
+      "alerts",
+      "storage",
+      "maintenance",
+      "sage-operations",
+      "analytics",
+      "hr",
+      "live",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "Dashboard qualité web",
+      "workspaceLabel": "Pilotage qualité",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "receptions",
+        "quality",
+        "alerts",
+        "storage"
+      ],
+      "quickTabs": [
+        "maintenance",
+        "sage-operations",
+        "analytics",
+        "hr"
+      ],
+      "actions": [
+        "quality_supervision",
+        "qc_entry_scan",
+        "production_supervision"
+      ]
+    },
+    "action": {
+      "label": "Contrôler un lot",
+      "tab": "receptions",
+      "options": {
+        "view": "qc"
+      }
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": true
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": true
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": true
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": true
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": true
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": true
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": false
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": true
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": true
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": true
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": true
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": true
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": true
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": true
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": true
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": true
+      }
+    }
+  },
+  {
+    "role": "inspecteur_qualite",
+    "tabs": [
+      "home",
+      "receptions",
+      "alerts",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "Tablette terrain",
+      "workspaceLabel": "Inspection qualité terrain",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "receptions",
+        "alerts"
+      ],
+      "quickTabs": [
+        "home",
+        "storage"
+      ],
+      "actions": [
+        "qc_entry_scan"
+      ]
+    },
+    "action": {
+      "label": "Contrôler un lot",
+      "tab": "receptions",
+      "options": {
+        "view": "qc"
+      }
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": true
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": true
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": true
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": false
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": false
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": false
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": false
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": true
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": false
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": false
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": false
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": false
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": false
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": false
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": false
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": false
+      }
+    }
+  },
+  {
+    "role": "chef_reception",
+    "tabs": [
+      "home",
+      "receptions",
+      "storage",
+      "alerts",
+      "sage-operations",
+      "hr",
+      "live",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "Tablette + PC réception",
+      "workspaceLabel": "Supervision réception",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "receptions",
+        "storage",
+        "alerts"
+      ],
+      "quickTabs": [
+        "sage-operations",
+        "hr"
+      ],
+      "actions": [
+        "reception_weighing",
+        "reception_data_entry",
+        "qr_label_printing",
+        "qc_entry_scan"
+      ]
+    },
+    "action": {
+      "label": "Nouvelle réception",
+      "tab": "receptions",
+      "options": {
+        "view": "new"
+      }
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": true
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": true
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": true
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": true
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": true
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": true
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": true
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": false
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": false
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": true
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": true
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": true
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": true
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": true
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": false
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": false
+      }
+    }
+  },
+  {
+    "role": "operateur_reception",
+    "tabs": [
+      "home",
+      "receptions",
+      "alerts",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "Tablette terrain",
+      "workspaceLabel": "Saisie réception",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "receptions",
+        "alerts"
+      ],
+      "quickTabs": [
+        "home"
+      ],
+      "actions": [
+        "reception_data_entry",
+        "reception_weighing",
+        "qr_label_printing"
+      ]
+    },
+    "action": {
+      "label": "Nouvelle réception",
+      "tab": "receptions",
+      "options": {
+        "view": "new"
+      }
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": true
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": true
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": true
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": false
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": false
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": false
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": true
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": false
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": false
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": false
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": false
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": false
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": false
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": false
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": false
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": false
+      }
+    }
+  },
+  {
+    "role": "operateur_nettoyage",
+    "tabs": [
+      "home",
+      "production",
+      "alerts",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "Terminal tactile ligne",
+      "workspaceLabel": "Nettoyage ligne",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "production",
+        "alerts"
+      ],
+      "quickTabs": [
+        "home"
+      ],
+      "actions": [
+        "line_cleaning_monitoring"
+      ]
+    },
+    "action": {
+      "tab": "production",
+      "label": "Ouvrir le travail en cours"
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": false
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": false
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": false
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": false
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": false
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": false
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": false
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": true
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": false
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": false
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": false
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": false
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": false
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": false
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": false
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": false
+      }
+    }
+  },
+  {
+    "role": "operateur_fumigation",
+    "tabs": [
+      "home",
+      "production",
+      "alerts",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "Poste de contrôle dédié",
+      "workspaceLabel": "Suivi fumigation",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "production",
+        "alerts"
+      ],
+      "quickTabs": [
+        "home"
+      ],
+      "actions": [
+        "fumigation_monitoring"
+      ]
+    },
+    "action": {
+      "tab": "production",
+      "label": "Ouvrir le travail en cours"
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": false
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": false
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": false
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": false
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": false
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": false
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": false
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": true
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": false
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": false
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": false
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": false
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": false
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": false
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": false
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": false
+      }
+    }
+  },
+  {
+    "role": "operateur_triage_ia",
+    "tabs": [
+      "home",
+      "production",
+      "alerts",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "Écran grand format + tablette",
+      "workspaceLabel": "Triage IA",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "production",
+        "alerts"
+      ],
+      "quickTabs": [
+        "home"
+      ],
+      "actions": [
+        "sorting_override"
+      ]
+    },
+    "action": {
+      "tab": "production",
+      "label": "Ouvrir le travail en cours"
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": false
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": false
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": false
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": false
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": false
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": false
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": false
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": true
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": false
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": false
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": false
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": false
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": false
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": false
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": false
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": false
+      }
+    }
+  },
+  {
+    "role": "operateur_conditionnement",
+    "tabs": [
+      "home",
+      "packaging",
+      "alerts",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "Terminal tactile ligne",
+      "workspaceLabel": "Conditionnement",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "packaging",
+        "alerts"
+      ],
+      "quickTabs": [
+        "home"
+      ],
+      "actions": [
+        "conditioning_execution"
+      ]
+    },
+    "action": {
+      "tab": "packaging",
+      "label": "Ouvrir le conditionnement"
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": false
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": false
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": false
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": false
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": false
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": false
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": false
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": true
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": true
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": false
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": false
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": false
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": false
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": false
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": false
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": false
+      }
+    }
+  },
+  {
+    "role": "operateur_emballage",
+    "tabs": [
+      "home",
+      "packaging",
+      "alerts",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "Terminal tactile ligne",
+      "workspaceLabel": "Emballage",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "packaging",
+        "alerts"
+      ],
+      "quickTabs": [
+        "home"
+      ],
+      "actions": [
+        "packaging_execution"
+      ]
+    },
+    "action": {
+      "tab": "packaging",
+      "label": "Ouvrir le conditionnement"
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": false
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": false
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": false
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": false
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": false
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": false
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": false
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": true
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": true
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": false
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": false
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": false
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": false
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": false
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": false
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": false
+      }
+    }
+  },
+  {
+    "role": "magasinier_wms",
+    "tabs": [
+      "home",
+      "storage",
+      "alerts",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "Lecteur mobile RF",
+      "workspaceLabel": "Opérations magasin",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "storage",
+        "alerts"
+      ],
+      "quickTabs": [
+        "home"
+      ],
+      "actions": [
+        "warehouse_operations"
+      ]
+    },
+    "action": {
+      "tab": "storage",
+      "label": "Ouvrir le stock et les mouvements"
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": true
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": true
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": true
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": true
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": true
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": true
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": true
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": true
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": false
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": false
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": false
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": true
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": true
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": false
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": false
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": false
+      }
+    }
+  },
+  {
+    "role": "responsable_logistique",
+    "tabs": [
+      "home",
+      "logistics",
+      "export",
+      "storage",
+      "alerts",
+      "analytics",
+      "hr",
+      "live",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "PC bureau",
+      "workspaceLabel": "Pilotage logistique",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "logistics",
+        "export",
+        "storage",
+        "alerts"
+      ],
+      "quickTabs": [
+        "analytics",
+        "hr"
+      ],
+      "actions": [
+        "shipping_planning"
+      ]
+    },
+    "action": {
+      "tab": "logistics",
+      "label": "Voir les expéditions"
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": false
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": false
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": false
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": true
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": true
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": true
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": true
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": false
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": false
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": true
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": true
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": true
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": true
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": true
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": false
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": false
+      }
+    }
+  },
+  {
+    "role": "responsable_achats",
+    "tabs": [
+      "home",
+      "purchasing",
+      "suppliers",
+      "materials",
+      "alerts",
+      "analytics",
+      "hr",
+      "live",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "PC bureau",
+      "workspaceLabel": "Achats et fournisseurs",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "purchasing",
+        "suppliers",
+        "materials",
+        "alerts"
+      ],
+      "quickTabs": [
+        "analytics",
+        "hr"
+      ],
+      "actions": [
+        "purchasing_management"
+      ]
+    },
+    "action": {
+      "tab": "purchasing",
+      "label": "Ouvrir les demandes d’achat"
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": false
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": false
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": false
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": false
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": false
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": false
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": false
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": false
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": false
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": true
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": true
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": true
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": true
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": true
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": true
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": true
+      }
+    }
+  },
+  {
+    "role": "responsable_maintenance",
+    "tabs": [
+      "home",
+      "maintenance",
+      "alerts",
+      "production",
+      "hr",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "Application mobile",
+      "workspaceLabel": "Supervision maintenance",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "maintenance",
+        "alerts"
+      ],
+      "quickTabs": [
+        "production",
+        "hr"
+      ],
+      "actions": [
+        "maintenance_management"
+      ]
+    },
+    "action": {
+      "tab": "maintenance",
+      "label": "Voir les interventions"
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": false
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": false
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": false
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": false
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": false
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": false
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": true
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": false
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": false
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": false
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": false
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": true
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": true
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": true
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": false
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": false
+      }
+    }
+  },
+  {
+    "role": "technicien_maintenance",
+    "tabs": [
+      "home",
+      "maintenance",
+      "alerts",
+      "production",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "Tablette terrain",
+      "workspaceLabel": "Interventions maintenance",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "maintenance",
+        "alerts"
+      ],
+      "quickTabs": [
+        "production"
+      ],
+      "actions": [
+        "maintenance_interventions"
+      ]
+    },
+    "action": {
+      "tab": "maintenance",
+      "label": "Voir les interventions"
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": false
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": false
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": false
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": false
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": false
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": false
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": true
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": false
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": false
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": false
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": false
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": false
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": true
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": false
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": false
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": false
+      }
+    }
+  },
+  {
+    "role": "fournisseur_externe",
+    "tabs": [
+      "home",
+      "suppliers"
+    ],
+    "profile": {
+      "interfaceLabel": "Portail fournisseur web",
+      "workspaceLabel": "Espace fournisseur",
+      "defaultTab": "suppliers",
+      "primaryTabs": [
+        "home",
+        "suppliers"
+      ],
+      "quickTabs": [],
+      "actions": [
+        "supplier_portal_access"
+      ]
+    },
+    "action": {
+      "tab": "suppliers",
+      "label": "Consulter les fournisseurs"
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": false
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": false
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": false
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": false
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": false
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": false
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": false
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": false
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": false
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": false
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": false
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": false
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": false
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": false
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": false
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": false
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": false
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": false
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": false
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": false
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": false
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": false
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": true
+      }
+    }
+  },
+  {
+    "role": "client_externe",
+    "tabs": [
+      "home"
+    ],
+    "profile": {
+      "interfaceLabel": "Portail client web",
+      "workspaceLabel": "Espace client",
+      "defaultTab": "logistics",
+      "primaryTabs": [
+        "home",
+        "logistics"
+      ],
+      "quickTabs": [],
+      "actions": [
+        "client_portal_access"
+      ]
+    },
+    "action": null,
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": false
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": false
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": false
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": false
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": false
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": false
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": false
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": false
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": false
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": false
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": false
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": false
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": false
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": false
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": false
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": false
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": false
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": false
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": false
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": false
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": false
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": false
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": false
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": false
+      }
+    }
+  },
+  {
+    "role": "auditeur_externe",
+    "tabs": [
+      "home",
+      "quality",
+      "alerts",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "Portail audit limité",
+      "workspaceLabel": "Lecture audit",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "quality",
+        "alerts",
+        "receptions"
+      ],
+      "quickTabs": [],
+      "actions": [
+        "audit_readonly_access"
+      ]
+    },
+    "action": {
+      "tab": "quality",
+      "label": "Consulter les dossiers qualité"
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": false
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": false
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": false
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": false
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": false
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": false
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": false
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": false
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": false
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": false
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": false
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": false
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": false
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": false
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": true
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": false
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": false
+      }
+    }
+  },
+  {
+    "role": "technico_commercial",
+    "tabs": [
+      "home",
+      "export",
+      "customers",
+      "analytics",
+      "live",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "PC bureau",
+      "workspaceLabel": "Commercial",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "export",
+        "customers",
+        "purchasing",
+        "logistics"
+      ],
+      "quickTabs": [
+        "analytics",
+        "storage"
+      ],
+      "actions": [
+        "purchasing_management",
+        "shipping_planning"
+      ]
+    },
+    "action": {
+      "tab": "export",
+      "label": "Ouvrir les commandes export"
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": false
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": false
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": false
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": false
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": false
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": false
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": false
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": false
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": false
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": true
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": true
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": false
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": false
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": false
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": false
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": false
+      }
+    }
+  },
+  {
+    "role": "directeur_achat",
+    "tabs": [
+      "home",
+      "purchasing",
+      "suppliers",
+      "analytics",
+      "materials",
+      "hr",
+      "live",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "PC bureau",
+      "workspaceLabel": "Direction achats",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "purchasing",
+        "suppliers",
+        "analytics"
+      ],
+      "quickTabs": [
+        "materials",
+        "hr"
+      ],
+      "actions": [
+        "purchasing_management"
+      ]
+    },
+    "action": {
+      "tab": "purchasing",
+      "label": "Ouvrir les demandes d’achat"
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": false
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": false
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": false
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": false
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": false
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": false
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": false
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": false
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": false
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": true
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": true
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": true
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": false
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": true
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": true
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": true
+      }
+    }
+  },
+  {
+    "role": "resp_management_qualite",
+    "tabs": [
+      "home",
+      "quality",
+      "alerts",
+      "analytics",
+      "hr",
+      "live",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "Dashboard qualité web",
+      "workspaceLabel": "Management qualité",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "receptions",
+        "quality",
+        "alerts"
+      ],
+      "quickTabs": [
+        "analytics",
+        "storage",
+        "hr"
+      ],
+      "actions": [
+        "quality_supervision",
+        "qc_entry_scan"
+      ]
+    },
+    "action": {
+      "tab": "quality",
+      "label": "Consulter les dossiers qualité"
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": false
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": false
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": false
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": false
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": false
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": false
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": false
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": true
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": false
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": true
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": true
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": false
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": false
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": true
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": false
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": false
+      }
+    }
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "tabs": [
+      "home",
+      "quality",
+      "alerts",
+      "analytics",
+      "hr",
+      "live",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "Dashboard qualité web",
+      "workspaceLabel": "Qualité HACCP",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "receptions",
+        "quality",
+        "alerts"
+      ],
+      "quickTabs": [
+        "analytics",
+        "hr"
+      ],
+      "actions": [
+        "quality_supervision",
+        "qc_entry_scan"
+      ]
+    },
+    "action": {
+      "tab": "quality",
+      "label": "Consulter les dossiers qualité"
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": false
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": false
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": false
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": false
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": false
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": false
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": false
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": true
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": true
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": true
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": true
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": false
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": false
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": true
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": false
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": false
+      }
+    }
+  },
+  {
+    "role": "responsable_reception",
+    "tabs": [
+      "home",
+      "receptions",
+      "storage",
+      "alerts",
+      "hr",
+      "live",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "Tablette + PC réception",
+      "workspaceLabel": "Responsable réception",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "receptions",
+        "storage",
+        "alerts"
+      ],
+      "quickTabs": [
+        "hr"
+      ],
+      "actions": [
+        "reception_weighing",
+        "reception_data_entry",
+        "qr_label_printing",
+        "qc_entry_scan"
+      ]
+    },
+    "action": {
+      "label": "Nouvelle réception",
+      "tab": "receptions",
+      "options": {
+        "view": "new"
+      }
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": true
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": true
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": true
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": true
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": true
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": true
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": true
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": false
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": false
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": true
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": true
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": true
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": true
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": true
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": false
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": false
+      }
+    }
+  },
+  {
+    "role": "responsable_stock",
+    "tabs": [
+      "home",
+      "storage",
+      "alerts",
+      "purchasing",
+      "maintenance",
+      "hr",
+      "live",
+      "scan"
+    ],
+    "profile": {
+      "interfaceLabel": "Lecteur mobile RF",
+      "workspaceLabel": "Responsable stock",
+      "defaultTab": "home",
+      "primaryTabs": [
+        "home",
+        "storage",
+        "alerts",
+        "purchasing"
+      ],
+      "quickTabs": [
+        "maintenance",
+        "hr"
+      ],
+      "actions": [
+        "warehouse_operations"
+      ]
+    },
+    "action": {
+      "tab": "storage",
+      "label": "Ouvrir le stock et les mouvements"
+    },
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": true
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": true
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": true
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": true
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": true
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": true
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": true
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": true
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": true
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": true
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": true
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": true
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": true
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": true
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": true
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": true
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": true
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": true
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": true
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": true
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": true
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": true
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": true
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": false
+      }
+    }
+  },
+  {
+    "role": "partenaire_client_export",
+    "tabs": [
+      "home"
+    ],
+    "profile": {
+      "interfaceLabel": "Portail client web",
+      "workspaceLabel": "Client export",
+      "defaultTab": "logistics",
+      "primaryTabs": [
+        "home",
+        "logistics"
+      ],
+      "quickTabs": [],
+      "actions": [
+        "client_portal_access"
+      ]
+    },
+    "action": null,
+    "reads": {
+      "receptions": {
+        "route": "GET /api/receptions",
+        "allowed": false
+      },
+      "receptionSearch": {
+        "route": "GET /api/receptions/search",
+        "allowed": false
+      },
+      "receptionAlerts": {
+        "route": "GET /api/reception-alerts",
+        "allowed": false
+      },
+      "receptionLots": {
+        "route": "GET /api/stock/reception-lots",
+        "allowed": false
+      },
+      "stockLots": {
+        "route": "GET /api/stock/lots",
+        "allowed": false
+      },
+      "shipments": {
+        "route": "GET /api/stock/shipments",
+        "allowed": false
+      },
+      "storageZones": {
+        "route": "GET /api/storage/module3/zones",
+        "allowed": false
+      },
+      "productionOrders": {
+        "route": "GET /api/production/orders",
+        "allowed": false
+      },
+      "stageLots": {
+        "route": "GET /api/phase2/available-lots",
+        "allowed": false
+      },
+      "packagingOrders": {
+        "route": "GET /api/packaging/orders",
+        "allowed": false
+      },
+      "liveFactory": {
+        "route": "GET /api/analytics/live-factory",
+        "allowed": false
+      },
+      "healthScore": {
+        "route": "GET /api/analytics/health-score",
+        "allowed": false
+      },
+      "batchAlerts": {
+        "route": "GET /api/batches/alerts",
+        "allowed": false
+      },
+      "goldenThread": {
+        "route": "GET /api/trust/golden-thread",
+        "allowed": false
+      },
+      "suppliers": {
+        "route": "GET /api/suppliers",
+        "allowed": false
+      },
+      "materials": {
+        "route": "GET /api/materials",
+        "allowed": false
+      },
+      "customers": {
+        "route": "GET /api/customers",
+        "allowed": false
+      },
+      "exportOrders": {
+        "route": "GET /api/export-orders",
+        "allowed": false
+      },
+      "capaTickets": {
+        "route": "GET /api/capa-tickets",
+        "allowed": false
+      },
+      "requisitions": {
+        "route": "GET /api/purchasing/requisitions",
+        "allowed": false
+      },
+      "maintenanceRequests": {
+        "route": "GET /api/maintenance/requests",
+        "allowed": false
+      },
+      "employees": {
+        "route": "GET /api/employees",
+        "allowed": false
+      },
+      "auditLogs": {
+        "route": "GET /api/notifications/audit",
+        "allowed": false
+      },
+      "costing": {
+        "route": "GET /api/costing/summary",
+        "allowed": false
+      },
+      "settlements": {
+        "route": "GET /api/settlements",
+        "allowed": false
+      }
+    }
+  }
+]

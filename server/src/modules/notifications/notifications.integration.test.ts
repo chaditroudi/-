@@ -1,6 +1,10 @@
 // @vitest-environment node
 import mongoose from 'mongoose';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect } from 'vitest';
+import { factoryConnection, runWithFactory } from '../../db/factory-context.js';
+import { testInFactory } from '../../test/factory-test.js';
+const factory = { tenant_id: 'notifications-test', factory_id: 'site-one' };
+const it = testInFactory(factory);
 import { getCollectionModel } from '../../db/dynamic-model.js';
 import { NotificationsService } from './notifications.service.js';
 
@@ -9,13 +13,14 @@ const dbName = 'phase1_notification_visibility_test';
 const service = new NotificationsService();
 const operator = { roles: ['operateur_reception'], userId: 'operator' };
 const supplier = { roles: ['fournisseur_externe'], userId: 'supplier' };
-const model = () => getCollectionModel('system_notifications');
+const model = () => runWithFactory(factory, () => getCollectionModel('system_notifications'));
 
 describe.skipIf(!uri)('notification visibility on a real local database', () => {
   beforeAll(async () => {
     if (process.env.APP_ENV !== 'test' || !/^mongodb:\/\/(127\.0\.0\.1|localhost):/.test(uri!)) throw Error('Local APP_ENV=test database required');
     await mongoose.connect(uri!, { dbName });
     await mongoose.connection.dropDatabase();
+    await runWithFactory(factory, () => factoryConnection().dropDatabase());
     await model().insertMany([
       ...Array.from({ length: 205 }, (_, index) => ({ id: `own-${index}`, title: 'Réception', severity: 'warning', target_roles: ['operateur_reception'], is_read: false })),
       { id: 'internal', target_roles: [], target_user_ids: [], severity: 'info', is_read: false },
@@ -23,7 +28,7 @@ describe.skipIf(!uri)('notification visibility on a real local database', () => 
       { id: 'stock-secret', target_roles: ['responsable_stock'], title: 'Stock réservé', severity: 'error', is_read: false },
     ]);
   });
-  afterAll(async () => { if (mongoose.connection.readyState === 1) { await mongoose.connection.dropDatabase(); await mongoose.disconnect(); } });
+  afterAll(async () => { if (mongoose.connection.readyState === 1) { await runWithFactory(factory, () => factoryConnection().dropDatabase()); await mongoose.connection.dropDatabase(); await mongoose.disconnect(); } });
   it('counts all authorized rows beyond the displayed page without leaking another department', async () => {
     expect((await service.listNotifications({ ...operator, limit: 200 })).length).toBe(200);
     expect(await service.getSummary(operator)).toEqual({ total: 206, unread: 206, warning: 205, critical: 0 });

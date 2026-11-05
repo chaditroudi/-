@@ -4,15 +4,7 @@ import { suppliersApi } from '@/lib/api/suppliers';
 import { useAuthContext } from '@/contexts/AuthContext';
 import type { Supplier } from '@/types/mes';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import {
-  RadarChart,
-  Radar,
-  PolarGrid,
-  PolarAngleAxis,
-  ResponsiveContainer,
-} from 'recharts';
 import {
   Award,
   CreditCard,
@@ -22,9 +14,9 @@ import {
   ShieldCheck,
   Truck,
   Banknote,
+  Printer,
 } from 'lucide-react';
 import {
-  computeSupplierScoreM1,
   getSupplierStatusClassName,
   getSupplierStatusLabel,
   hasValidBioCertification,
@@ -34,7 +26,7 @@ import { useSupplierLots, useSupplierPayments } from '@/hooks/useSuppliers';
 import { settlementsApi } from '@/lib/api/settlements';
 import { printSettlementStatement } from '@/lib/printSettlementStatement';
 import { Button } from '@/components/ui/button';
-import { Printer } from 'lucide-react';
+import { SupplierScorePanel } from '@/components/mes/SupplierScorePanel';
 
 // ─── Portail fournisseur — RG-F10 ────────────────────────────────────────────
 // Read-only access for active suppliers identified by their registered email.
@@ -60,74 +52,6 @@ const COMPLIANCE_LABEL: Record<string, string> = {
 };
 
 const portalDate = (value?: string | null) => (value ? new Date(value).toLocaleDateString('fr-FR') : '—');
-
-/** The score reads its inputs as zero when they are missing, so with none there is no score. */
-const hasScoreData = (supplier: Supplier) =>
-  [supplier.quality_score, supplier.rating, supplier.delivery_reliability_score, supplier.traceability_score]
-    .some((value) => Number(value) > 0);
-
-function ScoreCard({ supplier }: { supplier: Supplier }) {
-  const score = computeSupplierScoreM1(supplier);
-  const gradeClass =
-    score.grade === 'excellent'
-      ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-      : score.grade === 'good'
-        ? 'bg-sky-50 border-sky-200 text-sky-700'
-        : score.grade === 'watch'
-          ? 'bg-amber-50 border-amber-200 text-amber-700'
-          : 'bg-red-50 border-red-200 text-red-700';
-
-  return (
-    <div className="space-y-4">
-      <div className={`rounded-2xl border p-5 text-center ${gradeClass}`}>
-        <p className="text-xs font-semibold opacity-70 mb-1">
-          Score qualité — §1.2
-        </p>
-        <p className="text-6xl font-black leading-none tabular-nums">{score.finalScore.toFixed(1)}</p>
-        <p className="text-sm mt-1 opacity-70">points sur 100</p>
-        {score.autoBlockTriggered && (
-          <div className="mt-3 rounded-lg bg-red-100 border border-red-300 px-3 py-2 text-sm text-red-800 font-medium">
-            ⚠ Taux de rejet &gt; 20 % — contactez votre responsable achats
-          </div>
-        )}
-      </div>
-
-      <ResponsiveContainer width="100%" height={200}>
-        <RadarChart
-          data={[
-            { critere: 'Qualité lots', score: score.qualityScore },
-            { critere: 'Rejet', score: score.rejectionScore },
-            { critere: 'Quantités', score: score.quantityScore },
-            { critere: 'Ponctualité', score: score.punctualityScore },
-            { critere: 'Documents', score: score.documentScore },
-          ]}
-        >
-          <PolarGrid />
-          <PolarAngleAxis dataKey="critere" tick={{ fontSize: 11 }} />
-          <Radar dataKey="score" stroke="#16a34a" fill="#16a34a" fillOpacity={0.18} strokeWidth={2} />
-        </RadarChart>
-      </ResponsiveContainer>
-
-      <div className="space-y-3">
-        {[
-          { label: 'Qualité des lots', score: score.qualityScore, weight: 40 },
-          { label: 'Taux de rejet', score: score.rejectionScore, weight: 20 },
-          { label: 'Respect quantités', score: score.quantityScore, weight: 15 },
-          { label: 'Ponctualité', score: score.punctualityScore, weight: 15 },
-          { label: 'Documents complets', score: score.documentScore, weight: 10 },
-        ].map(({ label, score: s, weight }) => (
-          <div key={label} className="space-y-1">
-            <div className="flex justify-between text-sm">
-              <span>{label} <span className="text-muted-foreground text-xs">({weight} %)</span></span>
-              <span className="font-semibold tabular-nums">{s.toFixed(1)} / 100</span>
-            </div>
-            <Progress value={s} className="h-1.5" />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function SettlementsSection({ supplierId }: { supplierId: string }) {
   const { data = [], isLoading } = useQuery({
@@ -194,10 +118,10 @@ function LotsSection({ supplierId }: { supplierId: string }) {
           <div key={lot.id} className="flex items-center justify-between px-3 py-2.5 text-sm">
             <div>
               <p className="font-mono text-xs text-muted-foreground">{lot.reception_number}</p>
-              <p className="font-medium text-xs">{lot.variety ?? '—'} · {new Date(lot.actual_arrival_date).toLocaleDateString('fr-TN')}</p>
+              <p className="font-medium text-xs">{lot.variety ?? '—'} · {lot.actual_arrival_date ? new Date(lot.actual_arrival_date).toLocaleDateString('fr-TN') : '—'}</p>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold tabular-nums">{lot.quantity_total.toLocaleString('fr-TN')} {lot.unit}</span>
+              <span className="text-xs font-semibold tabular-nums">{Number(lot.quantity_total ?? 0).toLocaleString('fr-TN')} {lot.unit ?? 'kg'}</span>
               {lot.qc_grade && (
                 <Badge variant="outline" className={`text-[0.65rem] px-1.5 ${GRADE_COLORS[lot.qc_grade] ?? ''}`}>
                   {GRADE_LABELS[lot.qc_grade] ?? lot.qc_grade}
@@ -234,10 +158,10 @@ function PaiementsSection({ supplierId, totalPaid }: { supplierId: string; total
             <div key={p.id} className="flex items-center justify-between px-3 py-2.5 text-sm">
               <div>
                 <p className="font-mono text-xs text-muted-foreground">{p.reference ?? '—'}</p>
-                <p className="text-xs text-muted-foreground">{new Date(p.payment_date).toLocaleDateString('fr-TN')}</p>
+                <p className="text-xs text-muted-foreground">{p.payment_date ? new Date(p.payment_date).toLocaleDateString('fr-TN') : '—'}</p>
               </div>
               <span className="font-semibold tabular-nums text-emerald-700">
-                +{p.amount_tnd.toLocaleString('fr-TN', { minimumFractionDigits: 2 })} TND
+                +{Number(p.amount_tnd ?? 0).toLocaleString('fr-TN', { minimumFractionDigits: 2 })} TND
               </span>
             </div>
           ))}
@@ -381,9 +305,7 @@ export default function SupplierPortal() {
             <Award className="h-5 w-5 text-amber-500" />
             <h2 className="font-semibold">Votre score qualité</h2>
           </div>
-          {hasScoreData(supplier)
-            ? <ScoreCard supplier={supplier} />
-            : <p className="rounded-lg border border-dashed px-3 py-3 text-sm text-muted-foreground">Pas encore de score : aucune livraison n'a été évaluée.</p>}
+          <SupplierScorePanel supplier={supplier} />
         </section>
 
         <Separator />

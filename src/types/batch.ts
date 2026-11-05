@@ -12,7 +12,19 @@ export type BatchStatus =
 
 export type QualityGrade = 'premium' | 'standard' | 'economy' | 'rejected';
 
-export type StorageZoneType = 'cold_room' | 'ventilated' | 'quarantine' | 'processing';
+/** Legacy English codes + Tunisian factory Module-3 codes used in storage/QC. */
+export type StorageZoneType =
+  | 'cold_room'
+  | 'ventilated'
+  | 'quarantine'
+  | 'processing'
+  | 'CHAMBRE_FROIDE'
+  | 'FRIGO'
+  | 'SEC'
+  | 'VENTILE'
+  | 'QUARANTAINE'
+  | 'TRANSFORMATION'
+  | 'standard';
 
 export type NonConformityAction = 'return_to_supplier' | 'destruction' | 'reclassification' | 'quarantine';
 
@@ -229,7 +241,14 @@ export const zoneTypeLabels: Record<StorageZoneType, string> = {
   cold_room: 'Chambre Froide',
   ventilated: 'Zone Ventilée',
   quarantine: 'Quarantaine',
-  processing: 'Production'
+  processing: 'Production',
+  CHAMBRE_FROIDE: 'Chambre Froide',
+  FRIGO: 'Frigo',
+  SEC: 'Zone sèche',
+  VENTILE: 'Zone ventilée',
+  QUARANTAINE: 'Quarantaine',
+  TRANSFORMATION: 'Transformation',
+  standard: 'Standard',
 };
 
 export const alertSeverityLabels: Record<AlertSeverity, string> = {

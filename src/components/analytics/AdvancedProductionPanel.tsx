@@ -50,7 +50,10 @@ export const AdvancedProductionPanel = ({ period }: AdvancedProductionPanelProps
   }
 
   const kpis = data?.kpis;
-  const yieldStatus = getKPIStatus(kpis?.yieldRate || 0, KPI_THRESHOLDS.yieldRate);
+  const yieldMeasured = kpis?.yieldRate != null;
+  const yieldStatus = yieldMeasured
+    ? getKPIStatus(kpis.yieldRate, KPI_THRESHOLDS.yieldRate)
+    : 'warning';
 
   return (
     <DataState source={{ ...source, updatedAt: source.dataUpdatedAt }} data={data} what="les indicateurs">
@@ -65,13 +68,13 @@ export const AdvancedProductionPanel = ({ period }: AdvancedProductionPanelProps
                 <Gauge className={`h-6 w-6 ${KPI_STATUS_COLORS[yieldStatus]}`} />
               </div>
               <div>
-                <p className="text-2xl font-bold">{(kpis?.yieldRate || 0).toFixed(1)}%</p>
+                <p className="text-2xl font-bold">{yieldMeasured ? `${kpis.yieldRate.toFixed(1)}%` : '—'}</p>
                 <p className="text-xs text-muted-foreground">Rendement</p>
               </div>
             </div>
             <div className="mt-3">
-              <Progress value={kpis?.yieldRate || 0} className="h-2" />
-              <p className="text-xs text-muted-foreground mt-1">Cible: 90%</p>
+              <Progress value={yieldMeasured ? kpis.yieldRate : 0} className="h-2" />
+              <p className="text-xs text-muted-foreground mt-1">{yieldMeasured ? 'Cible: 90%' : 'Non mesuré'}</p>
             </div>
           </CardContent>
         </Card>
@@ -277,10 +280,10 @@ export const AdvancedProductionPanel = ({ period }: AdvancedProductionPanelProps
                 <div className="flex justify-between text-sm">
                   <span>Rendement global</span>
                   <span className={`font-semibold ${KPI_STATUS_COLORS[yieldStatus]}`}>
-                    {(kpis?.yieldRate || 0).toFixed(1)}%
+                    {yieldMeasured ? `${kpis.yieldRate.toFixed(1)}%` : 'Non mesuré'}
                   </span>
                 </div>
-                <Progress value={kpis?.yieldRate || 0} className="h-2" />
+                <Progress value={yieldMeasured ? kpis.yieldRate : 0} className="h-2" />
               </div>
             </div>
           </CardContent>

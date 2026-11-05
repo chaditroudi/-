@@ -63,12 +63,14 @@ export const useAdvancedProductionAnalytics = (period: Period = 'month') => {
         return sum + orderWaste;
       }, 0);
 
+      const measuredMass = totalActual + totalWaste;
       const kpis: ProductionKPIs = {
         totalPlanned,
         totalActual,
         variancePercent: totalPlanned > 0 ? ((totalActual - totalPlanned) / totalPlanned) * 100 : 0,
-        yieldRate: (totalActual + totalWaste) > 0 ? (totalActual / (totalActual + totalWaste)) * 100 : 100,
-        wasteRate: (totalActual + totalWaste) > 0 ? (totalWaste / (totalActual + totalWaste)) * 100 : 0,
+        // Never invent a perfect yield when no mass was measured.
+        yieldRate: measuredMass > 0 ? (totalActual / measuredMass) * 100 : null,
+        wasteRate: measuredMass > 0 ? (totalWaste / measuredMass) * 100 : null,
         totalProductionHours: 0,
         throughputKgPerHour: 0,
         productivityKgPerPerson: 0,
@@ -96,41 +98,26 @@ export const useAdvancedProductionAnalytics = (period: Period = 'month') => {
         };
       });
 
-      // Downtime derived from real production order data
-      const cancelledOrders = allOrders.filter((o: any) => o.status === 'cancelled');
+      // Only delays with both planned and actual end dates count as measured.
       const delayedOrders = orders.filter((o: any) =>
         o.planned_end_date && o.actual_end_date &&
         new Date(o.actual_end_date) > new Date(o.planned_end_date),
       );
-      const incompleteOrders = orders.filter((o: any) =>
-        o.status === 'completed' && o.actual_quantity > 0 && o.target_quantity > 0 &&
-        o.actual_quantity < o.target_quantity * 0.8,
-      );
-
       const delayHours = delayedOrders.reduce((sum: number, o: any) => {
         const ms = new Date(o.actual_end_date).getTime() - new Date(o.planned_end_date).getTime();
         return sum + Math.max(ms / 3_600_000, 0);
       }, 0);
-      const cancelHours = cancelledOrders.length * 6;
-      const incompleteHours = incompleteOrders.reduce((sum: number, o: any) => {
-        const shortfall = 1 - Math.min(o.actual_quantity / o.target_quantity, 1);
-        return sum + shortfall * 4;
-      }, 0);
-
-      const mHours = cancelHours + delayHours * 0.3;
-      const lHours = delayHours * 0.3 + incompleteHours * 0.5;
-      const matHours = incompleteHours * 0.5;
-      const eHours = delayHours * 0.2;
-      const oHours = delayHours * 0.2;
-      const totalDT = mHours + lHours + matHours + eHours + oHours || 1;
-
-      const downtimeBreakdown: DowntimeBreakdown[] = [
-        { category: 'maintenance', label: 'Maintenance / arrêt', hours: parseFloat(mHours.toFixed(1)), percentage: (mHours / totalDT) * 100, color: 'hsl(var(--chart-1))' },
-        { category: 'labor', label: 'Main-d\'œuvre', hours: parseFloat(lHours.toFixed(1)), percentage: (lHours / totalDT) * 100, color: 'hsl(var(--chart-2))' },
-        { category: 'material', label: 'Matière / quarantaine', hours: parseFloat(matHours.toFixed(1)), percentage: (matHours / totalDT) * 100, color: 'hsl(var(--chart-3))' },
-        { category: 'energy', label: 'Délais process', hours: parseFloat(eHours.toFixed(1)), percentage: (eHours / totalDT) * 100, color: 'hsl(var(--chart-4))' },
-        { category: 'other', label: 'Autres', hours: parseFloat(oHours.toFixed(1)), percentage: (oHours / totalDT) * 100, color: 'hsl(var(--chart-5))' },
-      ];
+      const knownDelayHours = parseFloat(delayHours.toFixed(1));
+      const downtimeBreakdown: DowntimeBreakdown[] =
+        knownDelayHours > 0
+          ? [{
+              category: 'other',
+              label: 'Retards planifiés (mesurés)',
+              hours: knownDelayHours,
+              percentage: 100,
+              color: 'hsl(var(--chart-5))',
+            }]
+          : [];
 
       return { kpis, dailyTrend, downtimeBreakdown };
     },
@@ -254,16 +241,18 @@ export const useAdvancedQualityAnalytics = (period: Period = 'month') => {
         .reduce((s: number, nc: any) => s + (nc.quantity_affected_kg || nc.quantity_affected || 0), 0);
 
       const sortingKg = triageRejectKg + cleaningBadKg;
-      const totalLossKg = sortingKg + cleaningOrgKg + cleaningOtherKg + infestationKg + humidityKg || 1;
-      const costPerKgEst = 2.2; // TND/kg estimated value for loss cost
+      const measuredLossKg = sortingKg + cleaningOrgKg + cleaningOtherKg + infestationKg + humidityKg;
 
-      const lossBreakdown: LossBreakdown[] = [
-        { type: 'sorting', label: 'Défauts tri / mauvaises dattes', quantityKg: sortingKg, percentage: (sortingKg / totalLossKg) * 100, costEstimate: sortingKg * costPerKgEst, color: 'hsl(var(--chart-1))' },
-        { type: 'humidity', label: 'Pertes nettoyage (organique)', quantityKg: cleaningOrgKg, percentage: (cleaningOrgKg / totalLossKg) * 100, costEstimate: cleaningOrgKg * costPerKgEst, color: 'hsl(var(--chart-2))' },
-        { type: 'packaging', label: 'Déchets inertes nettoyage', quantityKg: cleaningOtherKg, percentage: (cleaningOtherKg / totalLossKg) * 100, costEstimate: cleaningOtherKg * 0.5, color: 'hsl(var(--chart-3))' },
-        { type: 'infestation', label: 'Infestation (NC)', quantityKg: infestationKg, percentage: (infestationKg / totalLossKg) * 100, costEstimate: infestationKg * costPerKgEst, color: 'hsl(var(--chart-4))' },
-        { type: 'other', label: 'Autres non-conformités', quantityKg: humidityKg + (totalLossKg === 1 ? 0 : 0), percentage: (humidityKg / totalLossKg) * 100, costEstimate: humidityKg * costPerKgEst, color: 'hsl(var(--chart-5))' },
-      ].filter((item) => item.quantityKg > 0 || totalLossKg === 1);
+      const lossCandidates: LossBreakdown[] = measuredLossKg <= 0
+        ? []
+        : [
+          { type: 'sorting', label: 'Défauts tri / mauvaises dattes', quantityKg: sortingKg, percentage: (sortingKg / measuredLossKg) * 100, costEstimate: null, color: 'hsl(var(--chart-1))' },
+          { type: 'humidity', label: 'Pertes nettoyage (organique)', quantityKg: cleaningOrgKg, percentage: (cleaningOrgKg / measuredLossKg) * 100, costEstimate: null, color: 'hsl(var(--chart-2))' },
+          { type: 'packaging', label: 'Déchets inertes nettoyage', quantityKg: cleaningOtherKg, percentage: (cleaningOtherKg / measuredLossKg) * 100, costEstimate: null, color: 'hsl(var(--chart-3))' },
+          { type: 'infestation', label: 'Infestation (NC)', quantityKg: infestationKg, percentage: (infestationKg / measuredLossKg) * 100, costEstimate: null, color: 'hsl(var(--chart-4))' },
+          { type: 'other', label: 'Autres non-conformités', quantityKg: humidityKg, percentage: (humidityKg / measuredLossKg) * 100, costEstimate: null, color: 'hsl(var(--chart-5))' },
+        ];
+      const lossBreakdown = lossCandidates.filter((item) => item.quantityKg > 0);
 
       // Supplier quality — join inspection → reception → supplier
       const supplierQualityMap = new Map<string, SupplierQuality>();

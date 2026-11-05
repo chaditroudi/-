@@ -67,10 +67,10 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
   const kpiCards = [
     {
       title: 'Rendement Production',
-      value: `${(production?.kpis.yieldRate || 0).toFixed(1)}%`,
+      value: production?.kpis.yieldRate == null ? 'Non mesuré' : `${production.kpis.yieldRate.toFixed(1)}%`,
       target: '90%',
       icon: Factory,
-      status: getKPIStatus(production?.kpis.yieldRate || 0, KPI_THRESHOLDS.yieldRate),
+      status: production?.kpis.yieldRate == null ? 'warning' : getKPIStatus(production.kpis.yieldRate, KPI_THRESHOLDS.yieldRate),
       trend: production?.kpis.variancePercent || 0,
       subtitle: `${((production?.kpis.totalActual || 0) / 1000).toFixed(1)}T produites`
     },

@@ -1,6 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import type { Product, ShipmentLine, ShipmentPreparation, StockAlert, StockLocation, StockLot, StockMovement, ProductCategory } from '@/types/stock';
+import type {
+  Product,
+  ShipmentLine,
+  ShipmentPreparation,
+  StockAlert,
+  StockLot,
+  StockMovementType,
+  ProductCategory,
+  LotStatus,
+} from '@/types/stock';
 import type { StockLotStatus } from '@/types/reception';
 import {
   useListProductsQuery,
@@ -22,9 +31,19 @@ import {
   useCreateShipmentLineMutation,
   useUpdateShipmentLineMutation,
   useDeleteShipmentLineMutation,
-  useGetExpeditionLotSuggestionsMutation,
   useListAllReceptionLotsQuery,
+  type ExpeditionLotSuggestion,
 } from '@/store/api/stockApi';
+
+export type StockLotFilters = {
+  status?: LotStatus;
+  category?: ProductCategory;
+};
+
+export type StockMovementFilters = {
+  type?: StockMovementType;
+  lotId?: string;
+};
 
 // ── Products ───────────────────────────────────────────────────────────────────
 
@@ -32,9 +51,9 @@ export const useProducts = (category?: ProductCategory) => {
   const result = useListProductsQuery();
   return {
     ...result,
-    data: (result.data as unknown as Product[] | undefined)
+    data: result.data
       ?.filter((p) => p.is_active !== false)
-      .filter((p) => !category || (p as any).category === category),
+      .filter((p) => !category || p.category === category),
   };
 };
 
@@ -43,9 +62,9 @@ export const useCreateProduct = () => {
   const [create, state] = useCreateProductMutation();
   return {
     mutateAsync: async (product: Partial<Product>) => {
-      const data = await create(product as Record<string, unknown>).unwrap();
+      const data = await create(product).unwrap();
       toast({ title: 'Produit créé', description: 'Le produit a été ajouté au catalogue' });
-      return data as Product;
+      return data;
     },
     isPending: state.isLoading,
     onError: (error: Error) => toast({ title: 'Erreur', description: error.message, variant: 'destructive' }),
@@ -57,9 +76,9 @@ export const useUpdateProduct = () => {
   const [update, state] = useUpdateProductMutation();
   return {
     mutateAsync: async ({ id, ...product }: Partial<Product> & { id: string }) => {
-      const data = await update({ id, ...product as Record<string, unknown> }).unwrap();
+      const data = await update({ id, ...product }).unwrap();
       toast({ title: 'Produit mis à jour', description: 'Les modifications ont été enregistrées' });
-      return data as Product;
+      return data;
     },
     isPending: state.isLoading,
   };
@@ -67,14 +86,25 @@ export const useUpdateProduct = () => {
 
 // ── Stock Lots ─────────────────────────────────────────────────────────────────
 
-export const useStockLots = (status?: string) => {
-  return useListStockLotsQuery(status);
+export const useStockLots = (filters?: StockLotFilters | string) => {
+  const status =
+    typeof filters === 'string'
+      ? filters
+      : filters?.status;
+  const category = typeof filters === 'object' ? filters?.category : undefined;
+  const result = useListStockLotsQuery(status);
+  const data = useMemo(() => {
+    const lots = result.data ?? [];
+    if (!category) return lots;
+    return lots.filter((lot) => lot.product?.category === category || (lot as StockLot & { category?: string }).category === category);
+  }, [result.data, category]);
+  return { ...result, data };
 };
 
 export const useCreateStockLot = () => {
   const [create, state] = useCreateStockLotMutation();
   return {
-    mutateAsync: async (lot: Record<string, unknown>) => create(lot).unwrap(),
+    mutateAsync: async (lot: Partial<StockLot>) => create(lot).unwrap(),
     isPending: state.isLoading,
   };
 };
@@ -82,7 +112,7 @@ export const useCreateStockLot = () => {
 export const useUpdateStockLot = () => {
   const [update, state] = useUpdateStockLotMutation();
   return {
-    mutateAsync: async ({ id, ...lot }: { id: string } & Record<string, unknown>) =>
+    mutateAsync: async ({ id, ...lot }: { id: string } & Partial<StockLot> & Record<string, unknown>) =>
       update({ id, ...lot }).unwrap(),
     isPending: state.isLoading,
   };
@@ -215,8 +245,16 @@ export const useUpdateStockLocation = () => {
 
 // ── Movements ──────────────────────────────────────────────────────────────────
 
-export const useStockMovements = (lotId?: string) => {
-  return useListStockMovementsQuery(lotId);
+export const useStockMovements = (filters?: StockMovementFilters | string) => {
+  const lotId = typeof filters === 'string' ? filters : filters?.lotId;
+  const type = typeof filters === 'object' ? filters?.type : undefined;
+  const result = useListStockMovementsQuery(lotId);
+  const data = useMemo(() => {
+    const movements = result.data ?? [];
+    if (!type) return movements;
+    return movements.filter((m) => m.movement_type === type);
+  }, [result.data, type]);
+  return { ...result, data };
 };
 
 // ── Summary ────────────────────────────────────────────────────────────────────
@@ -237,8 +275,7 @@ export const useStockAlerts = (status?: StockAlert['status']) => {
   const result = useListStockAlertsQuery();
   return {
     ...result,
-    data: (result.data as unknown as StockAlert[] | undefined)
-      ?.filter((a) => !status || a.status === status),
+    data: result.data?.filter((a) => !status || a.status === status),
   };
 };
 
@@ -255,7 +292,7 @@ export const useUpdateStockAlert = () => {
 
 export const useShipments = () => {
   const result = useListShipmentsQuery();
-  return { ...result, data: (result.data as unknown as ShipmentPreparation[] | undefined) ?? [] };
+  return { ...result, data: result.data ?? [] };
 };
 
 export const useCreateShipment = () => {
@@ -263,9 +300,9 @@ export const useCreateShipment = () => {
   const [create, state] = useCreateShipmentMutation();
   return {
     mutateAsync: async (payload: Partial<ShipmentPreparation>) => {
-      const data = await create(payload as Record<string, unknown>).unwrap();
+      const data = await create(payload).unwrap();
       toast({ title: 'Expédition créée' });
-      return data as ShipmentPreparation;
+      return data;
     },
     isPending: state.isLoading,
   };
@@ -276,9 +313,9 @@ export const useUpdateShipment = () => {
   const [update, state] = useUpdateShipmentMutation();
   return {
     mutateAsync: async ({ id, ...patch }: Partial<ShipmentPreparation> & { id: string }) => {
-      const data = await update({ id, ...patch as Record<string, unknown> }).unwrap();
+      const data = await update({ id, ...patch }).unwrap();
       toast({ title: 'Expédition mise à jour' });
-      return data as ShipmentPreparation;
+      return data;
     },
     isPending: state.isLoading,
   };
@@ -287,8 +324,7 @@ export const useUpdateShipment = () => {
 export const useCreateShipmentLine = () => {
   const [create, state] = useCreateShipmentLineMutation();
   return {
-    mutateAsync: async (payload: Partial<ShipmentLine>) =>
-      (await create(payload as Record<string, unknown>).unwrap()) as ShipmentLine,
+    mutateAsync: async (payload: Partial<ShipmentLine>) => create(payload).unwrap(),
     isPending: state.isLoading,
   };
 };
@@ -297,7 +333,7 @@ export const useUpdateShipmentLine = () => {
   const [update, state] = useUpdateShipmentLineMutation();
   return {
     mutateAsync: async ({ id, ...patch }: Partial<ShipmentLine> & { id: string }) =>
-      (await update({ id, ...patch as Record<string, unknown> }).unwrap()) as ShipmentLine,
+      update({ id, ...patch }).unwrap(),
     isPending: state.isLoading,
   };
 };
@@ -310,23 +346,47 @@ export const useDeleteShipmentLine = () => {
   };
 };
 
+/**
+ * Read-only FEFO/FIFO lot suggestions for a product.
+ * Gate 2 P0: must NEVER call POST /stock/expedition (that endpoint decrements stock).
+ */
 export const useLotSuggestions = (productId: string, requestedQty: number) => {
-  const [getSuggestions, state] = useGetExpeditionLotSuggestionsMutation();
-  const [data, setData] = useState<unknown[]>([]);
+  const result = useListStockLotsQuery(undefined);
+  const released = new Set(['VALIDATED', 'RELEASED', 'STOCK_LIBERE', 'LIBERE']);
 
-  useEffect(() => {
-    if (productId && requestedQty > 0) {
-      getSuggestions({ product_id: productId, requested_qty: requestedQty })
-        .unwrap()
-        .then((res) => setData((res as any)?.suggestions ?? (Array.isArray(res) ? res : [])))
-        .catch(() => setData([]));
-    } else {
-      setData([]);
+  const data = useMemo(() => {
+    if (!productId || requestedQty <= 0) return [] as ExpeditionLotSuggestion[];
+    const lots = (result.data ?? [])
+      .filter((lot) => lot.product_id === productId)
+      .filter((lot) => released.has(String(lot.status || '').toUpperCase()))
+      .filter((lot) => Number(lot.current_quantity || 0) > 0)
+      .slice()
+      .sort((a, b) => {
+        const aDate = String(a.dluo_date || a.dlc_date || a.reception_date || a.created_at || '');
+        const bDate = String(b.dluo_date || b.dlc_date || b.reception_date || b.created_at || '');
+        return aDate.localeCompare(bDate);
+      });
+
+    let remaining = requestedQty;
+    const suggestions: ExpeditionLotSuggestion[] = [];
+    for (const lot of lots) {
+      if (remaining <= 0) break;
+      const available = Number(lot.current_quantity || 0);
+      suggestions.push({
+        lot_id: lot.id,
+        lot_number: lot.lot_number,
+        available_qty: available,
+        rotation_rule: lot.dluo_date || lot.dlc_date ? 'FEFO' : 'FIFO',
+        sort_date: lot.dluo_date || lot.dlc_date || lot.reception_date || lot.created_at || null,
+        product_id: lot.product_id,
+        status: lot.status,
+      });
+      remaining -= available;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productId, requestedQty]);
+    return suggestions;
+  }, [productId, requestedQty, result.data]);
 
-  return { data, isLoading: state.isLoading };
+  return { data, isLoading: result.isLoading || result.isFetching };
 };
 
 // ── All reception lots (unified storage view) ──────────────────────────────────

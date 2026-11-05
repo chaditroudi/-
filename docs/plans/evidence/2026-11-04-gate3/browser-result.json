@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "checks": [
+    "Factory A browser shows only its own supplier",
+    "Shared tablet clears Factory A data before rendering Factory B",
+    "Factory B loads its independent supplier with the same business reference",
+    "Arabic RTL remains available on a tablet",
+    "No uncaught browser errors during factory switching"
+  ],
+  "errors": [],
+  "api": "http://127.0.0.1:4143",
+  "app": "http://127.0.0.1:8143"
+}

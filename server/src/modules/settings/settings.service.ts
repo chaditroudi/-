@@ -3,7 +3,8 @@ import { randomUUID } from "node:crypto";
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import bcrypt from "bcryptjs";
 
-import { badRequest, conflict } from "../../core/app-error.js";
+import { badRequest, conflict, notFound } from "../../core/app-error.js";
+import { factoryUserFilter, requireFactory } from "../../db/factory-context.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
 import { getCollectionModel } from "../../db/dynamic-model.js";
 import { invalidateAuthCache } from "../../middleware/auth.js";
@@ -292,10 +293,17 @@ export class SettingsService implements OnModuleInit {
   async getSettings() {
     let doc = await SiteSettingsModel.findOne({ id: "global" }).lean().exec();
     if (!doc) {
-      doc = await SiteSettingsModel.create(DEFAULT_SETTINGS);
+      doc = await SiteSettingsModel.findOneAndUpdate({ id: "global" }, { $setOnInsert: DEFAULT_SETTINGS },
+        { upsert: true, returnDocument: "after", lean: true }).exec();
     }
     const { _id, ...rest } = doc as any;
     return normalizeSettings(rest);
+  }
+
+  getPublicSettings() {
+    // Before authentication there is no factory. Expose product defaults, never a customer's settings.
+    return { company_name: "Date Harvest Hub", company_short_name: "MES", logo_url: null, logo_base64: null,
+      primary_color: DEFAULT_SETTINGS.primary_color, accent_color: DEFAULT_SETTINGS.accent_color, default_language: "fr" };
   }
 
   async updateSettings(patch: Record<string, unknown>, updatedBy: string | null) {
@@ -335,7 +343,7 @@ export class SettingsService implements OnModuleInit {
   }
 
   async listUsers() {
-    const users = await AuthUserModel.find({})
+    const users = await AuthUserModel.find(factoryUserFilter())
       .select("-passwordHash -password_hash")
       .lean()
       .exec();
@@ -381,6 +389,7 @@ export class SettingsService implements OnModuleInit {
     const user = await AuthUserModel.create({
       id: randomUUID(),
       email,
+      ...requireFactory(),
       passwordHash: await bcrypt.hash(password, 10),
       user_metadata: { full_name: fullName, role, roles: [role] },
       is_active: true,
@@ -409,6 +418,8 @@ export class SettingsService implements OnModuleInit {
       signature_pin?: string | null;
     },
   ) {
+    const target = await AuthUserModel.findOne(factoryUserFilter({ id: userId })).lean().exec();
+    if (!target) throw notFound("USER_NOT_FOUND", "Utilisateur introuvable.");
     const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
 
     if (typeof patch.is_active === "boolean") {
@@ -418,6 +429,9 @@ export class SettingsService implements OnModuleInit {
     if (Array.isArray(patch.roles) && patch.roles.length > 0) {
       assertKnownRoles(patch.roles);
       update["user_metadata.roles"] = patch.roles;
+      // Authorization combines role and roles; do not retain an old privileged singular role.
+      update["user_metadata.role"] = patch.roles[0];
+      update["user_metadata.domains"] = [];
     }
 
     if (Array.isArray(patch.departments)) {
@@ -433,7 +447,7 @@ export class SettingsService implements OnModuleInit {
     }
 
     if (Object.keys(update).length > 1) {
-      await AuthUserModel.updateOne({ id: userId }, { $set: update }).exec();
+      await AuthUserModel.updateOne(factoryUserFilter({ id: userId }), { $set: update, $inc: { token_version: 1 } }).exec();
       invalidateAuthCache(userId);
     }
 
@@ -446,7 +460,7 @@ export class SettingsService implements OnModuleInit {
       }
     }
 
-    const updated = (await AuthUserModel.findOne({ id: userId })
+    const updated = (await AuthUserModel.findOne(factoryUserFilter({ id: userId }))
       .select("-passwordHash -password_hash")
       .lean()
       .exec()) as any;

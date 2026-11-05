@@ -151,7 +151,9 @@ export function useAuth() {
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [applySessionState]);
 
   // Sessions last 8 hours: refresh well inside that so a long shift is not cut off.

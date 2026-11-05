@@ -17,6 +17,9 @@ import { allocateCostByWeight, absorbStandardCosts } from "../costing/cost-alloc
 import { loadCostingRates } from "../costing/costing-rates.js";
 import { emitNotification } from "../notifications/notification-emitter.js";
 import { SettlementService } from "../settlement/settlement.service.js";
+import { consumeStockLotKg, creditStockLotKg } from "../stock/stock-quantity.js";
+import { isAtomicTransaction, runInTransaction } from "../../db/transaction.js";
+import { applyCleaningStock, manufacturingInput, money, stockUnitCost } from "../stock/manufacturing-stock.js";
 
 const pushNotif = (arr: NotificationRow[], row: NotificationRow | null) => {
   if (row) arr.push(row);
@@ -901,8 +904,20 @@ export class Phase2Service {
   }
 
   async closeCleaningCycle(id: string, payload: Record<string, unknown>) {
+    return runInTransaction(() => this.closeCleaningCycleAtomic(id, payload), { requireTransactions: true });
+  }
+
+  private async closeCleaningCycleAtomic(id: string, payload: Record<string, unknown>) {
     const existing = sanitizeDocument(await CleaningCycles().findOne({ id }).lean().exec()) as CleaningCycleRow | null;
     if (!existing) throw notFound("CLEANING_CYCLE_NOT_FOUND", "Cycle de nettoyage introuvable.");
+    if (existing.status === 'TERMINE') {
+      if ((existing as Record<string, unknown>).stock_effects_version !== 1) throw badRequest('CLEANING_RECONCILIATION_REQUIRED', 'Ce nettoyage historique doit être réconcilié avant toute nouvelle opération.');
+      for (const field of ['weight_in_kg', 'weight_out_kg', 'waste_weight_kg']) {
+        if (payload[field] !== undefined && Number(payload[field]) !== Number((existing as Record<string, unknown>)[field])) throw badRequest('CLEANING_PAYLOAD_MISMATCH', 'Le nettoyage est déjà clôturé avec d’autres quantités.');
+      }
+      return { data: { yield_percent: existing.yield_percent, replayed: true, output_stock_lot_id: (existing as Record<string, unknown>).output_stock_lot_id }, cycle: existing, notifications: [] };
+    }
+    if (existing.status !== 'EN_COURS') throw badRequest('CLEANING_NOT_CLOSABLE', 'Seul un nettoyage en cours peut être clôturé.');
 
     const weightInKg = readNumber(payload.weight_in_kg, Number.NaN);
     const weightOutKg = readNumber(payload.weight_out_kg, Number.NaN);
@@ -915,10 +930,12 @@ export class Phase2Service {
     if (!Number.isFinite(wasteWeightKg) || !wasteCategory) {
       throw badRequest("WASTE_REQUIRED", "Les donnees de dechets sont requises pour cloturer le cycle.");
     }
+    if (weightInKg <= 0 || weightOutKg <= 0 || wasteWeightKg < 0 || weightOutKg > weightInKg) throw badRequest('CLEANING_WEIGHTS_INVALID', 'Les poids doivent être positifs et les déchets non négatifs.');
+    if (Math.abs(weightInKg - weightOutKg - wasteWeightKg) > 0.001) throw badRequest('MASS_BALANCE_UNBALANCED', 'Le poids entrant doit correspondre au poids sortant plus les déchets.');
 
     const balance = assertMassBalanceClosed(
       { inputKg: weightInKg, outputsKg: [weightOutKg], wasteKg: wasteWeightKg },
-      { tolerancePct: await loadConfiguredMassBalanceTolerancePct(), context: `nettoyage ${id}` },
+      { tolerancePct: await loadConfiguredMassBalanceTolerancePct(), mode: 'enforce', context: `nettoyage ${id}` },
     );
     if (balance.action === "warn") {
       console.warn("[mass-balance] cleaning cycle unbalanced:", balance);
@@ -937,12 +954,18 @@ export class Phase2Service {
 
     const yieldPercent = weightInKg > 0 ? round1((weightOutKg / weightInKg) * 100) : null;
     const now = nowIso();
+    const stockEffect = await applyCleaningStock({ ...existing, waste_category: wasteCategory }, weightInKg, weightOutKg, wasteWeightKg, now);
 
     await CleaningCycles().updateOne(
-      { id },
+      { id, status: 'EN_COURS' },
       {
         $set: {
           status: "TERMINE",
+          stock_effects_version: 1,
+          input_stock_lot_id: stockEffect.source.id,
+          output_stock_lot_id: stockEffect.output.id,
+          output_lot_number: stockEffect.output.lot_number,
+          material_cost_tnd: stockEffect.carriedValue,
           weight_in_kg: weightInKg,
           weight_out_kg: weightOutKg,
           yield_percent: yieldPercent,
@@ -963,9 +986,7 @@ export class Phase2Service {
     const cycle = sanitizeDocument(await CleaningCycles().findOne({ id }).lean().exec()) as CleaningCycleRow | null;
     const notifications: NotificationRow[] = [];
 
-    const cleaningLotId = await lotLifecycleService.resolveReceptionLotId({
-      lotNumber: readString(existing.lot_number) || readString((existing.lot_refs as Phase2LotRef[] | null)?.[0]?.lot_number),
-    });
+    const cleaningLotId = String(stockEffect.root.id);
     if (cleaningLotId) {
       await lotLifecycleService.recordMassBalanceSafe({
         lotId: cleaningLotId,
@@ -1014,7 +1035,7 @@ export class Phase2Service {
     }
 
     return {
-      data: { yield_percent: yieldPercent },
+      data: { yield_percent: yieldPercent, output_stock_lot_id: stockEffect.output.id, output_lot_number: stockEffect.output.lot_number, waste_kg: wasteWeightKg },
       cycle,
       notifications,
     };
@@ -1023,6 +1044,8 @@ export class Phase2Service {
   async updateCleaningCycle(id: string, payload: Record<string, unknown>) {
     const existing = await CleaningCycles().findOne({ id }).lean().exec();
     if (!existing) throw notFound("CLEANING_CYCLE_NOT_FOUND", "Cycle de nettoyage introuvable.");
+    if (existing.status === 'TERMINE') throw badRequest('CLEANING_CLOSED', 'Un nettoyage clôturé ne peut plus être modifié.');
+    if (['status', 'lot_number', 'reception_id', 'stock_lot_id', 'weight_in_kg', 'weight_out_kg', 'waste_weight_kg', 'stock_effects_version', 'output_stock_lot_id'].some((field) => field in payload)) throw badRequest('CLEANING_DOMAIN_ONLY', 'Les quantités et le statut se modifient uniquement à la clôture du nettoyage.');
 
     await CleaningCycles().updateOne(
       { id },
@@ -1560,8 +1583,37 @@ export class Phase2Service {
   }
 
   async closeTriageSession(id: string, payload: Record<string, unknown> = {}) {
+    return runInTransaction(() => this.closeTriageSessionAtomic(id, payload), { requireTransactions: true });
+  }
+
+  private async closeTriageSessionAtomic(id: string, payload: Record<string, unknown> = {}) {
     const session = sanitizeDocument(await TriageSessions().findOne({ id }).lean().exec()) as TriageSessionRow | null;
     if (!session) throw notFound("TRIAGE_SESSION_NOT_FOUND", "Session de triage introuvable.");
+
+    // Idempotent close: a successful TERMINE with sublots/stock must not re-consume parent.
+    if (session.status === "TERMINE") {
+      const existingSublots = sanitizeDocument(
+        await TriageSublots().find({ session_id: id }).lean().exec(),
+      ) as TriageSubLotRow[];
+      const existingStock = sanitizeDocument(
+        await StockLots().find({ source_stage: "TRIAGE", triage_session_id: id }).lean().exec(),
+      ) as Record<string, unknown>[];
+      return {
+        data: {
+          session_number: readString(session.session_number, id),
+          sub_lots_created: existingSublots.length,
+          duration_minutes: readNumber(session.duration_minutes),
+          settlement_id: null,
+          replayed: true,
+        },
+        session,
+        subLots: existingSublots,
+        stockLots: existingStock,
+        stockMovements: [],
+        settlement: null,
+      };
+    }
+
     if (session.status !== "EN_COURS" && session.status !== "PAUSE") {
       throw badRequest("TRIAGE_SESSION_NOT_CLOSABLE", "Seule une session EN_COURS ou en PAUSE peut etre cloturee.");
     }
@@ -1573,6 +1625,7 @@ export class Phase2Service {
     const weightRejectKg = readNumber(session.weight_reject_kg);
     // Unaccounted process loss (not REJETE grade). Defaults to session.waste_kg or 0.
     const wasteKg = readNumber(payload.waste_kg, readNumber((session as Record<string, unknown>).waste_kg, 0));
+    if ([weightExtraKg, weightCat1Kg, weightCat2Kg, weightRejectKg, wasteKg].some((value) => value < 0)) throw badRequest('TRIAGE_WEIGHTS_INVALID', 'Les quantités de triage doivent être non négatives.');
 
     if (parentWeightKg <= 0) {
       throw badRequest(
@@ -1583,32 +1636,19 @@ export class Phase2Service {
 
     // REJETE is a graded output stream (destination DESTRUCTION), not
     // unaccounted waste — counting it as both would double-count for costing.
+    // Gate 2: triage close enforces mass balance at the domain boundary.
     const balance = assertMassBalanceClosed(
       {
         inputKg: parentWeightKg,
         outputsKg: [weightExtraKg, weightCat1Kg, weightCat2Kg, weightRejectKg],
         wasteKg,
       },
-      { tolerancePct: await loadConfiguredMassBalanceTolerancePct(), context: `triage ${id}` },
+      {
+        tolerancePct: await loadConfiguredMassBalanceTolerancePct(),
+        mode: "enforce",
+        context: `triage ${id}`,
+      },
     );
-    if (balance.action === "warn") {
-      console.warn("[mass-balance] triage session unbalanced:", {
-        sessionId: id,
-        parentLot: session.parent_lot_number,
-        ...balance,
-      });
-      await emitNotification({
-        notificationType: "MASS_BALANCE_WARN",
-        category: "traceability",
-        space: "production",
-        severity: "warning",
-        title: `Bilan matière triage hors tolérance`,
-        message: `Session ${readString(session.session_number, id)}: écart ${balance.variancePct}% (tolérance ±${balance.tolerancePct}%).`,
-        entityType: "triage_sessions",
-        entityId: id,
-        metadata: balance as unknown as Record<string, unknown>,
-      });
-    }
 
     const now = nowIso();
     const durationMinutes = session.started_at
@@ -1627,21 +1667,15 @@ export class Phase2Service {
           await getCollectionModel("reception_lots").findOne({ id: parentLotId }).lean().exec(),
         ) as Record<string, unknown> | null)
       : null;
-    const snapshottedCost = Number(parentLot?.purchase_cost_tnd);
-    const derivedCost =
-      Number(parentLot?.purchase_cost_tnd_per_kg) * parentWeightKg;
-    const materialCostTnd =
-      Number.isFinite(snapshottedCost) && snapshottedCost > 0
-        ? snapshottedCost
-        : Number.isFinite(derivedCost) && derivedCost > 0
-          ? derivedCost
-          : 0;
+    const parentStock = await manufacturingInput(readString(session.parent_lot_number), readString((session as Record<string, unknown>).stock_lot_id) || undefined);
+    const parentUnitCost = stockUnitCost(parentStock, parentLot);
+    const materialCostTnd = parentUnitCost === null ? 0 : money(parentUnitCost * parentWeightKg);
     const rates = await loadCostingRates();
     const absorbed = absorbStandardCosts({
       materialCostTnd,
       workerCount: readNumber(session.worker_count),
       durationMinutes,
-      energyKwh: 0,
+      energyKwh: readNumber((session as Record<string, unknown>).energy_kwh),
       outputKg: weightExtraKg + weightCat1Kg + weightCat2Kg,
       rates,
     });
@@ -1659,109 +1693,183 @@ export class Phase2Service {
       costAllocation.streams.map((stream) => [stream.id, stream]),
     );
 
-    await TriageSessions().updateOne(
-      { id },
-      {
-        $set: {
-          status: "TERMINE",
-          ended_at: now,
-          duration_minutes: durationMinutes,
-          yield_kg_per_hour: yieldKgPerHour,
-          total_sorted_kg: readNumber(session.total_sorted_kg, balance.accountedKg),
-          waste_kg: wasteKg > 0 ? wasteKg : 0,
-          mass_balance_variance_pct: balance.variancePct,
-          input_cost_tnd: inputCostTnd > 0 ? inputCostTnd : null,
-          material_cost_tnd: absorbed.materialCostTnd > 0 ? absorbed.materialCostTnd : null,
-          labour_cost_tnd: absorbed.labourCostTnd > 0 ? absorbed.labourCostTnd : null,
-          overhead_cost_tnd: absorbed.overheadCostTnd > 0 ? absorbed.overheadCostTnd : null,
-          cost_basis: "standard",
-          updated_at: now,
+    const claimed = await TriageSessions()
+      .updateOne(
+        { id, status: { $in: ["EN_COURS", "PAUSE"] } },
+        {
+          $set: {
+            status: "TERMINE",
+            ended_at: now,
+            duration_minutes: durationMinutes,
+            yield_kg_per_hour: yieldKgPerHour,
+            total_sorted_kg: readNumber(session.total_sorted_kg, balance.accountedKg),
+            waste_kg: wasteKg > 0 ? wasteKg : 0,
+            mass_balance_variance_pct: balance.variancePct,
+            input_cost_tnd: parentUnitCost === null ? null : inputCostTnd,
+            material_cost_tnd: parentUnitCost === null ? null : absorbed.materialCostTnd,
+            cost_coverage: parentUnitCost === null ? 'MISSING_MATERIAL' : 'COMPLETE',
+            input_stock_lot_id: parentStock.id,
+            labour_cost_tnd: absorbed.labourCostTnd > 0 ? absorbed.labourCostTnd : null,
+            overhead_cost_tnd: absorbed.overheadCostTnd > 0 ? absorbed.overheadCostTnd : null,
+            cost_basis: "standard",
+            updated_at: now,
+          },
         },
-      },
-    ).exec();
-
-    const gradeMap: Array<{ grade: TriageGrade; weight_kg: number }> = [
-      { grade: "EXTRA", weight_kg: weightExtraKg },
-      { grade: "CATEGORIE_I", weight_kg: weightCat1Kg },
-      { grade: "CATEGORIE_II", weight_kg: weightCat2Kg },
-      { grade: "REJETE", weight_kg: weightRejectKg },
-    ];
-
-    const subLots: TriageSubLotRow[] = [];
-    for (const item of gradeMap.filter((entry) => entry.weight_kg > 0)) {
-      const allocated = costByGrade[item.grade];
-      const subLot = await prepareInsertDocument("triage_sublots", {
-        session_id: id,
-        parent_reception_id: readString(session.parent_reception_id) || "",
-        parent_lot_number: readString(session.parent_lot_number),
-        grade: item.grade,
-        lot_number: `${readString(session.parent_lot_number)}${SUBLOT_SUFFIX[item.grade]}`,
-        weight_kg: item.weight_kg,
-        percent_of_parent: readNumber(session.parent_weight_kg) > 0
-          ? round1((item.weight_kg / readNumber(session.parent_weight_kg)) * 100)
-          : 0,
-        destination: SUBLOT_DESTINATION[item.grade],
-        qr_label_url: null,
-        cost_tnd: allocated?.costTnd ?? null,
-        cost_tnd_per_kg: allocated?.costTndPerKg ?? null,
-        created_at: now,
-      });
-      subLots.push(sanitizeDocument(subLot) as TriageSubLotRow);
+      )
+      .exec();
+    if (Number(claimed.modifiedCount || 0) !== 1) {
+      return this.closeTriageSession(id, payload);
     }
 
-    if (subLots.length > 0) {
-      await TriageSublots().create(subLots);
+    // Gate 2: consume parent MP projection before minting graded WIP.
+    const parentLotNumber = readString(session.parent_lot_number);
+    if (!parentStock?.id) {
+      await TriageSessions()
+        .updateOne({ id }, { $set: { status: session.status, ended_at: null, updated_at: now } })
+        .exec();
+      throw badRequest(
+        "TRIAGE_PARENT_STOCK_NOT_FOUND",
+        `Aucun lot de stock parent disponible pour ${parentLotNumber || parentLotId || id}.`,
+        { parentLotId, parentLotNumber },
+      );
     }
 
+    let parentConsumed = false;
     const stockLots: Record<string, unknown>[] = [];
-    for (const subLot of subLots.filter((entry) => entry.destination !== "DESTRUCTION")) {
-      const stockLot = await prepareInsertDocument("stock_lots", {
-        lot_number: subLot.lot_number,
-        product_id: null,
-        source_reception_id: readString(subLot.parent_reception_id) || null,
-        source_lot_internal: readString(subLot.parent_lot_number) || null,
-        source_stage: "TRIAGE",
-        variety: readString(session.variety) || null,
-        origin_country: "TN",
-        initial_quantity: readNumber(subLot.weight_kg),
-        current_quantity: readNumber(subLot.weight_kg),
-        unit: "kg",
-        status: "QUARANTINE",
-        reception_date: now.slice(0, 10),
-        location_id: null,
-        batch_id: null,
-        cost_tnd_per_kg: (subLot as Record<string, unknown>).cost_tnd_per_kg ?? null,
-        cost_tnd: (subLot as Record<string, unknown>).cost_tnd ?? null,
-        created_by: readString(session.created_by) || null,
-        created_at: now,
-        updated_at: now,
-      });
-      stockLots.push(sanitizeDocument(stockLot));
-    }
-
-    if (stockLots.length > 0) {
-      await StockLots().create(stockLots);
-    }
-
     const stockMovements: Record<string, unknown>[] = [];
-    for (const stockLot of stockLots) {
-      const movement = await prepareInsertDocument("stock_movements", {
-        movement_type: "RECEPTION",
-        lot_id: stockLot.id,
-        product_id: null,
-        quantity: readNumber(stockLot.initial_quantity),
-        unit: readString(stockLot.unit) || "kg",
+    const subLots: TriageSubLotRow[] = [];
+    let sublotsInserted = false;
+
+    try {
+      await consumeStockLotKg(String(parentStock.id), parentWeightKg, now);
+      parentConsumed = true;
+
+      const consumeMovement = await prepareInsertDocument("stock_movements", {
+        movement_type: "CONSOMMATION",
+        lot_id: parentStock.id,
+        product_id: parentStock.product_id ?? null,
+        quantity: parentWeightKg,
+        unit: parentStock.unit ?? "kg",
         document_type: "TRIAGE_CLOSE",
         document_reference: readString(session.session_number, id),
+        request_id: `triage:${id}:consume`,
         performed_by: readString(session.created_by) || null,
-        notes: `Entree stock triage — ${readString(session.session_number, id)}`,
+        notes: `Consommation parent triage ${parentWeightKg} kg — ${readString(session.session_number, id)}`,
         created_at: now,
       });
-      stockMovements.push(sanitizeDocument(movement));
-    }
+      stockMovements.push(sanitizeDocument(consumeMovement));
 
-    if (stockMovements.length > 0) {
-      await StockMovements().create(stockMovements);
+      const gradeMap: Array<{ grade: TriageGrade; weight_kg: number }> = [
+        { grade: "EXTRA", weight_kg: weightExtraKg },
+        { grade: "CATEGORIE_I", weight_kg: weightCat1Kg },
+        { grade: "CATEGORIE_II", weight_kg: weightCat2Kg },
+        { grade: "REJETE", weight_kg: weightRejectKg },
+      ];
+
+      for (const item of gradeMap.filter((entry) => entry.weight_kg > 0)) {
+        const allocated = costByGrade[item.grade];
+        const subLot = await prepareInsertDocument("triage_sublots", {
+          session_id: id,
+          parent_reception_id: readString(session.parent_reception_id) || "",
+          parent_lot_number: readString(session.parent_lot_number),
+          grade: item.grade,
+          lot_number: `${readString(session.parent_lot_number)}-${readString(session.session_number, id)}${SUBLOT_SUFFIX[item.grade]}`,
+          weight_kg: item.weight_kg,
+          percent_of_parent: readNumber(session.parent_weight_kg) > 0
+            ? round1((item.weight_kg / readNumber(session.parent_weight_kg)) * 100)
+            : 0,
+          destination: SUBLOT_DESTINATION[item.grade],
+          qr_label_url: null,
+          cost_tnd: parentUnitCost === null ? null : allocated?.costTnd ?? null,
+          cost_tnd_per_kg: parentUnitCost === null ? null : allocated?.costTndPerKg ?? null,
+          cost_coverage: parentUnitCost === null ? 'MISSING_MATERIAL' : 'COMPLETE',
+          created_at: now,
+        });
+        subLots.push(sanitizeDocument(subLot) as TriageSubLotRow);
+      }
+
+      if (subLots.length > 0) {
+        await TriageSublots().create(subLots);
+        sublotsInserted = true;
+      }
+
+      // Graded packaging streams are released by the triage decision itself.
+      for (const subLot of subLots.filter((entry) => entry.destination !== "DESTRUCTION")) {
+        const stockLot = await prepareInsertDocument("stock_lots", {
+          lot_number: subLot.lot_number,
+          product_id: null,
+          source_reception_id: readString(subLot.parent_reception_id) || null,
+          source_lot_internal: readString(subLot.parent_lot_number) || null,
+          reception_lot_id: parentLotId || null,
+          triage_session_id: id,
+          triage_sublot_id: subLot.id ?? null,
+          source_stage: "TRIAGE",
+          parent_stock_lot_id: parentStock.id,
+          category: "WIP",
+          variety: readString(session.variety) || null,
+          origin_country: "TN",
+          initial_quantity: readNumber(subLot.weight_kg),
+          current_quantity: readNumber(subLot.weight_kg),
+          unit: "kg",
+          status: "VALIDATED",
+          reception_date: now.slice(0, 10),
+          location_id: null,
+          batch_id: null,
+          cost_tnd_per_kg: (subLot as Record<string, unknown>).cost_tnd_per_kg ?? null,
+          cost_tnd: (subLot as Record<string, unknown>).cost_tnd ?? null,
+          created_by: readString(session.created_by) || null,
+          created_at: now,
+          updated_at: now,
+        });
+        stockLots.push(sanitizeDocument(stockLot));
+      }
+
+      if (stockLots.length > 0) {
+        await StockLots().create(stockLots);
+      }
+
+      for (const stockLot of stockLots) {
+        const movement = await prepareInsertDocument("stock_movements", {
+          movement_type: "RECEPTION",
+          lot_id: stockLot.id,
+          product_id: null,
+          quantity: readNumber(stockLot.initial_quantity),
+          unit: readString(stockLot.unit) || "kg",
+          document_type: "TRIAGE_CLOSE",
+          document_reference: readString(session.session_number, id),
+          request_id: `triage:${id}:output:${String(stockLot.lot_number || stockLot.id)}`,
+          performed_by: readString(session.created_by) || null,
+          notes: `Entree stock triage — ${readString(session.session_number, id)}`,
+          created_at: now,
+        });
+        stockMovements.push(sanitizeDocument(movement));
+      }
+
+      if (stockMovements.length > 0) {
+        await StockMovements().create(stockMovements);
+      }
+    } catch (error) {
+      if (isAtomicTransaction()) throw error;
+      if (stockMovements.length > 0) {
+        await StockMovements()
+          .deleteMany({ id: { $in: stockMovements.map((row) => row.id).filter(Boolean) } })
+          .exec();
+      }
+      if (stockLots.length > 0) {
+        await StockLots()
+          .deleteMany({ id: { $in: stockLots.map((row) => row.id).filter(Boolean) } })
+          .exec();
+      }
+      if (sublotsInserted) {
+        await TriageSublots().deleteMany({ session_id: id }).exec();
+      }
+      if (parentConsumed) {
+        await creditStockLotKg(String(parentStock.id), parentWeightKg, now);
+      }
+      await TriageSessions()
+        .updateOne({ id }, { $set: { status: session.status, ended_at: null, updated_at: now } })
+        .exec();
+      throw error;
     }
 
     if (parentLotId) {

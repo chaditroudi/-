@@ -1,0 +1,40 @@
+{
+  "fixture": "Synthetic 1000 kg lot; existing stage-close services on a real local replica set",
+  "fullGoldenThread": "NOT VERIFIED",
+  "checks": [
+    {
+      "name": "Cleaning changes inventory",
+      "status": "FAIL",
+      "expectedKg": 960,
+      "actualKg": 1000,
+      "movements": 0
+    },
+    {
+      "name": "Triage consumes 400 kg before creating 380 kg of stock",
+      "status": "PASS",
+      "expectedFromRecordedInputKg": 980,
+      "actualKg": 980,
+      "physicallyExpectedAfterCleaningKg": 940
+    },
+    {
+      "name": "Partial triage allocates only consumed material cost",
+      "status": "FAIL",
+      "actualTndPerKg": 26.4658,
+      "expectedTndPerKg": 10.676315789473684,
+      "expectedMaterialTnd": 4000,
+      "standardOverheadTnd": 57
+    },
+    {
+      "name": "Derived triage lot reaches packaging",
+      "status": "PASS",
+      "orderId": "b9e3a81f-e21d-49f3-8ffb-13235f96ebb0",
+      "remainingStockKg": 930
+    },
+    {
+      "name": "Premium route ledger is complete",
+      "status": "NOT VERIFIED",
+      "events": 3,
+      "reason": "This probe does not perform device fumigation, full QC, pallet/order/shipment or browser manufacturing; warnings are retained in its log."
+    }
+  ]
+}

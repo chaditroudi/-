@@ -1,0 +1,104 @@
+[
+  {
+    "id": "A",
+    "title": "Standard supplier reception",
+    "status": "PASS",
+    "evidence": "REC-20261101-0001 lot LOT-0001"
+  },
+  {
+    "id": "B",
+    "title": "Partial purchase-order reception",
+    "status": "PASS",
+    "evidence": "400 kg then 600 kg of 1000 kg; order delivered; over-receipt refused"
+  },
+  {
+    "id": "C",
+    "title": "Manual weighing without a scale",
+    "status": "PASS",
+    "evidence": "records MANUAL, unsigned, reason kept, RG-R08 alert raised"
+  },
+  {
+    "id": "D",
+    "title": "Connected weighing adapter (simulator, not hardware)",
+    "status": "PASS",
+    "evidence": "signed readings consumed once; forged and replayed readings refused"
+  },
+  {
+    "id": "E",
+    "title": "Duplicate confirmation",
+    "status": "PASS",
+    "evidence": "4 concurrent API calls → statuses 201,409,409,409, 1 reception"
+  },
+  {
+    "id": "F",
+    "title": "Concurrent employee edits",
+    "status": "PASS",
+    "evidence": "version 2: the later stale screen did not overwrite"
+  },
+  {
+    "id": "G",
+    "title": "QC-pending lot cannot be used or self-released",
+    "status": "PASS",
+    "evidence": "allocate 400, self-QC 403, release 403, patch 409"
+  },
+  {
+    "id": "H",
+    "title": "Offline, session expiry and server restart recovery",
+    "status": "PASS",
+    "evidence": "reload, session expiry, network drop and server restart: one reception each"
+  },
+  {
+    "id": "I",
+    "title": "Correction by an authorised supervisor",
+    "status": "PASS",
+    "evidence": "operator 403; old value, new value, reason and actor in audit"
+  },
+  {
+    "id": "J",
+    "title": "Real-time update across two clients",
+    "status": "PASS",
+    "evidence": "REC-20261101-0011 and REC-20261101-0012 appeared without a reload, the second across a server restart"
+  },
+  {
+    "id": "K",
+    "title": "Historical reception compatibility",
+    "status": "PASS",
+    "evidence": "old records open; missing evidence is stated, not invented"
+  },
+  {
+    "id": "L",
+    "title": "Refused confirmation keeps every entry",
+    "status": "PASS",
+    "evidence": "server refusal shown in French, nothing written, retry succeeded once"
+  },
+  {
+    "id": "S",
+    "title": "QC decision reaches other screens without approving anything else",
+    "status": "PASS",
+    "evidence": "quarantine shown live on the operator's screen; lot and stock stayed blocked"
+  },
+  {
+    "id": "V",
+    "title": "Stock and stage routes cannot stand in for QC",
+    "status": "PASS",
+    "evidence": "refused with STOCK_LOT_DOMAIN_ONLY and STAGE_DOMAIN_ONLY; lab result saved from the screen"
+  },
+  {
+    "id": "P",
+    "title": "QC release in the browser: PIN and evidence",
+    "status": "PASS",
+    "evidence": "no PIN, unanswered checklist and wrong PIN each refused on screen; correct PIN released"
+  },
+  {
+    "id": "Q",
+    "title": "A held lot needs a new inspection to leave quarantine",
+    "status": "PASS",
+    "evidence": "status change refused; re-inspection released the lot and kept the decision that held it"
+  },
+  {
+    "id": "R",
+    "title": "Tablet and phone widths",
+    "status": "PASS",
+    "evidence": "768 px and 375 px without horizontal scroll"
+  }
+]

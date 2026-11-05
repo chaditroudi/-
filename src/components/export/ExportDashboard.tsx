@@ -38,6 +38,7 @@ import { settlementsApi, type ExportOrderMargin } from '@/lib/api/settlements';
 import { useSiteSettings } from '@/hooks/useSettings';
 import { useBranding } from '@/hooks/useBranding';
 import { toast } from 'sonner';
+import { SummaryStrip } from '@/components/shared/SummaryStrip';
 
 // ── Status badges ─────────────────────────────────────────────────────────────
 
@@ -311,50 +312,35 @@ export function ExportDashboard() {
 
   return (
     <div className="flex flex-col gap-4 h-full">
-      {/* Analytics */}
       {orders.length > 0 && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div className="rounded-xl border bg-card p-4 flex items-center gap-3">
-            <div className="rounded-lg bg-blue-50 p-2"><Globe className="h-5 w-5 text-blue-600" /></div>
-            <div>
-              <div className="text-2xl font-bold">{stats.activeOrders}</div>
-              <div className="text-xs text-muted-foreground">Commandes actives</div>
-              {stats.byCountry.length > 0 && (
-                <div className="text-xs text-muted-foreground mt-0.5">
-                  {stats.byCountry.slice(0, 2).map(([c, kg]) => `${COUNTRY_LABEL[c] ?? c} ${(kg/1000).toFixed(1)}t`).join(' · ')}
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="rounded-xl border bg-card p-4 flex items-center gap-3">
-            <div className="rounded-lg bg-purple-50 p-2"><Package className="h-5 w-5 text-purple-600" /></div>
-            <div>
-              <div className="text-2xl font-bold">{stats.shipped}</div>
-              <div className="text-xs text-muted-foreground">Expédiées / terminées</div>
-              <div className="text-xs text-muted-foreground mt-0.5">
-                sur {orders.length} total
-              </div>
-            </div>
-          </div>
-          <div className="rounded-xl border bg-card p-4 flex items-center gap-3">
-            <div className="rounded-lg bg-emerald-50 p-2"><DollarSign className="h-5 w-5 text-emerald-600" /></div>
-            <div>
-              <div className="text-2xl font-bold">{stats.lockedContracts}</div>
-              <div className="text-xs text-muted-foreground">Contrats verrouillés</div>
-              <div className="text-xs text-muted-foreground mt-0.5">
-                sur {contracts.length} générés
-              </div>
-            </div>
-          </div>
-          <div className="rounded-xl border bg-card p-4 flex items-center gap-3">
-            <div className="rounded-lg bg-amber-50 p-2"><ShieldCheck className="h-5 w-5 text-amber-600" /></div>
-            <div>
-              <div className="text-2xl font-bold">{stats.coaCoverage}%</div>
-              <div className="text-xs text-muted-foreground">COA couverts</div>
-              <div className="text-xs text-muted-foreground mt-0.5">{coaDocs.length} COA créés</div>
-            </div>
-          </div>
-        </div>
+        <SummaryStrip
+          items={[
+            {
+              label: 'Commandes actives',
+              value: stats.activeOrders,
+              helper: stats.byCountry.length > 0
+                ? stats.byCountry.slice(0, 2).map(([c, kg]) => `${c} ${(kg / 1000).toFixed(1)}t`).join(' · ')
+                : undefined,
+            },
+            {
+              label: 'Expédiées / terminées',
+              value: stats.shipped,
+              helper: `sur ${orders.length} total`,
+              tone: 'good',
+            },
+            {
+              label: 'Contrats verrouillés',
+              value: stats.lockedContracts,
+              helper: `sur ${contracts.length} générés`,
+            },
+            {
+              label: 'COA couverts',
+              value: `${stats.coaCoverage}%`,
+              helper: `${coaDocs.length} COA`,
+              tone: stats.coaCoverage < 80 ? 'watch' : 'good',
+            },
+          ]}
+        />
       )}
 
       {/* Toolbar */}

@@ -55,6 +55,8 @@ describe("AuthService", () => {
       passwordHash: await bcrypt.hash(CURRENT, 4),
       is_active: true,
       token_version: 3,
+      tenant_id: "company-a",
+      factory_id: "site-a",
       must_change_password: true,
       user_metadata: { roles: ["admin"] },
     });
@@ -68,6 +70,8 @@ describe("AuthService", () => {
     const session = await service.signIn({ email: "a@b.c", password: CURRENT });
     const claims = jwt.decode(session.access_token) as Record<string, unknown>;
     expect(claims.tv).toBe(3);
+    expect(claims.tenant_id).toBe("company-a");
+    expect(claims.factory_id).toBe("site-a");
     expect(claims.user_metadata).toBeUndefined();
     expect(session.user.must_change_password).toBe(true);
   });
@@ -110,5 +114,9 @@ describe("AuthService", () => {
   it("ends every session on logout", async () => {
     await service.logout(auth);
     expect(users[0].token_version).toBe(4);
+  });
+  it("refuses to infer membership for a legacy account", async () => {
+    delete users[0].factory_id;
+    await expect(service.signIn({ email: "a@b.c", password: CURRENT })).rejects.toMatchObject({ code: "FACTORY_MEMBERSHIP_REQUIRED" });
   });
 });

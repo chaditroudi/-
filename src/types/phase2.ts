@@ -352,9 +352,14 @@ export interface TriageSession {
   line: TriageLine;
   parent_reception_id: string;
   parent_lot_number: string;
+  /** Alias used by fiche palette print templates (same as parent_lot_number when present). */
+  lot_number?: string | null;
+  /** Alias for line used by some print/UI surfaces. */
+  triage_line?: TriageLine | string | null;
   variety: string | null;
   parent_weight_kg: number;
   status: TriageSessionStatus;
+  notes?: string | null;
 
   // Workforce
   worker_count: number;

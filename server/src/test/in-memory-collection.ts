@@ -55,6 +55,10 @@ export const matchesFilter = (row: TestRow, filter: TestRow = {}): boolean =>
         const list = operators.$in as unknown[];
         return valueMatches(values, (value) => list.includes(value));
       }
+      if ("$nin" in operators) {
+        const list = operators.$nin as unknown[];
+        return !valueMatches(values.length > 0 ? values : [current], (value) => list.includes(value));
+      }
       if ("$regex" in operators) {
         const pattern = operators.$regex;
         const regex = pattern instanceof RegExp

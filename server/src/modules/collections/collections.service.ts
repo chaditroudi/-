@@ -127,9 +127,12 @@ const assertDomainGates = async (
 
 const duplicateIdentityClauses = (row: any) => {
   const clauses = [];
-  if (row.code) clauses.push({ code: row.code });
-  if (row.fiscal_identifier) clauses.push({ fiscal_identifier: row.fiscal_identifier });
-  if (row.id_document_number) clauses.push({ id_document_number: row.id_document_number });
+  const caseInsensitive = (field: string, value: string) => ({
+    [field]: { $regex: `^${value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, $options: "i" },
+  });
+  if (row.code) clauses.push(caseInsensitive("code", String(row.code).trim()));
+  if (row.fiscal_identifier) clauses.push(caseInsensitive("fiscal_identifier", String(row.fiscal_identifier).trim()));
+  if (row.id_document_number) clauses.push(caseInsensitive("id_document_number", String(row.id_document_number).trim()));
   return clauses;
 };
 

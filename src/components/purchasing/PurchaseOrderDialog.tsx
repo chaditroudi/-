@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Trash2, AlertTriangle } from 'lucide-react';
 import { PurchaseOrder, PurchaseRequisition } from '@/types/purchasing';
 import { Material, Supplier } from '@/types/mes';
+import { isReceivableSupplier } from '@/lib/royalPalmPhase1';
 
 interface OrderLine {
   material_id?: string;
@@ -261,7 +262,7 @@ export const PurchaseOrderDialog = ({
                     <SelectValue placeholder="Sélectionner..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {suppliers.filter(s => s.is_active).map(s => (
+                    {suppliers.filter(isReceivableSupplier).map(s => (
                       <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                     ))}
                   </SelectContent>

@@ -989,7 +989,7 @@ const LotPassport = ({ lotCode, onClose }: { lotCode: string; onClose: () => voi
               onClick={() => window.open(`#/passport/${encodeURIComponent(lot.lot_internal || lot.id)}`, '_blank')}
             >
               <ExternalLink className="h-4 w-4" />
-              Passeport public
+              Passeport lot
             </Button>
           )}
           {lot.stock_status === 'STOCK_LIBERE' && !storageZoneCode && (

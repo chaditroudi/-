@@ -16,6 +16,7 @@ import { ClipboardList, Package, Tag, Layers, AlertTriangle, Printer } from 'luc
 import { toast } from 'sonner';
 import { useBranding } from '@/hooks/useBranding';
 import { useSiteSettings } from '@/hooks/useSettings';
+import { SummaryStrip } from '@/components/shared/SummaryStrip';
 
 interface Props {
   currentUser?: string;
@@ -68,13 +69,24 @@ export function PackagingDashboard({ currentUser = 'Utilisateur' }: Props) {
           </div>
         </div>
       )}
-      {/* Header row */}
-      <div className="flex items-center justify-between gap-2 flex-wrap">
-        <div className="flex-1" />
+      <SummaryStrip
+        items={[
+          { label: 'OF actifs', value: kpis?.active_orders ?? 0 },
+          { label: 'Palettes scellées (j)', value: kpis?.palettes_sealed_today ?? 0, tone: 'good' },
+          {
+            label: 'Détection métal',
+            value: metalDetectionOrders,
+            tone: metalDetectionOrders > 0 ? 'bad' : 'default',
+          },
+          { label: 'OF total', value: orders.length },
+        ]}
+      />
+
+      <div className="flex flex-wrap items-center justify-end gap-2">
         <Button
           variant="outline"
           size="sm"
-          className="gap-1.5 text-xs"
+          className="gap-1.5 text-xs min-h-10"
           onClick={() => setQuickPfOpen(true)}
         >
           <Tag className="h-3.5 w-3.5" />
@@ -83,7 +95,7 @@ export function PackagingDashboard({ currentUser = 'Utilisateur' }: Props) {
         <Button
           variant="outline"
           size="sm"
-          className="gap-1.5 text-xs"
+          className="gap-1.5 text-xs min-h-10"
           onClick={() => printPackagingDailyReport(orders, kpis ?? null)}
         >
           <Printer className="h-3.5 w-3.5" />

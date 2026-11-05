@@ -4,6 +4,7 @@ import { assertLoginAllowed, clearLoginFailures, recordLoginFailure } from "../.
 import { appendAuthAudit } from "../../middleware/security-audit.js";
 import { AllowPasswordChangePending, Authenticated, Public } from "../../nest/route-metadata.js";
 import { AuthService } from "./auth.service.js";
+import { factoryFromAccount, runWithFactory } from "../../db/factory-context.js";
 
 @Controller("api/auth")
 export class AuthController {
@@ -61,8 +62,8 @@ export class AuthController {
       const user = data?.user;
       const meta = user?.user_metadata || {};
       const roles: string[] = Array.isArray((meta as any)?.roles) ? (meta as any).roles : ((meta as any)?.role ? [(meta as any).role] : []);
-      appendAuthAudit("AUTH_LOGIN", user?.id ?? null, user?.email ?? body?.email ?? null,
-        (meta as any)?.name ?? null, roles, req, `Connexion — ${user?.email ?? body?.email}`).catch(() => {});
+      void runWithFactory(factoryFromAccount(user)!, () => appendAuthAudit("AUTH_LOGIN", user?.id ?? null, user?.email ?? body?.email ?? null,
+        (meta as any)?.name ?? null, roles, req, `Connexion — ${user?.email ?? body?.email}`));
       return { data };
     } catch (err: any) {
       recordLoginFailure(throttleKey);

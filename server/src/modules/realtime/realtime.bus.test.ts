@@ -1,7 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { runInTransaction } from "../../db/transaction.js";
-import { addRealtimeClient, closeAllClients, publishRealtimeDbChange } from "./realtime.bus.js";
+import { addRealtimeClient, closeAllClients, publishRealtimeDbChange as publish } from "./realtime.bus.js";
+import { runWithFactory } from "../../db/factory-context.js";
+const factory = { tenant_id: "company-a", factory_id: "site-a" };
+const publishRealtimeDbChange = (event: Parameters<typeof publish>[0]) => runWithFactory(factory, () => publish(event));
 
 type Sent = { name: string; payload: Record<string, unknown> };
 
@@ -9,6 +12,7 @@ const listen = (id: string, roles: string[], options: { seesAll?: boolean; userI
   const sent: Sent[] = [];
   addRealtimeClient({
     id,
+    factory,
     userId: options.userId ?? id,
     roles,
     seesAll: options.seesAll ?? false,
@@ -96,5 +100,24 @@ describe("realtime delivery", () => {
       }),
     ).rejects.toThrow("write failed");
     expect(operator).toHaveLength(0);
+  });
+
+  it("never delivers to another factory even for a director or direct user target", () => {
+    const a = listen("a", ["directeur_usine"], { seesAll: true });
+    const sent = vi.fn();
+    addRealtimeClient({ id: "b", factory: { tenant_id: "company-b", factory_id: "site-a" }, userId: "b", roles: ["directeur_usine"], seesAll: true, write: sent, end: vi.fn() });
+    publishRealtimeDbChange({ ...event, targetUserIds: ["b"] });
+    expect(a).toHaveLength(1);
+    expect(sent).not.toHaveBeenCalled();
+  });
+
+  it("withholds an event and closes the stream when its session is revoked", async () => {
+    const sent = vi.fn();
+    const end = vi.fn();
+    addRealtimeClient({ id: "revoked", factory, userId: "revoked", roles: ["directeur_usine"], seesAll: true, write: sent, end, authorize: async () => false });
+    publishRealtimeDbChange(event);
+    await Promise.resolve();
+    expect(sent).not.toHaveBeenCalled();
+    expect(end).toHaveBeenCalledOnce();
   });
 });

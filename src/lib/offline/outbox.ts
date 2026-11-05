@@ -1,5 +1,6 @@
 import { axiosClient, ApiRequestError } from '@/lib/axiosClient';
 import { openIndexedDb } from '@/lib/offline/idb';
+import { readFactorySession } from '@/lib/factorySession';
 
 export type OutboxStatus = 'pending' | 'syncing' | 'failed';
 
@@ -15,6 +16,7 @@ export type OutboxItem<T = Record<string, unknown>> = {
   lastError: string | null;
   /** Who entered it: a shared tablet must not book one employee's delivery under another's session. */
   ownerUserId: string | null;
+  ownerScope?: string | null;
   /** The session ended: nothing is wrong with the delivery, it waits for the next sign-in. */
   waitingForLogin?: boolean;
 };
@@ -22,6 +24,8 @@ export type OutboxItem<T = Record<string, unknown>> = {
 const DB_NAME = 'royal-palm-edge';
 const DB_VERSION = 1;
 const STORE = 'outbox';
+/** A retry must settle too: otherwise it holds the drain lock until this page reloads. */
+export const RECEPTION_INTAKE_TIMEOUT_MS = 30_000;
 /** Longer than the form's own request, so a tablet closed mid-send is still retried. */
 const FORM_REQUEST_WINDOW_MS = 35_000;
 const listeners = new Set<() => void>();
@@ -59,8 +63,11 @@ const put = async (item: OutboxItem) => {
   notify();
 };
 
-export const listOutbox = async () =>
-  transact<OutboxItem[]>('readonly', (store) => store.getAll());
+export const listOutbox = async () => {
+  const rows = await transact<OutboxItem[]>('readonly', (store) => store.getAll());
+  const session = readFactorySession();
+  return session ? rows.filter((row) => row.ownerScope === session.ownerKey && row.ownerUserId === session.userId) : [];
+};
 
 export const subscribeOutbox = (listener: () => void) => {
   listeners.add(listener);
@@ -91,13 +98,16 @@ export const enqueueReceptionIntake = async <T extends Record<string, unknown>>(
   // A caller-supplied key (one per form draft) makes a double submit write the same
   // outbox row and replay the same server intake instead of creating a second reception.
   const requested = typeof payload.client_request_id === 'string' ? payload.client_request_id.trim() : '';
-  const id = requested || crypto.randomUUID();
+  const requestId = requested || crypto.randomUUID();
+  const session = readFactorySession();
+  const ownerScope = session?.userId === ownerUserId ? session.ownerKey : null;
+  const id = `${encodeURIComponent(ownerScope ?? 'unassigned')}::${requestId}`;
   const now = new Date().toISOString();
   const item: OutboxItem<T> = {
     id,
     kind: 'reception_intake',
     status: 'pending',
-    payload: { ...payload, client_request_id: id },
+    payload: { ...payload, client_request_id: requestId },
     createdAt: now,
     updatedAt: now,
     attempts: 0,
@@ -106,15 +116,26 @@ export const enqueueReceptionIntake = async <T extends Record<string, unknown>>(
     nextAttemptAt: Date.now() + FORM_REQUEST_WINDOW_MS,
     lastError: null,
     ownerUserId,
+    ownerScope,
   };
   await put(item as OutboxItem);
   return item;
 };
 
-export const retryOutboxItem = async (id: string) => {
+export const retryOutboxItem = async (id: string, error?: unknown) => {
   const item = await transact<OutboxItem | undefined>('readonly', (store) => store.get(id));
-  if (!item) return;
-  await put({ ...item, status: 'pending', nextAttemptAt: Date.now(), lastError: null });
+  if (!item || item.status === 'syncing') return;
+  // A manual retry must leave the form's first request alone. Only the form's
+  // failure, or a row already known to have failed, releases that protection.
+  if (error === undefined && item.status === 'pending' && !item.lastError) return;
+  await put({
+    ...item,
+    status: 'pending',
+    nextAttemptAt: Date.now(),
+    lastError: error === undefined ? item.lastError : error instanceof Error ? error.message : String(error),
+    waitingForLogin: error === undefined ? item.waitingForLogin : isSessionExpiredError(error),
+    updatedAt: new Date().toISOString(),
+  });
 };
 
 export const discardOutboxItem = async (id: string) => {
@@ -139,6 +160,8 @@ export const drainOutbox = async (
   onSynced?: (item: OutboxItem, response: unknown) => void | Promise<void>,
 ) => {
   if (draining || !navigator.onLine || !userId) return;
+  const owner = readFactorySession();
+  if (!owner || owner.userId !== userId) return;
   draining = true;
   try {
     const items = (await listOutbox())
@@ -149,6 +172,7 @@ export const drainOutbox = async (
       .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 
     for (const item of items) {
+      if (readFactorySession()?.ownerKey !== owner.ownerKey) break;
       const syncing: OutboxItem = {
         ...item,
         status: 'syncing',
@@ -158,11 +182,14 @@ export const drainOutbox = async (
       await put(syncing);
 
       try {
-        const response = await axiosClient.post('/receptions/intake', syncing.payload);
+        const response = await axiosClient.post('/receptions/intake', syncing.payload, {
+          timeout: RECEPTION_INTAKE_TIMEOUT_MS,
+          headers: { Authorization: `Bearer ${owner.accessToken}` },
+        });
         const data = response.data?.data ?? response.data;
         // The server holds it now, photos included: nothing is kept on the device.
         await discardOutboxItem(syncing.id);
-        await onSynced?.(syncing, data);
+        if (readFactorySession()?.ownerKey === owner.ownerKey) await onSynced?.(syncing, data);
       } catch (error) {
         const retryable = isOutboxRetryable(error);
         const backoff = Math.min(60_000, 1_000 * (2 ** Math.min(syncing.attempts, 6)));

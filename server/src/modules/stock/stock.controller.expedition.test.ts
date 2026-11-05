@@ -113,4 +113,66 @@ describe("StockController.expedition", () => {
     expect(store.stock_lots[0].current_quantity).toBe(80);
     expect(update).not.toHaveBeenCalled();
   });
+
+  it("refuses freeform stock movement inserts (Gate 2 P0)", async () => {
+    await expect(controller.createMovement()).rejects.toMatchObject({
+      code: "STOCK_MOVEMENT_DOMAIN_ONLY",
+    });
+  });
+
+  it("refuses SHIPPED patch without an expedition pick (Gate 2 P0)", async () => {
+    store.shipment_preparations = [{ id: "ship-1", status: "PREPARED" }];
+    store.stock_movements = [];
+    await expect(
+      controller.updateShipment(req, "ship-1", { status: "SHIPPED" }),
+    ).rejects.toMatchObject({ code: "SHIPMENT_PICK_REQUIRED" });
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("allows SHIPPED patch after expedition movements exist", async () => {
+    store.shipment_preparations = [{ id: "ship-1", status: "PREPARED" }];
+    store.stock_movements = [{
+      id: "mov-1",
+      shipment_id: "ship-1",
+      movement_type: "EXPEDITION",
+      quantity: 10,
+    }];
+    const result = await controller.updateShipment(req, "ship-1", { status: "SHIPPED", notes: "ok" });
+    expect(update).toHaveBeenCalled();
+    expect(result.data).toMatchObject({ id: "ship-1", status: "SHIPPED" });
+  });
+
+  it("rejects SHIPPED when shipment lines are only partially picked", async () => {
+    store.shipment_preparations = [{ id: "ship-1", status: "PREPARED" }];
+    store.shipment_lines = [{
+      id: "line-1",
+      shipment_id: "ship-1",
+      stock_lot_id: "lot-1",
+      quantity_kg: 40,
+    }];
+    store.stock_movements = [{
+      id: "mov-1",
+      shipment_id: "ship-1",
+      lot_id: "lot-1",
+      movement_type: "EXPEDITION",
+      quantity: 10,
+    }];
+    await expect(
+      controller.updateShipment(req, "ship-1", { status: "SHIPPED" }),
+    ).rejects.toMatchObject({ code: "SHIPMENT_PICK_INCOMPLETE" });
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("writes shipment_id on expedition movements", async () => {
+    await controller.expedition(req, {
+      shipmentId: "ship-1",
+      pickedLines: [{ lot_id: "lot-1", quantity: 10 }],
+      status: "SHIPPED",
+      requestId: "exp-ship-id",
+    });
+    expect(store.stock_movements?.[0]).toMatchObject({
+      shipment_id: "ship-1",
+      document_reference: "ship-1",
+    });
+  });
 });

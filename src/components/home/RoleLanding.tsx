@@ -10,14 +10,30 @@ export function RoleLanding({ roles, tabs, onNavigate }: { roles: ActorRole[]; t
   if (!roles.length) return null;
   const profile = getRoleWorkspaceProfile(roles);
   const action = getDailyAction(roles, tabs);
-  return <section aria-label="Votre poste" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card p-4">
-    <div className="min-w-0">
-      <p className="text-sm text-muted-foreground">{roles.map(role => ROLE_CONFIG[role]?.label).filter(Boolean).join(' · ')}</p>
-      <h2 className="font-display text-xl font-semibold">{profile.workspaceLabel}</h2>
-      <p className="text-sm text-muted-foreground">Vos postes, le travail en attente et les prochaines actions autorisées.</p>
-    </div>
-    {action && <Button className="max-w-full whitespace-normal text-start" onClick={() => onNavigate(action.tab, action.options)}>
-      {action.label}<ArrowRight aria-hidden className="ms-2 h-4 w-4 shrink-0" />
-    </Button>}
-  </section>;
+  return (
+    <section
+      aria-label="Votre poste"
+      className="flex flex-col gap-3 rounded-lg border bg-card p-4 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <div className="min-w-0">
+        <p className="text-sm text-muted-foreground">
+          {roles.map((role) => ROLE_CONFIG[role]?.label).filter(Boolean).join(' · ')}
+        </p>
+        <h2 className="font-display text-xl font-semibold">{profile.workspaceLabel}</h2>
+        <p className="text-sm text-muted-foreground">
+          Une action principale pour démarrer. Le reste attend dans la file du jour.
+        </p>
+      </div>
+      {action && (
+        <Button
+          size="lg"
+          className="min-h-12 w-full gap-2 whitespace-normal text-start text-base font-semibold sm:w-auto sm:min-w-[14rem]"
+          onClick={() => onNavigate(action.tab, action.options)}
+        >
+          {action.label}
+          <ArrowRight aria-hidden className="ms-auto h-5 w-5 shrink-0 sm:ms-2" />
+        </Button>
+      )}
+    </section>
+  );
 }

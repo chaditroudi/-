@@ -11,7 +11,11 @@
  */
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, vi } from "vitest";
+import { factoryConnection, runWithFactory } from "../../db/factory-context.js";
+import { testInFactory } from "../../test/factory-test.js";
+const factory = { tenant_id: "qc-http-test", factory_id: "site-one" };
+const it = testInFactory(factory);
 
 import { getCollectionModel } from "../../db/dynamic-model.js";
 import { ensureTrustIndexes } from "../../db/indexes.js";
@@ -35,7 +39,7 @@ const WRITTEN = [
   "production_orders", "production_lot_allocations", "purchase_order_receiving_lots",
 ];
 
-const model = (name: string) => getCollectionModel(name);
+const model = (name: string) => runWithFactory(factory, () => getCollectionModel(name));
 const count = (name: string, filter: Record<string, unknown> = {}) => model(name).countDocuments(filter).exec();
 const findOne = (name: string, filter: Record<string, unknown>) => model(name).findOne(filter).lean().exec() as Promise<any>;
 
@@ -128,14 +132,18 @@ describe.skipIf(!uri)("QC release over HTTP", { timeout: 30_000 }, () => {
     await connectToDatabase();
     expect(mongoose.connection.name).toBe(DB_NAME);
     await mongoose.connection.dropDatabase();
-    await ensureTrustIndexes();
-    for (const name of WRITTEN) await mongoose.connection.db!.createCollection(name).catch(() => undefined);
+    await runWithFactory(factory, async () => {
+      await factoryConnection().dropDatabase();
+      await ensureTrustIndexes(factoryConnection().db, true);
+      for (const name of WRITTEN) await factoryConnection().db!.createCollection(name).catch(() => undefined);
+    });
 
     const passwordHash = await bcrypt.hash(PASSWORD, 4);
     const signaturePinHash = await bcrypt.hash(PIN, 4);
     const now = new Date().toISOString();
     for (const [key, role] of Object.entries(ROLES)) {
       await AuthUserModel.create({
+        ...factory,
         id: `user-${key}`, email: `${key}@test.local`, passwordHash, is_active: true, created_at: now, updated_at: now,
         ...(key === "inspector" ? { signaturePinHash } : {}),
         user_metadata: { full_name: key, role, roles: [role] },
@@ -157,6 +165,7 @@ describe.skipIf(!uri)("QC release over HTTP", { timeout: 30_000 }, () => {
 
   afterAll(async () => {
     await app?.close();
+    await runWithFactory(factory, () => factoryConnection().dropDatabase());
     await mongoose.connection.dropDatabase();
     await mongoose.disconnect();
   });
@@ -549,6 +558,15 @@ describe.skipIf(!uri)("QC release over HTTP", { timeout: 30_000 }, () => {
   });
 
   describe("production eligibility", () => {
+    it("the stock hold endpoint cannot bypass the QC decision or warehouse permissions", async () => {
+      const { lot } = await delivery();
+      const stock = await findOne("stock_lots", { reception_lot_id: lot.id });
+      const payload = { action: "RELEASE", stock_lot_id: stock.id, reason: "attempt outside QC", propagate: false };
+      expect((await http("POST", "/stock/holds", tokens.warehouse, payload)).status).toBe(403);
+      expect((await http("POST", "/stock/holds", tokens.nopin, payload)).status).toBe(400);
+      expect(await lotState(lot.id)).toEqual(QUARANTINED);
+    });
+
     it("refuses to allocate a quarantined or blocked lot", async () => {
       const quarantined = await delivery();
       expect((await allocate(quarantined.lot.id)).code).toBe("LOT_NOT_LIBERE");

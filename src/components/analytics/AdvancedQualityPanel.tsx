@@ -272,10 +272,11 @@ export const AdvancedQualityPanel = ({ period }: AdvancedQualityPanelProps) => {
                   <XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={(v) => `${v} kg`} />
                   <YAxis dataKey="label" type="category" width={120} tick={{ fontSize: 10 }} />
                   <Tooltip 
-                    formatter={(value: number, name: string, props: { payload: Record<string, number> }) => [
-                      `${value} kg (${props.payload.percentage.toFixed(1)}%) - ${props.payload.costEstimate.toLocaleString('fr-FR')} TND`,
-                      ''
-                    ]}
+                    formatter={(value: number, _name: string, props: { payload: { percentage: number; costEstimate: number | null } }) => {
+                      const cost = props.payload.costEstimate;
+                      const costLabel = cost == null ? 'coût non mesuré' : `${cost.toLocaleString('fr-FR')} TND`;
+                      return [`${value} kg (${props.payload.percentage.toFixed(1)}%) — ${costLabel}`, ''];
+                    }}
                     contentStyle={{ 
                       backgroundColor: 'hsl(var(--background))', 
                       border: '1px solid hsl(var(--border))',

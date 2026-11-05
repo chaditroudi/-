@@ -5,43 +5,42 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Search, Edit2, Trash2, AlertTriangle, Eye } from 'lucide-react';
+import { toast } from 'sonner';
 import { Supplier } from '@/types/mes';
 import { SupplierDialog } from './SupplierDialog';
 import { SupplierDetailSheet } from './SupplierDetailSheet';
-import { useCreateSupplier, useDeleteSupplier, useUpdateSupplier } from '@/hooks/useSuppliers';
+import {
+  useArchiveSupplier,
+  useBlockSupplier,
+  useCreateSupplier,
+  useDeleteSupplier,
+  useUpdateSupplier,
+} from '@/hooks/useSuppliers';
+import { suppliersApi } from '@/lib/api/suppliers';
 import {
   computeSupplierAlerts,
-  computeSupplierCompositeScore,
   computeSupplierScoreM1,
-  getActiveSupplierContract,
-  getSupplierComplianceClassName,
-  getSupplierComplianceLabel,
-  getSupplierQualificationLabel,
-  getSupplierScoreTone,
+  getSupplierScoreGradeLabel,
   getSupplierStatusClassName,
   getSupplierStatusLabel,
+  getSupplierQualificationLabel,
+  hasSupplierScoreData,
   normalizeSupplierStatus,
 } from '@/lib/royalPalmPhase1';
 import { ModuleHero } from '@/components/layout/ModuleHero';
+import { SummaryStrip } from '@/components/shared/SummaryStrip';
+import { EmptyState } from '@/components/shared/EmptyState';
 
 interface SuppliersListProps {
   suppliers: Supplier[];
   canManage?: boolean;
 }
 
-const contractTypeLabels: Record<NonNullable<Supplier['contract_type']>, string> = {
-  annuel: 'Annuel (engagement saison)',
-  saisonnier: 'Saisonnier (renouvellement)',
-  ponctuel: 'Ponctuel (sans engagement)',
-  achat_sur_pied: 'بيع على الشجر (pied sur Achat)',
-};
-
 export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProps) => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [qualificationFilter, setQualificationFilter] = useState('all');
   const [regionFilter, setRegionFilter] = useState('all');
-  const [varietyFilter, setVarietyFilter] = useState('all');
   const [scoreFilter, setScoreFilter] = useState('all');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
@@ -51,18 +50,11 @@ export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProp
   const createMutation = useCreateSupplier();
   const updateMutation = useUpdateSupplier();
   const deleteMutation = useDeleteSupplier();
+  const archiveMutation = useArchiveSupplier();
+  const blockMutation = useBlockSupplier();
 
   const regions = useMemo(
     () => Array.from(new Set(suppliers.map((supplier) => supplier.region).filter(Boolean))).sort(),
-    [suppliers],
-  );
-  const varieties = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          suppliers.flatMap((supplier) => supplier.produced_varieties?.filter(Boolean) || []),
-        ),
-      ).sort(),
     [suppliers],
   );
 
@@ -83,48 +75,39 @@ export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProp
       const matchesStatus = statusFilter === 'all' || status === statusFilter;
       const matchesQualification = qualificationFilter === 'all' || supplier.qualification_status === qualificationFilter;
       const matchesRegion = regionFilter === 'all' || supplier.region === regionFilter;
-      const matchesVariety =
-        varietyFilter === 'all' || supplier.produced_varieties?.includes(varietyFilter);
       const matchesScore = (() => {
         if (scoreFilter === 'all') return true;
-        const { grade } = computeSupplierScoreM1(supplier);
-        return grade === scoreFilter;
+        if (!hasSupplierScoreData(supplier)) return false;
+        return computeSupplierScoreM1(supplier).grade === scoreFilter;
       })();
-      return matchesSearch && matchesStatus && matchesQualification && matchesRegion && matchesVariety && matchesScore;
+      return matchesSearch && matchesStatus && matchesQualification && matchesRegion && matchesScore;
     });
-  }, [qualificationFilter, regionFilter, scoreFilter, search, statusFilter, suppliers, varietyFilter]);
+  }, [qualificationFilter, regionFilter, scoreFilter, search, statusFilter, suppliers]);
 
   const stats = useMemo(() => {
     const active = suppliers.filter((supplier) => normalizeSupplierStatus(supplier) === 'active').length;
     const blocked = suppliers.filter((supplier) => normalizeSupplierStatus(supplier) === 'blocked').length;
-    const watch = suppliers.filter((supplier) => computeSupplierCompositeScore(supplier) < 60 || supplier.compliance_status === 'warning').length;
-    const bio = suppliers.filter((supplier) =>
-      supplier.certifications?.some((certification) =>
-        certification.name === 'Bio UE' || certification.name === 'Bio Tunisie',
-      ),
-    ).length;
+    const watch = suppliers.filter((supplier) => {
+      if (!hasSupplierScoreData(supplier)) return supplier.compliance_status === 'warning';
+      return computeSupplierScoreM1(supplier).grade === 'watch' || supplier.compliance_status === 'warning';
+    }).length;
     const approved = suppliers.filter((supplier) => supplier.qualification_status === 'approved').length;
-    const nonCompliant = suppliers.filter((supplier) => supplier.compliance_status === 'non_compliant').length;
-    return { active, blocked, watch, bio, approved, nonCompliant };
+    return { active, blocked, watch, approved };
   }, [suppliers]);
 
-  const handleSave = (data: Omit<Supplier, 'id' | 'created_at' | 'updated_at'>) => {
-    if (selectedSupplier) {
-      updateMutation.mutate(
-        { id: selectedSupplier.id, ...data },
-        {
-          onSuccess: () => {
-            setDialogOpen(false);
-            setSelectedSupplier(null);
-          },
-        },
-      );
-      return;
+  const handleSave = async (data: Omit<Supplier, 'id' | 'created_at' | 'updated_at'>) => {
+    try {
+      if (selectedSupplier) {
+        await updateMutation.mutateAsync({ id: selectedSupplier.id, ...data });
+        setDialogOpen(false);
+        setSelectedSupplier(null);
+        return;
+      }
+      await createMutation.mutateAsync(data);
+      setDialogOpen(false);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Enregistrement impossible');
     }
-
-    createMutation.mutate(data, {
-      onSuccess: () => setDialogOpen(false),
-    });
   };
 
   const handleOpenSheet = (supplier: Supplier) => {
@@ -137,9 +120,24 @@ export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProp
     setDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm('Supprimer cette fiche fournisseur ?')) {
-      deleteMutation.mutate(id);
+  const handleDelete = async (supplier: Supplier) => {
+    if (!confirm(`Supprimer la fiche « ${supplier.name} » ?`)) return;
+    try {
+      const check = await suppliersApi.receptionCheck(supplier.id);
+      if (check.hasReceptions) {
+        const archiveInstead = confirm(
+          'Ce fournisseur a déjà des réceptions. Suppression refusée — archiver ou bloquer à la place ?\n\nOK = archiver, Annuler = bloquer.',
+        );
+        if (archiveInstead) {
+          await archiveMutation.mutateAsync(supplier.id);
+        } else {
+          await blockMutation.mutateAsync(supplier.id, 'Suppression refusée : réceptions existantes');
+        }
+        return;
+      }
+      await deleteMutation.mutateAsync(supplier.id);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Suppression impossible');
     }
   };
 
@@ -147,47 +145,41 @@ export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProp
     <>
       <div className="space-y-3">
         <ModuleHero
-          title="Fournisseurs"
-          description="Les equipes doivent pouvoir retrouver un fournisseur, voir son statut, comprendre son niveau de risque et agir rapidement sans se perdre dans des formulaires trop lourds."
           primaryAction={canManage ? {
-            label: "Nouveau fournisseur",
+            label: 'Nouveau fournisseur',
             onClick: () => {
               setSelectedSupplier(null);
               setDialogOpen(true);
             },
-            icon: <Plus className="h-4 w-4 mr-2" />,
+            icon: <Plus className="h-4 w-4" />,
           } : undefined}
-          stats={[
-            { label: 'Actifs', value: stats.active },
+        />
+
+        <SummaryStrip
+          items={[
+            { label: 'Actifs', value: stats.active, tone: 'good' },
             { label: 'Agréés', value: stats.approved },
-            { label: 'Surveillance', value: stats.watch },
-            { label: 'Bloqués', value: stats.blocked },
+            { label: 'Surveillance', value: stats.watch, tone: stats.watch > 0 ? 'watch' : 'default' },
+            { label: 'Bloqués', value: stats.blocked, tone: stats.blocked > 0 ? 'bad' : 'default' },
           ]}
         />
 
         {!canManage && (
-          <div className="flex items-start gap-3 rounded-xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
+          <div className="flex items-start gap-3 rounded-lg border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
             <Eye className="h-5 w-5 shrink-0 text-sky-600 mt-0.5" />
             <div>
               <p className="font-semibold">Portail fournisseur — accès lecture seule</p>
               <p className="mt-0.5 text-sky-800">
-                Vous consultez vos informations en mode portail. Cliquez sur votre fiche pour voir votre score qualité, l'historique de vos livraisons et vos documents.
+                Vous consultez vos informations en mode portail. Cliquez sur votre fiche pour voir votre score qualité, l&apos;historique de vos livraisons et vos documents.
               </p>
             </div>
           </div>
         )}
 
-        <dl className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
-          <div className="flex items-baseline gap-1.5"><dd className="font-display text-lg font-semibold">{stats.active}</dd><dt className="text-muted-foreground">actifs</dt></div>
-          <div className="flex items-baseline gap-1.5"><dd className="font-display text-lg font-semibold">{stats.approved}</dd><dt className="text-muted-foreground">agréés</dt></div>
-          <div className="flex items-baseline gap-1.5"><dd className="font-display text-lg font-semibold text-amber-700">{stats.watch}</dd><dt className="text-muted-foreground">sous surveillance</dt></div>
-          <div className="flex items-baseline gap-1.5"><dd className="font-display text-lg font-semibold text-red-600">{stats.blocked}</dd><dt className="text-muted-foreground">bloqués</dt></div>
-        </dl>
-
-        <div className="grid grid-cols-2 gap-2 lg:grid-cols-[minmax(14rem,1.4fr)_repeat(5,minmax(0,0.7fr))]">
+        <div className="grid grid-cols-2 gap-2 lg:grid-cols-[minmax(14rem,1.4fr)_repeat(4,minmax(0,0.7fr))]">
           <div className="relative col-span-2 lg:col-span-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input className="pl-9" placeholder="Nom, code, ville, CIN" aria-label="Rechercher un fournisseur" value={search} onChange={(event) => setSearch(event.target.value)} />
+            <Input className="min-h-11 pl-9" placeholder="Nom, code, ville, CIN" aria-label="Rechercher un fournisseur" value={search} onChange={(event) => setSearch(event.target.value)} />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger>
@@ -228,19 +220,6 @@ export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProp
               ))}
             </SelectContent>
           </Select>
-          <Select value={varietyFilter} onValueChange={setVarietyFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Variété" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Variété</SelectItem>
-              {varieties.map((variety) => (
-                <SelectItem key={variety} value={variety}>
-                  {variety}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
           <Select value={scoreFilter} onValueChange={setScoreFilter}>
             <SelectTrigger>
               <SelectValue placeholder="Score" />
@@ -256,14 +235,25 @@ export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProp
         </div>
 
         {filteredSuppliers.length === 0 ? (
-          <p className="rounded-lg border bg-card py-10 text-center text-muted-foreground">Aucun fournisseur ne correspond aux filtres.</p>
+          <EmptyState
+            title={suppliers.length === 0 ? 'Aucun fournisseur enregistré' : 'Aucun fournisseur ne correspond'}
+            description={
+              suppliers.length === 0
+                ? 'Ajoutez un producteur, collecteur ou coopérative pour démarrer les réceptions.'
+                : 'Élargissez la recherche ou retirez un filtre.'
+            }
+            actionLabel={canManage && suppliers.length === 0 ? 'Nouveau fournisseur' : undefined}
+            onAction={canManage && suppliers.length === 0 ? () => {
+              setSelectedSupplier(null);
+              setDialogOpen(true);
+            } : undefined}
+          />
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Fournisseur</TableHead>
                 <TableHead className="hidden md:table-cell">Région</TableHead>
-                <TableHead className="hidden lg:table-cell">Variétés</TableHead>
                 <TableHead>Statut</TableHead>
                 <TableHead className="hidden lg:table-cell">Qualification</TableHead>
                 <TableHead className="text-right">Score</TableHead>
@@ -275,8 +265,8 @@ export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProp
             <TableBody>
               {filteredSuppliers.map((supplier) => {
                 const status = normalizeSupplierStatus(supplier);
-                const score = computeSupplierCompositeScore(supplier);
-                const tone = getSupplierScoreTone(score);
+                const scoreReady = hasSupplierScoreData(supplier);
+                const score = scoreReady ? computeSupplierScoreM1(supplier) : null;
                 const alerts = computeSupplierAlerts(supplier);
                 return (
                   <TableRow key={supplier.id}>
@@ -287,18 +277,31 @@ export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProp
                       <span className="block font-mono text-xs text-muted-foreground">{supplier.code}</span>
                     </TableCell>
                     <TableCell className="hidden md:table-cell">{supplier.region || '—'}</TableCell>
-                    <TableCell className="hidden max-w-[14rem] truncate lg:table-cell">{(supplier.produced_varieties || []).join(', ') || '—'}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className={getSupplierStatusClassName(status)}>{getSupplierStatusLabel(status)}</Badge>
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">{getSupplierQualificationLabel(supplier.qualification_status)}</TableCell>
                     <TableCell className="text-right">
-                      <span className="font-semibold">{score.toFixed(0)}</span>
-                      <span className={tone === 'excellent' ? 'block text-xs text-emerald-700' : tone === 'watch' ? 'block text-xs text-amber-700' : 'block text-xs text-red-700'}>
-                        {tone === 'excellent' ? 'Solide' : tone === 'watch' ? 'À surveiller' : 'Risque'}
-                      </span>
+                      {score ? (
+                        <>
+                          <span className="font-semibold">{score.finalScore.toFixed(0)}</span>
+                          <span className={
+                            score.grade === 'excellent' || score.grade === 'good'
+                              ? 'block text-xs text-emerald-700'
+                              : score.grade === 'watch'
+                                ? 'block text-xs text-amber-700'
+                                : 'block text-xs text-red-700'
+                          }>
+                            {getSupplierScoreGradeLabel(score.grade)}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Score indisponible</span>
+                      )}
                     </TableCell>
-                    <TableCell className="hidden text-right md:table-cell">{supplier.rejection_rate ?? 0} %</TableCell>
+                    <TableCell className="hidden text-right md:table-cell">
+                      {scoreReady ? `${supplier.rejection_rate ?? 0} %` : '—'}
+                    </TableCell>
                     <TableCell className="hidden lg:table-cell">
                       {alerts.length === 0 ? <span className="text-muted-foreground">Aucune</span> : (
                         <span className="inline-flex items-center gap-1 text-amber-800" title={alerts.join('\n')}>
@@ -313,7 +316,7 @@ export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProp
                           <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Modifier ${supplier.name}`} onClick={() => handleEdit(supplier)}>
                             <Edit2 className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Supprimer ${supplier.name}`} onClick={() => handleDelete(supplier.id)}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Supprimer ${supplier.name}`} onClick={() => handleDelete(supplier)}>
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                         </div>

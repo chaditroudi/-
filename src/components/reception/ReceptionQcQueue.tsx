@@ -3,8 +3,11 @@ import { useOnline } from '@/hooks/useOnline';
 import { Camera, FlaskConical, QrCode, Shield } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { LotReference } from '@/components/shared/LotReference';
+import { QuantityDisplay } from '@/components/shared/QuantityDisplay';
 import { findReceptionLotByScan, useLabPendingInspections } from '@/hooks/useReceptionsV2';
 import { cn } from '@/lib/utils';
 import type { QCInspection, ReceptionV2 } from '@/types/reception';
@@ -72,13 +75,14 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                     value={scanValue}
                     onChange={(e) => setScanValue(e.target.value)}
                     placeholder="Scanner ou saisir un numéro de lot"
-                    className="flex-1"
+                    aria-label="Numéro de lot à contrôler"
+                    className="min-h-12 flex-1 text-base"
                     onKeyDown={(e) => { if (e.key === 'Enter') void handleScanLot(); }}
                   />
                   <Button
                     type="button"
                     variant="outline"
-                    className="shrink-0"
+                    className="min-h-12 shrink-0"
                     onClick={() => setScannerOpen(true)}
                   >
                     <Camera className="mr-2 h-4 w-4" />
@@ -86,7 +90,7 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                   </Button>
                   <Button
                     type="button"
-                    className="shrink-0"
+                    className="min-h-12 shrink-0 font-semibold"
                     onClick={() => void handleScanLot()}
                     disabled={isScanLoading || !scanValue.trim()}
                   >
@@ -95,10 +99,9 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                   </Button>
                 </div>
 
-                {/* Scan result */}
                 {scanMessage && (
                   <div className={cn(
-                    'rounded-2xl border p-4 text-sm',
+                    'rounded-lg border p-4 text-sm',
                     selectedReception ? 'border-emerald-200 bg-emerald-50 text-emerald-900' : 'border-amber-200 bg-amber-50 text-amber-900',
                   )}>
                     {scanMessage}
@@ -106,30 +109,38 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                 )}
 
                 <p className="text-xs text-muted-foreground">
-                  Prélèvement : minimum 2 kg jusqu'à 1 tonne, minimum 5 kg au-delà de 5 tonnes, représentatif entre les deux.
+                  Prélèvement : minimum 2 kg jusqu&apos;à 1 tonne, minimum 5 kg au-delà de 5 tonnes, représentatif entre les deux.
                 </p>
 
                 {awaitingQc.length === 0 && inQc.length === 0 && labPendingInspections.length === 0 && (
-                  <p className="rounded-lg border border-dashed px-3 py-3 text-sm text-muted-foreground">Aucun lot en attente de contrôle.</p>
+                  <EmptyState
+                    title="Aucun lot en attente de contrôle"
+                    description="Scannez un lot ou attendez qu’une réception validée arrive en file QC."
+                    icon={<Shield className="h-6 w-6" />}
+                  />
                 )}
 
                 {!online && (awaitingQc.length > 0 || inQc.length > 0) && (
-                  <p className="text-sm text-muted-foreground">Le contrôle qualité demande une connexion : il reprendra au retour du réseau.</p>
+                  <p className="rounded-lg border border-amber-300 bg-card px-3 py-2 text-sm text-amber-950">
+                    Hors ligne : le contrôle qualité reprend dès le retour du réseau. Les décisions restent côté serveur.
+                  </p>
                 )}
 
-                {/* Awaiting QC mini-list */}
                 {awaitingQc.length > 0 && (
                   <div>
                     <h3 className="pb-1 text-sm font-semibold">À inspecter ({awaitingQc.length})</h3>
                     <div className="divide-y rounded-lg border">
                     {awaitingQc.map((r) => (
-                      <div key={r.id} className="flex w-full items-center justify-between gap-3 px-3 py-2">
-                        <div>
-                          <span className="block whitespace-nowrap font-mono text-sm font-semibold">{r.reception_number}</span>
-                          <span className="text-xs text-muted-foreground">{r.supplier?.name || r.supplier_name_snapshot || '—'} • {r.quantity_total} {r.unit}</span>
+                      <div key={r.id} className="flex min-h-14 w-full items-center justify-between gap-3 px-3 py-2">
+                        <div className="min-w-0">
+                          <LotReference value={r.reception_number} className="font-semibold" />
+                          <span className="block truncate text-xs text-muted-foreground">
+                            {r.supplier?.name || r.supplier_name_snapshot || '—'} ·{' '}
+                            <QuantityDisplay value={r.quantity_total} unit={r.unit || 'kg'} className="font-medium" />
+                          </span>
                         </div>
-                        <Button type="button" size="sm" className="text-xs" disabled={!online} onClick={(e) => { e.stopPropagation(); handleStartQC(r); }}>
-                          <Shield className="mr-1 h-3 w-3" />
+                        <Button type="button" className="min-h-11 shrink-0" disabled={!online} onClick={(e) => { e.stopPropagation(); handleStartQC(r); }}>
+                          <Shield className="mr-1.5 h-4 w-4" />
                           Lancer QC
                         </Button>
                       </div>
@@ -138,19 +149,21 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                   </div>
                 )}
 
-                {/* In-progress QC mini-list — interrupted inspections stay findable here */}
                 {inQc.length > 0 && (
                   <div>
                     <h3 className="pb-1 text-sm font-semibold">En cours ({inQc.length})</h3>
                     <div className="divide-y rounded-lg border">
                     {inQc.map((r) => (
-                      <div key={r.id} className="flex w-full items-center justify-between gap-3 px-3 py-2">
-                        <div>
-                          <span className="block whitespace-nowrap font-mono text-sm font-semibold">{r.reception_number}</span>
-                          <span className="text-xs text-muted-foreground">{r.supplier?.name || r.supplier_name_snapshot || '—'} • {r.quantity_total} {r.unit}</span>
+                      <div key={r.id} className="flex min-h-14 w-full items-center justify-between gap-3 px-3 py-2">
+                        <div className="min-w-0">
+                          <LotReference value={r.reception_number} className="font-semibold" />
+                          <span className="block truncate text-xs text-muted-foreground">
+                            {r.supplier?.name || r.supplier_name_snapshot || '—'} ·{' '}
+                            <QuantityDisplay value={r.quantity_total} unit={r.unit || 'kg'} className="font-medium" />
+                          </span>
                         </div>
-                        <Button type="button" size="sm" className="bg-sky-600 text-xs hover:bg-sky-700" disabled={!online} onClick={(e) => { e.stopPropagation(); handleStartQC(r); }}>
-                          <Shield className="mr-1 h-3 w-3" />
+                        <Button type="button" className="min-h-11 shrink-0 bg-sky-700 hover:bg-sky-800" disabled={!online} onClick={(e) => { e.stopPropagation(); handleStartQC(r); }}>
+                          <Shield className="mr-1.5 h-4 w-4" />
                           Reprendre
                         </Button>
                       </div>

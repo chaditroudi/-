@@ -5,6 +5,7 @@ import { apiRequest } from '@/integrations/mongodb/client';
 import { ApiRequestError, axiosClient } from '@/lib/axiosClient';
 import { deleteLocalDraft, getLocalDraft, saveLocalDraft } from '@/lib/offline/draftStore';
 import { createIntakeDraft, getDraftWaitingFor, type IntakeDraft } from '@/lib/receptionIntake';
+import { factoryOwnerKey, readFactorySession } from '@/lib/factorySession';
 
 type ServerDraft = { id: string; version: number; status: string; reception_id?: string | null; payload?: IntakeDraft };
 
@@ -24,6 +25,7 @@ const fromServer = (row: ServerDraft): IntakeDraft => ({ ...(row.payload as Inta
 export const useReceptionDraft = (draftId?: string | null) => {
   const { user } = useAuthContext();
   const userId = user?.id ?? null;
+  const ownerScope = factoryOwnerKey(user);
   const [draft, setDraft] = useState<IntakeDraft | null>(draftId ? null : () => createIntakeDraft());
   const [saveState, setSaveState] = useState<DraftSaveState>('idle');
   const [conflict, setConflict] = useState<IntakeDraft | null>(null);
@@ -68,18 +70,20 @@ export const useReceptionDraft = (draftId?: string | null) => {
     if (timer.current) window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => {
       if (!latest.current) return;
-      void saveLocalDraft(latest.current, userId).then(() => setSaveState('device')).catch(() => undefined);
+      void saveLocalDraft(latest.current, userId, ownerScope).then(() => setSaveState('device')).catch(() => undefined);
     }, LOCAL_SAVE_DELAY_MS);
-  }, [userId]);
+  }, [userId, ownerScope]);
 
   useEffect(() => () => { if (timer.current) window.clearTimeout(timer.current); }, []);
 
   /** Returns the version now on the server, or null when the draft stayed on this device. */
-  const saveShared = useCallback(async (next?: IntakeDraft): Promise<number | null> => {
+  const saveShared = useCallback(async (next?: IntakeDraft, rejectConflicts = false): Promise<number | null> => {
     const base = next ?? latest.current;
     if (!base?.supplier_id) return null;
+    const session = readFactorySession();
+    if (!session || session.ownerKey !== ownerScope) throw new ApiRequestError({ message: 'La session a changé.', status: 409, code: 'SESSION_CHANGED' });
     const current = { ...base, version: serverVersion.current };
-    await saveLocalDraft(current, userId).catch(() => undefined);
+    await saveLocalDraft(current, userId, ownerScope).catch(() => undefined);
     if (!navigator.onLine) {
       setSaveState('device');
       return null;
@@ -96,11 +100,11 @@ export const useReceptionDraft = (draftId?: string | null) => {
           waitingFor: getDraftWaitingFor(current),
         },
         payload: current,
-      }, { timeout: SHARE_TIMEOUT_MS });
+      }, { timeout: SHARE_TIMEOUT_MS, headers: { Authorization: `Bearer ${session.accessToken}` } });
       const version = response.data.data.version;
       serverVersion.current = version;
       setDraft((value) => (value ? { ...value, version } : value));
-      await saveLocalDraft({ ...current, version }, userId).catch(() => undefined);
+      await saveLocalDraft({ ...current, version }, userId, ownerScope).catch(() => undefined);
       setSaveState('shared');
       return version;
     } catch (error) {
@@ -111,12 +115,18 @@ export const useReceptionDraft = (draftId?: string | null) => {
         setClosedReceptionId((error.details as { reception_id?: string | null } | undefined)?.reception_id ?? '');
       }
       setSaveState('device');
+      // Confirmation must stop at a refused shared version. Background sharing
+      // still handles conflicts without an unhandled rejection on stage changes.
+      if (rejectConflicts && error instanceof ApiRequestError
+        && (error.code === 'DRAFT_STALE' || error.code === 'DRAFT_CLOSED')) {
+        throw error;
+      }
       return null;
     }
-  }, [userId]);
+  }, [userId, ownerScope]);
 
-  const share = useCallback((next?: IntakeDraft) => {
-    const run = saveQueue.current.then(() => saveShared(next));
+  const share = useCallback((next?: IntakeDraft, options?: { rejectConflicts?: boolean }) => {
+    const run = saveQueue.current.then(() => saveShared(next, options?.rejectConflicts));
     saveQueue.current = run.catch(() => undefined);
     return run;
   }, [saveShared]);
@@ -125,9 +135,9 @@ export const useReceptionDraft = (draftId?: string | null) => {
     if (!conflict) return;
     serverVersion.current = conflict.version;
     setDraft(conflict);
-    void saveLocalDraft(conflict, userId);
+    void saveLocalDraft(conflict, userId, ownerScope).catch(() => undefined);
     setConflict(null);
-  }, [conflict, userId]);
+  }, [conflict, userId, ownerScope]);
 
   const reportConflict = useCallback((newer: IntakeDraft) => setConflict(newer), []);
 

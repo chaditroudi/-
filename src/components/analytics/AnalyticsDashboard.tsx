@@ -63,14 +63,9 @@ export const AnalyticsDashboard = () => {
         ]}
       />
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-        <div className="rounded-2xl border border-border/70 bg-card/80 px-4 py-3">
-          <p className="text-xs text-muted-foreground">Lecture manageriale</p>
-          <p className="mt-1 text-sm text-foreground">Synthèse, comparaisons et indicateurs consolidés.</p>
-        </div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
         <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
-          {/* Period — chip buttons (3 options, no dropdown needed) */}
-          <div className="flex gap-1 rounded-2xl border bg-muted/40 p-1">
+          <div className="flex gap-1 rounded-lg border bg-muted/40 p-1">
             {([
               { value: 'week', label: t('common.thisWeek') },
               { value: 'month', label: t('common.thisMonth') },

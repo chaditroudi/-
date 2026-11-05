@@ -7,9 +7,9 @@ export interface ProductionKPIs {
   totalActual: number;
   variancePercent: number;
   
-  // Rendement
-  yieldRate: number; // Quantité conforme ÷ Quantité brute
-  wasteRate: number;
+  // Rendement — null when no measured mass exists (never invent 100 %).
+  yieldRate: number | null; // Quantité conforme ÷ Quantité brute
+  wasteRate: number | null;
   
   // Temps & Efficacité
   totalProductionHours: number;
@@ -71,7 +71,8 @@ export interface LossBreakdown {
   label: string;
   quantityKg: number;
   percentage: number;
-  costEstimate: number;
+  /** Null until a verified costing source exists — never invent TND/kg. */
+  costEstimate: number | null;
   color: string;
 }
 

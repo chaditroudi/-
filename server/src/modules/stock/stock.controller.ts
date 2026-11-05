@@ -1,7 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from "@nestjs/common";
 import { Roles } from "../../nest/route-metadata.js";
 import { RequireAuthGuard, RolesGuard } from "../../nest/route-guards.js";
-import { badRequest } from "../../core/app-error.js";
+import { badRequest, forbidden } from "../../core/app-error.js";
+import { hasAnyRole, QUALITY_ROLES } from "../../middleware/authorization.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
 import { CollectionsService } from "../collections/collections.service.js";
@@ -9,6 +10,11 @@ import { publishRealtimeDbChange } from "../realtime/realtime.bus.js";
 import { scanService } from "../trust/scan.service.js";
 import { autoReorderOnStockChange } from "../purchasing/stock-reorder.service.js";
 import { planExpeditionDecrement, type ExpeditionLot } from "./expedition-decrement.js";
+import { consumeStockLotKg, creditStockLotKg } from "./stock-quantity.js";
+import { applyInventoryAdjustment } from "./stock-adjustment.js";
+import { applyQualityHold, releaseQualityHold } from "./stock-hold.js";
+import { runStockIntegrityDiagnostics } from "./stock-diagnostics.js";
+import { assertShipmentReadyToShip } from "./shipment-integrity.js";
 
 const compactIds = (...values: unknown[]) =>
   values.flat().map((value) => String(value || "")).filter(Boolean);
@@ -228,38 +234,14 @@ export class StockController {
   }
 
   @Post("movements")
-  async createMovement(@Req() req: any, @Body() body: any) {
-    const requestId = String(body?.request_id || body?.requestId || "").trim();
-    if (requestId) {
-      const existing = await this.cs.query({
-        table: "stock_movements",
-        filters: [{ type: "eq", column: "request_id", value: requestId }],
-        limit: 1,
-      });
-      if (existing[0]) return { data: existing[0], meta: { replayed: true } };
-      body.request_id = requestId;
-    }
-    await scanService.consumeMoveProof({
-      token: body?.scan_proof?.lotToken || body?.scanProof?.lotToken,
-      actorId: String(req.auth?.user?.id || ""),
-      expectedStockLotId: String(body?.lot_id || ""),
-      collection: "stock_movements",
-    });
-    const data = await this.cs.insert({
-      table: "stock_movements",
-      values: body,
-      actorId: req.auth?.user?.id || null,
-      trustedInternal: true,
-    });
-    publishRealtimeDbChange({
-      type: "stock_movement_created",
-      table: "stock_movements",
-      action: "INSERT",
-      actorId: req.auth?.user?.id || null,
-      rowIds: compactIds(data[0]?.id),
-      relatedTables: ["stock_lots", "stock_summary"],
-    });
-    return { data: data[0] };
+  async createMovement() {
+    // Gate 2 P0: stock_movements are append-only ledger rows owned by domain
+    // services (reception, production, packaging, expedition, storage). A free
+    // HTTP insert previously wrote a movement without changing quantity.
+    throw badRequest(
+      "STOCK_MOVEMENT_DOMAIN_ONLY",
+      "Les mouvements de stock s'enregistrent uniquement par les services métier (réception, production, conditionnement, expédition, stockage).",
+    );
   }
 
   // ── Alerts ────────────────────────────────────────────────────────────────
@@ -337,15 +319,76 @@ export class StockController {
 
   @Post("inventory-counts")
   async createInventoryCount(@Req() req: any, @Body() body: any) {
+    const actorId = req.auth?.user?.id || null;
+    const apply = Boolean(body?.apply_adjustment ?? body?.apply);
+    if (apply) {
+      const result = await applyInventoryAdjustment({
+        stockLotId: String(body?.stock_lot_id || body?.lot_id || ""),
+        countedQuantityKg: Number(body?.counted_quantity ?? body?.counted_quantity_kg),
+        reason: String(body?.reason || body?.notes || ""),
+        actorId,
+        requestId: body?.request_id ? String(body.request_id) : null,
+        countPayload: body,
+      });
+      publishRealtimeDbChange({
+        type: "inventory_count_created",
+        table: "inventory_counts",
+        action: "INSERT",
+        actorId,
+        rowIds: compactIds(result.count?.id, result.movement?.id, body?.stock_lot_id),
+        relatedTables: ["stock_lots", "stock_movements"],
+      });
+      return { data: result.count, adjustment: result };
+    }
+
     const data = await this.cs.insert({ table: "inventory_counts", values: body });
     publishRealtimeDbChange({
       type: "inventory_count_created",
       table: "inventory_counts",
       action: "INSERT",
-      actorId: req.auth?.user?.id || null,
+      actorId,
       rowIds: compactIds(data[0]?.id),
     });
     return { data: data[0] };
+  }
+
+  @Post("adjustments")
+  async createAdjustment(@Req() req: any, @Body() body: any) {
+    const result = await applyInventoryAdjustment({
+      stockLotId: String(body?.stock_lot_id || body?.lot_id || ""),
+      countedQuantityKg: body?.counted_quantity != null
+        ? Number(body.counted_quantity)
+        : Number(body?.delta_kg) + Number(body?.expected_quantity ?? NaN),
+      deltaKg: body?.delta_kg != null ? Number(body.delta_kg) : undefined,
+      reason: String(body?.reason || ""),
+      actorId: req.auth?.user?.id || null,
+      requestId: body?.request_id ? String(body.request_id) : null,
+      countPayload: body,
+    });
+    return { data: result };
+  }
+
+  @Post("holds")
+  async createHold(@Req() req: any, @Body() body: any) {
+    const action = String(body?.action || "HOLD").toUpperCase();
+    if (action === "RELEASE" && !hasAnyRole(req, QUALITY_ROLES)) throw forbidden("La levée d'un blocage requiert un rôle qualité.");
+    const payload = {
+      stockLotId: String(body?.stock_lot_id || body?.lot_id || ""),
+      reason: String(body?.reason || ""),
+      actorId: req.auth?.user?.id || null,
+      propagateGenealogy: body?.propagate !== false,
+      requestId: body?.request_id ? String(body.request_id) : null,
+    };
+    const data = action === "RELEASE"
+      ? await releaseQualityHold(payload)
+      : await applyQualityHold(payload);
+    return { data };
+  }
+
+  @Get("diagnostics")
+  async diagnostics() {
+    const data = await runStockIntegrityDiagnostics();
+    return { data };
   }
 
   // ── Shipment Preparations ─────────────────────────────────────────────────
@@ -371,6 +414,24 @@ export class StockController {
 
   @Patch("shipments/:id")
   async updateShipment(@Req() req: any, @Param("id") id: string, @Body() body: any) {
+    const nextStatus = String(body?.status || "").toUpperCase();
+    if (nextStatus === "SHIPPED" || nextStatus === "EXPEDIE" || nextStatus === "EXPÉDIÉ") {
+      await assertShipmentReadyToShip(id);
+    }
+    if (nextStatus === "CANCELLED" || nextStatus === "ANNULE" || nextStatus === "ANNULÉ") {
+      const shipment = sanitizeDocument(
+        await getCollectionModel("shipment_preparations").findOne({ id }).lean().exec(),
+      ) as Record<string, unknown> | null;
+      const current = String(shipment?.status || "").toUpperCase();
+      if (current === "SHIPPED" || current === "EXPEDIE" || current === "EXPÉDIÉ") {
+        throw badRequest(
+          "SHIPMENT_ALREADY_SHIPPED",
+          "Une expédition déjà expédiée ne peut pas être annulée sans retour stock dédié.",
+          { shipmentId: id },
+        );
+      }
+    }
+
     const { after } = await this.cs.update({ table: "shipment_preparations", filters: [{ type: "eq", column: "id", value: id }], values: body });
     publishRealtimeDbChange({
       type: "shipment_updated",
@@ -482,11 +543,6 @@ export class StockController {
     ) as ExpeditionLot[];
     const totals = planExpeditionDecrement(lines, existingLots);
     const lotMap = new Map(existingLots.map((lot) => [String(lot.id), lot]));
-    const snapshots = existingLots.map((lot) => ({
-      id: String(lot.id),
-      current_quantity: lot.current_quantity,
-      status: lot.status,
-    }));
 
     for (const line of lines) {
       await scanService.consumeMoveProof({
@@ -497,7 +553,7 @@ export class StockController {
       });
     }
 
-    let stockApplied = false;
+    const consumed: Array<{ lotId: string; quantity: number }> = [];
     let movementIds: string[] = [];
     let movementDocs: Array<Record<string, unknown>> = [];
     let shipmentRow: Record<string, unknown> | null = null;
@@ -506,39 +562,23 @@ export class StockController {
       if (movementIds.length > 0) {
         await Movements.deleteMany({ id: { $in: movementIds } }).exec();
       }
-      if (stockApplied) {
-        for (const snapshot of snapshots) {
-          await Lots.updateOne(
-            { id: snapshot.id },
-            { $set: { current_quantity: snapshot.current_quantity, status: snapshot.status, updated_at: now } },
-          ).exec();
-        }
+      for (const entry of consumed.reverse()) {
+        await creditStockLotKg(entry.lotId, entry.quantity, now);
       }
     };
 
     try {
+      // Gate 2: CAS consume per lot total — concurrent picks cannot drive qty negative.
       for (const [lotId, quantity] of totals) {
-        const lot = lotMap.get(lotId);
-        const available = Number(lot?.current_quantity);
-        const remaining = Number((available - quantity).toFixed(3));
-        await Lots.updateOne(
-          { id: lotId },
-          {
-            $set: {
-              current_quantity: remaining,
-              ...(remaining <= 0 ? { status: "CONSUMED" } : {}),
-              updated_at: now,
-            },
-          },
-        ).exec();
+        await consumeStockLotKg(lotId, quantity, now);
+        consumed.push({ lotId, quantity });
       }
-      stockApplied = true;
 
       movementDocs = await Promise.all(
         lines.map((line) =>
           prepareInsertDocument("stock_movements", {
             lot_id: line.lot_id,
-            product_id: line.product_id ?? lotMap.get(line.lot_id)?.product_id ?? null,
+            product_id: line.product_id ?? lotMap.get(String(line.lot_id))?.product_id ?? null,
             movement_type: "EXPEDITION",
             quantity: line.quantity,
             unit: "kg",
@@ -549,6 +589,7 @@ export class StockController {
             movement_source: "OPERATOR",
             document_type: "SHIPMENT",
             document_reference: shipmentId,
+            shipment_id: shipmentId,
           }),
         ),
       );

@@ -29,8 +29,9 @@ describe("W0 write guard", () => {
     expect(() => assertBatchWrite({ ...decided, qc_decision: "REJECT" }, decided)).toThrow(AppError);
   });
 
-  it("creates stock lots only in quarantine and unlinked", () => {
-    expect(() => assertStockLotWrite("insert", { status: "QUARANTINE", current_quantity: 10 })).not.toThrow();
+  it("creates stock lots only in quarantine, unlinked, and without inventoriable quantity", () => {
+    expect(() => assertStockLotWrite("insert", { status: "QUARANTINE", current_quantity: 0 })).not.toThrow();
+    expect(() => assertStockLotWrite("insert", { status: "QUARANTINE", current_quantity: 10 })).toThrow(/STOCK_LOT_ORPHAN_QTY|quantité/);
     for (const status of ["VALIDATED", "STOCK_LIBERE", "LIBERE", "RELEASED"]) {
       expect(() => assertStockLotWrite("insert", { status })).toThrow(/contrôle qualité/);
     }

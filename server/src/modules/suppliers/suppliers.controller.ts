@@ -21,6 +21,18 @@ export class SuppliersController {
     return { data: filterOwnSuppliers(req, data) };
   }
 
+  @Get(":id")
+  @Roles(...STAFF_READ_ROLES, SUPPLIER_PORTAL_ROLE)
+  async getOne(@Req() req: any, @Param("id") id: string) {
+    await assertOwnSupplier(req, id);
+    const data = await this.cs.query({
+      table: "suppliers",
+      filters: [{ type: "eq", column: "id", value: id }],
+      limit: 1,
+    });
+    return { data: data[0] ?? null };
+  }
+
   @Post()
   @Roles(...SUPPLIER_WRITE_ROLES)
   async create(@Body() body: any) {
@@ -45,7 +57,11 @@ export class SuppliersController {
   @Get(":id/reception-check")
   @Roles(...STAFF_READ_ROLES)
   async receptionCheck(@Param("id") id: string) {
-    const data = await this.cs.query({ table: "receptions", filters: [{ type: "eq", column: "supplier_id", value: id }], limit: 1 });
+    const data = await this.cs.query({
+      table: "receptions_v2",
+      filters: [{ type: "eq", column: "supplier_id", value: id }],
+      limit: 1,
+    });
     return { data, hasReceptions: data.length > 0 };
   }
 

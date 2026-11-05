@@ -381,6 +381,7 @@ const Index = () => {
             view={productionView}
             onViewChange={setProductionView}
             preSelectedLot={phase2PreselectedLot}
+            roles={roles}
           />
         );
       case 'packaging':
@@ -520,10 +521,6 @@ const Index = () => {
             <WorkflowNavigation
               activeTab={activeTab}
               onTabChange={handleNavigate}
-              roles={roles}
-              profileName={profile?.full_name}
-              workspaceLabel={workspaceProfile.workspaceLabel}
-              interfaceLabel={workspaceProfile.interfaceLabel}
               primaryTabs={primaryTabs}
               quickTabs={quickTabs}
               metrics={mobileMetrics}

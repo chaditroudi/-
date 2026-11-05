@@ -21,14 +21,13 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   checkQCWindowRGQ01,
   createRejectionNotification,
-  recalculateAndSaveSupplierScore,
-  triggerAutoBlockIfNeeded,
 } from "@/lib/phase1RuleEngine";
 import { QC_NC_CODES, NC_SEVERITY_COLORS, getAutoTriggeredNCs } from "@/lib/qcNCCodes";
 import { NumericSignaturePad } from "@/components/shared/NumericSignatureDialog";
 import { QcChecklistAnswers } from "./QcChecklistAnswers";
 import type { SubmitQcDecisionInput } from "@/lib/api/receptions";
 import { checklistResults, hasNonConformity, unansweredCount, type QcChecklistAnswers as ChecklistAnswers } from "@/lib/qcChecklist";
+import { darijaTitle } from "@/i18n/workerDarija";
 
 /**
  * Recommandation déterministe d'une chambre froide basée sur les données d'occupation réelles et la compatibilité Bio
@@ -127,7 +126,20 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
   const { data: calibration } = useCalibrationStatus();
   const [caliberFillValue, setCaliberFillValue] = useState("");
   // Inspection form is split into numbered sections so operators do one thing at a time
-  const [qcSection, setQcSection] = useState<'mesures' | 'defauts' | 'labo' | 'rqc'>('mesures');
+  type QcSection = 'mesures' | 'defauts' | 'labo' | 'rqc' | 'verdict';
+  const QC_SECTIONS: Array<{ key: QcSection; label: string }> = [
+    { key: 'mesures', label: '1 · Mesures' },
+    { key: 'defauts', label: '2 · Défauts' },
+    { key: 'labo', label: '3 · Labo' },
+    { key: 'rqc', label: '4 · RQC' },
+    { key: 'verdict', label: '5 · Verdict' },
+  ];
+  const [qcSection, setQcSection] = useState<QcSection>('mesures');
+  const qcSectionIndex = QC_SECTIONS.findIndex((section) => section.key === qcSection);
+  const goQcSection = (delta: number) => {
+    const next = QC_SECTIONS[qcSectionIndex + delta];
+    if (next) setQcSection(next.key);
+  };
   const [phase, setPhase] = useState<"start" | "inspection" | "confirmed">("start");
   const [inspectorName, setInspectorName] = useState("");
   const [secondaryInspectorName, setSecondaryInspectorName] = useState("");
@@ -463,21 +475,9 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
     setConfirmedDecision(selectedDecision);
     setPhase("confirmed");
 
-    // ── Phase 1 post-QC rule chain (non-blocking — errors are logged, not surfaced) ──
+    // Supplier metrics / RG-F03 are recalculated server-side after QC close.
     const supplierId = reception.supplier_id;
     const supplierName = reception.supplier?.name ?? reception.supplier_name_snapshot ?? "";
-
-    // RG-Q09: recalculate supplier quality_score
-    recalculateAndSaveSupplierScore(supplierId).then((result) => {
-      if (result) {
-        // RG-F03: auto-block if rejection rate now exceeds 20 %
-        triggerAutoBlockIfNeeded(supplierId, result.rejectionRate).then((blocked) => {
-          if (blocked) {
-            console.warn(`RG-F03 — Fournisseur ${supplierName} bloqué automatiquement (taux rejet: ${result.rejectionRate}%)`);
-          }
-        }).catch(console.error);
-      }
-    }).catch(console.error);
 
     // RG-Q03: notification on rejection
     if (selectedDecision === "REJETE") {
@@ -499,7 +499,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
     <>
     <Dialog open={open} onOpenChange={closeDialog}>
       <DialogContent
-        className="max-w-6xl h-[92vh] flex flex-col"
+        className="flex h-[100dvh] max-h-[100dvh] w-full max-w-6xl flex-col rounded-none sm:h-[92vh] sm:max-h-[92vh] sm:rounded-lg"
         onInteractOutside={(event) => event.preventDefault()}
       >
         <DialogHeader>
@@ -625,21 +625,16 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
 
           {phase === "inspection" && (
             <div className="space-y-4 p-2">
-              {/* Section switcher — one clear step at a time */}
-              <div className="flex w-full flex-wrap gap-1 rounded-xl bg-muted p-1">
-                {([
-                  ['mesures', '1 · Mesures'],
-                  ['defauts', '2 · Défauts & Goût'],
-                  ['labo', '3 · Laboratoire'],
-                  ['rqc', '4 · Grille RQC'],
-                ] as const).map(([key, label]) => (
+              {/* Guided steps — one job at a time on tablet */}
+              <div className="flex w-full gap-1 overflow-x-auto rounded-lg bg-muted p-1 scrollbar-hide">
+                {QC_SECTIONS.map(({ key, label }) => (
                   <button
                     key={key}
                     type="button"
                     onClick={() => setQcSection(key)}
-                    className={`min-h-[40px] flex-1 whitespace-nowrap rounded-lg px-3 text-sm font-medium transition-colors ${
+                    className={`min-h-11 min-w-[5.5rem] flex-1 whitespace-nowrap rounded-md px-2 text-sm font-medium transition-colors ${
                       qcSection === key
-                        ? 'bg-background text-foreground shadow-sm'
+                        ? 'bg-background text-foreground ring-1 ring-border'
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
@@ -648,7 +643,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                 ))}
               </div>
 
-              <div className={qcSection === 'rqc' ? 'hidden' : 'grid grid-cols-1 xl:grid-cols-[1.2fr_0.8fr] gap-4'}>
+              <div className={qcSection === 'rqc' ? 'hidden' : 'space-y-4'}>
                 <div className="min-w-0 space-y-4">
                   <div className={qcSection === 'mesures' ? 'space-y-4' : 'hidden'}>
                   <Card>
@@ -896,7 +891,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                   </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className={qcSection === 'verdict' ? 'space-y-4' : 'hidden'}>
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-base">Grille qualité</CardTitle>
@@ -1355,14 +1350,31 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
               />
             </div>
           ) : (
-            <div className="flex gap-2 justify-end w-full sm:w-auto">
-              <Button variant="outline" onClick={closeDialog}>
+            <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <Button variant="outline" className="min-h-11" onClick={closeDialog}>
                 {phase === "confirmed" ? "Fermer" : "Annuler"}
               </Button>
               {phase === "inspection" && (
-                <Button onClick={() => submit()} disabled={submitDecision.isPending}>
-                  {submitDecision.isPending ? "Validation en cours..." : "Valider la décision"}
-                </Button>
+                <div className="flex flex-col-reverse gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
+                  {qcSectionIndex > 0 && (
+                    <Button type="button" variant="outline" className="min-h-11" title={darijaTitle('qc.back')} onClick={() => goQcSection(-1)}>
+                      Retour
+                    </Button>
+                  )}
+                  {qcSection !== 'verdict' && (
+                    <Button type="button" variant="secondary" className="min-h-11" title={darijaTitle('qc.continue')} onClick={() => goQcSection(1)}>
+                      Continuer
+                    </Button>
+                  )}
+                  {qcSection !== 'verdict' && (
+                    <Button type="button" variant="outline" className="min-h-11" onClick={() => setQcSection('verdict')}>
+                      Aller au verdict
+                    </Button>
+                  )}
+                  <Button className="min-h-11 font-semibold" title={darijaTitle('common.confirm')} onClick={() => submit()} disabled={submitDecision.isPending}>
+                    {submitDecision.isPending ? "Validation en cours..." : "Valider la décision"}
+                  </Button>
+                </div>
               )}
             </div>
           )}

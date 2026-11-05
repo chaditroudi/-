@@ -12,6 +12,13 @@ import { RolesGuard } from "./route-guards.js";
 import { ANY_ROLE_KEY, IS_PUBLIC_KEY, ROLES_KEY } from "./route-metadata.js";
 
 const users = new Map<string, Record<string, unknown>>();
+const factory = { tenant_id: "matrix-company", factory_id: "matrix-site" };
+// This suite exercises route authorization without infrastructure. Real namespaces/indexes
+// are exercised separately in gate3.http.integration.test.ts.
+vi.mock("../db/indexes.js", () => ({ ensureTrustIndexes: async () => undefined }));
+vi.mock("../db/factory-context.js", async (original) => ({
+  ...await original<object>(), factoryConnection: () => ({ db: {}, models: {}, model: () => { throw new Error("No database in route authorization matrix"); } }),
+}));
 
 vi.mock("../models/auth-user.model.js", () => ({
   AuthUserModel: {
@@ -41,7 +48,6 @@ const PUBLIC_ROUTES = [
   "GET /api/health",
   "GET /api/realtime/events",
   "GET /api/settings",
-  "GET /api/trust/lots/:lotId/passport",
   "GET /health",
   "POST /api/auth/signin",
   "POST /api/ccp-sensors/readings",
@@ -110,10 +116,10 @@ const readRouteTable = (app: INestApplication) => {
   return routes;
 };
 
-const tokenFor = (id: string, tv = 0) => jwt.sign({ email: `${id}@test.local`, tv }, env.jwtSecret, { subject: id, expiresIn: 3600 });
+const tokenFor = (id: string, tv = 0) => jwt.sign({ email: `${id}@test.local`, tv, ...factory }, env.jwtSecret, { subject: id, expiresIn: 3600 });
 
 const addUser = (id: string, roles: string[], extra: Record<string, unknown> = {}) => {
-  users.set(id, { id, email: `${id}@test.local`, is_active: true, user_metadata: { roles }, ...extra });
+  users.set(id, { id, email: `${id}@test.local`, ...factory, is_active: true, user_metadata: { roles }, ...extra });
   return tokenFor(id);
 };
 

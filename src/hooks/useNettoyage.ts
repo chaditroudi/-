@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { phase2Api } from '@/lib/api/phase2';
 import {
   CleaningCycle,
@@ -36,6 +37,7 @@ export function useCleaningCycle(id: string | null) {
 // ─── Create ────────────────────────────────────────────────────────────────
 
 type CreateCleaningInput = {
+  source_stock_lot_id?: string;
   reception_id: string;
   lot_number: string;
   variety: string | null;
@@ -46,15 +48,16 @@ type CreateCleaningInput = {
 };
 
 export function useCreateCleaningCycle() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (input: CreateCleaningInput) => phase2Api.createCleaningCycle(input),
     onSuccess: (cycle) => {
-      toast.success(`Cycle nettoyage ${cycle.cycle_number} démarré`);
+      toast.success(t('cleaning.createdToast', { number: cycle.cycle_number }));
       qc.invalidateQueries({ queryKey: QK.cycles });
     },
     onError: (err: Error) => {
-      toast.error(`Erreur création cycle: ${err.message}`);
+      toast.error(t('cleaning.createError', { message: err.message }));
     },
   });
 }
@@ -75,17 +78,18 @@ type CloseCleaningInput = {
 };
 
 export function useCloseCleaningCycle() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...input }: CloseCleaningInput) => phase2Api.closeCleaningCycle(id, input),
     onSuccess: ({ yield_percent }, { id }) => {
-      const yieldLabel = yield_percent != null ? ` — rendement ${yield_percent}%` : '';
-      toast.success(`Cycle nettoyage clôturé${yieldLabel}`);
+      toast.success(t(yield_percent != null ? 'cleaning.closedYieldToast' : 'cleaning.closedToast', { yield: yield_percent }));
       qc.invalidateQueries({ queryKey: QK.cycle(id) });
       qc.invalidateQueries({ queryKey: QK.cycles });
+      qc.invalidateQueries({ queryKey: ['cleaning-source-lots'] });
     },
     onError: (err: Error) => {
-      toast.error(`Clôture échouée: ${err.message}`);
+      toast.error(t('cleaning.closeError', { message: err.message }));
     },
   });
 }

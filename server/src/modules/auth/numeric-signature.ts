@@ -2,6 +2,7 @@
 
 import { badRequest, unauthorized } from "../../core/app-error.js";
 import { AuthUserModel } from "../../models/auth-user.model.js";
+import { factoryUserFilter } from "../../db/factory-context.js";
 
 export const PIN_MIN_LENGTH = 4;
 export const PIN_MAX_LENGTH = 6;
@@ -96,7 +97,7 @@ export const assertSignaturePin = async (
     };
   }
 
-  const user = await AuthUserModel.findOne({ id, is_active: true }).lean().exec();
+  const user = await AuthUserModel.findOne(factoryUserFilter({ id, is_active: true })).lean().exec();
   if (!user) {
     const message = "Signataire introuvable ou inactif.";
     if (gate === "enforce") {
@@ -159,7 +160,7 @@ export const assertSignaturePin = async (
 export const setUserSignaturePin = async (userId: string, pin: string) => {
   const hash = await hashSignaturePin(pin);
   const result = await AuthUserModel.updateOne(
-    { id: userId },
+    factoryUserFilter({ id: userId }),
     { $set: { signaturePinHash: hash, updated_at: nowIso() } },
   ).exec();
   if (!result.matchedCount) {
@@ -170,7 +171,7 @@ export const setUserSignaturePin = async (userId: string, pin: string) => {
 
 export const clearUserSignaturePin = async (userId: string) => {
   const result = await AuthUserModel.updateOne(
-    { id: userId },
+    factoryUserFilter({ id: userId }),
     { $unset: { signaturePinHash: 1, signature_pin_hash: 1 }, $set: { updated_at: nowIso() } },
   ).exec();
   if (!result.matchedCount) {

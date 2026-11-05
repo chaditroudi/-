@@ -5,6 +5,7 @@ import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js"
 import { LotLedgerService } from "./lot-ledger.service.js";
 import { LotLifecycleService } from "./lot-lifecycle.service.js";
 import { GOLDEN_THREAD_STAGES } from "./lot-state-machine.js";
+import { SiteSettingsModel } from "../../models/site-settings.model.js";
 
 export type PassportClaim = {
   key: string;
@@ -138,12 +139,13 @@ export class LotPassportService {
       );
     }
 
+    const settings = await SiteSettingsModel.findOne({ id: "global" }).lean().exec();
     return {
       wave: "W2",
       lotId,
       lotNumber: String(lot.lot_internal || lot.id),
-      brand: "Royal Palm Tunisia",
-      plant: "Usine Tozeur",
+      brand: settings?.company_name || "Date Harvest Hub",
+      plant: settings?.plant_name || "Usine",
       tipHash: state.tipHash,
       valid: state.valid,
       eventCount: state.eventCount,

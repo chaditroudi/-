@@ -44,6 +44,8 @@ import {
 } from '@/store/api/receptionsApi';
 import { ReceptionV2, receptionStatusColors, receptionStatusLabels } from '@/types/reception';
 
+import { LotReference } from '@/components/shared/LotReference';
+import { QuantityDisplay } from '@/components/shared/QuantityDisplay';
 import { AlertsPanel } from './AlertsPanel';
 import { DateRangeFilter } from './DateRangeFilter';
 import { InboundNoticeDialog } from './InboundNoticeDialog';
@@ -114,15 +116,17 @@ const ReceptionRow = ({ reception, onOpen }: { reception: ReceptionV2; onOpen: (
   <button
     type="button"
     onClick={() => onOpen(reception)}
-    className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 px-3 py-2 text-left hover:bg-muted/60 lg:grid-cols-[10.5rem_minmax(0,1.4fr)_7rem_6.5rem_minmax(0,1fr)_6.5rem_9rem]"
+    className="grid min-h-12 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 px-3 py-2 text-left hover:bg-muted/60 lg:grid-cols-[10.5rem_minmax(0,1.4fr)_7rem_6.5rem_minmax(0,1fr)_6.5rem_9rem]"
   >
-    <span className="font-mono text-sm">{reception.reception_number}</span>
+    <LotReference value={reception.reception_number} fallback="Réception sans numéro" />
     <Badge className={cn('justify-self-end text-xs lg:order-last', receptionStatusColors[reception.status])}>
       {receptionStatusLabels[reception.status]}
     </Badge>
     <span className="truncate text-sm">{reception.supplier?.name || reception.supplier_name_snapshot || 'Fournisseur non renseigné'}</span>
     <span className="truncate text-sm text-muted-foreground lg:text-foreground">{reception.variety || '—'}</span>
-    <span className="text-sm lg:text-right">{reception.quantity_total} {reception.unit}</span>
+    <span className="text-sm lg:text-right">
+      <QuantityDisplay value={reception.quantity_total} unit={reception.unit || 'kg'} />
+    </span>
     <span className="truncate text-xs text-muted-foreground lg:text-sm">
       <span className="lg:hidden">BL </span>{reception.delivery_note_number || '—'}{reception.purchase_order_number ? ` · ${reception.purchase_order_number}` : ''}
     </span>
@@ -256,7 +260,7 @@ const PendingSection = ({ canManage, userId, activeReceptions, onOpen, onResume 
   const deviceOnly = localDrafts.filter(
     (local) => !serverIds.has(local.draft.id) && (local.ownerUserId ?? userId) === userId && Boolean(local.draft.supplier_id),
   );
-  const queueState = (id: string) => outbox.find((item) => item.id === id);
+  const queueState = (id: string) => outbox.find((item) => item.payload.client_request_id === id);
 
   const DraftRow = ({ id, title, detail, note }: { id: string; title: string; detail: string; note?: string }) => (
     <div className="flex min-h-16 items-center gap-2 rounded-2xl border bg-card p-3">
@@ -453,39 +457,49 @@ export const ReceptionDashboardV2 = ({
       <Tabs dir={i18n.dir()} value={subTab} onValueChange={(v) => updateSubTab(v as SubTab)}>
         <div className="flex flex-wrap-reverse items-center gap-x-3 gap-y-2 border-b">
           <div className="min-w-0 flex-1 overflow-x-auto scrollbar-hide max-lg:basis-full">
-          <TabsList className="flex h-auto min-w-max justify-start gap-1 rounded-none bg-transparent p-0 max-sm:grid max-sm:w-full max-sm:min-w-0 max-sm:grid-cols-2" aria-label="Sections de la réception">
+          <TabsList className="flex h-auto min-w-max justify-start gap-1 rounded-none bg-transparent p-0 max-sm:grid max-sm:w-full max-sm:min-w-0 max-sm:grid-cols-3" aria-label="Sections de la réception">
             {tabs.map((tab) => {
               const active = subTab === tab.value;
+              const short =
+                tab.value === 'today' ? 'Aujourd’hui'
+                  : tab.value === 'pending' ? 'Attente'
+                    : tab.value === 'registry' ? 'Historique'
+                      : tab.value === 'qc' ? 'QC'
+                        : tab.value === 'bra' ? 'BRA'
+                          : 'Alertes';
               return (
                 <TabsTrigger
                   key={tab.value}
                   value={tab.value}
                   ref={active ? activeTabRef : undefined}
                   className={cn(
-                    'relative flex min-h-11 items-center gap-2 whitespace-nowrap rounded-none px-4 py-3 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring data-[state=active]:bg-transparent data-[state=active]:shadow-none max-sm:gap-1 max-sm:px-2 max-sm:text-xs',
+                    'relative flex min-h-12 items-center justify-center gap-2 whitespace-nowrap rounded-none px-4 py-3 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring data-[state=active]:bg-transparent data-[state=active]:shadow-none max-sm:min-h-14 max-sm:flex-col max-sm:gap-1 max-sm:px-1.5 max-sm:py-2 max-sm:text-xs',
                     active ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
                   )}
                 >
-                  <tab.icon className="h-4 w-4 shrink-0" />
-                  {tab.label}
+                  <tab.icon className="h-4 w-4 shrink-0 max-sm:h-5 max-sm:w-5" />
+                  <span className="max-sm:hidden">{tab.label}</span>
+                  <span className="hidden max-sm:inline">{short}</span>
                   {tab.badge != null && (
                     <span className={cn('flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-bold leading-none text-primary-foreground', tab.badgeClass)}>
                       {tab.badge}
                     </span>
                   )}
-                  {active && <span className="absolute bottom-0 left-0 h-0.5 w-full rounded-full bg-primary" />}
+                  {active && <span className="absolute bottom-0 inset-x-1 h-0.5 rounded-full bg-primary" />}
                 </TabsTrigger>
               );
             })}
           </TabsList>
         </div>
-          <div className="ml-auto flex shrink-0 gap-2 pb-1.5">
-          <Button type="button" variant="outline" className="gap-2" onClick={() => setNoticeOpen(true)}>
+          <div className="ml-auto flex shrink-0 gap-2 pb-1.5 max-sm:w-full max-sm:pb-2">
+          <Button type="button" variant="outline" className="min-h-11 gap-2 max-sm:flex-1" onClick={() => setNoticeOpen(true)}>
             <Bell className="h-4 w-4" />
-            Pré-annonces{todayNotices.length > 0 ? ` (${todayNotices.length})` : ''}
+            <span className="max-sm:hidden">Pré-annonces</span>
+            <span className="sm:hidden">Annonces</span>
+            {todayNotices.length > 0 ? ` (${todayNotices.length})` : ''}
           </Button>
           {canManageReception && (
-            <Button type="button" className="gap-2" onClick={() => setIntake({})}>
+            <Button type="button" className="min-h-11 gap-2 max-sm:flex-1 font-semibold" onClick={() => setIntake({})}>
               <Plus className="h-5 w-5" />
               {t('receptions.new')}
             </Button>

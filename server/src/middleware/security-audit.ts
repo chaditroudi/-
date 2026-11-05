@@ -1,5 +1,10 @@
 import { prepareInsertDocument } from "../db/defaults.js";
 import { getCollectionModel, sanitizeDocument } from "../db/dynamic-model.js";
+import mongoose from "mongoose";
+import { currentFactory } from "../db/factory-context.js";
+
+// Unattributable sign-in failures belong to the control plane, with no tenant-facing route.
+const controlAuditModel = () => mongoose.models.auth_security_events || mongoose.model("auth_security_events", new mongoose.Schema({}, { strict: false, collection: "auth_security_events" }));
 
 // Collections excluded from audit logging (internal/sensitive)
 const SKIP_AUDIT = new Set([
@@ -99,11 +104,15 @@ const toSnapshot = (rows: any[]): any[] => {
 
 const writeAuditEntry = async (entry: Record<string, unknown>) => {
   try {
+    if (!currentFactory()) {
+      await controlAuditModel().create({ ...entry, created_at: new Date().toISOString() });
+      return;
+    }
     const model = getCollectionModel("system_audit_logs");
     const doc = await prepareInsertDocument("system_audit_logs", entry);
     await model.create([doc]);
-  } catch {
-    // Fire-and-forget — audit failure must never break the main operation
+  } catch (error) {
+    console.error("Security audit persistence failed", error);
   }
 };
 

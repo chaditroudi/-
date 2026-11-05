@@ -30,7 +30,7 @@ export const OfflineSyncStatus = () => {
   }, []);
   const onSynced = useCallback(async (item: OutboxItem, raw: unknown) => {
     const data = raw as ReceptionIntakeResponse;
-    await deleteLocalDraft(item.id).catch(() => undefined);
+    await deleteLocalDraft(item.payload.client_request_id).catch(() => undefined);
     if (data?.reception) dispatch(receptionUpserted(data.reception));
     void dispatch(fetchReceptions());
     dispatch(receptionsApi.util.invalidateTags(['Reception', 'ReceptionDraft']));
@@ -72,6 +72,8 @@ export const OfflineSyncStatus = () => {
   const mine = items.filter((item) => item.ownerUserId === userId);
   const others = items.length - mine.length;
   const pending = mine.filter((item) => item.status === 'pending' || item.status === 'syncing');
+  const syncing = pending.some((item) => item.status === 'syncing');
+  const pendingError = pending.find((item) => item.status === 'pending' && item.lastError)?.lastError;
   const failed = mine.filter((item) => item.status === 'failed');
   const needsLogin = !userId ? items.length > 0 : pending.some((item) => item.waitingForLogin);
 
@@ -84,9 +86,11 @@ export const OfflineSyncStatus = () => {
       ? 'Session expirée'
       : failed.length > 0
         ? 'Réception refusée par le serveur'
-        : pending.length > 0
+        : syncing
           ? 'Synchronisation en cours'
-          : 'Réceptions d\'un autre compte';
+          : pending.length > 0
+            ? 'Réception en attente d’envoi'
+            : 'Réceptions d\'un autre compte';
   const detail = !online
     ? mine.length > 0
       ? `${mine.length} réception(s) gardée(s) sur cet appareil. Envoi automatique au retour de la connexion.`
@@ -96,7 +100,7 @@ export const OfflineSyncStatus = () => {
       : failed.length > 0
         ? `${failed[0].lastError ?? 'Refus du serveur.'} Corrigez dans Réception › En attente.`
         : pending.length > 0
-          ? `${pending.length} réception(s) en attente d'envoi. Aucun numéro n'existe avant la confirmation du serveur.`
+          ? `${pendingError ? `${pendingError} Nouvelle tentative automatique. ` : ''}${pending.length} réception(s) en attente d'envoi. Aucun numéro n'existe avant la confirmation du serveur.`
           : `${others} réception(s) attendent la connexion de leur auteur sur cet appareil.`;
 
   return (
@@ -131,7 +135,8 @@ export const OfflineSyncStatus = () => {
           className="flex h-11 w-11 items-center justify-center rounded-md hover:bg-muted"
           aria-label="Réessayer l'envoi"
           onClick={async () => {
-            await Promise.all(failed.map((item) => retryOutboxItem(item.id)));
+            const retryable = mine.filter((item) => item.status === 'failed' || (item.status === 'pending' && item.lastError));
+            await Promise.all(retryable.map((item) => retryOutboxItem(item.id)));
             await drain();
           }}
         >

@@ -42,7 +42,7 @@ export function BonExpeditionForm({ initial, onSubmit, isSaving }: Props) {
   const [lieuReception, setLieuReception] = useState(initial?.lieu_reception ?? "");
   const [responsableReception, setResponsableReception] = useState(initial?.responsable_reception ?? "");
   const [nomSignataire, setNomSignataire] = useState(initial?.nom_signataire ?? "");
-  const [statut, setStatut] = useState<string>(initial?.statut ?? "brouillon");
+  const [statut, setStatut] = useState<import('@/types/bonExpedition').BonExpeditionStatut>(initial?.statut ?? "brouillon");
   const [exportOrderRef, setExportOrderRef] = useState<string>(initial?.export_order_ref ?? "");
   const [lignes, setLignes] = useState<ExpeditionLigne[]>(
     initial?.lignes && initial.lignes.length > 0 ? initial.lignes : defaultLignes(),
@@ -107,7 +107,7 @@ export function BonExpeditionForm({ initial, onSubmit, isSaving }: Props) {
           </div>
           <div>
             <Label className="text-xs">Statut</Label>
-            <Select value={statut} onValueChange={setStatut}>
+            <Select value={statut} onValueChange={(v) => setStatut(v as import('@/types/bonExpedition').BonExpeditionStatut)}>
               <SelectTrigger className="h-10 text-sm"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="brouillon">Brouillon</SelectItem>

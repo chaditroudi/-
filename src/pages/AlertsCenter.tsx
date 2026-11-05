@@ -34,19 +34,19 @@ const AlertsCenter = ({ embedded = false }: { embedded?: boolean }) => {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="alerts" className="mt-6">
+        <TabsContent value="alerts" className="mt-4">
           <FactoryAlertsCenter />
         </TabsContent>
 
-        <TabsContent value="stock" className="mt-6">
+        <TabsContent value="stock" className="mt-4">
           <AlertsDashboard />
         </TabsContent>
 
-        <TabsContent value="traceability" className="mt-6">
+        <TabsContent value="traceability" className="mt-4">
           <TraceabilityTimeline maxHeight="700px" />
         </TabsContent>
 
-        <TabsContent value="analytics" className="mt-6">
+        <TabsContent value="analytics" className="mt-4">
           <AlertAnalyticsPanel />
         </TabsContent>
       </Tabs>

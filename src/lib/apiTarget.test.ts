@@ -20,7 +20,7 @@ describe('parseApiUrl', () => {
   it.each(['C:/Program Files/Git/api', 'C:\\Program Files\\Git\\api'])('names the Git Bash rewrite: %s', (value) => {
     const parsed = parseApiUrl(value);
     expect(parsed).toMatchObject({ ok: false });
-    expect(!parsed.ok && parsed.reason).toMatch(/Git Bash/);
+    expect(parsed.ok === false && parsed.reason).toMatch(/Git Bash/);
   });
 
   it.each(['api', 'ftp://host/api', '//host/api', 'not a url'])('refuses an invalid value: %s', (value) => {

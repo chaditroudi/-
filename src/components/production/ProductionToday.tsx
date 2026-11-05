@@ -10,6 +10,7 @@ import { useTriageSessions } from '@/hooks/useTriage';
 import { usePhase2Pipeline } from '@/hooks/usePhase2Pipeline';
 import { usePhase2AlertKpis } from '@/hooks/usePhase2Alerts';
 import { useOrderLotAllocations, useProductionConfig } from '@/hooks/useProduction';
+import type { ProductionStageView } from '@/lib/productionNav';
 import type { ProductionOrder } from '@/types/production';
 import { byUrgency, ORDER_STATUS_BADGE } from './orderStatus';
 import type { ProductionView } from './views';
@@ -19,6 +20,10 @@ interface ProductionTodayProps {
   ordersSource: DataSource;
   ordersData: unknown;
   stagesEnabled: boolean;
+  /** Restrict stage rows to one operator post. */
+  stageFilter?: ProductionStageView | null;
+  /** Hide OF rows for pure stage operators. */
+  hideOrders?: boolean;
   onOpenView: (view: ProductionView) => void;
   onOpenOrder: (orderId: string) => void;
 }
@@ -90,7 +95,16 @@ const RECENT_MS = 7 * 24 * 60 * 60 * 1000;
 const isRecent = (row: { created_at?: string | null }) => Date.now() - new Date(row.created_at ?? 0).getTime() < RECENT_MS;
 
 /** The first screen of Production: what is running, what comes next, what is stuck and why. */
-export const ProductionToday = ({ orders, ordersSource, ordersData, stagesEnabled, onOpenView, onOpenOrder }: ProductionTodayProps) => {
+export const ProductionToday = ({
+  orders,
+  ordersSource,
+  ordersData,
+  stagesEnabled,
+  stageFilter = null,
+  hideOrders = false,
+  onOpenView,
+  onOpenOrder,
+}: ProductionTodayProps) => {
   const { orderStatusLabels } = useProductionConfig();
   const pipeline = usePhase2Pipeline({ enabled: stagesEnabled });
   const alerts = usePhase2AlertKpis();
@@ -99,38 +113,65 @@ export const ProductionToday = ({ orders, ordersSource, ordersData, stagesEnable
   const { data: hydration = [] } = useHydrationCycles(undefined, { enabled: stagesEnabled });
   const { data: triage = [] } = useTriageSessions(undefined, { enabled: stagesEnabled });
 
-  const running = useMemo(() => [...orders].filter((order) => order.status === 'in_progress').sort(byUrgency), [orders]);
-  const planned = useMemo(() => [...orders].filter((order) => order.status === 'planned').sort(byUrgency), [orders]);
-  const drafts = useMemo(() => [...orders].filter((order) => order.status === 'draft').sort(byUrgency), [orders]);
+  const allow = (stage: ProductionStageView) => !stageFilter || stageFilter === stage;
+
+  const running = useMemo(
+    () => (hideOrders ? [] : [...orders].filter((order) => order.status === 'in_progress').sort(byUrgency)),
+    [hideOrders, orders],
+  );
+  const planned = useMemo(
+    () => (hideOrders ? [] : [...orders].filter((order) => order.status === 'planned').sort(byUrgency)),
+    [hideOrders, orders],
+  );
+  const drafts = useMemo(
+    () => (hideOrders ? [] : [...orders].filter((order) => order.status === 'draft').sort(byUrgency)),
+    [hideOrders, orders],
+  );
 
   const stageWork = [
-    ...fumigation.filter((cycle) => FUMIGATION_ACTIVE.has(cycle.status)).map((cycle) => ({
-      id: cycle.id, icon: Flame, title: cycle.cycle_number, detail: `Chambre ${cycle.chamber}`, status: FUMIGATION_LABEL[cycle.status], view: 'fumigation' as const,
-    })),
-    ...cleaning.filter((cycle) => cycle.status === 'EN_COURS').map((cycle) => ({
-      id: cycle.id, icon: Droplets, title: cycle.cycle_number, detail: `Lot ${cycle.lot_number}`, status: 'En cours', view: 'nettoyage' as const,
-    })),
-    ...hydration.filter((cycle) => cycle.status === 'EN_COURS').map((cycle) => ({
-      id: cycle.id, icon: Wind, title: cycle.cycle_number, detail: 'Hydratation', status: 'En cours', view: 'hydratation' as const,
-    })),
-    ...triage.filter((session) => session.status === 'EN_COURS' || session.status === 'PAUSE').map((session) => ({
-      id: session.id, icon: Scissors, title: session.session_number, detail: `Lot ${session.parent_lot_number}`, status: session.status === 'PAUSE' ? 'En pause' : 'En cours', view: 'triage' as const,
-    })),
+    ...(allow('fumigation')
+      ? fumigation.filter((cycle) => FUMIGATION_ACTIVE.has(cycle.status)).map((cycle) => ({
+          id: cycle.id, icon: Flame, title: cycle.cycle_number, detail: `Chambre ${cycle.chamber}`, status: FUMIGATION_LABEL[cycle.status], view: 'fumigation' as const,
+        }))
+      : []),
+    ...(allow('nettoyage')
+      ? cleaning.filter((cycle) => cycle.status === 'EN_COURS').map((cycle) => ({
+          id: cycle.id, icon: Droplets, title: cycle.cycle_number, detail: `Lot ${cycle.lot_number}`, status: 'En cours', view: 'nettoyage' as const,
+        }))
+      : []),
+    ...(allow('hydratation')
+      ? hydration.filter((cycle) => cycle.status === 'EN_COURS').map((cycle) => ({
+          id: cycle.id, icon: Wind, title: cycle.cycle_number, detail: 'Hydratation', status: 'En cours', view: 'hydratation' as const,
+        }))
+      : []),
+    ...(allow('triage')
+      ? triage.filter((session) => session.status === 'EN_COURS' || session.status === 'PAUSE').map((session) => ({
+          id: session.id, icon: Scissors, title: session.session_number, detail: `Lot ${session.parent_lot_number}`, status: session.status === 'PAUSE' ? 'En pause' : 'En cours', view: 'triage' as const,
+        }))
+      : []),
   ];
 
   const stuck = [
-    ...fumigation.filter((cycle) => (cycle.status === 'INTERROMPU' || cycle.status === 'ECHEC') && isRecent(cycle)).map((cycle) => ({
-      id: cycle.id, icon: Flame, title: cycle.cycle_number, reason: cycle.status === 'ECHEC' ? 'Fumigation en échec' : 'Fumigation interrompue', view: 'fumigation' as const,
-    })),
-    ...cleaning.filter((cycle) => cycle.status === 'INCIDENT' && isRecent(cycle)).map((cycle) => ({
-      id: cycle.id, icon: Droplets, title: cycle.cycle_number, reason: 'Incident de nettoyage', view: 'nettoyage' as const,
-    })),
-    ...hydration.filter((cycle) => cycle.status === 'NON_CONFORME' && isRecent(cycle)).map((cycle) => ({
-      id: cycle.id, icon: Wind, title: cycle.cycle_number, reason: 'Hydratation non conforme', view: 'hydratation' as const,
-    })),
-    ...triage.filter((session) => session.status === 'INCIDENT' && isRecent(session)).map((session) => ({
-      id: session.id, icon: Scissors, title: session.session_number, reason: 'Incident de triage', view: 'triage' as const,
-    })),
+    ...(allow('fumigation')
+      ? fumigation.filter((cycle) => (cycle.status === 'INTERROMPU' || cycle.status === 'ECHEC') && isRecent(cycle)).map((cycle) => ({
+          id: cycle.id, icon: Flame, title: cycle.cycle_number, reason: cycle.status === 'ECHEC' ? 'Fumigation en échec' : 'Fumigation interrompue', view: 'fumigation' as const,
+        }))
+      : []),
+    ...(allow('nettoyage')
+      ? cleaning.filter((cycle) => cycle.status === 'INCIDENT' && isRecent(cycle)).map((cycle) => ({
+          id: cycle.id, icon: Droplets, title: cycle.cycle_number, reason: 'Incident de nettoyage', view: 'nettoyage' as const,
+        }))
+      : []),
+    ...(allow('hydratation')
+      ? hydration.filter((cycle) => cycle.status === 'NON_CONFORME' && isRecent(cycle)).map((cycle) => ({
+          id: cycle.id, icon: Wind, title: cycle.cycle_number, reason: 'Hydratation non conforme', view: 'hydratation' as const,
+        }))
+      : []),
+    ...(allow('triage')
+      ? triage.filter((session) => session.status === 'INCIDENT' && isRecent(session)).map((session) => ({
+          id: session.id, icon: Scissors, title: session.session_number, reason: 'Incident de triage', view: 'triage' as const,
+        }))
+      : []),
   ];
 
   const criticalAlerts = alerts.urgence + alerts.critique;
@@ -195,13 +236,22 @@ export const ProductionToday = ({ orders, ordersSource, ordersData, stagesEnable
             onAction={() => onOpenOrder(order.id)}
           />
         ))}
-        {stagesEnabled && pipeline.waiting.length > 0 && (
+        {stagesEnabled && !hideOrders && pipeline.waiting.length > 0 && (
           <WorkRow
             icon={Flame}
             title={`${pipeline.waiting.length} lot${pipeline.waiting.length > 1 ? 's' : ''} libéré${pipeline.waiting.length > 1 ? 's' : ''} à transformer`}
             detail={`${pipeline.totalKgWaiting.toLocaleString('fr-FR')} kg en attente de fumigation`}
             action="Voir les lots"
             onAction={() => onOpenView('pipeline')}
+          />
+        )}
+        {stagesEnabled && stageFilter === 'fumigation' && pipeline.waiting.length > 0 && (
+          <WorkRow
+            icon={Flame}
+            title={`${pipeline.waiting.length} lot${pipeline.waiting.length > 1 ? 's' : ''} prêt${pipeline.waiting.length > 1 ? 's' : ''} pour fumigation`}
+            detail={`${pipeline.totalKgWaiting.toLocaleString('fr-FR')} kg en attente`}
+            action="Ouvrir"
+            onAction={() => onOpenView('fumigation')}
           />
         )}
       </Section>

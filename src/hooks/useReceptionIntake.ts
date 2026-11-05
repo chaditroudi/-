@@ -3,11 +3,13 @@ import { toast } from 'sonner';
 
 import { useAuthContext } from '@/contexts/AuthContext';
 import { ApiRequestError, axiosClient } from '@/lib/axiosClient';
+import { factoryOwnerKey, readFactorySession } from '@/lib/factorySession';
 import { deleteLocalDraft } from '@/lib/offline/draftStore';
 import {
   discardOutboxItem,
   enqueueReceptionIntake,
   retryOutboxItem,
+  RECEPTION_INTAKE_TIMEOUT_MS,
   isOutboxRetryable,
   isSessionExpiredError,
 } from '@/lib/offline/outbox';
@@ -89,10 +91,8 @@ export interface ReceptionIntakeResponse {
   offline_queued?: boolean;
   session_expired?: boolean;
   queue_id?: string;
+  queue_error?: string;
 }
-
-/** Past this the delivery waits in the queue: a replay is safe, a frozen button is not. */
-const INTAKE_TIMEOUT_MS = 30_000;
 
 export const useCreateReceptionIntake = () => {
   const queryClient = useQueryClient();
@@ -101,6 +101,10 @@ export const useCreateReceptionIntake = () => {
 
   return useMutation({
     mutationFn: async (payload: ReceptionIntakePayload): Promise<ReceptionIntakeResponse> => {
+      const session = readFactorySession();
+      if (!session || session.ownerKey !== factoryOwnerKey(user)) {
+        throw new ApiRequestError({ message: 'Reconnectez-vous à votre usine.', status: 401, code: 'SESSION_REQUIRED' });
+      }
       // Queued before sending: a dropped connection or a closed tablet loses nothing.
       // The queue is a safety net: when local storage fails, the request still goes out.
       const queued = await enqueueReceptionIntake(payload as unknown as Record<string, unknown>, user?.id ?? null)
@@ -112,7 +116,7 @@ export const useCreateReceptionIntake = () => {
         const response = await axiosClient.post<{ data: ReceptionIntakeResponse }>(
           '/receptions/intake',
           queued?.payload ?? payload,
-          { timeout: INTAKE_TIMEOUT_MS },
+          { timeout: RECEPTION_INTAKE_TIMEOUT_MS, headers: { Authorization: `Bearer ${session.accessToken}` } },
         );
         if (queued) await discardOutboxItem(queued.id).catch(() => undefined);
         await deleteLocalDraft(payload.client_request_id).catch(() => undefined);
@@ -125,7 +129,7 @@ export const useCreateReceptionIntake = () => {
           throw error;
         }
 
-        await retryOutboxItem(queued.id).catch(() => undefined);
+        await retryOutboxItem(queued.id, error).catch(() => undefined);
         return {
           reception: {
             id: queued.id,
@@ -145,6 +149,7 @@ export const useCreateReceptionIntake = () => {
           offline_queued: true,
           session_expired: isSessionExpiredError(error),
           queue_id: queued.id,
+          queue_error: error instanceof Error ? error.message : String(error),
         };
       }
     },

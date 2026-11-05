@@ -16,6 +16,7 @@ import { classifyDatabaseHost, resolveAppEnv, shouldSeedDemoData } from "./confi
 import { getCollectionModel } from "./db/dynamic-model.js";
 import { prepareInsertDocument } from "./db/defaults.js";
 import { AuthUserModel } from "./models/auth-user.model.js";
+import { currentFactory, factoryFromAccount, runWithFactory } from "./db/factory-context.js";
 
 const ensureDocuments = async (collection: string, uniqueField: string, rows: Record<string, unknown>[]) => {
   const Model = getCollectionModel(collection);
@@ -38,9 +39,10 @@ const seedInitialAdmin = async () => {
   if (existingAdmin) return;
 
   const email = String(process.env.INITIAL_ADMIN_EMAIL || "").trim().toLowerCase();
+  const factory = factoryFromAccount({ tenant_id: process.env.INITIAL_ADMIN_TENANT_ID, factory_id: process.env.INITIAL_ADMIN_FACTORY_ID });
   const password = String(process.env.INITIAL_ADMIN_PASSWORD || "");
-  if (!email || password.length < MIN_INITIAL_PASSWORD_LENGTH) {
-    console.warn("No admin account exists: set INITIAL_ADMIN_EMAIL and INITIAL_ADMIN_PASSWORD (10+ characters).");
+  if (!email || password.length < MIN_INITIAL_PASSWORD_LENGTH || !factory) {
+    console.warn("No admin account provisioned: explicit INITIAL_ADMIN_EMAIL, INITIAL_ADMIN_PASSWORD, INITIAL_ADMIN_TENANT_ID and INITIAL_ADMIN_FACTORY_ID are required.");
     return;
   }
 
@@ -48,6 +50,7 @@ const seedInitialAdmin = async () => {
   await AuthUserModel.create({
     id: randomUUID(),
     email,
+    ...factory,
     passwordHash: await bcrypt.hash(password, 10),
     user_metadata: {
       full_name: "System Administrator",
@@ -63,6 +66,12 @@ const seedInitialAdmin = async () => {
 
 export const seedDatabase = async () => {
   await seedInitialAdmin();
+  const factory = currentFactory() || factoryFromAccount({ tenant_id: process.env.INITIAL_ADMIN_TENANT_ID, factory_id: process.env.INITIAL_ADMIN_FACTORY_ID });
+  if (!factory) return; // Never seed operational records into the control/legacy database.
+  return runWithFactory(factory, seedFactoryDefaults);
+};
+
+const seedFactoryDefaults = async () => {
 
   await ensureDocuments("production_step_definitions", "code", STEP_DEFINITIONS);
   await ensureDocuments("production_flux_codes", "code", FLUX_CODE_CONFIG);
@@ -75,6 +84,11 @@ export const seedDatabase = async () => {
     await ensureDocuments("products", "code", DEMO_PRODUCTS);
     await ensureDocuments("materials", "code", DEMO_MATERIALS);
     await ensureDocuments("suppliers", "code", DEMO_SUPPLIERS);
+    // Keep portal login linked even when SUP-0001 already existed without email.
+    await getCollectionModel("suppliers").updateOne(
+      { code: "SUP-0001" },
+      { $set: { email: "fournisseur.externe@test.local" } },
+    ).exec();
   }
 
   const ChecklistModel = getCollectionModel("qc_checklists");

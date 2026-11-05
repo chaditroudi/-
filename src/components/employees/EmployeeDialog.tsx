@@ -11,13 +11,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ROLE_CONFIG, type Employee } from '@/types/roles';
+import type { CreateEmployeeData, UpdateEmployeeData } from '@/hooks/useEmployees';
 
 interface EmployeeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   employeeId: string | null;
   employees: Employee[];
-  onSave: (data: Record<string, unknown>) => Promise<void>;
+  onSave: (data: CreateEmployeeData | UpdateEmployeeData) => Promise<void>;
 }
 
 export function EmployeeDialog({ open, onOpenChange, employeeId, employees, onSave }: EmployeeDialogProps) {
@@ -119,8 +120,8 @@ export function EmployeeDialog({ open, onOpenChange, employeeId, employees, onSa
       access_password: !isEditing && data.create_access_account ? data.access_password || null : null,
     };
 
-    if (isEditing && employeeId) await onSave({ id: employeeId, ...payload });
-    else await onSave(payload);
+    if (isEditing && employeeId) await onSave({ id: employeeId, ...payload } as UpdateEmployeeData);
+    else await onSave(payload as CreateEmployeeData);
     onOpenChange(false);
   };
 

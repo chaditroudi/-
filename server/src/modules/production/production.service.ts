@@ -6,8 +6,8 @@ import {
   assertMassBalanceClosed,
   loadConfiguredMassBalanceTolerancePct,
 } from "../trust/mass-balance.js";
-import { emitNotification } from "../notifications/notification-emitter.js";
 import { lotLifecycleService } from "../trust/lot-lifecycle.service.js";
+import { changeStockLotQuantity } from "../stock/stock-quantity.js";
 
 const Orders = () => getCollectionModel("production_orders");
 const Steps = () => getCollectionModel("production_steps");
@@ -76,32 +76,6 @@ const findStockLot = async (receptionLotId: string) => {
   ) as Row[];
   const active = rows.filter((row) => row.status !== "CONSUMED");
   return active.find((row) => row.status !== "VALIDATED") ?? active[0] ?? rows[0] ?? null;
-};
-
-/** Compare-and-set on current_quantity so concurrent consumers cannot both spend the same kilos. */
-const changeStockLotQuantity = async (stockLotId: string, deltaKg: number, now: string) => {
-  for (let attempt = 0; attempt < 5; attempt += 1) {
-    const lot = sanitizeDocument(await StockLots().findOne({ id: stockLotId }).lean().exec()) as Row | null;
-    if (!lot) throw notFound("STOCK_LOT_NOT_FOUND", `Lot de stock ${stockLotId} introuvable.`);
-    const before = Number(lot.current_quantity ?? 0);
-    const after = Number((before + deltaKg).toFixed(3));
-    if (after < -0.001) {
-      throw badRequest(
-        "INSUFFICIENT_STOCK",
-        `Stock disponible insuffisant sur ${String(lot.lot_number ?? stockLotId)} (${before} kg, besoin ${-deltaKg} kg).`,
-        { availableKg: before, requestedKg: -deltaKg, lotId: stockLotId },
-      );
-    }
-    const status = after <= 0 ? "CONSUMED" : lot.status === "CONSUMED" ? "VALIDATED" : lot.status;
-    const result = await StockLots()
-      .updateOne(
-        { id: stockLotId, current_quantity: lot.current_quantity ?? null },
-        { $set: { current_quantity: Math.max(0, after), status, updated_at: now } },
-      )
-      .exec();
-    if (Number(result.modifiedCount || 0) === 1) return { lot, before, after: Math.max(0, after) };
-  }
-  throw conflict("STOCK_LOT_CONCURRENT_UPDATE", "Le stock du lot change en ce moment : réessayez.");
 };
 
 /** Lot details shown with an allocation or an available lot (reception number, supplier, bio). */
@@ -289,6 +263,9 @@ export class ProductionService {
 
   async completeOrder(orderId: string, body: Record<string, unknown>, actor: string | null) {
     const order = await readOrder(orderId);
+    if (statusOf(order) === "completed") {
+      return order;
+    }
     if (statusOf(order) !== "in_progress") {
       throw badRequest("INVALID_TRANSITION", `L'ordre doit être en cours pour être terminé (état actuel : ${statusOf(order)}).`);
     }
@@ -318,44 +295,93 @@ export class ProductionService {
     const recordedWasteKg = steps.reduce((sum, step) => sum + Number(step.waste_quantity ?? 0), 0);
     const actualOutputKg = Number(body.actual_output_kg ?? recordedOutputKg);
     const wasteKg = Number(body.waste_kg ?? recordedWasteKg);
+    // Gate 2: manufacturing completion enforces closed mass balance at the domain boundary.
     const balance = assertMassBalanceClosed(
       { inputKg: totalInputKg, outputsKg: [actualOutputKg], wasteKg },
-      { tolerancePct: await loadConfiguredMassBalanceTolerancePct(), context: `OF production ${orderId}` },
+      {
+        tolerancePct: await loadConfiguredMassBalanceTolerancePct(),
+        mode: "enforce",
+        context: `OF production ${orderId}`,
+      },
     );
-    if (balance.action === "warn") {
-      console.warn("[mass-balance] production order unbalanced:", { orderId, ...balance });
-      await emitNotification({
-        notificationType: "MASS_BALANCE_WARN",
-        category: "traceability",
-        space: "production",
-        severity: "warning",
-        title: `Bilan matière OF production`,
-        message: `Ordre ${order.order_number || orderId}: écart ${balance.variancePct}% (tolérance ±${balance.tolerancePct}%).`,
-        entityType: "production_orders",
-        entityId: orderId,
-        metadata: balance as unknown as Record<string, unknown>,
-      });
-    }
 
     const yieldPct =
       totalInputKg > 0 ? Math.round((actualOutputKg / totalInputKg) * 100 * 10) / 10 : null;
 
     const now = new Date().toISOString();
-    await Orders().updateOne(
-      { id: orderId },
-      {
-        $set: {
-          status: "completed",
-          actual_end_at: now,
-          actual_output_kg: actualOutputKg,
-          waste_kg: wasteKg,
-          actual_yield_pct: yieldPct,
-          mass_balance_variance_pct: balance.variancePct,
-          notes: body.notes ?? order.notes,
-          updated_at: now,
+    const orderNumber = String(order.order_number || orderId);
+    const claimed = await Orders()
+      .updateOne(
+        { id: orderId, status: { $in: ["in_progress", "IN_PROGRESS"] } },
+        {
+          $set: {
+            status: "completed",
+            actual_end_at: now,
+            actual_output_kg: actualOutputKg,
+            waste_kg: wasteKg,
+            actual_yield_pct: yieldPct,
+            mass_balance_variance_pct: balance.variancePct,
+            notes: body.notes ?? order.notes,
+            updated_at: now,
+          },
         },
-      },
-    );
+      )
+      .exec();
+    if (Number(claimed.modifiedCount || 0) !== 1) {
+      const current = await readOrder(orderId);
+      if (statusOf(current) === "completed") return current;
+      throw badRequest("INVALID_TRANSITION", `L'ordre doit être en cours pour être terminé (état actuel : ${statusOf(current)}).`);
+    }
+
+    // Linked output stock — one lot per completed OF; retries must not mint a second lot.
+    if (actualOutputKg > 0.001) {
+      const existingOutput = sanitizeDocument(
+        await StockLots()
+          .findOne({
+            source_stage: "PRODUCTION",
+            production_order_id: orderId,
+          })
+          .lean()
+          .exec(),
+      ) as Row | null;
+      if (!existingOutput) {
+        const outputLotNumber =
+          String(body.output_lot_number || "").trim() || `${orderNumber}-OUT`;
+        const parentReceptionLotId = String(allocations[0]?.lot_id || "") || null;
+        const outputLot = await prepareInsertDocument("stock_lots", {
+          lot_number: outputLotNumber,
+          product_id: order.product_id ?? null,
+          source_stage: "PRODUCTION",
+          production_order_id: orderId,
+          source_lot_internal: parentReceptionLotId,
+          reception_lot_id: null,
+          initial_quantity: actualOutputKg,
+          current_quantity: actualOutputKg,
+          unit: "kg",
+          status: "VALIDATED",
+          category: "WIP",
+          reception_date: now.slice(0, 10),
+          created_by: actor,
+          created_at: now,
+          updated_at: now,
+        });
+        await StockLots().create([outputLot]);
+        const movement = await prepareInsertDocument("stock_movements", {
+          movement_type: "RECEPTION",
+          lot_id: outputLot.id,
+          product_id: order.product_id ?? null,
+          quantity: actualOutputKg,
+          unit: "kg",
+          document_type: "PRODUCTION_COMPLETE",
+          document_reference: orderNumber,
+          request_id: `production:${orderId}:output`,
+          performed_by: actor,
+          notes: `Sortie production ${actualOutputKg} kg — OF ${orderNumber}`,
+          created_at: now,
+        });
+        await StockMovements().create([movement]);
+      }
+    }
 
     for (const allocation of allocations) {
       const lotId = String(allocation.lot_id || "");
@@ -365,7 +391,7 @@ export class ProductionService {
         collection: "production_orders",
         actorId: actor,
         balance,
-        context: `OF production ${String(order.order_number || orderId)}`,
+        context: `OF production ${orderNumber}`,
       });
     }
 

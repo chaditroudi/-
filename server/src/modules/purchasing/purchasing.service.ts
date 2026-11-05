@@ -4,6 +4,7 @@ import { badRequest, conflict, notFound } from "../../core/app-error.js";
 import { prepareInsertDocument } from "../../db/defaults.js";
 import { getCollectionModel, sanitizeDocument } from "../../db/dynamic-model.js";
 import { AuthUserModel } from "../../models/auth-user.model.js";
+import { factoryUserFilter } from "../../db/factory-context.js";
 import { normalizeDepartment } from "../org/departments.js";
 import { membershipFromActor } from "../org/membership.js";
 import { settingsService } from "../settings/settings.service.js";
@@ -523,7 +524,7 @@ export class PurchasingService {
   private async resolveActor(actor: ActorContext): Promise<ActorContext> {
     const id = typeof actor?.id === "string" ? actor.id.trim() : "";
     if (!id) return actor;
-    const user = (await AuthUserModel.findOne({ id })
+    const user = (await AuthUserModel.findOne(factoryUserFilter({ id }))
       .select("id email user_metadata is_active")
       .lean()
       .exec()) as {

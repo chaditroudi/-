@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import type { IntakeDraft, IntakePolicy } from '@/lib/receptionIntake';
 import {
   hasValidBioCertification,
+  isReceivableSupplier,
   ROYAL_PALM_HARVEST_METHODS,
   ROYAL_PALM_MATURITY_STAGES,
   ROYAL_PALM_PRESENTATIONS,
@@ -20,9 +21,6 @@ import type { Supplier } from '@/types/mes';
 import type { ReceptionV2 } from '@/types/reception';
 
 import { ChoiceChips, Field, frenchLabel, SupplierPicker } from './intakeControls';
-
-const isActiveSupplier = (supplier: Supplier) =>
-  supplier.is_active && (supplier.supplier_status || 'pending_approval') === 'active';
 
 interface StepDeliveryProps {
   draft: IntakeDraft;
@@ -37,7 +35,7 @@ export const StepDelivery = ({ draft, update, policy, varieties, lastDelivery, s
   const { data: suppliers = [] } = useSuppliers();
   const { data: orders = [], isLoading: ordersLoading } = usePurchaseOrders();
 
-  const activeSuppliers = useMemo(() => suppliers.filter(isActiveSupplier), [suppliers]);
+  const activeSuppliers = useMemo(() => suppliers.filter(isReceivableSupplier), [suppliers]);
   const supplier = useMemo(() => suppliers.find((row) => row.id === draft.supplier_id) ?? null, [suppliers, draft.supplier_id]);
   const openLines = useMemo(
     () => orders

@@ -10,44 +10,40 @@ import { Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const languages = [
-  { code: 'en', label: 'English', flag: '🇬🇧' },
-  { code: 'fr', label: 'Français', flag: '🇫🇷' },
-  { code: 'ar', label: 'العربية', flag: '🇸🇦' }
+  { code: 'fr', label: 'Français', short: 'FR' },
+  { code: 'ar', label: 'العربية', short: 'ع' },
+  { code: 'en', label: 'English', short: 'EN' },
 ];
 
 export const LanguageSwitcher = () => {
   const { i18n } = useTranslation();
 
-  const currentLang = languages.find(l => l.code === i18n.language) || languages[1];
-
-  const changeLanguage = (langCode: string) => {
-    i18n.changeLanguage(langCode);
-  };
+  const currentLang = languages.find((l) => l.code === i18n.language) || languages[0];
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           size="sm"
           aria-label={`Langue : ${currentLang.label}`}
           className="h-9 gap-2 px-2 text-muted-foreground hover:text-foreground"
         >
           <Globe className="h-4 w-4" />
-          <span className="hidden sm:inline text-sm">{currentLang.flag}</span>
+          <span className="hidden text-sm font-semibold sm:inline">{currentLang.short}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">
         {languages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
-            onClick={() => changeLanguage(lang.code)}
+            onClick={() => i18n.changeLanguage(lang.code)}
             className={cn(
-              "gap-2 cursor-pointer",
-              i18n.language === lang.code && "bg-primary/10 text-primary"
+              'cursor-pointer gap-2',
+              i18n.language === lang.code && 'bg-primary/10 text-primary',
             )}
           >
-            <span>{lang.flag}</span>
+            <span className="w-6 font-semibold">{lang.short}</span>
             <span>{lang.label}</span>
           </DropdownMenuItem>
         ))}

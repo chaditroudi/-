@@ -4,6 +4,7 @@ import type {
   LabelBrand,
   LabelLanguage,
   LabelStatus,
+  LabelTemplate,
   PackagingBOMItem,
   PackagingFormat,
   PackagingLine,

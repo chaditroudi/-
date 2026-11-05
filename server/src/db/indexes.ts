@@ -9,6 +9,7 @@ type IndexDefinition = {
 };
 
 const INDEXES: IndexDefinition[] = [
+  { collection: "site_settings", keys: { id: 1 }, options: { unique: true, name: "id_1" } },
   {
     collection: "idempotency_commands",
     keys: { scope: 1, key: 1 },
@@ -106,9 +107,20 @@ const INDEXES: IndexDefinition[] = [
  * prevent the API from connecting. The affected feature will still fail safe
  * when it attempts an atomic claim.
  */
-export const ensureTrustIndexes = async () => {
-  const db = mongoose.connection.db;
+const ready = new WeakMap<object, Promise<void>>();
+export const ensureTrustIndexes = async (db = mongoose.connection.db, failClosed = false) => {
   if (!db) throw new Error("MongoDB connection is not ready for index creation.");
+  if (failClosed) {
+    const existing = ready.get(db);
+    if (existing) return existing;
+    const initialization = createTrustIndexes(db, true).catch((error) => { ready.delete(db); throw error; });
+    ready.set(db, initialization);
+    return initialization;
+  }
+  return createTrustIndexes(db, false);
+};
+
+const createTrustIndexes = async (db: NonNullable<typeof mongoose.connection.db>, failClosed: boolean) => {
 
   for (const definition of INDEXES) {
     try {
@@ -122,6 +134,7 @@ export const ensureTrustIndexes = async () => {
         });
       }
     } catch (error) {
+      if (failClosed) throw error;
       const message = error instanceof Error ? error.message : String(error);
       console.error(
         `[indexes] Failed ${definition.collection}.${String(definition.options.name)}: ${message}`,

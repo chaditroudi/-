@@ -12,6 +12,7 @@ export class SettingsController {
   @Get()
   @Public()
   async getSettings(@Req() req: any) {
+    if (!req.auth?.factory) return { data: this.settingsService.getPublicSettings() };
     const data = await this.settingsService.getSettings();
     return { data: req.auth?.user?.id && hasAnyRole(req, STAFF_READ_ROLES) ? data : redactPublicSettings(data) };
   }

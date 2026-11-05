@@ -1,6 +1,8 @@
 export interface User {
   id: string;
   email: string;
+  tenant_id?: string;
+  factory_id?: string;
   user_metadata?: Record<string, unknown>;
   has_signature_pin?: boolean;
   must_change_password?: boolean;
@@ -556,6 +558,9 @@ export const mongodb = {
           error: null,
         };
       } catch (error) {
+        if (readStoredSession()?.access_token !== storedSession.access_token) {
+          return { data: { session: readStoredSession() }, error: error instanceof Error ? error : null };
+        }
         return {
           data: { session: storedSession },
           error: error instanceof Error ? error : null,
@@ -638,6 +643,9 @@ export const mongodb = {
 };
 
 if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (event) => {
+    if (event.key === AUTH_STORAGE_KEY) emitAuthChange('TOKEN_REFRESHED', readStoredSession());
+  });
   window.addEventListener(SESSION_ENDED_EVENT, () => {
     writeStoredSession(null);
     emitAuthChange('SIGNED_OUT', null);

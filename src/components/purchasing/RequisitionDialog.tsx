@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PurchaseRequisition, UrgencyLevel } from '@/types/purchasing';
 import { Material, Supplier } from '@/types/mes';
+import { isReceivableSupplier } from '@/lib/royalPalmPhase1';
 import { buildRequisitionNotes, parseRequisitionMeta } from './requisitionMeta';
 
 type RequisitionFormValues = {
@@ -283,7 +284,7 @@ export const RequisitionDialog = ({
                   <SelectValue placeholder="Optionnel..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {suppliers.filter(s => s.is_active).map(s => (
+                  {suppliers.filter(isReceivableSupplier).map(s => (
                     <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                   ))}
                 </SelectContent>

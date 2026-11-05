@@ -2,14 +2,17 @@ import { randomUUID } from "node:crypto";
 
 import { afterCommit, isInTransaction } from "../../db/transaction.js";
 import { EXTERNAL_ROLES } from "../../middleware/authorization.js";
+import { currentFactory, requireFactory, runWithFactory, sameFactory, type FactoryContext } from "../../db/factory-context.js";
 
 type RealtimeClient = {
   id: string;
+  factory: FactoryContext;
   userId: string | null;
   roles: string[];
   seesAll: boolean;
   write: (eventName: string, payload: unknown) => void;
   end: () => void;
+  authorize?: () => Promise<boolean>;
 };
 
 export type RealtimeDbAction = "INSERT" | "UPDATE" | "DELETE" | "UPSERT" | "SYNC";
@@ -126,7 +129,8 @@ export const removeRealtimeClient = (clientId: string) => {
   clients.delete(clientId);
 };
 
-export const getRealtimeClientCount = () => clients.size;
+export const getRealtimeClientCount = (factory = requireFactory()) =>
+  [...clients.values()].filter((client) => sameFactory(client.factory, factory)).length;
 
 export const closeAllClients = () => {
   for (const client of clients.values()) {
@@ -136,9 +140,11 @@ export const closeAllClients = () => {
 };
 
 export const publishRealtimeDbChange = (event: RealtimeDbChangeEvent) => {
+  const factory = currentFactory();
+  if (!factory) return; // Unscoped jobs cannot broadcast to any factory.
   // Clients must never hear about a write that can still roll back.
   if (isInTransaction()) {
-    afterCommit(() => publishRealtimeDbChange(event));
+    afterCommit(() => runWithFactory(factory, () => publishRealtimeDbChange(event)));
     return;
   }
 
@@ -164,7 +170,15 @@ export const publishRealtimeDbChange = (event: RealtimeDbChangeEvent) => {
   };
 
   for (const client of clients.values()) {
+    if (!sameFactory(client.factory, factory)) continue;
     if (!clientMatchesTarget(client, targetRoles, targetUserIds)) continue;
-    client.write("db-change", payload);
+    const deliver = (authorized: boolean) => {
+      if (clients.get(client.id) !== client) return;
+      if (!authorized) { clients.delete(client.id); client.end(); return; }
+      try { client.write("db-change", payload); }
+      catch { clients.delete(client.id); client.end(); }
+    };
+    if (client.authorize) void client.authorize().then(deliver, () => deliver(false));
+    else deliver(true);
   }
 };

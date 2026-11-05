@@ -8,7 +8,11 @@
  *   RECEPTION_IT_MONGO_URI=mongodb://127.0.0.1:27327/?replicaSet=rs0 npx vitest run reception.integration
  */
 import mongoose from "mongoose";
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, vi } from "vitest";
+import { factoryConnection, runWithFactory } from "../../db/factory-context.js";
+import { testInFactory } from "../../test/factory-test.js";
+const factory = { tenant_id: "reception-test", factory_id: "site-one" };
+const it = testInFactory(factory);
 
 import { getCollectionModel } from "../../db/dynamic-model.js";
 import { ensureTrustIndexes } from "../../db/indexes.js";
@@ -35,7 +39,7 @@ const SIDE_EFFECT_COLLECTIONS = [
   "lot_events", "reception_alerts", "reception_audit_logs_v2", "purchase_order_receiving_lots",
 ];
 
-const model = (name: string) => getCollectionModel(name);
+const model = (name: string) => runWithFactory(factory, () => getCollectionModel(name));
 const count = (name: string, filter: Record<string, unknown> = {}) => model(name).countDocuments(filter).exec();
 
 const persistedCounts = async () =>
@@ -70,6 +74,7 @@ const delivery = (overrides: Record<string, unknown> = {}): Record<string, any> 
 const captureRealtime = () => {
   const events: Array<{ event: string; payload: { resource?: string } }> = [];
   addRealtimeClient({
+    factory: { tenant_id: "reception-test", factory_id: "site-one" },
     id: "it-client", userId: "op-it", roles: ["operateur_reception"], seesAll: false,
     write: (event, payload) => events.push({ event, payload: payload as { resource?: string } }),
     end: () => undefined,
@@ -82,14 +87,18 @@ describe.skipIf(!uri)("reception on a real replica set", () => {
     expect(String(uri)).toMatch(/127\.0\.0\.1|localhost/);
     await mongoose.connect(String(uri), { dbName: DB_NAME });
     await mongoose.connection.dropDatabase();
-    await ensureTrustIndexes();
+    await runWithFactory(factory, async () => {
+    await factoryConnection().dropDatabase();
+    await ensureTrustIndexes(factoryConnection().db, true);
     // Multi-document transactions cannot create collections under a catalog conflict.
     for (const name of [...SIDE_EFFECT_COLLECTIONS, "stock_movements", "epcis_events", "system_notifications", "counters"]) {
-      await mongoose.connection.db!.createCollection(name).catch(() => undefined);
+      await factoryConnection().db!.createCollection(name).catch(() => undefined);
     }
+    });
   });
 
   afterAll(async () => {
+    await runWithFactory(factory, () => factoryConnection().dropDatabase());
     await mongoose.connection.dropDatabase();
     await mongoose.disconnect();
   });

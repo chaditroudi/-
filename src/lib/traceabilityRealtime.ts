@@ -102,71 +102,74 @@ export const diffLotTraceability = (
     });
   };
 
+  const asRecords = <T,>(items: T[] | null | undefined): Array<Record<string, unknown>> =>
+    (items ?? []) as unknown as Array<Record<string, unknown>>;
+
   compareRecords(
     'qc',
-    previous.qc_inspections as Array<Record<string, unknown>>,
-    next.qc_inspections as Array<Record<string, unknown>>,
+    asRecords(previous.qc_inspections),
+    asRecords(next.qc_inspections),
     'inspection_number',
     'decision',
   );
   compareRecords(
     'fumigation',
-    previous.fumigation_cycles as Array<Record<string, unknown>>,
-    next.fumigation_cycles as Array<Record<string, unknown>>,
+    asRecords(previous.fumigation_cycles),
+    asRecords(next.fumigation_cycles),
     'cycle_number',
   );
   compareRecords(
     'cleaning',
-    previous.cleaning_cycles as Array<Record<string, unknown>>,
-    next.cleaning_cycles as Array<Record<string, unknown>>,
+    asRecords(previous.cleaning_cycles),
+    asRecords(next.cleaning_cycles),
     'cycle_number',
   );
   compareRecords(
     'hydration',
-    previous.hydration_cycles as Array<Record<string, unknown>>,
-    next.hydration_cycles as Array<Record<string, unknown>>,
+    asRecords(previous.hydration_cycles),
+    asRecords(next.hydration_cycles),
     'cycle_number',
   );
   compareRecords(
     'triage',
-    previous.triage_sessions as Array<Record<string, unknown>>,
-    next.triage_sessions as Array<Record<string, unknown>>,
+    asRecords(previous.triage_sessions),
+    asRecords(next.triage_sessions),
     'session_number',
   );
   compareRecords(
     'stock_lot',
-    previous.stock_lots as Array<Record<string, unknown>>,
-    next.stock_lots as Array<Record<string, unknown>>,
+    asRecords(previous.stock_lots),
+    asRecords(next.stock_lots),
     'lot_number',
   );
   compareRecords(
     'stock_movement',
-    previous.stock_movements as Array<Record<string, unknown>>,
-    next.stock_movements as Array<Record<string, unknown>>,
+    asRecords(previous.stock_movements),
+    asRecords(next.stock_movements),
     'movement_number',
     'movement_type',
   );
   compareRecords(
     'production',
-    previous.production_orders as Array<Record<string, unknown>>,
-    next.production_orders as Array<Record<string, unknown>>,
+    asRecords(previous.production_orders),
+    asRecords(next.production_orders),
     'order_number',
   );
   compareRecords(
     'output_lot',
-    previous.output_lots as Array<Record<string, unknown>>,
-    next.output_lots as Array<Record<string, unknown>>,
+    asRecords(previous.output_lots),
+    asRecords(next.output_lots),
     'lot_pf_number',
   );
   compareRecords(
     'shipment',
-    previous.shipments as Array<Record<string, unknown>>,
-    next.shipments as Array<Record<string, unknown>>,
+    asRecords(previous.shipments),
+    asRecords(next.shipments),
     'shipment_number',
   );
 
-  const previousSubLots = buildRecordMap(previous.sub_lots as Array<Record<string, unknown>>);
-  (next.sub_lots as Array<Record<string, unknown>>).forEach((subLot) => {
+  const previousSubLots = buildRecordMap(asRecords(previous.sub_lots));
+  asRecords(next.sub_lots).forEach((subLot) => {
     const id = String(subLot.id ?? '');
     if (!id || previousSubLots.has(id)) return;
 

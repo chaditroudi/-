@@ -12,7 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { Supplier } from '@/types/mes';
-import { ROYAL_PALM_VARIETIES } from '@/lib/royalPalmPhase1';
+import { isReceivableSupplier, ROYAL_PALM_VARIETIES } from '@/lib/royalPalmPhase1';
 import {
   type InboundNotice,
   useCancelInboundNotice,
@@ -74,9 +74,7 @@ export const InboundNoticeDialog = ({ open, onOpenChange, suppliers }: Props) =>
     setFormError(null);
   }, [open]);
 
-  const activeSuppliers = suppliers.filter(
-    (s) => s.is_active && (s.supplier_status || 'pending_approval') === 'active',
-  );
+  const activeSuppliers = suppliers.filter(isReceivableSupplier);
 
   const handleCreate = () => {
     if (!supplierId) { setFormError('Sélectionner un fournisseur.'); return; }

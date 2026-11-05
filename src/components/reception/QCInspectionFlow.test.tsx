@@ -25,8 +25,6 @@ vi.mock('@/hooks/useAuth', () => ({
 }));
 vi.mock('@/lib/phase1RuleEngine', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/lib/phase1RuleEngine')>()),
-  recalculateAndSaveSupplierScore: vi.fn(async () => null),
-  triggerAutoBlockIfNeeded: vi.fn(async () => false),
   createRejectionNotification: vi.fn(async () => undefined),
 }));
 

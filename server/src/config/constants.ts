@@ -85,11 +85,17 @@ export const DEMO_SUPPLIERS = [
   {
     code: "SUP-0001",
     name: "Cooperative Oasis Tozeur",
+    // Links the seeded fournisseur_externe actor (fournisseur.externe@test.local).
+    email: "fournisseur.externe@test.local",
     country: "Tunisie",
     is_active: true,
     supplier_status: "active",
+    actor_type: "cooperative",
+    region: "Tozeur",
     produced_varieties: ["Deglet Nour"],
     quality_score: 88,
+    delivered_lots_count: 3,
+    rejection_rate: 0,
     contract_type: "saisonnier",
     contract_start_date: "2026-05-24",
     contract_end_date: "2026-12-31",

@@ -1,0 +1,336 @@
+{
+  "capturedAtUtc": "2026-11-01T12:40:46.872Z",
+  "userDate": "2026-11-01",
+  "userTimezone": "Europe/Paris",
+  "purpose": "Safe recovery baseline; source frozen; Phase 1 remains incomplete",
+  "source": {
+    "commit": "3c7b695d79305a23346b1bc6ad998f7984e3e129",
+    "tree": "2f970ba9c22979e90fc245a1e7330520570a94b2",
+    "branch": "codex/phase-1-factory-experience",
+    "verificationWorktree": ".local/phase1/verified",
+    "verificationSourceClean": true,
+    "mainWorkingTreeVerifiedAsCommittedSnapshot": false
+  },
+  "refs": [
+    {
+      "ref": "claude/date-harvest-design-plan-751fc7",
+      "commit": "7d01d5f5246f1a7b5c6e61ca3766380a1ac5703c",
+      "date": "2026-10-31T18:58:54+01:00",
+      "subject": "test: run the browser suite on the production topology"
+    },
+    {
+      "ref": "claude/date-harvest-design-plan-a6e539",
+      "commit": "4c876c91405f5b64e3284041cc1e4c266c392f45",
+      "date": "2026-10-31T08:28:07+01:00",
+      "subject": "test: cover sign-in recovery in the reception browser suite"
+    },
+    {
+      "ref": "codex/phase-1-factory-experience",
+      "commit": "3c7b695d79305a23346b1bc6ad998f7984e3e129",
+      "date": "2026-11-01T10:23:08+01:00",
+      "subject": "fix: keep mobile QC tabs visible and prioritize each role daily work"
+    },
+    {
+      "ref": "feature/phase-0-safety",
+      "commit": "c11fdcc4b4ad62d0b8d6ca212ffac913e231e6c2",
+      "date": "2026-10-31T22:10:45+01:00",
+      "subject": "security: realtime carries ids only and streams open with a ticket"
+    },
+    {
+      "ref": "feature/phase-1-truthful-ui",
+      "commit": "a8ea0e2bb3f92544e229f420a00110a43f783c00",
+      "date": "2026-11-01T00:15:35+01:00",
+      "subject": "test: seven-role acceptance suite with forced failures"
+    },
+    {
+      "ref": "feature/reception-2",
+      "commit": "dd7856d6f83638ec9df320b33608ed60fe10610a",
+      "date": "2026-10-31T12:26:09+01:00",
+      "subject": "quality: make the QC inspection the only way to release a lot"
+    },
+    {
+      "ref": "feature/ui-redesign",
+      "commit": "7d01d5f5246f1a7b5c6e61ca3766380a1ac5703c",
+      "date": "2026-10-31T18:58:54+01:00",
+      "subject": "test: run the browser suite on the production topology"
+    },
+    {
+      "ref": "main",
+      "commit": "4c876c91405f5b64e3284041cc1e4c266c392f45",
+      "date": "2026-10-31T08:28:07+01:00",
+      "subject": "test: cover sign-in recovery in the reception browser suite"
+    },
+    {
+      "ref": "stabilize/baseline",
+      "commit": "a8ea0e2bb3f92544e229f420a00110a43f783c00",
+      "date": "2026-11-01T00:15:35+01:00",
+      "subject": "test: seven-role acceptance suite with forced failures"
+    }
+  ],
+  "gates": {
+    "unitIntegration": {
+      "status": "PASS",
+      "passed": 781,
+      "total": 781,
+      "files": 111
+    },
+    "backendTypecheck": {
+      "status": "PASS",
+      "diagnostics": 0
+    },
+    "frontendTypecheck": {
+      "status": "FAIL_GLOBAL_BASELINE",
+      "diagnostics": 205,
+      "noNewImplementedFileDiagnosticSignatures": true
+    },
+    "lint": {
+      "status": "PASS_AGAINST_BASELINE",
+      "errors": 0,
+      "warnings": 985,
+      "noNewFindingSignatures": true
+    },
+    "roleBrowser": {
+      "status": "PASS",
+      "passed": 1054,
+      "total": 1054,
+      "canonicalRoles": 28,
+      "assertionTagGroups": 39,
+      "readResources": 25,
+      "selectedCommandRoutes": 6,
+      "widths": [
+        1440,
+        768,
+        390
+      ]
+    },
+    "receptionFrozen": {
+      "status": "PASS",
+      "passed": 17,
+      "total": 17
+    },
+    "isolation": {
+      "status": "PASS",
+      "passed": 23,
+      "total": 23,
+      "snapshot": "3c7b695d79305a23346b1bc6ad998f7984e3e129",
+      "tenantIsolationClaim": false
+    },
+    "preservedPatchFocusedUnit": {
+      "status": "PASS",
+      "passed": 47,
+      "total": 47,
+      "files": 4,
+      "integrated": false
+    },
+    "safeProductionModeBundle": {
+      "status": "PASS",
+      "target": "test",
+      "api": "http://127.0.0.1:4165/api",
+      "productionDeployment": false
+    },
+    "supplementaryVisual": {
+      "status": "NOT_VERIFIED",
+      "cause": "Dev navigation timeout at 30000 ms"
+    },
+    "manufacturingThread": {
+      "status": "NOT_RERUN_AT_HEAD",
+      "historicalResult": "FAIL, six broken steps in Phase 0 report"
+    },
+    "staging": {
+      "status": "BLOCKED_NOT_VERIFIED"
+    },
+    "production": {
+      "status": "BLOCKED_NOT_VERIFIED"
+    }
+  },
+  "preservation": {
+    "trackedFiles": [
+      "src/components/layout/OfflineSyncStatus.tsx",
+      "src/components/reception/intake/ReceptionIntakeFlow.tsx",
+      "src/hooks/useReceptionDraft.ts",
+      "src/hooks/useReceptionIntake.ts",
+      "src/lib/apiTarget.test.ts",
+      "src/lib/apiTarget.ts",
+      "src/lib/offline/outbox.test.ts",
+      "src/lib/offline/outbox.ts"
+    ],
+    "originalPatchSha256": "e67a9202f8ab37b5f15df28c587340cb75c110ab411e8d3db719c3ca5a92de11",
+    "currentPatchSha256": "e67a9202f8ab37b5f15df28c587340cb75c110ab411e8d3db719c3ca5a92de11",
+    "identical": true,
+    "textualApplyCheckPassed": true,
+    "patchApplied": false,
+    "stagedFiles": [],
+    "untrackedTestsPreserved": [
+      "src/components/layout/OfflineSyncStatus.test.tsx",
+      "src/components/reception/intake/ReceptionIntakeFlow.test.tsx"
+    ]
+  },
+  "screenshots": {
+    "captured": 165,
+    "fullVisualAcceptance": false,
+    "selected": [
+      {
+        "file": "operateur-home-1440.png",
+        "width": 1440,
+        "height": 900,
+        "sha256": "706501b2ee741ca1dfa1cac63c9e1cd61c0f8f3903d71c41e9cc3edf4cb0d559",
+        "visuallyInspectedInFinalSnapshot": false
+      },
+      {
+        "file": "inspecteur-receptions-390-touch.png",
+        "width": 390,
+        "height": 844,
+        "sha256": "8244e3270bdcd11d9d923d23a255dcd0aba44fa3821e7dbc2590bbb3fa445292",
+        "visuallyInspectedInFinalSnapshot": true
+      },
+      {
+        "file": "inspecteur-qc-rtl-390.png",
+        "width": 390,
+        "height": 844,
+        "sha256": "20d4e8fae3a785bcbd062e15cfcd881cc7edb4d0f50f7d283780f94aa20e6ea0",
+        "visuallyInspectedInFinalSnapshot": true
+      },
+      {
+        "file": "production-denied-storage-1440.png",
+        "width": 1440,
+        "height": 900,
+        "sha256": "b5a5e751d4d9be5b9736a0baca880ed36fdda9147dd696f847814df6decbe968",
+        "visuallyInspectedInFinalSnapshot": false
+      },
+      {
+        "file": "notifications-403-1440.png",
+        "width": 1440,
+        "height": 900,
+        "sha256": "0aa2f954970b46aeceacee0aa62cc68e2a3831838ce60787f6034f7b4551474a",
+        "visuallyInspectedInFinalSnapshot": false
+      },
+      {
+        "file": "settings-500-1440.png",
+        "width": 1440,
+        "height": 900,
+        "sha256": "203678facc53e8a7b274c5c730a56c1d384ddbfbc90e63d40733234f00b8e533",
+        "visuallyInspectedInFinalSnapshot": false
+      },
+      {
+        "file": "notifications-committed-1440.png",
+        "width": 1440,
+        "height": 900,
+        "sha256": "1bda3fbe1bcc6a4ca33e695f91fe2d91c2cb6a02f1326e71ba7106fa3f0243b5",
+        "visuallyInspectedInFinalSnapshot": false
+      },
+      {
+        "file": "session-expired-1440.png",
+        "width": 1440,
+        "height": 900,
+        "sha256": "584e9e519d774917a056143d6c6f93f44789e3db8530ae4d71c6f476a4bd2f49",
+        "visuallyInspectedInFinalSnapshot": false
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "path": ".local/phase1/tests-final.log",
+      "bytes": 152811,
+      "sha256": "235af0250d3eb95d95aad636c7993e57adc57c3604569b986cd14c2c880a7ad7"
+    },
+    {
+      "path": ".local/phase1/browser-final.log",
+      "bytes": 486,
+      "sha256": "9c8604879e82587746f669bb96a7b0bba659f1966982ecba1bf015e8ccc32c5e"
+    },
+    {
+      "path": ".local/phase1/browser-results-accepted.json",
+      "bytes": 133280,
+      "sha256": "fd239aab6d5d4d6a0ec0fd16bda51d5f3414bef3f78b81875a766be1fa0288d5"
+    },
+    {
+      "path": ".local/phase1/role-matrix-final.json",
+      "bytes": 92307,
+      "sha256": "5f968e22fc9b28ff5ce8665824e227fef01c833fabb32e266ed1a17c84128b71"
+    },
+    {
+      "path": ".local/phase1/reception-final.log",
+      "bytes": 5987,
+      "sha256": "61f110837cb71631a74b855784cb2fbede18cf496580b767b7f2d7be9cb8a18c"
+    },
+    {
+      "path": ".local/phase1/reception-results.json",
+      "bytes": 3191,
+      "sha256": "5b843da89d7761fcf4ee33db62ac063fe8dfa02638461f2bab6fa12e330985d4"
+    },
+    {
+      "path": ".local/phase1/isolation-baseline-final.log",
+      "bytes": 1263,
+      "sha256": "1454a899bd200fa606ef00740cdb08820646f174ba48479379a1d9f95f7b1d1c"
+    },
+    {
+      "path": ".local/phase1/types-baseline-final.log",
+      "bytes": 39024,
+      "sha256": "520ddb00ae50ea43d7aa6ff54601baa864d52f16201680b6a1dbcb536a980bf1"
+    },
+    {
+      "path": ".local/phase1/server-types-baseline-final.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".local/phase1/lint-baseline-final.json",
+      "bytes": 2750215,
+      "sha256": "bed24f53c33c7139c7851e601e2a69012c06930a421116769bdf243ff64d5441"
+    },
+    {
+      "path": ".local/phase1/build-final.log",
+      "bytes": 15192,
+      "sha256": "f361b8900a972dfcea90e6365d80ccf3f80573fe23f52b13cc68cb6af272e8e3"
+    },
+    {
+      "path": ".local/phase1/build-reception-final.log",
+      "bytes": 15612,
+      "sha256": "9260cea6e009f87f078f6d8d2d95a2eb51a81a32e827399685df62635d1fd1f0"
+    },
+    {
+      "path": ".local/phase1/build-isolation-baseline-final.log",
+      "bytes": 15612,
+      "sha256": "6a63b9741a2ff543a9be3afe22128d97b5987f1ab99fdb6f440a8f6d1c58bd73"
+    },
+    {
+      "path": ".local/phase1/preserved-patch-tests.log",
+      "bytes": 356,
+      "sha256": "32f07f164523ec55a467dc264af251840a5c7c0debd4d05b66023bedd9505b41"
+    },
+    {
+      "path": ".local/phase1/visual-extra.log",
+      "bytes": 1056,
+      "sha256": "bb484b9f95d285ddc5a2c0c3cbee71c6edd4565bfde5421799394cf4c29395c3"
+    },
+    {
+      "path": ".local/phase1/preexisting.patch",
+      "bytes": 23947,
+      "sha256": "e67a9202f8ab37b5f15df28c587340cb75c110ab411e8d3db719c3ca5a92de11"
+    }
+  ],
+  "teardown": {
+    "ownedApplicationPortsClosed": [
+      4165,
+      8165,
+      4161,
+      8161,
+      4171,
+      8171,
+      4175,
+      8175
+    ],
+    "ownedTestReplicaSet": {
+      "host": "127.0.0.1",
+      "port": 27329,
+      "setName": "rs-phase1",
+      "shutdownRequested": true,
+      "dataDirectoryPreserved": true
+    },
+    "unrelatedServicesLeftUntouched": [
+      8080,
+      4000,
+      27017
+    ]
+  }
+}

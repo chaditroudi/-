@@ -84,6 +84,11 @@ const recalculateSupplierMetrics = async (supplierId: string, actorId: string | 
   const totalTons = allReceptions.reduce((sum, r) => sum + Number(r.quantity_total ?? 0), 0) / 1000;
   const deliveredLotsCount = total;
   const now = new Date().toISOString();
+  const lastDeliveryDate = allReceptions
+    .map((r) => String(r.actual_arrival_date || r.created_at || "").slice(0, 10))
+    .filter((value) => /^\d{4}-\d{2}-\d{2}$/.test(value))
+    .sort()
+    .at(-1) || now.slice(0, 10);
 
   // ── RG-F03: auto-block when rejection_rate > 20% ─────────────────────────
   const shouldAutoBlock = rejectionRate > 20;
@@ -98,7 +103,7 @@ const recalculateSupplierMetrics = async (supplierId: string, actorId: string | 
         rejection_rate: rejectionRate,
         delivered_lots_count: deliveredLotsCount,
         total_delivered_tons: Math.round(totalTons * 100) / 100,
-        last_delivery_date: now.slice(0, 10),
+        last_delivery_date: lastDeliveryDate,
         supplier_status: newStatus,
         is_active: newIsActive,
         updated_at: now,
@@ -114,7 +119,7 @@ const recalculateSupplierMetrics = async (supplierId: string, actorId: string | 
       notification_type: "SUPPLIER_AUTO_BLOCKED",
       category: "supplier",
       title: `Fournisseur bloqué automatiquement — ${supplier.name}`,
-      message: `RG-F03 : taux de rejet ${rejectionRate}% > 20% sur les 6 derniers mois. Fournisseur ${supplier.code} passé en statut Bloqué.`,
+      message: `RG-F03 : taux de rejet ${rejectionRate}% > 20% sur les réceptions clôturées. Fournisseur ${supplier.code} passé en statut Bloqué.`,
       severity: "critical",
       entity_type: "suppliers",
       entity_id: String(supplier.id || supplier._id),

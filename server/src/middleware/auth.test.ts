@@ -19,7 +19,7 @@ vi.mock("../models/auth-user.model.js", () => ({
 }));
 
 const sign = (claims: Record<string, unknown>, secret = env.jwtSecret) =>
-  jwt.sign({ email: "a@b.c", ...claims }, secret, { subject: "user-1", expiresIn: 3600 });
+  jwt.sign({ email: "a@b.c", tenant_id: "company-a", factory_id: "site-a", ...claims }, secret, { subject: "user-1", expiresIn: 3600 });
 
 describe("resolveAuthToken", () => {
   beforeEach(() => {
@@ -31,6 +31,8 @@ describe("resolveAuthToken", () => {
       email: "a@b.c",
       is_active: true,
       token_version: 2,
+      tenant_id: "company-a",
+      factory_id: "site-a",
       user_metadata: { roles: ["operateur_reception"] },
     });
   });
@@ -60,17 +62,13 @@ describe("resolveAuthToken", () => {
     await expect(resolveAuthToken(sign({ tv: 2 }))).resolves.toBeNull();
   });
 
-  it("caches the user read, then ends a deactivated session within 60 seconds", async () => {
-    vi.useFakeTimers();
+  it("revokes a deactivated session on its next use across processes", async () => {
     const token = sign({ tv: 2 });
     await expect(resolveAuthToken(token)).resolves.not.toBeNull();
 
     users.get("user-1")!.is_active = false;
-    await expect(resolveAuthToken(token)).resolves.not.toBeNull();
-    expect(findOne).toHaveBeenCalledTimes(1);
-
-    vi.advanceTimersByTime(61_000);
     await expect(resolveAuthToken(token)).resolves.toBeNull();
+    expect(findOne).toHaveBeenCalledTimes(2);
   });
 
   it("applies a role change at once when the cache is invalidated", async () => {
@@ -93,5 +91,22 @@ describe("resolveAuthToken", () => {
     users.get("user-1")!.must_change_password = true;
     const auth = await resolveAuthToken(sign({ tv: 2 }));
     expect(auth?.mustChangePassword).toBe(true);
+  });
+
+  it("rejects an account without an assigned factory", async () => {
+    delete users.get("user-1")!.factory_id;
+    await expect(resolveAuthToken(sign({ tv: 2 }))).resolves.toBeNull();
+  });
+
+  it("rejects a token for a different company or factory", async () => {
+    await expect(resolveAuthToken(sign({ tv: 2, tenant_id: "company-b" }))).resolves.toBeNull();
+    await expect(resolveAuthToken(sign({ tv: 2, factory_id: "site-b" }))).resolves.toBeNull();
+  });
+
+  it("revokes old sessions immediately when factory membership changes", async () => {
+    const token = sign({ tv: 2 });
+    await expect(resolveAuthToken(token)).resolves.not.toBeNull();
+    users.get("user-1")!.factory_id = "site-b";
+    await expect(resolveAuthToken(token)).resolves.toBeNull();
   });
 });

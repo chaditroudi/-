@@ -76,6 +76,7 @@ describe("packagingService.sealPalette ledger", () => {
         order_id: "order-1",
         palette_number: "PAL-1",
         status: "OUVERTE",
+        net_weight_kg: 50,
       },
     ];
 

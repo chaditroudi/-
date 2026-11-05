@@ -33,6 +33,7 @@ vi.mock("./db/dynamic-model.js", () => ({
     create: async () => {
       created.push(collection);
     },
+    updateOne: () => ({ exec: async () => ({ matchedCount: 1 }) }),
   }),
 }));
 
@@ -47,6 +48,10 @@ describe("seedDatabase", () => {
     updateOne.mockClear();
     vi.stubEnv("INITIAL_ADMIN_EMAIL", "Owner@Plant.test");
     vi.stubEnv("INITIAL_ADMIN_PASSWORD", "first-password-1");
+    vi.stubEnv("INITIAL_ADMIN_TENANT_ID", "seed-company");
+    vi.stubEnv("INITIAL_ADMIN_FACTORY_ID", "seed-site");
+    vi.stubEnv("APP_ENV", "test");
+    vi.stubEnv("MONGODB_URI", "mongodb://127.0.0.1:27431/seed_test");
     vi.stubEnv("NODE_ENV", "development");
   });
   afterEach(() => vi.unstubAllEnvs());
@@ -71,6 +76,8 @@ describe("seedDatabase", () => {
       email: "owner@plant.test",
       must_change_password: true,
       is_active: true,
+      tenant_id: "seed-company",
+      factory_id: "seed-site",
       user_metadata: { roles: ["administrateur_systeme"] },
     });
     expect(users[0].passwordHash).not.toContain("first-password-1");
@@ -108,5 +115,12 @@ describe("seedDatabase", () => {
     expect(created).toContain("production_step_definitions");
     expect(created).not.toContain("suppliers");
     expect(created).not.toContain("products");
+  });
+
+  it("does not infer a factory or seed business records when membership is missing", async () => {
+    vi.stubEnv("INITIAL_ADMIN_FACTORY_ID", "");
+    await seedDatabase();
+    expect(users).toEqual([]);
+    expect(created).toEqual([]);
   });
 });

@@ -52,15 +52,37 @@ describe("supplier domain", () => {
     ).toThrow(AppError);
   });
 
-  it("requires a commercial contract block with valid chronological dates", () => {
-    expect(() =>
-      normalizeSupplierDocument({
-        name: "Collecteur sans echeance",
-        contract_type: "saisonnier",
-        contract_start_date: "2026-05-24",
-      }),
-    ).toThrow(AppError);
+  it("defaults a seasonal contract window when dates are omitted", () => {
+    const supplier = normalizeSupplierDocument({
+      name: "Producteur minimal",
+      actor_type: "producteur_direct",
+      region: "Tozeur",
+    });
+    expect(supplier.contract_type).toBe("saisonnier");
+    expect(supplier.contract_start_date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(supplier.contract_end_date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(new Date(String(supplier.contract_end_date)).getTime()).toBeGreaterThan(
+      new Date(String(supplier.contract_start_date)).getTime(),
+    );
+  });
 
+  it("lowercases identity keys for duplicate-safe storage", () => {
+    const supplier = normalizeSupplierDocument({
+      name: "Producteur CIN",
+      code: "SUP-ABC",
+      fiscal_identifier: "AB123456",
+      id_document_number: "CIN-99",
+      email: "Farmer@Example.TN",
+      contract_start_date: "2026-01-01",
+      contract_end_date: "2026-12-31",
+    });
+    expect(supplier.code).toBe("sup-abc");
+    expect(supplier.fiscal_identifier).toBe("ab123456");
+    expect(supplier.id_document_number).toBe("cin-99");
+    expect(supplier.email).toBe("farmer@example.tn");
+  });
+
+  it("rejects inverted contract dates", () => {
     expect(() =>
       normalizeSupplierDocument({
         name: "Collecteur dates inversees",

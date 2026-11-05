@@ -197,6 +197,29 @@ export const getSupplierScoreTone = (score: number) => {
   return "risk";
 };
 
+/** Reception / PO picker: only active + approved-for-receiving suppliers. */
+export const isReceivableSupplier = (supplier: Partial<Supplier> | null | undefined) =>
+  Boolean(supplier?.is_active) && (supplier?.supplier_status || "pending_approval") === "active";
+
+/**
+ * True when the plant has enough operational facts for an M1 score.
+ * Otherwise the UI must show "Score indisponible" — never invent a percentage.
+ */
+export const hasSupplierScoreData = (supplier: Partial<Supplier> | null | undefined) => {
+  if (!supplier) return false;
+  const quality = Number(supplier.quality_score ?? supplier.rating ?? 0);
+  const delivered = Number(supplier.delivered_lots_count ?? 0);
+  return delivered > 0 || quality > 0 || Number(supplier.rejection_rate ?? 0) > 0;
+};
+
+export const getSupplierScoreGradeLabel = (grade: "excellent" | "good" | "watch" | "risk") =>
+  ({
+    excellent: "Solide",
+    good: "Bon",
+    watch: "À surveiller",
+    risk: "Risque",
+  })[grade];
+
 export const computeSupplierAlerts = (supplier: Partial<Supplier>) => {
   const alerts: string[] = [];
   const score = Number(supplier.quality_score ?? supplier.rating ?? 0);

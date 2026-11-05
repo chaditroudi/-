@@ -8,12 +8,13 @@ import { AppError } from "../core/app-error.js";
 // so the existing services take part without passing a session around.
 mongoose.set("transactionAsyncLocalStorage", true);
 
-type TransactionContext = { afterCommit: Array<() => void> };
+type TransactionContext = { afterCommit: Array<() => void>; transactional: boolean };
 
 const context = new AsyncLocalStorage<TransactionContext>();
 let topologySupportsTransactions: boolean | null = null;
 
 export const isInTransaction = () => Boolean(context.getStore());
+export const isAtomicTransaction = () => context.getStore()?.transactional === true;
 
 /** MongoDB retries these itself, so a catch block must rethrow them untouched. */
 export const isTransientTransactionError = (error: unknown) =>
@@ -43,19 +44,22 @@ const supportsTransactions = async () => {
  * Unit tests have no connection and run `work` directly. A standalone server
  * has no transactions: production refuses, development warns.
  */
-export const runInTransaction = async <T>(work: () => Promise<T>): Promise<T> => {
-  if (isInTransaction()) return work();
+export const runInTransaction = async <T>(work: () => Promise<T>, options: { requireTransactions?: boolean } = {}): Promise<T> => {
+  if (isInTransaction()) {
+    if (options.requireTransactions && mongoose.connection.readyState === 1 && !isAtomicTransaction()) throw new AppError(503, "TRANSACTIONS_UNAVAILABLE", "MongoDB must run as a replica set for atomic manufacturing.");
+    return work();
+  }
 
   const connected = mongoose.connection.readyState === 1;
   const transactional = connected && (await supportsTransactions());
   if (connected && !transactional) {
-    if (process.env.NODE_ENV === "production") {
+    if (process.env.NODE_ENV === "production" || options.requireTransactions) {
       throw new AppError(503, "TRANSACTIONS_UNAVAILABLE", "MongoDB must run as a replica set in production.");
     }
     console.warn("[db] Standalone MongoDB: multi-document writes are not atomic on this server.");
   }
 
-  const store: TransactionContext = { afterCommit: [] };
+  const store: TransactionContext = { afterCommit: [], transactional };
   const result = await context.run(store, () =>
     transactional
       ? mongoose.connection.transaction(async () => {

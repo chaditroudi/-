@@ -1,4 +1,15 @@
 {
+  "cleaning": {
+    "active": "Cycles actifs", "completed": "Cycles terminés", "averageYield": "Rendement moyen", "minimumYield": "Rendement minimum",
+    "newCycle": "Nouveau cycle", "loading": "Chargement…", "empty": "Aucun cycle de nettoyage en cours.", "inProgress": "En cours", "complete": "Terminé", "incident": "Incident",
+    "program": "Programme", "programA": "A — Léger", "programB": "B — Standard", "programC": "C — Intensif", "programD": "D — Sans lavage (branchées)",
+    "effectA": "Poussières superficielles", "effectB": "Poussière et débris légers", "effectC": "Sable, terre et débris végétaux", "effectD": "Préserver les grappes",
+    "lot": "Lot", "variety": "Variété", "operator": "Opérateur", "started": "Démarré", "close": "Clôturer", "history": "Historique récent", "yield": "Rendement",
+    "createTitle": "Nouveau cycle de nettoyage", "sourceLot": "Lot à nettoyer", "selectLot": "Sélectionner un lot de stock libéré…", "sourceHelp": "Choisir le lot physique libéré par le contrôle qualité.", "sourceError": "Impossible de charger les lots de stock.", "noSources": "Aucun lot de stock libéré disponible.",
+    "washProgram": "Programme lavage", "cancel": "Annuler", "start": "Démarrer", "closeTitle": "Clôturer cycle — Saisie mesures", "balanceHelp": "Le poids d’entrée doit correspondre au poids de sortie et aux déchets.",
+    "input": "Poids entrée (kg)", "output": "Poids sortie (kg)", "waste": "Poids déchets (kg)", "wasteCategory": "Catégorie déchets", "organic": "Organique", "inert": "Inerte", "badDates": "Mauvaises dattes", "turbidity": "Turbidité eau (NTU)", "ph": "pH eau (6.5–8.5)", "estimatedYield": "Rendement estimé", "lowYield": "⚠ Sous le seuil de 92 %", "submitClose": "Clôturer cycle",
+    "createdToast": "Cycle nettoyage {{number}} démarré", "createError": "Erreur création cycle : {{message}}", "closedToast": "Cycle nettoyage clôturé", "closedYieldToast": "Cycle nettoyage clôturé — rendement {{yield}} %", "closeError": "Clôture échouée : {{message}}"
+  },
   "common": {
     "loading": "Chargement...",
     "save": "Enregistrer",

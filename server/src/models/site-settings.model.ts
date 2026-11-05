@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { factoryConnection } from "../db/factory-context.js";
 
 const siteSettingsSchema = new mongoose.Schema(
   {
@@ -196,6 +197,16 @@ const siteSettingsSchema = new mongoose.Schema(
   },
 );
 
-export const SiteSettingsModel: any =
-  (mongoose.models as any).site_settings ||
-  mongoose.model("site_settings", siteSettingsSchema, "site_settings");
+// Resolve on each call: a process-wide model must never bind the first factory forever.
+export const getSiteSettingsModel = () => {
+  const connection = factoryConnection();
+  return connection.models.site_settings || connection.model("site_settings", siteSettingsSchema, "site_settings");
+};
+
+export const SiteSettingsModel: any = new Proxy({}, {
+  get(_target, property) {
+    const model = getSiteSettingsModel();
+    const value = (model as any)[property];
+    return typeof value === "function" ? value.bind(model) : value;
+  },
+});

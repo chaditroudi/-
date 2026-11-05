@@ -1,0 +1,5272 @@
+[
+  {
+    "role": "operateur",
+    "label": "navigation offers Accueil",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "navigation offers Réception",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "navigation hides Stock",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "navigation hides En direct",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "navigation hides Production",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "navigation hides Indicateurs",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "navigation hides Paramètres",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "says the stream is live",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "is not offered QC work reserved to inspectors",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "Home asks for nothing the server refuses",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "Home names every lot",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "the lot journey finishes loading",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "direct address storage says access is reserved",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "direct address storage stays on that address",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "direct address storage shows no figures",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "direct address production says access is reserved",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "direct address production stays on that address",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "direct address production shows no figures",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "direct address live says access is reserved",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "direct address live stays on that address",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "direct address live shows no figures",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "500 on receptions is stated as unavailable",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "500 on receptions is not an empty result",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "403 on receptions says access is reserved",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "403 on receptions is not an empty result",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "403 on receptions offers no retry",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "a real empty receptions says so",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "empty receptions shows no failure",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "says it is offline",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "goes back to live on its own",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "navigation offers Accueil",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "navigation offers Réception",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "navigation offers Contrôle qualité",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "navigation hides Stock",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "navigation hides En direct",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "navigation hides Production",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "says the stream is live",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "Home asks for nothing the server refuses",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "Home names every lot",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "the lot journey finishes loading",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "direct address storage says access is reserved",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "direct address storage stays on that address",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "direct address storage shows no figures",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "direct address live says access is reserved",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "direct address live stays on that address",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "direct address live shows no figures",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "500 on receptions is stated as unavailable",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "500 on receptions is not an empty result",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "403 on receptions says access is reserved",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "403 on receptions is not an empty result",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "403 on receptions offers no retry",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "a real empty receptions says so",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "empty receptions shows no failure",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "says it is offline",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "goes back to live on its own",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "navigation offers Accueil",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "navigation offers Production",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "navigation offers Conditionnement",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "navigation offers En direct",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "navigation hides Stock",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "navigation hides Réception",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "navigation hides Contrôle qualité",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "says the stream is live",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "Home asks for nothing the server refuses",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "Home names every lot",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "the lot journey finishes loading",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "direct address storage says access is reserved",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "direct address storage stays on that address",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "direct address storage shows no figures",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "direct address receptions says access is reserved",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "direct address receptions stays on that address",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "direct address receptions shows no figures",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "500 on production is stated as unavailable",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "500 on production is not an empty result",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "403 on production says access is reserved",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "403 on production is not an empty result",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "403 on production offers no retry",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "a real empty production says so",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "empty production shows no failure",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "says it is offline",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "goes back to live on its own",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "navigation offers Accueil",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "navigation offers Stock",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "navigation hides En direct",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "navigation hides Conditionnement",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "navigation hides Paramètres",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "says the stream is live",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "Home asks for nothing the server refuses",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "Home names every lot",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "the lot journey finishes loading",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "direct address live says access is reserved",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "direct address live stays on that address",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "direct address live shows no figures",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "direct address packaging says access is reserved",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "direct address packaging stays on that address",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "direct address packaging shows no figures",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "500 on storage is stated as unavailable",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "500 on storage is not an empty result",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "403 on storage says access is reserved",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "403 on storage is not an empty result",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "403 on storage offers no retry",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "empty storage shows no failure",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "says it is offline",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "goes back to live on its own",
+    "passed": true
+  },
+  {
+    "role": "directeur",
+    "label": "navigation offers Accueil",
+    "passed": true
+  },
+  {
+    "role": "directeur",
+    "label": "navigation offers Réception",
+    "passed": true
+  },
+  {
+    "role": "directeur",
+    "label": "navigation offers Stock",
+    "passed": true
+  },
+  {
+    "role": "directeur",
+    "label": "navigation offers Production",
+    "passed": true
+  },
+  {
+    "role": "directeur",
+    "label": "navigation offers En direct",
+    "passed": true
+  },
+  {
+    "role": "directeur",
+    "label": "navigation offers Paramètres",
+    "passed": true
+  },
+  {
+    "role": "directeur",
+    "label": "says the stream is live",
+    "passed": true
+  },
+  {
+    "role": "directeur",
+    "label": "Home asks for nothing the server refuses",
+    "passed": true
+  },
+  {
+    "role": "directeur",
+    "label": "Home names every lot",
+    "passed": true
+  },
+  {
+    "role": "directeur",
+    "label": "the lot journey finishes loading",
+    "passed": true
+  },
+  {
+    "role": "directeur",
+    "label": "500 on storage is stated as unavailable",
+    "passed": true
+  },
+  {
+    "role": "directeur",
+    "label": "500 on storage is not an empty result",
+    "passed": true
+  },
+  {
+    "role": "directeur",
+    "label": "403 on storage says access is reserved",
+    "passed": true
+  },
+  {
+    "role": "directeur",
+    "label": "403 on storage is not an empty result",
+    "passed": true
+  },
+  {
+    "role": "directeur",
+    "label": "403 on storage offers no retry",
+    "passed": true
+  },
+  {
+    "role": "directeur",
+    "label": "empty storage shows no failure",
+    "passed": true
+  },
+  {
+    "role": "directeur",
+    "label": "says it is offline",
+    "passed": true
+  },
+  {
+    "role": "directeur",
+    "label": "goes back to live on its own",
+    "passed": true
+  },
+  {
+    "role": "admin",
+    "label": "navigation offers Accueil",
+    "passed": true
+  },
+  {
+    "role": "admin",
+    "label": "navigation offers Paramètres",
+    "passed": true
+  },
+  {
+    "role": "admin",
+    "label": "navigation offers Stock",
+    "passed": true
+  },
+  {
+    "role": "admin",
+    "label": "says the stream is live",
+    "passed": true
+  },
+  {
+    "role": "admin",
+    "label": "Home asks for nothing the server refuses",
+    "passed": true
+  },
+  {
+    "role": "admin",
+    "label": "Home names every lot",
+    "passed": true
+  },
+  {
+    "role": "admin",
+    "label": "the lot journey finishes loading",
+    "passed": true
+  },
+  {
+    "role": "admin",
+    "label": "500 on storage is stated as unavailable",
+    "passed": true
+  },
+  {
+    "role": "admin",
+    "label": "500 on storage is not an empty result",
+    "passed": true
+  },
+  {
+    "role": "admin",
+    "label": "403 on storage says access is reserved",
+    "passed": true
+  },
+  {
+    "role": "admin",
+    "label": "403 on storage is not an empty result",
+    "passed": true
+  },
+  {
+    "role": "admin",
+    "label": "403 on storage offers no retry",
+    "passed": true
+  },
+  {
+    "role": "admin",
+    "label": "empty storage shows no failure",
+    "passed": true
+  },
+  {
+    "role": "admin",
+    "label": "says it is offline",
+    "passed": true
+  },
+  {
+    "role": "admin",
+    "label": "goes back to live on its own",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "administrateur_systeme",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "directeur_general",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "directeur_usine",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "responsable_production",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "responsable_qualite",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "inspecteur_qualite",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "chef_reception",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "operateur_reception",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "operateur_nettoyage",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "operateur_fumigation",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "operateur_triage_ia",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "operateur_conditionnement",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "operateur_emballage",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "magasinier_wms",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "responsable_logistique",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "responsable_achats",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "responsable_maintenance",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "technicien_maintenance",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "fournisseur_externe",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "external client sees no internal navigation",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "client_externe",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "auditeur_externe",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "technico_commercial",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "directeur_achat",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "resp_management_qualite",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "resp_qualite_haccp",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "responsable_reception",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "home identifies the operational responsibility",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "home performs no unauthorized requests",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "the primary daily action is reachable",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "responsable_stock",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/receptions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/receptions/search matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/reception-alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/stock/reception-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/stock/lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/stock/shipments matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/storage/module3/zones matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/production/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/phase2/available-lots matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/packaging/orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/analytics/live-factory matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/analytics/health-score matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/batches/alerts matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/trust/golden-thread matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/suppliers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/materials matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/customers matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/export-orders matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/capa-tickets matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/purchasing/requisitions matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/maintenance/requests matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/employees matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/notifications/audit matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/costing/summary matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "GET /api/settlements matches backend authorization",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "external client sees no internal navigation",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "desktop has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "tablet has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "partenaire_client_export",
+    "label": "mobile has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "admin",
+    "label": "settings 403 never opens editable defaults",
+    "passed": true
+  },
+  {
+    "role": "admin",
+    "label": "notification 403 explains failure",
+    "passed": true
+  },
+  {
+    "role": "admin",
+    "label": "settings 500 never opens editable defaults",
+    "passed": true
+  },
+  {
+    "role": "admin",
+    "label": "notification 500 explains failure",
+    "passed": true
+  },
+  {
+    "role": "realtime",
+    "label": "authorized notification committed",
+    "passed": true
+  },
+  {
+    "role": "realtime",
+    "label": "IDs-only committed change refetches the authorized viewer",
+    "passed": true
+  },
+  {
+    "role": "realtime",
+    "label": "external viewer receives no sensitive notification content",
+    "passed": true
+  },
+  {
+    "role": "states",
+    "label": "settings loading is visible before the real response",
+    "passed": true
+  },
+  {
+    "role": "states",
+    "label": "session expiry returns to sign-in",
+    "passed": true
+  },
+  {
+    "role": "states",
+    "label": "expired session retains no account token",
+    "passed": true
+  },
+  {
+    "role": "rtl",
+    "label": "Arabic preference sets document direction and language",
+    "passed": true
+  },
+  {
+    "role": "rtl",
+    "label": "Arabic mobile QC has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "role": "fournisseur",
+    "label": "a factory address leads to the portal",
+    "passed": true
+  },
+  {
+    "role": "fournisseur",
+    "label": "sees their own record",
+    "passed": true
+  },
+  {
+    "role": "fournisseur",
+    "label": "sees no factory navigation",
+    "passed": true
+  },
+  {
+    "role": "fournisseur",
+    "label": "asks for nothing refused",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "a failed refresh says the data may be old",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "and keeps showing it",
+    "passed": true
+  },
+  {
+    "role": "directeur",
+    "label": "a dropped stream stops claiming to be live",
+    "passed": true
+  },
+  {
+    "role": "directeur",
+    "label": "it reconnects when the API returns",
+    "passed": true
+  },
+  {
+    "role": "switch",
+    "label": "the next account gets its own navigation",
+    "passed": true
+  },
+  {
+    "role": "switch",
+    "label": "nothing of the previous account is on screen",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "receptions has no control under 44 px on touch",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "touch emulation reports a coarse pointer",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "receptions does not scroll sideways",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "receptions has no control under 44 px on touch",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "touch emulation reports a coarse pointer",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "the active QC tab is not covered",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "reception tabs support arrow-key focus and activation",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "receptions does not scroll sideways",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "production has no control under 44 px on touch",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "touch emulation reports a coarse pointer",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "production does not scroll sideways",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "storage has no control under 44 px on touch",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "touch emulation reports a coarse pointer",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "storage does not scroll sideways",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "mobile navigation retains the authorized scanner",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "receptions has no control under 44 px on touch",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "touch emulation reports a coarse pointer",
+    "passed": true
+  },
+  {
+    "role": "operateur",
+    "label": "receptions does not scroll sideways",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "mobile navigation retains the authorized scanner",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "receptions has no control under 44 px on touch",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "touch emulation reports a coarse pointer",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "the active QC tab is not covered",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "reception tabs support arrow-key focus and activation",
+    "passed": true
+  },
+  {
+    "role": "inspecteur",
+    "label": "receptions does not scroll sideways",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "mobile navigation retains the authorized scanner",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "production has no control under 44 px on touch",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "touch emulation reports a coarse pointer",
+    "passed": true
+  },
+  {
+    "role": "production",
+    "label": "production does not scroll sideways",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "mobile navigation retains the authorized scanner",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "storage has no control under 44 px on touch",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "touch emulation reports a coarse pointer",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "storage does not scroll sideways",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "a crash in one screen keeps the navigation",
+    "passed": true
+  },
+  {
+    "role": "magasinier",
+    "label": "a crash in the shell still gives a way out",
+    "passed": true
+  }
+]

@@ -16,7 +16,8 @@ interface ModuleHeroAction {
 
 interface ModuleHeroProps {
   kicker?: string;
-  title: string;
+  /** Optional — page title lives in TopHeader. */
+  title?: string;
   description?: string;
   stats?: ModuleHeroStat[];
   primaryAction?: ModuleHeroAction;

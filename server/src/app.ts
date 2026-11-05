@@ -11,6 +11,10 @@ import { resolveAuthToken } from "./middleware/auth.js";
 import { auditTrailMiddleware } from "./middleware/security-audit.js";
 import { AppExceptionFilter } from "./nest/app-exception.filter.js";
 import { AppModule } from "./nest/app.module.js";
+import { factoryConnection, runWithFactory } from "./db/factory-context.js";
+import { ensureTrustIndexes } from "./db/indexes.js";
+import { resolveFactoryDeviceToken } from "./db/factory-device-token.js";
+import { financialVisibilityMiddleware } from "./middleware/financial-visibility.js";
 
 const readToken = (req: any) => {
   const header = String(req.headers?.authorization || "");
@@ -46,8 +50,21 @@ export const createApp = async () => {
   });
   app.use(async (req: any, _res: any, next: any) => {
     req.auth = await resolveAuthToken(readToken(req));
-    next();
+    const channel = /^\/api\/(weighbridge|ccp-sensors)\/readings$/.exec(req.path)?.[1] as "weighbridge" | "ccp-sensors" | undefined;
+    req.deviceFactory = !req.auth && channel ? resolveFactoryDeviceToken(String(req.headers["x-factory-device-token"] || ""), channel) : null;
+    const factory = req.auth?.factory || req.deviceFactory;
+    if (!factory) return next();
+    return runWithFactory(factory, async () => {
+      try {
+        await ensureTrustIndexes(factoryConnection().db, true);
+        next();
+      } catch (error) {
+        console.error("Factory database initialization failed", error);
+        _res.status(503).json({ error: { code: "FACTORY_DATABASE_UNAVAILABLE", message: "La base de votre usine est indisponible." } });
+      }
+    });
   });
+  app.use(financialVisibilityMiddleware);
   // Signed-in staff send photos and logos; nothing public needs more than a small payload.
   const staffBody = express.json({ limit: "10mb" });
   const publicBody = express.json({ limit: "64kb" });

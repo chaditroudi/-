@@ -3,7 +3,7 @@ import { hrApi } from '@/lib/api/hr';
 import { useToast } from '@/hooks/use-toast';
 import type { Employee, ActorRole, EmploymentStatus } from '@/types/roles';
 
-interface CreateEmployeeData {
+export interface CreateEmployeeData {
   first_name: string;
   last_name: string;
   email?: string | null;
@@ -19,7 +19,7 @@ interface CreateEmployeeData {
   access_password?: string | null;
 }
 
-interface UpdateEmployeeData extends CreateEmployeeData {
+export interface UpdateEmployeeData extends CreateEmployeeData {
   id: string;
 }
 

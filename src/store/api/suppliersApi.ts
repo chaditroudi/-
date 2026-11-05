@@ -4,6 +4,24 @@ import type { Supplier } from '@/types/mes';
 
 type Envelope<T> = { data: T };
 
+/** Reception-derived lot row for supplier portal / detail. */
+export type SupplierLotRow = {
+  id: string;
+  reception_number?: string | null;
+  variety?: string | null;
+  actual_arrival_date?: string | null;
+  quantity_total?: number | null;
+  unit?: string | null;
+  qc_grade?: string | null;
+};
+
+export type SupplierPaymentRow = {
+  id: string;
+  reference?: string | null;
+  payment_date?: string | null;
+  amount_tnd?: number | null;
+};
+
 export const suppliersApi = createApi({
   reducerPath: 'suppliersApi',
   baseQuery: axiosBaseQuery,
@@ -46,9 +64,9 @@ export const suppliersApi = createApi({
       }),
     }),
 
-    listSupplierLots: b.query<unknown[], string>({
+    listSupplierLots: b.query<SupplierLotRow[], string>({
       query: (id) => ({ url: `/suppliers/${id}/lots` }),
-      transformResponse: (r: Envelope<unknown[]>) => r.data ?? [],
+      transformResponse: (r: Envelope<SupplierLotRow[]>) => r.data ?? [],
     }),
 
     listSupplierOrders: b.query<unknown[], string>({
@@ -56,9 +74,9 @@ export const suppliersApi = createApi({
       transformResponse: (r: Envelope<unknown[]>) => r.data ?? [],
     }),
 
-    listSupplierPayments: b.query<unknown[], string>({
+    listSupplierPayments: b.query<SupplierPaymentRow[], string>({
       query: (id) => ({ url: `/suppliers/${id}/payments` }),
-      transformResponse: (r: Envelope<unknown[]>) => r.data ?? [],
+      transformResponse: (r: Envelope<SupplierPaymentRow[]>) => r.data ?? [],
     }),
 
     listSupplierAuditLogs: b.query<unknown[], string>({

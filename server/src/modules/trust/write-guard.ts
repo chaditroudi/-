@@ -76,9 +76,28 @@ export const assertStockLotWrite = (
   doc: Record<string, unknown>,
   before?: Record<string, unknown>,
 ) => {
-  const changed = action === "insert"
-    ? String(doc.status ?? "QUARANTINE") !== "QUARANTINE" || STOCK_LOT_LINK_FIELDS.some((field) => Boolean(doc[field]))
-    : before !== undefined && STOCK_LOT_DOMAIN_FIELDS.some((field) => String(doc[field] ?? "") !== String(before[field] ?? ""));
+  if (action === "insert") {
+    const status = String(doc.status ?? "QUARANTINE");
+    const linked = STOCK_LOT_LINK_FIELDS.some((field) => Boolean(doc[field]));
+    if (status !== "QUARANTINE" || linked) {
+      throw badRequest(
+        "STOCK_LOT_DOMAIN_ONLY",
+        "Le statut, les quantités et le lien de réception d'un lot de stock se modifient par le contrôle qualité ou un mouvement de stock.",
+      );
+    }
+    const qty = Number(doc.current_quantity ?? doc.initial_quantity ?? 0);
+    if (Number.isFinite(qty) && qty > 0) {
+      throw badRequest(
+        "STOCK_LOT_ORPHAN_QTY",
+        "Un lot de stock sans lien de réception ne peut pas être créé avec une quantité. Utilisez la réception / QC.",
+      );
+    }
+    return;
+  }
+
+  const changed =
+    before !== undefined &&
+    STOCK_LOT_DOMAIN_FIELDS.some((field) => String(doc[field] ?? "") !== String(before[field] ?? ""));
   if (changed) {
     throw badRequest(
       "STOCK_LOT_DOMAIN_ONLY",

@@ -3,7 +3,7 @@ import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from "@nest
 import { RECALL_ROLES, STAFF_READ_ROLES, STAGE_OVERRIDE_ROLES } from "../../middleware/authorization.js";
 import { badRequest } from "../../core/app-error.js";
 import { RequireAuthGuard } from "../../nest/route-guards.js";
-import { Public, Roles } from "../../nest/route-metadata.js";
+import { Roles } from "../../nest/route-metadata.js";
 import { SiteSettingsModel } from "../../models/site-settings.model.js";
 import { LotLedgerService } from "./lot-ledger.service.js";
 import { LotLifecycleService } from "./lot-lifecycle.service.js";
@@ -66,7 +66,7 @@ export class TrustController {
     return { data: getTrustGateStatus(gs1) };
   }
 
-  @Public()
+  @Roles(...STAFF_READ_ROLES)
   @Get("lots/:lotId/passport")
   async getPassport(@Param("lotId") lotId: string) {
     const data = await this.passport.buildPassport(lotId);

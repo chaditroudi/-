@@ -12,6 +12,7 @@ import { absorbStandardCosts } from "../costing/cost-allocation.js";
 import { loadCostingRates } from "../costing/costing-rates.js";
 import { emitNotification } from "../notifications/notification-emitter.js";
 import { autoReorderOnStockChange } from "../purchasing/stock-reorder.service.js";
+import { consumeStockLotKg, creditStockLotKg } from "../stock/stock-quantity.js";
 import {
   PLACEHOLDER_GS1_COMPANY_PREFIX,
   generateSSCC,
@@ -464,10 +465,9 @@ export class PackagingService {
       updated_at: now,
     });
 
-    const previousStatus = stockLot.status;
-    const remainingKg = Number(Math.max(0, availableKg - consumeKg).toFixed(3));
     let orderInserted = false;
     let stockApplied = false;
+    let consumedAfter = availableKg;
     let movementId: string | null = null;
 
     const rollbackConsumption = async () => {
@@ -475,10 +475,7 @@ export class PackagingService {
         await StockMovements().deleteMany({ id: movementId }).exec();
       }
       if (stockApplied) {
-        await StockLots().updateOne(
-          { id: stockLot.id },
-          { $set: { current_quantity: availableKg, status: previousStatus, updated_at: now } },
-        ).exec();
+        await creditStockLotKg(String(stockLot.id), consumeKg, now);
       }
       if (orderInserted) {
         await PackagingOrders().deleteMany({ id: order.id }).exec();
@@ -490,17 +487,10 @@ export class PackagingService {
       await PackagingOrders().create([order]);
       orderInserted = true;
 
-      await StockLots().updateOne(
-        { id: stockLot.id },
-        {
-          $set: {
-            current_quantity: remainingKg,
-            status: remainingKg <= 0 ? "CONSUMED" : previousStatus,
-            updated_at: now,
-          },
-        },
-      ).exec();
+      // Gate 2: CAS consumption — concurrent packaging cannot double-spend the triage lot.
+      const change = await consumeStockLotKg(String(stockLot.id), consumeKg, now);
       stockApplied = true;
+      consumedAfter = change.after;
 
       const movement = await prepareInsertDocument("stock_movements", {
         movement_type: "CONSOMMATION",
@@ -528,7 +518,7 @@ export class PackagingService {
           lot_id: stockLot.id,
           movement_id: movementId,
           quantity_kg: consumeKg,
-          remaining_kg: remainingKg,
+          remaining_kg: consumedAfter,
           client_request_id: clientRequestId || null,
         },
         created_at: now,
@@ -664,25 +654,19 @@ export class PackagingService {
       bomNetWeightG > 0 ? Number(((rejectedUnits * bomNetWeightG) / 1000).toFixed(3)) : 0;
     const wasteKg = readNumber(payload.waste_kg, wasteFromRejected);
 
+    // Gate 2: packaging close enforces mass balance (legitimate waste must be recorded).
     const balance = assertMassBalanceClosed(
       {
         inputKg: sourceWeightKg,
         outputsKg: [producedKg],
         wasteKg,
       },
-      { tolerancePct: await loadConfiguredMassBalanceTolerancePct(), context: `OF ${orderNumber}` },
+      {
+        tolerancePct: await loadConfiguredMassBalanceTolerancePct(),
+        mode: "enforce",
+        context: `OF ${orderNumber}`,
+      },
     );
-    if (balance.action === "warn") {
-      console.warn("[mass-balance] packaging order unbalanced:", { orderId: id, ...balance });
-      await createPackagingNotification({
-        notification_type: "MASS_BALANCE_WARN",
-        title: `Bilan matière OF ${orderNumber}`,
-        message: `Écart ${balance.variancePct}% (tolérance ±${balance.tolerancePct}%) — entrée ${balance.inputKg} kg vs produit ${balance.outputKg} kg + déchets ${balance.wasteKg} kg.`,
-        severity: "warning",
-        entity_type: "packaging_order",
-        entity_id: id,
-      });
-    }
 
     if (targetUnits > 0 && producedUnits / targetUnits < 0.95) {
       await createPackagingNotification({
@@ -823,6 +807,34 @@ export class PackagingService {
     const placeholderPrefix = companyPrefix === PLACEHOLDER_GS1_COMPANY_PREFIX;
     const sscc = placeholderPrefix ? null : generateSSCC(serialCounter, companyPrefix);
     const now = nowIso();
+    const previousStatus = readString(existing.status) || "EN_COURS";
+
+    // Idempotent seal: already sealed with finished-goods stock must not mint a second lot.
+    if (String(existing.status || "").toUpperCase() === "SCELLE") {
+      const lotRef = readString(existing.sscc, existing.palette_number, paletteNumber);
+      const existingFg = sanitizeDocument(
+        await StockLots()
+          .findOne({
+            source_stage: "PACKAGING",
+            $or: [{ lot_number: lotRef }, { packaging_palette_id: id }],
+          })
+          .lean()
+          .exec(),
+      ) as Record<string, unknown> | null;
+      if (existingFg?.id) {
+        const sealed = sanitizeDocument(await PackagingPalettes().findOne({ id }).lean().exec()) as PackagingPaletteRow;
+        return {
+          sscc: sealed?.sscc ?? existing.sscc ?? null,
+          palette_number: readString(sealed?.palette_number, paletteNumber),
+          replayed: true,
+        };
+      }
+      throw badRequest(
+        "PALETTE_SEAL_STOCK_MISSING",
+        `La palette ${paletteNumber} est SCELLE sans lot PF. Réconciliez le stock avant un nouveau sceau.`,
+        { paletteId: id },
+      );
+    }
 
     if (sscc) {
       const duplicate = sanitizeDocument(
@@ -844,21 +856,29 @@ export class PackagingService {
       });
     }
 
-    await PackagingPalettes().updateOne(
-      { id },
-      {
-        $set: {
-          status: "SCELLE",
-          seal_number: sealNumber || null,
-          sealed_by: sealedBy || null,
-          sealed_at: now,
-          sscc,
-          sscc_status: placeholderPrefix ? "NON_PRODUCTION_PLACEHOLDER" : "ISSUED",
-          sscc_blocked_reason: placeholderPrefix ? "GS1_PREFIX_PLACEHOLDER" : null,
-          updated_at: now,
+    const claimed = await PackagingPalettes()
+      .updateOne(
+        { id, status: { $ne: "SCELLE" } },
+        {
+          $set: {
+            status: "SCELLE",
+            seal_number: sealNumber || null,
+            sealed_by: sealedBy || null,
+            sealed_at: now,
+            sscc,
+            sscc_status: placeholderPrefix ? "NON_PRODUCTION_PLACEHOLDER" : "ISSUED",
+            sscc_blocked_reason: placeholderPrefix ? "GS1_PREFIX_PLACEHOLDER" : null,
+            updated_at: now,
+          },
         },
-      },
-    ).exec();
+      )
+      .exec();
+    if (Number(claimed.modifiedCount || 0) !== 1) {
+      return this.sealPalette(id, payload);
+    }
+
+    let createdLotId: string | null = null;
+    let createdMovementId: string | null = null;
 
     try {
       const [palette, order] = await Promise.all([
@@ -866,64 +886,85 @@ export class PackagingService {
         sanitizeDocument(await PackagingOrders().findOne({ id: orderId }).lean().exec()) as Promise<PackagingOrderRow | null>,
       ]);
 
-      if (palette && order) {
-        let variety: string | null = order.grade ? `Grade ${order.grade}` : null;
-        let originCountry = "TN";
-        let sourceReceptionId: string | null = null;
-
-        if (order.source_sublot_id) {
-          const sublot = sanitizeDocument(
-            await TriageSublots()
-              .findOne({ id: order.source_sublot_id })
-              .lean()
-              .exec(),
-          ) as TriageSubLotRow | null;
-          if (sublot) {
-            variety = readString(sublot.variety) || variety;
-            originCountry = readString(sublot.origin_country) || "TN";
-            sourceReceptionId = readString(sublot.parent_reception_id) || null;
-          }
-        }
-
-        const newLot = await prepareInsertDocument("stock_lots", {
-          lot_number: sscc || paletteNumber,
-          product_id: null,
-          source_stage: "PACKAGING",
-          source_lot_internal: order.source_lot_number ?? null,
-          variety,
-          origin_country: originCountry,
-          initial_quantity: readNumber(palette.net_weight_kg),
-          current_quantity: readNumber(palette.net_weight_kg),
-          unit: "kg",
-          status: "VALIDATED",
-          reception_date: now.slice(0, 10),
-          packaging_date: now.slice(0, 10),
-          source_reception_id: sourceReceptionId,
-          location_id: palette.storage_location_id ?? null,
-          batch_id: null,
-          created_by: sealedBy || null,
-          created_at: now,
-          updated_at: now,
-          quality_notes: `${readString(order.bom_name)} · Grade ${readString(order.grade)}`.trim() || null,
-        });
-        await StockLots().create([newLot]);
-
-        const movement = await prepareInsertDocument("stock_movements", {
-          movement_type: "RECEPTION",
-          lot_id: newLot.id,
-          product_id: null,
-          quantity: readNumber(palette.net_weight_kg),
-          unit: "kg",
-          document_type: "PALETTE_SEAL",
-          document_reference: sscc || paletteNumber,
-          performed_by: sealedBy || null,
-          notes: `Entrée stock PF — palette ${paletteNumber} scellée`,
-          created_at: now,
-        });
-        await StockMovements().create([movement]);
+      if (!palette || !order) {
+        throw badRequest("PALETTE_SEAL_CONTEXT_MISSING", "Palette ou ordre de conditionnement introuvable pour la synchronisation stock.");
       }
+
+      let variety: string | null = order.grade ? `Grade ${order.grade}` : null;
+      let originCountry = "TN";
+      let sourceReceptionId: string | null = null;
+
+      if (order.source_sublot_id) {
+        const sublot = sanitizeDocument(
+          await TriageSublots()
+            .findOne({ id: order.source_sublot_id })
+            .lean()
+            .exec(),
+        ) as TriageSubLotRow | null;
+        if (sublot) {
+          variety = readString(sublot.variety) || variety;
+          originCountry = readString(sublot.origin_country) || "TN";
+          sourceReceptionId = readString(sublot.parent_reception_id) || null;
+        }
+      }
+
+      const netKg = readNumber(palette.net_weight_kg);
+      if (netKg <= 0) {
+        throw badRequest("PALETTE_NET_WEIGHT_REQUIRED", "Le poids net de la palette est requis pour créer le stock PF.");
+      }
+
+      const newLot = await prepareInsertDocument("stock_lots", {
+        lot_number: sscc || paletteNumber,
+        product_id: null,
+        source_stage: "PACKAGING",
+        packaging_palette_id: id,
+        source_lot_internal: order.source_lot_number ?? null,
+        variety,
+        origin_country: originCountry,
+        initial_quantity: netKg,
+        current_quantity: netKg,
+        unit: "kg",
+        status: "VALIDATED",
+        category: "PF",
+        reception_date: now.slice(0, 10),
+        packaging_date: now.slice(0, 10),
+        source_reception_id: sourceReceptionId,
+        location_id: palette.storage_location_id ?? null,
+        batch_id: null,
+        created_by: sealedBy || null,
+        created_at: now,
+        updated_at: now,
+        quality_notes: `${readString(order.bom_name)} · Grade ${readString(order.grade)}`.trim() || null,
+      });
+      await StockLots().create([newLot]);
+      createdLotId = String(newLot.id || "");
+
+      const movement = await prepareInsertDocument("stock_movements", {
+        movement_type: "RECEPTION",
+        lot_id: newLot.id,
+        product_id: null,
+        quantity: netKg,
+        unit: "kg",
+        document_type: "PALETTE_SEAL",
+        document_reference: sscc || paletteNumber,
+        request_id: `palette:${id}:seal`,
+        performed_by: sealedBy || null,
+        notes: `Entrée stock PF — palette ${paletteNumber} scellée`,
+        created_at: now,
+      });
+      await StockMovements().create([movement]);
+      createdMovementId = String(movement.id || "");
     } catch (error) {
-      console.error("[Packaging] finished goods stock sync failed after sealing palette:", error);
+      // Gate 2: never leave SCELLE without inventory commit.
+      if (createdMovementId) await StockMovements().deleteMany({ id: createdMovementId }).exec();
+      if (createdLotId) await StockLots().deleteMany({ id: createdLotId }).exec();
+      await PackagingPalettes()
+        .updateOne(
+          { id },
+          { $set: { status: previousStatus, sealed_at: null, sealed_by: null, sscc: null, updated_at: now } },
+        )
+        .exec();
+      throw error;
     }
 
     try {
@@ -964,6 +1005,6 @@ export class PackagingService {
       console.error("[W1] packaging golden-thread stage failed:", error);
     }
 
-    return { sscc, palette_number: paletteNumber };
+    return { sscc, palette_number: paletteNumber, replayed: false };
   }
 }

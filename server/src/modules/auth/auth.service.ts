@@ -3,7 +3,8 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 import { env } from "../../config/env.js";
-import { badRequest, unauthorized } from "../../core/app-error.js";
+import { AppError, badRequest, unauthorized } from "../../core/app-error.js";
+import { factoryFromAccount, sameFactory } from "../../db/factory-context.js";
 import { sanitizeDocument } from "../../db/dynamic-model.js";
 import { invalidateAuthCache } from "../../middleware/auth.js";
 import { AuthUserModel } from "../../models/auth-user.model.js";
@@ -35,14 +36,17 @@ const getStoredPasswordHash = (user: any) => {
 const toPublicUser = (user: any) => ({
   id: user.id,
   email: user.email,
+  ...factoryFromAccount(user),
   user_metadata: sanitizeDocument(user.user_metadata || {}),
   has_signature_pin: userHasSignaturePin(user),
   must_change_password: Boolean(user.must_change_password),
 });
 
 const createSession = (user: any) => {
+  const factory = factoryFromAccount(user);
+  if (!factory) throw new AppError(403, "FACTORY_MEMBERSHIP_REQUIRED", "Votre compte doit être rattaché à une usine par un administrateur.");
   const token = jwt.sign(
-    { email: user.email, tv: Number(user.token_version ?? 0) },
+    { email: user.email, tv: Number(user.token_version ?? 0), ...factory },
     env.jwtSecret,
     { subject: user.id, expiresIn: env.jwtExpiresInSeconds },
   );
@@ -85,6 +89,7 @@ export class AuthService {
 
     const user = await AuthUserModel.findOne({ id: auth.user.id, is_active: true }).lean().exec();
     if (!user) return { session: null, user: null };
+    if (!sameFactory(auth.factory, factoryFromAccount(user))) return { session: null, user: null };
 
     return { session: createSession(user), user: toPublicUser(user) };
   }

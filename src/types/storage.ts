@@ -45,15 +45,21 @@ export interface Module3StorageZone {
   zone_type: StorageZoneType;
   capacity_palettes?: number;
   current_load_palettes?: number;
-  capacity_kg: number;
-  current_load_kg: number;
+  /** Legacy/test alias for current_load_palettes */
+  current_occupancy_palettes?: number;
+  capacity_kg?: number;
+  current_load_kg?: number;
+  /** Legacy/test alias for current_load_kg */
+  current_occupancy_kg?: number;
+  /** Optional operational status label (ACTIVE / MAINTENANCE / …) */
+  status?: string;
   capacity_label?: string;
   physical_type?: string;
   target_temperature_label?: string;
-  temperature_min: number | null;
-  temperature_max: number | null;
-  humidity_min: number | null;
-  humidity_max: number | null;
+  temperature_min?: number | null;
+  temperature_max?: number | null;
+  humidity_min?: number | null;
+  humidity_max?: number | null;
   temperature_sensor_count?: number;
   humidity_sensor_count?: number;
   gas_sensor_count?: number;
@@ -67,7 +73,7 @@ export interface Module3StorageZone {
   condition_messages?: string[];
   last_reading_at?: string | null;
   is_active: boolean;
-  notes: string | null;
+  notes?: string | null;
   created_at: string;
   updated_at: string;
 }

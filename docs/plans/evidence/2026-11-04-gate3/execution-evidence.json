@@ -1,0 +1,283 @@
+{
+  "date": "2026-11-04",
+  "branch": "fix/supplier-simplify",
+  "head": "3c7b695d79305a23346b1bc6ad998f7984e3e129",
+  "sourceState": "dirty working tree; no commit or deployment",
+  "build": {
+    "command": "npm run build",
+    "status": "PASS",
+    "logSha256": "99916191d54d71c12d127a9630acbf947e121a907d9b90fb085515532e78dff5"
+  },
+  "regression": {
+    "command": "APP_ENV=test GATE3_IT_MONGO_URI=local RECEPTION_IT_MONGO_URI=local npx vitest run",
+    "files": 124,
+    "passed": 851,
+    "skipped": 0,
+    "status": "PASS",
+    "summary": [
+      " Test Files  124 passed (124)",
+      "      Tests  851 passed (851)",
+      "   Duration  93.97s (transform 13.19s, setup 94.75s, collect 215.05s, tests 116.44s, environment 466.96s, prepare 50.98s)"
+    ],
+    "logSha256": "7d9f0f68bd4c0c8a610cf89a8442fab251a6a8bf2c88e629f2fe5967ef962901"
+  },
+  "browser": {
+    "status": "PASS",
+    "checks": [
+      "Factory A browser shows only its own supplier",
+      "Shared tablet clears Factory A data before rendering Factory B",
+      "Factory B loads its independent supplier with the same business reference",
+      "Arabic RTL remains available on a tablet",
+      "No uncaught browser errors during factory switching"
+    ],
+    "errors": [],
+    "api": "http://127.0.0.1:4143",
+    "app": "http://127.0.0.1:8143"
+  },
+  "gate3Overall": "PARTIAL",
+  "industrialAcceptance": "FAIL: cleaning and partial triage costing remain",
+  "migration": "staging only; no production/customer data access or activation",
+  "sourceFiles": [
+    {
+      "file": "scripts/e2e/gate3.e2e.mjs",
+      "sha256": "c215f5c0d3edebb063ccf9ca5c6faf9efd5956d28b0e895ea09863a61642e854"
+    },
+    {
+      "file": "scripts/factory-data-migration.mjs",
+      "sha256": "4e49bab3d073091ff274b76608b0dbec162dab2527c36fad9013ec64809e44c3"
+    },
+    {
+      "file": "scripts/factory-data-migration.test.mjs",
+      "sha256": "b6a8aef8ea5e4d15d8ac4f70548954fe304d0f1a384c30b79d99caa7d6e93db6"
+    },
+    {
+      "file": "scripts/gate3-industrial-probe.mjs",
+      "sha256": "5ca00f8b86662bb859c3aa67135fe7a085fbf11270188dacfadb636873f87e7e"
+    },
+    {
+      "file": "server/src/app.ts",
+      "sha256": "f260a086e808dd43064bf147982818712c04e1e6dd2a66bcf227eed52c3dded4"
+    },
+    {
+      "file": "server/src/db/dynamic-model.ts",
+      "sha256": "49a02fd1d39b1771af352adc4e35903a3b0a69cddd2e1457c7c2f67849a6bc27"
+    },
+    {
+      "file": "server/src/db/factory-context.ts",
+      "sha256": "76f876b8441ae33b03e1ac68832e07b3e58c17f3d3384d342c61c2dcb1e54621"
+    },
+    {
+      "file": "server/src/db/factory-device-token.test.ts",
+      "sha256": "88578680d0dd51d8396ea783dc55baec0d42b7fecafc0b5f275b651d55604745"
+    },
+    {
+      "file": "server/src/db/factory-device-token.ts",
+      "sha256": "43f99e33b68684c6b78dc78dd05e0835de4b1387b990981c4e5c5b43785f846f"
+    },
+    {
+      "file": "server/src/db/factory-isolation.test.ts",
+      "sha256": "cdc59e6177da5a02f0520cbcce24b16a22d7a44cc39eaf849a5e1149ad04bff5"
+    },
+    {
+      "file": "server/src/db/gate3.http.integration.test.ts",
+      "sha256": "de577da0ea658ff36b83f893f53020651664c544dd567700a9d1109db1baa263"
+    },
+    {
+      "file": "server/src/db/indexes.ts",
+      "sha256": "c76ffe74733f208c957d2ef5da9ab08b6d6ce3444f1130bc7377b6639edc8c8f"
+    },
+    {
+      "file": "server/src/middleware/auth.test.ts",
+      "sha256": "491c07563067508b6657491a707fd7c032a02e33aa5b6520ef3af33ba66293b7"
+    },
+    {
+      "file": "server/src/middleware/auth.ts",
+      "sha256": "7ba7d7bc68b3eac59963694e330c4aa6cfc5b7f143db4a574c4f018074d9731d"
+    },
+    {
+      "file": "server/src/middleware/financial-visibility.test.ts",
+      "sha256": "d0a086741c866042cccfd605a648a6f4bb7fe124467ad7a57bf8d4e535ae291e"
+    },
+    {
+      "file": "server/src/middleware/financial-visibility.ts",
+      "sha256": "ee020a5e106d16f2ccbb8af4cd887e1179aa630865cf804161aa64115f6d38da"
+    },
+    {
+      "file": "server/src/middleware/security-audit.ts",
+      "sha256": "4e8c329d94bb8f8ee6bb7af77b23a345296daeeed970c37092aac0e636a8f252"
+    },
+    {
+      "file": "server/src/models/auth-user.model.ts",
+      "sha256": "4d5b56fa62b24976eb316b9a0807aa0bdb7569861f5a0907d48f6452a3bb5bfb"
+    },
+    {
+      "file": "server/src/models/site-settings.model.ts",
+      "sha256": "1fbf8578248d7698f969bd567faed5dbd36d7287105e14b6b687ca0ef6d5480f"
+    },
+    {
+      "file": "server/src/modules/auth/auth.controller.ts",
+      "sha256": "d0889022a323b0c4bf12e09c9bc823d5c65732ece3d6b40631b94becf710e4f7"
+    },
+    {
+      "file": "server/src/modules/auth/auth.service.test.ts",
+      "sha256": "52e2cc3838b229605742dab30c25cdec88f439a6d68ea13e8a449ca0f7a2d032"
+    },
+    {
+      "file": "server/src/modules/auth/auth.service.ts",
+      "sha256": "502eaad1ee218dc6c0d5a4f21e567345f0d708cf4a15ce4184eab3eb540000ce"
+    },
+    {
+      "file": "server/src/modules/auth/numeric-signature.ts",
+      "sha256": "d89dded4345eef59c8e583f3b19d24bec401fcf0d84e1e8f7e6a57cb56ca6e56"
+    },
+    {
+      "file": "server/src/modules/ccp-sensors/ccp-sensors.controller.ts",
+      "sha256": "a4f56eebb77dffbfae8b03c524c0bc5a228b329cdcc58972147884ae91014048"
+    },
+    {
+      "file": "server/src/modules/document-prints/document-prints.controller.ts",
+      "sha256": "5ba1aea926a54543518d5c157390acb129bd9b7866ff6b38f90098e5f6c57c2d"
+    },
+    {
+      "file": "server/src/modules/maintenance/maintenance.service.ts",
+      "sha256": "541f18a72d4326491ad5df8d8d73c283b7507d9c9c03c3d72353423d099025f6"
+    },
+    {
+      "file": "server/src/modules/notifications/notifications.integration.test.ts",
+      "sha256": "737454ef97907a467f6e2b01c65f8d8384a730c666430ddcede9d3700a952baf"
+    },
+    {
+      "file": "server/src/modules/org/membership.ts",
+      "sha256": "e4b07791a3db354d1c75e5b77a662d30da606b1cc826c7c852a60f433d0c3a71"
+    },
+    {
+      "file": "server/src/modules/purchasing/purchasing.service.ts",
+      "sha256": "8bd17f3eb41c16b475ce37a302c46e5f2cb1685643e0ed6aba013af88f4f806a"
+    },
+    {
+      "file": "server/src/modules/realtime/realtime.bus.test.ts",
+      "sha256": "c7f4b6e02db616943f0876a6baa24df7aaa91c6470aa1243466acbf0d4c8396c"
+    },
+    {
+      "file": "server/src/modules/realtime/realtime.bus.ts",
+      "sha256": "c0696faed79a12ca13dd2ee0c8b4997f71455e94278b8b3f9c9d89dbd0822f50"
+    },
+    {
+      "file": "server/src/modules/realtime/realtime.controller.ts",
+      "sha256": "cf7c51185e58ef37026bca4dbda208a6640081f3b168825cad7a010233285453"
+    },
+    {
+      "file": "server/src/modules/receptions/qc-release.http.integration.test.ts",
+      "sha256": "ac4ccd81f7b083b024bef1057a1b8be73ed8d3354fa26ac49a6ef842c73ab62d"
+    },
+    {
+      "file": "server/src/modules/receptions/reception.integration.test.ts",
+      "sha256": "a9ae0aaeb194ee9c9ad591ed1b72629278efa54bd9d7ae2c8d6c7f26518dbc60"
+    },
+    {
+      "file": "server/src/modules/settings/settings.controller.ts",
+      "sha256": "a9096f4f481eb4c570102e8d41aa8bd4cdb551eb6774a1c2a6ec22c1033172d0"
+    },
+    {
+      "file": "server/src/modules/settings/settings.service.ts",
+      "sha256": "b18dee97561dc75b1248b3b6e310638c27c6202677f73c808bc554b0c6c500f8"
+    },
+    {
+      "file": "server/src/modules/settings/settings.users.test.ts",
+      "sha256": "537eebfb3a6c8ddd9c7fb6cc4434732d1aa2d32c931af35dd1c3dc31b1c9c14e"
+    },
+    {
+      "file": "server/src/modules/stock/stock-hold.ts",
+      "sha256": "49c2656d79eacd04eaa96a08122973b67bf657f71b13b63cafb85f27483e1aa7"
+    },
+    {
+      "file": "server/src/modules/stock/stock.controller.ts",
+      "sha256": "0b3a5bc2ef551fa20503020d5ca38b97442ad2ca05308f9ddd8243736adaf42b"
+    },
+    {
+      "file": "server/src/modules/trust/lot-passport.service.ts",
+      "sha256": "f12da07aa5ad5819201a8eaf037eeaf3cf68fee51af22ab2989fc101bbb1088d"
+    },
+    {
+      "file": "server/src/modules/trust/trust.controller.ts",
+      "sha256": "1ffda7fdaa6bb3cb5403bff99b8e4924b8f354b2dab08110c95c467177a191e7"
+    },
+    {
+      "file": "server/src/modules/weighbridge/weighbridge.controller.ts",
+      "sha256": "85ff2adc66d92a6b4f6648533b521541a6244512fb129becc39b29e92f70ad33"
+    },
+    {
+      "file": "server/src/nest/authz-matrix.test.ts",
+      "sha256": "c46cbb93de890cc2855e73d59a5b4a36fdf1abba4bba8e535745e1d157dd26c0"
+    },
+    {
+      "file": "server/src/seed.test.ts",
+      "sha256": "1b627d3152db1f755dde00726f9996f1e2ad19c081e451a9df6ecb4b3ced534d"
+    },
+    {
+      "file": "server/src/seed.ts",
+      "sha256": "0a54518a8c2b3f1781971bb181577a483bee05b0a4cb8f473b3791ff166ff769"
+    },
+    {
+      "file": "server/src/test/factory-test.ts",
+      "sha256": "133a6295cccbcf9ef46add40ecb08860193437f7a1fcb2fc68eb1f7b19a40a19"
+    },
+    {
+      "file": "src/App.tsx",
+      "sha256": "65c4e478c876bf6d8ae618a431e6a723b8ac62a6ddb2bea4a9fe7d53aa342d2c"
+    },
+    {
+      "file": "src/components/layout/OfflineSyncStatus.tsx",
+      "sha256": "05a2d0add570c92cb4f67a28eb03b0f4a771a1afb7501b56bf02408879063cc7"
+    },
+    {
+      "file": "src/components/reception/ReceptionDashboardV2.tsx",
+      "sha256": "4c3dd4bff1a0003fb5404534157638047c0207b046bc1aea3cfe959b0074941b"
+    },
+    {
+      "file": "src/components/scan/ScanStation.tsx",
+      "sha256": "8b7245602a01a5404535aa3cbc6434992c3c6893e6ea1ec089e0323d34764f10"
+    },
+    {
+      "file": "src/hooks/useReceptionDraft.ts",
+      "sha256": "2260fe7ac84a858976dc3be4916ee595e722b0c67b62a2f41e4db07f6bcf6820"
+    },
+    {
+      "file": "src/hooks/useReceptionIntake.ts",
+      "sha256": "1f1b6e3653ba779996b0df41e49381cfa630b3e508eb489e13fc43b45ffa66b4"
+    },
+    {
+      "file": "src/integrations/mongodb/client.ts",
+      "sha256": "81bc55b7b960a0ed2a2cbeb3d8073b7337192033f52572f05584a9c68d21948d"
+    },
+    {
+      "file": "src/lib/axiosClient.ts",
+      "sha256": "b3d73ed5a8186864e1e3e61f9d3c1744a5eec65a154a25c35582fb560fb548f1"
+    },
+    {
+      "file": "src/lib/factorySession.test.ts",
+      "sha256": "a62701b8f3ddb372d43e0cfbf52164cbb113241f56835cad6eca0e48d0a9c722"
+    },
+    {
+      "file": "src/lib/factorySession.ts",
+      "sha256": "a055969c69fc7529f5d368bb4ef3825cb33faab90d28855373c148dbafcab4ef"
+    },
+    {
+      "file": "src/lib/offline/draftStore.test.ts",
+      "sha256": "a2b2fda3c2bff06b2fbefd8b23bbd67c11821b7345601b4558e42924d07739be"
+    },
+    {
+      "file": "src/lib/offline/draftStore.ts",
+      "sha256": "75cd122a278b0e6be123c57c3ed1dd39ecc3040725a7095fc5fbb872a7a0d171"
+    },
+    {
+      "file": "src/lib/offline/outbox.test.ts",
+      "sha256": "3a640854a258a045601ab56eb31c7d146df14a5e4f108eceff655f8700a5d18f"
+    },
+    {
+      "file": "src/lib/offline/outbox.ts",
+      "sha256": "299630caf7403989b4739600854ad9d493b72b5390fdd1330bbb46a6379c7dbf"
+    }
+  ],
+  "sourceManifestSha256": "afaaf9bf4efb03d602cc3107686b3507e71663ebf9737f99959c2efa0937b251"
+}

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { resolveApiBaseUrl } from "./apiTarget";
+import { storedFactorySessionIdentity } from "./factorySession";
 
 const API_BASE_URL = resolveApiBaseUrl(import.meta.env.VITE_API_URL);
 const AUTH_STORAGE_KEY = "date-harvest-hub-session";
@@ -46,6 +47,11 @@ export const axiosClient = axios.create({
 });
 
 axiosClient.interceptors.request.use((config) => {
+  (config as any).factorySessionIdentity = storedFactorySessionIdentity();
+  const pinnedAuthorization = config.headers.Authorization;
+  if (pinnedAuthorization && pinnedAuthorization !== `Bearer ${readStoredToken()}`) {
+    throw new ApiRequestError({ message: "La session a changé. Rechargez votre espace usine.", code: "SESSION_CHANGED", status: 409 });
+  }
   try {
     const raw = localStorage.getItem(AUTH_STORAGE_KEY);
     if (raw) {
@@ -61,8 +67,14 @@ axiosClient.interceptors.request.use((config) => {
 });
 
 axiosClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if ((response.config as any).factorySessionIdentity !== storedFactorySessionIdentity()) {
+      throw new ApiRequestError({ message: "La session a changé. Rechargez votre espace usine.", code: "SESSION_CHANGED", status: 409 });
+    }
+    return response;
+  },
   (error) => {
+    if (error instanceof ApiRequestError) throw error;
     const data = error.response?.data;
     // A slow reply to an old token must not sign out a session opened since.
     const token = readStoredToken();
