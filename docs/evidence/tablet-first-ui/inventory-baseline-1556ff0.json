@@ -1,0 +1,4907 @@
+[
+ {
+  "file": "src/components/LanguageSwitcher.tsx",
+  "lines": 54,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/NavLink.tsx",
+  "lines": 29,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/ai-guide/AiGuide.tsx",
+  "lines": 244,
+  "labels": [],
+  "buttons": [
+   "…`)}"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 10
+ },
+ {
+  "file": "src/components/alerts/AlertAnalyticsPanel.tsx",
+  "lines": 227,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useNotificationStats"
+  ],
+  "translationKeys": 12
+ },
+ {
+  "file": "src/components/alerts/FactoryAlertsCenter.tsx",
+  "lines": 611,
+  "labels": [],
+  "buttons": [
+   "✕"
+  ],
+  "tabs": [
+   "… {activeReceptionAlerts > 0 && (",
+   "… {unreadCount > 0 && ("
+  ],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useAcknowledgeReceptionAlert",
+   "useAuditLogs",
+   "useMarkAllRead",
+   "useMarkNotificationRead",
+   "useNotificationRealtimeState",
+   "useNotificationSummary",
+   "useNotifications",
+   "useReceptionAlerts",
+   "useResolveReceptionAlert"
+  ],
+  "translationKeys": 45
+ },
+ {
+  "file": "src/components/alerts/TraceabilityTimeline.tsx",
+  "lines": 246,
+  "labels": [],
+  "buttons": [
+   "setEntityTypeFilter(null)}>…",
+   "setEntityTypeFilter(type)}>…",
+   "{isExpanded ?"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useAuditLogs"
+  ],
+  "translationKeys": 12
+ },
+ {
+  "file": "src/components/analytics/AdvancedCostPanel.tsx",
+  "lines": 342,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useAdvancedCostAnalytics"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/analytics/AdvancedProductionPanel.tsx",
+  "lines": 315,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useAdvancedProductionAnalytics"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/analytics/AdvancedQualityPanel.tsx",
+  "lines": 382,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useAdvancedQualityAnalytics"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/analytics/AdvancedStockPanel.tsx",
+  "lines": 372,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useAdvancedStockAnalytics"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/analytics/AnalyticsDashboard.tsx",
+  "lines": 128,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 11
+ },
+ {
+  "file": "src/components/analytics/ExecutiveDashboard.tsx",
+  "lines": 456,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useExecutiveDashboard"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/analytics/FounderAnalyticsDashboard.tsx",
+  "lines": 169,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useLiveFactory",
+   "usePackagingAnalytics",
+   "useReceptionPhase1Analytics",
+   "useSupplyFunnel"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/analytics/OverviewPanel.tsx",
+  "lines": 309,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useProductionAnalytics",
+   "useQualityAnalytics",
+   "useReceptionAnalytics",
+   "useStockAnalytics"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/analytics/ProductionAnalyticsPanel.tsx",
+  "lines": 274,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useProductionAnalytics"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/analytics/QualityAnalyticsPanel.tsx",
+  "lines": 266,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useQualityAnalytics"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/analytics/ReceptionAnalyticsPanel.tsx",
+  "lines": 262,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useReceptionAnalytics"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/analytics/founder/AlertsIntelligence.tsx",
+  "lines": 126,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useAlertIntelligence"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/analytics/founder/LivePulse.tsx",
+  "lines": 190,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useLiveFactory"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/analytics/founder/PackagingPerformance.tsx",
+  "lines": 128,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "usePackagingAnalytics"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/analytics/founder/Phase2Performance.tsx",
+  "lines": 131,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "usePhase2Analytics"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/analytics/founder/ReceptionPhase1Panel.tsx",
+  "lines": 231,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useReceptionPhase1Analytics"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/analytics/founder/StockStoragePanel.tsx",
+  "lines": 199,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useStockStorageAnalytics"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/analytics/founder/SupplierScorecard.tsx",
+  "lines": 124,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useSupplierIntelligence"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/analytics/founder/SupplyFunnel.tsx",
+  "lines": 175,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useSupplyFunnel"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/analytics/founder/SystemAuditPanel.tsx",
+  "lines": 298,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Recherche…",
+   "Tous modules",
+   "Tous types"
+  ],
+  "serverCalls": [
+   "useAuditLogs",
+   "useAuditStats"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/audit/AuditLogPanel.tsx",
+  "lines": 318,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Rechercher action, module, utilisateur…"
+  ],
+  "serverCalls": [
+   "useAuditLogs"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/auth/ChangePasswordForm.tsx",
+  "lines": 93,
+  "labels": [
+   "Confirmer le nouveau mot de passe",
+   "Mot de passe actuel",
+   "Nouveau mot de passe"
+  ],
+  "buttons": [
+   "{saving &&"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/auth/PasswordChangeRequired.tsx",
+  "lines": 28,
+  "labels": [],
+  "buttons": [
+   "Se déconnecter"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/auth/ProtectedRoute.tsx",
+  "lines": 38,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/auth/RestrictedScreen.tsx",
+  "lines": 30,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/batches/AlertsDashboard.tsx",
+  "lines": 535,
+  "labels": [
+   "Votre nom / identifiant *"
+  ],
+  "buttons": [
+   "Annuler"
+  ],
+  "tabs": [
+   "Actives {active.length > 0 && (",
+   "En traitement {acked.length > 0 && (",
+   "Résolues"
+  ],
+  "dialogs": [],
+  "placeholders": [
+   "Opérateur responsable",
+   "Rechercher une alerte…"
+  ],
+  "serverCalls": [
+   "useAcknowledgeAlert",
+   "useAcknowledgeReceptionAlert",
+   "useAlerts",
+   "useReceptionAlerts",
+   "useResolveAlert",
+   "useResolveReceptionAlert"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/batches/StorageZonesOverview.tsx",
+  "lines": 1972,
+  "labels": [
+   "Capacité (kg)",
+   "Capacité (palettes)",
+   "Capacité palettes",
+   "Code",
+   "Code du lot",
+   "Emplacement destination",
+   "Emplacement source",
+   "Famille",
+   "Gaz (ppm)",
+   "Humidité %",
+   "Humidité max (%)",
+   "Humidité min (%)",
+   "Motif",
+   "Nom",
+   "Notes",
+   "Palettes",
+   "Quantité (kg)",
+   "Réf. capteur",
+   "Temp. max (°C)",
+   "Temp. min (°C)",
+   "Température °C",
+   "Type de mouvement",
+   "Zone",
+   "Zone de stockage"
+  ],
+  "buttons": [
+   "= filteredLots.length} onClick=…>Suivants",
+   "Actualiser",
+   "Affecter les lots",
+   "Ajouter un emplacement",
+   "Annuler",
+   "Créer la première zone",
+   "Déplacer un lot",
+   "Nouvel emplacement",
+   "Nouvelle zone",
+   "Précédents",
+   "{lot.stock_status === \"STOCK_LIBERE\" ?"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "50000",
+   "BRT-01",
+   "BRT-01-A",
+   "Choisir",
+   "Choisir une zone",
+   "Emplacement A nord",
+   "Observations optionnelles…",
+   "Optionnel",
+   "Rechercher un emplacement, code lot…",
+   "Rechercher un lot, variété, zone…",
+   "SEN-001",
+   "Scanner le QR/SSCC du lot",
+   "Sélectionner",
+   "Sélectionner une zone",
+   "Toutes les zones",
+   "Zone stockage brut n°1",
+   "ex: 10",
+   "ex: 18.5",
+   "ex: 2",
+   "ex: 60",
+   "ex: 65",
+   "ex: 8",
+   "ex: 80"
+  ],
+  "serverCalls": [
+   "useAllReceptionLots",
+   "useCreateLocation",
+   "useCreateStorageReading",
+   "useCreateZone",
+   "useDeleteLocation",
+   "useDeleteZone",
+   "useInventoryCounts",
+   "useModule3StorageLocations",
+   "useModule3StorageZones",
+   "useMoveReceptionLotToStorage",
+   "useMoveStorageStock",
+   "useRawStorageOverdueReceptions",
+   "useStorageConditionReadings",
+   "useStorageDlcAlerts",
+   "useStorageDoorEvents",
+   "useStorageLocationMovements",
+   "useUpdateLocation",
+   "useUpdateZone"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/batches/tabs/ConditionsTab.tsx",
+  "lines": 263,
+  "labels": [
+   "Gaz (ppm)",
+   "Humidité %",
+   "Réf. capteur",
+   "Température °C",
+   "Zone"
+  ],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Optionnel",
+   "SEN-001",
+   "Sélectionner une zone",
+   "ex: 18.5",
+   "ex: 65"
+  ],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/batches/tabs/LotsTab.tsx",
+  "lines": 171,
+  "labels": [],
+  "buttons": [
+   "Affecter"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Rechercher un lot, variété, zone…",
+   "Tous les statuts"
+  ],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/batches/tabs/MovementsTab.tsx",
+  "lines": 324,
+  "labels": [
+   "Code du lot",
+   "Emplacement destination",
+   "Emplacement source",
+   "Motif",
+   "Notes",
+   "Palettes",
+   "Quantité (kg)",
+   "Type de mouvement"
+  ],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Observations optionnelles…",
+   "Optionnel",
+   "Scanner le QR/SSCC du lot",
+   "Sélectionner"
+  ],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/batches/tabs/ZonesTab.tsx",
+  "lines": 217,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Rechercher un emplacement, code lot…",
+   "Toutes les zones"
+  ],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/batches/tabs/storageTabHelpers.tsx",
+  "lines": 83,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/bon-expedition/BonExpeditionDashboard.tsx",
+  "lines": 265,
+  "labels": [],
+  "buttons": [
+   "Créer le premier BDE",
+   "Créer un BDE",
+   "Imprimer",
+   "Modifier"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "Supprimer ce bon ?",
+   "…` : \"Nouveau Bon d’Expédition (BDE)\"}"
+  ],
+  "placeholders": [
+   "N° bon, client, camion, commande export…"
+  ],
+  "serverCalls": [
+   "useBonExpeditions",
+   "useCreateBonExpedition",
+   "useDeleteBonExpedition",
+   "useUpdateBonExpedition"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/bon-expedition/BonExpeditionForm.tsx",
+  "lines": 292,
+  "labels": [
+   "Année",
+   "Chauffeur",
+   "Code Contrôleur",
+   "Code Fournisseur",
+   "Commande export liée",
+   "Date d&apos;expédition",
+   "Fournisseur (liste)",
+   "GC (Grand Caisse)",
+   "L (Lame)",
+   "Lieu",
+   "Lieu de réception",
+   "Nature",
+   "Nom signataire",
+   "N° Camion",
+   "P (Plateau)",
+   "Responsable réception",
+   "Statut"
+  ],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Aucune commande liée",
+   "Choisir...",
+   "ex. 404/16",
+   "ex. 71 Tu 9032",
+   "ex. GCRP/GCM",
+   "ex. Tombar"
+  ],
+  "serverCalls": [
+   "useExportOrders",
+   "useSuppliers"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/bon-reception-achat/BonReceptionAchatDashboard.tsx",
+  "lines": 299,
+  "labels": [],
+  "buttons": [
+   "Créer le premier BRA",
+   "Créer lot",
+   "Créer un BRA",
+   "Imprimer",
+   "Modifier"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "Supprimer ce bon ?",
+   "…` : \"Nouveau Bon de Réception Achat (BRA)\"}"
+  ],
+  "placeholders": [
+   "Fournisseur, N° bon, lot ou camion…"
+  ],
+  "serverCalls": [
+   "useBonReceptionsAchat",
+   "useCreateBatch",
+   "useCreateBonReceptionAchat",
+   "useDeleteBonReceptionAchat",
+   "useUpdateBonReceptionAchat"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/bon-reception-achat/BonReceptionAchatForm.tsx",
+  "lines": 529,
+  "labels": [
+   "Année",
+   "Chauffeur",
+   "Date de réception",
+   "Fournisseur",
+   "Heure arrivée",
+   "Lieu de réception",
+   "Lieu expédition",
+   "Nature",
+   "Nbre palette",
+   "Nom fournisseur (libre)",
+   "N° Bon d&apos;expédition",
+   "N° Camion",
+   "N° Facture",
+   "N° Fiche palette",
+   "N° Rapport QCR",
+   "N° de Lot",
+   "Observation",
+   "Palette ajout (+)",
+   "Palette retrait (−)",
+   "Quantité",
+   "Responsable réception",
+   "Région",
+   "Statut"
+  ],
+  "buttons": [
+   "Ajouter",
+   "Précédent",
+   "Suivant",
+   "{isSaving ? \"Enregistrement…\" : ("
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Choisir un fournisseur…",
+   "ex. 71 74 9032",
+   "—"
+  ],
+  "serverCalls": [
+   "useSuppliers"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/bon-reception-achat/BonReceptionAchatPrint.tsx",
+  "lines": 242,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/branding/BrandLogo.tsx",
+  "lines": 55,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useBranding"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/costing/MarginCockpitPanel.tsx",
+  "lines": 146,
+  "labels": [],
+  "buttons": [
+   "Pack CFO",
+   "Réessayer"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useSiteSettings"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/customers/CustomerDialog.tsx",
+  "lines": 233,
+  "labels": [
+   "Adresse",
+   "Client actif",
+   "Conditions de paiement",
+   "Devise",
+   "Email",
+   "Incoterms préférés",
+   "Langue contrat",
+   "Nom du contact",
+   "Notes internes",
+   "Pays précis",
+   "Port de destination",
+   "Raison sociale *",
+   "Région acheteur *",
+   "Téléphone"
+  ],
+  "buttons": [
+   "Annuler"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "…` : 'Nouveau client'}"
+  ],
+  "placeholders": [
+   "ex: 30 jours net, L/C à vue...",
+   "ex: France, Germany, UAE...",
+   "ex: Le Havre, Rotterdam..."
+  ],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/customers/CustomersDashboard.tsx",
+  "lines": 250,
+  "labels": [],
+  "buttons": [
+   "Nouveau client"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "Supprimer ce client ?"
+  ],
+  "placeholders": [
+   "Rechercher un client..."
+  ],
+  "serverCalls": [
+   "useCreateCustomer",
+   "useCustomers",
+   "useDeleteCustomer",
+   "useUpdateCustomer"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/documents/DocumentsWorkspace.tsx",
+  "lines": 152,
+  "labels": [],
+  "buttons": [
+   "Fiche technique",
+   "Parcours lot"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/employees/EmployeeDialog.tsx",
+  "lines": 271,
+  "labels": [
+   "Confirmer le mot de passe *",
+   "Créer un compte de connexion",
+   "Mot de passe temporaire *",
+   "… (€)",
+   "… *"
+  ],
+  "buttons": [
+   "onOpenChange(false)}>…"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 29
+ },
+ {
+  "file": "src/components/employees/EmployeeManagement.tsx",
+  "lines": 74,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useEmployees"
+  ],
+  "translationKeys": 5
+ },
+ {
+  "file": "src/components/employees/EmployeesList.tsx",
+  "lines": 191,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 15
+ },
+ {
+  "file": "src/components/employees/HRDashboard.tsx",
+  "lines": 1002,
+  "labels": [
+   "Assigné à",
+   "Date *",
+   "Description",
+   "Département",
+   "Employé *",
+   "Entrée *",
+   "Module",
+   "Notes",
+   "Pause (min)",
+   "Priorité",
+   "Sortie",
+   "Titre *",
+   "Échéance"
+  ],
+  "buttons": [
+   "Annuler",
+   "Entrée",
+   "Entrée manuelle",
+   "Nouvelle tâche",
+   "Sortie",
+   "Supprimer"
+  ],
+  "tabs": [
+   "Pointages",
+   "Tâches {(urgentTasks > 0 || pendingCount > 0) && ("
+  ],
+  "dialogs": [
+   "Refuser ce pointage",
+   "Supprimer la tâche"
+  ],
+  "placeholders": [
+   "Choisir…",
+   "Détails de la tâche…",
+   "Intitulé de la tâche…",
+   "Motif du refus…",
+   "Nature du travail…",
+   "Tous les employés",
+   "ex: Production"
+  ],
+  "serverCalls": [
+   "useEmployees",
+   "useTasks",
+   "useTimesheets"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/export/AtpPromisePanel.tsx",
+  "lines": 118,
+  "labels": [
+   "Quantité demandée (kg)"
+  ],
+  "buttons": [
+   "{busy ?"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/export/COADialog.tsx",
+  "lines": 232,
+  "labels": [
+   "Approuvé par",
+   "Date d&apos;expiration",
+   "Date de production",
+   "Date de récolte",
+   "Exploitation",
+   "Fournisseur",
+   "Grade visuel",
+   "Humidité (%)",
+   "Lot qualité *",
+   "Observations",
+   "Poids brut (kg)",
+   "Poids net (kg)",
+   "Région d&apos;origine",
+   "Score moisissure"
+  ],
+  "buttons": [
+   "Annuler"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "…` : 'Nouveau COA'}"
+  ],
+  "placeholders": [
+   "Nom du responsable qualité",
+   "Sélectionner lot..."
+  ],
+  "serverCalls": [
+   "useBatches",
+   "useListQualityInspectionsQuery"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/export/ExportDashboard.tsx",
+  "lines": 832,
+  "labels": [],
+  "buttons": [
+   "Annuler",
+   "Contrat",
+   "Créer la première",
+   "Créer le premier COA",
+   "Facture",
+   "Fermer",
+   "Marge",
+   "Nouveau COA",
+   "Nouvelle commande",
+   "Promettre"
+  ],
+  "tabs": [
+   "COA",
+   "Commandes Export",
+   "Contrats"
+  ],
+  "dialogs": [
+   "Approuver le contrat",
+   "Marge export — …",
+   "Régénérer le contrat",
+   "Supprimer ce COA ?",
+   "Supprimer cette commande ?"
+  ],
+  "placeholders": [
+   "Raison de la correction...",
+   "Rechercher commande, client, COA...",
+   "Votre nom"
+  ],
+  "serverCalls": [
+   "useApproveExportContract",
+   "useBranding",
+   "useCOADocuments",
+   "useCreateCOA",
+   "useCreateExportContract",
+   "useCreateExportOrder",
+   "useDeleteCOA",
+   "useDeleteExportOrder",
+   "useExportContracts",
+   "useExportOrders",
+   "useRegenerateExportContract",
+   "useSiteSettings",
+   "useUpdateCOA",
+   "useUpdateExportContract",
+   "useUpdateExportOrder"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/export/ExportOrderDialog.tsx",
+  "lines": 397,
+  "labels": [
+   "Adresse",
+   "Contact",
+   "Devise",
+   "Grade",
+   "Incoterms",
+   "Langue contrat",
+   "Lot qualité",
+   "Nom client *",
+   "Notes",
+   "Pays acheteur *",
+   "Poids net (kg) *",
+   "Port de chargement",
+   "Port de destination",
+   "Prix unitaire *",
+   "Produit",
+   "Réf. COA",
+   "Sélectionner un client enregistré"
+  ],
+  "buttons": [
+   "Ajouter ligne",
+   "Annuler"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "…` : 'Nouvelle commande export'}"
+  ],
+  "placeholders": [
+   "Auto depuis lot",
+   "COA-2026-...",
+   "Choisir un client (optionnel)...",
+   "Dattes Deglet Nour...",
+   "Sélectionner lot..."
+  ],
+  "serverCalls": [
+   "useBatches",
+   "useCOADocuments",
+   "useCustomers"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/fiches/FicheTechniqueSheet.tsx",
+  "lines": 337,
+  "labels": [
+   "Opérateur",
+   "Shift"
+  ],
+  "buttons": [
+   "Aller au poste",
+   "Imprimer",
+   "Je confirme : lu et appliqué",
+   "Retirer l&apos;accusé",
+   "Réinitialiser la checklist"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Votre nom"
+  ],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/fiches/FichesTechniquesHub.tsx",
+  "lines": 203,
+  "labels": [],
+  "buttons": [
+   "Aide documents",
+   "Retour Parcours"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Chercher une fiche (QC, fumigation, BRA…)"
+  ],
+  "serverCalls": [
+   "useSiteSettings"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/home/FactoryCommandCenter.tsx",
+  "lines": 573,
+  "labels": [],
+  "buttons": [
+   "{isFs ?"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useAlertIntelligence",
+   "useBranding",
+   "useLiveFactory",
+   "useOnline"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/home/GoldenThreadPanel.tsx",
+  "lines": 149,
+  "labels": [],
+  "buttons": [
+   "Ouvrir station scan",
+   "Réessayer"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/home/HomePage.tsx",
+  "lines": 262,
+  "labels": [],
+  "buttons": [
+   "Alertes {activeAlertsCount > 0 && (",
+   "Fiches"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useSiteSettings"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/home/LotJourneyHub.tsx",
+  "lines": 617,
+  "labels": [],
+  "buttons": [
+   "BDE",
+   "BRA",
+   "Export",
+   "Fiche",
+   "Passport",
+   "Règlements",
+   "Scan",
+   "Suivre",
+   "{recallBusy ?",
+   "Étiquette PF"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "N° lot"
+  ],
+  "serverCalls": [
+   "useAllReceptionLots",
+   "useBranding",
+   "useSiteSettings"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/home/RecallDrillPanel.tsx",
+  "lines": 202,
+  "labels": [],
+  "buttons": [
+   "Rapport PDF"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "LOT-ID, lot_internal ou SSCC"
+  ],
+  "serverCalls": [
+   "useBranding",
+   "useSiteSettings"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/home/RoleLanding.tsx",
+  "lines": 43,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/home/SageOperationsHub.tsx",
+  "lines": 147,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useSageOperations"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/layout/AppSidebar.tsx",
+  "lines": 268,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [
+   "Changer mon mot de passe"
+  ],
+  "placeholders": [],
+  "serverCalls": [
+   "useBranding"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/layout/CommandMenu.tsx",
+  "lines": 131,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Rechercher un écran ou une action…"
+  ],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/layout/EnvironmentRibbon.tsx",
+  "lines": 29,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/layout/ModuleHero.tsx",
+  "lines": 73,
+  "labels": [],
+  "buttons": [
+   "… …"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/layout/OfflineSyncStatus.tsx",
+  "lines": 149,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/layout/PwaInstallBanner.tsx",
+  "lines": 83,
+  "labels": [],
+  "buttons": [
+   "Installer"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/layout/RealtimeIndicator.tsx",
+  "lines": 29,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useOnline"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/layout/TopHeader.tsx",
+  "lines": 94,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 1
+ },
+ {
+  "file": "src/components/layout/WorkflowNavigation.tsx",
+  "lines": 197,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [
+   "Navigation rapide"
+  ],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/logistics/LogisticsDashboard.tsx",
+  "lines": 1294,
+  "labels": [
+   "Client",
+   "Date demandee",
+   "Destination",
+   "Lot manuel",
+   "Notes",
+   "Notes ligne",
+   "Notes logistiques",
+   "Produit fini",
+   "Quantite demandee",
+   "Statut"
+  ],
+  "buttons": [
+   "Ajouter la ligne",
+   "Annuler",
+   "Bon BDE",
+   "Certificat de conformité",
+   "Conformité",
+   "Creer l'expédition",
+   "Enregistrer l'entete",
+   "Expedier",
+   "Exporter le rapport",
+   "Fiche phytosanitaire",
+   "Genealogie",
+   "Marquer pret",
+   "Nouvelle expédition",
+   "Passer en picking",
+   "Rapport genealogie lot",
+   "Reinitialiser",
+   "Sauver",
+   "Simuler",
+   "Utiliser la suggestion"
+  ],
+  "tabs": [
+   "Bon BDE",
+   "Conformité export",
+   "Expéditions",
+   "Rappel simulé",
+   "Stock PF {finishedLots.filter((lot) => lot.status === 'VALIDATED').length > 0 && (",
+   "Transport live"
+  ],
+  "dialogs": [
+   "Nouvelle expédition",
+   "Rappel simulé - …"
+  ],
+  "placeholders": [
+   "Aucun",
+   "Choisir un lot",
+   "Choisir un produit",
+   "Filtrer par statut",
+   "Rechercher par numéro, client ou destination"
+  ],
+  "serverCalls": [
+   "useCreateShipment",
+   "useCreateShipmentLine",
+   "useDeleteShipmentLine",
+   "useLotSuggestions",
+   "useProducts",
+   "useShipments",
+   "useStockLots",
+   "useUpdateShipment",
+   "useUpdateShipmentLine"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/logistics/TransportWorkspace.tsx",
+  "lines": 1359,
+  "labels": [
+   "Adresse destination",
+   "Arrivée prévue",
+   "Camion",
+   "Camion préféré",
+   "Capacité (kg)",
+   "Charge / documents",
+   "Charge / résumé",
+   "Chauffeur",
+   "Destination",
+   "Distance estimée (km)",
+   "Départ prévu",
+   "Expiration permis",
+   "Expédition liée",
+   "Identifiant GPS / balise",
+   "Immatriculation",
+   "Nom complet",
+   "Notes",
+   "Notes mission",
+   "Permis / référence",
+   "Remorque",
+   "Statut",
+   "Type",
+   "Type mission",
+   "Téléphone"
+  ],
+  "buttons": [
+   "Ajouter le camion",
+   "Ajouter le chauffeur",
+   "Annuler",
+   "Camion",
+   "Chauffeur",
+   "Clôturer",
+   "Créer la mission",
+   "Enregistrer",
+   "Export ordre mission",
+   "Marquer arrivée",
+   "Marquer départ",
+   "Ordre mission",
+   "Ouvrir mission",
+   "Piloter la mission",
+   "Prête au départ"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "Nouveau camion",
+   "Nouveau chauffeur",
+   "Nouvel ordre de mission"
+  ],
+  "placeholders": [
+   "+216...",
+   "123-TUN-456",
+   "Adresse précise, coordonnées, repères...",
+   "Ahmed Ben Salah",
+   "Bon de livraison, palettes, température...",
+   "Capacité réelle, restrictions, maintenance...",
+   "Client / dépôt / zone",
+   "Consignes chauffeur, docs à remettre, température ciblée...",
+   "P-2026-8821",
+   "Palette 12, carton export, retour palette...",
+   "Permis spécial, zones habituelles, commentaires...",
+   "REM-22",
+   "Semi-remorque",
+   "Sélectionner un camion",
+   "Sélectionner un chauffeur",
+   "Sélectionner une expédition",
+   "TELTONIKA-07"
+  ],
+  "serverCalls": [
+   "useCreateTransportDriver",
+   "useCreateTransportMission",
+   "useCreateTransportPositionLog",
+   "useCreateTransportVehicle",
+   "useMissionPositions",
+   "useShipments",
+   "useTransportDrivers",
+   "useTransportMissions",
+   "useTransportVehicles",
+   "useUpdateTransportMission"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/maintenance/MaintenanceDashboard.tsx",
+  "lines": 183,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useApproveMaintenanceRequest",
+   "useCancelMaintenanceRequest",
+   "useCompleteMaintenanceRequest",
+   "useCreateMaintenanceRequest",
+   "useDeleteMaintenanceRequest",
+   "useMaintenanceRequests",
+   "useMaintenanceStats",
+   "useRejectMaintenanceRequest",
+   "useReturnMaintenanceRequest",
+   "useSubmitMaintenanceRequest",
+   "useUpdateMaintenanceRequest"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/maintenance/MaintenanceRequestDialog.tsx",
+  "lines": 201,
+  "labels": [
+   "Coût estimé (TND)",
+   "Description",
+   "Département demandeur *",
+   "Objet *",
+   "Priorité",
+   "Équipement"
+  ],
+  "buttons": [
+   "Annuler"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "0",
+   "Convoyeur C-02",
+   "Décrivez la panne ou l'intervention nécessaire...",
+   "Panne convoyeur ligne 2",
+   "Sélectionner"
+  ],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/maintenance/MaintenanceRequestsList.tsx",
+  "lines": 335,
+  "labels": [],
+  "buttons": [
+   "Annuler",
+   "Confirmer",
+   "Nouvelle demande"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Motif (obligatoire)..."
+  ],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/mes/MaterialDialog.tsx",
+  "lines": 212,
+  "labels": [
+   "Catégorie",
+   "Code *",
+   "Description",
+   "Nom *",
+   "Point de commande",
+   "Stock disponible",
+   "Type de Caisse",
+   "Unité"
+  ],
+  "buttons": [
+   "Annuler"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Description de la matière",
+   "MAT-001",
+   "Nom de la matière",
+   "Sélectionner un type",
+   "Sélectionner une catégorie"
+  ],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/mes/MaterialsList.tsx",
+  "lines": 156,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useCreateMaterial",
+   "useDeleteMaterial",
+   "useUpdateMaterial"
+  ],
+  "translationKeys": 10
+ },
+ {
+  "file": "src/components/mes/SupplierDetailSheet.tsx",
+  "lines": 231,
+  "labels": [],
+  "buttons": [
+   "Approuver",
+   "Archiver",
+   "Bloquer",
+   "Modifier"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useApproveSupplier",
+   "useArchiveSupplier",
+   "useBlockSupplier",
+   "useSupplierLots",
+   "useSupplierOrders",
+   "useSupplierPayments",
+   "useUpdateSupplier"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/mes/SupplierDialog.tsx",
+  "lines": 545,
+  "labels": [
+   "CIN / Matricule",
+   "Certifications",
+   "Conditions de paiement",
+   "Conformité",
+   "Contact",
+   "Début contrat",
+   "Email (portail)",
+   "Fin contrat",
+   "Irrigation",
+   "Localité",
+   "Mode de culture",
+   "Nom *",
+   "Notes",
+   "N° pièce",
+   "Oasis",
+   "Prix convenu (TND/kg)",
+   "Qualification",
+   "RIB",
+   "Région",
+   "Statut",
+   "Statut identification",
+   "Type d'acteur",
+   "Type de contrat",
+   "Téléphone"
+  ],
+  "buttons": [
+   "Annuler"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Ex. Ben Amor Ahmed"
+  ],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/mes/SupplierScorePanel.tsx",
+  "lines": 75,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/mes/SuppliersList.tsx",
+  "lines": 351,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Nom, code, ville, CIN",
+   "Qualification",
+   "Région",
+   "Score",
+   "Statut"
+  ],
+  "serverCalls": [
+   "useArchiveSupplier",
+   "useBlockSupplier",
+   "useCreateSupplier",
+   "useDeleteSupplier",
+   "useUpdateSupplier"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/notifications/NotificationCenter.tsx",
+  "lines": 527,
+  "labels": [],
+  "buttons": [
+   "0 ? ` ($… non lues)` : ''}`} className=… >",
+   "{isExternal ?"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useMarkAllRead",
+   "useMarkNotificationRead",
+   "useNotificationRealtimeState",
+   "useNotificationSummary",
+   "useNotifications"
+  ],
+  "translationKeys": 6
+ },
+ {
+  "file": "src/components/packaging/PackagingDashboard.tsx",
+  "lines": 224,
+  "labels": [
+   "Numéro de lot PF"
+  ],
+  "buttons": [
+   "Annuler",
+   "Imprimer l'étiquette",
+   "Rapport journalier",
+   "Étiquette PF rapide"
+  ],
+  "tabs": [
+   "Nomenclatures",
+   "OF Conditionnement {(kpis?.active_orders ?? 0) > 0 && (",
+   "Palettes {(kpis?.palettes_sealed_today ?? 0) > 0 && (",
+   "Étiquettes"
+  ],
+  "dialogs": [],
+  "placeholders": [
+   "ex. PF-2026-001"
+  ],
+  "serverCalls": [
+   "useBranding",
+   "usePackagingKpis",
+   "usePackagingOrders",
+   "useSiteSettings"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/packaging/bom/BOMPanel.tsx",
+  "lines": 358,
+  "labels": [
+   "Boîtes/couche",
+   "Client marque blanche",
+   "Couches/palette",
+   "Désignation *",
+   "Format",
+   "Matériau boîte",
+   "Notes",
+   "Palette preview",
+   "Poids brut (g) *",
+   "Poids net (g) *",
+   "SKU *",
+   "Étiquette associée (VALIDE uniquement)"
+  ],
+  "buttons": [
+   "Annuler",
+   "Modifier",
+   "Nouvelle nomenclature",
+   "{bom.is_active ?",
+   "{isPending &&"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Boîte 500g Deglet Nour Premium",
+   "Choisir un modèle d'étiquette…",
+   "Instructions particulières…",
+   "PKG-BOX-500-DN-RP",
+   "Sélectionner un client…"
+  ],
+  "serverCalls": [
+   "useCreatePackagingBOM",
+   "useLabelTemplates",
+   "usePackagingBOMs",
+   "usePrivateLabelClients",
+   "useToggleBOMActive",
+   "useUpdatePackagingBOM"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/packaging/labels/LabelTemplatePanel.tsx",
+  "lines": 486,
+  "labels": [
+   "Allergènes (si applicable)",
+   "Code interne *",
+   "Conditions de conservation",
+   "Contact",
+   "DLC (jours depuis production)",
+   "Email contact",
+   "GTIN-13 (GS1)",
+   "Ingrédients *",
+   "Langue",
+   "Marché (pays)",
+   "Marque",
+   "Nom *",
+   "Nom du client (marque)",
+   "Nom du client *",
+   "Nom produit *",
+   "Origine",
+   "Pays *",
+   "Poids net (g) *",
+   "Variété",
+   "Version"
+  ],
+  "buttons": [
+   "Annuler",
+   "Archiver",
+   "Modifier",
+   "Nouveau client",
+   "Nouveau modèle",
+   "Valider",
+   "{c.active ?",
+   "{createClient.isPending &&",
+   "{isPending &&",
+   "…)` : s} …)`}"
+  ],
+  "tabs": [
+   "Clients marque blanche (…)",
+   "Modèles d'étiquettes"
+  ],
+  "dialogs": [
+   "Nouveau client marque blanche"
+  ],
+  "placeholders": [
+   "0000000000000",
+   "CARREFOUR-FR",
+   "Carrefour France",
+   "Carrefour, Lidl…",
+   "Dattes (100%)",
+   "Dattes Deglet Nour",
+   "Deglet Nour",
+   "Deglet Nour 500g — France",
+   "FR",
+   "Peut contenir des traces de…",
+   "Prénom Nom",
+   "TN, FR, DE…",
+   "contact@example.com",
+   "v1.0"
+  ],
+  "serverCalls": [
+   "useApproveLabelTemplate",
+   "useArchiveLabelTemplate",
+   "useCreateLabelTemplate",
+   "useCreatePrivateLabelClient",
+   "useLabelTemplates",
+   "usePrivateLabelClients",
+   "useToggleClientActive",
+   "useUpdateLabelTemplate"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/packaging/orders/PackagingOrderDialog.tsx",
+  "lines": 587,
+  "labels": [
+   "Chef de ligne",
+   "Contrôle pondéral total",
+   "Date planifiée",
+   "Déchets (kg)",
+   "Détections métal",
+   "Ligne",
+   "Nb boîtes sur cette palette",
+   "Nb opérateurs",
+   "Nomenclature (BOM)",
+   "Notes",
+   "N° sceau / film étirable",
+   "Opérateur",
+   "Sous-lot source (triage)",
+   "Unités produites",
+   "Unités rejetées",
+   "Échecs pondéral",
+   "Étiquette (auto depuis BOM, modifiable)"
+  ],
+  "buttons": [
+   "Annuler",
+   "Palette",
+   "Sceller",
+   "{closeOrder.isPending ?",
+   "{createOrder.isPending &&",
+   "{createPalette.isPending &&",
+   "{order.status === 'EN_COURS' ?",
+   "{sealPalette.isPending &&",
+   "{startOrder.isPending ?",
+   "{updateProgress.isPending &&",
+   "✕"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "…` : 'Nouvel ordre de conditionnement'}"
+  ],
+  "placeholders": [
+   "(optionnel)",
+   "0",
+   "Choisir une BOM active…",
+   "Choisir une étiquette…",
+   "SC-20260608-001",
+   "Sélectionner un sous-lot disponible…"
+  ],
+  "serverCalls": [
+   "useAvailableSublotsForPackaging",
+   "useClosePackagingOrder",
+   "useCreatePackagingOrder",
+   "useCreatePackagingPalette",
+   "useLabelTemplates",
+   "usePackagingBOMs",
+   "usePackagingPalettes",
+   "usePauseResumePackagingOrder",
+   "useSealPalette",
+   "useStartPackagingOrder",
+   "useUpdatePackagingProgress"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/packaging/orders/PackagingOrderPanel.tsx",
+  "lines": 190,
+  "labels": [],
+  "buttons": [
+   "Gérer",
+   "Nouvel OF"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useLabelTemplates",
+   "usePackagingKpis",
+   "usePackagingOrders"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/packaging/palettes/PalettePanel.tsx",
+  "lines": 198,
+  "labels": [
+   "N° sceau / film étirable *",
+   "Scellé par"
+  ],
+  "buttons": [
+   "Annuler",
+   "Sceller",
+   "{sealPalette.isPending &&",
+   "Étiquette",
+   "…)` : `$… ($…)`}"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "Sceller palette …"
+  ],
+  "placeholders": [
+   "SC-20260608-001"
+  ],
+  "serverCalls": [
+   "useAllPackagingPalettes",
+   "usePackagingBOMs",
+   "usePackagingOrders",
+   "useSealPalette"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/phase2/LotSelector.tsx",
+  "lines": 147,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Rechercher par N° lot, variété…"
+  ],
+  "serverCalls": [
+   "useAvailableLotsForPhase2"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/phase2/LotTraceabilityDialog.tsx",
+  "lines": 739,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useLiveLotTraceability"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/phase2/alerts/Phase2AlertsPanel.tsx",
+  "lines": 491,
+  "labels": [],
+  "buttons": [
+   "{acknowledgeAll.isPending ? (",
+   "{isAcking ? ("
+  ],
+  "tabs": [
+   "Actives",
+   "Historique"
+  ],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useAcknowledgeAllPhase2Alerts",
+   "useAcknowledgePhase2Alert",
+   "usePhase2ActiveAlerts",
+   "usePhase2AlertKpis",
+   "usePhase2AllAlerts"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/phase2/fumigation/FumigationCCPMonitor.tsx",
+  "lines": 194,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useFumigationSensorReadings"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/phase2/fumigation/FumigationCycleDialog.tsx",
+  "lines": 606,
+  "labels": [
+   "Chambre",
+   "Concentration résiduelle (ppm)",
+   "Dose appliquée (g)",
+   "Expiration produit",
+   "Lots à fumiger (sélection multiple)",
+   "N° lot produit",
+   "Protocole"
+  ],
+  "buttons": [
+   "Arrêt d'urgence",
+   "CCP Monitor",
+   "Démarrer cycle (T0)",
+   "Détails",
+   "Enregistrer",
+   "Enregistrer dosage",
+   "Imprimer certificat",
+   "Signer — Opérateur",
+   "Signer — Qualité",
+   "{create.isPending &&",
+   "→ Passer au chargement",
+   "→ Passer en validation / signature",
+   "→ Passer en ventilation"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "…` : 'Nouveau cycle de fumigation'}"
+  ],
+  "placeholders": [
+   "Sélectionner les lots…",
+   "ex: 0.05",
+   "ex: 2500",
+   "ex: PH3-2026-042"
+  ],
+  "serverCalls": [
+   "useAuth",
+   "useCreateFumigationCycle",
+   "useSignFumigationCycle",
+   "useStartFumigationCycle",
+   "useUpdateFumigationCycle"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/phase2/fumigation/FumigationPanel.tsx",
+  "lines": 192,
+  "labels": [],
+  "buttons": [
+   "Nouveau cycle",
+   "Ouvrir"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useFumigationCycles",
+   "useFumigationKpis"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/phase2/hydratation/HydratationPanel.tsx",
+  "lines": 365,
+  "labels": [
+   "Action non-conformité",
+   "Chambre",
+   "Dérogation programme (optionnel)",
+   "Humidité entrée (%)",
+   "Inspecteur",
+   "Lecture … (%)",
+   "Lot à traiter",
+   "Programme suggéré"
+  ],
+  "buttons": [
+   "Annuler",
+   "Clôturer",
+   "Mesures",
+   "Nouveau cycle",
+   "{closeCycle.isPending &&",
+   "{createCycle.isPending &&",
+   "{recordExit.isPending &&"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "Clôturer cycle",
+   "Mesures humidité sortie (3 prélèvements)",
+   "Nouveau cycle hydratation/séchage"
+  ],
+  "placeholders": [
+   "Ou saisir N° lot manuellement",
+   "Sélectionner un lot disponible…",
+   "Utiliser le programme suggéré",
+   "ex: 17.5",
+   "ex: 22.4"
+  ],
+  "serverCalls": [
+   "useCloseHydrationCycle",
+   "useCreateHydrationCycle",
+   "useHydrationCycles",
+   "useHydrationKpis",
+   "useRecordExitHumidity"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/phase2/nettoyage/NettoyagePanel.tsx",
+  "lines": 282,
+  "labels": [],
+  "buttons": [
+   "setClosingId(null)}>…",
+   "setShowCreate(false)}>…",
+   "{closeCycle.isPending &&",
+   "{createCycle.isPending &&"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "ex: 7.2",
+   "ex: 80",
+   "ex: Deglet Nour"
+  ],
+  "serverCalls": [
+   "useCleaningCycles",
+   "useCleaningKpis",
+   "useCloseCleaningCycle",
+   "useCreateCleaningCycle"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/phase2/triage/FichePaletteDialog.tsx",
+  "lines": 429,
+  "labels": [
+   "Date hydratation",
+   "Date séchoir",
+   "Destination finale",
+   "Heure entrée H/S",
+   "Heure sortie H/S",
+   "N° Chambre hydratation",
+   "N° Séchoir",
+   "Responsable Production (nom)",
+   "Responsable QC (nom)",
+   "Taux qualité (V = Validé)",
+   "Traitement thermique",
+   "… — Validé"
+  ],
+  "buttons": [
+   "Fermer",
+   "Imprimer",
+   "{saveDoc.isPending &&"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Destination...",
+   "Ex: CH-01",
+   "Ex: S-03",
+   "Nom..."
+  ],
+  "serverCalls": [
+   "useDocumentPrint",
+   "useSaveDocumentPrint"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/phase2/triage/SubLotLabelPrintDialog.tsx",
+  "lines": 164,
+  "labels": [],
+  "buttons": [
+   "Fermer",
+   "Imprimer … étiquette…"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "Étiquettes sous-lots — …"
+  ],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/phase2/triage/TriagePanel.tsx",
+  "lines": 551,
+  "labels": [
+   "Chef de ligne",
+   "Déchets process (kg)",
+   "Inspecteur",
+   "Ligne",
+   "Lot parent",
+   "Opérateurs",
+   "Poids lot (kg)",
+   "Poids échantillon (kg)",
+   "Vitesse tapis"
+  ],
+  "buttons": [
+   "Annuler",
+   "Clôturer",
+   "Démarrer session",
+   "Fermer",
+   "Fiche Palette",
+   "Poids",
+   "{addQCCheck.isPending &&",
+   "{closeSession.isPending &&",
+   "{createSession.isPending &&",
+   "{session.status === 'EN_COURS' ?",
+   "{updateWeights.isPending &&",
+   "Étiquettes QR"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "Clôturer triage",
+   "Contrôle qualité triage",
+   "Mise à jour poids — …",
+   "Nouvelle session de triage"
+  ],
+  "placeholders": [
+   "0",
+   "0 kg",
+   "Ou saisir N° lot manuellement",
+   "Sélectionner un lot disponible…"
+  ],
+  "serverCalls": [
+   "useAddTriageQualityCheck",
+   "useCloseTriageSession",
+   "useCreateTriageSession",
+   "usePauseResumeTriageSession",
+   "useTriageKpis",
+   "useTriageSessions",
+   "useTriageSubLots",
+   "useUpdateTriageWeights"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/production/HaccpDashboard.tsx",
+  "lines": 295,
+  "labels": [
+   "Observations",
+   "Statut *",
+   "Valeur mesurée",
+   "Vérifié par"
+  ],
+  "buttons": [
+   "Actualiser",
+   "Annuler",
+   "Mettre à jour",
+   "{update.isPending ?"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Nom du technicien / contrôleur",
+   "Remarques, actions correctives prises…"
+  ],
+  "serverCalls": [
+   "useHaccpStates",
+   "useUpdateHaccpState"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/production/LotAllocationPanel.tsx",
+  "lines": 268,
+  "labels": [
+   "Lot libéré *",
+   "Quantité allouée *"
+  ],
+  "buttons": [
+   "Ajouter un lot",
+   "Annuler"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "0.00",
+   "Sélectionner un lot"
+  ],
+  "serverCalls": [
+   "useAllocateLotToOrder",
+   "useLiberedLots",
+   "useOrderLotAllocations",
+   "useRemoveLotAllocation"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/production/MaterialBalancePanel.tsx",
+  "lines": 373,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useFluxRuns"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/production/OutputLotPanel.tsx",
+  "lines": 231,
+  "labels": [
+   "Quantité produite *",
+   "Variété"
+  ],
+  "buttons": [
+   "Annuler",
+   "Enregistrer un lot PF"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "0.00",
+   "ex: Deglet Nour"
+  ],
+  "serverCalls": [
+   "useOrderLotAllocations",
+   "useOutputLots",
+   "useRecordOutputLot"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/production/ProductionDone.tsx",
+  "lines": 112,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useCleaningCycles",
+   "useFumigationCycles",
+   "useHydrationCycles",
+   "useTriageSessions"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/production/ProductionKpiPanel.tsx",
+  "lines": 342,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useFluxRuns"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/production/ProductionLinesPanel.tsx",
+  "lines": 617,
+  "labels": [
+   "CCP2 — Détecteur métaux *",
+   "Notes",
+   "Notes finales",
+   "Opérateur *",
+   "Pertes / déchets (kg)",
+   "Poids entrant (kg) *",
+   "Poids sortant (kg) *"
+  ],
+  "buttons": [
+   "Annuler",
+   "Démarrer",
+   "Terminer",
+   "{complete.isPending ?",
+   "{start.isPending ?"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Nom de l'opérateur",
+   "Observations de fin de production…",
+   "Variété, lot MP, remarques…",
+   "ex. 1000",
+   "ex. 30",
+   "ex. 850"
+  ],
+  "serverCalls": [
+   "useCancelFluxRun",
+   "useCompleteFluxRun",
+   "useFluxRuns",
+   "useStartFluxRun"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/production/ProductionOrderDetail.tsx",
+  "lines": 353,
+  "labels": [],
+  "buttons": [
+   "{loading &&"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useOrderLotAllocations",
+   "useProductionConfig",
+   "useProductionOrder",
+   "useUpdateOrderStatus"
+  ],
+  "translationKeys": 13
+ },
+ {
+  "file": "src/components/production/ProductionOrderDialog.tsx",
+  "lines": 330,
+  "labels": [
+   "Ligne de production (Flux F1–F8)",
+   "… *",
+   "… {v2Selectable.length > 0 && ("
+  ],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Sélectionner la ligne produit…"
+  ],
+  "serverCalls": [
+   "useCreateProductionOrder",
+   "useProductionConfig"
+  ],
+  "translationKeys": 24
+ },
+ {
+  "file": "src/components/production/ProductionOrdersList.tsx",
+  "lines": 124,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "N° d'ordre, produit, réception"
+  ],
+  "serverCalls": [
+   "useProductionConfig"
+  ],
+  "translationKeys": 10
+ },
+ {
+  "file": "src/components/production/ProductionPipelinePanel.tsx",
+  "lines": 215,
+  "labels": [],
+  "buttons": [
+   "Fumigation"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useCleaningCycles",
+   "useFumigationCycles",
+   "useHydrationCycles",
+   "usePhase2Pipeline",
+   "useTriageSessions"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/production/ProductionStepCard.tsx",
+  "lines": 399,
+  "labels": [],
+  "buttons": [
+   "{updateStep.isPending ?",
+   "{updateStep.isPending ? (",
+   "… …)`}"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useProductionConfig",
+   "useQualityChecks",
+   "useUpdateProductionStep"
+  ],
+  "translationKeys": 16
+ },
+ {
+  "file": "src/components/production/ProductionToday.tsx",
+  "lines": 276,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useCleaningCycles",
+   "useFumigationCycles",
+   "useHydrationCycles",
+   "useOrderLotAllocations",
+   "usePhase2AlertKpis",
+   "usePhase2Pipeline",
+   "useProductionConfig",
+   "useTriageSessions"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/production/ProductionWorkspace.tsx",
+  "lines": 241,
+  "labels": [],
+  "buttons": [
+   "Rapport du jour"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Tracer un lot"
+  ],
+  "serverCalls": [
+   "useCleaningCycles",
+   "useFumigationCycles",
+   "useHydrationCycles",
+   "usePhase2AlertKpis",
+   "usePhase2Pipeline",
+   "useTriageSessions"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/production/QualityCheckDialog.tsx",
+  "lines": 106,
+  "labels": [
+   "… *"
+  ],
+  "buttons": [
+   "onOpenChange(false)}>…"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "… - …"
+  ],
+  "placeholders": [],
+  "serverCalls": [
+   "useAddQualityCheck",
+   "useQualityChecks"
+  ],
+  "translationKeys": 19
+ },
+ {
+  "file": "src/components/purchasing/PurchaseOrderDetail.tsx",
+  "lines": 737,
+  "labels": [
+   "Date facture *",
+   "Lot fournisseur *",
+   "Montant facture TND *",
+   "Motif quarantaine *",
+   "Motif rejet",
+   "N° BRF / GRN",
+   "N° facture fournisseur *",
+   "Quantité réceptionnée *",
+   "Statut QC *",
+   "Tolérance (%)"
+  ],
+  "buttons": [
+   "Imprimer",
+   "PDF",
+   "Réceptionner",
+   "Réceptionner dans Réceptions",
+   "Réinitialiser",
+   "Valider 3-Way Match"
+  ],
+  "tabs": [
+   "3-Way Match {(order as any).three_way_match_status === 'mismatch' &&",
+   "Détails",
+   "Historique {receiptLogs.length > 0 &&",
+   "Réception {hasDiscrepancy &&"
+  ],
+  "dialogs": [
+   "Bon de Commande …"
+  ],
+  "placeholders": [
+   "0.00",
+   "Ex: Humidité hors norme, attente résultat labo...",
+   "Ex: Infestation, qualité non conforme...",
+   "GRN-20260621-001",
+   "INV-2026-0001",
+   "LOT-FOURNISSEUR-123"
+  ],
+  "serverCalls": [
+   "useToast"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/purchasing/PurchaseOrderDialog.tsx",
+  "lines": 574,
+  "labels": [
+   "Adresse livraison",
+   "Avance versée (TND)",
+   "Bio requis (certification obligatoire du fournisseur — RG-ACH05)",
+   "Conditions paiement",
+   "Créé par *",
+   "Date commande",
+   "Devise",
+   "Fournisseur *",
+   "Incoterm",
+   "Lignes de commande",
+   "Livraison prévue",
+   "Mode de transport",
+   "Notes",
+   "Qualité attendue",
+   "Réf. fournisseur",
+   "Site de livraison",
+   "TVA (montant)",
+   "Tolérance quantité (%)",
+   "Type de commande",
+   "Variété"
+  ],
+  "buttons": [
+   "Ajouter ligne",
+   "Annuler"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "...",
+   "Adresse complète",
+   "Confirmation / devis fournisseur",
+   "Description",
+   "EXW, FCA, DDP...",
+   "Ex: Deglet Nour, Medjool...",
+   "Notes...",
+   "Sélectionner...",
+   "Usine / dépôt / quai",
+   "Votre nom"
+  ],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/purchasing/PurchaseOrderPrint.tsx",
+  "lines": 105,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/purchasing/PurchaseOrdersList.tsx",
+  "lines": 401,
+  "labels": [
+   "Nom du valideur Direction *"
+  ],
+  "buttons": [
+   "Annuler",
+   "Nouveau BC",
+   "Supprimer",
+   "Valider"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "Supprimer ce BC ?"
+  ],
+  "placeholders": [
+   "Prénom NOM",
+   "Rechercher N° BC, fournisseur, variété..."
+  ],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/purchasing/PurchasingDashboard.tsx",
+  "lines": 747,
+  "labels": [],
+  "buttons": [
+   "Générer les DA de réappro",
+   "Générer les demandes d'achat"
+  ],
+  "tabs": [
+   "Appels d'offres",
+   "Certificats",
+   "Factures",
+   "KPIs P2P",
+   "Règlements grades",
+   "Réceptions"
+  ],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useApprovePurchaseOrder",
+   "useApproveRequisition",
+   "useClosePurchaseOrder",
+   "useConfirmPurchaseOrder",
+   "useCreatePurchaseOrder",
+   "useCreateRequisition",
+   "useDeletePurchaseOrder",
+   "useDeleteRequisition",
+   "useGenerateReplenishment",
+   "useGenerateThresholdReorder",
+   "useMaterials",
+   "usePurchaseOrders",
+   "usePurchasingStats",
+   "useReceivePurchaseOrderLine",
+   "useRejectRequisition",
+   "useReplenishmentNeeds",
+   "useRequisitions",
+   "useReturnRequisition",
+   "useSavePurchaseOrderThreeWayMatch",
+   "useSendPurchaseOrder",
+   "useStockReorderNeeds",
+   "useSubmitRequisition",
+   "useSuppliers",
+   "useUpdatePurchaseOrder",
+   "useUpdateRequisition"
+  ],
+  "translationKeys": 6
+ },
+ {
+  "file": "src/components/purchasing/RequisitionDetailSheet.tsx",
+  "lines": 284,
+  "labels": [],
+  "buttons": [
+   "Créer un Bon de Commande"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/purchasing/RequisitionDialog.tsx",
+  "lines": 326,
+  "labels": [
+   "Coût estimé (TND)",
+   "Date souhaitée *",
+   "Description article *",
+   "Département concerné",
+   "Fournisseur préféré",
+   "Justification du besoin",
+   "Matière / Article",
+   "Notes",
+   "Quantité *",
+   "Référent stock / préparateur *",
+   "Site *",
+   "Unité",
+   "Urgence"
+  ],
+  "buttons": [
+   "Annuler"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Contexte de planification, niveau de stock, consommation prévue...",
+   "Nom du responsable ayant consolidé le besoin",
+   "Nom ou description",
+   "Notes supplémentaires...",
+   "Optionnel",
+   "Optionnel...",
+   "Sélectionner le site...",
+   "Sélectionner un article...",
+   "Sélectionner..."
+  ],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/purchasing/RequisitionsList.tsx",
+  "lines": 770,
+  "labels": [
+   "Circuit d'approbation (…/…)"
+  ],
+  "buttons": [
+   "Annuler",
+   "Approuver la sélection",
+   "Préparer une DA",
+   "Soumettre",
+   "Supprimer",
+   "…`}"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "Supprimer la demande ?",
+   "Valider la demande"
+  ],
+  "placeholders": [
+   "N° DA, article, demandeur, site...",
+   "Statut",
+   "Urgence"
+  ],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/purchasing/SettlementsPanel.tsx",
+  "lines": 131,
+  "labels": [],
+  "buttons": [
+   "Annuler",
+   "Approuver",
+   "Payer",
+   "Relevé"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useSiteSettings"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/purchasing/p2p/CertificatesPanel.tsx",
+  "lines": 331,
+  "labels": [
+   "Date d'expiration *",
+   "Date d'émission",
+   "Fournisseur *",
+   "N° certificat",
+   "Référence document",
+   "Type de certificat *",
+   "Émetteur / Organisme"
+  ],
+  "buttons": [
+   "Ajouter",
+   "Alertes seulement",
+   "Annuler",
+   "Enregistrer"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "Ajouter un certificat fournisseur"
+  ],
+  "placeholders": [
+   "Chemin fichier, URL, référence GED…",
+   "Sélectionner…",
+   "Tous les fournisseurs",
+   "Type…"
+  ],
+  "serverCalls": [
+   "useCreateCertificate",
+   "useDeleteCertificate",
+   "useSupplierCertificates",
+   "useUpdateCertificate"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/purchasing/p2p/GoodsReceiptsPanel.tsx",
+  "lines": 418,
+  "labels": [
+   "Bon de commande lié",
+   "Date DLUO/DDM",
+   "Date attendue",
+   "Date réception",
+   "Décision *",
+   "Fournisseur *",
+   "Motif quarantaine (laisser vide si acceptation directe)",
+   "Notes",
+   "Notes de décision",
+   "Qté acceptée",
+   "Qté refusée",
+   "Qté reçue",
+   "Référence FDS",
+   "Référence certificat bio",
+   "Référence document phytosanitaire",
+   "Site"
+  ],
+  "buttons": [
+   "Accepter",
+   "Annuler",
+   "Confirmer",
+   "Créer",
+   "Lever quarantaine",
+   "Nouveau BR",
+   "Refuser"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "Lever la quarantaine",
+   "Nouveau bon de réception"
+  ],
+  "placeholders": [
+   "Ex: Contrôle bio requis, document manquant…",
+   "Résultats d'analyse, justification…",
+   "Site…",
+   "Sélectionner un BC…",
+   "Sélectionner…"
+  ],
+  "serverCalls": [
+   "useCreateGoodsReceipt",
+   "useGoodsReceipts",
+   "useReleaseQuarantine",
+   "useUpdateGoodsReceipt"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/purchasing/p2p/InvoicesPanel.tsx",
+  "lines": 557,
+  "labels": [
+   "BC associé",
+   "Date facture *",
+   "Date échéance",
+   "Devise",
+   "Fournisseur *",
+   "HT",
+   "Notes",
+   "N° facture *",
+   "Référence de paiement *",
+   "Site",
+   "TTC *",
+   "TVA",
+   "Tolérance écart (%) — défaut …%"
+  ],
+  "buttons": [
+   "Annuler",
+   "Bon à payer",
+   "Confirmer paiement",
+   "Créer",
+   "Détail",
+   "Enregistrer paiement",
+   "Fermer",
+   "Nouvelle facture",
+   "Rapprocher"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "Enregistrer le paiement",
+   "Saisir une facture fournisseur"
+  ],
+  "placeholders": [
+   "N° virement, chèque…",
+   "Site…",
+   "Sélectionner un BC…",
+   "Sélectionner…"
+  ],
+  "serverCalls": [
+   "useApproveInvoicePayment",
+   "useCreateInvoice",
+   "useMarkInvoicePaid",
+   "useRunThreeWayMatch",
+   "useSupplierInvoices"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/purchasing/p2p/P2PKpiPanel.tsx",
+  "lines": 326,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useGoodsReceipts",
+   "usePurchaseOrders",
+   "useRFQs",
+   "useRequisitions",
+   "useSupplierCertificates",
+   "useSupplierInvoices"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/purchasing/p2p/RFQPanel.tsx",
+  "lines": 550,
+  "labels": [
+   "Date limite de réponse",
+   "Description",
+   "Délai livraison (j)",
+   "Fournisseur *",
+   "Fournisseurs consultés",
+   "Montant total",
+   "Notes",
+   "Prix unitaire",
+   "Site",
+   "Titre *",
+   "Validité offre (j)"
+  ],
+  "buttons": [
+   "Annuler",
+   "Attribuer",
+   "Créer",
+   "Enregistrer",
+   "Fermer",
+   "Nouvel AO"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "Enregistrer une réponse fournisseur",
+   "Nouvel appel d'offres"
+  ],
+  "placeholders": [
+   "Ajouter un fournisseur…",
+   "Fournisseur…",
+   "Raison / critère de sélection",
+   "Sélectionner…"
+  ],
+  "serverCalls": [
+   "useAddRFQResponse",
+   "useCreateRFQ",
+   "useRFQResponses",
+   "useRFQs",
+   "useSelectRFQWinner",
+   "useUpdateRFQ"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/quality/AuditTrailPanel.tsx",
+  "lines": 278,
+  "labels": [
+   "Depuis",
+   "Module",
+   "Sévérité"
+  ],
+  "buttons": [
+   "= totalPages - 1} >"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useAuditLogs",
+   "useAuditStats"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/quality/CAPAPanel.tsx",
+  "lines": 413,
+  "labels": [
+   "Action corrective",
+   "Action corrective proposée",
+   "Action préventive",
+   "Cause racine",
+   "Cause racine (initiale)",
+   "Codes NC (séparés par virgule)",
+   "Délai cible",
+   "Fournisseur concerné",
+   "Responsable",
+   "Statut",
+   "Sévérité"
+  ],
+  "buttons": [
+   "Annuler",
+   "Créer le ticket",
+   "Enregistrer",
+   "Nouveau CAPA"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "Nouveau ticket CAPA"
+  ],
+  "placeholders": [
+   "Ex: NC-PEST-01, NC-HYGIENE-03"
+  ],
+  "serverCalls": [
+   "useCAPATickets",
+   "useCreateCAPA",
+   "useUpdateCAPA"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/quality/QualityDashboard.tsx",
+  "lines": 31,
+  "labels": [],
+  "buttons": [],
+  "tabs": [
+   "CAPA",
+   "Journal d'audit"
+  ],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/AlertsPanel.tsx",
+  "lines": 237,
+  "labels": [
+   "Votre nom *"
+  ],
+  "buttons": [
+   "Acquitter",
+   "Fermer",
+   "Résoudre"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "Gérer l'alerte"
+  ],
+  "placeholders": [
+   "Nom du responsable"
+  ],
+  "serverCalls": [
+   "useAcknowledgeReceptionAlert",
+   "useReceptionAlerts",
+   "useResolveReceptionAlert"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/BonExpeditionDialog.tsx",
+  "lines": 705,
+  "labels": [
+   "Année",
+   "Camion",
+   "Casse GC",
+   "Casse L",
+   "Casse P",
+   "Chauffeur",
+   "Code contrôleur",
+   "Code fournisseur",
+   "Date",
+   "Lieu",
+   "Lieu de réception",
+   "Nom du signataire",
+   "Nom fournisseur",
+   "N° document",
+   "Observation générale",
+   "Responsable réception"
+  ],
+  "buttons": [
+   "Fermer",
+   "Recharger depuis les lots",
+   "{(saveDoc.isPending || updateDoc.isPending) ? (",
+   "{saveDoc.isPending ?"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Ex: 40/4/16",
+   "Ex: GCRP/GCM",
+   "Observation...",
+   "Quantité GC",
+   "Quantité L",
+   "Quantité P",
+   "Remarques supplémentaires, état du chargement, consignes..."
+  ],
+  "serverCalls": [
+   "useDocumentPrint",
+   "useSaveDocumentPrint",
+   "useUpdateDocumentPrint"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/BonReceptionDialog.tsx",
+  "lines": 507,
+  "labels": [
+   "N° Fiche palette",
+   "N° Rapport GCR",
+   "Observation Branche 1ère",
+   "Observation Branche 2ème",
+   "Observation Branche Sèche",
+   "Observation Casse",
+   "Observation Vrac",
+   "Responsable réception"
+  ],
+  "buttons": [
+   "Fermer",
+   "Imprimer",
+   "{saveDoc.isPending &&"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "FP-XXXX",
+   "GCR-XXXX",
+   "Nom du responsable",
+   "Observation..."
+  ],
+  "serverCalls": [
+   "useDocumentPrint",
+   "useSaveDocumentPrint"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/BonReclamationDialog.tsx",
+  "lines": 517,
+  "labels": [
+   "Date du document",
+   "Fournisseur (signataire)",
+   "NB (sous tableau écart)",
+   "N° Bon d'expédition",
+   "N° Facture fournisseur",
+   "N° Rapport qualité",
+   "Observation (responsable réception)",
+   "Responsable achat",
+   "Responsable réception"
+  ],
+  "buttons": [
+   "Fermer",
+   "Imprimer",
+   "Ligne",
+   "{saveDoc.isPending &&"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Ex: 2090",
+   "Ex: 491, 492",
+   "Ex: 6122",
+   "Ex: 75 GCRP + 9 GCM Branche sèche",
+   "Nom..."
+  ],
+  "serverCalls": [
+   "useDocumentPrint",
+   "useSaveDocumentPrint"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/DateRangeFilter.tsx",
+  "lines": 162,
+  "labels": [],
+  "buttons": [
+   "Effacer",
+   "{dateRange?.from ? ("
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/Gs1LabelPreview.tsx",
+  "lines": 187,
+  "labels": [],
+  "buttons": [
+   "Fermer",
+   "Imprimer l'étiquette",
+   "Ré-générer",
+   "{isPending ? ("
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useGenerateLotLabel"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/InboundNoticeDialog.tsx",
+  "lines": 325,
+  "labels": [
+   "Fournisseur *",
+   "Heure d'arrivée estimée *",
+   "Immatriculation *",
+   "Nom chauffeur",
+   "Notes",
+   "N° bon de livraison",
+   "Poids déclaré (kg)",
+   "Variété annoncée"
+  ],
+  "buttons": [
+   "+ Nouvelle",
+   "Annuler",
+   "Aujourd'hui (…)",
+   "Enregistrer une arrivée attendue",
+   "Fermer"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "0",
+   "BL-2026-001",
+   "Instructions particulières, conditions de livraison...",
+   "Optionnel",
+   "Sélectionner un fournisseur actif",
+   "TU-4521-A"
+  ],
+  "serverCalls": [
+   "useCancelInboundNotice",
+   "useCreateInboundNotice",
+   "useTodayPendingNotices"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/LabResultsDialog.tsx",
+  "lines": 222,
+  "labels": [
+   "Notes",
+   "Seuil réglementaire",
+   "Valeur mesurée *"
+  ],
+  "buttons": [
+   "0 ? \"destructive\" : \"default\"} > … NC — blocage RG-Q07)` : \"Enregistrer les résultats\"}",
+   "Annuler"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Observations, méthode d'analyse...",
+   "ex: < 10 µg/kg"
+  ],
+  "serverCalls": [
+   "useSubmitLabResults"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/LabelPrintDialog.tsx",
+  "lines": 313,
+  "labels": [],
+  "buttons": [
+   "Fermer",
+   "Imprimer"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useMarkReceptionUnitPrinted"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/LotCostCard.tsx",
+  "lines": 108,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/OperatorBadge.tsx",
+  "lines": 37,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/PhotoCapture.tsx",
+  "lines": 221,
+  "labels": [],
+  "buttons": [
+   "Caméra",
+   "Capturer",
+   "Fermer",
+   "Importer"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/QCInspectionDialog.tsx",
+  "lines": 1430,
+  "labels": [
+   "Conclusion",
+   "DB",
+   "Deuxieme inspecteur *",
+   "Défauts totaux labo (%)",
+   "Emplacement de l'échantillon",
+   "Endommagé (%)",
+   "Humidité labo confirmée (%)",
+   "Inspecteur principal *",
+   "L…",
+   "Mesure …",
+   "Modifier la décision",
+   "Moyenne",
+   "Photo justificative * (RG-Q04)"
+  ],
+  "buttons": [
+   "0) setCalibers(Array(10).fill(v)); }} > Appliquer à tous",
+   "Affecter au stock",
+   "Continuer",
+   "Retour",
+   "[0]; printRQC(fakeInsp, reception); }} >",
+   "… {decision === score.recommendedDecision && ("
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "%",
+   "Nom du second inspecteur",
+   "mm"
+  ],
+  "serverCalls": [
+   "useAuth",
+   "useCalibrationStatus",
+   "useCreateQCInspection",
+   "useModule3StorageZones",
+   "useQCInspections",
+   "useQcChecklist",
+   "useSubmitQCDecision"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/QcChecklistAnswers.tsx",
+  "lines": 54,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/QrScannerDialog.tsx",
+  "lines": 221,
+  "labels": [],
+  "buttons": [
+   "Fermer la caméra"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/RapportQCDialog.tsx",
+  "lines": 470,
+  "labels": [
+   "Branche (décocher = Vrac)",
+   "Conclusion",
+   "Critères du Contrôle (% par test)",
+   "Directeur QC",
+   "Inspecteur QC 1",
+   "Inspecteur QC 2",
+   "Observation",
+   "Poids T.B. (kg)",
+   "Poids échantillon (kg)"
+  ],
+  "buttons": [
+   "Fermer",
+   "Imprimer",
+   "{saveDoc.isPending &&"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "0.0",
+   "Ex: 1250",
+   "Ex: 7.5",
+   "Nom directeur",
+   "Nom inspecteur",
+   "Observation générale...",
+   "Sélectionner..."
+  ],
+  "serverCalls": [
+   "useDocumentPrint",
+   "useSaveDocumentPrint"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/ReceptionCancelDialog.tsx",
+  "lines": 81,
+  "labels": [
+   "Motif d'annulation"
+  ],
+  "buttons": [
+   "Retour"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Ex. : mauvais fournisseur sélectionné, livraison refusée au portail..."
+  ],
+  "serverCalls": [
+   "useCancelReception"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/ReceptionCorrectionDialog.tsx",
+  "lines": 93,
+  "labels": [
+   "Motif de la correction"
+  ],
+  "buttons": [
+   "Annuler",
+   "Enregistrer la correction"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "Corriger la réception …"
+  ],
+  "placeholders": [],
+  "serverCalls": [
+   "useCorrectReceptionMutation"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/ReceptionDashboardV2.tsx",
+  "lines": 596,
+  "labels": [],
+  "buttons": [
+   "Afficher les suivantes",
+   "Rapport du jour",
+   "Reprendre"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "N° réception, fournisseur, BL, lot, véhicule, commande"
+  ],
+  "serverCalls": [
+   "useAbandonReceptionDraftMutation",
+   "useListReceptionDraftsQuery",
+   "useReceptionAlerts",
+   "useSearchReceptionsQuery",
+   "useSuppliers",
+   "useTodayPendingNotices"
+  ],
+  "translationKeys": 1
+ },
+ {
+  "file": "src/components/reception/ReceptionDetailV2.tsx",
+  "lines": 768,
+  "labels": [],
+  "buttons": [
+   "Annuler la réception",
+   "Corriger",
+   "Libérer",
+   "Mettre en quarantaine",
+   "Réceptions",
+   "Voir la pesée",
+   "{nextStep.action === 'assign_storage' ?"
+  ],
+  "tabs": [
+   "Documents",
+   "Entrepôt",
+   "Fiche",
+   "Historique",
+   "Lots (…)",
+   "Qualité"
+  ],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useListReceptionAuditQuery",
+   "useQCInspections",
+   "useReceptionLots",
+   "useReceptionV2Detail",
+   "useUpdateReceptionV2Status"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/ReceptionLotStatusDialog.tsx",
+  "lines": 178,
+  "labels": [],
+  "buttons": [
+   "Annuler"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "{isRelease ? ("
+  ],
+  "placeholders": [],
+  "serverCalls": [
+   "useQcChecklist",
+   "useQuarantineReceptionLot",
+   "useReleaseReceptionLot"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/ReceptionQcQueue.tsx",
+  "lines": 248,
+  "labels": [],
+  "buttons": [
+   "Caméra QR",
+   "Lancer QC",
+   "Reprendre",
+   "Saisir résultats"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Scanner ou saisir un numéro de lot"
+  ],
+  "serverCalls": [
+   "useLabPendingInspections",
+   "useOnline"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/ReclamationFournisseurDialog.tsx",
+  "lines": 422,
+  "labels": [
+   "Actions correctives",
+   "Date de clôture",
+   "Date de réalisation",
+   "Description de la non-conformité",
+   "Impact",
+   "Prix définitif (TND/kg)",
+   "Responsable achat (nom)",
+   "Responsable réception (nom)",
+   "Répétitivité",
+   "Vérification de l'efficacité"
+  ],
+  "buttons": [
+   "Fermer",
+   "Imprimer",
+   "{saveDoc.isPending &&"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Actions correctives demandées...",
+   "Description...",
+   "Ex: 2.50",
+   "Nom...",
+   "Sélectionner...",
+   "Vérification..."
+  ],
+  "serverCalls": [
+   "useDocumentPrint",
+   "useSaveDocumentPrint"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/StorageAssignment.tsx",
+  "lines": 538,
+  "labels": [
+   "Emplacement spécifique",
+   "Notes",
+   "Zone de destination *"
+  ],
+  "buttons": [
+   "Annuler",
+   "Libérer",
+   "Quarantaine"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "Affecter / Déplacer le lot"
+  ],
+  "placeholders": [
+   "Choisir un emplacement (optionnel)",
+   "Ex : A-01-03 (aucun emplacement libre trouvé)",
+   "Observations…",
+   "Sélectionner d'abord une zone",
+   "Sélectionner une zone physique"
+  ],
+  "serverCalls": [
+   "useModule3StorageLocations",
+   "useModule3StorageZones",
+   "useMoveReceptionLotToStorage"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/TareCalculator.tsx",
+  "lines": 282,
+  "labels": [
+   "A. Contenants",
+   "B. Calcul automatique",
+   "Modèle de caisse",
+   "Nombre de …",
+   "Tare unitaire (kg)",
+   "Type de caisse *",
+   "Type de contenant"
+  ],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Sélectionner un modèle..."
+  ],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/UnitsManagement.tsx",
+  "lines": 242,
+  "labels": [
+   "Poids brut (kg)",
+   "Poids net (kg)",
+   "Quantité *",
+   "Type d'unité",
+   "Unité"
+  ],
+  "buttons": [
+   "Ajouter",
+   "Annuler",
+   "Étiquette QR"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "Nouvelle unité logistique d'entrée"
+  ],
+  "placeholders": [],
+  "serverCalls": [
+   "useCreateReceptionUnit",
+   "useReceptionUnits"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/WeighingRecordDialog.tsx",
+  "lines": 108,
+  "labels": [
+   "Motif de la correction",
+   "Poids (kg)",
+   "Type"
+  ],
+  "buttons": [
+   "Enregistrer la correction"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useRecordWeighing",
+   "useWeighings"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/intake/ReceptionIntakeFlow.tsx",
+  "lines": 503,
+  "labels": [],
+  "buttons": [
+   "Abandonner",
+   "Charger la dernière version",
+   "Continuer",
+   "Corriger",
+   "Lancer le contrôle qualité",
+   "Nouvelle réception",
+   "Ouvrir la réception",
+   "Ouvrir …",
+   "Retour",
+   "Retour aux réceptions",
+   "Réceptions"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useCreateReceptionIntake",
+   "useIsMobile",
+   "usePurchaseOrders",
+   "useReceptionDraft",
+   "useSearchReceptionsQuery",
+   "useSiteSettings",
+   "useSuppliers"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/intake/StepDelivery.tsx",
+  "lines": 226,
+  "labels": [],
+  "buttons": [
+   "Plus de détails (facultatif)",
+   "Reprendre …"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Choisir"
+  ],
+  "serverCalls": [
+   "usePurchaseOrders",
+   "useSuppliers"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/intake/StepLotWeighing.tsx",
+  "lines": 352,
+  "labels": [],
+  "buttons": [
+   "Prendre comme brut",
+   "Prendre comme tare",
+   "Séparer en plusieurs lots"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useLatestWeighbridgeReading",
+   "useStorageZonesForIntake"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/reception/intake/intakeControls.tsx",
+  "lines": 128,
+  "labels": [
+   "… {required &&"
+  ],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Nom ou code du fournisseur"
+  ],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/scan/LotGenealogyTree.tsx",
+  "lines": 517,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [
+   "Arbre généalogique —"
+  ],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/scan/ScanStation.tsx",
+  "lines": 1386,
+  "labels": [],
+  "buttons": [
+   "Affecter une zone",
+   "Arbre généalogique",
+   "Fermer",
+   "Passeport lot",
+   "Réessayer",
+   "Scanner",
+   "Scanner QR",
+   "Traçabilité complète",
+   "Voir blocage qualité"
+  ],
+  "tabs": [
+   "… {count > 0 && ("
+  ],
+  "dialogs": [],
+  "placeholders": [
+   "Code lot : LOT-0001 · REC-042 · fournisseur…",
+   "Code, variété, zone…"
+  ],
+  "serverCalls": [
+   "useAllReceptionLots",
+   "useLiveLotTraceability"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/settings/FichesCmsPanel.tsx",
+  "lines": 249,
+  "labels": [
+   "Documents (une par ligne)",
+   "Durée (min)",
+   "Limites critiques (format: Libellé | Règle)",
+   "Objectif",
+   "Outils (une par ligne)",
+   "Poste",
+   "Si bloqué",
+   "Titre",
+   "Étapes (une par ligne)"
+  ],
+  "buttons": [
+   "Rétablir le pack standard",
+   "{update.isPending ?"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useUpdateSiteSettings"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/settings/ProductAboutPanel.tsx",
+  "lines": 83,
+  "labels": [],
+  "buttons": [
+   "Fiches A→Z",
+   "{demoBusy ?"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/settings/SettingsDashboard.tsx",
+  "lines": 152,
+  "labels": [],
+  "buttons": [],
+  "tabs": [
+   "Achats & P2P",
+   "Alertes",
+   "Coûts",
+   "Documents",
+   "Exploitation",
+   "Fiches",
+   "Infos Usine",
+   "Intégrations",
+   "Marque & Couleurs",
+   "Modules",
+   "Produit",
+   "Qualité",
+   "Utilisateurs"
+  ],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useOnline",
+   "useSiteSettings"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/settings/TrustGatesPanel.tsx",
+  "lines": 110,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/settings/branding/BrandingPanel.tsx",
+  "lines": 176,
+  "labels": [
+   "Abréviation",
+   "Couleur principale",
+   "Couleur secondaire",
+   "Logo — URL externe",
+   "Nom complet"
+  ],
+  "buttons": [
+   "Supprimer",
+   "Uploader un logo",
+   "{update.isPending &&"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "#107754",
+   "#d97706",
+   "Nom de votre usine",
+   "RP",
+   "https://..."
+  ],
+  "serverCalls": [
+   "useUpdateSiteSettings"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/settings/costing/CostingPanel.tsx",
+  "lines": 203,
+  "labels": [
+   "Coût cible (TND / kg)",
+   "EUR → TND",
+   "Exonération TVA export",
+   "Frais indirects (TND / kg bon)",
+   "Main-d&apos;œuvre (TND / h)",
+   "SAR → TND",
+   "Taux TVA (%)",
+   "USD → TND",
+   "Énergie (TND / kWh)"
+  ],
+  "buttons": [
+   "{update.isPending &&"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useUpdateSiteSettings"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/settings/documents/DocumentsPanel.tsx",
+  "lines": 162,
+  "labels": [
+   "Bon de commande",
+   "Expédition",
+   "Langue d’impression",
+   "Longueur de séquence",
+   "Lot",
+   "Ordre conditionnement",
+   "Ordre fabrication",
+   "Palette",
+   "Pied de page imprimé",
+   "Préfixe société GS1 (SSCC)",
+   "Réception",
+   "Signataire certificats"
+  ],
+  "buttons": [
+   "{update.isPending &&"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "09999999",
+   "Responsable qualité / direction",
+   "Texte légal, certification, contact ou note qualité..."
+  ],
+  "serverCalls": [
+   "useUpdateSiteSettings"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/settings/features/FeaturesPanel.tsx",
+  "lines": 79,
+  "labels": [],
+  "buttons": [
+   "{update.isPending &&"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useUpdateSiteSettings"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/settings/integrations/IntegrationsPanel.tsx",
+  "lines": 166,
+  "labels": [],
+  "buttons": [
+   "{update.isPending &&"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "AIza..."
+  ],
+  "serverCalls": [
+   "useUpdateSiteSettings"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/settings/notifications/NotificationsPanel.tsx",
+  "lines": 154,
+  "labels": [
+   "Alerte péremption avant (jours)",
+   "Escalade après (minutes)",
+   "Heure du digest"
+  ],
+  "buttons": [
+   "{update.isPending &&"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useUpdateSiteSettings"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/settings/operations/OperationsPanel.tsx",
+  "lines": 246,
+  "labels": [
+   "Densité de l’interface",
+   "Espace de travail par défaut",
+   "Lignes par page",
+   "Modèle d’équipe"
+  ],
+  "buttons": [
+   "{update.isPending &&"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useUpdateSiteSettings"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/settings/p2p/P2PSettingsPanel.tsx",
+  "lines": 277,
+  "labels": [
+   "Alerte J-30",
+   "Alerte J-60",
+   "Nombre minimum de devis",
+   "Seuil RFQ (TND)",
+   "Seuil minimum (TND)",
+   "Tolérance facture par défaut (%)"
+  ],
+  "buttons": [
+   "{update.isPending &&"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useUpdateSiteSettings"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/settings/plant/PlantInfoPanel.tsx",
+  "lines": 288,
+  "labels": [
+   "Adresse",
+   "Code pays",
+   "Code site",
+   "Devise",
+   "Email usine (Reply-To BC fournisseur)",
+   "Fuseau",
+   "Langue",
+   "Nom usine",
+   "Raison sociale",
+   "Téléphone"
+  ],
+  "buttons": [
+   "{update.isPending &&"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "+216 76 000 000",
+   "RP-TOZ",
+   "Raison sociale de l'usine",
+   "TN",
+   "Usine Tozeur",
+   "Zone Industrielle, Tozeur 2200",
+   "achats@votre-usine.tn"
+  ],
+  "serverCalls": [
+   "useUpdateSiteSettings"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/settings/quality/QualityPanel.tsx",
+  "lines": 160,
+  "labels": [
+   "Escalade écart après (heures)",
+   "Responsable rappel",
+   "Suivi DLC / DDM",
+   "Tolérance bilan matière (%)",
+   "Échantillonnage QC (%)"
+  ],
+  "buttons": [
+   "{update.isPending &&"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Nom, fonction ou email"
+  ],
+  "serverCalls": [
+   "useUpdateSiteSettings"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/settings/users/SignaturePinSelfPanel.tsx",
+  "lines": 106,
+  "labels": [
+   "Confirmer",
+   "Mot de passe compte",
+   "Nouveau PIN"
+  ],
+  "buttons": [
+   "{pending ?"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useAuth"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/settings/users/UserManagementPanel.tsx",
+  "lines": 487,
+  "labels": [
+   "Adresse email *",
+   "Département principal",
+   "Départements (appartenance)",
+   "Mot de passe *",
+   "Nom complet *",
+   "Rôle MES (espace)",
+   "Rôle MES *",
+   "Rôles workflow (approbations)"
+  ],
+  "buttons": [
+   "Annuler",
+   "Créer",
+   "Effacer le PIN",
+   "{createUser.isPending &&",
+   "{u.is_active ?",
+   "{updateUser.isPending &&"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "Profil — …"
+  ],
+  "placeholders": [
+   "Principal...",
+   "Prénom Nom",
+   "Rechercher email ou nom...",
+   "Sélectionner un rôle",
+   "utilisateur@usine.tn",
+   "••••••"
+  ],
+  "serverCalls": [
+   "useCreateManagedUser",
+   "useManagedUsers",
+   "useUpdateManagedUser"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/shared/AppErrorBoundary.tsx",
+  "lines": 57,
+  "labels": [],
+  "buttons": [
+   "Recharger",
+   "Réessayer"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/shared/DataState.tsx",
+  "lines": 150,
+  "labels": [],
+  "buttons": [
+   "Réessayer"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useOnline"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/shared/EmptyState.tsx",
+  "lines": 42,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/shared/LotReference.tsx",
+  "lines": 35,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/shared/LotStatusBadge.tsx",
+  "lines": 173,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/shared/NumericSignatureDialog.tsx",
+  "lines": 149,
+  "labels": [],
+  "buttons": [
+   "= MAX_LEN} > …",
+   "Annuler",
+   "{pending ?"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/shared/OperatorActionBar.tsx",
+  "lines": 71,
+  "labels": [],
+  "buttons": [
+   "… …"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/shared/PageHeader.tsx",
+  "lines": 28,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/shared/QuantityDisplay.tsx",
+  "lines": 41,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/shared/SummaryStrip.tsx",
+  "lines": 42,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/shared/WorkPath.tsx",
+  "lines": 54,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/stock/MovementsList.tsx",
+  "lines": 199,
+  "labels": [],
+  "buttons": [
+   "Export CSV"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Rechercher par n° mouvement, lot, produit...",
+   "Type"
+  ],
+  "serverCalls": [
+   "useStockMovements"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/stock/ProductDialog.tsx",
+  "lines": 276,
+  "labels": [
+   "Catégorie *",
+   "Code *",
+   "Description",
+   "Durée de vie (jours)",
+   "Humidité max (%)",
+   "Nom *",
+   "Rotation",
+   "Seuil maximum",
+   "Seuil minimum",
+   "Seuil sécurité",
+   "Unité *",
+   "Variété"
+  ],
+  "buttons": [
+   "Annuler"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "365",
+   "Dattes Deglet Nour",
+   "Deglet Nour, Allig, etc.",
+   "Description du produit...",
+   "MP-DEG-001"
+  ],
+  "serverCalls": [
+   "useCreateProduct",
+   "useUpdateProduct"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/stock/ProductsList.tsx",
+  "lines": 163,
+  "labels": [],
+  "buttons": [
+   "Modifier",
+   "Nouveau Produit"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Catégorie",
+   "Rechercher par nom ou code..."
+  ],
+  "serverCalls": [
+   "useProducts"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/stock/StockDashboard.tsx",
+  "lines": 205,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useModule3StorageZones",
+   "useStockAlerts",
+   "useStockSummary"
+  ],
+  "translationKeys": 4
+ },
+ {
+  "file": "src/components/stock/StockLotBlockDialog.tsx",
+  "lines": 152,
+  "labels": [
+   "Responsable",
+   "… {mode === 'block' ?"
+  ],
+  "buttons": [
+   "Annuler"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "{mode === 'block' ? ("
+  ],
+  "placeholders": [
+   "Nom du responsable"
+  ],
+  "serverCalls": [
+   "useBlockLot",
+   "useReleaseBlockedLot"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/stock/StockLotDialog.tsx",
+  "lines": 344,
+  "labels": [
+   "DLC",
+   "DLUO",
+   "Date de réception *",
+   "Date de récolte",
+   "Emplacement initial",
+   "Fournisseur",
+   "Humidité mesurée (%)",
+   "Notes qualité",
+   "Opérateur",
+   "Palmeraie/Ferme",
+   "Pays",
+   "Position",
+   "Produit *",
+   "Quantité *",
+   "Température (°C)",
+   "Unité",
+   "Variété"
+  ],
+  "buttons": [
+   "Annuler"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "Nouveau lot de stock"
+  ],
+  "placeholders": [
+   "A1, B2...",
+   "Deglet Nour, Allig...",
+   "Nom de l'opérateur",
+   "Observations, remarques...",
+   "Sélectionner un emplacement",
+   "Sélectionner un fournisseur",
+   "Sélectionner un produit"
+  ],
+  "serverCalls": [
+   "useCreateStockLot",
+   "useModule3StorageLocations",
+   "useMoveStorageStock",
+   "useProducts",
+   "useSuppliers"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/stock/StockLotQCDialog.tsx",
+  "lines": 103,
+  "labels": [
+   "Notes QC",
+   "Validateur"
+  ],
+  "buttons": [
+   "Annuler"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Nom du responsable qualité",
+   "Résultats d'analyse, observations, dérogations…"
+  ],
+  "serverCalls": [
+   "useValidateLot"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/stock/StockLotsList.tsx",
+  "lines": 336,
+  "labels": [],
+  "buttons": [
+   "Nouveau lot de stock"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Catégorie",
+   "Rechercher par n° lot de stock, produit, fournisseur...",
+   "Statut"
+  ],
+  "serverCalls": [
+   "useStockLots"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/stock/TransferDialog.tsx",
+  "lines": 203,
+  "labels": [
+   "Destination *",
+   "Motif",
+   "Notes",
+   "Palettes",
+   "Quantité kg"
+  ],
+  "buttons": [
+   "Annuler"
+  ],
+  "tabs": [],
+  "dialogs": [
+   "Transfert de Lot"
+  ],
+  "placeholders": [
+   "Motif du transfert...",
+   "Sélectionner"
+  ],
+  "serverCalls": [
+   "useModule3StorageLocations",
+   "useMoveStorageStock"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/tasks/TaskDialog.tsx",
+  "lines": 152,
+  "labels": [
+   "… *"
+  ],
+  "buttons": [
+   "onOpenChange(false)}>…"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 29
+ },
+ {
+  "file": "src/components/tasks/TasksList.tsx",
+  "lines": 208,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 18
+ },
+ {
+  "file": "src/components/tasks/TasksManagement.tsx",
+  "lines": 115,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useEmployees",
+   "useTasks"
+  ],
+  "translationKeys": 10
+ },
+ {
+  "file": "src/components/timesheets/PointageExpressPanel.tsx",
+  "lines": 396,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "Chercher par nom, matricule, service...",
+   "Module atelier",
+   "Note commune optionnelle pour ce lot de pointage",
+   "Réf. OF / ligne / équipe"
+  ],
+  "serverCalls": [
+   "useEmployees"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/components/timesheets/TimesheetDialog.tsx",
+  "lines": 182,
+  "labels": [
+   "Module opération",
+   "N° opération / OF",
+   "… *"
+  ],
+  "buttons": [
+   "onOpenChange(false)}>…"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "PKG-20260609-001…",
+   "PROJ-123…"
+  ],
+  "serverCalls": [],
+  "translationKeys": 17
+ },
+ {
+  "file": "src/components/timesheets/TimesheetList.tsx",
+  "lines": 205,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 17
+ },
+ {
+  "file": "src/components/timesheets/TimesheetManagement.tsx",
+  "lines": 181,
+  "labels": [],
+  "buttons": [],
+  "tabs": [
+   "Par opération",
+   "Pointage express",
+   "… (…)"
+  ],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useTimesheets"
+  ],
+  "translationKeys": 9
+ },
+ {
+  "file": "src/components/timesheets/TimesheetWeekView.tsx",
+  "lines": 83,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 4
+ },
+ {
+  "file": "src/pages/AlertsCenter.tsx",
+  "lines": 57,
+  "labels": [],
+  "buttons": [],
+  "tabs": [
+   "Stock et DLC",
+   "…)}"
+  ],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 3
+ },
+ {
+  "file": "src/pages/Auth.tsx",
+  "lines": 215,
+  "labels": [],
+  "buttons": [
+   "{pending ? ("
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [
+   "utilisateur@usine.tn",
+   "••••••••"
+  ],
+  "serverCalls": [
+   "useBranding",
+   "useToast"
+  ],
+  "translationKeys": 8
+ },
+ {
+  "file": "src/pages/Dashboard.tsx",
+  "lines": 6,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/pages/Index.tsx",
+  "lines": 578,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useBranding",
+   "useFactoryShellMetrics",
+   "useMaterials",
+   "useProductionOrders",
+   "useReceptions",
+   "useSuppliers"
+  ],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/pages/NotFound.tsx",
+  "lines": 21,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 3
+ },
+ {
+  "file": "src/pages/PassportPage.tsx",
+  "lines": 144,
+  "labels": [],
+  "buttons": [],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [],
+  "translationKeys": 0
+ },
+ {
+  "file": "src/pages/SupplierPortal.tsx",
+  "lines": 403,
+  "labels": [],
+  "buttons": [
+   "Relevé",
+   "Se déconnecter"
+  ],
+  "tabs": [],
+  "dialogs": [],
+  "placeholders": [],
+  "serverCalls": [
+   "useSupplierLots",
+   "useSupplierPayments"
+  ],
+  "translationKeys": 0
+ }
+]

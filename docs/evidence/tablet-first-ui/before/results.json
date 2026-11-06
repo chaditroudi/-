@@ -1,0 +1,3795 @@
+{
+  "head": "1556ff0",
+  "dirty": false,
+  "capturedAt": "2026-11-06T11:34:35.687Z",
+  "database": "tablet_visual_mw4wd944",
+  "widths": [
+    375,
+    768,
+    1024,
+    1440
+  ],
+  "checks": [
+    {
+      "name": "reception-operator-home-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-home-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-home-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-home-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-home-fr no server or script errors",
+      "passed": false,
+      "detail": [
+        "SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."
+      ]
+    },
+    {
+      "name": "reception-operator-home-ar-375 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-375 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-home-ar-768 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-768 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-home-ar-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-1024 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-home-ar-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-1440 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-home-ar no server or script errors",
+      "passed": false,
+      "detail": [
+        "SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."
+      ]
+    },
+    {
+      "name": "reception-operator-today-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-today-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-today-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-today-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-today-fr no server or script errors",
+      "passed": false,
+      "detail": [
+        "SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."
+      ]
+    },
+    {
+      "name": "reception-operator-today-ar-375 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-375 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-today-ar-768 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-768 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-today-ar-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-1024 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-today-ar-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-1440 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-today-ar no server or script errors",
+      "passed": false,
+      "detail": [
+        "SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."
+      ]
+    },
+    {
+      "name": "reception-operator-intake-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-intake-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-intake-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-intake-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-intake-fr no server or script errors",
+      "passed": false,
+      "detail": [
+        "SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."
+      ]
+    },
+    {
+      "name": "reception-operator-intake-ar-375 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-375 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-intake-ar-768 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-768 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-intake-ar-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-1024 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-intake-ar-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-1440 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-intake-ar no server or script errors",
+      "passed": false,
+      "detail": [
+        "SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."
+      ]
+    },
+    {
+      "name": "inspector-home-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "inspector-home-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "inspector-home-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "inspector-home-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "inspector-home-fr no server or script errors",
+      "passed": false,
+      "detail": [
+        "SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."
+      ]
+    },
+    {
+      "name": "inspector-qc-queue-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "inspector-qc-queue-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "inspector-qc-queue-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "inspector-qc-queue-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "inspector-qc-queue-fr no server or script errors",
+      "passed": false,
+      "detail": [
+        "SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."
+      ]
+    },
+    {
+      "name": "inspector-qc-queue-ar-375 ready",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-ar-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-ar-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-ar-375 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "inspector-qc-queue-ar-768 ready",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-ar-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-ar-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-ar-768 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "inspector-qc-queue-ar-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-ar-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-ar-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-ar-1024 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "inspector-qc-queue-ar-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-ar-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-ar-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "inspector-qc-queue-ar-1440 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "inspector-qc-queue-ar no server or script errors",
+      "passed": false,
+      "detail": [
+        "SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."
+      ]
+    },
+    {
+      "name": "cleaning-operator-home-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "cleaning-operator-home-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "cleaning-operator-home-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "cleaning-operator-home-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "cleaning-operator-home-fr no server or script errors",
+      "passed": false,
+      "detail": [
+        "SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."
+      ]
+    },
+    {
+      "name": "cleaning-operator-stage-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-stage-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-stage-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-stage-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "cleaning-operator-stage-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-stage-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-stage-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-stage-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "cleaning-operator-stage-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-stage-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-stage-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-stage-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "cleaning-operator-stage-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-stage-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-stage-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-stage-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "cleaning-operator-stage-fr no server or script errors",
+      "passed": false,
+      "detail": [
+        "SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."
+      ]
+    },
+    {
+      "name": "packaging-operator-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "packaging-operator-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "packaging-operator-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "packaging-operator-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "packaging-operator-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "packaging-operator-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "packaging-operator-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "packaging-operator-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "packaging-operator-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "packaging-operator-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "packaging-operator-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "packaging-operator-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "packaging-operator-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "packaging-operator-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "packaging-operator-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "packaging-operator-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "packaging-operator-fr no server or script errors",
+      "passed": false,
+      "detail": [
+        "SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."
+      ]
+    },
+    {
+      "name": "storekeeper-stock-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "storekeeper-stock-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "storekeeper-stock-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "storekeeper-stock-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "storekeeper-stock-fr no server or script errors",
+      "passed": false,
+      "detail": [
+        "SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."
+      ]
+    },
+    {
+      "name": "storekeeper-stock-ar-375 ready",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-ar-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-ar-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-ar-375 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "storekeeper-stock-ar-768 ready",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-ar-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-ar-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-ar-768 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "storekeeper-stock-ar-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-ar-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-ar-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-ar-1024 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "storekeeper-stock-ar-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-ar-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-ar-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "storekeeper-stock-ar-1440 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "storekeeper-stock-ar no server or script errors",
+      "passed": false,
+      "detail": [
+        "SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."
+      ]
+    },
+    {
+      "name": "production-supervisor-home-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-supervisor-home-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-supervisor-home-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-supervisor-home-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-supervisor-home-fr no server or script errors",
+      "passed": false,
+      "detail": [
+        "SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."
+      ]
+    },
+    {
+      "name": "production-supervisor-today-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-supervisor-today-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-supervisor-today-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-supervisor-today-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-supervisor-today-fr no server or script errors",
+      "passed": false,
+      "detail": [
+        "SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."
+      ]
+    },
+    {
+      "name": "logistics-supervisor-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "logistics-supervisor-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "logistics-supervisor-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "logistics-supervisor-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "logistics-supervisor-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "logistics-supervisor-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "logistics-supervisor-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "logistics-supervisor-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "logistics-supervisor-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "logistics-supervisor-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "logistics-supervisor-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "logistics-supervisor-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "logistics-supervisor-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "logistics-supervisor-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "logistics-supervisor-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "logistics-supervisor-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "logistics-supervisor-fr no server or script errors",
+      "passed": false,
+      "detail": [
+        "SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."
+      ]
+    },
+    {
+      "name": "purchasing-supervisor-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "purchasing-supervisor-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "purchasing-supervisor-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "purchasing-supervisor-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "purchasing-supervisor-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "purchasing-supervisor-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "purchasing-supervisor-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "purchasing-supervisor-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "purchasing-supervisor-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "purchasing-supervisor-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "purchasing-supervisor-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "purchasing-supervisor-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "purchasing-supervisor-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "purchasing-supervisor-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "purchasing-supervisor-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "purchasing-supervisor-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "purchasing-supervisor-fr no server or script errors",
+      "passed": false,
+      "detail": [
+        "SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."
+      ]
+    },
+    {
+      "name": "director-home-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "director-home-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "director-home-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "director-home-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "director-home-fr no server or script errors",
+      "passed": false,
+      "detail": [
+        "SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."
+      ]
+    },
+    {
+      "name": "director-home-ar-375 ready",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-375 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "director-home-ar-768 ready",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-768 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "director-home-ar-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-1024 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "director-home-ar-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-1440 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "director-home-ar no server or script errors",
+      "passed": false,
+      "detail": [
+        "SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."
+      ]
+    },
+    {
+      "name": "director-live-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "director-live-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-live-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-live-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "director-live-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "director-live-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-live-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-live-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "director-live-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "director-live-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-live-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-live-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "director-live-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "director-live-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-live-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-live-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "director-live-fr no server or script errors",
+      "passed": false,
+      "detail": [
+        "SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."
+      ]
+    },
+    {
+      "name": "director-analytics-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "director-analytics-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-analytics-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-analytics-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "director-analytics-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "director-analytics-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-analytics-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-analytics-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "director-analytics-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "director-analytics-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-analytics-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-analytics-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "director-analytics-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "director-analytics-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-analytics-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-analytics-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "director-analytics-fr no server or script errors",
+      "passed": false,
+      "detail": [
+        "SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."
+      ]
+    },
+    {
+      "name": "admin-settings-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "admin-settings-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "admin-settings-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "admin-settings-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "admin-settings-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "admin-settings-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "admin-settings-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "admin-settings-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "admin-settings-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "admin-settings-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "admin-settings-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "admin-settings-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "admin-settings-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "admin-settings-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "admin-settings-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "admin-settings-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "admin-settings-fr no server or script errors",
+      "passed": false,
+      "detail": [
+        "SecurityError: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."
+      ]
+    }
+  ],
+  "screens": [
+    {
+      "id": "reception-operator-home-fr-375",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "reception-operator-home-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 14,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-home-fr-768",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "reception-operator-home-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 19,
+      "smallTargets": 6,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Réception",
+        "Ouvrir ou fermer le menu",
+        "Rechercher"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-home-fr-1024",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "reception-operator-home-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 21,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-home-fr-1440",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "reception-operator-home-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 21,
+      "smallTargets": 18,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Réception",
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-home-ar-375",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "ar",
+      "width": 375,
+      "touch": true,
+      "file": "reception-operator-home-ar-375.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 14,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-home-ar-768",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "ar",
+      "width": 768,
+      "touch": true,
+      "file": "reception-operator-home-ar-768.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 19,
+      "smallTargets": 6,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Réception",
+        "Ouvrir ou fermer le menu",
+        "Rechercher"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-home-ar-1024",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "ar",
+      "width": 1024,
+      "touch": true,
+      "file": "reception-operator-home-ar-1024.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 21,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-home-ar-1440",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "ar",
+      "width": 1440,
+      "touch": false,
+      "file": "reception-operator-home-ar-1440.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 21,
+      "smallTargets": 18,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Réception",
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-today-fr-375",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "reception-operator-today-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 17,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-today-fr-768",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "reception-operator-today-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 18,
+      "smallTargets": 6,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Réception",
+        "Ouvrir ou fermer le menu",
+        "Rechercher"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-today-fr-1024",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "reception-operator-today-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 20,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-today-fr-1440",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "reception-operator-today-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 20,
+      "smallTargets": 13,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Réception",
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-today-ar-375",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions",
+      "locale": "ar",
+      "width": 375,
+      "touch": true,
+      "file": "reception-operator-today-ar-375.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 17,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-today-ar-768",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions",
+      "locale": "ar",
+      "width": 768,
+      "touch": true,
+      "file": "reception-operator-today-ar-768.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 18,
+      "smallTargets": 6,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Réception",
+        "Ouvrir ou fermer le menu",
+        "Rechercher"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-today-ar-1024",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions",
+      "locale": "ar",
+      "width": 1024,
+      "touch": true,
+      "file": "reception-operator-today-ar-1024.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 20,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-today-ar-1440",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions",
+      "locale": "ar",
+      "width": 1440,
+      "touch": false,
+      "file": "reception-operator-today-ar-1440.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 20,
+      "smallTargets": 13,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Réception",
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-intake-fr-375",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions&view=new",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "reception-operator-intake-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 36,
+      "smallTargets": 1,
+      "smallExamples": [
+        "INPUT"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-intake-fr-768",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions&view=new",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "reception-operator-intake-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 37,
+      "smallTargets": 7,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Réception",
+        "Ouvrir ou fermer le menu",
+        "Rechercher",
+        "INPUT"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-intake-fr-1024",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions&view=new",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "reception-operator-intake-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 39,
+      "smallTargets": 4,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu",
+        "INPUT"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-intake-fr-1440",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions&view=new",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "reception-operator-intake-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 39,
+      "smallTargets": 16,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Réception",
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-intake-ar-375",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions&view=new",
+      "locale": "ar",
+      "width": 375,
+      "touch": true,
+      "file": "reception-operator-intake-ar-375.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 36,
+      "smallTargets": 1,
+      "smallExamples": [
+        "INPUT"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-intake-ar-768",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions&view=new",
+      "locale": "ar",
+      "width": 768,
+      "touch": true,
+      "file": "reception-operator-intake-ar-768.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 37,
+      "smallTargets": 7,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Réception",
+        "Ouvrir ou fermer le menu",
+        "Rechercher",
+        "INPUT"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-intake-ar-1024",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions&view=new",
+      "locale": "ar",
+      "width": 1024,
+      "touch": true,
+      "file": "reception-operator-intake-ar-1024.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 39,
+      "smallTargets": 4,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu",
+        "INPUT"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-intake-ar-1440",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions&view=new",
+      "locale": "ar",
+      "width": 1440,
+      "touch": false,
+      "file": "reception-operator-intake-ar-1440.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 39,
+      "smallTargets": 16,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Réception",
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "inspector-home-fr-375",
+      "role": "inspecteur_qualite",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "inspector-home-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 14,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "inspector-home-fr-768",
+      "role": "inspecteur_qualite",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "inspector-home-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 19,
+      "smallTargets": 6,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Réception",
+        "Ouvrir ou fermer le menu",
+        "Rechercher"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "inspector-home-fr-1024",
+      "role": "inspecteur_qualite",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "inspector-home-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 21,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "inspector-home-fr-1440",
+      "role": "inspecteur_qualite",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "inspector-home-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 21,
+      "smallTargets": 18,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Réception",
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "inspector-qc-queue-fr-375",
+      "role": "inspecteur_qualite",
+      "hash": "/?tab=receptions&view=qc",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "inspector-qc-queue-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 20,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Contrôle qualité",
+      "reviewed": false
+    },
+    {
+      "id": "inspector-qc-queue-fr-768",
+      "role": "inspecteur_qualite",
+      "hash": "/?tab=receptions&view=qc",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "inspector-qc-queue-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 21,
+      "smallTargets": 6,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Réception",
+        "Ouvrir ou fermer le menu",
+        "Rechercher"
+      ],
+      "crash": false,
+      "heading": "Contrôle qualité",
+      "reviewed": false
+    },
+    {
+      "id": "inspector-qc-queue-fr-1024",
+      "role": "inspecteur_qualite",
+      "hash": "/?tab=receptions&view=qc",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "inspector-qc-queue-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 23,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Contrôle qualité",
+      "reviewed": false
+    },
+    {
+      "id": "inspector-qc-queue-fr-1440",
+      "role": "inspecteur_qualite",
+      "hash": "/?tab=receptions&view=qc",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "inspector-qc-queue-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 23,
+      "smallTargets": 13,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Réception",
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Contrôle qualité",
+      "reviewed": false
+    },
+    {
+      "id": "inspector-qc-queue-ar-375",
+      "role": "inspecteur_qualite",
+      "hash": "/?tab=receptions&view=qc",
+      "locale": "ar",
+      "width": 375,
+      "touch": true,
+      "file": "inspector-qc-queue-ar-375.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 20,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Contrôle qualité",
+      "reviewed": false
+    },
+    {
+      "id": "inspector-qc-queue-ar-768",
+      "role": "inspecteur_qualite",
+      "hash": "/?tab=receptions&view=qc",
+      "locale": "ar",
+      "width": 768,
+      "touch": true,
+      "file": "inspector-qc-queue-ar-768.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 21,
+      "smallTargets": 6,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Réception",
+        "Ouvrir ou fermer le menu",
+        "Rechercher"
+      ],
+      "crash": false,
+      "heading": "Contrôle qualité",
+      "reviewed": false
+    },
+    {
+      "id": "inspector-qc-queue-ar-1024",
+      "role": "inspecteur_qualite",
+      "hash": "/?tab=receptions&view=qc",
+      "locale": "ar",
+      "width": 1024,
+      "touch": true,
+      "file": "inspector-qc-queue-ar-1024.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 23,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Contrôle qualité",
+      "reviewed": false
+    },
+    {
+      "id": "inspector-qc-queue-ar-1440",
+      "role": "inspecteur_qualite",
+      "hash": "/?tab=receptions&view=qc",
+      "locale": "ar",
+      "width": 1440,
+      "touch": false,
+      "file": "inspector-qc-queue-ar-1440.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 23,
+      "smallTargets": 13,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Réception",
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Contrôle qualité",
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-operator-home-fr-375",
+      "role": "operateur_nettoyage",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "cleaning-operator-home-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 14,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-operator-home-fr-768",
+      "role": "operateur_nettoyage",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "cleaning-operator-home-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 19,
+      "smallTargets": 6,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Production",
+        "Ouvrir ou fermer le menu",
+        "Rechercher"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-operator-home-fr-1024",
+      "role": "operateur_nettoyage",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "cleaning-operator-home-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 21,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-operator-home-fr-1440",
+      "role": "operateur_nettoyage",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "cleaning-operator-home-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 21,
+      "smallTargets": 18,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Production",
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-operator-stage-fr-375",
+      "role": "operateur_nettoyage",
+      "hash": "/?tab=production&view=nettoyage",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "cleaning-operator-stage-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 14,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Production",
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-operator-stage-fr-768",
+      "role": "operateur_nettoyage",
+      "hash": "/?tab=production&view=nettoyage",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "cleaning-operator-stage-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 15,
+      "smallTargets": 6,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Production",
+        "Ouvrir ou fermer le menu",
+        "Rechercher"
+      ],
+      "crash": false,
+      "heading": "Production",
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-operator-stage-fr-1024",
+      "role": "operateur_nettoyage",
+      "hash": "/?tab=production&view=nettoyage",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "cleaning-operator-stage-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 17,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Production",
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-operator-stage-fr-1440",
+      "role": "operateur_nettoyage",
+      "hash": "/?tab=production&view=nettoyage",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "cleaning-operator-stage-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 17,
+      "smallTargets": 14,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Production",
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Production",
+      "reviewed": false
+    },
+    {
+      "id": "packaging-operator-fr-375",
+      "role": "operateur_conditionnement",
+      "hash": "/?tab=packaging",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "packaging-operator-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 17,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Conditionnement",
+      "reviewed": false
+    },
+    {
+      "id": "packaging-operator-fr-768",
+      "role": "operateur_conditionnement",
+      "hash": "/?tab=packaging",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "packaging-operator-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 18,
+      "smallTargets": 6,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Conditionnement",
+        "Ouvrir ou fermer le menu",
+        "Rechercher"
+      ],
+      "crash": false,
+      "heading": "Conditionnement",
+      "reviewed": false
+    },
+    {
+      "id": "packaging-operator-fr-1024",
+      "role": "operateur_conditionnement",
+      "hash": "/?tab=packaging",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "packaging-operator-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 20,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Conditionnement",
+      "reviewed": false
+    },
+    {
+      "id": "packaging-operator-fr-1440",
+      "role": "operateur_conditionnement",
+      "hash": "/?tab=packaging",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "packaging-operator-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 20,
+      "smallTargets": 20,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Conditionnement",
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Conditionnement",
+      "reviewed": false
+    },
+    {
+      "id": "storekeeper-stock-fr-375",
+      "role": "magasinier_wms",
+      "hash": "/?tab=storage",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "storekeeper-stock-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 18,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Stock",
+      "reviewed": false
+    },
+    {
+      "id": "storekeeper-stock-fr-768",
+      "role": "magasinier_wms",
+      "hash": "/?tab=storage",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "storekeeper-stock-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 19,
+      "smallTargets": 6,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Stock",
+        "Ouvrir ou fermer le menu",
+        "Rechercher"
+      ],
+      "crash": false,
+      "heading": "Stock",
+      "reviewed": false
+    },
+    {
+      "id": "storekeeper-stock-fr-1024",
+      "role": "magasinier_wms",
+      "hash": "/?tab=storage",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "storekeeper-stock-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 21,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Stock",
+      "reviewed": false
+    },
+    {
+      "id": "storekeeper-stock-fr-1440",
+      "role": "magasinier_wms",
+      "hash": "/?tab=storage",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "storekeeper-stock-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 21,
+      "smallTargets": 21,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Stock",
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Stock",
+      "reviewed": false
+    },
+    {
+      "id": "storekeeper-stock-ar-375",
+      "role": "magasinier_wms",
+      "hash": "/?tab=storage",
+      "locale": "ar",
+      "width": 375,
+      "touch": true,
+      "file": "storekeeper-stock-ar-375.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 18,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Stock",
+      "reviewed": false
+    },
+    {
+      "id": "storekeeper-stock-ar-768",
+      "role": "magasinier_wms",
+      "hash": "/?tab=storage",
+      "locale": "ar",
+      "width": 768,
+      "touch": true,
+      "file": "storekeeper-stock-ar-768.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 19,
+      "smallTargets": 6,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Stock",
+        "Ouvrir ou fermer le menu",
+        "Rechercher"
+      ],
+      "crash": false,
+      "heading": "Stock",
+      "reviewed": false
+    },
+    {
+      "id": "storekeeper-stock-ar-1024",
+      "role": "magasinier_wms",
+      "hash": "/?tab=storage",
+      "locale": "ar",
+      "width": 1024,
+      "touch": true,
+      "file": "storekeeper-stock-ar-1024.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 21,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Stock",
+      "reviewed": false
+    },
+    {
+      "id": "storekeeper-stock-ar-1440",
+      "role": "magasinier_wms",
+      "hash": "/?tab=storage",
+      "locale": "ar",
+      "width": 1440,
+      "touch": false,
+      "file": "storekeeper-stock-ar-1440.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 21,
+      "smallTargets": 21,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "Stock",
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Stock",
+      "reviewed": false
+    },
+    {
+      "id": "production-supervisor-home-fr-375",
+      "role": "responsable_production",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "production-supervisor-home-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 15,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "production-supervisor-home-fr-768",
+      "role": "responsable_production",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "production-supervisor-home-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 24,
+      "smallTargets": 10,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Production",
+        "Conditionnement",
+        "Maintenance",
+        "Ressources humaines"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "production-supervisor-home-fr-1024",
+      "role": "responsable_production",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "production-supervisor-home-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 26,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "production-supervisor-home-fr-1440",
+      "role": "responsable_production",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "production-supervisor-home-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 26,
+      "smallTargets": 22,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Production",
+        "Conditionnement",
+        "Maintenance",
+        "Ressources humaines"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "production-supervisor-today-fr-375",
+      "role": "responsable_production",
+      "hash": "/?tab=production",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "production-supervisor-today-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 27,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Production",
+      "reviewed": false
+    },
+    {
+      "id": "production-supervisor-today-fr-768",
+      "role": "responsable_production",
+      "hash": "/?tab=production",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "production-supervisor-today-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 31,
+      "smallTargets": 10,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Production",
+        "Conditionnement",
+        "Maintenance",
+        "Ressources humaines"
+      ],
+      "crash": false,
+      "heading": "Production",
+      "reviewed": false
+    },
+    {
+      "id": "production-supervisor-today-fr-1024",
+      "role": "responsable_production",
+      "hash": "/?tab=production",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "production-supervisor-today-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 33,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Production",
+      "reviewed": false
+    },
+    {
+      "id": "production-supervisor-today-fr-1440",
+      "role": "responsable_production",
+      "hash": "/?tab=production",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "production-supervisor-today-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 33,
+      "smallTargets": 17,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Production",
+        "Conditionnement",
+        "Maintenance",
+        "Ressources humaines"
+      ],
+      "crash": false,
+      "heading": "Production",
+      "reviewed": false
+    },
+    {
+      "id": "logistics-supervisor-fr-375",
+      "role": "responsable_logistique",
+      "hash": "/?tab=logistics",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "logistics-supervisor-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 21,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Expédition",
+      "reviewed": false
+    },
+    {
+      "id": "logistics-supervisor-fr-768",
+      "role": "responsable_logistique",
+      "hash": "/?tab=logistics",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "logistics-supervisor-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 25,
+      "smallTargets": 10,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Stock",
+        "Expédition",
+        "Export",
+        "Ressources humaines"
+      ],
+      "crash": false,
+      "heading": "Expédition",
+      "reviewed": false
+    },
+    {
+      "id": "logistics-supervisor-fr-1024",
+      "role": "responsable_logistique",
+      "hash": "/?tab=logistics",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "logistics-supervisor-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 27,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Expédition",
+      "reviewed": false
+    },
+    {
+      "id": "logistics-supervisor-fr-1440",
+      "role": "responsable_logistique",
+      "hash": "/?tab=logistics",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "logistics-supervisor-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 27,
+      "smallTargets": 26,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Stock",
+        "Expédition",
+        "Export",
+        "Ressources humaines"
+      ],
+      "crash": false,
+      "heading": "Expédition",
+      "reviewed": false
+    },
+    {
+      "id": "purchasing-supervisor-fr-375",
+      "role": "responsable_achats",
+      "hash": "/?tab=purchasing",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "purchasing-supervisor-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 24,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Tout sélectionner"
+      ],
+      "crash": false,
+      "heading": "Achats",
+      "reviewed": false
+    },
+    {
+      "id": "purchasing-supervisor-fr-768",
+      "role": "responsable_achats",
+      "hash": "/?tab=purchasing",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "purchasing-supervisor-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 28,
+      "smallTargets": 11,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Fournisseurs",
+        "Achats",
+        "Articles",
+        "Ressources humaines"
+      ],
+      "crash": false,
+      "heading": "Achats",
+      "reviewed": false
+    },
+    {
+      "id": "purchasing-supervisor-fr-1024",
+      "role": "responsable_achats",
+      "hash": "/?tab=purchasing",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "purchasing-supervisor-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 30,
+      "smallTargets": 4,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu",
+        "Tout sélectionner"
+      ],
+      "crash": false,
+      "heading": "Achats",
+      "reviewed": false
+    },
+    {
+      "id": "purchasing-supervisor-fr-1440",
+      "role": "responsable_achats",
+      "hash": "/?tab=purchasing",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "purchasing-supervisor-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 30,
+      "smallTargets": 28,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Fournisseurs",
+        "Achats",
+        "Articles",
+        "Ressources humaines"
+      ],
+      "crash": false,
+      "heading": "Achats",
+      "reviewed": false
+    },
+    {
+      "id": "director-home-fr-375",
+      "role": "directeur_usine",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "director-home-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 19,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "director-home-fr-768",
+      "role": "directeur_usine",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "director-home-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 40,
+      "smallTargets": 22,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Réception",
+        "Contrôle qualité",
+        "Stock",
+        "Production"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "director-home-fr-1024",
+      "role": "directeur_usine",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "director-home-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 42,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "director-home-fr-1440",
+      "role": "directeur_usine",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "director-home-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 42,
+      "smallTargets": 35,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Réception",
+        "Contrôle qualité",
+        "Stock",
+        "Production"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "director-home-ar-375",
+      "role": "directeur_usine",
+      "hash": "/?tab=home",
+      "locale": "ar",
+      "width": 375,
+      "touch": true,
+      "file": "director-home-ar-375.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 19,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "director-home-ar-768",
+      "role": "directeur_usine",
+      "hash": "/?tab=home",
+      "locale": "ar",
+      "width": 768,
+      "touch": true,
+      "file": "director-home-ar-768.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 40,
+      "smallTargets": 22,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Réception",
+        "Contrôle qualité",
+        "Stock",
+        "Production"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "director-home-ar-1024",
+      "role": "directeur_usine",
+      "hash": "/?tab=home",
+      "locale": "ar",
+      "width": 1024,
+      "touch": true,
+      "file": "director-home-ar-1024.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 42,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "director-home-ar-1440",
+      "role": "directeur_usine",
+      "hash": "/?tab=home",
+      "locale": "ar",
+      "width": 1440,
+      "touch": false,
+      "file": "director-home-ar-1440.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 42,
+      "smallTargets": 35,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Réception",
+        "Contrôle qualité",
+        "Stock",
+        "Production"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "director-live-fr-375",
+      "role": "directeur_usine",
+      "hash": "/?tab=live",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "director-live-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 14,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "En direct",
+      "reviewed": false
+    },
+    {
+      "id": "director-live-fr-768",
+      "role": "directeur_usine",
+      "hash": "/?tab=live",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "director-live-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 30,
+      "smallTargets": 22,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Réception",
+        "Contrôle qualité",
+        "Stock",
+        "Production"
+      ],
+      "crash": false,
+      "heading": "En direct",
+      "reviewed": false
+    },
+    {
+      "id": "director-live-fr-1024",
+      "role": "directeur_usine",
+      "hash": "/?tab=live",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "director-live-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 32,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "En direct",
+      "reviewed": false
+    },
+    {
+      "id": "director-live-fr-1440",
+      "role": "directeur_usine",
+      "hash": "/?tab=live",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "director-live-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 32,
+      "smallTargets": 32,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Réception",
+        "Contrôle qualité",
+        "Stock",
+        "Production"
+      ],
+      "crash": false,
+      "heading": "En direct",
+      "reviewed": false
+    },
+    {
+      "id": "director-analytics-fr-375",
+      "role": "directeur_usine",
+      "hash": "/?tab=analytics",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "director-analytics-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 22,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Indicateurs",
+      "reviewed": false
+    },
+    {
+      "id": "director-analytics-fr-768",
+      "role": "directeur_usine",
+      "hash": "/?tab=analytics",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "director-analytics-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 38,
+      "smallTargets": 22,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Réception",
+        "Contrôle qualité",
+        "Stock",
+        "Production"
+      ],
+      "crash": false,
+      "heading": "Indicateurs",
+      "reviewed": false
+    },
+    {
+      "id": "director-analytics-fr-1024",
+      "role": "directeur_usine",
+      "hash": "/?tab=analytics",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "director-analytics-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 40,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Indicateurs",
+      "reviewed": false
+    },
+    {
+      "id": "director-analytics-fr-1440",
+      "role": "directeur_usine",
+      "hash": "/?tab=analytics",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "director-analytics-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 40,
+      "smallTargets": 39,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Réception",
+        "Contrôle qualité",
+        "Stock",
+        "Production"
+      ],
+      "crash": false,
+      "heading": "Indicateurs",
+      "reviewed": false
+    },
+    {
+      "id": "admin-settings-fr-375",
+      "role": "administrateur_systeme",
+      "hash": "/?tab=settings",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "admin-settings-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 38,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Paramètres",
+      "reviewed": false
+    },
+    {
+      "id": "admin-settings-fr-768",
+      "role": "administrateur_systeme",
+      "hash": "/?tab=settings",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "admin-settings-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 56,
+      "smallTargets": 23,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Réception",
+        "Contrôle qualité",
+        "Stock",
+        "Production"
+      ],
+      "crash": false,
+      "heading": "Paramètres",
+      "reviewed": false
+    },
+    {
+      "id": "admin-settings-fr-1024",
+      "role": "administrateur_systeme",
+      "hash": "/?tab=settings",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "admin-settings-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 58,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Paramètres",
+      "reviewed": false
+    },
+    {
+      "id": "admin-settings-fr-1440",
+      "role": "administrateur_systeme",
+      "hash": "/?tab=settings",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "admin-settings-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 58,
+      "smallTargets": 55,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Réception",
+        "Contrôle qualité",
+        "Stock",
+        "Production"
+      ],
+      "crash": false,
+      "heading": "Paramètres",
+      "reviewed": false
+    }
+  ],
+  "completed": true
+}
