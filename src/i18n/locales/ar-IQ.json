@@ -56,5 +56,11 @@
   },
   "qcQueue": {
     "resume": "كمّل"
+  },
+  "qcInspect": {
+    "actions": {
+      "continue": "كمّل",
+      "back": "ارجع"
+    }
   }
 }

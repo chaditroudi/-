@@ -305,7 +305,7 @@ const openQcForm = async (page, receptionNumber) => {
   await caliber.type("46");
   await clickByText(page, "Appliquer à tous");
   // A new supplier's first deliveries need a laboratory sample.
-  await clickByText(page, "3 · Laboratoire");
+  await clickByText(page, "3 · Labo");
   const analysis = await page.evaluateHandle(() => [...document.querySelectorAll('[role="dialog"] button')]
     .find((button) => button.innerText.trim() === "Aflatoxines" && button.getClientRects().length > 0) ?? null);
   if (analysis.asElement()) {

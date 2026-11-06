@@ -1535,5 +1535,227 @@
       "inProgress": "In progress",
       "lab": "Lab pending"
     }
+  },
+  "qcInspect": {
+    "eyebrow": "Quality control",
+    "sectionsLabel": "Inspection steps",
+    "section": {
+      "mesures": "Measures",
+      "defauts": "Defects",
+      "labo": "Lab",
+      "rqc": "RQC",
+      "verdict": "Verdict"
+    },
+    "title": {
+      "start": "Start the inspection",
+      "mesures": "Moisture and size",
+      "defauts": "Defects and tasting",
+      "labo": "Laboratory sample",
+      "rqc": "RQC sheet",
+      "verdict": "Verdict",
+      "confirmed": "Decision recorded"
+    },
+    "now": {
+      "start": "Enter the inspector, then start. Nothing is saved before you start.",
+      "ownReception": "You recorded this delivery. Another inspector must check it.",
+      "confirmed": "The decision is recorded. Lots are put away next, outside this screen.",
+      "measuresMissing": "{{humidity}} moisture and {{caliber}} size reading(s) left. The decision stays blocked until they are entered.",
+      "measuresDone": "All 3 moisture and 10 size readings are entered.",
+      "labIncomplete": "This lot needs a sample: choose at least one analysis and where the sample is kept.",
+      "verdictBlocked": "Decision blocked: {{n}} reading(s) missing. Go back to Measures before confirming.",
+      "verdictReady": "Proposed decision: {{decision}}. Confirming sends it to the server. Nothing is released before it answers.",
+      "defauts": "Enter the percentage for each defect, then score taste, texture and appearance.",
+      "labo": "Say whether a sample goes to the laboratory, with its analyses and location.",
+      "rqc": "Fill in the RQC sheet: it is saved and printed with the decision."
+    },
+    "facts": {
+      "supplier": "Supplier",
+      "quantity": "Quantity",
+      "variety": "Variety",
+      "arrivalTemp": "Arrival temperature"
+    },
+    "rules": {
+      "q12": {
+        "title": "RG-Q12 — Separation of roles",
+        "adminOverride": "Your account recorded this delivery. A cross-check is still recommended, but an administrator may start the inspection as an exception.",
+        "blocked": "The operator who recorded this delivery cannot inspect it. Hand the inspection to another inspector."
+      },
+      "q01": {
+        "overdueTitle": "RG-Q01 — Time limit passed",
+        "soonTitle": "RG-Q01 — Time limit close",
+        "elapsed": "{{hours}} h since arrival at the gate.",
+        "overdue": "The 4 h limit has passed — start the inspection now.",
+        "soon": "Start the inspection within the hour (limit: 4 h)."
+      },
+      "q08": {
+        "title": "RG-Q08 — Calibration check",
+        "body": "No calibration recorded in the last 30 days. Check that the instruments (scale, moisture meter, refractometer) were calibrated before you start."
+      }
+    },
+    "start": {
+      "inspector": "Inspector",
+      "primaryInspector": "Lead inspector *",
+      "doubleInspection": "Lot over 10 tonnes: the Phase 1 specification asks for a second validation."
+    },
+    "progress": "{{done}}/{{total}} entered",
+    "average": "Average",
+    "humidity": {
+      "title": "Floor moisture",
+      "target": "Target 20–26 %.",
+      "reading": "Reading {{n}}"
+    },
+    "caliber": {
+      "title": "Size",
+      "hint": "10 readings (mm).",
+      "sameValue": "Same value everywhere",
+      "applyAll": "Apply to all"
+    },
+    "defects": {
+      "title": "Visible defects (%)",
+      "hint": "Share of fruit affected by each defect.",
+      "total": "Total {{value}} %",
+      "limit": "Limit {{limit}} %",
+      "insectsPercent": "Insects",
+      "moldPercent": "Mould",
+      "fermentationPercent": "Fermentation",
+      "mechanicalDamagePercent": "Mechanical damage",
+      "crystallizationPercent": "Crystallisation",
+      "discolorationPercent": "Discolouration"
+    },
+    "organoleptic": {
+      "title": "Tasting",
+      "hint": "Score from 1 to 5.",
+      "tasteScore": "Taste",
+      "textureScore": "Texture",
+      "appearanceScore": "Appearance",
+      "scoreOf": "{{name}}: {{score}} out of 5"
+    },
+    "lab": {
+      "title": "Laboratory sample",
+      "sample": "Lab sample",
+      "requiredByRule": "required",
+      "optional": "optional",
+      "analyses": "Analyses",
+      "humidity": "Lab-confirmed moisture (%)",
+      "humidityFloor": "Floor: {{value}} % · target 20–26 %",
+      "defects": "Lab total defects (%)",
+      "defectsFloor": "Floor (sum): {{value}} %",
+      "linkTitle": "Link to the QC decision",
+      "link": "Decision moisture: {{humidity}} % · Decision defects: {{defects}} % · Proposed verdict: {{decision}}",
+      "location": "Sample location"
+    },
+    "rqc": {
+      "certification": "Certification and date type",
+      "dateType": "Date type:",
+      "branch": "On the branch",
+      "bulk": "Loose",
+      "weights": "Sample weights",
+      "criteria": "Quality control sheet (RQC)",
+      "criteriaHint": "Three tests per criterion; the average is calculated for you.",
+      "criterion": "Criteria",
+      "average": "Avg. rate",
+      "wasteRate": "Waste rate",
+      "wasteFormula": "= infested + fermented + immature + cracked",
+      "countsAsWaste": "(waste)",
+      "testOf": "{{name}} — test {{n}}",
+      "conclusionTitle": "Conclusion and signatures",
+      "conclusion": "Conclusion",
+      "damaged": "Damaged (%)",
+      "c": {
+        "infestee": "Infested",
+        "fermentee": "Fermented",
+        "immature": "Immature",
+        "craquellee": "Cracked",
+        "grasse": "Greasy",
+        "seche": "Dry",
+        "tachee": "Stained",
+        "ridee": "Wrinkled",
+        "petit_calibre": "Small size"
+      }
+    },
+    "verdict": {
+      "result": "Automatic result",
+      "provisional": "Provisional score: {{n}} moisture or size reading(s) to enter (step 1 · Measures).",
+      "goToMeasures": "Go to measures",
+      "provisionalScore": "Provisional score",
+      "finalScore": "Final score",
+      "classification": "Grade",
+      "proposed": "Proposed decision",
+      "sub": {
+        "humidity": "Moisture",
+        "caliber": "Size",
+        "insects": "Insects",
+        "moldFermentation": "Mould/fermentation",
+        "organoleptic": "Tasting",
+        "otherDefects": "Other"
+      },
+      "autoReject": "Automatic rejection",
+      "checklist": "Quality checklist",
+      "secondInspectorTitle": "Second inspector",
+      "secondInspector": "Second inspector *",
+      "secondInspectorPlaceholder": "Name of the second inspector",
+      "decisionTitle": "Decision",
+      "decisionHint": "The proposed decision is already selected. Changing it needs a justification and a photo.",
+      "proposedTag": "Proposed",
+      "overrideTitle": "RG-Q04 — Override: justification and photo required",
+      "overrideBody": "You are changing the automatic decision ({{from}} → {{to}}). A justification of at least 20 characters and a photo are required.",
+      "justification": "Reason for the change *",
+      "observations": "Observations",
+      "justificationPlaceholder": "Explain exactly why you are changing the automatic decision...",
+      "observationsPlaceholder": "Observations, anomalies, remarks...",
+      "photo": "Supporting photo * (RG-Q04)"
+    },
+    "nc": {
+      "title": "Non-conformity codes",
+      "required": "Required for a rejection.",
+      "optional": "Optional for quarantine.",
+      "selected": "{{n}} selected",
+      "suggested": "Suggested:"
+    },
+    "decision": {
+      "ACCEPTE": "Accept",
+      "QUARANTAINE": "Quarantine",
+      "REJETE": "Reject"
+    },
+    "confirmed": {
+      "ACCEPTE": "LOT RELEASED — COMPLIANT",
+      "QUARANTAINE": "Lot in quarantine",
+      "REJETE": "Lot rejected",
+      "summary": "Final score {{score}}/100 — {{classification}} • Moisture: {{humidity}} %",
+      "nextTitle": "Next: put the released lots away",
+      "zone": "Suggested cold room: {{code}} — {{name}} ({{occupancy}} % full).",
+      "zoneBio": "Suggested cold room: {{code}} — {{name}} ({{occupancy}} % full, organic only).",
+      "zoneNone": "Choose the cold room when assigning storage.",
+      "assign": "Assign to storage",
+      "print": "Print RQC"
+    },
+    "pin": {
+      "title": "QC release — signature code",
+      "subtitle": "Confirm your personal signature code to release this lot to stock.",
+      "confirm": "Sign and release"
+    },
+    "actions": {
+      "start": "Start the inspection",
+      "starting": "Starting…",
+      "continue": "Continue",
+      "back": "Back",
+      "validate": "Confirm the decision",
+      "validating": "Confirming...",
+      "cancel": "Cancel",
+      "close": "Close"
+    },
+    "error": {
+      "startFailed": "The QC inspection could not be started",
+      "submitFailed": "The QC decision could not be saved.",
+      "measuresIncomplete": "Readings incomplete: {{n}} value(s) missing (3 moisture and 10 size readings are required).",
+      "noChecklist": "No quality checklist is published: the decision cannot be saved.",
+      "checklistIncomplete": "Quality checklist incomplete: {{n}} check(s) unanswered.",
+      "ncRequired": "A REJECTED decision needs at least one NC code.",
+      "secondInspector": "The second inspector's name is required (lot over 10 tonnes — RG-Q05).",
+      "labAnalysis": "Select at least one laboratory analysis.",
+      "labLocation": "The sample's storage location is required.",
+      "justificationShort": "RG-Q04: justification too short ({{n}}/20 characters minimum).",
+      "justificationPhoto": "RG-Q04: a supporting photo is required to change the automatic decision."
+    }
   }
 }

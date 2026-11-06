@@ -87,5 +87,20 @@
     "start": "ابدأ الكنترول",
     "resume": "كمّل",
     "title": "الكنترول"
+  },
+  "qcInspect": {
+    "actions": {
+      "start": "ابدأ الكنترول",
+      "continue": "كمّل",
+      "back": "ارجع",
+      "validate": "أكّد القرار",
+      "cancel": "الغي",
+      "close": "سكّر"
+    },
+    "decision": {
+      "ACCEPTE": "اقبل",
+      "QUARANTAINE": "حجر",
+      "REJETE": "ارفض"
+    }
   }
 }

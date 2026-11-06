@@ -1,0 +1,2795 @@
+{
+  "head": "55d2691",
+  "dirty": true,
+  "capturedAt": "2026-11-06T23:28:35.822Z",
+  "database": "qc_visual_mw5lvgqn",
+  "widths": [
+    375,
+    768,
+    1024,
+    1440
+  ],
+  "locales": [
+    "fr",
+    "ar"
+  ],
+  "checks": [
+    {
+      "name": "inspector signature PIN provisioned",
+      "passed": true,
+      "detail": {
+        "data": {
+          "ok": true,
+          "has_signature_pin": true
+        }
+      }
+    },
+    {
+      "name": "qc-fr-375 opens from the QC queue",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-375 0-start: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 4,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-375 0-start: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-375 inspection started",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-375 1-measures-empty: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-375 1-measures-empty: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-375 1-measures-filled: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-375 1-measures-filled: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-375 2-defects: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 30,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-375 2-defects: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-375 3-lab: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 17,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-375 3-lab: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-375 4-rqc: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 51,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-375 4-rqc: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-375 5-verdict: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-375 5-verdict: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-375 unanswered checklist is refused with a message",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-375 6-refused: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-375 6-refused: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-375 release asks for the signature PIN in the same dialog",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-375 7-pin: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 33,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-375 7-pin: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-375 nothing released before the PIN",
+      "passed": true,
+      "detail": "EN_QUARANTAINE"
+    },
+    {
+      "name": "qc-fr-375 lot released on the server after the signed decision",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-375 8-confirmed: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 4,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-375 8-confirmed: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-375 no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "qc-fr-768 opens from the QC queue",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-768 0-start: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 4,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-768 0-start: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-768 inspection started",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-768 1-measures-empty: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-768 1-measures-empty: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-768 1-measures-filled: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-768 1-measures-filled: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-768 2-defects: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 30,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-768 2-defects: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-768 3-lab: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 10,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-768 3-lab: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-768 4-rqc: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 51,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-768 4-rqc: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-768 5-verdict: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-768 5-verdict: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-768 unanswered checklist is refused with a message",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-768 6-refused: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-768 6-refused: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-768 release asks for the signature PIN in the same dialog",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-768 7-pin: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 33,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-768 7-pin: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-768 nothing released before the PIN",
+      "passed": true,
+      "detail": "EN_QUARANTAINE"
+    },
+    {
+      "name": "qc-fr-768 lot released on the server after the signed decision",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-768 8-confirmed: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 4,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-768 8-confirmed: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-768 no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "qc-fr-1024 opens from the QC queue",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1024 0-start: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 4,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-1024 0-start: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1024 inspection started",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1024 1-measures-empty: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-1024 1-measures-empty: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1024 1-measures-filled: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-1024 1-measures-filled: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1024 2-defects: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 30,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-1024 2-defects: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1024 3-lab: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 10,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-1024 3-lab: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1024 4-rqc: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 51,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-1024 4-rqc: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1024 5-verdict: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-1024 5-verdict: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1024 unanswered checklist is refused with a message",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1024 6-refused: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-1024 6-refused: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1024 release asks for the signature PIN in the same dialog",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1024 7-pin: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 33,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-1024 7-pin: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1024 nothing released before the PIN",
+      "passed": true,
+      "detail": "EN_QUARANTAINE"
+    },
+    {
+      "name": "qc-fr-1024 lot released on the server after the signed decision",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1024 8-confirmed: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 4,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-1024 8-confirmed: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1024 no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "qc-fr-1440 opens from the QC queue",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1440 0-start: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 4,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-1440 0-start: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1440 inspection started",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1440 1-measures-empty: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-1440 1-measures-empty: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1440 1-measures-filled: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-1440 1-measures-filled: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1440 2-defects: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 30,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-1440 2-defects: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1440 3-lab: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 10,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-1440 3-lab: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1440 4-rqc: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 51,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-1440 4-rqc: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1440 5-verdict: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 23,
+        "smallTargets": 10,
+        "smallExamples": [
+          "Conformite BL et certificats :",
+          "Origine et tracabilite : confo",
+          "Origine et tracabilite : non c",
+          "Humidite reception : conforme",
+          "Humidite reception : non confo",
+          "Aspect visuel et defauts : con",
+          "Aspect visuel et defauts : non",
+          "Parasites / moisissures : conf",
+          "Parasites / moisissures : non "
+        ],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-1440 5-verdict: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1440 unanswered checklist is refused with a message",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1440 6-refused: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 23,
+        "smallTargets": 10,
+        "smallExamples": [
+          "Conformite BL et certificats :",
+          "Origine et tracabilite : confo",
+          "Origine et tracabilite : non c",
+          "Humidite reception : conforme",
+          "Humidite reception : non confo",
+          "Aspect visuel et defauts : con",
+          "Aspect visuel et defauts : non",
+          "Parasites / moisissures : conf",
+          "Parasites / moisissures : non "
+        ],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-1440 6-refused: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1440 release asks for the signature PIN in the same dialog",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1440 7-pin: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 33,
+        "smallTargets": 12,
+        "smallExamples": [
+          "Conformite BL et certificats :",
+          "Origine et tracabilite : confo",
+          "Origine et tracabilite : non c",
+          "Humidite reception : conforme",
+          "Humidite reception : non confo",
+          "Aspect visuel et defauts : con",
+          "Aspect visuel et defauts : non",
+          "Parasites / moisissures : conf",
+          "Parasites / moisissures : non ",
+          "Annuler"
+        ],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-1440 7-pin: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1440 nothing released before the PIN",
+      "passed": true,
+      "detail": "EN_QUARANTAINE"
+    },
+    {
+      "name": "qc-fr-1440 lot released on the server after the signed decision",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1440 8-confirmed: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 4,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-fr-1440 8-confirmed: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-fr-1440 no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "qc-ar-375 opens from the QC queue",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-375 0-start: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 4,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-375 0-start: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-375 inspection started",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-375 1-measures-empty: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-375 1-measures-empty: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-375 1-measures-filled: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-375 1-measures-filled: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-375 2-defects: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 30,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-375 2-defects: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-375 3-lab: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 10,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-375 3-lab: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-375 4-rqc: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 51,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-375 4-rqc: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-375 5-verdict: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-375 5-verdict: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-375 unanswered checklist is refused with a message",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-375 6-refused: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-375 6-refused: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-375 release asks for the signature PIN in the same dialog",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-375 7-pin: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 33,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-375 7-pin: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-375 nothing released before the PIN",
+      "passed": true,
+      "detail": "EN_QUARANTAINE"
+    },
+    {
+      "name": "qc-ar-375 lot released on the server after the signed decision",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-375 8-confirmed: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 4,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-375 8-confirmed: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-375 no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "qc-ar-768 opens from the QC queue",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-768 0-start: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 4,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-768 0-start: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-768 inspection started",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-768 1-measures-empty: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-768 1-measures-empty: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-768 1-measures-filled: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-768 1-measures-filled: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-768 2-defects: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 30,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-768 2-defects: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-768 3-lab: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 10,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-768 3-lab: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-768 4-rqc: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 51,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-768 4-rqc: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-768 5-verdict: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-768 5-verdict: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-768 unanswered checklist is refused with a message",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-768 6-refused: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-768 6-refused: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-768 release asks for the signature PIN in the same dialog",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-768 7-pin: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 33,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-768 7-pin: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-768 nothing released before the PIN",
+      "passed": true,
+      "detail": "EN_QUARANTAINE"
+    },
+    {
+      "name": "qc-ar-768 lot released on the server after the signed decision",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-768 8-confirmed: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 4,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-768 8-confirmed: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-768 no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "qc-ar-1024 opens from the QC queue",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1024 0-start: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 4,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-1024 0-start: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1024 inspection started",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1024 1-measures-empty: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-1024 1-measures-empty: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1024 1-measures-filled: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-1024 1-measures-filled: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1024 2-defects: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 30,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-1024 2-defects: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1024 3-lab: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 10,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-1024 3-lab: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1024 4-rqc: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 51,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-1024 4-rqc: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1024 5-verdict: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-1024 5-verdict: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1024 unanswered checklist is refused with a message",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1024 6-refused: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-1024 6-refused: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1024 release asks for the signature PIN in the same dialog",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1024 7-pin: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 33,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-1024 7-pin: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1024 nothing released before the PIN",
+      "passed": true,
+      "detail": "EN_QUARANTAINE"
+    },
+    {
+      "name": "qc-ar-1024 lot released on the server after the signed decision",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1024 8-confirmed: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 4,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-1024 8-confirmed: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1024 no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "qc-ar-1440 opens from the QC queue",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1440 0-start: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 4,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-1440 0-start: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1440 inspection started",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1440 1-measures-empty: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-1440 1-measures-empty: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1440 1-measures-filled: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 23,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-1440 1-measures-filled: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1440 2-defects: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 30,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-1440 2-defects: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1440 3-lab: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 10,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-1440 3-lab: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1440 4-rqc: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 51,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-1440 4-rqc: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1440 5-verdict: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 23,
+        "smallTargets": 10,
+        "smallExamples": [
+          "Conformite BL et certificats :",
+          "Origine et tracabilite : confo",
+          "Origine et tracabilite : non c",
+          "Humidite reception : conforme",
+          "Humidite reception : non confo",
+          "Aspect visuel et defauts : con",
+          "Aspect visuel et defauts : non",
+          "Parasites / moisissures : conf",
+          "Parasites / moisissures : non "
+        ],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-1440 5-verdict: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1440 unanswered checklist is refused with a message",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1440 6-refused: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 23,
+        "smallTargets": 10,
+        "smallExamples": [
+          "Conformite BL et certificats :",
+          "Origine et tracabilite : confo",
+          "Origine et tracabilite : non c",
+          "Humidite reception : conforme",
+          "Humidite reception : non confo",
+          "Aspect visuel et defauts : con",
+          "Aspect visuel et defauts : non",
+          "Parasites / moisissures : conf",
+          "Parasites / moisissures : non "
+        ],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-1440 6-refused: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1440 release asks for the signature PIN in the same dialog",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1440 7-pin: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 33,
+        "smallTargets": 12,
+        "smallExamples": [
+          "Conformite BL et certificats :",
+          "Origine et tracabilite : confo",
+          "Origine et tracabilite : non c",
+          "Humidite reception : conforme",
+          "Humidite reception : non confo",
+          "Aspect visuel et defauts : con",
+          "Aspect visuel et defauts : non",
+          "Parasites / moisissures : conf",
+          "Parasites / moisissures : non ",
+          "Annuler"
+        ],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-1440 7-pin: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1440 nothing released before the PIN",
+      "passed": true,
+      "detail": "EN_QUARANTAINE"
+    },
+    {
+      "name": "qc-ar-1440 lot released on the server after the signed decision",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1440 8-confirmed: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 4,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false
+      }
+    },
+    {
+      "name": "qc-ar-1440 8-confirmed: no crash",
+      "passed": true
+    },
+    {
+      "name": "qc-ar-1440 no server or script errors",
+      "passed": true,
+      "detail": []
+    }
+  ],
+  "screens": [
+    {
+      "id": "qc-fr-375-0-start",
+      "step": "0-start",
+      "file": "qc-fr-375-0-start.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 4,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-375-1-measures-empty",
+      "step": "1-measures-empty",
+      "file": "qc-fr-375-1-measures-empty.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-375-1-measures-filled",
+      "step": "1-measures-filled",
+      "file": "qc-fr-375-1-measures-filled.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-375-2-defects",
+      "step": "2-defects",
+      "file": "qc-fr-375-2-defects.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 30,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-375-3-lab",
+      "step": "3-lab",
+      "file": "qc-fr-375-3-lab.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 17,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-375-4-rqc",
+      "step": "4-rqc",
+      "file": "qc-fr-375-4-rqc.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 51,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-375-5-verdict",
+      "step": "5-verdict",
+      "file": "qc-fr-375-5-verdict.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-375-6-refused",
+      "step": "6-refused",
+      "file": "qc-fr-375-6-refused.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-375-7-pin",
+      "step": "7-pin",
+      "file": "qc-fr-375-7-pin.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 33,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-375-8-confirmed",
+      "step": "8-confirmed",
+      "file": "qc-fr-375-8-confirmed.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 4,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-768-0-start",
+      "step": "0-start",
+      "file": "qc-fr-768-0-start.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 4,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-768-1-measures-empty",
+      "step": "1-measures-empty",
+      "file": "qc-fr-768-1-measures-empty.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-768-1-measures-filled",
+      "step": "1-measures-filled",
+      "file": "qc-fr-768-1-measures-filled.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-768-2-defects",
+      "step": "2-defects",
+      "file": "qc-fr-768-2-defects.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 30,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-768-3-lab",
+      "step": "3-lab",
+      "file": "qc-fr-768-3-lab.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 10,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-768-4-rqc",
+      "step": "4-rqc",
+      "file": "qc-fr-768-4-rqc.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 51,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-768-5-verdict",
+      "step": "5-verdict",
+      "file": "qc-fr-768-5-verdict.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-768-6-refused",
+      "step": "6-refused",
+      "file": "qc-fr-768-6-refused.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-768-7-pin",
+      "step": "7-pin",
+      "file": "qc-fr-768-7-pin.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 33,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-768-8-confirmed",
+      "step": "8-confirmed",
+      "file": "qc-fr-768-8-confirmed.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 4,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-1024-0-start",
+      "step": "0-start",
+      "file": "qc-fr-1024-0-start.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 4,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-1024-1-measures-empty",
+      "step": "1-measures-empty",
+      "file": "qc-fr-1024-1-measures-empty.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-1024-1-measures-filled",
+      "step": "1-measures-filled",
+      "file": "qc-fr-1024-1-measures-filled.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-1024-2-defects",
+      "step": "2-defects",
+      "file": "qc-fr-1024-2-defects.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 30,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-1024-3-lab",
+      "step": "3-lab",
+      "file": "qc-fr-1024-3-lab.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 10,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-1024-4-rqc",
+      "step": "4-rqc",
+      "file": "qc-fr-1024-4-rqc.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 51,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-1024-5-verdict",
+      "step": "5-verdict",
+      "file": "qc-fr-1024-5-verdict.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-1024-6-refused",
+      "step": "6-refused",
+      "file": "qc-fr-1024-6-refused.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-1024-7-pin",
+      "step": "7-pin",
+      "file": "qc-fr-1024-7-pin.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 33,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-1024-8-confirmed",
+      "step": "8-confirmed",
+      "file": "qc-fr-1024-8-confirmed.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 4,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-1440-0-start",
+      "step": "0-start",
+      "file": "qc-fr-1440-0-start.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 4,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-1440-1-measures-empty",
+      "step": "1-measures-empty",
+      "file": "qc-fr-1440-1-measures-empty.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-1440-1-measures-filled",
+      "step": "1-measures-filled",
+      "file": "qc-fr-1440-1-measures-filled.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-1440-2-defects",
+      "step": "2-defects",
+      "file": "qc-fr-1440-2-defects.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 30,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-1440-3-lab",
+      "step": "3-lab",
+      "file": "qc-fr-1440-3-lab.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 10,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-1440-4-rqc",
+      "step": "4-rqc",
+      "file": "qc-fr-1440-4-rqc.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 51,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-1440-5-verdict",
+      "step": "5-verdict",
+      "file": "qc-fr-1440-5-verdict.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 23,
+      "smallTargets": 10,
+      "smallExamples": [
+        "Conformite BL et certificats :",
+        "Origine et tracabilite : confo",
+        "Origine et tracabilite : non c",
+        "Humidite reception : conforme",
+        "Humidite reception : non confo",
+        "Aspect visuel et defauts : con",
+        "Aspect visuel et defauts : non",
+        "Parasites / moisissures : conf",
+        "Parasites / moisissures : non "
+      ],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-1440-6-refused",
+      "step": "6-refused",
+      "file": "qc-fr-1440-6-refused.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 23,
+      "smallTargets": 10,
+      "smallExamples": [
+        "Conformite BL et certificats :",
+        "Origine et tracabilite : confo",
+        "Origine et tracabilite : non c",
+        "Humidite reception : conforme",
+        "Humidite reception : non confo",
+        "Aspect visuel et defauts : con",
+        "Aspect visuel et defauts : non",
+        "Parasites / moisissures : conf",
+        "Parasites / moisissures : non "
+      ],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-1440-7-pin",
+      "step": "7-pin",
+      "file": "qc-fr-1440-7-pin.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 33,
+      "smallTargets": 12,
+      "smallExamples": [
+        "Conformite BL et certificats :",
+        "Origine et tracabilite : confo",
+        "Origine et tracabilite : non c",
+        "Humidite reception : conforme",
+        "Humidite reception : non confo",
+        "Aspect visuel et defauts : con",
+        "Aspect visuel et defauts : non",
+        "Parasites / moisissures : conf",
+        "Parasites / moisissures : non ",
+        "Annuler"
+      ],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-fr-1440-8-confirmed",
+      "step": "8-confirmed",
+      "file": "qc-fr-1440-8-confirmed.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 4,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-375-0-start",
+      "step": "0-start",
+      "file": "qc-ar-375-0-start.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 4,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-375-1-measures-empty",
+      "step": "1-measures-empty",
+      "file": "qc-ar-375-1-measures-empty.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-375-1-measures-filled",
+      "step": "1-measures-filled",
+      "file": "qc-ar-375-1-measures-filled.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-375-2-defects",
+      "step": "2-defects",
+      "file": "qc-ar-375-2-defects.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 30,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-375-3-lab",
+      "step": "3-lab",
+      "file": "qc-ar-375-3-lab.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 10,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-375-4-rqc",
+      "step": "4-rqc",
+      "file": "qc-ar-375-4-rqc.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 51,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-375-5-verdict",
+      "step": "5-verdict",
+      "file": "qc-ar-375-5-verdict.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-375-6-refused",
+      "step": "6-refused",
+      "file": "qc-ar-375-6-refused.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-375-7-pin",
+      "step": "7-pin",
+      "file": "qc-ar-375-7-pin.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 33,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-375-8-confirmed",
+      "step": "8-confirmed",
+      "file": "qc-ar-375-8-confirmed.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 4,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-768-0-start",
+      "step": "0-start",
+      "file": "qc-ar-768-0-start.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 4,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-768-1-measures-empty",
+      "step": "1-measures-empty",
+      "file": "qc-ar-768-1-measures-empty.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-768-1-measures-filled",
+      "step": "1-measures-filled",
+      "file": "qc-ar-768-1-measures-filled.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-768-2-defects",
+      "step": "2-defects",
+      "file": "qc-ar-768-2-defects.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 30,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-768-3-lab",
+      "step": "3-lab",
+      "file": "qc-ar-768-3-lab.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 10,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-768-4-rqc",
+      "step": "4-rqc",
+      "file": "qc-ar-768-4-rqc.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 51,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-768-5-verdict",
+      "step": "5-verdict",
+      "file": "qc-ar-768-5-verdict.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-768-6-refused",
+      "step": "6-refused",
+      "file": "qc-ar-768-6-refused.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-768-7-pin",
+      "step": "7-pin",
+      "file": "qc-ar-768-7-pin.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 33,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-768-8-confirmed",
+      "step": "8-confirmed",
+      "file": "qc-ar-768-8-confirmed.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 4,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-1024-0-start",
+      "step": "0-start",
+      "file": "qc-ar-1024-0-start.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 4,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-1024-1-measures-empty",
+      "step": "1-measures-empty",
+      "file": "qc-ar-1024-1-measures-empty.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-1024-1-measures-filled",
+      "step": "1-measures-filled",
+      "file": "qc-ar-1024-1-measures-filled.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-1024-2-defects",
+      "step": "2-defects",
+      "file": "qc-ar-1024-2-defects.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 30,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-1024-3-lab",
+      "step": "3-lab",
+      "file": "qc-ar-1024-3-lab.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 10,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-1024-4-rqc",
+      "step": "4-rqc",
+      "file": "qc-ar-1024-4-rqc.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 51,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-1024-5-verdict",
+      "step": "5-verdict",
+      "file": "qc-ar-1024-5-verdict.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-1024-6-refused",
+      "step": "6-refused",
+      "file": "qc-ar-1024-6-refused.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-1024-7-pin",
+      "step": "7-pin",
+      "file": "qc-ar-1024-7-pin.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 33,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-1024-8-confirmed",
+      "step": "8-confirmed",
+      "file": "qc-ar-1024-8-confirmed.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 4,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-1440-0-start",
+      "step": "0-start",
+      "file": "qc-ar-1440-0-start.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 4,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-1440-1-measures-empty",
+      "step": "1-measures-empty",
+      "file": "qc-ar-1440-1-measures-empty.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-1440-1-measures-filled",
+      "step": "1-measures-filled",
+      "file": "qc-ar-1440-1-measures-filled.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 23,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-1440-2-defects",
+      "step": "2-defects",
+      "file": "qc-ar-1440-2-defects.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 30,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-1440-3-lab",
+      "step": "3-lab",
+      "file": "qc-ar-1440-3-lab.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 10,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-1440-4-rqc",
+      "step": "4-rqc",
+      "file": "qc-ar-1440-4-rqc.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 51,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-1440-5-verdict",
+      "step": "5-verdict",
+      "file": "qc-ar-1440-5-verdict.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 23,
+      "smallTargets": 10,
+      "smallExamples": [
+        "Conformite BL et certificats :",
+        "Origine et tracabilite : confo",
+        "Origine et tracabilite : non c",
+        "Humidite reception : conforme",
+        "Humidite reception : non confo",
+        "Aspect visuel et defauts : con",
+        "Aspect visuel et defauts : non",
+        "Parasites / moisissures : conf",
+        "Parasites / moisissures : non "
+      ],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-1440-6-refused",
+      "step": "6-refused",
+      "file": "qc-ar-1440-6-refused.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 23,
+      "smallTargets": 10,
+      "smallExamples": [
+        "Conformite BL et certificats :",
+        "Origine et tracabilite : confo",
+        "Origine et tracabilite : non c",
+        "Humidite reception : conforme",
+        "Humidite reception : non confo",
+        "Aspect visuel et defauts : con",
+        "Aspect visuel et defauts : non",
+        "Parasites / moisissures : conf",
+        "Parasites / moisissures : non "
+      ],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-1440-7-pin",
+      "step": "7-pin",
+      "file": "qc-ar-1440-7-pin.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 33,
+      "smallTargets": 12,
+      "smallExamples": [
+        "Conformite BL et certificats :",
+        "Origine et tracabilite : confo",
+        "Origine et tracabilite : non c",
+        "Humidite reception : conforme",
+        "Humidite reception : non confo",
+        "Aspect visuel et defauts : con",
+        "Aspect visuel et defauts : non",
+        "Parasites / moisissures : conf",
+        "Parasites / moisissures : non ",
+        "Annuler"
+      ],
+      "crash": false,
+      "reviewed": false
+    },
+    {
+      "id": "qc-ar-1440-8-confirmed",
+      "step": "8-confirmed",
+      "file": "qc-ar-1440-8-confirmed.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 4,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "reviewed": false
+    }
+  ],
+  "completed": true
+}

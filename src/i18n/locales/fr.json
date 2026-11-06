@@ -1535,5 +1535,227 @@
       "inProgress": "En cours",
       "lab": "Labo en attente"
     }
+  },
+  "qcInspect": {
+    "eyebrow": "Contrôle qualité",
+    "sectionsLabel": "Étapes du contrôle",
+    "section": {
+      "mesures": "Mesures",
+      "defauts": "Défauts",
+      "labo": "Labo",
+      "rqc": "RQC",
+      "verdict": "Verdict"
+    },
+    "title": {
+      "start": "Démarrer le contrôle",
+      "mesures": "Humidité et calibre",
+      "defauts": "Défauts et dégustation",
+      "labo": "Échantillon laboratoire",
+      "rqc": "Grille RQC",
+      "verdict": "Verdict",
+      "confirmed": "Décision enregistrée"
+    },
+    "now": {
+      "start": "Indiquez l’inspecteur, puis démarrez. Rien n’est enregistré avant ce démarrage.",
+      "ownReception": "Vous avez enregistré cette réception. Un autre inspecteur doit la contrôler.",
+      "confirmed": "La décision est enregistrée. Le rangement des lots se fait ensuite, hors de cet écran.",
+      "measuresMissing": "Il reste {{humidity}} humidité(s) et {{caliber}} calibre(s). La décision reste bloquée tant que ces mesures sont vides.",
+      "measuresDone": "Les 3 humidités et les 10 calibres sont saisis.",
+      "labIncomplete": "Ce lot exige un échantillon : choisissez au moins une analyse et son emplacement.",
+      "verdictBlocked": "Décision bloquée : {{n}} mesure(s) manquante(s). Revenez à Mesures avant de valider.",
+      "verdictReady": "Décision proposée : {{decision}}. Valider l’envoie au serveur. Rien n’est libéré avant cette réponse.",
+      "defauts": "Saisissez le pourcentage de chaque défaut, puis notez le goût, la texture et l’apparence.",
+      "labo": "Indiquez si un échantillon part au laboratoire, avec ses analyses et son emplacement.",
+      "rqc": "Remplissez la grille RQC : elle est enregistrée et imprimée avec la décision."
+    },
+    "facts": {
+      "supplier": "Fournisseur",
+      "quantity": "Quantité",
+      "variety": "Variété",
+      "arrivalTemp": "Température à l'arrivée"
+    },
+    "rules": {
+      "q12": {
+        "title": "RG-Q12 — Séparation des rôles",
+        "adminOverride": "Cette réception a été enregistrée par votre compte. Le contrôle croisé reste recommandé, mais un administrateur peut exceptionnellement démarrer l'inspection.",
+        "blocked": "L'opérateur qui a enregistré cette réception ne peut pas en effectuer le contrôle qualité. Veuillez confier l'inspection à un autre inspecteur."
+      },
+      "q01": {
+        "overdueTitle": "RG-Q01 — Délai dépassé",
+        "soonTitle": "RG-Q01 — Délai bientôt dépassé",
+        "elapsed": "{{hours}} h écoulées depuis l'arrivée portail.",
+        "overdue": "Le délai max de 4 h est dépassé — démarrez l'inspection immédiatement.",
+        "soon": "Démarrez l'inspection dans l'heure (délai max: 4 h)."
+      },
+      "q08": {
+        "title": "RG-Q08 — Vérification étalonnage",
+        "body": "Aucun étalonnage enregistré dans les 30 derniers jours. Vérifiez que les instruments (balance, hygromètre, réfractomètre) ont été étalonnés avant de commencer l'inspection."
+      }
+    },
+    "start": {
+      "inspector": "Inspecteur",
+      "primaryInspector": "Inspecteur principal *",
+      "doubleInspection": "Lot > 10 tonnes : une deuxième validation est demandée par la spec Phase 1."
+    },
+    "progress": "{{done}}/{{total}} saisies",
+    "average": "Moyenne",
+    "humidity": {
+      "title": "Humidité sol",
+      "target": "Cible 20–26 %.",
+      "reading": "Mesure {{n}}"
+    },
+    "caliber": {
+      "title": "Calibre",
+      "hint": "10 mesures (mm).",
+      "sameValue": "Même valeur partout",
+      "applyAll": "Appliquer à tous"
+    },
+    "defects": {
+      "title": "Défauts visuels (%)",
+      "hint": "Pourcentage de fruits touchés par chaque défaut.",
+      "total": "Total {{value}} %",
+      "limit": "Limite {{limit}} %",
+      "insectsPercent": "Insectes",
+      "moldPercent": "Moisissure",
+      "fermentationPercent": "Fermentation",
+      "mechanicalDamagePercent": "Dégâts mécaniques",
+      "crystallizationPercent": "Cristallisation",
+      "discolorationPercent": "Décoloration"
+    },
+    "organoleptic": {
+      "title": "Organoleptique",
+      "hint": "Note de 1 à 5.",
+      "tasteScore": "Goût",
+      "textureScore": "Texture",
+      "appearanceScore": "Apparence",
+      "scoreOf": "{{name}} : {{score}} sur 5"
+    },
+    "lab": {
+      "title": "Échantillon laboratoire",
+      "sample": "Prélèvement labo",
+      "requiredByRule": "obligatoire",
+      "optional": "optionnel",
+      "analyses": "Analyses",
+      "humidity": "Humidité labo confirmée (%)",
+      "humidityFloor": "Sol : {{value}} % · cible 20–26 %",
+      "defects": "Défauts totaux labo (%)",
+      "defectsFloor": "Sol (somme) : {{value}} %",
+      "linkTitle": "Lien décision QC",
+      "link": "Humidité décision : {{humidity}} % · Défauts décision : {{defects}} % · Verdict proposé : {{decision}}",
+      "location": "Emplacement de l'échantillon"
+    },
+    "rqc": {
+      "certification": "Certification et type de dattes",
+      "dateType": "Type dattes :",
+      "branch": "Branche",
+      "bulk": "Vrac",
+      "weights": "Poids de l'échantillon",
+      "criteria": "Grille Contrôle Qualité (RQC)",
+      "criteriaHint": "Trois tests par critère ; la moyenne se calcule seule.",
+      "criterion": "Critères",
+      "average": "Taux Moy.",
+      "wasteRate": "Taux déchet",
+      "wasteFormula": "= infestée + fermentée + immature + craquelée",
+      "countsAsWaste": "(déchet)",
+      "testOf": "{{name}} — test {{n}}",
+      "conclusionTitle": "Conclusion et signatures",
+      "conclusion": "Conclusion",
+      "damaged": "Endommagé (%)",
+      "c": {
+        "infestee": "Infestée",
+        "fermentee": "Fermentée",
+        "immature": "Immature",
+        "craquellee": "Craquelée",
+        "grasse": "Grasse",
+        "seche": "Sèche",
+        "tachee": "Tachée",
+        "ridee": "Ridée",
+        "petit_calibre": "Petit calibre"
+      }
+    },
+    "verdict": {
+      "result": "Résultat automatique",
+      "provisional": "Score provisoire : {{n}} mesure(s) d'humidité ou de calibre à saisir (section 1 · Mesures).",
+      "goToMeasures": "Aller aux mesures",
+      "provisionalScore": "Score provisoire",
+      "finalScore": "Score final",
+      "classification": "Classement",
+      "proposed": "Décision proposée",
+      "sub": {
+        "humidity": "Humidité",
+        "caliber": "Calibre",
+        "insects": "Insectes",
+        "moldFermentation": "Moisissure/fermentation",
+        "organoleptic": "Organo",
+        "otherDefects": "Autres"
+      },
+      "autoReject": "Rejet automatique",
+      "checklist": "Grille qualité",
+      "secondInspectorTitle": "Deuxième inspecteur",
+      "secondInspector": "Deuxième inspecteur *",
+      "secondInspectorPlaceholder": "Nom du second inspecteur",
+      "decisionTitle": "Décision",
+      "decisionHint": "La décision proposée est déjà choisie. La changer demande une justification et une photo.",
+      "proposedTag": "Proposée",
+      "overrideTitle": "RG-Q04 — Override actif : justification + photo obligatoires",
+      "overrideBody": "Vous modifiez la décision automatique ({{from}} → {{to}}). Une justification d'au moins 20 caractères et une photo sont requises.",
+      "justification": "Justification de l'écart *",
+      "observations": "Observations",
+      "justificationPlaceholder": "Décrivez précisément pourquoi vous modifiez la décision automatique...",
+      "observationsPlaceholder": "Observations, anomalies, remarques...",
+      "photo": "Photo justificative * (RG-Q04)"
+    },
+    "nc": {
+      "title": "Codes non-conformité",
+      "required": "Obligatoire pour un rejet.",
+      "optional": "Facultatif pour une quarantaine.",
+      "selected": "{{n}} choisi(s)",
+      "suggested": "Auto-suggérés :"
+    },
+    "decision": {
+      "ACCEPTE": "Accepter",
+      "QUARANTAINE": "Quarantaine",
+      "REJETE": "Rejeter"
+    },
+    "confirmed": {
+      "ACCEPTE": "LOT LIBÉRÉ — CONFORME",
+      "QUARANTAINE": "Lot en quarantaine",
+      "REJETE": "Lot rejeté",
+      "summary": "Score final {{score}}/100 — {{classification}} • Humidité : {{humidity}} %",
+      "nextTitle": "Étape suivante : ranger les lots libérés",
+      "zone": "Chambre conseillée : {{code}} — {{name}} (occupation {{occupancy}} %).",
+      "zoneBio": "Chambre conseillée : {{code}} — {{name}} (occupation {{occupancy}} %, dédiée Bio).",
+      "zoneNone": "Choisissez la chambre froide lors de l'affectation.",
+      "assign": "Affecter au stock",
+      "print": "Imprimer RQC"
+    },
+    "pin": {
+      "title": "Libération QC — code signature",
+      "subtitle": "Confirmez votre code signature personnel pour libérer ce lot vers le stock.",
+      "confirm": "Signer et libérer"
+    },
+    "actions": {
+      "start": "Démarrer l'inspection",
+      "starting": "Démarrage…",
+      "continue": "Continuer",
+      "back": "Retour",
+      "validate": "Valider la décision",
+      "validating": "Validation en cours...",
+      "cancel": "Annuler",
+      "close": "Fermer"
+    },
+    "error": {
+      "startFailed": "Impossible de démarrer l'inspection QC",
+      "submitFailed": "La décision QC n'a pas pu être enregistrée.",
+      "measuresIncomplete": "Mesures incomplètes : {{n}} valeur(s) manquante(s) (3 humidités et 10 calibres sont obligatoires).",
+      "noChecklist": "Aucune grille qualité publiée : la décision ne peut pas être enregistrée.",
+      "checklistIncomplete": "Grille qualité incomplète : {{n}} contrôle(s) sans réponse.",
+      "ncRequired": "Au moins un code NC est requis pour une décision REJETÉ.",
+      "secondInspector": "Le nom du second inspecteur est requis (lot > 10 tonnes — RG-Q05).",
+      "labAnalysis": "Sélectionnez au moins une analyse laboratoire.",
+      "labLocation": "L'emplacement de stockage de l'échantillon est requis.",
+      "justificationShort": "RG-Q04 : justification trop courte ({{n}}/20 caractères minimum).",
+      "justificationPhoto": "RG-Q04 : une photo justificative est obligatoire pour modifier la décision automatique."
+    }
   }
 }

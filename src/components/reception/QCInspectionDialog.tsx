@@ -1,34 +1,37 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AlertTriangle, CheckCircle, Clock, FlaskConical, MapPin, Play, Printer, Shield, XCircle } from "lucide-react";
+import {
+  AlertTriangle, ArrowLeft, ArrowRight, CheckCircle, CheckCircle2, Clock, FlaskConical, MapPin, Play, Printer, Shield, XCircle,
+} from "lucide-react";
 import { toast } from "sonner";
-import { WorkPath, type WorkStep, type WorkStepState } from "@/components/shared/WorkPath";
+import { FieldGroup, ReviewList } from "@/components/shared/task";
 import { receptionErrorMessage, useCalibrationStatus, useQcChecklist, useCreateQCInspection, useQCInspections, useSubmitQCDecision } from "@/hooks/useReceptionsV2";
 import { useModule3StorageZones } from "@/hooks/useStorageModule3";
 import { Module3StorageZone } from "@/types/storage";
 import { QCDecisionType, RQCData, RQCCritere, ReceptionV2 } from "@/types/reception";
 import { printRQC } from "./printRQC";
-import { computeQcScore, getQcClassificationLabel, getQcDecisionLabel } from "@/lib/royalPalmPhase1";
+import { computeQcScore, getQcClassificationLabel } from "@/lib/royalPalmPhase1";
 import { PhotoCapture } from "./PhotoCapture";
 import { useAuth } from "@/hooks/useAuth";
 import {
   checkQCWindowRGQ01,
   createRejectionNotification,
 } from "@/lib/phase1RuleEngine";
-import { QC_NC_CODES, NC_SEVERITY_COLORS, getAutoTriggeredNCs } from "@/lib/qcNCCodes";
+import { QC_NC_CODES, getAutoTriggeredNCs } from "@/lib/qcNCCodes";
 import { NumericSignaturePad } from "@/components/shared/NumericSignatureDialog";
 import { QcChecklistAnswers } from "./QcChecklistAnswers";
 import type { SubmitQcDecisionInput } from "@/lib/api/receptions";
 import { checklistResults, hasNonConformity, unansweredCount, type QcChecklistAnswers as ChecklistAnswers } from "@/lib/qcChecklist";
 import { darijaTitle } from "@/i18n/workerDarija";
+import { formatNumber } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 /**
  * Recommandation déterministe d'une chambre froide basée sur les données d'occupation réelles et la compatibilité Bio
@@ -122,19 +125,65 @@ const defaultRqc = (): RQCData => ({
   responsable_qc1: null, responsable_qc2: null, directeur_qc: null,
 });
 
+type QcSection = 'mesures' | 'defauts' | 'labo' | 'rqc' | 'verdict';
+const QC_SECTION_KEYS: QcSection[] = ['mesures', 'defauts', 'labo', 'rqc', 'verdict'];
+
+/** Floor limits already applied by the decision checks below (INS, MOLD); shown so the inspector sees them while typing. */
+const DEFECT_FIELDS = [
+  { field: "insectsPercent", limit: 5 },
+  { field: "moldPercent", limit: 2 },
+  { field: "fermentationPercent", limit: 1 },
+  { field: "mechanicalDamagePercent" },
+  { field: "crystallizationPercent" },
+  { field: "discolorationPercent" },
+] as const;
+
+const RQC_CRITERIA: { field: RqcCritereKey; waste: boolean }[] = [
+  { field: 'infestee', waste: true },
+  { field: 'fermentee', waste: true },
+  { field: 'immature', waste: true },
+  { field: 'craquellee', waste: true },
+  { field: 'grasse', waste: false },
+  { field: 'seche', waste: false },
+  { field: 'tachee', waste: false },
+  { field: 'ridee', waste: false },
+  { field: 'petit_calibre', waste: false },
+];
+
+const NC_SELECTED: Record<string, string> = {
+  CRITIQUE: 'border-destructive bg-destructive/5',
+  MAJEUR: 'border-warning bg-sand',
+  MINEUR: 'border-warning/50 bg-sand/60',
+};
+
+/** A rule or state the inspector must see. Tone only, no decoration. */
+function Notice({ tone, icon, title, children }: { tone: 'warning' | 'danger' | 'info'; icon?: ReactNode; title?: ReactNode; children?: ReactNode }) {
+  return (
+    <div
+      role={tone === 'danger' ? 'alert' : 'status'}
+      className={cn(
+        'flex items-start gap-3 rounded-xl border p-4 text-sm [&_svg]:mt-0.5 [&_svg]:h-5 [&_svg]:w-5 [&_svg]:shrink-0',
+        tone === 'danger' && 'border-destructive/30 bg-destructive/5 text-foreground [&_svg]:text-destructive',
+        tone === 'warning' && 'border-warning/30 bg-sand text-foreground [&_svg]:text-warning',
+        tone === 'info' && 'border-primary/20 bg-accent text-foreground [&_svg]:text-primary',
+      )}
+    >
+      {icon}
+      <div className="min-w-0 space-y-0.5">
+        {title && <p className="font-semibold">{title}</p>}
+        {children && <div className="text-muted-foreground">{children}</div>}
+      </div>
+    </div>
+  );
+}
+
 export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStorage }: QCInspectionDialogProps) => {
+  const { t } = useTranslation();
   const { user, isAdmin, profile } = useAuth();
   const { data: calibration } = useCalibrationStatus();
   const [caliberFillValue, setCaliberFillValue] = useState("");
   // Inspection form is split into numbered sections so operators do one thing at a time
-  type QcSection = 'mesures' | 'defauts' | 'labo' | 'rqc' | 'verdict';
-  const QC_SECTIONS: Array<{ key: QcSection; label: string }> = [
-    { key: 'mesures', label: '1 · Mesures' },
-    { key: 'defauts', label: '2 · Défauts' },
-    { key: 'labo', label: '3 · Labo' },
-    { key: 'rqc', label: '4 · RQC' },
-    { key: 'verdict', label: '5 · Verdict' },
-  ];
+  const QC_SECTIONS = QC_SECTION_KEYS.map((key, index) => ({ key, label: `${index + 1} · ${t(`qcInspect.section.${key}`)}` }));
   const [qcSection, setQcSection] = useState<QcSection>('mesures');
   const qcSectionIndex = QC_SECTIONS.findIndex((section) => section.key === qcSection);
   const goQcSection = (delta: number) => {
@@ -243,47 +292,33 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
   const caliberMissing = calibers.filter((value) => !isMeasured(value)).length;
   const missingMeasurements = humidityMissing + caliberMissing;
   const labIncomplete = labSampleRequired && (labAnalyses.length === 0 || !labStorageLocation.trim());
-  const qcSteps: WorkStep[] = phase === "start"
-    ? [
-        { label: "Démarrer", state: "current" },
-        { label: "Mesures", state: "upcoming" },
-        { label: "Décision", state: "upcoming" },
-      ]
-    : phase === "confirmed"
-      ? [
-          { label: "Mesures", state: "done" },
-          { label: "Décision", state: "done" },
-          { label: "Suite", state: "current" },
-        ]
-      : QC_SECTIONS.map((section, index) => {
-          let state: WorkStepState = "upcoming";
-          if (section.key === qcSection) state = "current";
-          else if (index < qcSectionIndex) {
-            if (section.key === "mesures" && missingMeasurements > 0) state = "blocked";
-            else if (section.key === "labo" && labIncomplete) state = "blocked";
-            else state = "done";
-          }
-          const base = section.label.replace(/^\d+ · /, "");
-          const label = section.key === "mesures" && missingMeasurements > 0 ? `${base} (${missingMeasurements})` : base;
-          return { label, state };
-        });
+  const sectionState = (key: QcSection, index: number): 'done' | 'current' | 'todo' | 'blocked' => {
+    if (key === qcSection) return 'current';
+    if (index < qcSectionIndex) {
+      if (key === 'mesures' && missingMeasurements > 0) return 'blocked';
+      if (key === 'labo' && labIncomplete) return 'blocked';
+      return 'done';
+    }
+    return 'todo';
+  };
+  const decisionLabel = (decision: QCDecisionType) => t(`qcInspect.decision.${decision}`);
   const qcNow = phase === "start"
     ? (isOwnReceptionInspector && !canOverrideRoleSeparation
-        ? "Vous avez enregistré cette réception. Un autre inspecteur doit la contrôler."
-        : "Indiquez l’inspecteur, puis démarrez. Rien n’est enregistré avant ce démarrage.")
+        ? t("qcInspect.now.ownReception")
+        : t("qcInspect.now.start"))
     : phase === "confirmed"
-      ? "La décision est enregistrée. Le rangement des lots se fait ensuite, hors de cet écran."
+      ? t("qcInspect.now.confirmed")
       : qcSection === "mesures"
         ? (missingMeasurements > 0
-            ? `Il reste ${humidityMissing} humidité(s) et ${caliberMissing} calibre(s). La décision reste bloquée tant que ces mesures sont vides.`
-            : "Les 3 humidités et les 10 calibres sont saisis.")
+            ? t("qcInspect.now.measuresMissing", { humidity: humidityMissing, caliber: caliberMissing })
+            : t("qcInspect.now.measuresDone"))
         : qcSection === "labo" && labIncomplete
-          ? "Ce lot exige un échantillon : choisissez au moins une analyse et son emplacement."
+          ? t("qcInspect.now.labIncomplete")
           : qcSection === "verdict"
             ? (missingMeasurements > 0
-                ? `Décision bloquée : ${missingMeasurements} mesure(s) manquante(s). Revenez à Mesures avant de valider.`
-                : `Décision proposée : ${selectedDecision}. Valider l’envoie au serveur. Rien n’est libéré avant cette réponse.`)
-            : undefined;
+                ? t("qcInspect.now.verdictBlocked", { n: missingMeasurements })
+                : t("qcInspect.now.verdictReady", { decision: decisionLabel(selectedDecision) }))
+            : t(`qcInspect.now.${qcSection}`);
 
   const totalDefectsFloor = useMemo(
     () =>
@@ -325,6 +360,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
 
   const resetState = () => {
     setPhase("start");
+    setQcSection("mesures");
     setInspectorName("");
     setSecondaryInspectorName("");
     setInspectionId(null);
@@ -392,7 +428,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
         nb_samples: 10,
       });
     } catch (error) {
-      toast.error(receptionErrorMessage(error, "Impossible de démarrer l'inspection QC"));
+      toast.error(receptionErrorMessage(error, t("qcInspect.error.startFailed")));
       return;
     }
 
@@ -410,46 +446,44 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
 
     if (missingMeasurements > 0) {
       setReleasePinOpen(false);
-      setSubmitError(
-        `Mesures incomplètes : ${missingMeasurements} valeur(s) manquante(s) (3 humidités et 10 calibres sont obligatoires).`,
-      );
+      setSubmitError(t("qcInspect.error.measuresIncomplete", { n: missingMeasurements }));
       return;
     }
 
     if (qcChecklist.unavailable) {
-      setSubmitError("Aucune grille qualité publiée : la décision ne peut pas être enregistrée.");
+      setSubmitError(t("qcInspect.error.noChecklist"));
       return;
     }
     const unanswered = unansweredCount(qcChecklist.items, checklistAnswers);
     if (selectedDecision === 'ACCEPTE' && unanswered > 0) {
       setReleasePinOpen(false);
-      setSubmitError(`Grille qualité incomplète : ${unanswered} contrôle(s) sans réponse.`);
+      setSubmitError(t("qcInspect.error.checklistIncomplete", { n: unanswered }));
       return;
     }
 
     if (selectedDecision === 'REJETE' && selectedNcCodes.length === 0) {
-      setSubmitError("Au moins un code NC est requis pour une décision REJETÉ.");
+      setSubmitError(t("qcInspect.error.ncRequired"));
       return;
     }
     if (doubleInspectionRequired && secondaryInspectorName.trim().length < 3) {
-      setSubmitError("Le nom du second inspecteur est requis (lot > 10 tonnes — RG-Q05).");
+      setSubmitError(t("qcInspect.error.secondInspector"));
       return;
     }
     if (labSampleRequired && labAnalyses.length === 0) {
-      setSubmitError("Sélectionnez au moins une analyse laboratoire.");
+      setSubmitError(t("qcInspect.error.labAnalysis"));
       return;
     }
     if (labSampleRequired && !labStorageLocation.trim()) {
-      setSubmitError("L'emplacement de stockage de l'échantillon est requis.");
+      setSubmitError(t("qcInspect.error.labLocation"));
       return;
     }
     // RG-Q04: override requires ≥ 20 char justification + 1 photo
     if (needsJustification && comment.trim().length < 20) {
-      setSubmitError(`RG-Q04 : justification trop courte (${comment.trim().length}/20 caractères minimum).`);
+      setSubmitError(t("qcInspect.error.justificationShort", { n: comment.trim().length }));
       return;
     }
     if (needsJustification && overridePhoto.length === 0) {
-      setSubmitError("RG-Q04 : une photo justificative est obligatoire pour modifier la décision automatique.");
+      setSubmitError(t("qcInspect.error.justificationPhoto"));
       return;
     }
 
@@ -511,7 +545,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
     } catch (error) {
       // Inputs stay as entered; re-sending the same decision completes a partial update.
       setReleasePinOpen(false);
-      setSubmitError(receptionErrorMessage(error, "La décision QC n'a pas pu être enregistrée."));
+      setSubmitError(receptionErrorMessage(error, t("qcInspect.error.submitFailed")));
       return;
     }
 
@@ -539,265 +573,268 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
     }
   };
 
+  // ── Presentation helpers (read-only views of the state above) ──────────────
+  const measuredHumidity = humidity.filter(isMeasured).length;
+  const measuredCalibers = calibers.filter(isMeasured).length;
+  const supplierName = reception.supplier?.name ?? reception.supplier_name_snapshot ?? undefined;
+  const wasteRate = (() => {
+    const vals = [rqc.infestee, rqc.fermentee, rqc.immature, rqc.craquellee]
+      .map(c => c.taux_moyen)
+      .filter((v): v is number => v != null);
+    return vals.length ? `${Math.round(vals.reduce((a,b)=>a+b,0)*10)/10}%` : '—';
+  })();
+  const headerTitle = phase === "start"
+    ? t("qcInspect.title.start")
+    : phase === "confirmed"
+      ? t("qcInspect.title.confirmed")
+      : t(`qcInspect.title.${qcSection}`);
+  const numberInput = "h-14 text-2xl font-semibold tabular-nums";
+  const DecisionIcon = { ACCEPTE: CheckCircle, QUARANTAINE: AlertTriangle, REJETE: XCircle } as const;
+
   return (
     <>
     <Dialog open={open} onOpenChange={closeDialog}>
       <DialogContent
-        className="flex h-[100dvh] max-h-[100dvh] w-full max-w-6xl flex-col rounded-none sm:h-[92vh] sm:max-h-[92vh] sm:rounded-lg"
+        className="flex h-[100dvh] max-h-[100dvh] w-full max-w-5xl flex-col gap-0 overflow-hidden rounded-none p-0 sm:h-[94vh] sm:p-0 sm:max-h-[94vh] sm:rounded-2xl"
         onInteractOutside={(event) => event.preventDefault()}
       >
-        <WorkPath label="Contrôle qualité" steps={qcSteps} now={qcNow} />
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5" />
-            Contrôle qualité entrant - {reception.reception_number}
-          </DialogTitle>
-        </DialogHeader>
+        {/* ── Task header: what this is, where we are, what to do now ── */}
+        <header className="shrink-0 space-y-3 border-b bg-card px-4 pb-3 pt-4 sm:px-6 sm:pt-5">
+          <div className="flex items-start gap-3 pe-10">
+            <span className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground sm:flex">
+              <Shield className="h-5 w-5" aria-hidden />
+            </span>
+            <div className="min-w-0 space-y-1">
+              <p className="text-sm font-semibold text-primary">
+                {t("qcInspect.eyebrow")} · <span className="font-mono">{reception.reception_number}</span>
+              </p>
+              <DialogTitle className="font-display text-2xl font-semibold leading-tight sm:text-[1.75rem]">{headerTitle}</DialogTitle>
+              {qcNow && <DialogDescription className="text-sm text-muted-foreground sm:text-base">{qcNow}</DialogDescription>}
+            </div>
+          </div>
 
-        <ScrollArea className="flex-1 pe-4">
+          {phase !== "confirmed" && (
+            <dl className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
+              {supplierName && <div className="flex gap-1.5"><dt className="text-muted-foreground">{t("qcInspect.facts.supplier")}</dt><dd className="font-semibold">{supplierName}</dd></div>}
+              <div className="flex gap-1.5"><dt className="text-muted-foreground">{t("qcInspect.facts.quantity")}</dt><dd dir="ltr" className="font-semibold tabular-nums">{formatNumber(reception.quantity_total, 0)} {reception.unit}</dd></div>
+              {reception.variety && <div className="flex gap-1.5"><dt className="text-muted-foreground">{t("qcInspect.facts.variety")}</dt><dd className="font-semibold">{reception.variety}</dd></div>}
+            </dl>
+          )}
+
+          {phase === "inspection" && (
+            <nav aria-label={t("qcInspect.sectionsLabel")}>
+              <ol className="grid grid-cols-5 gap-1.5">
+                {QC_SECTIONS.map(({ key, label }, index) => {
+                  const state = sectionState(key, index);
+                  const count = key === "mesures" && missingMeasurements > 0 ? missingMeasurements : null;
+                  return (
+                    <li key={key}>
+                      <button
+                        type="button"
+                        onClick={() => setQcSection(key)}
+                        aria-current={state === "current" ? "step" : undefined}
+                        className="group flex min-h-11 w-full flex-col justify-end gap-1.5 rounded-md text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <span className={cn(
+                          "truncate text-xs sm:text-sm",
+                          state === "current" ? "font-semibold text-foreground" : "font-medium text-muted-foreground group-hover:text-foreground",
+                          state === "blocked" && "text-destructive",
+                        )}>
+                          {label}
+                          {count !== null && <span className="ms-1 tabular-nums">({count})</span>}
+                        </span>
+                        <span className={cn("h-1.5 w-full rounded-full",
+                          state === "done" && "bg-primary",
+                          state === "current" && "bg-primary",
+                          state === "todo" && "bg-border",
+                          state === "blocked" && "bg-destructive")} />
+                      </button>
+                    </li>
+                  );
+                })}
+              </ol>
+            </nav>
+          )}
+        </header>
+
+        <div className="min-h-0 flex-1 overflow-y-auto bg-background">
+          <div className="mx-auto w-full max-w-4xl space-y-4 px-4 py-5 sm:px-6">
           {phase === "start" && (
-            <div className="space-y-4 p-2">
+            <>
               {/* RG-Q12: reception operator cannot inspect their own lot */}
               {isOwnReceptionInspector && (
-                <div
-                  className={`flex items-start gap-3 rounded-xl border p-4 text-sm ${
-                    canOverrideRoleSeparation
-                      ? "border-amber-200 bg-amber-50 text-amber-900"
-                      : "border-red-200 bg-red-50 text-red-900"
-                  }`}
+                <Notice
+                  tone={canOverrideRoleSeparation ? "warning" : "danger"}
+                  icon={canOverrideRoleSeparation ? <AlertTriangle aria-hidden /> : <XCircle aria-hidden />}
+                  title={t("qcInspect.rules.q12.title")}
                 >
-                  {canOverrideRoleSeparation ? (
-                    <AlertTriangle className="h-5 w-5 shrink-0 text-amber-600 mt-0.5" />
-                  ) : (
-                    <XCircle className="h-5 w-5 shrink-0 text-red-600 mt-0.5" />
-                  )}
-                  <div>
-                    <p className="font-semibold">RG-Q12 — Séparation des rôles</p>
-                    {canOverrideRoleSeparation ? (
-                      <p className="mt-0.5 text-amber-800">
-                        Cette réception a été enregistrée par votre compte. Le contrôle croisé reste recommandé,
-                        mais un administrateur peut exceptionnellement démarrer l'inspection.
-                      </p>
-                    ) : (
-                      <p className="mt-0.5 text-red-800">
-                        L'opérateur qui a enregistré cette réception ne peut pas en effectuer le contrôle qualité.
-                        Veuillez confier l'inspection à un autre inspecteur.
-                      </p>
-                    )}
-                  </div>
-                </div>
+                  {canOverrideRoleSeparation ? t("qcInspect.rules.q12.adminOverride") : t("qcInspect.rules.q12.blocked")}
+                </Notice>
               )}
 
               {/* RG-Q01: QC window alert */}
               {qcWindow.status !== 'ok' && (
-                <div className={`flex items-start gap-3 rounded-xl border p-4 text-sm ${
-                  qcWindow.status === 'overdue'
-                    ? 'border-red-200 bg-red-50 text-red-900'
-                    : 'border-amber-200 bg-amber-50 text-amber-900'
-                }`}>
-                  <Clock className="h-5 w-5 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold">
-                      RG-Q01 — {qcWindow.status === 'overdue' ? 'Délai dépassé' : 'Délai bientôt dépassé'}
-                    </p>
-                    <p className="mt-0.5">
-                      {qcWindow.hoursElapsed} h écoulées depuis l'arrivée portail.
-                      {qcWindow.status === 'overdue'
-                        ? " Le délai max de 4 h est dépassé — démarrez l'inspection immédiatement."
-                        : " Démarrez l'inspection dans l'heure (délai max: 4 h)."}
-                    </p>
-                  </div>
-                </div>
+                <Notice
+                  tone={qcWindow.status === 'overdue' ? "danger" : "warning"}
+                  icon={<Clock aria-hidden />}
+                  title={qcWindow.status === 'overdue' ? t("qcInspect.rules.q01.overdueTitle") : t("qcInspect.rules.q01.soonTitle")}
+                >
+                  {t("qcInspect.rules.q01.elapsed", { hours: qcWindow.hoursElapsed })}{" "}
+                  {qcWindow.status === 'overdue' ? t("qcInspect.rules.q01.overdue") : t("qcInspect.rules.q01.soon")}
+                </Notice>
               )}
 
               {calibration && !calibration.calibrated && (
-                <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-                  <AlertTriangle className="h-5 w-5 shrink-0 text-amber-600 mt-0.5" />
-                  <div>
-                    <p className="font-semibold">RG-Q08 — Vérification étalonnage</p>
-                    <p className="mt-0.5 text-amber-800">
-                      Aucun étalonnage enregistré dans les 30 derniers jours. Vérifiez que les instruments (balance, hygromètre, réfractomètre) ont été étalonnés avant de commencer l'inspection.
-                    </p>
-                  </div>
-                </div>
+                <Notice tone="warning" icon={<AlertTriangle aria-hidden />} title={t("qcInspect.rules.q08.title")}>
+                  {t("qcInspect.rules.q08.body")}
+                </Notice>
               )}
 
-              <Card>
-                <CardContent className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Fournisseur</p>
-                    <p className="font-medium">{reception.supplier?.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Quantité</p>
-                    <p className="font-medium">{reception.quantity_total} {reception.unit}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Variété</p>
-                    <p className="font-medium">{reception.variety || "-"}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Température à l'arrivée</p>
-                    <p className="font-medium">{reception.arrival_temperature_c ?? "-"}C</p>
-                  </div>
-                </CardContent>
-              </Card>
+              <ReviewList
+                items={[
+                  { label: t("qcInspect.facts.supplier"), value: reception.supplier?.name },
+                  { label: t("qcInspect.facts.quantity"), value: <bdi dir="ltr">{formatNumber(reception.quantity_total, 0)} {reception.unit}</bdi>, emphasis: true },
+                  { label: t("qcInspect.facts.variety"), value: reception.variety || undefined },
+                  { label: t("qcInspect.facts.arrivalTemp"), value: reception.arrival_temperature_c != null ? <bdi dir="ltr">{formatNumber(reception.arrival_temperature_c)} °C</bdi> : undefined },
+                ]}
+              />
 
-              <div className="space-y-2">
-                <Label>Inspecteur principal *</Label>
-                <Input value={inspectorName} onChange={(event) => setInspectorName(event.target.value)} />
-              </div>
-
+              <FieldGroup title={t("qcInspect.start.inspector")}>
+                <div className="space-y-1.5">
+                  <Label htmlFor="qc-inspector" className="text-sm font-medium">{t("qcInspect.start.primaryInspector")}</Label>
+                  <Input id="qc-inspector" className="h-12 text-lg" value={inspectorName} onChange={(event) => setInspectorName(event.target.value)} />
+                </div>
                 {doubleInspectionRequired && (
-                  <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-                    Lot {" > "} 10 tonnes: une deuxieme validation est demandee par la spec Phase 1.
-                  </div>
+                  <Notice tone="warning" icon={<AlertTriangle aria-hidden />}>{t("qcInspect.start.doubleInspection")}</Notice>
                 )}
-
-              <Button
-                onClick={startInspection}
-                disabled={
-                  !inspectorName.trim() ||
-                  createInspection.isPending ||
-                  (isOwnReceptionInspector && !canOverrideRoleSeparation)
-                }
-              >
-                <Play className="h-4 w-4 me-2" />
-                {createInspection.isPending ? "Démarrage…" : "Démarrer l'inspection"}
-              </Button>
-            </div>
+              </FieldGroup>
+            </>
           )}
 
           {phase === "inspection" && (
-            <div className="space-y-4 p-2">
-              {/* Guided steps — one job at a time on tablet */}
-              <div className="flex w-full gap-1 overflow-x-auto rounded-lg bg-muted p-1 scrollbar-hide">
-                {QC_SECTIONS.map(({ key, label }) => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => setQcSection(key)}
-                    className={`min-h-11 min-w-[5.5rem] flex-1 whitespace-nowrap rounded-md px-2 text-sm font-medium transition-colors ${
-                      qcSection === key
-                        ? 'bg-background text-foreground ring-1 ring-border'
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
+            <>
+              {/* All sections stay mounted so typed values survive moving between them. */}
+              <div className={qcSection === 'mesures' ? 'space-y-4' : 'hidden'}>
+                <FieldGroup
+                  title={t("qcInspect.humidity.title")}
+                  description={t("qcInspect.humidity.target")}
+                  complete={humidityMissing === 0}
+                  summary={t("qcInspect.progress", { done: measuredHumidity, total: humidity.length })}
+                >
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    {humidity.map((value, index) => (
+                      <div key={index} className="space-y-1.5">
+                        <Label htmlFor={`qc-hum-${index}`} className="text-sm font-medium">{t("qcInspect.humidity.reading", { n: index + 1 })}</Label>
+                        <Input
+                          id={`qc-hum-${index}`}
+                          type="number"
+                          min="10"
+                          max="40"
+                          step="0.1"
+                          inputMode="decimal"
+                          placeholder="%"
+                          value={value ?? ""}
+                          onFocus={(e) => e.target.select()}
+                          onChange={(event) => updateHumidity(index, parseMeasurement(event.target.value))}
+                          className={numberInput}
+                        />
+                      </div>
+                    ))}
+                    <div className={cn("flex flex-col justify-end rounded-xl border px-3 py-2",
+                      humidityMissing === 0 ? (score.humidityScore >= 60 ? "border-primary/30 bg-accent" : "border-destructive/30 bg-destructive/5") : "bg-card")}>
+                      <span className="text-sm text-muted-foreground">{t("qcInspect.average")}</span>
+                      <span className="text-2xl font-semibold tabular-nums">{humidity.every(isMeasured) ? `${formatNumber(score.humidityAverage)} %` : "—"}</span>
+                    </div>
+                  </div>
+                </FieldGroup>
+
+                <FieldGroup
+                  title={t("qcInspect.caliber.title")}
+                  description={t("qcInspect.caliber.hint")}
+                  complete={caliberMissing === 0}
+                  summary={t("qcInspect.progress", { done: measuredCalibers, total: calibers.length })}
+                >
+                  <div className="flex flex-wrap items-end gap-2 rounded-lg border border-dashed bg-card p-3">
+                    <div className="space-y-1">
+                      <Label htmlFor="qc-cal-fill" className="text-sm font-medium">{t("qcInspect.caliber.sameValue")}</Label>
+                      <Input
+                        id="qc-cal-fill"
+                        type="number"
+                        min="20"
+                        max="70"
+                        step="0.1"
+                        inputMode="decimal"
+                        placeholder="mm"
+                        value={caliberFillValue}
+                        onChange={(e) => setCaliberFillValue(e.target.value)}
+                        className="h-12 w-28 text-lg tabular-nums"
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="h-12"
+                      disabled={!caliberFillValue}
+                      onClick={() => {
+                        const v = Number(caliberFillValue);
+                        if (v > 0) setCalibers(Array(10).fill(v));
+                      }}
+                    >
+                      {t("qcInspect.caliber.applyAll")}
+                    </Button>
+                    {measuredCalibers === calibers.length && (
+                      <p className="ms-auto self-center text-sm text-muted-foreground">
+                        {t("qcInspect.average")} <span className="font-semibold text-foreground tabular-nums">{formatNumber(score.caliberAverage)} mm</span>
+                      </p>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 min-[480px]:grid-cols-5">
+                    {calibers.map((value, index) => (
+                      <div key={index} className="space-y-1">
+                        <Label htmlFor={`qc-cal-${index}`} className="text-sm text-muted-foreground">L{index + 1}</Label>
+                        <Input
+                          id={`qc-cal-${index}`}
+                          type="number"
+                          min="20"
+                          max="70"
+                          step="0.1"
+                          inputMode="decimal"
+                          placeholder="mm"
+                          value={value ?? ""}
+                          onFocus={(e) => e.target.select()}
+                          onChange={(event) => updateCaliber(index, parseMeasurement(event.target.value))}
+                          className="h-12 text-xl tabular-nums"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </FieldGroup>
               </div>
 
-              <div className={qcSection === 'rqc' ? 'hidden' : 'space-y-4'}>
-                <div className="min-w-0 space-y-4">
-                  <div className={qcSection === 'mesures' ? 'space-y-4' : 'hidden'}>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-base">Humidité sol (cible 20–26 %)</CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                      {humidity.map((value, index) => (
-                        <div key={index} className="space-y-1">
-                          <Label>Mesure {index + 1}</Label>
-                          <Input
-                            type="number"
-                            min="10"
-                            max="40"
-                            step="0.1"
-                            inputMode="decimal"
-                            placeholder="%"
-                            value={value ?? ""}
-                            onFocus={(e) => e.target.select()}
-                            onChange={(event) => updateHumidity(index, parseMeasurement(event.target.value))}
-                            className="h-14 text-2xl tabular-nums"
-                          />
-                        </div>
-                      ))}
-                      <div className="space-y-1">
-                        <Label>Moyenne</Label>
-                        <Input value={humidity.every(isMeasured) ? score.humidityAverage : "—"} readOnly />
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between gap-3">
-                        <CardTitle className="text-base">Calibre - 10 mesures (mm)</CardTitle>
-                        <div className="flex items-center gap-1.5">
-                          <Input
-                            type="number"
-                            min="20"
-                            max="70"
-                            step="0.1"
-                            placeholder="mm"
-                            value={caliberFillValue}
-                            onChange={(e) => setCaliberFillValue(e.target.value)}
-                            className="h-11 w-24 text-base tabular-nums"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="h-9 rounded-lg px-2.5 text-xs"
-                            disabled={!caliberFillValue}
-                            onClick={() => {
-                              const v = Number(caliberFillValue);
-                              if (v > 0) setCalibers(Array(10).fill(v));
-                            }}
-                          >
-                            Appliquer à tous
-                          </Button>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-                      {calibers.map((value, index) => (
-                        <div key={index} className="space-y-1">
-                          <Label className="text-xs text-muted-foreground">L{index + 1}</Label>
-                          <Input
-                            type="number"
-                            min="20"
-                            max="70"
-                            step="0.1"
-                            inputMode="decimal"
-                            placeholder="mm"
-                            value={value ?? ""}
-                            onFocus={(e) => e.target.select()}
-                            onChange={(event) => updateCaliber(index, parseMeasurement(event.target.value))}
-                            className="h-12 text-lg tabular-nums"
-                          />
-                        </div>
-                      ))}
-                    </CardContent>
-                  </Card>
-
-                  </div>
-
-                  <div className={qcSection === 'defauts' ? 'space-y-4' : 'hidden'}>
-                  <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base">Défauts visuels (%)</CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {[
-                        ["insectsPercent", "Insectes"],
-                        ["moldPercent", "Moisissure"],
-                        ["fermentationPercent", "Fermentation"],
-                        ["mechanicalDamagePercent", "Dégâts mécaniques"],
-                        ["crystallizationPercent", "Cristallisation"],
-                        ["discolorationPercent", "Décoloration"],
-                      ].map(([field, label]) => (
+              <div className={qcSection === 'defauts' ? 'space-y-4' : 'hidden'}>
+                <FieldGroup
+                  title={t("qcInspect.defects.title")}
+                  description={t("qcInspect.defects.hint")}
+                  summary={t("qcInspect.defects.total", { value: formatNumber(totalDefectsFloor) })}
+                >
+                  <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+                    {DEFECT_FIELDS.map((item) => {
+                      const field = item.field;
+                      const limit = "limit" in item ? item.limit : undefined;
+                      const over = limit !== undefined && defects[field] > limit;
+                      return (
                         <div key={field} className="space-y-1">
-                          <Label className="text-sm">{label}</Label>
+                          <Label htmlFor={`qc-def-${field}`} className="text-sm font-medium">{t(`qcInspect.defects.${field}`)}</Label>
                           <Input
+                            id={`qc-def-${field}`}
                             type="number"
                             min="0"
                             max="100"
                             step="0.1"
                             inputMode="decimal"
-                            className="h-12 text-lg tabular-nums"
-                            value={defects[field as keyof typeof defects]}
+                            aria-describedby={limit !== undefined ? `qc-def-${field}-limit` : undefined}
+                            className={cn("h-12 text-xl tabular-nums", over && "border-destructive")}
+                            value={defects[field]}
                             onFocus={(e) => e.target.select()}
                             onChange={(event) =>
                               setDefects((current) => ({
@@ -806,388 +843,172 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                               }))
                             }
                           />
-                        </div>
-                      ))}
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base">Organoleptique</CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {[
-                        ["tasteScore", "Goût"],
-                        ["textureScore", "Texture"],
-                        ["appearanceScore", "Apparence"],
-                      ].map(([field, label]) => {
-                        const current = organoleptic[field as keyof typeof organoleptic];
-                        return (
-                          <div key={field} className="space-y-1.5">
-                            <Label className="text-xs font-semibold text-muted-foreground">
-                              {label}
-                            </Label>
-                            <div className="flex gap-1">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <button
-                                  key={star}
-                                  type="button"
-                                  onClick={() => setOrganoleptic((prev) => ({ ...prev, [field]: star }))}
-                                  className={`flex-1 rounded-lg border-2 py-1.5 text-center text-xs font-bold transition-all ${
-                                    star <= current
-                                      ? 'border-amber-400 bg-amber-400 text-white'
-                                      : 'border-border text-muted-foreground hover:border-amber-300 hover:text-amber-500'
-                                  }`}
-                                >
-                                  {star}
-                                </button>
-                              ))}
-                            </div>
-                            <p className="text-center text-xs text-muted-foreground">{current}/5</p>
-                          </div>
-                        );
-                      })}
-                    </CardContent>
-                  </Card>
-
-                  </div>
-
-                  <div className={qcSection === 'labo' ? 'space-y-4' : 'hidden'}>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <FlaskConical className="h-4 w-4" />
-                        Echantillon laboratoire
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <Checkbox
-                          checked={labSampleRequired}
-                          onCheckedChange={(checked) => setLabSampleRequired(Boolean(checked))}
-                        />
-                        <span className="text-sm">
-                          Prelevement labo {labRequiredByRule ? "obligatoire" : "optionnel"}
-                        </span>
-                      </div>
-                      {labSampleRequired && (
-                        <>
-                          <div className="flex flex-wrap gap-2">
-                            {["Pesticides", "Metaux lourds", "Aflatoxines", "Microbiologie"].map((analysis) => (
-                              <Button
-                                key={analysis}
-                                type="button"
-                                size="sm"
-                                variant={labAnalyses.includes(analysis) ? "default" : "outline"}
-                                onClick={() => toggleAnalysis(analysis)}
-                              >
-                                {analysis}
-                              </Button>
-                            ))}
-                          </div>
-                          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                            <div className="space-y-1">
-                              <Label>Humidité labo confirmée (%)</Label>
-                              <Input
-                                type="number"
-                                min={10}
-                                max={40}
-                                step={0.1}
-                                placeholder={String(score.humidityAverage)}
-                                value={labHumidityPct}
-                                onChange={(e) => setLabHumidityPct(e.target.value)}
-                              />
-                              <p className="text-xs text-muted-foreground">
-                                Sol: {score.humidityAverage}% · cible 20–26%
-                              </p>
-                            </div>
-                            <div className="space-y-1">
-                              <Label>Défauts totaux labo (%)</Label>
-                              <Input
-                                type="number"
-                                min={0}
-                                max={100}
-                                step={0.1}
-                                placeholder={String(totalDefectsFloor)}
-                                value={labDefectsPct}
-                                onChange={(e) => setLabDefectsPct(e.target.value)}
-                              />
-                              <p className="text-xs text-muted-foreground">
-                                Sol (somme): {totalDefectsFloor.toFixed(1)}%
-                              </p>
-                            </div>
-                          </div>
-                          <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs">
-                            <p className="font-semibold text-foreground">Lien décision QC</p>
-                            <p className="mt-1 text-muted-foreground">
-                              Humidité décision: {labHumidityForDecision}% · Défauts décision:{' '}
-                              {labDefectsForDecision}% · Verdict proposé:{' '}
-                              <span className="font-medium text-foreground">
-                                {getQcDecisionLabel(score.recommendedDecision)}
-                              </span>
+                          {limit !== undefined && (
+                            <p id={`qc-def-${field}-limit`} className={cn("text-xs", over ? "font-semibold text-destructive" : "text-muted-foreground")}>
+                              {t("qcInspect.defects.limit", { limit })}
                             </p>
-                          </div>
-                          <div className="space-y-1">
-                            <Label>Emplacement de l'échantillon</Label>
-                            <Input value={labStorageLocation} onChange={(event) => setLabStorageLocation(event.target.value)} />
-                          </div>
-                        </>
-                      )}
-                    </CardContent>
-                  </Card>
-                  </div>
-                </div>
-
-                <div className={qcSection === 'verdict' ? 'space-y-4' : 'hidden'}>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-base">Grille qualité</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <QcChecklistAnswers
-                        checklist={qcChecklist.checklist}
-                        items={qcChecklist.items}
-                        unavailable={qcChecklist.unavailable}
-                        answers={checklistAnswers}
-                        onChange={setChecklistAnswers}
-                      />
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-base">Résultat automatique</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3 text-sm">
-                      {missingMeasurements > 0 && (
-                        <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-                          Score provisoire : {missingMeasurements} mesure(s) d'humidité ou de calibre à saisir (section 1 · Mesures).
-                        </div>
-                      )}
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">{missingMeasurements > 0 ? "Score provisoire" : "Score final"}</span>
-                        <span className="text-2xl font-semibold">{score.finalScore}/100</span>
-                      </div>
-                      {missingMeasurements === 0 && (
-                        <>
-                          <div className="flex items-center justify-between">
-                            <span className="text-muted-foreground">Classement</span>
-                            <Badge variant="outline">{getQcClassificationLabel(score.classification)}</Badge>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-muted-foreground">Décision proposée</span>
-                            <Badge variant={score.recommendedDecision === "REJETE" ? "destructive" : "secondary"}>
-                              {getQcDecisionLabel(score.recommendedDecision)}
-                            </Badge>
-                          </div>
-                        </>
-                      )}
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div className="rounded-lg border p-2">Humidité : {score.humidityScore}</div>
-                        <div className="rounded-lg border p-2">Calibre: {score.caliberScore}</div>
-                        <div className="rounded-lg border p-2">Insectes: {score.insectsScore}</div>
-                        <div className="rounded-lg border p-2">Moisissure/fermentation : {score.moldFermentationScore}</div>
-                        <div className="rounded-lg border p-2">Organo: {score.organolepticScore}</div>
-                        <div className="rounded-lg border p-2">Autres: {score.otherDefectsScore}</div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {score.automaticReject && (
-                    <Card className="border-red-200 bg-red-50">
-                      <CardContent className="p-4 space-y-2 text-sm text-red-900">
-                        <div className="flex items-center gap-2 font-medium">
-                          <AlertTriangle className="h-4 w-4" />
-                          Rejet automatique
-                        </div>
-                        {score.automaticRejectReasons.map((reason) => (
-                          <div key={reason}>{reason}</div>
-                        ))}
-                      </CardContent>
-                    </Card>
-                  )}
-
-                  {doubleInspectionRequired && (
-                    <div className="space-y-1">
-                      <Label>Deuxieme inspecteur *</Label>
-                      <Input
-                        value={secondaryInspectorName}
-                        onChange={(event) => setSecondaryInspectorName(event.target.value)}
-                        placeholder="Nom du second inspecteur"
-                      />
-                    </div>
-                  )}
-
-                  <div className="space-y-2">
-                    <Label>Modifier la décision</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {(["ACCEPTE", "QUARANTAINE", "REJETE"] as QCDecisionType[]).map((decision) => (
-                        <Button
-                          key={decision}
-                          type="button"
-                          size="sm"
-                          variant={selectedDecision === decision ? "default" : "outline"}
-                          className={decision === score.recommendedDecision ? "ring-2 ring-primary/30" : ""}
-                          onClick={() => {
-                            setOverrideDecision(decision === score.recommendedDecision ? null : decision);
-                            setSubmitError(null);
-                          }}
-                        >
-                          {decision}
-                          {decision === score.recommendedDecision && (
-                            <span className="ms-1 text-xs opacity-60">auto</span>
                           )}
-                        </Button>
-                      ))}
-                    </div>
-
-                    {isOverriding && (
-                      <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 space-y-3 text-sm text-amber-900">
-                        <p className="font-medium">⚠ RG-Q04 — Override actif : justification + photo obligatoires</p>
-                        <p className="text-xs">
-                          Vous modifiez la décision automatique ({score.recommendedDecision} → {overrideDecision}).
-                          Une justification d'au moins 20 caractères et une photo sont requises.
-                        </p>
-                      </div>
-                    )}
+                        </div>
+                      );
+                    })}
                   </div>
+                </FieldGroup>
 
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <Label>
-                        {needsJustification ? "Justification de l'écart *" : "Observations"}
-                      </Label>
-                      {needsJustification && (
-                        <span className={`text-xs tabular-nums ${comment.trim().length >= 20 ? "text-emerald-600" : "text-amber-600"}`}>
-                          {comment.trim().length}/20
-                        </span>
-                      )}
-                    </div>
-                    <Textarea
-                      value={comment}
-                      onChange={(event) => { setComment(event.target.value); setSubmitError(null); }}
-                      rows={4}
-                      className={needsJustification && comment.trim().length < 20 ? "border-amber-300 focus-visible:ring-amber-300" : ""}
-                      placeholder={needsJustification ? "Décrivez précisément pourquoi vous modifiez la décision automatique..." : "Observations, anomalies, remarques..."}
-                    />
-                  </div>
-
-                  {/* RG-Q04 override photo */}
-                  {needsJustification && (
-                    <div className="space-y-2">
-                      <Label>Photo justificative * (RG-Q04)</Label>
-                      <PhotoCapture
-                        photos={overridePhoto}
-                        onPhotosChange={setOverridePhoto}
-                        maxPhotos={1}
-                      />
-                    </div>
-                  )}
-
-                  {/* NC codes — mandatory when REJETE, optional for QUARANTAINE */}
-                  {(selectedDecision === 'REJETE' || selectedDecision === 'QUARANTAINE') && (
-                    <Card className={selectedDecision === 'REJETE' ? 'border-red-200' : 'border-orange-200'}>
-                      <CardHeader className="pb-2 pt-3 px-4">
-                        <CardTitle className="text-sm flex items-center gap-2">
-                          Codes non-conformité
-                          {selectedDecision === 'REJETE' && (
-                            <Badge variant="destructive" className="text-[0.6rem]">obligatoire</Badge>
-                          )}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="px-4 pb-3 space-y-2">
-                        {autoSuggestedNcs.length > 0 && (
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xs text-muted-foreground">Auto-suggérés:</span>
-                            {autoSuggestedNcs.map((nc) => (
+                <FieldGroup title={t("qcInspect.organoleptic.title")} description={t("qcInspect.organoleptic.hint")}>
+                  <div className="grid gap-4 lg:grid-cols-3">
+                    {(["tasteScore", "textureScore", "appearanceScore"] as const).map((field) => {
+                      const current = organoleptic[field];
+                      const name = t(`qcInspect.organoleptic.${field}`);
+                      return (
+                        <div key={field} className="space-y-1.5" role="group" aria-label={name}>
+                          <div className="flex items-baseline justify-between">
+                            <span className="text-sm font-medium">{name}</span>
+                            <span className="text-sm tabular-nums text-muted-foreground">{current}/5</span>
+                          </div>
+                          <div className="grid grid-cols-5 gap-1.5">
+                            {[1, 2, 3, 4, 5].map((star) => (
                               <button
-                                key={nc.code}
+                                key={star}
                                 type="button"
-                                className="text-xs underline text-primary"
-                                onClick={() => setSelectedNcCodes((prev) =>
-                                  prev.includes(nc.code) ? prev : [...prev, nc.code]
+                                aria-pressed={star === current}
+                                aria-label={t("qcInspect.organoleptic.scoreOf", { name, score: star })}
+                                onClick={() => setOrganoleptic((prev) => ({ ...prev, [field]: star }))}
+                                className={cn(
+                                  "h-12 rounded-lg border text-base font-semibold tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                                  star <= current ? "border-primary bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground",
                                 )}
                               >
-                                {nc.code}
+                                {star}
                               </button>
                             ))}
                           </div>
-                        )}
-                        <div className="grid grid-cols-1 gap-1.5 max-h-40 overflow-y-auto pe-1">
-                          {QC_NC_CODES.map((nc) => (
-                            <label
-                              key={nc.code}
-                              className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs cursor-pointer transition-colors ${
-                                selectedNcCodes.includes(nc.code)
-                                  ? NC_SEVERITY_COLORS[nc.severity]
-                                  : 'border-border hover:bg-muted/40'
-                              }`}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </FieldGroup>
+              </div>
+
+              <div className={qcSection === 'labo' ? 'space-y-4' : 'hidden'}>
+                <FieldGroup title={t("qcInspect.lab.title")} complete={labSampleRequired && !labIncomplete}>
+                  <label className="flex min-h-12 cursor-pointer items-center gap-3 rounded-lg border bg-card px-3 py-2">
+                    <Checkbox
+                      checked={labSampleRequired}
+                      onCheckedChange={(checked) => setLabSampleRequired(Boolean(checked))}
+                    />
+                    <span className="text-sm">
+                      <span className="font-medium">{t("qcInspect.lab.sample")}</span>{" "}
+                      <span className="text-muted-foreground">{labRequiredByRule ? t("qcInspect.lab.requiredByRule") : t("qcInspect.lab.optional")}</span>
+                    </span>
+                  </label>
+                  {labSampleRequired && (
+                    <>
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium">{t("qcInspect.lab.analyses")}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {["Pesticides", "Metaux lourds", "Aflatoxines", "Microbiologie"].map((analysis) => (
+                            <Button
+                              key={analysis}
+                              type="button"
+                              aria-pressed={labAnalyses.includes(analysis)}
+                              variant={labAnalyses.includes(analysis) ? "default" : "outline"}
+                              className="h-11"
+                              onClick={() => toggleAnalysis(analysis)}
                             >
-                              <Checkbox
-                                checked={selectedNcCodes.includes(nc.code)}
-                                onCheckedChange={(checked) =>
-                                  setSelectedNcCodes((prev) =>
-                                    checked
-                                      ? [...prev, nc.code]
-                                      : prev.filter((c) => c !== nc.code),
-                                  )
-                                }
-                              />
-                              <span className="font-mono font-medium">{nc.code}</span>
-                              <span className="text-muted-foreground">{nc.label}</span>
-                              <Badge variant="outline" className="ms-auto text-[0.55rem] shrink-0">
-                                {nc.severity}
-                              </Badge>
-                            </label>
+                              {labAnalyses.includes(analysis) && <CheckCircle2 aria-hidden />}
+                              {analysis}
+                            </Button>
                           ))}
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <div className="space-y-1">
+                          <Label htmlFor="qc-lab-hum" className="text-sm font-medium">{t("qcInspect.lab.humidity")}</Label>
+                          <Input
+                            id="qc-lab-hum"
+                            type="number"
+                            inputMode="decimal"
+                            min={10}
+                            max={40}
+                            step={0.1}
+                            className="h-12 text-lg tabular-nums"
+                            placeholder={String(score.humidityAverage)}
+                            value={labHumidityPct}
+                            onChange={(e) => setLabHumidityPct(e.target.value)}
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            {t("qcInspect.lab.humidityFloor", { value: score.humidityAverage })}
+                          </p>
+                        </div>
+                        <div className="space-y-1">
+                          <Label htmlFor="qc-lab-def" className="text-sm font-medium">{t("qcInspect.lab.defects")}</Label>
+                          <Input
+                            id="qc-lab-def"
+                            type="number"
+                            inputMode="decimal"
+                            min={0}
+                            max={100}
+                            step={0.1}
+                            className="h-12 text-lg tabular-nums"
+                            placeholder={String(totalDefectsFloor)}
+                            value={labDefectsPct}
+                            onChange={(e) => setLabDefectsPct(e.target.value)}
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            {t("qcInspect.lab.defectsFloor", { value: totalDefectsFloor.toFixed(1) })}
+                          </p>
+                        </div>
+                      </div>
+                      <Notice tone="info" icon={<FlaskConical aria-hidden />} title={t("qcInspect.lab.linkTitle")}>
+                        {t("qcInspect.lab.link", {
+                          humidity: labHumidityForDecision,
+                          defects: labDefectsForDecision,
+                          decision: decisionLabel(score.recommendedDecision),
+                        })}
+                      </Notice>
+                      <div className="space-y-1">
+                        <Label htmlFor="qc-lab-location" className="text-sm font-medium">{t("qcInspect.lab.location")}</Label>
+                        <Input id="qc-lab-location" className="h-12 text-lg" value={labStorageLocation} onChange={(event) => setLabStorageLocation(event.target.value)} />
+                      </div>
+                    </>
                   )}
-
-                  {/* Validation errors are shown in the dialog footer — see DialogFooter below */}
-                </div>
+                </FieldGroup>
               </div>
 
               {/* ── RQC — Rapport Contrôle Qualité Réception Achat ── */}
-              <Card className={qcSection === 'rqc' ? '' : 'hidden'}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Shield className="h-4 w-4" />
-                    Grille Contrôle Qualité (RQC)
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {/* Certification row */}
-                  <div className="flex flex-wrap gap-4 text-sm">
+              <div className={qcSection === 'rqc' ? 'space-y-4' : 'hidden'}>
+                <FieldGroup title={t("qcInspect.rqc.certification")}>
+                  <div className="flex flex-wrap gap-2">
                     {[
                       { key: 'conventionnel', label: 'Conventionnel' },
                       { key: 'bio_certifie', label: 'TN-Bio 001' },
                       { key: 'ggp', label: 'GGP' },
                     ].map(({ key, label }) => (
-                      <label key={key} className="flex items-center gap-2 cursor-pointer">
+                      <label key={key} className="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border bg-card px-3">
                         <Checkbox
                           checked={rqc[key as 'conventionnel'|'bio_certifie'|'ggp']}
                           onCheckedChange={(v) => setRqc(p => ({ ...p, [key]: Boolean(v) }))}
                         />
-                        <span>{label}</span>
+                        <span className="text-sm font-medium">{label}</span>
                       </label>
                     ))}
-                    <div className="ms-auto flex items-center gap-4">
-                      <span className="text-xs text-muted-foreground font-medium">Type dattes :</span>
-                      {[['type_dattes_branche','Branche'],['type_dattes_vrac','Vrac']].map(([key,label]) => (
-                        <label key={key} className="flex items-center gap-1 cursor-pointer text-sm">
-                          <Checkbox
-                            checked={rqc[key as 'type_dattes_branche'|'type_dattes_vrac']}
-                            onCheckedChange={(v) => setRqc(p => ({ ...p, [key]: Boolean(v) }))}
-                          />
-                          <span>{label}</span>
-                        </label>
-                      ))}
-                    </div>
                   </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-medium text-muted-foreground">{t("qcInspect.rqc.dateType")}</span>
+                    {[['type_dattes_branche', t("qcInspect.rqc.branch")], ['type_dattes_vrac', t("qcInspect.rqc.bulk")]].map(([key, label]) => (
+                      <label key={key} className="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border bg-card px-3">
+                        <Checkbox
+                          checked={rqc[key as 'type_dattes_branche'|'type_dattes_vrac']}
+                          onCheckedChange={(v) => setRqc(p => ({ ...p, [key]: Boolean(v) }))}
+                        />
+                        <span className="text-sm font-medium">{label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </FieldGroup>
 
-                  {/* Poids */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <FieldGroup title={t("qcInspect.rqc.weights")}>
+                  <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                     {[
                       { key: 'poids_echantillon_branche_kg', label: 'Poids Ech. (kg)' },
                       { key: 'poids_tb_kg', label: 'Poids T.B. (kg)' },
@@ -1195,171 +1016,391 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                       { key: 'poids_vrac_kg', label: 'VRAC (kg)' },
                     ].map(({ key, label }) => (
                       <div key={key} className="space-y-1">
-                        <Label className="text-xs">{label}</Label>
+                        <Label htmlFor={`qc-rqc-${key}`} className="text-sm font-medium">{label}</Label>
                         <Input
-                          type="number" min="0" step="0.1" className="h-10"
+                          id={`qc-rqc-${key}`}
+                          type="number" min="0" step="0.1" inputMode="decimal" className="h-12 text-lg tabular-nums"
                           value={(rqc[key as keyof RQCData] as number | null) ?? ''}
                           onChange={e => setRqc(p => ({ ...p, [key]: e.target.value === '' ? null : Number(e.target.value) }))}
                         />
                       </div>
                     ))}
                   </div>
+                </FieldGroup>
 
-                  {/* Criteria table */}
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-xs border-collapse">
-                      <thead>
-                        <tr className="bg-slate-700 text-white">
-                          <th className="border border-slate-600 px-2 py-1 text-start min-w-[100px]">Critères</th>
-                          <th className="border border-slate-600 px-2 py-1">TEST 1 (%)</th>
-                          <th className="border border-slate-600 px-2 py-1">TEST 2 (%)</th>
-                          <th className="border border-slate-600 px-2 py-1">TEST 3 (%)</th>
-                          <th className="border border-slate-600 px-2 py-1">Taux Moy.</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {([
-                          { field: 'infestee' as RqcCritereKey, label: 'Infestée', highlight: true },
-                          { field: 'fermentee' as RqcCritereKey, label: 'Fermentée', highlight: true },
-                          { field: 'immature' as RqcCritereKey, label: 'Immature', highlight: true },
-                          { field: 'craquellee' as RqcCritereKey, label: 'Craquelée', highlight: true },
-                          { field: 'grasse' as RqcCritereKey, label: 'Grasse', highlight: false },
-                          { field: 'seche' as RqcCritereKey, label: 'Sèche', highlight: false },
-                          { field: 'tachee' as RqcCritereKey, label: 'Tachée', highlight: false },
-                          { field: 'ridee' as RqcCritereKey, label: 'Ridée', highlight: false },
-                          { field: 'petit_calibre' as RqcCritereKey, label: 'Petit calibre', highlight: false },
-                        ] as { field: RqcCritereKey; label: string; highlight: boolean }[]).map(({ field, label, highlight }) => (
-                          <tr key={field} className={highlight ? 'bg-amber-50' : ''}>
-                            <td className="border border-slate-300 px-2 py-0.5 font-medium">{label}</td>
-                            {(['test1','test2','test3'] as const).map(t => (
-                              <td key={t} className="border border-slate-300 p-0.5">
-                                <Input
-                                  type="number" min="0" max="100" step="0.1"
-                                  className="h-6 text-xs px-1 border-0 focus-visible:ring-1"
-                                  value={rqc[field][t] ?? ''}
-                                  onChange={e => updateRqcCritere(field, t, e.target.value === '' ? null : Number(e.target.value))}
-                                />
-                              </td>
-                            ))}
-                            <td className="border border-slate-300 px-2 py-0.5 text-center font-bold">
-                              {rqc[field].taux_moyen != null ? `${rqc[field].taux_moyen}%` : '—'}
-                            </td>
-                          </tr>
-                        ))}
-                        <tr className="bg-yellow-100 font-bold">
-                          <td className="border border-slate-300 px-2 py-1">Taux déchet</td>
-                          <td colSpan={3} className="border border-slate-300 px-2 py-1 text-xs text-muted-foreground">= infestée + fermentée + immature + craquelée</td>
-                          <td className="border border-slate-300 px-2 py-1 text-center">
-                            {(() => {
-                              const vals = [rqc.infestee, rqc.fermentee, rqc.immature, rqc.craquellee]
-                                .map(c => c.taux_moyen)
-                                .filter((v): v is number => v != null);
-                              return vals.length ? `${Math.round(vals.reduce((a,b)=>a+b,0)*10)/10}%` : '—';
-                            })()}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+                <FieldGroup
+                  title={t("qcInspect.rqc.criteria")}
+                  description={t("qcInspect.rqc.criteriaHint")}
+                  summary={<>{t("qcInspect.rqc.wasteRate")} <span className="font-semibold text-foreground tabular-nums">{wasteRate}</span></>}
+                >
+                  <div className="hidden grid-cols-[minmax(7rem,1.4fr)_repeat(3,minmax(0,1fr))_5rem] gap-2 px-1 text-xs font-semibold text-muted-foreground sm:grid">
+                    <span>{t("qcInspect.rqc.criterion")}</span>
+                    <span>TEST 1 (%)</span>
+                    <span>TEST 2 (%)</span>
+                    <span>TEST 3 (%)</span>
+                    <span className="text-end">{t("qcInspect.rqc.average")}</span>
                   </div>
+                  <ul className="space-y-2">
+                    {RQC_CRITERIA.map(({ field, waste }) => {
+                      const name = t(`qcInspect.rqc.c.${field}`);
+                      return (
+                        <li
+                          key={field}
+                          className={cn(
+                            "grid grid-cols-4 items-center gap-2 rounded-lg border bg-card p-2 sm:grid-cols-[minmax(7rem,1.4fr)_repeat(3,minmax(0,1fr))_5rem]",
+                            waste && "border-s-4 border-s-warning",
+                          )}
+                        >
+                          <span className="col-span-4 text-sm font-medium sm:col-span-1">
+                            {name}
+                            {waste && <span className="ms-1.5 text-xs font-normal text-muted-foreground">{t("qcInspect.rqc.countsAsWaste")}</span>}
+                          </span>
+                          {(['test1','test2','test3'] as const).map((testKey, i) => (
+                            <Input
+                              key={testKey}
+                              type="number" min="0" max="100" step="0.1" inputMode="decimal"
+                              aria-label={t("qcInspect.rqc.testOf", { name, n: i + 1 })}
+                              className="h-11 text-base tabular-nums"
+                              value={rqc[field][testKey] ?? ''}
+                              onChange={e => updateRqcCritere(field, testKey, e.target.value === '' ? null : Number(e.target.value))}
+                            />
+                          ))}
+                          <span className="text-end text-base font-semibold tabular-nums">
+                            {rqc[field].taux_moyen != null ? `${rqc[field].taux_moyen}%` : '—'}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-warning/30 bg-sand px-3 py-2.5">
+                    <span className="text-sm">
+                      <span className="font-semibold">{t("qcInspect.rqc.wasteRate")}</span>{" "}
+                      <span className="text-muted-foreground">{t("qcInspect.rqc.wasteFormula")}</span>
+                    </span>
+                    <span className="text-lg font-semibold tabular-nums">{wasteRate}</span>
+                  </div>
+                </FieldGroup>
 
-                  {/* Conclusion */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <div className="space-y-1 md:col-span-2">
-                      <Label className="text-xs">Conclusion</Label>
-                      <Input className="h-10" value={rqc.conclusion ?? ''} onChange={e => setRqc(p => ({ ...p, conclusion: e.target.value || null }))} />
+                <FieldGroup title={t("qcInspect.rqc.conclusionTitle")}>
+                  <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                    <div className="col-span-2 space-y-1">
+                      <Label htmlFor="qc-rqc-conclusion" className="text-sm font-medium">{t("qcInspect.rqc.conclusion")}</Label>
+                      <Input id="qc-rqc-conclusion" className="h-12" value={rqc.conclusion ?? ''} onChange={e => setRqc(p => ({ ...p, conclusion: e.target.value || null }))} />
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-xs">Endommagé (%)</Label>
-                      <Input type="number" min="0" max="100" step="0.1" className="h-10"
+                      <Label htmlFor="qc-rqc-damaged" className="text-sm font-medium">{t("qcInspect.rqc.damaged")}</Label>
+                      <Input id="qc-rqc-damaged" type="number" min="0" max="100" step="0.1" inputMode="decimal" className="h-12 tabular-nums"
                         value={rqc.endommage_percent ?? ''}
                         onChange={e => setRqc(p => ({ ...p, endommage_percent: e.target.value === '' ? null : Number(e.target.value) }))}
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-xs">DB</Label>
-                      <Input className="h-10" value={rqc.db_score ?? ''}
+                      <Label htmlFor="qc-rqc-db" className="text-sm font-medium">DB</Label>
+                      <Input id="qc-rqc-db" className="h-12" value={rqc.db_score ?? ''}
                         onChange={e => setRqc(p => ({ ...p, db_score: e.target.value || null }))}
                       />
                     </div>
                   </div>
-
-                  {/* Signatures */}
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                     {[
                       { key: 'responsable_qc1', label: 'Responsable QC 1' },
                       { key: 'responsable_qc2', label: 'Responsable QC 2' },
                       { key: 'directeur_qc', label: 'Directeur QC' },
                     ].map(({ key, label }) => (
                       <div key={key} className="space-y-1">
-                        <Label className="text-xs">{label}</Label>
-                        <Input className="h-10"
+                        <Label htmlFor={`qc-rqc-${key}`} className="text-sm font-medium">{label}</Label>
+                        <Input id={`qc-rqc-${key}`} className="h-12"
                           value={(rqc[key as keyof RQCData] as string | null) ?? ''}
                           onChange={e => setRqc(p => ({ ...p, [key]: e.target.value || null }))}
                         />
                       </div>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
-            </div>
+                </FieldGroup>
+              </div>
+
+              <div className={qcSection === 'verdict' ? 'space-y-4' : 'hidden'}>
+                {/* Automatic result: the proposal the decision starts from */}
+                <section className="space-y-4 rounded-2xl border bg-card p-4 sm:p-5" aria-label={t("qcInspect.verdict.result")}>
+                  {missingMeasurements > 0 && (
+                    <Notice tone="warning" icon={<AlertTriangle aria-hidden />} title={t("qcInspect.verdict.provisional", { n: missingMeasurements })}>
+                      <button type="button" className="font-semibold text-primary underline-offset-4 hover:underline" onClick={() => setQcSection("mesures")}>
+                        {t("qcInspect.verdict.goToMeasures")}
+                      </button>
+                    </Notice>
+                  )}
+                  <div className="flex flex-wrap items-end justify-between gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">{missingMeasurements > 0 ? t("qcInspect.verdict.provisionalScore") : t("qcInspect.verdict.finalScore")}</p>
+                      <p dir="ltr" className="font-display text-5xl font-semibold leading-none tabular-nums">{score.finalScore}<span className="text-2xl text-muted-foreground">/100</span></p>
+                    </div>
+                    {missingMeasurements === 0 && (
+                      <dl className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                        <div>
+                          <dt className="text-muted-foreground">{t("qcInspect.verdict.classification")}</dt>
+                          <dd><Badge variant="outline" className="mt-1 text-sm">{getQcClassificationLabel(score.classification)}</Badge></dd>
+                        </div>
+                        <div>
+                          <dt className="text-muted-foreground">{t("qcInspect.verdict.proposed")}</dt>
+                          <dd>
+                            <Badge variant={score.recommendedDecision === "REJETE" ? "destructive" : "secondary"} className="mt-1 text-sm">
+                              {decisionLabel(score.recommendedDecision)}
+                            </Badge>
+                          </dd>
+                        </div>
+                      </dl>
+                    )}
+                  </div>
+                  <dl className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    {[
+                      ["humidity", score.humidityScore],
+                      ["caliber", score.caliberScore],
+                      ["insects", score.insectsScore],
+                      ["moldFermentation", score.moldFermentationScore],
+                      ["organoleptic", score.organolepticScore],
+                      ["otherDefects", score.otherDefectsScore],
+                    ].map(([key, value]) => (
+                      <div key={key as string} className="rounded-lg border bg-secondary/60 px-3 py-2">
+                        <dt className="text-xs text-muted-foreground">{t(`qcInspect.verdict.sub.${key}`)}</dt>
+                        <dd className={cn("text-lg font-semibold tabular-nums", (value as number) < 60 && "text-destructive")}>{value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </section>
+
+                {score.automaticReject && (
+                  <Notice tone="danger" icon={<AlertTriangle aria-hidden />} title={t("qcInspect.verdict.autoReject")}>
+                    <ul className="list-disc space-y-0.5 ps-4">
+                      {score.automaticRejectReasons.map((reason) => (
+                        <li key={reason}>{reason}</li>
+                      ))}
+                    </ul>
+                  </Notice>
+                )}
+
+                <FieldGroup title={t("qcInspect.verdict.checklist")}>
+                  <QcChecklistAnswers
+                    checklist={qcChecklist.checklist}
+                    items={qcChecklist.items}
+                    unavailable={qcChecklist.unavailable}
+                    answers={checklistAnswers}
+                    onChange={setChecklistAnswers}
+                  />
+                </FieldGroup>
+
+                {doubleInspectionRequired && (
+                  <FieldGroup title={t("qcInspect.verdict.secondInspectorTitle")} complete={secondaryInspectorName.trim().length >= 3}>
+                    <div className="space-y-1">
+                      <Label htmlFor="qc-second-inspector" className="text-sm font-medium">{t("qcInspect.verdict.secondInspector")}</Label>
+                      <Input
+                        id="qc-second-inspector"
+                        className="h-12 text-lg"
+                        value={secondaryInspectorName}
+                        onChange={(event) => setSecondaryInspectorName(event.target.value)}
+                        placeholder={t("qcInspect.verdict.secondInspectorPlaceholder")}
+                      />
+                    </div>
+                  </FieldGroup>
+                )}
+
+                <FieldGroup title={t("qcInspect.verdict.decisionTitle")} description={t("qcInspect.verdict.decisionHint")}>
+                  <div className="grid gap-2 sm:grid-cols-3" role="group" aria-label={t("qcInspect.verdict.decisionTitle")}>
+                    {(["ACCEPTE", "QUARANTAINE", "REJETE"] as QCDecisionType[]).map((decision) => {
+                      const Icon = DecisionIcon[decision];
+                      const active = selectedDecision === decision;
+                      const proposed = decision === score.recommendedDecision;
+                      return (
+                        <button
+                          key={decision}
+                          type="button"
+                          aria-pressed={active}
+                          title={darijaTitle(decision === "ACCEPTE" ? "qc.accept" : decision === "REJETE" ? "qc.reject" : "qc.quarantine")}
+                          onClick={() => {
+                            setOverrideDecision(proposed ? null : decision);
+                            setSubmitError(null);
+                          }}
+                          className={cn(
+                            "flex min-h-16 items-center gap-3 rounded-xl border-2 bg-card px-4 py-3 text-start transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                            active
+                              ? decision === "ACCEPTE" ? "border-primary bg-accent" : decision === "QUARANTAINE" ? "border-warning bg-sand" : "border-destructive bg-destructive/5"
+                              : "border-border hover:border-primary/40",
+                          )}
+                        >
+                          <Icon className={cn("h-6 w-6 shrink-0",
+                            decision === "ACCEPTE" ? "text-primary" : decision === "QUARANTAINE" ? "text-warning" : "text-destructive")} aria-hidden />
+                          <span className="min-w-0">
+                            <span className="block text-base font-semibold">{decisionLabel(decision)}</span>
+                            {proposed && <span className="block text-xs text-muted-foreground">{t("qcInspect.verdict.proposedTag")}</span>}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {isOverriding && (
+                    <Notice tone="warning" icon={<AlertTriangle aria-hidden />} title={t("qcInspect.verdict.overrideTitle")}>
+                      {t("qcInspect.verdict.overrideBody", { from: decisionLabel(score.recommendedDecision), to: decisionLabel(overrideDecision as QCDecisionType) })}
+                    </Notice>
+                  )}
+
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="qc-comment" className="text-sm font-medium">
+                        {needsJustification ? t("qcInspect.verdict.justification") : t("qcInspect.verdict.observations")}
+                      </Label>
+                      {needsJustification && (
+                        <span className={cn("text-sm font-semibold tabular-nums", comment.trim().length >= 20 ? "text-primary" : "text-warning")}>
+                          {comment.trim().length}/20
+                        </span>
+                      )}
+                    </div>
+                    <Textarea
+                      id="qc-comment"
+                      value={comment}
+                      onChange={(event) => { setComment(event.target.value); setSubmitError(null); }}
+                      rows={4}
+                      className={cn("text-base", needsJustification && comment.trim().length < 20 && "border-warning")}
+                      placeholder={needsJustification ? t("qcInspect.verdict.justificationPlaceholder") : t("qcInspect.verdict.observationsPlaceholder")}
+                    />
+                  </div>
+
+                  {/* RG-Q04 override photo */}
+                  {needsJustification && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">{t("qcInspect.verdict.photo")}</p>
+                      <PhotoCapture
+                        photos={overridePhoto}
+                        onPhotosChange={setOverridePhoto}
+                        maxPhotos={1}
+                      />
+                    </div>
+                  )}
+                </FieldGroup>
+
+                {/* NC codes — mandatory when REJETE, optional for QUARANTAINE */}
+                {(selectedDecision === 'REJETE' || selectedDecision === 'QUARANTAINE') && (
+                  <FieldGroup
+                    title={t("qcInspect.nc.title")}
+                    description={selectedDecision === 'REJETE' ? t("qcInspect.nc.required") : t("qcInspect.nc.optional")}
+                    complete={selectedNcCodes.length > 0}
+                    summary={selectedNcCodes.length > 0 ? t("qcInspect.nc.selected", { n: selectedNcCodes.length }) : undefined}
+                  >
+                    {autoSuggestedNcs.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm text-muted-foreground">{t("qcInspect.nc.suggested")}</span>
+                        {autoSuggestedNcs.map((nc) => (
+                          <Button
+                            key={nc.code}
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="font-mono"
+                            onClick={() => setSelectedNcCodes((prev) =>
+                              prev.includes(nc.code) ? prev : [...prev, nc.code]
+                            )}
+                          >
+                            + {nc.code}
+                          </Button>
+                        ))}
+                      </div>
+                    )}
+                    <div className="grid max-h-72 grid-cols-1 gap-2 overflow-y-auto pe-1 md:grid-cols-2">
+                      {QC_NC_CODES.map((nc) => (
+                        <label
+                          key={nc.code}
+                          className={cn(
+                            "flex min-h-12 cursor-pointer items-center gap-3 rounded-lg border bg-card px-3 py-2 text-sm transition-colors",
+                            selectedNcCodes.includes(nc.code) ? NC_SELECTED[nc.severity] : "hover:bg-muted/40",
+                          )}
+                        >
+                          <Checkbox
+                            checked={selectedNcCodes.includes(nc.code)}
+                            onCheckedChange={(checked) =>
+                              setSelectedNcCodes((prev) =>
+                                checked
+                                  ? [...prev, nc.code]
+                                  : prev.filter((c) => c !== nc.code),
+                              )
+                            }
+                          />
+                          <span className="font-mono font-semibold">{nc.code}</span>
+                          <span className="min-w-0 flex-1 text-muted-foreground">{nc.label}</span>
+                          <Badge variant="outline" className="shrink-0 text-xs">{nc.severity}</Badge>
+                        </label>
+                      ))}
+                    </div>
+                  </FieldGroup>
+                )}
+              </div>
+            </>
           )}
 
           {phase === "confirmed" && confirmedDecision && (
-            <div className="space-y-4 p-4">
-              <div className="text-center space-y-2">
-                <div className="flex justify-center">
-                  {confirmedDecision === "ACCEPTE" ? (
-                    <CheckCircle className="h-16 w-16 text-green-600" />
-                  ) : confirmedDecision === "QUARANTAINE" ? (
-                    <AlertTriangle className="h-16 w-16 text-orange-600" />
-                  ) : (
-                    <XCircle className="h-16 w-16 text-red-600" />
-                  )}
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold">
-                    {confirmedDecision === "ACCEPTE" ? "LOT LIBÉRÉ — CONFORME" : confirmedDecision}
-                  </h3>
-                  <p className="text-muted-foreground text-sm">
-                    Score final {score.finalScore}/100 — {getQcClassificationLabel(score.classification)} • Humidité: {score.humidityAverage}%
-                  </p>
-                </div>
-              </div>
+            <div className="space-y-5 py-2">
+              {(() => {
+                const Icon = DecisionIcon[confirmedDecision];
+                return (
+                  <div className={cn("flex flex-col items-center gap-3 rounded-2xl border p-6 text-center",
+                    confirmedDecision === "ACCEPTE" ? "border-primary/30 bg-accent" : confirmedDecision === "QUARANTAINE" ? "border-warning/30 bg-sand" : "border-destructive/30 bg-destructive/5")}>
+                    <span className={cn("flex h-16 w-16 items-center justify-center rounded-full bg-card",
+                      confirmedDecision === "ACCEPTE" ? "text-primary" : confirmedDecision === "QUARANTAINE" ? "text-warning" : "text-destructive")}>
+                      <Icon className="h-9 w-9" aria-hidden />
+                    </span>
+                    <div className="space-y-1">
+                      <h3 className="font-display text-2xl font-semibold">{t(`qcInspect.confirmed.${confirmedDecision}`)}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {t("qcInspect.confirmed.summary", {
+                          score: score.finalScore,
+                          classification: getQcClassificationLabel(score.classification),
+                          humidity: score.humidityAverage,
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Rangement : passe par l'affectation des lots de la réception (même règles et traçabilité que le magasin). */}
               {confirmedDecision === "ACCEPTE" && (
-                <div className="mx-auto max-w-xl space-y-3 rounded-xl border border-primary/20 bg-primary/5 p-5 text-start shadow-sm">
-                  <div className="flex items-start gap-2">
-                    <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <section className="space-y-3 rounded-2xl border bg-card p-5">
+                  <div className="flex items-start gap-3">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground">
+                      <MapPin className="h-5 w-5" aria-hidden />
+                    </span>
                     <div className="space-y-1">
-                      <h4 className="text-base font-semibold text-foreground">Étape suivante : ranger les lots libérés</h4>
-                      <p className="text-xs text-muted-foreground">
+                      <h4 className="font-display text-lg font-semibold">{t("qcInspect.confirmed.nextTitle")}</h4>
+                      <p className="text-sm text-muted-foreground">
                         {recommendedColdZone
-                          ? `Chambre conseillée : ${recommendedColdZone.zone.code} — ${recommendedColdZone.zone.name} (occupation ${recommendedColdZone.occupancyPct} %${reception.bio_declared ? ", dédiée Bio" : ""}).`
-                          : "Choisissez la chambre froide lors de l'affectation."}
+                          ? t(reception.bio_declared ? "qcInspect.confirmed.zoneBio" : "qcInspect.confirmed.zone", {
+                              code: recommendedColdZone.zone.code,
+                              name: recommendedColdZone.zone.name,
+                              occupancy: recommendedColdZone.occupancyPct,
+                            })
+                          : t("qcInspect.confirmed.zoneNone")}
                       </p>
                     </div>
                   </div>
                   {onAssignStorage && (
                     <Button
                       type="button"
+                      size="xl"
                       className="w-full"
                       onClick={() => {
                         closeDialog();
                         onAssignStorage();
                       }}
                     >
-                      <MapPin className="me-2 h-4 w-4" />
-                      Affecter au stock
+                      <MapPin aria-hidden />
+                      {t("qcInspect.confirmed.assign")}
                     </Button>
                   )}
-                </div>
+                </section>
               )}
 
-              <div className="flex justify-center pt-2">
+              <div className="flex justify-center">
                 <Button
                   variant="outline"
-                  size="sm"
+                  className="h-11"
                   onClick={() => {
                     const insp = existingInspections.find(i => i.id === inspectionId);
                     const fakeInsp = {
@@ -1372,56 +1413,76 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                     printRQC(fakeInsp, reception);
                   }}
                 >
-                  <Printer className="h-4 w-4 me-2" />
-                  Imprimer RQC
+                  <Printer aria-hidden />
+                  {t("qcInspect.confirmed.print")}
                 </Button>
               </div>
             </div>
           )}
-        </ScrollArea>
+          </div>
+        </div>
 
-        <DialogFooter className="flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-t pt-4">
+        {/* ── Action bar: always reachable, one primary action at the end ── */}
+        <footer className="shrink-0 space-y-2 border-t bg-card px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 sm:px-6">
           {/* Validation error — always visible regardless of scroll position */}
           {submitError && phase === "inspection" && (
-            <p className="flex-1 text-sm text-red-600">{submitError}</p>
+            <p role="alert" className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm font-medium text-destructive">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+              {submitError}
+            </p>
           )}
           {phase === "inspection" && releasePinOpen ? (
-            <div className="w-full sm:max-w-sm sm:ms-auto">
+            <div className="w-full sm:ms-auto sm:max-w-sm">
               <NumericSignaturePad
-                title="Libération QC — code signature"
-                subtitle="Confirmez votre code signature personnel pour libérer ce lot vers le stock."
-                confirmLabel="Signer et libérer"
+                title={t("qcInspect.pin.title")}
+                subtitle={t("qcInspect.pin.subtitle")}
+                confirmLabel={t("qcInspect.pin.confirm")}
                 pending={submitDecision.isPending}
                 onCancel={() => setReleasePinOpen(false)}
                 onConfirm={async (pin) => { await submit(pin); }}
               />
             </div>
           ) : (
-            <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <Button variant="outline" className="min-h-11" onClick={closeDialog}>
-                {phase === "confirmed" ? "Fermer" : "Annuler"}
+            // Phones: Cancel and Back share a row, the primary action takes the full width below; wider screens keep one row.
+            <div className="flex w-full flex-wrap items-center gap-2">
+              <Button variant="ghost" className="me-auto min-h-12" onClick={closeDialog}>
+                {phase === "confirmed" ? t("qcInspect.actions.close") : t("qcInspect.actions.cancel")}
               </Button>
-              {phase === "inspection" && (
-                <div className="flex flex-col-reverse gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
-                  {qcSectionIndex > 0 && (
-                    <Button type="button" variant="outline" className="min-h-11" title={darijaTitle('qc.back')} onClick={() => goQcSection(-1)}>
-                      Retour
-                    </Button>
-                  )}
-                  {qcSection === 'verdict' ? (
-                    <Button className="min-h-12 font-semibold" title={darijaTitle('common.confirm')} onClick={() => submit()} disabled={submitDecision.isPending}>
-                      {submitDecision.isPending ? "Validation en cours..." : "Valider la décision"}
-                    </Button>
-                  ) : (
-                    <Button type="button" className="min-h-12 font-semibold" title={darijaTitle('qc.continue')} onClick={() => goQcSection(1)}>
-                      Continuer
-                    </Button>
-                  )}
-                </div>
-              )}
+                {phase === "inspection" && qcSectionIndex > 0 && (
+                  <Button type="button" variant="outline" className="min-h-12" title={darijaTitle('qc.back')} onClick={() => goQcSection(-1)}>
+                    <ArrowLeft aria-hidden />
+                    {t("qcInspect.actions.back")}
+                  </Button>
+                )}
+                {phase === "start" && (
+                  <Button
+                    size="lg"
+                    className="min-h-12 w-full font-semibold sm:w-auto"
+                    title={darijaTitle('reception.startQc')}
+                    onClick={startInspection}
+                    disabled={
+                      !inspectorName.trim() ||
+                      createInspection.isPending ||
+                      (isOwnReceptionInspector && !canOverrideRoleSeparation)
+                    }
+                  >
+                    <Play aria-hidden />
+                    {createInspection.isPending ? t("qcInspect.actions.starting") : t("qcInspect.actions.start")}
+                  </Button>
+                )}
+                {phase === "inspection" && (qcSection === 'verdict' ? (
+                  <Button size="lg" className="min-h-12 w-full font-semibold sm:w-auto" title={darijaTitle('common.confirm')} onClick={() => submit()} disabled={submitDecision.isPending}>
+                    {submitDecision.isPending ? t("qcInspect.actions.validating") : t("qcInspect.actions.validate")}
+                  </Button>
+                ) : (
+                  <Button type="button" size="lg" className="min-h-12 w-full font-semibold sm:w-auto" title={darijaTitle('qc.continue')} onClick={() => goQcSection(1)}>
+                    {t("qcInspect.actions.continue")}
+                    <ArrowRight aria-hidden />
+                  </Button>
+                ))}
             </div>
           )}
-        </DialogFooter>
+        </footer>
       </DialogContent>
     </Dialog>
     </>
