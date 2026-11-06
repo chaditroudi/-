@@ -13,8 +13,13 @@ const SelectValue = SelectPrimitive.Value;
 const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
-  <SelectPrimitive.Trigger
+>(({ className, children, ...props }, ref) => {
+  const valuePlaceholder = React.Children.toArray(children).flatMap(child =>
+    React.isValidElement<{ placeholder?: React.ReactNode }>(child) && child.type === SelectPrimitive.Value && typeof child.props.placeholder === 'string'
+      ? [child.props.placeholder] : [],
+  )[0];
+  return (
+  <SelectPrimitive.Trigger aria-label={props["aria-label"] ?? (!props.id && !props["aria-labelledby"] ? valuePlaceholder : undefined)}
     ref={ref}
     className={cn(
       "flex h-11 w-full items-center justify-between rounded-lg border border-input bg-background px-3.5 py-2 text-base md:text-[15px]",
@@ -32,7 +37,8 @@ const SelectTrigger = React.forwardRef<
       <ChevronDown className="h-4 w-4 opacity-50 transition-transform duration-200" />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
-));
+);
+});
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
 
 const SelectScrollUpButton = React.forwardRef<

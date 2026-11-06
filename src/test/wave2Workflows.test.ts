@@ -1,3 +1,5 @@
+
+const zoneDefaults = { capacity_kg: 0, current_load_kg: 0, temperature_min: null, temperature_max: null, humidity_min: null, humidity_max: null, notes: null };
 import { describe, it, expect } from "vitest";
 import { CRATE_MODELS, computeTareFromCrates } from "@/components/reception/TareCalculator";
 import { getRecommendedColdStorageZone } from "@/components/reception/QCInspectionDialog";
@@ -117,26 +119,28 @@ describe("Wave 2 User Journey Tests", () => {
       // 6. Show storage recommendation from available active cold chambers
       const storageZones: Module3StorageZone[] = [
         {
+        ...zoneDefaults,
           id: "zone-c1",
           code: "C-01",
           name: "Chambre Froide 1",
-          zone_type: "CHAMBRE_FROIDE",
+          zone_type: "cold_room",
           is_active: true,
           capacity_kg: 50000,
           current_load_kg: 42000, // 84% full
-          status: "ACTIVE",
+
           created_at: "",
           updated_at: "",
         },
         {
+        ...zoneDefaults,
           id: "zone-c2",
           code: "C-02",
           name: "Chambre Froide 2",
-          zone_type: "CHAMBRE_FROIDE",
+          zone_type: "cold_room",
           is_active: true,
           capacity_kg: 50000,
           current_load_kg: 15000, // 30% full (Least occupied!)
-          status: "ACTIVE",
+
           created_at: "",
           updated_at: "",
         },
@@ -229,40 +233,43 @@ describe("Wave 2 User Journey Tests", () => {
       };
 
       const activeCleanRoom: Module3StorageZone = {
+        ...zoneDefaults,
         id: "z1",
         code: "C-01",
         name: "Chambre 1",
-        zone_type: "CHAMBRE_FROIDE",
+        zone_type: "cold_room",
         is_active: true,
         capacity_kg: 10000,
         current_load_kg: 2000,
-        status: "ACTIVE",
+
         created_at: "",
         updated_at: "",
       };
 
       const quarantineRoom: Module3StorageZone = {
+        ...zoneDefaults,
         id: "z2",
         code: "QUAR-01",
         name: "Quarantaine Sanitaire",
-        zone_type: "CHAMBRE_FROIDE",
+        zone_type: "cold_room",
         is_active: true,
         capacity_kg: 10000,
         current_load_kg: 0,
-        status: "ACTIVE",
+
         created_at: "",
         updated_at: "",
       };
 
       const defectiveRoom: Module3StorageZone = {
+        ...zoneDefaults,
         id: "z3",
         code: "C-04",
         name: "Chambre Frigorifique 4",
-        zone_type: "CHAMBRE_FROIDE",
+        zone_type: "cold_room",
         is_active: false,
         capacity_kg: 10000,
         current_load_kg: 0,
-        status: "MAINTENANCE",
+
         created_at: "",
         updated_at: "",
       };

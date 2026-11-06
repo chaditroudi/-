@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +11,7 @@ import { KeyRound, Loader2 } from 'lucide-react';
 
 /** Self-service: set your own numeric signature PIN (password required). */
 export function SignaturePinSelfPanel() {
+  const fieldIdBase = useId();
   const { user, refreshSession } = useAuth();
   const [password, setPassword] = useState('');
   const [pin, setPin] = useState('');
@@ -63,8 +65,8 @@ export function SignaturePinSelfPanel() {
           {user.has_signature_pin ? ' — PIN déjà configuré.' : ' — aucun PIN pour le moment.'}
         </p>
         <div className="space-y-1.5">
-          <Label className="text-xs">Mot de passe compte</Label>
-          <Input
+          <Label htmlFor={`${fieldIdBase}-SignaturePinSelfPanel-1`} className="text-xs">Mot de passe compte</Label>
+          <Input id={`${fieldIdBase}-SignaturePinSelfPanel-1`}
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -73,8 +75,8 @@ export function SignaturePinSelfPanel() {
         </div>
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1.5">
-            <Label className="text-xs">Nouveau PIN</Label>
-            <Input
+            <Label htmlFor={`${fieldIdBase}-SignaturePinSelfPanel-2`} className="text-xs">Nouveau PIN</Label>
+            <Input id={`${fieldIdBase}-SignaturePinSelfPanel-2`}
               type="password"
               inputMode="numeric"
               maxLength={6}
@@ -83,8 +85,8 @@ export function SignaturePinSelfPanel() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Confirmer</Label>
-            <Input
+            <Label htmlFor={`${fieldIdBase}-SignaturePinSelfPanel-3`} className="text-xs">Confirmer</Label>
+            <Input id={`${fieldIdBase}-SignaturePinSelfPanel-3`}
               type="password"
               inputMode="numeric"
               maxLength={6}

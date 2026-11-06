@@ -1,3 +1,4 @@
+import { DataState } from '@/components/shared/DataState';
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -42,10 +43,11 @@ export const StockLotsList = () => {
   const [lotToBlock, setLotToBlock] = useState<StockLot | null>(null);
   const [lotToRelease, setLotToRelease] = useState<StockLot | null>(null);
 
-  const { data: lots = [], isLoading } = useStockLots({
+  const source = useStockLots({
     status: statusFilter === 'all' ? undefined : statusFilter,
     category: categoryFilter === 'all' ? undefined : categoryFilter
   });
+  const { data: lots = [], isLoading } = source;
 
   const filteredLots = lots.filter(lot => 
     lot.lot_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -61,6 +63,7 @@ export const StockLotsList = () => {
   };
 
   return (
+<DataState source={source} data={source.data} isEmpty={false} what="les lots de stock">
     <>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
@@ -327,5 +330,6 @@ export const StockLotsList = () => {
         onClose={() => setLotToRelease(null)}
       />
     </>
+</DataState>
   );
 };

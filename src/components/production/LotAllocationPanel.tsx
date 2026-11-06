@@ -1,3 +1,6 @@
+import { canWrite } from '@/lib/apiAccess';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { toast as reportActionFailure } from 'sonner';
 import { useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -37,7 +40,9 @@ export const LotAllocationPanel = ({
   const [selectedLotId, setSelectedLotId] = useState('');
   const [qty, setQty] = useState('');
 
-  const isReadOnly = orderStatus === 'completed' || orderStatus === 'cancelled';
+  const { roles } = useAuthContext();
+  const canAllocate = canWrite(roles, 'productionAllocate');
+  const isReadOnly = !canAllocate || orderStatus === 'completed' || orderStatus === 'cancelled';
 
   // Already-allocated lot IDs — exclude from dropdown
   const allocatedIds = new Set(allocations.map((a) => a.reception_lot_id));
@@ -56,8 +61,7 @@ export const LotAllocationPanel = ({
 
   const handleAdd = () => {
     if (!selectedLot || !qty || parseFloat(qty) <= 0) return;
-    allocate.mutate(
-      {
+    void allocate.mutateAsync({
         production_order_id: orderId,
         reception_lot_id: selectedLot.id,
         allocated_quantity: parseFloat(qty),
@@ -71,15 +75,11 @@ export const LotAllocationPanel = ({
           reception_number: selectedLot.reception_number,
           supplier_name: selectedLot.supplier_name,
         },
-      },
-      {
-        onSuccess: () => {
+      }).then(() => {
           setSelectedLotId('');
           setQty('');
           setAddOpen(false);
-        },
-      },
-    );
+        }).catch(error => reportActionFailure.error(error instanceof Error ? error.message : 'Action indisponible'));
   };
 
   return (
@@ -224,7 +224,7 @@ export const LotAllocationPanel = ({
                     size="icon"
                     variant="ghost"
                     className="h-6 w-6 text-muted-foreground hover:text-destructive"
-                    onClick={() => removeAlloc.mutate({ allocationId: alloc.id, production_order_id: orderId })}
+                    onClick={() => void removeAlloc.mutateAsync({ allocationId: alloc.id, production_order_id: orderId }).catch(error => reportActionFailure.error(error instanceof Error ? error.message : 'Action indisponible'))}
                     disabled={removeAlloc.isPending}
                   >
                     <Trash2 className="h-3.5 w-3.5" />

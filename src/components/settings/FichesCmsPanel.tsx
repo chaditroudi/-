@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { useUpdateSiteSettings } from '@/hooks/useSettings';
 import type { SiteSettings } from '@/types/settings';
@@ -45,6 +46,7 @@ function textToLimits(text: string): { label: string; value: string }[] {
 }
 
 export function FichesCmsPanel({ settings }: Props) {
+  const fieldIdBase = useId();
   const update = useUpdateSiteSettings();
   const [selectedId, setSelectedId] = useState<FicheId>(FICHES_TECHNIQUES[0].id);
   const [overrides, setOverrides] = useState<FicheOverridesMap>({ ...(settings.fiche_overrides || {}) });
@@ -157,16 +159,16 @@ export function FichesCmsPanel({ settings }: Props) {
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5 sm:col-span-2">
-              <Label>Titre</Label>
-              <Input value={form.title} onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))} />
+              <Label htmlFor={`${fieldIdBase}-FichesCmsPanel-1`}>Titre</Label>
+              <Input id={`${fieldIdBase}-FichesCmsPanel-1`} value={form.title} onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))} />
             </div>
             <div className="space-y-1.5">
-              <Label>Poste</Label>
-              <Input value={form.poste} onChange={(e) => setForm((p) => ({ ...p, poste: e.target.value }))} />
+              <Label htmlFor={`${fieldIdBase}-FichesCmsPanel-2`}>Poste</Label>
+              <Input id={`${fieldIdBase}-FichesCmsPanel-2`} value={form.poste} onChange={(e) => setForm((p) => ({ ...p, poste: e.target.value }))} />
             </div>
             <div className="space-y-1.5">
-              <Label>Durée (min)</Label>
-              <Input
+              <Label htmlFor={`${fieldIdBase}-FichesCmsPanel-3`}>Durée (min)</Label>
+              <Input id={`${fieldIdBase}-FichesCmsPanel-3`}
                 type="number"
                 min={1}
                 value={form.durationMin}
@@ -174,48 +176,48 @@ export function FichesCmsPanel({ settings }: Props) {
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label>Objectif</Label>
-              <Textarea
+              <Label htmlFor={`${fieldIdBase}-FichesCmsPanel-4`}>Objectif</Label>
+              <Textarea id={`${fieldIdBase}-FichesCmsPanel-4`}
                 rows={2}
                 value={form.purpose}
                 onChange={(e) => setForm((p) => ({ ...p, purpose: e.target.value }))}
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label>Étapes (une par ligne)</Label>
-              <Textarea
+              <Label htmlFor={`${fieldIdBase}-FichesCmsPanel-5`}>Étapes (une par ligne)</Label>
+              <Textarea id={`${fieldIdBase}-FichesCmsPanel-5`}
                 rows={6}
                 value={form.stepsText}
                 onChange={(e) => setForm((p) => ({ ...p, stepsText: e.target.value }))}
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label>Limites critiques (format: Libellé | Règle)</Label>
-              <Textarea
+              <Label htmlFor={`${fieldIdBase}-FichesCmsPanel-6`}>Limites critiques (format: Libellé | Règle)</Label>
+              <Textarea id={`${fieldIdBase}-FichesCmsPanel-6`}
                 rows={4}
                 value={form.limitsText}
                 onChange={(e) => setForm((p) => ({ ...p, limitsText: e.target.value }))}
               />
             </div>
             <div className="space-y-1.5">
-              <Label>Outils (une par ligne)</Label>
-              <Textarea
+              <Label htmlFor={`${fieldIdBase}-FichesCmsPanel-7`}>Outils (une par ligne)</Label>
+              <Textarea id={`${fieldIdBase}-FichesCmsPanel-7`}
                 rows={4}
                 value={form.toolsText}
                 onChange={(e) => setForm((p) => ({ ...p, toolsText: e.target.value }))}
               />
             </div>
             <div className="space-y-1.5">
-              <Label>Documents (une par ligne)</Label>
-              <Textarea
+              <Label htmlFor={`${fieldIdBase}-FichesCmsPanel-8`}>Documents (une par ligne)</Label>
+              <Textarea id={`${fieldIdBase}-FichesCmsPanel-8`}
                 rows={4}
                 value={form.documentsText}
                 onChange={(e) => setForm((p) => ({ ...p, documentsText: e.target.value }))}
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label>Si bloqué</Label>
-              <Textarea
+              <Label htmlFor={`${fieldIdBase}-FichesCmsPanel-9`}>Si bloqué</Label>
+              <Textarea id={`${fieldIdBase}-FichesCmsPanel-9`}
                 rows={2}
                 value={form.ifBlocked}
                 onChange={(e) => setForm((p) => ({ ...p, ifBlocked: e.target.value }))}

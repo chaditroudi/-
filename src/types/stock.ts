@@ -88,6 +88,7 @@ export interface StockLocation {
 // Lot de stock: lot exploitable par le magasin / la production / l'expedition.
 // A ne pas confondre avec le lot d'entree de reception (`reception_lots`).
 export interface StockLot {
+  category?: ProductCategory;
   id: string;
   lot_number: string;
   product_id: string;

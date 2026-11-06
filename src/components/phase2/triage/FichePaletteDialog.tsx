@@ -218,7 +218,7 @@ function buildPrintHtml(
     <tr>${qualiteRows}</tr>
   </tbody>
 </table>
-${session.notes ? `<table style="border-collapse:collapse;width:100%;border:2px solid #333;border-top:none;"><tbody><tr><td style="border:1px solid #444;padding:3px 8px;"><span style="color:#777;">Observations :</span> ${session.notes}</td></tr></tbody></table>` : ''}
+${'notes' in session && typeof session.notes === 'string' && session.notes ? `<table style="border-collapse:collapse;width:100%;border:2px solid #333;border-top:none;"><tbody><tr><td style="border:1px solid #444;padding:3px 8px;"><span style="color:#777;">Observations :</span> ${session.notes}</td></tr></tbody></table>` : ''}
 <table style="border-collapse:collapse;width:100%;border:2px solid #333;border-top:none;">
   <tbody>
     <tr>

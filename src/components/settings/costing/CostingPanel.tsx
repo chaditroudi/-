@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { useEffect, useState } from 'react';
 import { useUpdateSiteSettings } from '@/hooks/useSettings';
 import type { SiteSettings } from '@/types/settings';
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export function CostingPanel({ settings }: Props) {
+  const fieldIdBase = useId();
   const update = useUpdateSiteSettings();
   const [costing, setCosting] = useState({ ...settings.costing });
 
@@ -57,8 +59,8 @@ export function CostingPanel({ settings }: Props) {
           </p>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-xs">Main-d&apos;œuvre (TND / h)</Label>
-              <Input
+              <Label htmlFor={`${fieldIdBase}-CostingPanel-1`} className="text-xs">Main-d&apos;œuvre (TND / h)</Label>
+              <Input id={`${fieldIdBase}-CostingPanel-1`}
                 type="number"
                 min={0}
                 step={0.1}
@@ -67,8 +69,8 @@ export function CostingPanel({ settings }: Props) {
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Énergie (TND / kWh)</Label>
-              <Input
+              <Label htmlFor={`${fieldIdBase}-CostingPanel-2`} className="text-xs">Énergie (TND / kWh)</Label>
+              <Input id={`${fieldIdBase}-CostingPanel-2`}
                 type="number"
                 min={0}
                 step={0.01}
@@ -77,8 +79,8 @@ export function CostingPanel({ settings }: Props) {
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Overhead (TND / kg bon)</Label>
-              <Input
+              <Label htmlFor={`${fieldIdBase}-CostingPanel-3`} className="text-xs">Frais indirects (TND / kg bon)</Label>
+              <Input id={`${fieldIdBase}-CostingPanel-3`}
                 type="number"
                 min={0}
                 step={0.01}
@@ -87,8 +89,8 @@ export function CostingPanel({ settings }: Props) {
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Coût cible (TND / kg)</Label>
-              <Input
+              <Label htmlFor={`${fieldIdBase}-CostingPanel-4`} className="text-xs">Coût cible (TND / kg)</Label>
+              <Input id={`${fieldIdBase}-CostingPanel-4`}
                 type="number"
                 min={0}
                 step={0.1}
@@ -111,8 +113,8 @@ export function CostingPanel({ settings }: Props) {
           </p>
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-xs">EUR → TND</Label>
-              <Input
+              <Label htmlFor={`${fieldIdBase}-CostingPanel-5`} className="text-xs">EUR → TND</Label>
+              <Input id={`${fieldIdBase}-CostingPanel-5`}
                 type="number"
                 min={0}
                 step={0.01}
@@ -121,8 +123,8 @@ export function CostingPanel({ settings }: Props) {
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">USD → TND</Label>
-              <Input
+              <Label htmlFor={`${fieldIdBase}-CostingPanel-6`} className="text-xs">USD → TND</Label>
+              <Input id={`${fieldIdBase}-CostingPanel-6`}
                 type="number"
                 min={0}
                 step={0.01}
@@ -131,8 +133,8 @@ export function CostingPanel({ settings }: Props) {
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">SAR → TND</Label>
-              <Input
+              <Label htmlFor={`${fieldIdBase}-CostingPanel-7`} className="text-xs">SAR → TND</Label>
+              <Input id={`${fieldIdBase}-CostingPanel-7`}
                 type="number"
                 min={0}
                 step={0.01}
@@ -155,8 +157,8 @@ export function CostingPanel({ settings }: Props) {
           </p>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-xs">Taux TVA (%)</Label>
-              <Input
+              <Label htmlFor={`${fieldIdBase}-CostingPanel-8`} className="text-xs">Taux TVA (%)</Label>
+              <Input id={`${fieldIdBase}-CostingPanel-8`}
                 type="number"
                 min={0}
                 max={100}

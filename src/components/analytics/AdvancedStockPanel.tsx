@@ -1,4 +1,5 @@
-﻿import { DataState } from '@/components/shared/DataState';
+﻿import { formatMeasurement } from '@/lib/analyticsPresentation';
+import { DataState } from '@/components/shared/DataState';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -100,7 +101,7 @@ export const AdvancedStockPanel = () => {
                 <Calendar className="h-5 w-5 text-blue-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{kpis?.rawMaterialCoverageDays || 0}j</p>
+                <p className="text-2xl font-bold">Non mesurée</p>
                 <p className="text-xs text-muted-foreground">Couverture MP</p>
               </div>
             </div>
@@ -111,12 +112,12 @@ export const AdvancedStockPanel = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${KPI_STATUS_BG[fifoStatus]}`}>
-                <RotateCcw className={`h-5 w-5 ${KPI_STATUS_COLORS[fifoStatus]}`} />
+              <div className={`p-2 rounded-lg bg-muted`}>
+                <RotateCcw className={`h-5 w-5 text-muted-foreground`} />
               </div>
               <div>
-                <p className={`text-2xl font-bold ${KPI_STATUS_COLORS[fifoStatus]}`}>
-                  {(kpis?.fifoCompliance || 0).toFixed(0)}%
+                <p className={`text-2xl font-bold text-muted-foreground`}>
+                  Non mesurée
                 </p>
                 <p className="text-xs text-muted-foreground">Respect FIFO</p>
               </div>
@@ -172,6 +173,7 @@ export const AdvancedStockPanel = () => {
           </CardHeader>
           <CardContent>
             <div className="h-[320px]">
+              <DataState source={{}} data={data} what="la répartition du stock" isEmpty={!categoryData.some(row => row.value > 0)} empty="Aucune quantité positive à représenter.">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -199,6 +201,7 @@ export const AdvancedStockPanel = () => {
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
+              </DataState>
             </div>
           </CardContent>
         </Card>
@@ -214,9 +217,9 @@ export const AdvancedStockPanel = () => {
           </CardHeader>
           <CardContent>
             <div className="h-[320px]">
-              {data?.zoneOccupancy && data.zoneOccupancy.length > 0 ? (
+              {data?.zoneOccupancy && data.zoneOccupancy.some(zone => zone.capacity > 0 && Number.isFinite(zone.current)) ? (
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={data.zoneOccupancy.slice(0, 8)} layout="vertical">
+                  <BarChart data={data.zoneOccupancy.filter(zone => zone.capacity > 0 && Number.isFinite(zone.current)).slice(0, 8)} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                     <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10 }} tickFormatter={(v) => `${v}%`} />
                     <YAxis dataKey="zone" type="category" width={80} tick={{ fontSize: 10 }} />
@@ -232,13 +235,13 @@ export const AdvancedStockPanel = () => {
                       }}
                     />
                     <Bar dataKey="occupancy" radius={[0, 4, 4, 0]}>
-                      {data.zoneOccupancy.slice(0, 8).map((entry, index) => (
+                      {data.zoneOccupancy.filter(zone => zone.capacity > 0 && Number.isFinite(zone.current)).slice(0, 8).map((entry, index) => (
                         <Cell 
                           key={`cell-${index}`} 
                           fill={
                             entry.occupancy > 90 ? 'hsl(var(--destructive))' : 
                             entry.occupancy > 70 ? 'hsl(45, 93%, 47%)' : 
-                            'hsl(142, 76%, 36%)'
+                            'hsl(var(--chart-1))'
                           }
                         />
                       ))}
@@ -247,7 +250,7 @@ export const AdvancedStockPanel = () => {
                 </ResponsiveContainer>
               ) : (
                 <div className="flex items-center justify-center h-full text-muted-foreground">
-                  Aucune zone configurée
+                  Occupation non mesurée : capacité ou charge absente
                 </div>
               )}
             </div>
@@ -262,9 +265,9 @@ export const AdvancedStockPanel = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <Clock className="h-4 w-4 text-orange-500" />
-              Vieillissement du Stock
+              Échéances des lots
             </CardTitle>
-            <CardDescription>Analyse par durée de stockage</CardDescription>
+            <CardDescription>Jours restants selon les dates de péremption renseignées. La première classe inclut les dates dépassées ; ces classes ne constituent pas un visa qualité.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -276,12 +279,12 @@ export const AdvancedStockPanel = () => {
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: aging.color }}
                       />
-                      <span className="text-sm font-medium">{aging.label}</span>
+                      <span className="text-sm font-medium">{aging.range === '0-30' ? '30 jours ou moins' : aging.label}</span>
                       <Badge 
                         variant={aging.riskLevel === 'high' ? 'destructive' : aging.riskLevel === 'medium' ? 'secondary' : 'outline'}
                         className="text-xs"
                       >
-                        {aging.riskLevel === 'high' ? 'Risque élevé' : aging.riskLevel === 'medium' ? 'À surveiller' : 'OK'}
+                        {aging.riskLevel === 'high' ? 'Proche / dépassée' : aging.riskLevel === 'medium' ? 'Intermédiaire' : 'Éloignée'}
                       </Badge>
                     </div>
                     <span className="font-bold">{(aging.quantityKg / 1000).toFixed(2)} T</span>

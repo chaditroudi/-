@@ -1,3 +1,4 @@
+import { formatMeasurement } from '@/lib/analyticsPresentation';
 import { DataState } from '@/components/shared/DataState';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -41,7 +42,7 @@ interface ExecutiveDashboardProps {
 }
 
 export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
-  const { production, quality, stock, cost, isLoading, error, refetch } = useExecutiveDashboard(period);
+  const { production, quality, stock, cost, isLoading, error, refetch, updatedAt } = useExecutiveDashboard(period);
 
   if (isLoading) {
     return (
@@ -59,7 +60,7 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
     );
   }
 
-  if (error || !production || !quality || !stock || !cost) return <DataState source={{ error, isLoading, refetch }} data={undefined} what="la synthèse des indicateurs">{null}</DataState>;
+  if (!production || !quality || !stock || !cost) return <DataState source={{ error, isLoading, refetch }} data={undefined} what="la synthèse des indicateurs">{null}</DataState>;
 
   const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
@@ -76,7 +77,7 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
     },
     {
       title: 'Taux Conformité QC',
-      value: `${(quality?.kpis.passRate || 0).toFixed(1)}%`,
+      value: formatMeasurement(quality?.kpis.passRate, quality?.measurement.decisions, "%"),
       target: '95%',
       icon: CheckCircle,
       status: getKPIStatus(quality?.kpis.passRate || 0, KPI_THRESHOLDS.passRate),
@@ -85,7 +86,7 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
     },
     {
       title: 'Taux de Rejet',
-      value: `${(quality?.kpis.rejectRate || 0).toFixed(1)}%`,
+      value: formatMeasurement(quality?.kpis.rejectRate, quality?.measurement.decisions, "%"),
       target: '<5%',
       icon: AlertTriangle,
       status: getKPIStatus(quality?.kpis.rejectRate || 0, KPI_THRESHOLDS.rejectRate, false),
@@ -99,17 +100,17 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
       icon: Boxes,
       status: 'optimal' as const,
       trend: 0,
-      subtitle: `${stock?.kpis.rawMaterialCoverageDays || 0}j couverture MP`
+      subtitle: 'Couverture non mesurée'
     },
     {
       title: 'Coût/kg',
-      value: `${(cost?.kpis.costPerKg || 0).toFixed(2)} TND`,
+      value: formatMeasurement(cost?.kpis.costPerKg, (cost?.totalProduced ?? 0) > 0, " TND", 2),
       target: `${cost?.kpis.targetCostPerKg || 0} TND`,
       icon: DollarSign,
       status: (cost?.kpis.costVariancePercent || 0) <= 0 ? 'optimal' as const : 
               (cost?.kpis.costVariancePercent || 0) <= 10 ? 'warning' as const : 'critical' as const,
       trend: cost?.kpis.costVariancePercent || 0,
-      subtitle: 'vs objectif'
+      subtitle: 'Base standard, paramètres site'
     },
     {
       title: 'Ordres Terminés',
@@ -132,7 +133,7 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
     },
     {
       title: 'Occupation Zones',
-      value: `${(stock?.kpis.avgZoneOccupancy || 0).toFixed(0)}%`,
+      value: formatMeasurement(stock?.kpis.avgZoneOccupancy, stock?.measurement.occupancy, "%", 0),
       target: '<80%',
       icon: BarChart3,
       status: getKPIStatus(stock?.kpis.avgZoneOccupancy || 0, KPI_THRESHOLDS.zoneOccupancy, false),
@@ -142,6 +143,7 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
   ];
 
   return (
+    <DataState source={{ error, isLoading, refetch, updatedAt }} data={{ production, quality, stock, cost }} what="la synthèse des indicateurs">
     <div className="space-y-4">
       {/* KPI Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -149,25 +151,17 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
           <Card key={kpi.title} className="relative overflow-hidden">
             <CardContent className="p-4">
               <div className="flex items-start justify-between mb-2">
-                <div className={`p-2 rounded-lg ${KPI_STATUS_BG[kpi.status]}`}>
-                  <kpi.icon className={`h-4 w-4 ${KPI_STATUS_COLORS[kpi.status]}`} />
+                <div className={`p-2 rounded-lg bg-muted`}>
+                  <kpi.icon className={`h-4 w-4 text-muted-foreground`} />
                 </div>
-                {kpi.trend !== 0 && (
-                  <Badge 
-                    variant="outline" 
-                    className={kpi.trend > 0 ? 'text-emerald-600 border-emerald-200' : 'text-red-600 border-red-200'}
-                  >
-                    {kpi.trend > 0 ? <ArrowUpRight className="h-3 w-3 mr-1" /> : <ArrowDownRight className="h-3 w-3 mr-1" />}
-                    {Math.abs(kpi.trend).toFixed(1)}%
-                  </Badge>
-                )}
+
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">{kpi.title}</p>
                 <p className="text-2xl font-bold mt-1">{kpi.value}</p>
                 <div className="flex items-center justify-between mt-2 text-xs">
                   <span className="text-muted-foreground">{kpi.subtitle}</span>
-                  <span className={KPI_STATUS_COLORS[kpi.status]}>Cible: {kpi.target}</span>
+                  <span className="text-muted-foreground">Période sélectionnée</span>
                 </div>
               </div>
             </CardContent>
@@ -191,7 +185,7 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
           <CardContent>
             <div className="h-[280px]">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={production?.dailyTrend || []}>
+                <AreaChart data={production?.dailyTrend.map(day => ({ ...day, actual: production.measurement.output ? day.actual : null })) || []}>
                   <defs>
                     <linearGradient id="colorPlanned" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="hsl(221, 83%, 53%)" stopOpacity={0.4}/>
@@ -246,7 +240,7 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
                     strokeWidth={2.5}
                     fillOpacity={1}
                     fill="url(#colorActual)"
-                    name="Réel"
+                    name="Production déclarée"
                     dot={false}
                     activeDot={{ r: 6, strokeWidth: 2, stroke: '#fff', filter: 'url(#glow)' }}
                   />
@@ -269,6 +263,7 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
           </CardHeader>
           <CardContent>
             <div className="h-[280px]">
+              <DataState source={{}} data={cost?.costBreakdown} what="la ventilation des coûts" isEmpty={!cost?.costBreakdown.some(row => row.amount !== 0)} empty="Aucun montant ventilé sur cette période.">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <defs>
@@ -313,6 +308,7 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
                   />
                 </PieChart>
               </ResponsiveContainer>
+              </DataState>
             </div>
           </CardContent>
         </Card>
@@ -411,33 +407,7 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[200px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={production?.downtimeBreakdown || []} layout="vertical">
-                  <defs>
-                    {production?.downtimeBreakdown?.map((entry, index) => (
-                      <linearGradient key={`bar-gradient-${index}`} id={`barGradient-${index}`} x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor={entry.color} stopOpacity={0.8}/>
-                        <stop offset="100%" stopColor={entry.color} stopOpacity={1}/>
-                      </linearGradient>
-                    ))}
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.3} horizontal={false} />
-                  <XAxis type="number" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-                  <YAxis dataKey="label" type="category" width={100} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-                  <Tooltip 
-                    formatter={(value: number) => [`${value}h`, '']}
-                    contentStyle={modernTooltipStyle}
-                    cursor={{ fill: 'hsl(var(--muted))', opacity: 0.3 }}
-                  />
-                  <Bar dataKey="hours" radius={[0, 8, 8, 0]} barSize={20}>
-                    {production?.downtimeBreakdown?.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={`url(#barGradient-${index})`} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+<p className="py-10 text-center text-sm text-muted-foreground">Arrêts non mesurés. Aucun relevé de durée fourni.</p>
           </CardContent>
         </Card>
       </div>
@@ -480,5 +450,6 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
         </Card>
       )}
     </div>
+    </DataState>
   );
 };

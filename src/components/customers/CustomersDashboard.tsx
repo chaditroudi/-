@@ -1,3 +1,4 @@
+import { DataState } from '@/components/shared/DataState';
 import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,7 +34,8 @@ export default function CustomersDashboard() {
   const [editing,      setEditing]      = useState<Customer | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Customer | null>(null);
 
-  const { data: customers = [], isLoading } = useCustomers({ activeOnly: false });
+  const customerSource = useCustomers({ activeOnly: false });
+  const { data: customers = [], isLoading } = customerSource;
   const createCustomer = useCreateCustomer();
   const updateCustomer = useUpdateCustomer();
   const deleteCustomer = useDeleteCustomer();
@@ -78,7 +80,7 @@ export default function CustomersDashboard() {
 
   const isSaving = createCustomer.isPending || updateCustomer.isPending;
 
-  return (
+  return <DataState source={{ ...customerSource, updatedAt: customerSource.dataUpdatedAt }} data={customerSource.data} what="les clients" isEmpty={false}>{(
     <div className="flex flex-col gap-4 h-full">
       {customers.length > 0 && (
         <SummaryStrip
@@ -104,7 +106,7 @@ export default function CustomersDashboard() {
         </div>
 
         <Select value={filterCountry} onValueChange={setFilterCountry}>
-          <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+          <SelectTrigger aria-label="Pays du client" className="w-36"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Tous pays</SelectItem>
             <SelectItem value="EU">🇪🇺 EU</SelectItem>
@@ -114,7 +116,7 @@ export default function CustomersDashboard() {
         </Select>
 
         <Select value={filterActive} onValueChange={(v) => setFilterActive(v as typeof filterActive)}>
-          <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+          <SelectTrigger aria-label="Statut du client" className="w-32"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Tous</SelectItem>
             <SelectItem value="active">Actifs</SelectItem>
@@ -243,5 +245,5 @@ export default function CustomersDashboard() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  );
+  )}</DataState>;
 }

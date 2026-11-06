@@ -1,3 +1,4 @@
+import { DataState } from '@/components/shared/DataState';
 import { useState } from 'react';
 import { useAuditLogs, useAuditStats, type AuditLog } from '@/hooks/useSystemAudit';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -92,15 +93,18 @@ export function SystemAuditPanel() {
   const [eventFilter, setEventFilter] = useState<string>(ALL);
   const [search, setSearch] = useState('');
 
-  const now24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  // Keep query identities stable during rendering while retaining a rolling window.
+  const now24h = new Date(Math.floor(Date.now() / 60_000) * 60_000 - 24 * 60 * 60 * 1000).toISOString();
 
-  const { data: statsData, isLoading: statsLoading, isError: statsError } = useAuditStats(now24h);
-  const { data: logsData, isLoading: logsLoading, isError: logsError, dataUpdatedAt } = useAuditLogs({
+  const statSource = useAuditStats(now24h);
+  const { data: statsData, isLoading: statsLoading } = statSource;
+  const logSource = useAuditLogs({
     limit: 100,
     module: moduleFilter !== ALL ? moduleFilter : undefined,
     eventType: eventFilter !== ALL ? eventFilter : undefined,
     from: now24h,
   });
+  const { data: logsData, isLoading: logsLoading, dataUpdatedAt } = logSource;
 
   const logs = logsData?.logs ?? [];
   const filtered = search
@@ -112,17 +116,9 @@ export function SystemAuditPanel() {
       )
     : logs;
 
-  if (statsError && logsError) {
-    return (
-      <div className="flex flex-col items-center justify-center py-24 gap-3 text-muted-foreground">
-        <Shield className="h-10 w-10 opacity-30" />
-        <p className="text-sm font-medium">Impossible de charger le journal d'audit</p>
-        <p className="text-xs">Vérifiez que le serveur est en ligne et que vous êtes bien connecté.</p>
-      </div>
-    );
-  }
 
-  return (
+
+  return <DataState source={{ isLoading: statSource.isLoading || logSource.isLoading, error: statSource.error || logSource.error, updatedAt: Math.min(statSource.dataUpdatedAt || Date.now(), logSource.dataUpdatedAt || Date.now()), refetch: () => Promise.all([statSource.refetch(), logSource.refetch()]) }} data={statSource.data !== undefined && logSource.data !== undefined ? { statsData, logsData } : undefined} what="le journal d’audit système" isEmpty={false}>{(
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -243,7 +239,7 @@ export function SystemAuditPanel() {
         <CardHeader>
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <CardTitle className="text-sm">Flux d'activité en temps réel</CardTitle>
-            <div className="flex items-center gap-2">
+            <div className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto">
               <div className="relative">
                 <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <Input
@@ -297,5 +293,5 @@ export function SystemAuditPanel() {
         </CardContent>
       </Card>
     </div>
-  );
+  )}</DataState>;
 }

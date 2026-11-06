@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { useEffect, useState } from 'react';
 import { useUpdateSiteSettings } from '@/hooks/useSettings';
 import type { SiteSettings } from '@/types/settings';
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export function IntegrationsPanel({ settings }: Props) {
+  const fieldIdBase = useId();
   const update = useUpdateSiteSettings();
   const [integrations, setIntegrations] = useState({ ...settings.integrations });
 
@@ -50,7 +52,7 @@ export function IntegrationsPanel({ settings }: Props) {
             <Switch checked={integrations.label_printer_enabled} onCheckedChange={(checked) => setField('label_printer_enabled', checked)} />
           </label>
           <label className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
-            QR labels activés
+            Étiquettes QR activées
             <Switch checked={integrations.qr_labels_enabled} onCheckedChange={(checked) => setField('qr_labels_enabled', checked)} />
           </label>
         </CardContent>
@@ -62,9 +64,9 @@ export function IntegrationsPanel({ settings }: Props) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
-            <label className="text-xs">Mode de synchronisation ERP</label>
+            <label htmlFor={`${fieldIdBase}-IntegrationsPanel-native-1`} className="text-xs">Mode de synchronisation ERP</label>
             <Select value={integrations.erp_sync_mode} onValueChange={(value) => setField('erp_sync_mode', value)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger id={`${fieldIdBase}-IntegrationsPanel-native-1`}><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="disabled">Désactivé</SelectItem>
                 <SelectItem value="manual">Manuel</SelectItem>
@@ -107,8 +109,8 @@ export function IntegrationsPanel({ settings }: Props) {
 
           <div className="grid gap-3 md:grid-cols-2">
             <div className="space-y-1.5">
-              <label className="text-xs">Clé Google Maps</label>
-              <Input
+              <label htmlFor={`${fieldIdBase}-IntegrationsPanel-native-2`} className="text-xs">Clé Google Maps</label>
+              <Input id={`${fieldIdBase}-IntegrationsPanel-native-2`}
                 value={integrations.google_maps_api_key ?? ''}
                 onChange={(event) => setField('google_maps_api_key', event.target.value || null)}
                 placeholder="AIza..."
@@ -119,8 +121,8 @@ export function IntegrationsPanel({ settings }: Props) {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs">Zoom carte par défaut</label>
-              <Input
+              <label htmlFor={`${fieldIdBase}-IntegrationsPanel-native-3`} className="text-xs">Zoom carte par défaut</label>
+              <Input id={`${fieldIdBase}-IntegrationsPanel-native-3`}
                 type="number"
                 min={3}
                 max={18}
@@ -130,8 +132,8 @@ export function IntegrationsPanel({ settings }: Props) {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs">Fréquence refresh tracking (sec)</label>
-              <Input
+              <label htmlFor={`${fieldIdBase}-IntegrationsPanel-native-4`} className="text-xs">Fréquence refresh tracking (sec)</label>
+              <Input id={`${fieldIdBase}-IntegrationsPanel-native-4`}
                 type="number"
                 min={5}
                 max={300}
@@ -141,8 +143,8 @@ export function IntegrationsPanel({ settings }: Props) {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs">Alerte ETA en retard (min)</label>
-              <Input
+              <label htmlFor={`${fieldIdBase}-IntegrationsPanel-native-5`} className="text-xs">Alerte ETA en retard (min)</label>
+              <Input id={`${fieldIdBase}-IntegrationsPanel-native-5`}
                 type="number"
                 min={0}
                 max={240}

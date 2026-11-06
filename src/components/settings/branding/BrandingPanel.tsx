@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { useUpdateSiteSettings } from '@/hooks/useSettings';
 import type { SiteSettings } from '@/types/settings';
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export function BrandingPanel({ settings }: Props) {
+  const fieldIdBase = useId();
   const update = useUpdateSiteSettings();
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -66,18 +68,18 @@ export function BrandingPanel({ settings }: Props) {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-xs">Nom complet</Label>
-              <Input value={form.company_name} onChange={(e) => setForm(p => ({ ...p, company_name: e.target.value }))} placeholder="Nom de votre usine" />
+              <Label htmlFor={`${fieldIdBase}-BrandingPanel-1`} className="text-xs">Nom complet</Label>
+              <Input id={`${fieldIdBase}-BrandingPanel-1`} value={form.company_name} onChange={(e) => setForm(p => ({ ...p, company_name: e.target.value }))} placeholder="Nom de votre usine" />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Abréviation</Label>
-              <Input value={form.company_short_name} onChange={(e) => setForm(p => ({ ...p, company_short_name: e.target.value }))} placeholder="RP" maxLength={6} />
+              <Label htmlFor={`${fieldIdBase}-BrandingPanel-2`} className="text-xs">Abréviation</Label>
+              <Input id={`${fieldIdBase}-BrandingPanel-2`} value={form.company_short_name} onChange={(e) => setForm(p => ({ ...p, company_short_name: e.target.value }))} placeholder="RP" maxLength={6} />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-xs">Logo — URL externe</Label>
-            <Input value={form.logo_url} onChange={(e) => setForm(p => ({ ...p, logo_url: e.target.value }))} placeholder="https://..." />
+            <Label htmlFor={`${fieldIdBase}-BrandingPanel-3`} className="text-xs">Logo — URL externe</Label>
+            <Input id={`${fieldIdBase}-BrandingPanel-3`} value={form.logo_url} onChange={(e) => setForm(p => ({ ...p, logo_url: e.target.value }))} placeholder="https://..." />
           </div>
 
           <div className="flex items-center gap-3">

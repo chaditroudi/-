@@ -119,7 +119,12 @@ export const useAdvancedProductionAnalytics = (period: Period = 'month') => {
             }]
           : [];
 
-      return { kpis, dailyTrend, downtimeBreakdown };
+      return { kpis, dailyTrend, downtimeBreakdown, measurement: {
+        mass: totalActual + totalWaste > 0,
+        plan: totalPlanned > 0,
+        output: orders.some(o => ['completed', 'in_progress'].includes(o.status) && Number.isFinite(o.actual_quantity)),
+        downtime: false,
+      } };
     },
   });
 };
@@ -301,7 +306,7 @@ export const useAdvancedQualityAnalytics = (period: Period = 'month') => {
         };
       });
 
-      return { kpis, gradeDistribution, lossBreakdown, supplierQuality, qualityTrend };
+      return { kpis, gradeDistribution, lossBreakdown, supplierQuality, qualityTrend, measurement: { decisions: decidedInspections.length > 0 } };
     },
   });
 };
@@ -391,7 +396,10 @@ export const useAdvancedStockAnalytics = () => {
         fifoCompliance: 95,
       };
 
-      return { kpis, stockAging, zoneOccupancy };
+      return { kpis, stockAging, zoneOccupancy, measurement: {
+        occupancy: zoneOccupancy.length > 0 && zoneOccupancy.every(z => z.capacity > 0 && Number.isFinite(z.current)),
+        coverage: false, fifo: false,
+      } };
     },
   });
 };
@@ -443,6 +451,7 @@ export const useExecutiveDashboard = (period: Period = 'month') => {
   const cost = useAdvancedCostAnalytics(period);
 
   return {
+    updatedAt: Math.min(...[production, quality, stock, cost].map(source => source.dataUpdatedAt)),
     error: [production, quality, stock, cost].find(source => source.error)?.error,
     refetch: () => Promise.all([production, quality, stock, cost].map(source => source.refetch())),
     production: production.data,

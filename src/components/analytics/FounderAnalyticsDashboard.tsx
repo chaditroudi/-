@@ -60,8 +60,8 @@ function ExecutiveStrip({ period }: { period: Period }) {
     <p className="mb-2 text-xs text-muted-foreground">Source : réceptions, étapes et conditionnement enregistrés · {PERIOD_LABELS[period]}. Cycles et alertes : état actuel.</p>
     <SummaryStrip items={[
       { label: 'Volume reçu', value: loading ? '…' : totalKg > 0 ? fmtKg(totalKg) : '—', helper: `${rec?.receptions.total ?? 0} réceptions` },
-      { label: 'Rendement étapes', value: loading ? '…' : p2Yield > 0 ? `${p2Yield.toFixed(1)} %` : '—', helper: 'sur les étapes enregistrées' },
-      { label: 'OEE conditionnement', value: loading ? '…' : oee > 0 ? `${oee.toFixed(1)} %` : '—', helper: 'indicateur calculé sur la période' },
+      { label: 'Rapport flux déclarés', value: loading ? '…' : p2Yield > 0 ? `${p2Yield.toFixed(1)} %` : '—', helper: 'indicatif, hors bilan matière par lot' },
+      { label: 'Atteinte volume cible', value: loading ? '…' : (pkg?.kpis.totalTarget ?? 0) > 0 ? `${oee.toFixed(1)} %` : 'Non mesuré', helper: 'unités produites / cible, ne mesure pas le TRS' },
       { label: 'Palettes scellées', value: loading ? '…' : palettes > 0 ? palettes : '—', helper: palettesKg > 0 ? `${fmtKg(palettesKg)} net` : undefined },
       { label: 'Cycles actifs', value: loading ? '…' : cycles, helper: 'en production' },
       {

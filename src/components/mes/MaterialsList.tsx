@@ -125,10 +125,10 @@ export const MaterialsList = ({ materials, canManage = true }: MaterialsListProp
                       <TableCell className="text-end">
                         {canManage && (
                           <div className="flex justify-end gap-1">
-                            <Button variant="ghost" size="icon" onClick={() => handleEdit(material)}>
+                            <Button variant="ghost" size="icon" aria-label={`Modifier ${material.name}`} onClick={() => handleEdit(material)}>
                               <Edit2 className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon" onClick={() => handleDelete(material.id)}>
+                            <Button variant="ghost" size="icon" aria-label={`Supprimer ${material.name}`} onClick={() => handleDelete(material.id)}>
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
                           </div>

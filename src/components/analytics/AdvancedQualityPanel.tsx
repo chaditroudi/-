@@ -1,4 +1,5 @@
-﻿import { DataState } from '@/components/shared/DataState';
+﻿import { formatMeasurement } from '@/lib/analyticsPresentation';
+import { DataState } from '@/components/shared/DataState';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -62,17 +63,17 @@ export const AdvancedQualityPanel = ({ period }: AdvancedQualityPanelProps) => {
         <Card className="col-span-2 md:col-span-1">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className={`p-3 rounded-xl ${KPI_STATUS_BG[passRateStatus]}`}>
-                <Award className={`h-6 w-6 ${KPI_STATUS_COLORS[passRateStatus]}`} />
+              <div className={`p-3 rounded-xl bg-muted`}>
+                <Award className={`h-6 w-6 text-muted-foreground`} />
               </div>
               <div>
-                <p className="text-2xl font-bold">{(kpis?.passRate || 0).toFixed(1)}%</p>
+                <p className="text-2xl font-bold">{formatMeasurement(kpis?.passRate, data?.measurement.decisions, "%")}</p>
                 <p className="text-xs text-muted-foreground">Taux Conformité</p>
               </div>
             </div>
             <div className="mt-3">
-              <Progress value={kpis?.passRate || 0} className="h-2" />
-              <p className="text-xs text-muted-foreground mt-1">Cible: 95%</p>
+              {data?.measurement.decisions && <Progress value={kpis?.passRate} className="h-2" />}
+              <p className="text-xs text-muted-foreground mt-1">Base : inspections ayant une décision</p>
             </div>
           </CardContent>
         </Card>
@@ -111,12 +112,12 @@ export const AdvancedQualityPanel = ({ period }: AdvancedQualityPanelProps) => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${KPI_STATUS_BG[rejectRateStatus]}`}>
-                <XCircle className={`h-5 w-5 ${KPI_STATUS_COLORS[rejectRateStatus]}`} />
+              <div className={`p-2 rounded-lg bg-muted`}>
+                <XCircle className={`h-5 w-5 text-muted-foreground`} />
               </div>
               <div>
-                <p className={`text-2xl font-bold ${KPI_STATUS_COLORS[rejectRateStatus]}`}>
-                  {(kpis?.rejectRate || 0).toFixed(1)}%
+                <p className={`text-2xl font-bold text-muted-foreground`}>
+                  {formatMeasurement(kpis?.rejectRate, data?.measurement.decisions, "%")}
                 </p>
                 <p className="text-xs text-muted-foreground">Taux Rejet</p>
               </div>
@@ -364,13 +365,7 @@ export const AdvancedQualityPanel = ({ period }: AdvancedQualityPanelProps) => {
                     <TableCell className="text-right">{supplier.totalReceptions}</TableCell>
                     <TableCell className="text-right">{supplier.totalQuantityKg.toLocaleString('fr-FR')}</TableCell>
                     <TableCell className="text-right">
-                      <Badge 
-                        variant={supplier.trend === 'up' ? 'default' : supplier.trend === 'down' ? 'destructive' : 'secondary'}
-                      >
-                        {supplier.trend === 'up' ? <TrendingUp className="h-3 w-3 mr-1" /> : 
-                         supplier.trend === 'down' ? <TrendingDown className="h-3 w-3 mr-1" /> : null}
-                        {supplier.trend === 'up' ? 'Hausse' : supplier.trend === 'down' ? 'Baisse' : 'Stable'}
-                      </Badge>
+<span className="text-muted-foreground">Non mesurée</span>
                     </TableCell>
                   </TableRow>
                 ))}

@@ -136,12 +136,14 @@ export default defineConfig(async ({ command, mode }) => {
   server: {
     host: "::",
     port: devPort,
-    watch: process.env.VITE_USE_POLLING === "true"
-      ? {
-          usePolling: true,
-          interval: Number(process.env.VITE_POLLING_INTERVAL || 500),
-        }
-      : undefined,
+    watch: {
+      // Generated bundles, evidence and other agent worktrees are not app sources.
+      ignored: ["**/.local/**", "**/.claude/worktrees/**"],
+      ...(process.env.VITE_USE_POLLING === "true" ? {
+        usePolling: true,
+        interval: Number(process.env.VITE_POLLING_INTERVAL || 500),
+      } : {}),
+    },
     hmr: {
       overlay: false,
       clientPort: process.env.VITE_HMR_CLIENT_PORT

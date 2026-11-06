@@ -386,7 +386,10 @@ export const useLotSuggestions = (productId: string, requestedQty: number) => {
     return suggestions;
   }, [productId, requestedQty, result.data]);
 
-  return { data, isLoading: result.isLoading || result.isFetching };
+  const error = result.isError && productId && requestedQty > 0
+    ? new Error('Suggestions de lots indisponibles. Sélectionnez un lot autorisé manuellement.')
+    : null;
+  return { data, isLoading: result.isLoading || result.isFetching, error };
 };
 
 // ── All reception lots (unified storage view) ──────────────────────────────────

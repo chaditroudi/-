@@ -1,3 +1,6 @@
+import { canWrite } from '@/lib/apiAccess';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { toast as reportActionFailure } from 'sonner';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -31,7 +34,9 @@ export const OutputLotPanel = ({
   const [qty, setQty] = useState('');
   const [variety, setVariety] = useState('');
 
-  const isReadOnly = orderStatus === 'cancelled';
+  const { roles } = useAuthContext();
+  const canWriteOutput = canWrite(roles, 'productionOutput');
+  const isReadOnly = !canWriteOutput || orderStatus === 'cancelled';
   const canRecord = orderStatus === 'in_progress' || orderStatus === 'completed';
 
   // Infer bio from allocations (majority vote; warn if mixed)
@@ -41,8 +46,7 @@ export const OutputLotPanel = ({
 
   const handleRecord = () => {
     if (!qty || parseFloat(qty) <= 0) return;
-    recordOutput.mutate(
-      {
+    void recordOutput.mutateAsync({
         production_order_id: orderId,
         order_number: orderNumber,
         quantity: parseFloat(qty),
@@ -51,15 +55,11 @@ export const OutputLotPanel = ({
         bio_declared: isBio,
         recorded_by: actorName ?? null,
         allocations,
-      },
-      {
-        onSuccess: () => {
+      }).then(() => {
           setQty('');
           setVariety('');
           setAddOpen(false);
-        },
-      },
-    );
+        }).catch(error => reportActionFailure.error(error instanceof Error ? error.message : 'Action indisponible'));
   };
 
   return (

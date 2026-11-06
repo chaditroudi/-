@@ -1,3 +1,4 @@
+import { DataState } from '@/components/shared/DataState';
 import { useState } from 'react';
 import { format, parseISO, subDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -64,17 +65,19 @@ export const AuditTrailPanel = () => {
     subDays(new Date(), 7).toISOString().slice(0, 10),
   );
 
-  const { data, isLoading } = useAuditLogs({
+  const logSource = useAuditLogs({
     limit: PAGE_SIZE,
     offset: page * PAGE_SIZE,
     module: moduleFilter || undefined,
     eventType: severityFilter !== 'all' ? severityFilter : undefined,
     from: fromDate ? new Date(fromDate).toISOString() : undefined,
   });
+  const { data, isLoading } = logSource;
 
-  const { data: stats } = useAuditStats(
+  const statSource = useAuditStats(
     fromDate ? new Date(fromDate).toISOString() : undefined,
   );
+  const { data: stats } = statSource;
 
   const logs = data?.logs ?? [];
   const total = data?.total ?? 0;
@@ -82,7 +85,7 @@ export const AuditTrailPanel = () => {
 
   const handleFilterChange = () => setPage(0);
 
-  return (
+  return <DataState source={{ isLoading: logSource.isLoading || statSource.isLoading, error: logSource.error || statSource.error, updatedAt: Math.min(logSource.dataUpdatedAt || Date.now(), statSource.dataUpdatedAt || Date.now()), refetch: () => Promise.all([logSource.refetch(), statSource.refetch()]) }} data={logSource.data !== undefined && statSource.data !== undefined ? logSource.data : undefined} what="le journal d’audit" isEmpty={false}>{(
     <div className="space-y-4">
       {/* Stats cards */}
       {stats && (
@@ -270,5 +273,5 @@ export const AuditTrailPanel = () => {
         </CardContent>
       </Card>
     </div>
-  );
+  )}</DataState>;
 };

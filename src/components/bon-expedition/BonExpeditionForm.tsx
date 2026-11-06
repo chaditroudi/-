@@ -6,7 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { BonExpedition, BonExpeditionInput, ExpeditionLigne, ProduitType } from "@/types/bonExpedition";
+import type { BonExpedition, BonExpeditionStatut, BonExpeditionInput, ExpeditionLigne, ProduitType } from "@/types/bonExpedition";
 import { PRODUIT_LABELS, PRODUIT_ORDER } from "@/types/bonExpedition";
 import { useSuppliers } from "@/hooks/useSuppliers";
 import { useExportOrders } from "@/hooks/useExportOrders";
@@ -107,7 +107,7 @@ export function BonExpeditionForm({ initial, onSubmit, isSaving }: Props) {
           </div>
           <div>
             <Label className="text-xs">Statut</Label>
-            <Select value={statut} onValueChange={(v) => setStatut(v as import('@/types/bonExpedition').BonExpeditionStatut)}>
+            <Select value={statut} onValueChange={(value) => { if (value === "brouillon" || value === "valide" || value === "annule") setStatut(value); }}>
               <SelectTrigger className="h-10 text-sm"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="brouillon">Brouillon</SelectItem>

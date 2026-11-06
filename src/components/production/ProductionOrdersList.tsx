@@ -1,3 +1,5 @@
+import { canWrite } from '@/lib/apiAccess';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
@@ -30,6 +32,8 @@ const FILTERS: Array<{ value: 'open' | ProductionOrderStatus | 'all'; label: str
 ];
 
 export const ProductionOrdersList = ({ orders, receptions, onOpenOrder }: ProductionOrdersListProps) => {
+  const { roles } = useAuthContext();
+  const canCreate = canWrite(roles, 'productionCreate');
   const { t, i18n } = useTranslation();
   const { fluxCodeLabels, orderStatusLabels } = useProductionConfig();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -62,7 +66,7 @@ export const ProductionOrdersList = ({ orders, receptions, onOpenOrder }: Produc
             </Button>
           ))}
         </div>
-        <Button type="button" className="ml-auto gap-2" onClick={() => setShowCreateDialog(true)}>
+        <Button data-testid="production-create" disabled={!canCreate} type="button" className="ml-auto gap-2" onClick={() => setShowCreateDialog(true)}>
           <Plus className="h-4 w-4" />
           {t('production.new')}
         </Button>

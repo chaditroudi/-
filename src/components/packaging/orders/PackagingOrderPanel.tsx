@@ -1,3 +1,6 @@
+import { DataState } from '@/components/shared/DataState';
+import { canWrite } from '@/lib/apiAccess';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useState } from 'react';
 import { usePackagingOrders, usePackagingKpis, useLabelTemplates } from '@/hooks/usePackaging';
 import {
@@ -16,8 +19,12 @@ import { fr } from 'date-fns/locale';
 import { SummaryStrip } from '@/components/shared/SummaryStrip';
 
 export function PackagingOrderPanel({ currentUser = 'Utilisateur' }: { currentUser?: string }) {
-  const { data: orders = [], isLoading } = usePackagingOrders();
-  const { data: kpis } = usePackagingKpis();
+  const { roles } = useAuthContext();
+  const canCreate = canWrite(roles, 'packagingCreate');
+  const source = usePackagingOrders();
+  const { data: orders = [], isLoading } = source;
+  const kpiSource = usePackagingKpis();
+  const { data: kpis } = kpiSource;
   const { data: labels = [] } = useLabelTemplates();
 
   const [showCreate, setShowCreate] = useState(false);
@@ -28,15 +35,16 @@ export function PackagingOrderPanel({ currentUser = 'Utilisateur' }: { currentUs
   const recent = orders.filter((o) => ['TERMINE', 'ANNULE'].includes(o.status)).slice(0, 10);
 
   return (
+<DataState source={source} data={source.data} isEmpty={false} what="les ordres de conditionnement">
     <div className="space-y-4">
-      <SummaryStrip items={[
+      <DataState source={kpiSource} data={kpis} what="les indicateurs de conditionnement"><SummaryStrip items={[
         { label: 'En cours', value: kpis?.active_orders ?? active.length },
         { label: 'Planifiés', value: kpis?.planned_orders ?? planned.length },
         { label: "Terminés aujourd'hui", value: kpis?.completed_today ?? 0 },
         { label: "Produits aujourd'hui", value: (kpis?.total_produced_today ?? 0).toLocaleString('fr-TN') },
         { label: 'Palettes scellées', value: kpis?.palettes_sealed_today ?? 0 },
-        { label: 'Rendement moyen', value: kpis?.avg_yield_pct != null ? `${kpis.avg_yield_pct} %` : '—' },
-      ]} />
+        { label: 'Atteinte cible (moy.)', value: kpis?.avg_yield_pct != null ? `${kpis.avg_yield_pct} %` : '—' },
+      ]} /></DataState>
 
       {/* Active + Planned orders */}
       <Card>
@@ -45,7 +53,7 @@ export function PackagingOrderPanel({ currentUser = 'Utilisateur' }: { currentUs
             <CardTitle className="text-sm">
               Ordres actifs + planifiés ({active.length + planned.length})
             </CardTitle>
-            <Button size="sm" onClick={() => setShowCreate(true)}>
+            <Button data-testid="packaging-create" disabled={!canCreate} size="sm" onClick={() => setShowCreate(true)}>
               <Plus className="h-4 w-4 mr-1.5" />
               Nouvel OF
             </Button>
@@ -176,5 +184,6 @@ export function PackagingOrderPanel({ currentUser = 'Utilisateur' }: { currentUs
         />
       )}
     </div>
+</DataState>
   );
 }

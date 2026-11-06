@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 
@@ -20,6 +21,7 @@ const SITE_CODES = Object.keys(SITE_LABELS) as SiteCode[];
 const cloneP2PSettings = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
 export function P2PSettingsPanel({ settings }: Props) {
+  const fieldIdBase = useId();
   const update = useUpdateSiteSettings();
   const [p2p, setP2P] = useState(cloneP2PSettings(settings.p2p));
 
@@ -122,8 +124,8 @@ export function P2PSettingsPanel({ settings }: Props) {
 
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-xs">Nombre minimum de devis</Label>
-              <Input
+              <Label htmlFor={`${fieldIdBase}-P2PSettingsPanel-1`} className="text-xs">Nombre minimum de devis</Label>
+              <Input id={`${fieldIdBase}-P2PSettingsPanel-1`}
                 type="number"
                 min={1}
                 value={p2p.rfq_minimum_quote_count}
@@ -131,8 +133,8 @@ export function P2PSettingsPanel({ settings }: Props) {
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Seuil RFQ (TND)</Label>
-              <Input
+              <Label htmlFor={`${fieldIdBase}-P2PSettingsPanel-2`} className="text-xs">Seuil RFQ (TND)</Label>
+              <Input id={`${fieldIdBase}-P2PSettingsPanel-2`}
                 type="number"
                 min={0}
                 value={p2p.rfq_quote_threshold_tnd}
@@ -140,8 +142,8 @@ export function P2PSettingsPanel({ settings }: Props) {
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Tolérance facture par défaut (%)</Label>
-              <Input
+              <Label htmlFor={`${fieldIdBase}-P2PSettingsPanel-3`} className="text-xs">Tolérance facture par défaut (%)</Label>
+              <Input id={`${fieldIdBase}-P2PSettingsPanel-3`}
                 type="number"
                 min={0}
                 step="0.1"
@@ -165,8 +167,8 @@ export function P2PSettingsPanel({ settings }: Props) {
                 <p className="text-xs text-muted-foreground">{step.level}</p>
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs">Seuil minimum (TND)</Label>
-                <Input
+                <Label htmlFor={`${fieldIdBase}-P2PSettingsPanel-4-${String(step.level)}`} className="text-xs">Seuil minimum (TND)</Label>
+                <Input id={`${fieldIdBase}-P2PSettingsPanel-4-${String(step.level)}`}
                   type="number"
                   min={0}
                   value={step.threshold_gte}
@@ -241,8 +243,8 @@ export function P2PSettingsPanel({ settings }: Props) {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Alerte J-60</Label>
-                    <Input
+                    <Label htmlFor={`${fieldIdBase}-P2PSettingsPanel-5-${String(site)}`} className="text-xs">Alerte J-60</Label>
+                    <Input id={`${fieldIdBase}-P2PSettingsPanel-5-${String(site)}`}
                       type="number"
                       min={1}
                       value={rule.cert_alert_days[0] ?? 60}
@@ -250,8 +252,8 @@ export function P2PSettingsPanel({ settings }: Props) {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Alerte J-30</Label>
-                    <Input
+                    <Label htmlFor={`${fieldIdBase}-P2PSettingsPanel-6-${String(site)}`} className="text-xs">Alerte J-30</Label>
+                    <Input id={`${fieldIdBase}-P2PSettingsPanel-6-${String(site)}`}
                       type="number"
                       min={1}
                       value={rule.cert_alert_days[1] ?? 30}

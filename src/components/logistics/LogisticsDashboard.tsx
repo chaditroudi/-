@@ -1,3 +1,4 @@
+import { DataState } from '@/components/shared/DataState';
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -504,7 +505,8 @@ const ShipmentDetailDialog = ({
   const [lineNotes, setLineNotes] = useState('');
   const selectedProduct = products.find((product) => product.id === selectedProductId);
   const matchingLots = finishedLots.filter((lot) => lot.product_id === selectedProductId && lot.current_quantity > 0);
-  const suggestions = useLotSuggestions(selectedProductId, Number(requestedQuantity || 0)).data || [];
+  const suggestionSource = useLotSuggestions(selectedProductId, Number(requestedQuantity || 0));
+  const suggestions = suggestionSource.data ?? [];
 
   useEffect(() => {
     if (!shipment) return;
@@ -697,6 +699,7 @@ const ShipmentDetailDialog = ({
                   <Input value={lineNotes} onChange={(event) => setLineNotes(event.target.value)} />
                 </div>
 
+                {suggestionSource.error && <p role="status" className="rounded-lg border p-3 text-sm text-muted-foreground">{suggestionSource.error.message}</p>}
                 {suggestions.length > 0 && (
                   <div className="space-y-2 rounded-lg border border-dashed p-3">
                     <div className="text-sm font-medium">Suggestions systeme</div>
@@ -890,7 +893,8 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
       setMainTab(initialView);
     }
   }, [initialView]);
-  const { data: shipments = [] } = useShipments();
+  const shipmentSource = useShipments();
+  const { data: shipments = [] } = shipmentSource;
   const { data: finishedProducts = [] } = useProducts('PF');
   const { data: finishedLots = [] } = useStockLots({ category: 'PF' });
   const actorName = profile?.full_name || user?.email || 'system';
@@ -925,7 +929,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
     return checklist.conformityReady && checklist.phytosanitaryReady && checklist.genealogyReady;
   }).length;
 
-  return (
+  return <DataState source={{ ...shipmentSource, updatedAt: shipmentSource.fulfilledTimeStamp }} data={shipmentSource.currentData} what="les expéditions" isEmpty={false}>{(
     <div className="space-y-4">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-wrap gap-2">
@@ -942,7 +946,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
 
       <SummaryStrip items={[
         { label: 'Dossiers expédition', value: shipments.length },
-        { label: 'Couverture traçabilité', value: `${traceabilityCoverage} %` },
+        { label: 'Couverture traçabilité', value: allLines.length > 0 ? `${traceabilityCoverage} %` : 'Non mesurée' },
         { label: 'Dossiers export complets', value: compliantShipments },
         { label: 'Actions ouvertes', value: openActions, tone: openActions > 0 ? 'watch' : 'default' },
       ]} />
@@ -1285,5 +1289,5 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
         onOpenChange={(open) => !open && setRecallShipmentId(null)}
       />
     </div>
-  );
+  )}</DataState>;
 };

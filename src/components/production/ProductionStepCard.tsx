@@ -1,3 +1,6 @@
+import { canWrite } from '@/lib/apiAccess';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -37,6 +40,8 @@ const STEP_BADGE: Record<ProductionStepStatus, string> = {
 };
 
 export const ProductionStepCard = ({ step, isActive, allSteps }: ProductionStepCardProps) => {
+  const { roles } = useAuthContext();
+  const canEdit = canWrite(roles, 'productionStep');
   const { t, i18n } = useTranslation();
   const { stepStatusLabels } = useProductionConfig();
   const [operatorName, setOperatorName] = useState(step.operator_name || '');
@@ -66,24 +71,26 @@ export const ProductionStepCard = ({ step, isActive, allSteps }: ProductionStepC
   };
 
   const handleStatusChange = (newStatus: ProductionStepStatus) => {
-    updateStep.mutate({
+    if (!canEdit) return;
+    void updateStep.mutateAsync({
       id: step.id,
       status: newStatus,
       operator_name: operatorName || undefined,
       output_quantity: outputQuantity ? parseFloat(outputQuantity) : undefined,
       waste_quantity: wasteQuantity ? parseFloat(wasteQuantity) : undefined,
       notes: notes || undefined,
-    });
+    }).catch(error => toast.error(error instanceof Error ? error.message : "Modification indisponible"));
   };
 
   const handleSaveData = () => {
-    updateStep.mutate({
+    if (!canEdit) return;
+    void updateStep.mutateAsync({
       id: step.id,
       operator_name: operatorName || undefined,
       output_quantity: outputQuantity ? parseFloat(outputQuantity) : undefined,
       waste_quantity: wasteQuantity ? parseFloat(wasteQuantity) : undefined,
       notes: notes || undefined,
-    });
+    }).catch(error => toast.error(error instanceof Error ? error.message : "Modification indisponible"));
   };
 
   const isPending = step.status === 'pending';
@@ -256,7 +263,7 @@ export const ProductionStepCard = ({ step, isActive, allSteps }: ProductionStepC
                 <Button
                   size="sm"
                   onClick={() => handleStatusChange('in_progress')}
-                  disabled={updateStep.isPending || previousStepsBlocking}
+                  disabled={!canEdit || (updateStep.isPending || previousStepsBlocking)}
                   className="rounded-lg"
                   title={previousStepsBlocking ? t('production.previousStepsRequired', 'Les étapes précédentes doivent être terminées') : undefined}
                 >
@@ -275,7 +282,7 @@ export const ProductionStepCard = ({ step, isActive, allSteps }: ProductionStepC
                     size="sm"
                     variant="outline"
                     onClick={handleSaveData}
-                    disabled={updateStep.isPending || !hasFormChanges}
+                    disabled={!canEdit || (updateStep.isPending || !hasFormChanges)}
                     className="rounded-lg"
                   >
                     {updateStep.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -298,7 +305,7 @@ export const ProductionStepCard = ({ step, isActive, allSteps }: ProductionStepC
                   <Button
                     size="sm"
                     onClick={() => handleStatusChange('completed')}
-                    disabled={updateStep.isPending || !canComplete}
+                    disabled={!canEdit || (updateStep.isPending || !canComplete)}
                     className="rounded-lg bg-emerald-600 hover:bg-emerald-700"
                     title={!canComplete ? t('production.qualityCheckRequired', 'Contrôle qualité requis avant de terminer') : undefined}
                   >
@@ -310,7 +317,7 @@ export const ProductionStepCard = ({ step, isActive, allSteps }: ProductionStepC
                     size="sm"
                     variant="destructive"
                     onClick={() => handleStatusChange('failed')}
-                    disabled={updateStep.isPending}
+                    disabled={!canEdit || (updateStep.isPending)}
                     className="rounded-lg"
                   >
                     {updateStep.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <XCircle className="mr-2 h-4 w-4" />}
@@ -322,7 +329,7 @@ export const ProductionStepCard = ({ step, isActive, allSteps }: ProductionStepC
                       size="sm"
                       variant="outline"
                       onClick={() => handleStatusChange('skipped')}
-                      disabled={updateStep.isPending || previousStepsBlocking}
+                      disabled={!canEdit || (updateStep.isPending || previousStepsBlocking)}
                       className="rounded-lg"
                     >
                       {updateStep.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <SkipForward className="mr-2 h-4 w-4" />}

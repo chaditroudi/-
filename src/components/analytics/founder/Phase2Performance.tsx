@@ -13,8 +13,8 @@ type Period = 'today' | 'week' | 'month' | 'quarter';
 
 const GRADE_COLORS = { EXTRA: '#22c55e', CATEGORIE_I: '#3b82f6', CATEGORIE_II: '#f59e0b', REJETE: '#ef4444' };
 
-const yieldColor = (v: number) => v >= 95 ? 'text-green-600' : v >= 88 ? 'text-amber-600' : 'text-red-600';
-const yieldBg = (v: number) => v >= 95 ? 'bg-green-500' : v >= 88 ? 'bg-amber-500' : 'bg-red-500';
+const yieldColor = (_v: number) => 'text-foreground';
+const yieldBg = (_v: number) => 'bg-primary';
 
 export function Phase2Performance({ period }: { period: Period }) {
   const source = usePhase2Analytics(period);
@@ -23,7 +23,7 @@ export function Phase2Performance({ period }: { period: Period }) {
   if (isLoading) return <div className="py-20 text-center text-sm text-muted-foreground animate-pulse">Analyse Phase 2…</div>;
 
   const modules = [
-    { key: 'fumigation', label: 'Fumigation', icon: Flame, extra: data?.fumigation.done ? `CCP ${data.fumigation.ccpCompliance.toFixed(0)}% (indicateur calculé)` : 'CCP non mesuré : aucun cycle terminé' },
+    { key: 'fumigation', label: 'Fumigation', icon: Flame, extra: data?.fumigation.done ? 'Conformité CCP non établie par cette synthèse' : 'CCP non mesuré : aucun cycle terminé' },
     { key: 'nettoyage', label: 'Nettoyage', icon: Droplets, extra: data?.nettoyage.avgTurbidity ? `Turbidité ${data.nettoyage.avgTurbidity.toFixed(0)} NTU` : '' },
     { key: 'hydratation', label: 'Hydratation', icon: Wind, extra: data?.hydratation.avgHumidityGain ? `+${data.hydratation.avgHumidityGain.toFixed(1)}% hum.` : '' },
     { key: 'triage', label: 'Triage', icon: Scissors, extra: data?.triage.avgRejetePct ? `${data.triage.avgRejetePct.toFixed(1)}% rejeté` : '' },
@@ -44,10 +44,10 @@ export function Phase2Performance({ period }: { period: Period }) {
                   <Icon className="h-4 w-4 text-muted-foreground" />
                   <span className="text-xs font-medium">{label}</span>
                 </div>
-                <div className={`text-2xl font-black ${yieldColor(y)}`}>{m?.done > 0 ? `${y.toFixed(1)}%` : '—'}</div>
-                <div className="text-xs text-muted-foreground mt-0.5">rendement moyen</div>
+                <div className={`text-2xl font-black ${yieldColor(y)}`}>{m?.done > 0 && y > 0 ? `${y.toFixed(1)}%` : 'Non mesuré'}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">rapport indicatif des volumes déclarés</div>
                 {m?.done > 0 && <Progress value={y} className="h-1 mt-2" indicatorClassName={yieldBg(y)} />}
-                <div className="flex items-center justify-between mt-1">
+                <div className="mt-1 flex flex-col gap-1">
                   <span className="text-xs text-muted-foreground">{m?.done ?? 0} cycle(s)</span>
                   {extra && <span className="text-xs text-muted-foreground">{extra}</span>}
                 </div>
@@ -119,19 +119,10 @@ export function Phase2Performance({ period }: { period: Period }) {
 
       {/* CCP Compliance */}
       {(data?.fumigation.done ?? 0) > 0 && (
-        <Card className={data!.fumigation.ccpCompliance >= 95 ? 'border-green-300 bg-card' : 'border-amber-300 bg-card'}>
-          <CardContent className="pt-3 pb-3 flex items-center gap-3">
-            <ShieldCheck className={`h-5 w-5 shrink-0 ${data!.fumigation.ccpCompliance >= 95 ? 'text-green-600' : 'text-amber-600'}`} />
-            <div>
-              <span className="text-sm font-semibold">CCP Fumigation — Conformité PH3</span>
-              <div className="text-xs text-muted-foreground">Concentration 0.3–1.5% • Phosphine ≤ 0.3 ppm</div>
-            </div>
-            <div className="ml-auto text-2xl font-black">{data!.fumigation.ccpCompliance.toFixed(0)}%</div>
-            <Badge className={data!.fumigation.ccpCompliance >= 95 ? 'bg-green-600' : 'bg-amber-600'}>
-              {data!.fumigation.ccpCompliance >= 95 ? 'CONFORME' : 'SURVEILLER'}
-            </Badge>
-          </CardContent>
-        </Card>
+        <Card><CardContent className="pt-3 pb-3">
+          <p className="text-sm font-semibold">Conformité CCP non établie par cette synthèse</p>
+          <p className="text-xs text-muted-foreground">Consultez les preuves et la décision qualité signée. Le calcul historique ne certifie pas les mesures de phosphine ni les limites applicables au site.</p>
+        </CardContent></Card>
       )}
     </div>
     </DataState>

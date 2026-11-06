@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { useState } from 'react';
 import { useManagedUsers, useUpdateManagedUser, useCreateManagedUser } from '@/hooks/useSettings';
 import type { ManagedUser } from '@/types/settings';
@@ -26,6 +27,7 @@ import { cn } from '@/lib/utils';
 const allRoles = Object.values(ROLE_CONFIG);
 
 export function UserManagementPanel() {
+  const fieldIdBase = useId();
   const { data: users = [], isLoading } = useManagedUsers();
   const updateUser = useUpdateManagedUser();
   const createUser = useCreateManagedUser();
@@ -227,12 +229,13 @@ export function UserManagementPanel() {
                     <Badge variant={u.is_active ? 'default' : 'secondary'} className="text-xs">
                       {u.is_active ? 'Actif' : 'Inactif'}
                     </Badge>
-                    <Button variant="ghost" className="h-7 w-7" onClick={() => openEdit(u)}>
+                    <Button variant="ghost" className="h-11 w-11" aria-label={`Modifier le profil de ${u.full_name || u.email}`} onClick={() => openEdit(u)}>
                       <Edit2 className="h-3.5 w-3.5" />
                     </Button>
                     <Button
                       variant="ghost"
-                      className={`h-7 w-7 ${u.is_active ? 'text-red-500 hover:text-red-600' : 'text-green-600 hover:text-green-700'}`}
+                      className={`h-11 w-11 ${u.is_active ? 'text-red-500 hover:text-red-600' : 'text-green-600 hover:text-green-700'}`}
+                      aria-label={`${u.is_active ? "Désactiver" : "Activer"} le compte de ${u.full_name || u.email}`}
                       onClick={() => handleToggleActive(u)}
                       disabled={updateUser.isPending}
                     >
@@ -253,9 +256,9 @@ export function UserManagementPanel() {
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-xs">Rôle MES (espace)</Label>
+              <Label htmlFor={`${fieldIdBase}-UserManagementPanel-1`} className="text-xs">Rôle MES (espace)</Label>
               <Select value={editRoles[0] ?? ''} onValueChange={(v) => setEditRoles([v])}>
-                <SelectTrigger>
+                <SelectTrigger id={`${fieldIdBase}-UserManagementPanel-1`}>
                   <SelectValue placeholder="Sélectionner un rôle" />
                 </SelectTrigger>
                 <SelectContent className="max-h-72">
@@ -293,12 +296,12 @@ export function UserManagementPanel() {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs">Département principal</Label>
+              <Label htmlFor={`${fieldIdBase}-UserManagementPanel-2`} className="text-xs">Département principal</Label>
               <Select
                 value={editPrimaryDepartment || '_none'}
                 onValueChange={(v) => setEditPrimaryDepartment(v === '_none' ? '' : v as DepartmentCode)}
               >
-                <SelectTrigger>
+                <SelectTrigger id={`${fieldIdBase}-UserManagementPanel-2`}>
                   <SelectValue placeholder="Principal..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -338,7 +341,7 @@ export function UserManagementPanel() {
             </div>
 
             <div className="space-y-2 rounded-lg border border-dashed p-3">
-              <Label className="text-xs flex items-center gap-1.5">
+              <Label htmlFor={`${fieldIdBase}-UserManagementPanel-3`} className="text-xs flex items-center gap-1.5">
                 <Lock className="h-3.5 w-3.5" />
                 Code signature numérique
               </Label>
@@ -347,7 +350,7 @@ export function UserManagementPanel() {
                   ? 'PIN déjà défini — saisissez un nouveau code pour le remplacer (laisse vide pour ne pas changer).'
                   : 'Aucun PIN — définir 4 à 6 chiffres pour les visas CCP / réglementés.'}
               </p>
-              <Input
+              <Input id={`${fieldIdBase}-UserManagementPanel-3`}
                 type="password"
                 inputMode="numeric"
                 pattern="[0-9]*"
@@ -453,9 +456,9 @@ export function UserManagementPanel() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Rôle MES *</Label>
+              <Label htmlFor={`${fieldIdBase}-UserManagementPanel-4`} className="text-xs font-medium">Rôle MES *</Label>
               <Select value={newRole} onValueChange={(v) => setNewRole(v as ActorRole)}>
-                <SelectTrigger>
+                <SelectTrigger id={`${fieldIdBase}-UserManagementPanel-4`}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="max-h-72">

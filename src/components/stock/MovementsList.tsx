@@ -1,3 +1,4 @@
+import { DataState } from '@/components/shared/DataState';
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,9 +27,10 @@ export const MovementsList = () => {
   const [typeFilter, setTypeFilter] = useState<StockMovementType | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const { data: movements = [], isLoading } = useStockMovements({
+  const source = useStockMovements({
     type: typeFilter === 'all' ? undefined : typeFilter
   });
+  const { data: movements = [], isLoading } = source;
 
   const filteredMovements = movements.filter(m => 
     m.movement_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -60,6 +62,7 @@ export const MovementsList = () => {
   };
 
   return (
+<DataState source={source} data={source.data} isEmpty={false} what="les mouvements de stock">
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2">
@@ -190,5 +193,6 @@ export const MovementsList = () => {
         )}
       </CardContent>
     </Card>
+</DataState>
   );
 };

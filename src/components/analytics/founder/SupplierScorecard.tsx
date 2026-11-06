@@ -7,8 +7,8 @@ import { Users } from 'lucide-react';
 
 type Period = 'today' | 'week' | 'month' | 'quarter';
 
-const acceptColor = (v: number) => v >= 90 ? '#22c55e' : v >= 75 ? '#f59e0b' : '#ef4444';
-const acceptLabel = (v: number) => v >= 90 ? 'Excellent' : v >= 75 ? 'Moyen' : 'Faible';
+const acceptColor = (_v: number) => 'hsl(var(--primary))';
+const acceptLabel = (_v: number) => 'réceptions acceptées';
 
 export function SupplierScorecard({ period }: { period: Period }) {
   const source = useSupplierIntelligence(period);
@@ -22,6 +22,7 @@ export function SupplierScorecard({ period }: { period: Period }) {
   return (
     <DataState source={{ ...source, updatedAt: source.dataUpdatedAt }} data={data} what="les indicateurs de la période">
     <div className="space-y-4">
+      <p className="text-xs text-muted-foreground">Réceptions marquées acceptées / livraisons enregistrées. Une décision en attente ne constitue pas un rejet.</p>
       {/* Summary KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <Card>
@@ -46,7 +47,7 @@ export function SupplierScorecard({ period }: { period: Period }) {
                 ? `${(suppliers.reduce((s, r) => s + r.acceptanceRate, 0) / suppliers.length).toFixed(1)}%`
                 : '—'}
             </div>
-            <div className="text-xs text-muted-foreground">Taux acceptation moyen</div>
+            <div className="text-xs text-muted-foreground">Moyenne des fractions acceptées</div>
           </CardContent>
         </Card>
       </div>
@@ -107,7 +108,7 @@ export function SupplierScorecard({ period }: { period: Period }) {
                   </div>
                   <div className="shrink-0">
                     <Badge className="text-xs h-5 px-1.5" style={{ background: acceptColor(s.acceptanceRate) }}>
-                      {s.acceptanceRate.toFixed(0)}% — {acceptLabel(s.acceptanceRate)}
+                      {s.deliveries > 0 ? `${s.acceptanceRate.toFixed(0)}% — ${acceptLabel(s.acceptanceRate)}` : "Non mesuré"}
                     </Badge>
                   </div>
                 </div>

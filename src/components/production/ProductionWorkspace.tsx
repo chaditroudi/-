@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { DataSource } from '@/components/shared/DataState';
+import { DataState, type DataSource } from '@/components/shared/DataState';
 import {
   Bell,
   CheckCircle2,
@@ -211,7 +211,7 @@ export function ProductionWorkspace({
             onOpenOrder={setOrderId}
           />
         )}
-        {view === 'orders' && <ProductionOrdersList orders={orders} receptions={receptions} onOpenOrder={setOrderId} />}
+        {view === 'orders' && <DataState source={ordersSource} data={ordersData} isEmpty={false} what="les ordres de fabrication"><ProductionOrdersList orders={orders} receptions={receptions} onOpenOrder={setOrderId} /></DataState>}
         {view === 'pipeline' && (
           <ProductionPipelinePanel
             onLaunchFumigation={(lot) => {

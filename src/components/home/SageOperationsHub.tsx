@@ -1,6 +1,6 @@
+import { DataState } from '@/components/shared/DataState';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
   ShoppingCart,
   Truck,
@@ -22,27 +22,14 @@ interface SageOperationsHubProps {
 }
 
 export const SageOperationsHub = ({ onNavigate, accessibleTabs }: SageOperationsHubProps) => {
-  const { data, isLoading, isError, error, refetch } = useSageOperations();
+  const source = useSageOperations();
+  const { data } = source;
 
-  if (isLoading) {
-    return <p className="p-4 text-sm text-muted-foreground">Chargement cockpit…</p>;
-  }
+  if (!data) return <DataState source={source} data={data} what="le cockpit usine">{null}</DataState>;
 
-  if (isError || !data) {
-    return (
-      <div className="space-y-2 p-4">
-        <p className="text-sm text-red-600">Cockpit indisponible.</p>
-        <p className="text-xs text-muted-foreground">
-          {error instanceof Error ? error.message : 'Erreur'}
-        </p>
-        <Button size="sm" variant="outline" onClick={() => refetch()}>
-          Réessayer
-        </Button>
-      </div>
-    );
-  }
-
-  const { flow, compliance, blockers } = data;
+  // Coverage defaults to 100 with no receipts, and the API supplies no denominator.
+  // Keep it unmeasured until a defensible measurement basis is exposed.
+  const { flow, blockers } = data;
 
   const processCards = [
     {
@@ -82,6 +69,7 @@ export const SageOperationsHub = ({ onNavigate, accessibleTabs }: SageOperations
     .slice(0, 5);
 
   return (
+    <DataState source={{ ...source, updatedAt: source.dataUpdatedAt }} data={data} what="le cockpit usine">
     <div className="mx-auto max-w-5xl space-y-4">
       <div className="grid grid-cols-3 gap-2">
         <div className="rounded-xl border px-3 py-2.5">
@@ -95,8 +83,9 @@ export const SageOperationsHub = ({ onNavigate, accessibleTabs }: SageOperations
           </p>
         </div>
         <div className="rounded-xl border px-3 py-2.5">
-          <p className="text-xs text-muted-foreground">Traçabilité</p>
-          <p className="text-lg font-semibold">{compliance.traceabilityCoverage}%</p>
+          <p className="text-xs text-muted-foreground">Traçabilité achat</p>
+          <p className="text-lg font-semibold">Non mesurée</p>
+          <p className="text-xs text-muted-foreground">Base non fournie</p>
         </div>
       </div>
 
@@ -152,5 +141,6 @@ export const SageOperationsHub = ({ onNavigate, accessibleTabs }: SageOperations
       <GoldenThreadPanel onOpenScan={() => onNavigate('scan')} />
       <RecallDrillPanel />
     </div>
+    </DataState>
   );
 };

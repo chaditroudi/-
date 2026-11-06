@@ -298,6 +298,16 @@ try {
         const result = await api('GET', route.replace('GET /api', ''), session.access_token);
         check(item.role, route + ' matches backend authorization', allowed ? result.status === 200 : result.status === 403, result.status);
       }
+      // Denied commands must stop at authorization, before touching business records.
+      // Allowed manufacturing commands need valid industrial fixtures; these probes
+      // deliberately do not claim that their golden-thread workflows are accepted.
+      for (const { route, allowed } of Object.values(item.actions ?? {})) {
+        if (allowed) continue;
+        const [method, template] = route.split(' ');
+        const endpoint = template.replace('/api', '').replace(/:[A-Za-z]+/g, 'phase1-forbidden-probe');
+        const result = await api(method, endpoint, session.access_token, {});
+        check(item.role, route + ' refuses the forbidden command before mutation', result.status === 403, result.status);
+      }
       const { page, context, responses } = await openFor(session);
       await visit(page, 'home');
       const body = await text(page);
@@ -324,6 +334,89 @@ try {
         check(item.role, layout + ' has no horizontal overflow', await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
         await shot(page, item.role + '-daily-' + WIDTHS[layout].width);
       }
+      // Actual command affordances and their secondary reads, on each canonical role.
+      await page.setViewport(WIDTHS.desktop);
+      for (const [tab, action, selector, extra] of [
+        ['production', 'productionCreate', '[data-testid="production-create"]', '&view=orders'],
+        ['packaging', 'packagingCreate', '[data-testid="packaging-create"]', ''],
+      ]) {
+        if (!item.tabs.includes(tab)) continue;
+        responses.length = 0;
+        await visit(page, tab, extra);
+        const allowed = item.actions?.[action]?.allowed === true;
+        const enabled = await page.evaluate(selector => {
+          const button = document.querySelector(selector);
+          return Boolean(button && !button.disabled);
+        }, selector);
+        check(item.role, tab + ' create button follows backend command permission', enabled === allowed, { enabled, allowed });
+        if (!allowed || !enabled) continue;
+        await page.click(selector);
+        const opened = await until(() => page.evaluate(() => Boolean(document.querySelector('[role="dialog"]'))), 8_000);
+        check(item.role, tab + ' creation dialog opens', opened);
+        await settle(page);
+        check(item.role, tab + ' dialog performs no unauthorized secondary reads', !responses.some(row => row.status === 403), responses.filter(row => row.status === 403));
+        await shot(page, item.role + '-' + tab + '-create-dialog-1440');
+        if (tab === 'production' && opened) {
+          const productName = 'PHASE1-DRAFT-' + randomUUID();
+          await page.type('#production-product-name', productName);
+          await page.type('#production-target-quantity', '100');
+          const result = page.waitForResponse(response => response.request().method() === 'POST' && new URL(response.url()).pathname === '/api/production/orders', { timeout: 15_000 });
+          await page.click('[role="dialog"] button[type="submit"]');
+          const response = await result;
+          const payload = await response.json();
+          const createdId = payload?.data?.id;
+          check(item.role, 'creates an authorized draft using the existing backend', response.ok() && Boolean(createdId), response.status());
+          const closed = await until(() => page.evaluate(() => !document.querySelector('[role="dialog"]')), 8_000);
+          check(item.role, 'successful draft closes the dialog', closed);
+          // Remove only this suite's synthetic draft, never any shared/customer row.
+          if (createdId) await mongoose.connection.collection('production_orders').deleteOne({ id: createdId, product_name: productName });
+        } else {
+          await page.keyboard.press('Escape');
+          const closed = await until(() => page.evaluate(() => !document.querySelector('[role="dialog"]')), 5_000);
+          check(item.role, tab + ' dialog closes with Escape', closed);
+        }
+      }
+      await context.close();
+    }
+  }
+
+  console.log("\nLegacy module source boundaries (injected HTTP failures)");
+  for (const target of [
+    { tab: 'scan', path: '/api/stock/reception-lots' },
+    { tab: 'suppliers', path: '/api/suppliers' },
+    { tab: 'materials', path: '/api/materials', actor: 'responsable.achats@test.local' },
+    { tab: 'customers', path: '/api/customers' },
+    { tab: 'logistics', path: '/api/stock/shipments' },
+    { tab: 'maintenance', path: '/api/maintenance/requests' },
+    { tab: 'purchasing', path: '/api/purchasing/stats' },
+    { tab: 'export', path: '/api/export-orders' },
+    { tab: 'export', path: '/api/atp/summary' },
+    { tab: 'quality', path: '/api/capa-tickets' },
+    { tab: 'quality', path: '/api/audit/logs', nested: "Journal d'audit" },
+    { tab: 'hr', path: '/api/timesheets' },
+    { tab: 'hr', path: '/api/employee-tasks', nested: 'Tâches' },
+  ]) {
+    for (const status of [403, 500]) {
+      const session = target.actor ? await signIn(target.actor) : director;
+      const { page, context, rules, responses } = await openFor(session);
+      const matches = new RegExp(target.path + '(?:[?]|$)');
+      rules.push({ pattern: matches, status, body: { error: { code: 'CONTROLLED_BROWSER_FAILURE', message: 'Controlled failure fixture' } } });
+      await visit(page, target.tab);
+      if (target.nested) {
+        const handle = await page.evaluateHandle(label => [...document.querySelectorAll('main [role="tab"]')].find(node => node.textContent.trim().startsWith(label)), target.nested);
+        const tab = handle.asElement();
+        if (tab) { await tab.click(); await page.waitForFunction(node => node.getAttribute('aria-selected') === 'true', { timeout: 5000 }, tab); }
+        const opened = Boolean(tab);
+        await handle.dispose();
+        check(target.tab, 'nested source tab exists: ' + target.nested, opened);
+      }
+      const expected = status === 403 ? 'Accès réservé' : 'Données indisponibles';
+      const visible = await until(async () => (await page.evaluate(() => document.querySelector('main')?.innerText || '')).includes(expected), 15_000);
+      const main = await page.evaluate(() => document.querySelector('main')?.innerText || '');
+      check(target.tab, 'injected ' + status + ' reaches the actual source ' + target.path, responses.some(response => response.status === status && matches.test(response.url)));
+      check(target.tab, 'injected ' + status + ' stays explicit for ' + (target.nested || target.tab), visible, main.slice(0, 300));
+      check(target.tab, 'a failed source does not render register rows', await page.evaluate(() => document.querySelectorAll('main tbody tr').length === 0));
+      await shot(page, target.tab + '-' + (target.nested ? target.path.split('/').at(-1) + '-' : '') + 'source-' + status + '-1440');
       await context.close();
     }
   }
@@ -546,5 +639,5 @@ try {
 
 if (process.env.ROLES_RESULTS) writeFileSync(process.env.ROLES_RESULTS, JSON.stringify(results, null, 2));
 const failed = results.filter((row) => !row.passed).length;
-console.log(`\n${results.length - failed}/${results.length} role checks passed across ${new Set(results.map((row) => row.role)).size} accounts`);
+console.log(`\n${results.length - failed}/${results.length} role checks passed; canonical role count comes from PHASE1_MATRIX_FILE (scenario labels are not accounts)`);
 process.exit(failed ? 1 : 0);

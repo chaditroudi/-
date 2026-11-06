@@ -1,3 +1,4 @@
+import { DataState } from '@/components/shared/DataState';
 import { useEffect, useState } from 'react';
 import { format, isPast, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -290,9 +291,10 @@ export const CAPAPanel = ({ currentUser }: { currentUser: string }) => {
   const [createOpen, setCreateOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<CAPATicket | null>(null);
 
-  const { data: tickets = [] } = useCAPATickets(
+  const ticketSource = useCAPATickets(
     statusFilter !== ALL_STATUS_VALUE ? { status: statusFilter as CAPAStatus } : undefined,
   );
+  const { data: tickets = [] } = ticketSource;
 
   const openCount = tickets.filter((t) => t.status === 'OUVERT').length;
   const inProgressCount = tickets.filter((t) => t.status === 'EN_COURS').length;
@@ -301,7 +303,7 @@ export const CAPAPanel = ({ currentUser }: { currentUser: string }) => {
     (t) => t.severity === 'CRITIQUE' && t.status !== 'FERME' && t.status !== 'VERIFIE',
   ).length;
 
-  return (
+  return <DataState source={{ ...ticketSource, updatedAt: ticketSource.dataUpdatedAt }} data={ticketSource.data} what="les actions qualité" isEmpty={false}>{(
     <div className="space-y-4">
       <SummaryStrip items={[
         { label: 'Tickets ouverts', value: openCount },
@@ -319,7 +321,7 @@ export const CAPAPanel = ({ currentUser }: { currentUser: string }) => {
                 value={statusFilter}
                 onValueChange={(v) => setStatusFilter(v as 'all' | CAPAStatus)}
               >
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger aria-label="Statut des actions qualité" className="w-[180px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -406,5 +408,5 @@ export const CAPAPanel = ({ currentUser }: { currentUser: string }) => {
         currentUser={currentUser}
       />
     </div>
-  );
+  )}</DataState>;
 };
