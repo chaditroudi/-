@@ -50,5 +50,8 @@
     "review": {
       "fix": "صلّح"
     }
+  },
+  "receptionList": {
+    "resume": "كمّل"
   }
 }

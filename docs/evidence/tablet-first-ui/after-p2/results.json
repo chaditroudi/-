@@ -1,0 +1,933 @@
+{
+  "head": "a7d3cd6",
+  "dirty": true,
+  "capturedAt": "2026-11-06T19:49:06.649Z",
+  "database": "tablet_visual_mw5e17ck",
+  "widths": [
+    375,
+    768,
+    1024,
+    1440
+  ],
+  "checks": [
+    {
+      "name": "reception-operator-home-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-home-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-home-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-home-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-home-fr no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reception-operator-home-ar-375 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-375 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-home-ar-768 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-768 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-home-ar-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-1024 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-home-ar-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-1440 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-home-ar no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reception-operator-today-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-today-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-today-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-today-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-today-fr no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reception-operator-today-ar-375 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-375 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-today-ar-768 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-768 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-today-ar-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-1024 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-today-ar-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-today-ar-1440 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-today-ar no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reception-operator-intake-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-intake-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-intake-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-intake-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-intake-fr no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reception-operator-intake-ar-375 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-375 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-intake-ar-768 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-768 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-intake-ar-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-1024 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-intake-ar-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-intake-ar-1440 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-intake-ar no server or script errors",
+      "passed": true,
+      "detail": []
+    }
+  ],
+  "screens": [
+    {
+      "id": "reception-operator-home-fr-375",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "reception-operator-home-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 18,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-home-fr-768",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "reception-operator-home-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 18,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-home-fr-1024",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "reception-operator-home-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 18,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-home-fr-1440",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "reception-operator-home-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 18,
+      "smallTargets": 10,
+      "smallExamples": [
+        "Rechercher un écran ou un lot (Ctrl K)",
+        "Langue : Français",
+        "BUTTON",
+        "Notifications",
+        "Actualiser",
+        "Alertes",
+        "Fiches",
+        "N° lot"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-home-ar-375",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "ar",
+      "width": 375,
+      "touch": true,
+      "file": "reception-operator-home-ar-375.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 18,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-home-ar-768",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "ar",
+      "width": 768,
+      "touch": true,
+      "file": "reception-operator-home-ar-768.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 18,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-home-ar-1024",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "ar",
+      "width": 1024,
+      "touch": true,
+      "file": "reception-operator-home-ar-1024.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 18,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-home-ar-1440",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "ar",
+      "width": 1440,
+      "touch": false,
+      "file": "reception-operator-home-ar-1440.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 18,
+      "smallTargets": 10,
+      "smallExamples": [
+        "Rechercher un écran ou un lot (Ctrl K)",
+        "اللغة : العربية الفصحى",
+        "BUTTON",
+        "Notifications",
+        "Actualiser",
+        "التنبيهات",
+        "البطاقات الفنية",
+        "N° lot"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-today-fr-375",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "reception-operator-today-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 17,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-today-fr-768",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "reception-operator-today-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 17,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-today-fr-1024",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "reception-operator-today-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 17,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-today-fr-1440",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "reception-operator-today-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 17,
+      "smallTargets": 5,
+      "smallExamples": [
+        "Rechercher un écran ou un lot (Ctrl K)",
+        "Langue : Français",
+        "BUTTON",
+        "Notifications",
+        "Actualiser"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-today-ar-375",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions",
+      "locale": "ar",
+      "width": 375,
+      "touch": true,
+      "file": "reception-operator-today-ar-375.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 17,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-today-ar-768",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions",
+      "locale": "ar",
+      "width": 768,
+      "touch": true,
+      "file": "reception-operator-today-ar-768.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 17,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-today-ar-1024",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions",
+      "locale": "ar",
+      "width": 1024,
+      "touch": true,
+      "file": "reception-operator-today-ar-1024.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 17,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-today-ar-1440",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions",
+      "locale": "ar",
+      "width": 1440,
+      "touch": false,
+      "file": "reception-operator-today-ar-1440.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 17,
+      "smallTargets": 5,
+      "smallExamples": [
+        "Rechercher un écran ou un lot (Ctrl K)",
+        "اللغة : العربية الفصحى",
+        "BUTTON",
+        "Notifications",
+        "Actualiser"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-intake-fr-375",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions&view=new",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "reception-operator-intake-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 36,
+      "smallTargets": 1,
+      "smallExamples": [
+        "INPUT"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-intake-fr-768",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions&view=new",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "reception-operator-intake-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 36,
+      "smallTargets": 2,
+      "smallExamples": [
+        "Rechercher",
+        "INPUT"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-intake-fr-1024",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions&view=new",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "reception-operator-intake-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 36,
+      "smallTargets": 1,
+      "smallExamples": [
+        "INPUT"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-intake-fr-1440",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions&view=new",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "reception-operator-intake-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 36,
+      "smallTargets": 8,
+      "smallExamples": [
+        "Rechercher un écran ou un lot (Ctrl K)",
+        "Langue : Français",
+        "BUTTON",
+        "Notifications",
+        "Actualiser",
+        "Réceptions",
+        "INPUT",
+        "Plus de détails (facultatif)"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-intake-ar-375",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions&view=new",
+      "locale": "ar",
+      "width": 375,
+      "touch": true,
+      "file": "reception-operator-intake-ar-375.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 36,
+      "smallTargets": 1,
+      "smallExamples": [
+        "INPUT"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-intake-ar-768",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions&view=new",
+      "locale": "ar",
+      "width": 768,
+      "touch": true,
+      "file": "reception-operator-intake-ar-768.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 36,
+      "smallTargets": 2,
+      "smallExamples": [
+        "Rechercher",
+        "INPUT"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-intake-ar-1024",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions&view=new",
+      "locale": "ar",
+      "width": 1024,
+      "touch": true,
+      "file": "reception-operator-intake-ar-1024.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 36,
+      "smallTargets": 1,
+      "smallExamples": [
+        "INPUT"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-intake-ar-1440",
+      "role": "operateur_reception",
+      "hash": "/?tab=receptions&view=new",
+      "locale": "ar",
+      "width": 1440,
+      "touch": false,
+      "file": "reception-operator-intake-ar-1440.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 36,
+      "smallTargets": 8,
+      "smallExamples": [
+        "Rechercher un écran ou un lot (Ctrl K)",
+        "اللغة : العربية الفصحى",
+        "BUTTON",
+        "Notifications",
+        "Actualiser",
+        "الاستلامات",
+        "INPUT",
+        "تفاصيل إضافية (اختيارية)"
+      ],
+      "crash": false,
+      "heading": "Réception",
+      "reviewed": false
+    }
+  ],
+  "completed": true
+}

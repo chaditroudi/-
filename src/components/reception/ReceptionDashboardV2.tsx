@@ -1,13 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DataState } from '@/components/shared/DataState';
 import { useTranslation } from 'react-i18next';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import { DateRange } from 'react-day-picker';
 import {
   AlertTriangle,
   Bell,
-  CheckCircle2,
   Clock3,
   FileText,
   History,
@@ -25,11 +22,22 @@ import { BonReceptionAchatDashboard } from '@/components/bon-reception-achat/Bon
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useTodayPendingNotices } from '@/hooks/useInboundNotices';
 import { useReceptionAlerts } from '@/hooks/useReceptionsV2';
 import { useSuppliers } from '@/hooks/useSuppliers';
+import { formatDateTime, formatTime } from '@/lib/format';
 import { listLocalDrafts, type LocalIntakeDraft } from '@/lib/offline/draftStore';
 import { listOutbox, subscribeOutbox, type OutboxItem } from '@/lib/offline/outbox';
 import { getDraftWaitingFor } from '@/lib/receptionIntake';
@@ -84,99 +92,112 @@ const startOfToday = () => {
 };
 
 const EmptyState = ({ children }: { children: React.ReactNode }) => (
-  <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">{children}</div>
+  <div className="rounded-2xl border border-dashed bg-card p-8 text-center text-sm text-muted-foreground">{children}</div>
 );
 
-const ListError = () => (
-  <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-700">
-    Impossible de charger les réceptions. Vérifiez la connexion puis réessayez.
-  </div>
-);
-
-const Loading = () => (
-  <div className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground">
-    <Loader2 className="h-4 w-4 animate-spin" />
-    Chargement…
-  </div>
-);
-
-const ReceptionListHead = () => (
-  <div className="hidden gap-x-3 bg-muted/70 px-3 py-1.5 font-display text-[13px] font-semibold text-foreground/80 lg:grid lg:grid-cols-[10.5rem_minmax(0,1.4fr)_7rem_6.5rem_minmax(0,1fr)_6.5rem_9rem]">
-    <span>Réception</span>
-    <span>Fournisseur</span>
-    <span>Variété</span>
-    <span className="text-end">Poids</span>
-    <span>Bon de livraison</span>
-    <span>Arrivée</span>
-    <span className="text-end">Statut</span>
-  </div>
-);
-
-const nextReceptionStep = (status: ReceptionV2['status']) => {
-  switch (status) {
-    case 'BROUILLON': return 'Saisie non confirmée. Reprenez-la avant qu’un lot existe.';
-    case 'EN_ATTENTE_QC': return 'En quarantaine. Le contrôle qualité n’a pas commencé.';
-    case 'EN_QC': return 'Contrôle commencé. La décision n’est pas encore enregistrée.';
-    case 'BLOQUE': return 'Lot bloqué. Ouvrez la réception pour voir le motif.';
-    case 'LIBERE': return 'Lot libéré. Le rangement se fait dans le détail.';
-    case 'REJETE': return 'Lot rejeté. Il ne part pas en production.';
-    case 'ANNULE': return 'Réception annulée.';
-    default: return 'Ouvrir la réception.';
-  }
+const ListError = () => {
+  const { t } = useTranslation();
+  return (
+    <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-700" role="alert">
+      {t('receptionList.loadError')}
+    </div>
+  );
 };
 
-const TodayTask = ({ reception, onOpen }: { reception: ReceptionV2; onOpen: (reception: ReceptionV2) => void }) => (
-  <button
-    type="button"
-    onClick={() => onOpen(reception)}
-    className="flex w-full flex-col gap-3 border-b bg-card p-4 text-start last:border-b-0 hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:flex-row sm:items-center"
-  >
-    <div className="min-w-0 flex-1">
-      <p className="truncate text-base font-semibold">
-        {reception.supplier?.name || reception.supplier_name_snapshot || 'Fournisseur non renseigné'}
-      </p>
-      <p className="mt-0.5 font-mono text-sm text-muted-foreground">{reception.reception_number || 'Sans numéro'}</p>
-      <p className="mt-2 text-sm text-foreground">{nextReceptionStep(reception.status)}</p>
-      <p className="mt-1 text-xs text-muted-foreground">
-        {reception.variety || 'Variété non renseignée'}
-        {' · BL '}
-        {reception.delivery_note_number || '—'}
-        {' · '}
-        {format(new Date(reception.created_at), 'HH:mm', { locale: fr })}
-      </p>
+const Loading = () => {
+  const { t } = useTranslation();
+  return (
+    <div className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground" role="status">
+      <Loader2 className="h-4 w-4 animate-spin" />
+      {t('receptionList.loading')}
     </div>
-    <div className="flex items-center justify-between gap-3 sm:flex-col sm:items-end">
-      <p className="text-2xl font-semibold tabular-nums">
-        <QuantityDisplay value={reception.quantity_total} unit={reception.unit || 'kg'} />
-      </p>
-      <Badge className={cn('text-xs', receptionStatusColors[reception.status])}>
-        {receptionStatusLabels[reception.status]}
-      </Badge>
-    </div>
-  </button>
-);
+  );
+};
 
-const ReceptionRow = ({ reception, onOpen }: { reception: ReceptionV2; onOpen: (reception: ReceptionV2) => void }) => (
-  <button
-    type="button"
-    onClick={() => onOpen(reception)}
-    className="grid min-h-12 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 px-3 py-2 text-start hover:bg-muted/60 lg:grid-cols-[10.5rem_minmax(0,1.4fr)_7rem_6.5rem_minmax(0,1fr)_6.5rem_9rem]"
-  >
-    <LotReference value={reception.reception_number} fallback="Réception sans numéro" />
-    <Badge className={cn('justify-self-end text-xs lg:order-last', receptionStatusColors[reception.status])}>
-      {receptionStatusLabels[reception.status]}
-    </Badge>
-    <span className="truncate text-sm">{reception.supplier?.name || reception.supplier_name_snapshot || 'Fournisseur non renseigné'}</span>
-    <span className="truncate text-sm text-muted-foreground lg:text-foreground">{reception.variety || '—'}</span>
-    <span className="text-sm lg:text-end">
-      <QuantityDisplay value={reception.quantity_total} unit={reception.unit || 'kg'} />
-    </span>
-    <span className="truncate text-xs text-muted-foreground lg:text-sm">
-      <span className="lg:hidden">BL </span>{reception.delivery_note_number || '—'}{reception.purchase_order_number ? ` · ${reception.purchase_order_number}` : ''}
-    </span>
-    <span className="text-xs text-muted-foreground lg:text-sm">{format(new Date(reception.created_at), 'dd/MM HH:mm', { locale: fr })}</span>
-  </button>
-);
+const ReceptionListHead = () => {
+  const { t } = useTranslation();
+  return (
+    <div className="hidden gap-x-3 bg-secondary px-4 py-2 font-display text-[13px] font-semibold text-foreground/80 lg:grid lg:grid-cols-[10.5rem_minmax(0,1.4fr)_7rem_6.5rem_minmax(0,1fr)_6.5rem_9rem]">
+      <span>{t('receptionList.head.reception')}</span>
+      <span>{t('receptionList.head.supplier')}</span>
+      <span>{t('receptionList.head.variety')}</span>
+      <span className="text-end">{t('receptionList.head.weight')}</span>
+      <span>{t('receptionList.head.deliveryNote')}</span>
+      <span>{t('receptionList.head.arrival')}</span>
+      <span className="text-end">{t('receptionList.head.status')}</span>
+    </div>
+  );
+};
+
+const KNOWN_STEPS = ['BROUILLON', 'EN_ATTENTE_QC', 'EN_QC', 'BLOQUE', 'LIBERE', 'REJETE', 'ANNULE'];
+const useStatusText = () => {
+  const { t } = useTranslation();
+  return {
+    next: (status: ReceptionV2['status']) => t(`receptionList.next.${KNOWN_STEPS.includes(status) ? status : 'default'}`),
+    label: (status: ReceptionV2['status']) => t(`receptionStatus.${status}`, { defaultValue: receptionStatusLabels[status] }),
+  };
+};
+
+const TodayTask = ({ reception, onOpen }: { reception: ReceptionV2; onOpen: (reception: ReceptionV2) => void }) => {
+  const { t } = useTranslation();
+  const status = useStatusText();
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(reception)}
+      className="flex w-full flex-col gap-3 rounded-2xl border bg-card p-4 text-start shadow-sm transition-colors hover:border-primary/40 hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="truncate text-lg font-semibold">
+            {reception.supplier?.name || reception.supplier_name_snapshot || t('receptionList.noSupplier')}
+          </p>
+          <p className="font-mono text-sm text-muted-foreground" dir="ltr">{reception.reception_number || t('receptionList.noNumber')}</p>
+        </div>
+        <Badge className={cn('shrink-0 text-xs', receptionStatusColors[reception.status])}>{status.label(reception.status)}</Badge>
+      </div>
+      <p className="text-sm text-foreground">{status.next(reception.status)}</p>
+      <div className="flex items-end justify-between gap-3">
+        <p className="text-xs text-muted-foreground">
+          {reception.variety || t('receptionList.noVariety')}
+          {` · ${t('receptionList.bl')} `}
+          {reception.delivery_note_number || '—'}
+          {' · '}
+          {formatTime(reception.created_at)}
+        </p>
+        <p className="text-2xl font-semibold tabular-nums" dir="ltr">
+          <QuantityDisplay value={reception.quantity_total} unit={reception.unit || 'kg'} />
+        </p>
+      </div>
+    </button>
+  );
+};
+
+const ReceptionRow = ({ reception, onOpen }: { reception: ReceptionV2; onOpen: (reception: ReceptionV2) => void }) => {
+  const { t } = useTranslation();
+  const status = useStatusText();
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(reception)}
+      className="grid min-h-14 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 px-4 py-2.5 text-start hover:bg-accent/40 lg:grid-cols-[10.5rem_minmax(0,1.4fr)_7rem_6.5rem_minmax(0,1fr)_6.5rem_9rem]"
+    >
+      <LotReference value={reception.reception_number} fallback={t('receptionList.noReceptionNumber')} />
+      <Badge className={cn('justify-self-end text-xs lg:order-last', receptionStatusColors[reception.status])}>
+        {status.label(reception.status)}
+      </Badge>
+      <span className="truncate text-sm">{reception.supplier?.name || reception.supplier_name_snapshot || t('receptionList.noSupplier')}</span>
+      <span className="truncate text-sm text-muted-foreground lg:text-foreground">{reception.variety || '—'}</span>
+      <span className="text-sm lg:text-end" dir="ltr">
+        <QuantityDisplay value={reception.quantity_total} unit={reception.unit || 'kg'} />
+      </span>
+      <span className="truncate text-xs text-muted-foreground lg:text-sm">
+        <span className="lg:hidden">{t('receptionList.bl')} </span>{reception.delivery_note_number || '—'}{reception.purchase_order_number ? ` · ${reception.purchase_order_number}` : ''}
+      </span>
+      <span className="text-xs text-muted-foreground lg:text-sm">{formatDateTime(reception.created_at)}</span>
+    </button>
+  );
+};
 
 const HistoryPage = ({ params, isLast, onMore, onOpen, onRows }: {
   params: Record<string, string | number | undefined>;
@@ -185,6 +206,7 @@ const HistoryPage = ({ params, isLast, onMore, onOpen, onRows }: {
   onOpen: (reception: ReceptionV2) => void;
   onRows?: (count: number) => void;
 }) => {
+  const { t } = useTranslation();
   const { data, isLoading, isError } = useSearchReceptionsQuery(params);
   useEffect(() => { if (data) onRows?.(data.rows.length); }, [data, onRows]);
   if (isError) return <ListError />;
@@ -193,15 +215,18 @@ const HistoryPage = ({ params, isLast, onMore, onOpen, onRows }: {
     <>
       {data.rows.map((reception) => <ReceptionRow key={reception.id} reception={reception} onOpen={onOpen} />)}
       {isLast && data.nextBefore && (
-        <Button type="button" variant="outline" className="w-full" onClick={() => onMore(data.nextBefore!)}>
-          Afficher les suivantes
-        </Button>
+        <div className="p-3">
+          <Button type="button" variant="outline" className="w-full" onClick={() => onMore(data.nextBefore!)}>
+            {t('receptionList.more')}
+          </Button>
+        </div>
       )}
     </>
   );
 };
 
 const HistorySection = ({ onOpen, onDailyReport }: { onOpen: (reception: ReceptionV2) => void; onDailyReport: () => void }) => {
+  const { t } = useTranslation();
   const [search, setSearch] = useState(() => ss.get('rdv2-search', ''));
   const [term, setTerm] = useState(search);
   const [status, setStatus] = useState('');
@@ -228,8 +253,8 @@ const HistorySection = ({ onOpen, onDailyReport }: { onOpen: (reception: Recepti
       <div className="relative">
         <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          aria-label="Rechercher une réception"
-          placeholder="N° réception, fournisseur, BL, lot, véhicule, commande"
+          aria-label={t('receptionList.search')}
+          placeholder={t('receptionList.searchPlaceholder')}
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           className="h-12 ps-10"
@@ -237,18 +262,20 @@ const HistorySection = ({ onOpen, onDailyReport }: { onOpen: (reception: Recepti
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
         {[
-          { value: '', label: 'Toutes' },
-          { value: 'EN_ATTENTE_QC,EN_QC', label: 'En contrôle' },
-          { value: 'LIBERE', label: 'Libérées' },
-          { value: 'BLOQUE', label: 'Bloquées' },
-          { value: 'REJETE', label: 'Rejetées' },
-          { value: 'ANNULE', label: 'Annulées' },
+          { value: '', label: t('receptionList.filter.all') },
+          { value: 'EN_ATTENTE_QC,EN_QC', label: t('receptionList.filter.inQc') },
+          { value: 'LIBERE', label: t('receptionList.filter.released') },
+          { value: 'BLOQUE', label: t('receptionList.filter.blocked') },
+          { value: 'REJETE', label: t('receptionList.filter.rejected') },
+          { value: 'ANNULE', label: t('receptionList.filter.cancelled') },
         ].map((filter) => (
           <Button
-            key={filter.label}
+            key={filter.value || 'all'}
             type="button"
             size="sm"
+            aria-pressed={status === filter.value}
             variant={status === filter.value ? 'secondary' : 'ghost'}
+            className={cn('rounded-full', status === filter.value && 'bg-accent text-accent-foreground')}
             onClick={() => setStatus(filter.value)}
           >
             {filter.label}
@@ -257,10 +284,10 @@ const HistorySection = ({ onOpen, onDailyReport }: { onOpen: (reception: Recepti
         <DateRangeFilter dateRange={dateRange} onDateRangeChange={setDateRange} />
         <Button type="button" size="sm" variant="outline" className="ms-auto gap-1.5" onClick={onDailyReport}>
           <Printer className="h-4 w-4" />
-          Rapport du jour
+          {t('receptionList.dailyReport')}
         </Button>
       </div>
-      <div className="divide-y overflow-hidden rounded-lg border bg-card">
+      <div className="divide-y overflow-hidden rounded-2xl border bg-card shadow-sm">
         <ReceptionListHead />
         {cursors.map((before, index) => (
           <HistoryPage
@@ -272,7 +299,7 @@ const HistorySection = ({ onOpen, onDailyReport }: { onOpen: (reception: Recepti
             onRows={index === 0 ? setFirstPageCount : undefined}
           />
         ))}
-        {firstPageCount === 0 && <EmptyState>Aucune réception ne correspond à cette recherche.</EmptyState>}
+        {firstPageCount === 0 && <EmptyState>{t('receptionList.noMatch')}</EmptyState>}
       </div>
     </div>
   );
@@ -285,10 +312,12 @@ const PendingSection = ({ canManage, userId, activeReceptions, onOpen, onResume 
   onOpen: (reception: ReceptionV2) => void;
   onResume: (draftId: string) => void;
 }) => {
+  const { t } = useTranslation();
   const { data: serverDrafts = [], isLoading } = useListReceptionDraftsQuery();
   const [abandon] = useAbandonReceptionDraftMutation();
   const [localDrafts, setLocalDrafts] = useState<LocalIntakeDraft[]>([]);
   const [outbox, setOutbox] = useState<OutboxItem[]>([]);
+  const [abandoning, setAbandoning] = useState<{ id: string; title: string } | null>(null);
 
   const refreshLocal = useCallback(() => {
     void listLocalDrafts().then(setLocalDrafts).catch(() => setLocalDrafts([]));
@@ -307,20 +336,21 @@ const PendingSection = ({ canManage, userId, activeReceptions, onOpen, onResume 
   const queueState = (id: string) => outbox.find((item) => item.payload.client_request_id === id);
 
   const DraftRow = ({ id, title, detail, note }: { id: string; title: string; detail: string; note?: string }) => (
-    <div className="flex min-h-16 items-center gap-2 rounded-2xl border bg-card p-3">
+    <div className="flex min-h-16 items-center gap-2 rounded-2xl border bg-card p-3 shadow-sm">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-primary"><Truck className="h-5 w-5" aria-hidden /></span>
       <button type="button" className="min-w-0 flex-1 text-start" onClick={() => onResume(id)} disabled={!canManage}>
-        <p className="truncate text-sm font-semibold">{title || 'Fournisseur à choisir'}</p>
+        <p className="truncate font-semibold">{title || t('receptionList.chooseSupplier')}</p>
         <p className="text-xs text-muted-foreground">{detail}</p>
-        {note && <p className="text-xs font-medium text-amber-800">{note}</p>}
+        {note && <p className="text-xs font-medium text-sand-foreground">{note}</p>}
       </button>
-      {canManage && <Button type="button" size="sm" onClick={() => onResume(id)}>Reprendre</Button>}
+      {canManage && <Button type="button" onClick={() => onResume(id)}>{t('receptionList.resume')}</Button>}
       {canManage && serverIds.has(id) && (
         <Button
           type="button"
           size="icon"
           variant="ghost"
-          aria-label={`Abandonner le brouillon ${title}`}
-          onClick={() => { if (window.confirm('Abandonner ce brouillon ? La saisie sera perdue.')) void abandon(id); }}
+          aria-label={t('receptionList.abandonDraft', { title })}
+          onClick={() => setAbandoning({ id, title })}
         >
           <Trash2 className="h-4 w-4" />
         </Button>
@@ -329,17 +359,17 @@ const PendingSection = ({ canManage, userId, activeReceptions, onOpen, onResume 
   );
 
   const describeServerDraft = (draft: ReceptionDraftRow) =>
-    [draft.summary?.waitingFor, draft.summary?.deliveryNote && `BL ${draft.summary.deliveryNote}`, format(new Date(draft.updated_at), 'dd/MM HH:mm', { locale: fr })]
+    [draft.summary?.waitingFor, draft.summary?.deliveryNote && `${t('receptionList.bl')} ${draft.summary.deliveryNote}`, formatDateTime(draft.updated_at)]
       .filter(Boolean).join(' · ');
 
   const hasDrafts = serverDrafts.length > 0 || deviceOnly.length > 0;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <section className="space-y-2">
-        <h3 className="flex items-center gap-2 text-sm font-semibold"><Truck className="h-4 w-4 text-primary" />Livraisons en cours de saisie</h3>
-        {isLoading ? <Loading /> : !hasDrafts ? <EmptyState>Aucune livraison en cours de saisie.</EmptyState> : (
-          <>
+        <h3 className="flex items-center gap-2 font-display text-lg font-semibold"><Truck className="h-4 w-4 text-primary" />{t('receptionList.draftsTitle')}</h3>
+        {isLoading ? <Loading /> : !hasDrafts ? <EmptyState>{t('receptionList.noDrafts')}</EmptyState> : (
+          <div className="grid gap-2 lg:grid-cols-2">
             {serverDrafts.map((draft) => (
               <DraftRow key={draft.id} id={draft.id} title={draft.summary?.supplier ?? ''} detail={describeServerDraft(draft)} note={queueState(draft.id)?.lastError ?? undefined} />
             ))}
@@ -350,30 +380,55 @@ const PendingSection = ({ canManage, userId, activeReceptions, onOpen, onResume 
                   key={draft.id}
                   id={draft.id}
                   title={draft.supplier_label}
-                  detail={`${getDraftWaitingFor(draft)} · ${format(new Date(savedAt), 'dd/MM HH:mm', { locale: fr })}`}
+                  detail={`${getDraftWaitingFor(draft)} · ${formatDateTime(savedAt)}`}
                   note={queued
-                    ? queued.status === 'failed' ? `Refusée par le serveur : ${queued.lastError}` : 'En attente de synchronisation'
-                    : 'Gardé sur cet appareil uniquement'}
+                    ? queued.status === 'failed' ? t('receptionList.refused', { error: queued.lastError }) : t('receptionList.syncWaiting')
+                    : t('receptionList.deviceOnly')}
                 />
               );
             })}
-          </>
+          </div>
         )}
       </section>
       <section className="space-y-2">
-        <h3 className="flex items-center gap-2 text-sm font-semibold"><ListChecks className="h-4 w-4 text-primary" />En attente du contrôle qualité</h3>
+        <h3 className="flex items-center gap-2 font-display text-lg font-semibold"><ListChecks className="h-4 w-4 text-primary" />{t('receptionList.waitingQcTitle')}</h3>
         {activeReceptions.length === 0
-          ? <EmptyState>Aucune réception en attente du contrôle qualité.</EmptyState>
+          ? <EmptyState>{t('receptionList.noWaitingQc')}</EmptyState>
           : (
-            <div className="divide-y overflow-hidden rounded-lg border bg-card">
+            <div className="divide-y overflow-hidden rounded-2xl border bg-card shadow-sm">
               <ReceptionListHead />
               {activeReceptions.map((reception) => <ReceptionRow key={reception.id} reception={reception} onOpen={onOpen} />)}
             </div>
           )}
       </section>
+
+      <AlertDialog open={Boolean(abandoning)} onOpenChange={(open) => { if (!open) setAbandoning(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('receptionList.abandonDraftTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>{abandoning?.title ? `${abandoning.title} — ` : ''}{t('receptionList.abandonDraftBody')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('receptionList.keepDraft')}</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => { if (abandoning) void abandon(abandoning.id); setAbandoning(null); }}
+            >
+              {t('receptionList.abandonDraftConfirm')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
+
+const Stat = ({ label, value, tone = 'default' }: { label: string; value: number | null; tone?: 'default' | 'attention' }) => (
+  <div className={cn('rounded-xl border bg-card px-4 py-2.5 shadow-sm', tone === 'attention' && value && value > 0 && 'border-amber-300 bg-sand/60')}>
+    <p className="text-xs font-medium text-muted-foreground">{label}</p>
+    <p className="font-display text-2xl font-semibold tabular-nums">{value ?? '—'}</p>
+  </div>
+);
 
 export const ReceptionDashboardV2 = ({
   prefillPurchaseOrderId,
@@ -471,17 +526,47 @@ export const ReceptionDashboardV2 = ({
     );
   }
 
-  const tabs: Array<{ value: SubTab; icon: typeof Clock3; label: string; badge: number | null; badgeClass?: string }> = [
-    { value: 'today', icon: Clock3, label: "Réceptions du jour", badge: todayRows.length || null },
-    { value: 'pending', icon: ListChecks, label: 'En attente', badge: (drafts.length + awaitingQcCount + blockedCount) || null, badgeClass: 'bg-amber-500 text-white' },
-    { value: 'registry', icon: History, label: 'Historique', badge: null },
-    ...(canRunQc ? [{ value: 'qc' as SubTab, icon: QrCode, label: 'Contrôle QC', badge: awaitingQcCount || null, badgeClass: 'bg-amber-500 text-white' }] : []),
-    { value: 'bra', icon: FileText, label: 'Bons BRA', badge: null },
-    { value: 'alerts', icon: AlertTriangle, label: 'Alertes', badge: alerts.length || null, badgeClass: 'bg-red-600 text-white' },
+  const tabs: Array<{ value: SubTab; icon: typeof Clock3; key: string; badge: number | null; badgeClass?: string }> = [
+    { value: 'today', icon: Clock3, key: 'today', badge: todayRows.length || null },
+    { value: 'pending', icon: ListChecks, key: 'pending', badge: (drafts.length + awaitingQcCount + blockedCount) || null, badgeClass: 'bg-amber-600 text-white' },
+    { value: 'registry', icon: History, key: 'registry', badge: null },
+    ...(canRunQc ? [{ value: 'qc' as SubTab, icon: QrCode, key: 'qc', badge: awaitingQcCount || null, badgeClass: 'bg-amber-600 text-white' }] : []),
+    { value: 'bra', icon: FileText, key: 'bra', badge: null },
+    { value: 'alerts', icon: AlertTriangle, key: 'alerts', badge: alerts.length || null, badgeClass: 'bg-red-600 text-white' },
   ];
+  // Known only once the lists have answered; an unknown count is never shown as zero.
+  const known = (value: number) => (activePage ? value : null);
 
   return (
-    <div className="space-y-4">
+    <div className="mx-auto w-full max-w-6xl space-y-4">
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div className="min-w-0 space-y-1">
+          <h2 className="font-display text-3xl font-semibold leading-tight">{t('receptionList.title')}</h2>
+          <p className="text-muted-foreground">{t('receptionList.subtitle')}</p>
+        </div>
+        <div className="flex w-full flex-wrap gap-2 sm:w-auto">
+          <Button type="button" variant="outline" size="lg" className="gap-2 max-sm:flex-1" onClick={() => setNoticeOpen(true)}>
+            <Bell className="h-4 w-4" />
+            <span className="max-sm:hidden">{t('receptionList.preNotices')}</span>
+            <span className="sm:hidden">{t('receptionList.preNoticesShort')}</span>
+            {todayNotices.length > 0 ? ` (${todayNotices.length})` : ''}
+          </Button>
+          {canManageReception && (
+            <Button type="button" size="xl" className="gap-2 font-semibold max-sm:flex-1" onClick={() => setIntake({})}>
+              <Plus className="h-5 w-5" />
+              {t('receptions.new')}
+            </Button>
+          )}
+        </div>
+      </header>
+
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <Stat label={t('receptionList.stat.today')} value={todayPage ? todayRows.length : null} />
+        <Stat label={t('receptionList.stat.drafts')} value={drafts.length} />
+        <Stat label={t('receptionList.stat.waitingQc')} value={known(awaitingQcCount)} tone="attention" />
+        <Stat label={t('receptionList.stat.blocked')} value={known(blockedCount)} tone="attention" />
+      </div>
+
       {todayNotices.length > 0 && (
         <button
           type="button"
@@ -490,7 +575,7 @@ export const ReceptionDashboardV2 = ({
         >
           <Bell className="h-4 w-4 shrink-0 text-sky-600" />
           <span>
-            <span className="font-semibold">{todayNotices.length} {todayNotices.length > 1 ? 'camions annoncés' : 'camion annoncé'}</span>
+            <span className="font-semibold">{t('receptionList.notices', { count: todayNotices.length })}</span>
             {' — '}
             {todayNotices.map((n) => `${n.vehicle_number} (${n.supplier_name ?? n.supplier_code ?? '-'})`).join(', ')}
           </span>
@@ -498,66 +583,44 @@ export const ReceptionDashboardV2 = ({
       )}
 
       <Tabs dir={i18n.dir()} value={subTab} onValueChange={(v) => updateSubTab(v as SubTab)}>
-        <div className="flex flex-wrap-reverse items-center gap-x-3 gap-y-2 border-b">
-          <div className="min-w-0 flex-1 overflow-x-auto scrollbar-hide max-lg:basis-full">
-          <TabsList className="flex h-auto min-w-max justify-start gap-1 rounded-none bg-transparent p-0 max-sm:grid max-sm:w-full max-sm:min-w-0 max-sm:grid-cols-3" aria-label="Sections de la réception">
+        <div className="-mx-1 overflow-x-auto px-1 pb-1 scrollbar-hide">
+          <TabsList className="flex h-auto min-w-max justify-start gap-1.5 rounded-2xl border bg-card p-1.5 shadow-sm max-sm:grid max-sm:w-full max-sm:min-w-0 max-sm:grid-cols-3" aria-label={t('receptionList.tabs.label')}>
             {tabs.map((tab) => {
               const active = subTab === tab.value;
-              const short =
-                tab.value === 'today' ? 'Aujourd’hui'
-                  : tab.value === 'pending' ? 'Attente'
-                    : tab.value === 'registry' ? 'Historique'
-                      : tab.value === 'qc' ? 'QC'
-                        : tab.value === 'bra' ? 'BRA'
-                          : 'Alertes';
               return (
                 <TabsTrigger
                   key={tab.value}
                   value={tab.value}
                   ref={active ? activeTabRef : undefined}
                   className={cn(
-                    'relative flex min-h-12 items-center justify-center gap-2 whitespace-nowrap rounded-none px-4 py-3 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring data-[state=active]:bg-transparent data-[state=active]:shadow-none max-sm:min-h-14 max-sm:flex-col max-sm:gap-1 max-sm:px-1.5 max-sm:py-2 max-sm:text-xs',
-                    active ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
+                    'relative flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-semibold outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring data-[state=active]:shadow-none max-sm:min-h-14 max-sm:flex-col max-sm:gap-1 max-sm:px-1.5 max-sm:text-xs',
+                    active ? 'bg-accent text-accent-foreground data-[state=active]:bg-accent' : 'text-muted-foreground hover:bg-secondary hover:text-foreground',
                   )}
                 >
                   <tab.icon className="h-4 w-4 shrink-0 max-sm:h-5 max-sm:w-5" />
-                  <span className="max-sm:hidden">{tab.label}</span>
-                  <span className="hidden max-sm:inline">{short}</span>
+                  <span className="max-sm:hidden">{t(`receptionList.tabs.${tab.key}`)}</span>
+                  <span className="hidden max-sm:inline">{t(`receptionList.tabs.${tab.key}Short`)}</span>
                   {tab.badge != null && (
                     <span className={cn('flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-bold leading-none text-primary-foreground', tab.badgeClass)}>
                       {tab.badge}
                     </span>
                   )}
-                  {active && <span className="absolute bottom-0 inset-x-1 h-0.5 rounded-full bg-primary" />}
                 </TabsTrigger>
               );
             })}
           </TabsList>
         </div>
-          <div className="ms-auto flex shrink-0 gap-2 pb-1.5 max-sm:w-full max-sm:pb-2">
-          <Button type="button" variant="outline" className="min-h-11 gap-2 max-sm:flex-1" onClick={() => setNoticeOpen(true)}>
-            <Bell className="h-4 w-4" />
-            <span className="max-sm:hidden">Pré-annonces</span>
-            <span className="sm:hidden">Annonces</span>
-            {todayNotices.length > 0 ? ` (${todayNotices.length})` : ''}
-          </Button>
-          {canManageReception && (
-            <Button type="button" className="min-h-11 gap-2 max-sm:flex-1 font-semibold" onClick={() => setIntake({})}>
-              <Plus className="h-5 w-5" />
-              {t('receptions.new')}
-            </Button>
-          )}
-          </div>
-        </div>
 
-        <TabsContent value="today" className="mt-3 overflow-clip rounded-lg border bg-card">
-          <DataState source={todaySource} data={todayPage} isEmpty={todayRows.length === 0} what="les réceptions du jour" className="m-2 mb-3" empty="Aucune réception aujourd'hui. La première action est Nouvelle réception.">
-            {todayRows.map((reception) => <TodayTask key={reception.id} reception={reception} onOpen={openReception} />)}
+        <TabsContent value="today" className="mt-3">
+          <DataState source={todaySource} data={todayPage} isEmpty={todayRows.length === 0} what={t('receptionList.todayWhat')} empty={t('receptionList.todayEmpty')}>
+            <div className="grid gap-3 md:grid-cols-2">
+              {todayRows.map((reception) => <TodayTask key={reception.id} reception={reception} onOpen={openReception} />)}
+            </div>
           </DataState>
         </TabsContent>
 
         <TabsContent value="pending" className="mt-4">
-          <DataState source={activeSource} data={activePage} isEmpty={false} what="les réceptions en attente">
+          <DataState source={activeSource} data={activePage} isEmpty={false} what={t('receptionList.pendingWhat')}>
             <PendingSection
               canManage={canManageReception}
               userId={user?.id ?? null}
@@ -574,7 +637,7 @@ export const ReceptionDashboardV2 = ({
 
         {canRunQc && (
           <TabsContent value="qc" className="mt-4">
-            <DataState source={activeSource} data={activePage} isEmpty={false} what="la file de contrôle qualité">
+            <DataState source={activeSource} data={activePage} isEmpty={false} what={t('receptionList.qcWhat')}>
               <ReceptionQcQueue receptions={activeRows} onOpenStorage={(id) => setWorkspace({ id, section: 'stock' })} />
             </DataState>
           </TabsContent>
