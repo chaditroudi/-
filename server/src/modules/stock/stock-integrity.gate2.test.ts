@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createInMemoryModel, type TestRow } from "../../test/in-memory-collection.js";
+import { buildLotEventRecord } from "../trust/lot-ledger.js";
 import { applyInventoryAdjustment } from "./stock-adjustment.js";
 import { applyQualityHold, releaseQualityHold } from "./stock-hold.js";
 import { runStockIntegrityDiagnostics } from "./stock-diagnostics.js";
@@ -97,6 +98,11 @@ describe("Gate 2 stock integrity journey", () => {
   });
 
   it("runs supplier→triage→packaging→pallet→expedition with CAS and idempotency", async () => {
+    // A premium lot reaches triage only after intake, a QC release and a completed fumigation CCP.
+    const intake = buildLotEventRecord({ lotId: "rl-1", eventType: "LOT_CREATED", collection: "reception_lots", action: "GATE", prevHash: null }, 1);
+    const qc = buildLotEventRecord({ lotId: "rl-1", eventType: "QC_DECIDED", collection: "qc_inspections", action: "GATE", prevHash: intake.hash }, 2);
+    const ccp = buildLotEventRecord({ lotId: "rl-1", eventType: "CCP_COMPLETED", collection: "fumigation_cycles", action: "GATE", prevHash: qc.hash }, 3);
+    store.lot_events = [intake, qc, ccp] as unknown as TestRow[];
     store.reception_lots = [{
       id: "rl-1",
       lot_internal: "LOT-A",
@@ -139,12 +145,12 @@ describe("Gate 2 stock integrity journey", () => {
       current_quantity: 0,
       status: "CONSUMED",
     });
-    const triageWip = store.stock_lots.find((row) => row.lot_number === "LOT-A-EX");
+    const triageWip = store.stock_lots.find((row) => row.lot_number === "LOT-A-TRI-A-EX");
     expect(triageWip).toMatchObject({ status: "VALIDATED", current_quantity: 70, source_stage: "TRIAGE" });
 
     const pkg = await packaging.createOrder({
       client_request_id: "pkg-a-1",
-      source_lot_number: "LOT-A-EX",
+      source_lot_number: "LOT-A-TRI-A-EX",
       source_weight_kg: 50,
       bom_net_weight_g: 500,
       grade: "EXTRA",
@@ -152,7 +158,7 @@ describe("Gate 2 stock integrity journey", () => {
     });
     await packaging.createOrder({
       client_request_id: "pkg-a-1",
-      source_lot_number: "LOT-A-EX",
+      source_lot_number: "LOT-A-TRI-A-EX",
       source_weight_kg: 50,
       bom_net_weight_g: 500,
     });

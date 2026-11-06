@@ -805,7 +805,6 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                                 [field]: Number(event.target.value),
                               }))
                             }
-                            className="h-9"
                           />
                         </div>
                       ))}

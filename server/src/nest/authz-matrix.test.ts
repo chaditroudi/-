@@ -16,6 +16,7 @@ const factory = { tenant_id: "matrix-company", factory_id: "matrix-site" };
 // This suite exercises route authorization without infrastructure. Real namespaces/indexes
 // are exercised separately in gate3.http.integration.test.ts.
 vi.mock("../db/indexes.js", () => ({ ensureTrustIndexes: async () => undefined }));
+vi.mock("../db/factory-database-registry.js", () => ({ adoptFactoryDatabase: async () => undefined }));
 vi.mock("../db/factory-context.js", async (original) => ({
   ...await original<object>(), factoryConnection: () => ({ db: {}, models: {}, model: () => { throw new Error("No database in route authorization matrix"); } }),
 }));

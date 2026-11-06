@@ -90,6 +90,7 @@ describe("phase2Service golden-thread stages", () => {
         id: lotId,
         lot_internal: "LOT-TRI",
         reception_id: "rec-1",
+        stock_status: "STOCK_LIBERE",
         quantity: 175,
         purchase_cost_tnd_per_kg: 10,
         purchase_cost_tnd: 1750,
