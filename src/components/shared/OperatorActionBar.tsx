@@ -36,7 +36,7 @@ export function OperatorActionBar({
     <div
       className={cn(
         'border-t bg-card px-3 py-3',
-        sticky && 'sticky bottom-0 z-30 pb-[env(safe-area-inset-bottom)]',
+        sticky && 'above-dock sticky z-30 pb-[env(safe-area-inset-bottom)]',
         className,
       )}
     >

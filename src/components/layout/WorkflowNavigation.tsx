@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { Grid2x2, KeyRound, LogOut, ShieldCheck, type LucideIcon } from "lucide-react";
@@ -83,6 +83,11 @@ export function WorkflowNavigation({
   const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [passwordOpen, setPasswordOpen] = useState(false);
+  // Sticky action bars read this to stay above the dock (index.css `.above-dock`).
+  useEffect(() => {
+    document.documentElement.dataset.dock = floor ? "always" : "mobile";
+    return () => { delete document.documentElement.dataset.dock; };
+  }, [floor]);
   const allTabs = unique<AppTab>([...primaryTabs, ...quickTabs, "home", ...accessibleTabs]).filter((tab) => accessibleTabs.includes(tab));
   const qcItem: DockItem | null = canInspect && accessibleTabs.includes("receptions")
     ? { key: "qc", tab: "receptions", options: { view: "qc" }, label: t("dock.qc"), icon: ShieldCheck }
@@ -113,7 +118,7 @@ export function WorkflowNavigation({
         <nav
           aria-label={t("dock.label")}
           className={cn(
-            "fixed inset-x-0 bottom-0 z-[60] border-t bg-card/95 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-1.5 shadow-lg backdrop-blur",
+            "fixed inset-x-0 bottom-0 z-[45] border-t bg-card/95 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-1.5 shadow-lg backdrop-blur",
             !floor && "md:hidden",
           )}
         >

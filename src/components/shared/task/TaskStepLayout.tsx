@@ -65,7 +65,7 @@ export function TaskStepLayout({ eyebrow, title, description, steps, onStepSelec
           </header>
           <div className="space-y-5 px-4 py-5 sm:px-6">{children}</div>
           {actions && (
-            <div className="sticky bottom-0 z-20 rounded-b-2xl border-t bg-card/95 px-4 py-3 backdrop-blur pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-6">
+            <div className="above-dock sticky z-20 rounded-b-2xl border-t bg-card/95 px-4 py-3 backdrop-blur pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-6">
               {actions}
             </div>
           )}

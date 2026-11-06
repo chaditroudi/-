@@ -503,6 +503,13 @@ html, body {
   h2 { font-size: 1.125rem; }
 }
 
+/* ── Worker dock ── */
+/* Sticky action bars stay visible above the dock; dialogs (z-50) always cover the dock (z-45). */
+:root { --dock-space: calc(4.75rem + env(safe-area-inset-bottom)); }
+.above-dock { bottom: 0; }
+html[data-dock='always'] .above-dock { bottom: var(--dock-space); }
+@media (max-width: 767px) { html[data-dock='mobile'] .above-dock { bottom: var(--dock-space); } }
+
 /* ── RTL ── */
 [dir="rtl"] { text-align: right; }
 /* Physical alignment left in a few print-adjacent places; screen code uses text-start / text-end. */

@@ -308,7 +308,7 @@ const FlowBody = ({ draftId, prefillPurchaseOrderId, canRunQc, onClose, onOpenRe
       data-testid="intake-actions"
       className={cn(
         'border-t bg-card/95 px-3 py-3 backdrop-blur sm:px-5',
-        isMobile ? 'fixed inset-x-2 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-[59] rounded-2xl border shadow-lg' : 'sticky bottom-0 z-30 rounded-b-2xl',
+        isMobile ? 'fixed inset-x-2 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-[44] rounded-2xl border shadow-lg' : 'above-dock sticky z-30 rounded-b-2xl',
       )}
     >
       <div className="flex flex-wrap items-center gap-2">
