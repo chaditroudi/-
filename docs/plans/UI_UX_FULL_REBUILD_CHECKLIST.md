@@ -22,7 +22,7 @@ Columns: **Parity** = inventory diff against `docs/evidence/tablet-first-ui/inve
 | Home — supervisor | `home/HomePage` | IMPLEMENTED-UNVERIFIED | 1 move logged | 4 widths captured | fr captured | not clicked through | Queue plus overview tiles with source and drill-down. `docs/evidence/tablet-first-ui/after-p1/` (28 captures, 119/119 checks) |
 | Home — direction / Live | `home/HomePage`, `home/FactoryCommandCenter` | IN PROGRESS | — | home captured | fr, ar (home) | not clicked through | Home redesigned with KPI tiles; the Live command centre itself is not redesigned yet. `docs/evidence/tablet-first-ui/after-p1/` (28 captures, 119/119 checks) |
 | Reception — today / pending / registry / alerts | `reception/ReceptionDashboardV2` | IN PROGRESS | — | — | — | — | Today list is a task card (earlier pass). |
-| Reception — intake | `reception/intake/*` | IN PROGRESS | — | — | — | — | Three steps exist; not redesigned for tablet. |
+| Reception — intake | `reception/intake/*` | IMPLEMENTED-UNVERIFIED | French wording unchanged; parity diff clean for intake | not captured yet | fr/en/ar + dialect actions | 17-scenario suite: 10/17, identical to main (same 7 fail on 1556ff0) | Step progress bars, grouped fields with completion ticks, net pinned in the action bar, read-back review, in-app abandon confirmation. Evidence: `docs/evidence/tablet-first-ui/reception-p2/results.json`. |
 | Reception — detail | `reception/ReceptionDetailV2` | NOT STARTED | — | — | — | — |  |
 | Reception — BRA documents | `documents/DocumentsWorkspace` | NOT STARTED | — | — | — | — |  |
 | QC queue | `reception/ReceptionQcQueue` | IN PROGRESS | — | — | — | — |  |
@@ -110,3 +110,7 @@ Backup, not in git: `backups/date_harvest_hub-pre-factory-adopt`
 ## Next executable task
 
 Open Réception as `operateur.reception@test.local` and finish the intake form in the browser at 1440 and 375. Then sign in as `inspecteur.qualite@test.local` and walk one inspection from Mesures to Verdict. Continue with stock, packaging, and shipments. Do not mark those modules verified from this recovery.
+
+## Reception browser suite baseline (6 Nov 2026)
+
+`scripts/e2e/reception.e2e.mjs` had not run green since factory isolation (`f416051`): it seeded the control database while the API reads each factory database. Its seeding now writes to the factory database (same name the server derives). With that fix, `main` 1556ff0 and `feature/tablet-first` both pass 10/17. Failing on both: D (connected weighing), H (offline/session recovery), S, V, Q (QC follow-ups), P (expects the QC tab "3 · Laboratoire", renamed "3 · Labo" on main), R (tablet widths). These are open defects of main or of the suite, not of the redesign; to be fixed in the QC pass.
