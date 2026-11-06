@@ -36,7 +36,14 @@ if (!assertSafeDbTarget({ uri: MONGO, dbName: DB, argv: [] }).isLocal) throw new
 let apiProcess = null;
 
 const results = [];
-const col = (name) => mongoose.connection.db.collection(name);
+// Factory records live in the factory's own database (tenant isolation, f416051); accounts stay in the control database.
+// Same name the server derives for the seeded test actors (seed-test-actors.mjs: demo-company / demo-site).
+const { factoryDatabaseName } = await import(new URL("../../server-dist/db/factory-database-name.js", import.meta.url).href);
+const FACTORY_DB = factoryDatabaseName(DB, {
+  tenant_id: process.env.TEST_ACTOR_TENANT_ID || "demo-company",
+  factory_id: process.env.TEST_ACTOR_FACTORY_ID || "demo-site",
+});
+const col = (name) => mongoose.connection.useDb(FACTORY_DB, { useCache: true }).collection(name);
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const check = (condition, message, evidence = "") => {
@@ -708,6 +715,8 @@ await run("H", "Offline, session expiry and server restart recovery", async () =
   });
   check(gross === "720", "typed weight restored after sign-in", gross);
   await clickByText(page, "Abandonner");
+  // Abandoning asks for confirmation in the app (no browser pop-up), then returns to the list.
+  await clickByText(page, "Abandonner la réception");
   await waitText(page, "Réceptions du jour");
 
   // Network drop, then back.

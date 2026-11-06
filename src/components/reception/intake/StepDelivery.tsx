@@ -1,10 +1,12 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AlertTriangle, ChevronDown, Truck } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FieldGroup } from '@/components/shared/task';
 import { usePurchaseOrders } from '@/hooks/usePurchasing';
 import { useSuppliers } from '@/hooks/useSuppliers';
 import { cn } from '@/lib/utils';
@@ -32,6 +34,7 @@ interface StepDeliveryProps {
 }
 
 export const StepDelivery = ({ draft, update, policy, varieties, lastDelivery, sameVehicleToday }: StepDeliveryProps) => {
+  const { t } = useTranslation();
   const { data: suppliers = [] } = useSuppliers();
   const { data: orders = [], isLoading: ordersLoading } = usePurchaseOrders();
 
@@ -60,18 +63,21 @@ export const StepDelivery = ({ draft, update, policy, varieties, lastDelivery, s
 
   const orderRequired = policy.requirePurchaseOrder || !policy.allowSpontaneous;
   const bioBlocked = draft.bio_declared && !hasValidBioCertification(supplier);
+  const supplierDone = Boolean(draft.supplier_id) && (!orderRequired || Boolean(draft.purchase_order_line_id));
+  const truckDone = Boolean(draft.delivery_note_number.trim()) && (!policy.requireVehicleNumber || Boolean(draft.vehicle_number.trim()));
+  const productDone = Boolean(draft.variety && draft.maturity_stage && draft.harvest_method) && !bioBlocked;
 
   return (
     <div className="space-y-4">
-      <section className="space-y-4">
-        <Field label="Fournisseur" required>
+      <FieldGroup title={t('intake.delivery.groupSupplier')} complete={supplierDone}>
+        <Field label={t('intake.delivery.supplier')} required>
           <SupplierPicker suppliers={activeSuppliers} value={draft.supplier_id} label={draft.supplier_label} onSelect={selectSupplier} />
         </Field>
 
         {draft.supplier_id && (
-          <Field label="Bon de commande" required={orderRequired}>
+          <Field label={t('intake.delivery.order')} required={orderRequired}>
             {ordersLoading ? (
-              <p className="text-sm text-muted-foreground">Recherche des commandes ouvertes…</p>
+              <p className="text-sm text-muted-foreground" role="status">{t('intake.delivery.searchingOrders')}</p>
             ) : (
               <div className="grid gap-2 md:grid-cols-2">
                 {!orderRequired && (
@@ -79,10 +85,10 @@ export const StepDelivery = ({ draft, update, policy, varieties, lastDelivery, s
                     type="button"
                     onClick={() => update({ purchase_order_id: '', purchase_order_line_id: '' })}
                     aria-pressed={!draft.purchase_order_id}
-                    className={cn('rounded-xl border p-3 text-start text-sm', !draft.purchase_order_id ? 'border-primary bg-primary/5' : 'hover:bg-muted')}
+                    className={cn('min-h-16 rounded-xl border bg-card p-3 text-start text-sm', !draft.purchase_order_id ? 'border-primary bg-accent' : 'hover:bg-secondary')}
                   >
-                    <span className="font-medium">Sans bon de commande</span>
-                    <span className="block text-xs text-muted-foreground">Livraison directe. Aucune dette n'est créée ici.</span>
+                    <span className="font-semibold">{t('intake.delivery.noOrder')}</span>
+                    <span className="block text-xs text-muted-foreground">{t('intake.delivery.noOrderHint')}</span>
                   </button>
                 )}
                 {openLines.map(({ order, line }) => {
@@ -93,59 +99,61 @@ export const StepDelivery = ({ draft, update, policy, varieties, lastDelivery, s
                       type="button"
                       aria-pressed={selected}
                       onClick={() => update({ purchase_order_id: order.id, purchase_order_line_id: line.id })}
-                      className={cn('rounded-xl border p-3 text-start text-sm', selected ? 'border-primary bg-primary/5' : 'hover:bg-muted')}
+                      className={cn('min-h-16 rounded-xl border bg-card p-3 text-start text-sm', selected ? 'border-primary bg-accent' : 'hover:bg-secondary')}
                     >
-                      <span className="font-mono font-medium">{order.order_number}</span>
+                      <span className="font-mono font-semibold" dir="ltr">{order.order_number}</span>
                       <span className="block truncate text-xs text-muted-foreground">{line.material?.name || line.description}</span>
                       <span className="mt-1 block text-xs">
-                        Reste <strong>{getPurchaseOrderLineRemainingQuantity(line)} kg</strong> sur {getPurchaseOrderLineTargetQuantity(line)} kg
+                        {t('intake.delivery.remainingOn', { remaining: getPurchaseOrderLineRemainingQuantity(line), target: getPurchaseOrderLineTargetQuantity(line) })}
                       </span>
                     </button>
                   );
                 })}
                 {orderRequired && openLines.length === 0 && (
-                  <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 md:col-span-2">
-                    Aucune commande ouverte pour ce fournisseur. Cette usine exige un bon de commande : contactez les achats.
+                  <p className="rounded-xl border border-amber-200 bg-sand p-3 text-sm text-sand-foreground md:col-span-2">
+                    {t('intake.delivery.orderRequired')}
                   </p>
                 )}
               </div>
             )}
           </Field>
         )}
-      </section>
+      </FieldGroup>
 
-      <section className="grid gap-4 md:grid-cols-3">
-        <Field label="N° bon de livraison" required>
-          <Input value={draft.delivery_note_number} onChange={(event) => update({ delivery_note_number: event.target.value })} autoComplete="off" />
-        </Field>
-        <Field label="Immatriculation" required={policy.requireVehicleNumber}>
-          <Input value={draft.vehicle_number} onChange={(event) => update({ vehicle_number: event.target.value })} autoComplete="off" />
-          {lastDelivery?.vehicle_number && !draft.vehicle_number && (
-            <Button
-              type="button"
-              variant="link"
-              size="sm"
-              className="h-auto p-0 text-xs"
-              onClick={() => update({ vehicle_number: lastDelivery.vehicle_number ?? '', driver_name: draft.driver_name || lastDelivery.driver_name || '' })}
-            >
-              <Truck className="me-1 h-3 w-3" />
-              Reprendre {lastDelivery.vehicle_number}
-            </Button>
-          )}
-        </Field>
-        <Field label="Chauffeur">
-          <Input value={draft.driver_name} onChange={(event) => update({ driver_name: event.target.value })} autoComplete="off" />
-        </Field>
+      <FieldGroup title={t('intake.delivery.groupTruck')} complete={truckDone}>
+        <div className="grid gap-4 md:grid-cols-3">
+          <Field label={t('intake.delivery.deliveryNote')} required>
+            <Input value={draft.delivery_note_number} onChange={(event) => update({ delivery_note_number: event.target.value })} autoComplete="off" />
+          </Field>
+          <Field label={t('intake.delivery.plate')} required={policy.requireVehicleNumber}>
+            <Input value={draft.vehicle_number} onChange={(event) => update({ vehicle_number: event.target.value })} autoComplete="off" dir="ltr" />
+            {lastDelivery?.vehicle_number && !draft.vehicle_number && (
+              <Button
+                type="button"
+                variant="link"
+                size="sm"
+                className="h-auto p-0 text-xs"
+                onClick={() => update({ vehicle_number: lastDelivery.vehicle_number ?? '', driver_name: draft.driver_name || lastDelivery.driver_name || '' })}
+              >
+                <Truck className="me-1 h-3 w-3" />
+                {t('intake.delivery.reuse', { plate: lastDelivery.vehicle_number })}
+              </Button>
+            )}
+          </Field>
+          <Field label={t('intake.delivery.driver')}>
+            <Input value={draft.driver_name} onChange={(event) => update({ driver_name: event.target.value })} autoComplete="off" />
+          </Field>
+        </div>
         {sameVehicleToday > 0 && (
-          <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 md:col-span-3">
-            Ce véhicule a déjà livré {sameVehicleToday} fois aujourd'hui (RG-R09). Vérifiez qu'il ne s'agit pas d'un doublon.
+          <p className="rounded-xl border border-amber-200 bg-sand p-3 text-sm text-sand-foreground">
+            {t('intake.delivery.sameVehicle', { count: sameVehicleToday })}
           </p>
         )}
-      </section>
+      </FieldGroup>
 
-      <section className="space-y-4">
+      <FieldGroup title={t('intake.delivery.groupProduct')} complete={productDone}>
         <ChoiceChips
-          label="Variété"
+          label={t('intake.delivery.variety')}
           required
           value={draft.variety}
           options={varieties.map((name) => ({ value: name, label: name }))}
@@ -153,68 +161,68 @@ export const StepDelivery = ({ draft, update, policy, varieties, lastDelivery, s
         />
         <div className="grid gap-4 md:grid-cols-2">
           <ChoiceChips
-            label="Stade de maturité"
+            label={t('intake.delivery.maturity')}
             required
             value={draft.maturity_stage}
             options={ROYAL_PALM_MATURITY_STAGES}
             onChange={(maturity_stage) => update({ maturity_stage })}
           />
           <ChoiceChips
-            label="Méthode de récolte"
+            label={t('intake.delivery.harvest')}
             required
             value={draft.harvest_method}
             options={ROYAL_PALM_HARVEST_METHODS}
             onChange={(harvest_method) => update({ harvest_method })}
           />
         </div>
-        <label className="flex min-h-11 items-center gap-3 rounded-xl border px-4 py-2 text-sm">
+        <label className="flex min-h-12 items-center gap-3 rounded-xl border bg-card px-4 py-2 text-sm">
           <input
             type="checkbox"
-            className="h-5 w-5"
+            className="h-5 w-5 accent-[hsl(var(--primary))]"
             checked={draft.bio_declared}
             onChange={(event) => update({ bio_declared: event.target.checked })}
           />
-          Lot déclaré Bio par le fournisseur
+          {t('intake.delivery.bio')}
         </label>
         {bioBlocked && (
-          <p className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+          <p className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800" role="alert">
             <AlertTriangle className="h-4 w-4 shrink-0" />
-            Ce fournisseur n'a pas de certification Bio valide : le lot ne peut pas être reçu comme Bio (RG-R05).
+            {t('intake.delivery.bioBlocked')}
           </p>
         )}
-      </section>
+      </FieldGroup>
 
       <Collapsible>
         <CollapsibleTrigger asChild>
           <Button type="button" variant="ghost" className="gap-2 px-2 text-muted-foreground">
             <ChevronDown className="h-4 w-4" />
-            Plus de détails (facultatif)
+            {t('intake.delivery.more')}
           </Button>
         </CollapsibleTrigger>
-        <CollapsibleContent className="mt-3 grid gap-4 md:grid-cols-3">
-          <Field label="Oasis d'origine">
+        <CollapsibleContent className="mt-3 grid gap-4 rounded-xl border bg-secondary/60 p-4 md:grid-cols-3">
+          <Field label={t('intake.delivery.oasis')}>
             <Input value={draft.origin_oasis} onChange={(event) => update({ origin_oasis: event.target.value })} />
           </Field>
-          <Field label="Date de récolte">
+          <Field label={t('intake.delivery.harvestDate')}>
             <Input type="date" value={draft.harvest_date} onChange={(event) => update({ harvest_date: event.target.value })} />
           </Field>
-          <Field label="Heure de départ déclarée">
+          <Field label={t('intake.delivery.departure')}>
             <Input type="time" value={draft.departure_time} onChange={(event) => update({ departure_time: event.target.value })} />
           </Field>
-          <Field label="Présentation">
+          <Field label={t('intake.delivery.presentation')}>
             <Select value={draft.presentation} onValueChange={(presentation) => update({ presentation })}>
-              <SelectTrigger aria-label="Présentation"><SelectValue placeholder="Choisir" /></SelectTrigger>
+              <SelectTrigger aria-label={t('intake.delivery.presentation')}><SelectValue placeholder={t('intake.delivery.choose')} /></SelectTrigger>
               <SelectContent>
                 {ROYAL_PALM_PRESENTATIONS.map((name) => <SelectItem key={name} value={name}>{frenchLabel(name)}</SelectItem>)}
               </SelectContent>
             </Select>
           </Field>
-          <Field label="Parcours de fabrication" hint="Fixé sur le lot à la confirmation." className="md:col-span-2">
+          <Field label={t('intake.delivery.route')} hint={t('intake.delivery.routeHint')} className="md:col-span-2">
             <Select value={draft.manufacturing_route} onValueChange={(value) => update({ manufacturing_route: value as IntakeDraft['manufacturing_route'] })}>
-              <SelectTrigger aria-label="Parcours de fabrication"><SelectValue /></SelectTrigger>
+              <SelectTrigger aria-label={t('intake.delivery.route')}><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="PREMIUM_WHOLE">Deglet Nour premium — fumigation requise</SelectItem>
-                <SelectItem value="GENERIC">Sans prérequis fumigation — plan de maîtrise du site</SelectItem>
+                <SelectItem value="PREMIUM_WHOLE">{t('intake.delivery.routePremium')}</SelectItem>
+                <SelectItem value="GENERIC">{t('intake.delivery.routeGeneric')}</SelectItem>
               </SelectContent>
             </Select>
           </Field>

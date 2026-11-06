@@ -50,5 +50,26 @@
   "nav": {
     "receptions": "الاستقبال",
     "logistics": "الشحن"
+  },
+  "intake": {
+    "title": "استقبال جديد",
+    "continue": "كمّل",
+    "previous": "ارجع",
+    "confirm": "سجّل الاستلام",
+    "saveAndQuit": "احفظ واخرج",
+    "quit": "اخرج",
+    "abandon": "الغي",
+    "keep": "كمّل الكتيبة",
+    "remaining": "باقي: {{text}}",
+    "review": {
+      "fix": "صلّح",
+      "missingTitle": "كمّل هاذم قبل ما تأكّد"
+    },
+    "startQc": "ابدأ الكنترول",
+    "weighing": {
+      "takeGross": "خوذو كوزن قايم",
+      "takeTare": "خوذو كوزن فارغ",
+      "split": "قسّم على برشا دفعات"
+    }
   }
 }
