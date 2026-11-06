@@ -17,7 +17,6 @@ import { toast } from 'sonner';
 import { useBranding } from '@/hooks/useBranding';
 import { useSiteSettings } from '@/hooks/useSettings';
 import { SummaryStrip } from '@/components/shared/SummaryStrip';
-
 interface Props {
   currentUser?: string;
 }

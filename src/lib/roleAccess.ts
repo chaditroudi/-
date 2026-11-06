@@ -423,3 +423,22 @@ export const canPerformAction = (roles: ActorRole[], action: RoleAction) => {
   const profile = getRoleWorkspaceProfile(roles);
   return profile.actions.includes(action);
 };
+
+/** How much of the plant the shell should show. Floor roles stay on one station. */
+export type ShellDensity = 'floor' | 'supervisor' | 'direction';
+
+const DIRECTION_ACTIONS: RoleAction[] = ['executive_dashboard', 'user_permissions_admin'];
+const SUPERVISOR_ACTIONS: RoleAction[] = [
+  'production_supervision',
+  'quality_supervision',
+  'shipping_planning',
+  'purchasing_management',
+  'maintenance_management',
+];
+
+export const getShellDensity = (roles: ActorRole[]): ShellDensity => {
+  const { actions } = getRoleWorkspaceProfile(roles);
+  if (actions.some((action) => DIRECTION_ACTIONS.includes(action))) return 'direction';
+  if (actions.some((action) => SUPERVISOR_ACTIONS.includes(action))) return 'supervisor';
+  return 'floor';
+};

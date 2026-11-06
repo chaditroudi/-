@@ -12,6 +12,7 @@ import { auditTrailMiddleware } from "./middleware/security-audit.js";
 import { AppExceptionFilter } from "./nest/app-exception.filter.js";
 import { AppModule } from "./nest/app.module.js";
 import { factoryConnection, runWithFactory } from "./db/factory-context.js";
+import { adoptFactoryDatabase } from "./db/factory-database-registry.js";
 import { ensureTrustIndexes } from "./db/indexes.js";
 import { resolveFactoryDeviceToken } from "./db/factory-device-token.js";
 import { financialVisibilityMiddleware } from "./middleware/financial-visibility.js";
@@ -56,6 +57,7 @@ export const createApp = async () => {
     if (!factory) return next();
     return runWithFactory(factory, async () => {
       try {
+        await adoptFactoryDatabase(factory);
         await ensureTrustIndexes(factoryConnection().db, true);
         next();
       } catch (error) {

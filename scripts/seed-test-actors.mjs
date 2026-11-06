@@ -62,6 +62,14 @@ const mongoDbName = process.env.MONGODB_DB_NAME || "date_harvest_hub";
 const { isLocal } = assertSafeDbTarget({ uri: mongoUri, dbName: mongoDbName });
 const PASSWORD = process.env.TEST_ACTOR_PASSWORD || (isLocal ? LOCAL_TEST_PASSWORD : null);
 if (!PASSWORD) throw new Error("TEST_ACTOR_PASSWORD is required on a remote target.");
+
+// Gate 3: every account must carry an explicit factory membership.
+const TENANT_ID = String(process.env.TEST_ACTOR_TENANT_ID || process.env.INITIAL_ADMIN_TENANT_ID || (isLocal ? "demo-company" : "")).trim();
+const FACTORY_ID = String(process.env.TEST_ACTOR_FACTORY_ID || process.env.INITIAL_ADMIN_FACTORY_ID || (isLocal ? "demo-site" : "")).trim();
+if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(TENANT_ID) || !/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(FACTORY_ID)) {
+  throw new Error("TEST_ACTOR_TENANT_ID and TEST_ACTOR_FACTORY_ID (or INITIAL_ADMIN_*) are required for Gate 3 sign-in.");
+}
+
 await mongoose.connect(mongoUri, { dbName: mongoDbName });
 
 const now = new Date().toISOString();
@@ -83,6 +91,8 @@ for (const [role, fullName, domains, departments, primaryDepartment, orgRoles] o
   if (!user) {
     user = await AuthUser.create({
       id: randomUUID(), email, passwordHash,
+      tenant_id: TENANT_ID,
+      factory_id: FACTORY_ID,
       user_metadata: metadata, is_active: true, created_at: now, updated_at: now,
     });
   } else {
@@ -92,6 +102,11 @@ for (const [role, fullName, domains, departments, primaryDepartment, orgRoles] o
     user.updated_at = now;
     await user.save();
   }
+  // Persist membership with $set so Gate 3 fields are never dropped by schema shape.
+  await AuthUser.updateOne(
+    { email },
+    { $set: { tenant_id: TENANT_ID, factory_id: FACTORY_ID, updated_at: now } },
+  ).exec();
   await Profile.updateOne(
     { user_id: user.id },
     {
@@ -103,5 +118,7 @@ for (const [role, fullName, domains, departments, primaryDepartment, orgRoles] o
   console.log(`OK ${role} → ${email} [${departments.join(",")}] / ${orgRoles.join("+")}`);
 }
 
-console.log(`\n${ACTORS.length} acteurs prêts, mot de passe: ${PASSWORD}`);
+console.log(`\n${ACTORS.length} acteurs prêts`);
+console.log(`usine: ${TENANT_ID} / ${FACTORY_ID}`);
+console.log(`mot de passe: ${PASSWORD}`);
 await mongoose.disconnect();

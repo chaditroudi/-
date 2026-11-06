@@ -204,7 +204,7 @@ const emitAuthChange = (event: AuthChangeEvent, session: Session | null) => {
   authListeners.forEach((listener) => listener(event, session));
 };
 
-const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
+const request = async <T>(path: string, init?: RequestInit & { timeout?: number }): Promise<T> => {
   const method = (init?.method || 'GET').toUpperCase();
   let data: unknown = undefined;
   if (init?.body) {
@@ -214,7 +214,12 @@ const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
       data = init.body;
     }
   }
-  const response = await axiosClient.request<T>({ url: path, method, data });
+  const response = await axiosClient.request<T>({
+    url: path,
+    method,
+    data,
+    timeout: init?.timeout,
+  });
   return response.data;
 };
 
@@ -591,6 +596,7 @@ export const mongodb = {
       const response = await request<{ data: Session }>('/auth/signin', {
         method: 'POST',
         body: JSON.stringify(payload),
+        timeout: 15000,
       });
 
       writeStoredSession(response.data);

@@ -410,6 +410,40 @@
   background: transparent;
 }
 
+/* Shared surfaces used by every module that renders a table or dialog. */
+@layer components {
+  .bg-shell table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.9375rem;
+  }
+  .bg-shell thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: hsl(var(--muted));
+    color: hsl(var(--muted-foreground));
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-align: start;
+    padding: 0.65rem 0.75rem;
+    border-bottom: 1px solid hsl(var(--border));
+  }
+  .bg-shell tbody td {
+    padding: 0.7rem 0.75rem;
+    border-bottom: 1px solid hsl(var(--border));
+    vertical-align: middle;
+  }
+  .bg-shell tbody tr:hover td {
+    background: hsl(var(--accent) / 0.55);
+  }
+  .bg-shell [role="dialog"] {
+    border-radius: var(--radius-lg);
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════════
    SCROLLBAR
    ═══════════════════════════════════════════════════════════════ */

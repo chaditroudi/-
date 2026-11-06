@@ -32,6 +32,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { useBranding } from "@/hooks/useBranding";
 import { ROLE_CONFIG } from "@/types/roles";
 import { getReceptionPermissions } from "@/lib/receptionWorkflow";
+import { getShellDensity } from "@/lib/roleAccess";
 import {
   Sidebar,
   SidebarContent,
@@ -97,16 +98,19 @@ export function AppSidebar({ activeTab, onTabChange, activeView, activeAlertsCou
   const identityLabel = profile?.full_name || user?.email || "Utilisateur";
   const primaryRole = roles?.[0];
   const roleLabel = primaryRole ? ROLE_CONFIG[primaryRole]?.label : undefined;
+  const density = getShellDensity(roles);
 
   const today = [
     { id: "home", title: "Accueil", icon: Home },
     { id: "scan", title: "Scanner", icon: QrCode },
     { id: "alerts", title: "Alertes", icon: Bell, badge: activeAlertsCount },
-    { id: "live", title: "En direct", icon: Activity },
+    ...(density === "floor" ? [] : [{ id: "live", title: "En direct", icon: Activity }]),
   ].filter((item) => canSee(item.id));
 
   const canInspect = getReceptionPermissions(roles).canRunQc;
-  const filiere = FILIERE.filter((item) => (item.id === "qc" ? canInspect && canSee("receptions") : canSee(item.id)));
+  const filiereAll = FILIERE.filter((item) => (item.id === "qc" ? canInspect && canSee("receptions") : canSee(item.id)));
+  // Floor workers see only their station, not the whole plant chain.
+  const filiere = density === "floor" ? filiereAll.slice(0, 1) : filiereAll;
 
   const openItem = (item: NavItem) => {
     if (item.id === "qc") onTabChange("receptions", { view: "qc" });
@@ -195,21 +199,21 @@ export function AppSidebar({ activeTab, onTabChange, activeView, activeAlertsCou
           </SidebarGroup>
         )}
 
-        {office.length > 0 && (
+        {density !== "floor" && office.length > 0 && (
           <SidebarGroup className="p-0">
             <GroupLabel>Bureau</GroupLabel>
             <SidebarMenu className="gap-px">{office.map(renderItem)}</SidebarMenu>
           </SidebarGroup>
         )}
 
-        {direction.length > 0 && (
+        {density === "direction" && direction.length > 0 && (
           <SidebarGroup className="p-0">
             <GroupLabel>Direction</GroupLabel>
             <SidebarMenu className="gap-px">{direction.map(renderItem)}</SidebarMenu>
           </SidebarGroup>
         )}
 
-        {isAdmin && (
+        {isAdmin && density === "direction" && (
           <SidebarGroup className="p-0 pt-3">
             <SidebarMenu>{renderItem({ id: "settings", title: "Paramètres", icon: Settings })}</SidebarMenu>
           </SidebarGroup>

@@ -61,7 +61,11 @@ beforeEach(() => {
 const startInspection = async () => {
   render(<QCInspectionDialog open onOpenChange={vi.fn()} reception={reception} />);
   fireEvent.click(screen.getByRole('button', { name: /Démarrer l'inspection/i }));
-  await screen.findByRole('button', { name: /Valider la décision/i });
+  await screen.findByText(/Humidité sol/i);
+};
+
+const openVerdict = () => {
+  fireEvent.click(screen.getByRole('button', { name: /Verdict/i }));
 };
 
 // The full QC dialog takes a few seconds to render in jsdom when the whole suite runs in parallel.
@@ -74,6 +78,7 @@ describe('QC inspection flow', { timeout: 30_000 }, () => {
 
   it('refuses to submit until every humidity and caliber reading is entered', async () => {
     await startInspection();
+    openVerdict();
     fireEvent.click(screen.getByRole('button', { name: /Valider la décision/i }));
 
     expect(await screen.findByText(/Mesures incomplètes : 13 valeur\(s\) manquante\(s\)/)).toBeInTheDocument();
@@ -86,6 +91,7 @@ describe('QC inspection flow', { timeout: 30_000 }, () => {
     const [caliberFill] = screen.getAllByPlaceholderText('mm');
     fireEvent.change(caliberFill, { target: { value: '46' } });
     fireEvent.click(screen.getByRole('button', { name: /Appliquer à tous/i }));
+    openVerdict();
 
     fireEvent.click(screen.getByRole('button', { name: /Valider la décision/i }));
     expect(await screen.findByText(/Grille qualité incomplète : 1 contrôle/)).toBeInTheDocument();

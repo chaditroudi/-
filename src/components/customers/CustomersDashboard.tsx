@@ -17,7 +17,6 @@ import {
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { SummaryStrip } from '@/components/shared/SummaryStrip';
-
 const COUNTRY_BADGE: Record<string, string> = {
   EU:  'bg-blue-50 text-blue-700 border-blue-200',
   USA: 'bg-red-50 text-red-700 border-red-200',

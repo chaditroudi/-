@@ -2,6 +2,8 @@ import "reflect-metadata";
 
 import { env } from "./config/env.js";
 import { describeUnlabelledTarget, refuseDatabaseTarget } from "./config/runtime-env.js";
+import { factoryFromAccount } from "./db/factory-context.js";
+import { adoptFactoryDatabase } from "./db/factory-database-registry.js";
 import { ensureTrustIndexes } from "./db/indexes.js";
 import { connectToDatabase, setNextDatabaseRetry } from "./db/mongoose.js";
 import { createApp } from "./app.js";
@@ -14,6 +16,11 @@ const connectAndSeedDatabase = async () => {
   try {
     await connectToDatabase();
     await ensureTrustIndexes();
+    const factory = factoryFromAccount({
+      tenant_id: process.env.INITIAL_ADMIN_TENANT_ID,
+      factory_id: process.env.INITIAL_ADMIN_FACTORY_ID,
+    });
+    if (factory) await adoptFactoryDatabase(factory);
     await seedDatabase();
     console.log(`Mongo database connected: ${env.mongoDbName}`);
   } catch (error) {

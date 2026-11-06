@@ -1,6 +1,6 @@
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { getRoleWorkspaceProfile, type AppTab } from '@/lib/roleAccess';
+import { getRoleWorkspaceProfile, getShellDensity, type AppTab } from '@/lib/roleAccess';
 import { getDailyAction } from '@/lib/roleLanding';
 import type { AppNavigateFn } from '@/lib/appNavigate';
 import { ROLE_CONFIG, type ActorRole } from '@/types/roles';
@@ -10,6 +10,7 @@ export function RoleLanding({ roles, tabs, onNavigate }: { roles: ActorRole[]; t
   if (!roles.length) return null;
   const profile = getRoleWorkspaceProfile(roles);
   const action = getDailyAction(roles, tabs);
+  const floor = getShellDensity(roles) === 'floor';
   return (
     <section
       aria-label="Votre poste"
@@ -21,7 +22,9 @@ export function RoleLanding({ roles, tabs, onNavigate }: { roles: ActorRole[]; t
         </p>
         <h2 className="font-display text-xl font-semibold">{profile.workspaceLabel}</h2>
         <p className="text-sm text-muted-foreground">
-          Une action principale pour démarrer. Le reste attend dans la file du jour.
+          {floor
+            ? 'Une seule action pour commencer. Le menu ne montre que votre poste.'
+            : 'Une action principale pour démarrer. Le reste attend dans la file du jour.'}
         </p>
       </div>
       {action && (

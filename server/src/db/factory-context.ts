@@ -1,7 +1,9 @@
 import { AsyncLocalStorage } from "node:async_hooks";
-import { createHash } from "node:crypto";
 import mongoose from "mongoose";
 import { AppError } from "../core/app-error.js";
+import { factoryDatabaseName } from "./factory-database-name.js";
+
+export { factoryDatabaseName, legacyFactoryDatabaseName } from "./factory-database-name.js";
 
 export type FactoryContext = Readonly<{ tenant_id: string; factory_id: string }>;
 const factoryStorage = new AsyncLocalStorage<FactoryContext>();
@@ -30,10 +32,21 @@ export const runWithFactory = <T>(context: FactoryContext, work: () => T): T => 
 export const sameFactory = (a: FactoryContext | null | undefined, b: FactoryContext | null | undefined) =>
   Boolean(a && b && a.tenant_id === b.tenant_id && a.factory_id === b.factory_id);
 
-export const factoryDatabaseName = (controlDatabase: string, context: FactoryContext) => {
+const adoptedNames = new Map<string, string>();
+const adoptedKey = (controlDatabase: string, context: FactoryContext) =>
+  `${controlDatabase}\0${context.tenant_id}\0${context.factory_id}`;
+
+/** The name chosen for this process. A request must resolve it before any factory write. */
+export const rememberFactoryDatabase = (controlDatabase: string, context: FactoryContext, databaseName: string) => {
   const validated = factoryFromAccount(context);
-  if (!validated || !controlDatabase) throw new Error("Valid control database and factory required.");
-  return `dhh_f_${createHash("sha256").update(JSON.stringify([controlDatabase, validated.tenant_id, validated.factory_id])).digest("hex").slice(0, 40)}`;
+  if (!validated || !controlDatabase || !databaseName) throw new Error("Valid control database and factory required.");
+  adoptedNames.set(adoptedKey(controlDatabase, validated), databaseName);
+};
+
+export const rememberedFactoryDatabase = (controlDatabase: string, context: FactoryContext) => {
+  const validated = factoryFromAccount(context);
+  if (!validated || !controlDatabase) return undefined;
+  return adoptedNames.get(adoptedKey(controlDatabase, validated));
 };
 
 /** useDb shares the existing MongoClient/session pool, including replica-set transactions. */
@@ -41,7 +54,8 @@ export const factoryConnection = () => {
   const context = requireFactory();
   const controlDatabase = mongoose.connection.name;
   if (!controlDatabase) throw new AppError(503, "DATABASE_UNAVAILABLE", "Database is not connected.");
-  return mongoose.connection.useDb(factoryDatabaseName(controlDatabase, context), { useCache: true });
+  const databaseName = rememberedFactoryDatabase(controlDatabase, context) ?? factoryDatabaseName(controlDatabase, context);
+  return mongoose.connection.useDb(databaseName, { useCache: true });
 };
 
 /** The few control-plane account lookups used by factory workflows must also be scoped. */

@@ -41,14 +41,14 @@ const quantityOf = (order: ProductionOrder) =>
   order.target_quantity == null ? 'quantité à définir' : `${order.target_quantity} ${order.unit ?? ''}`.trim();
 
 const WorkRow = ({ icon: Icon, title, detail, status, action, onAction }: WorkRowProps) => (
-  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2">
-    <Icon className="h-[18px] w-[18px] shrink-0 text-muted-foreground" />
+  <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
+    <Icon className="hidden h-5 w-5 shrink-0 text-muted-foreground sm:block" aria-hidden />
     <div className="min-w-0 flex-1">
-      <p className="truncate font-mono text-sm">{title}</p>
-      <p className="truncate text-xs text-muted-foreground">{detail}</p>
+      <p className="truncate text-base font-semibold">{title}</p>
+      <p className="mt-0.5 text-sm text-muted-foreground">{detail}</p>
+      {status ? <div className="mt-2">{status}</div> : null}
     </div>
-    {status}
-    <Button type="button" size="sm" variant="outline" className="gap-1" onClick={onAction}>
+    <Button type="button" className="min-h-12 w-full shrink-0 sm:w-auto" onClick={onAction}>
       {action}
       <ChevronRight className="h-4 w-4" />
     </Button>

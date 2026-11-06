@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { canAccessTab, canPerformAction, getAccessibleTabs, getRoleWorkspaceProfile } from "@/lib/roleAccess";
+import { canAccessTab, canPerformAction, getAccessibleTabs, getRoleWorkspaceProfile, getShellDensity } from "@/lib/roleAccess";
 
 describe("roleAccess", () => {
   it("gives system administrators all operational tabs and actions", () => {
@@ -28,6 +28,14 @@ describe("roleAccess", () => {
     expect(canPerformAction(["administrateur_systeme"], "purchasing_management")).toBe(true);
     expect(canPerformAction(["administrateur_systeme"], "warehouse_operations")).toBe(true);
     expect(canPerformAction(["administrateur_systeme"], "reception_data_entry")).toBe(true);
+  });
+
+  it("keeps floor workers on a station shell and directors on the full shell", () => {
+    expect(getShellDensity(["operateur_reception"])).toBe("floor");
+    expect(getShellDensity(["operateur_triage_ia"])).toBe("floor");
+    expect(getShellDensity(["inspecteur_qualite"])).toBe("floor");
+    expect(getShellDensity(["responsable_production"])).toBe("supervisor");
+    expect(getShellDensity(["directeur_usine"])).toBe("direction");
   });
 
   it("opens purchasing planning to responsable_stock but keeps magasinier out", () => {

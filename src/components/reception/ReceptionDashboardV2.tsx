@@ -112,6 +112,50 @@ const ReceptionListHead = () => (
   </div>
 );
 
+const nextReceptionStep = (status: ReceptionV2['status']) => {
+  switch (status) {
+    case 'BROUILLON': return 'Saisie non confirmée. Reprenez-la avant qu’un lot existe.';
+    case 'EN_ATTENTE_QC': return 'En quarantaine. Le contrôle qualité n’a pas commencé.';
+    case 'EN_QC': return 'Contrôle commencé. La décision n’est pas encore enregistrée.';
+    case 'BLOQUE': return 'Lot bloqué. Ouvrez la réception pour voir le motif.';
+    case 'LIBERE': return 'Lot libéré. Le rangement se fait dans le détail.';
+    case 'REJETE': return 'Lot rejeté. Il ne part pas en production.';
+    case 'ANNULE': return 'Réception annulée.';
+    default: return 'Ouvrir la réception.';
+  }
+};
+
+const TodayTask = ({ reception, onOpen }: { reception: ReceptionV2; onOpen: (reception: ReceptionV2) => void }) => (
+  <button
+    type="button"
+    onClick={() => onOpen(reception)}
+    className="flex w-full flex-col gap-3 border-b bg-card p-4 text-left last:border-b-0 hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:flex-row sm:items-center"
+  >
+    <div className="min-w-0 flex-1">
+      <p className="truncate text-base font-semibold">
+        {reception.supplier?.name || reception.supplier_name_snapshot || 'Fournisseur non renseigné'}
+      </p>
+      <p className="mt-0.5 font-mono text-sm text-muted-foreground">{reception.reception_number || 'Sans numéro'}</p>
+      <p className="mt-2 text-sm text-foreground">{nextReceptionStep(reception.status)}</p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        {reception.variety || 'Variété non renseignée'}
+        {' · BL '}
+        {reception.delivery_note_number || '—'}
+        {' · '}
+        {format(new Date(reception.created_at), 'HH:mm', { locale: fr })}
+      </p>
+    </div>
+    <div className="flex items-center justify-between gap-3 sm:flex-col sm:items-end">
+      <p className="text-2xl font-semibold tabular-nums">
+        <QuantityDisplay value={reception.quantity_total} unit={reception.unit || 'kg'} />
+      </p>
+      <Badge className={cn('text-xs', receptionStatusColors[reception.status])}>
+        {receptionStatusLabels[reception.status]}
+      </Badge>
+    </div>
+  </button>
+);
+
 const ReceptionRow = ({ reception, onOpen }: { reception: ReceptionV2; onOpen: (reception: ReceptionV2) => void }) => (
   <button
     type="button"
@@ -438,7 +482,6 @@ export const ReceptionDashboardV2 = ({
 
   return (
     <div className="space-y-4">
-
       {todayNotices.length > 0 && (
         <button
           type="button"
@@ -507,10 +550,9 @@ export const ReceptionDashboardV2 = ({
           </div>
         </div>
 
-        <TabsContent value="today" className="mt-3 divide-y overflow-clip rounded-lg border bg-card">
-          <ReceptionListHead />
-          <DataState source={todaySource} data={todayPage} isEmpty={todayRows.length === 0} what="les réceptions du jour" className="m-2 mb-3" empty="Aucune réception aujourd'hui pour le moment.">
-            {todayRows.map((reception) => <ReceptionRow key={reception.id} reception={reception} onOpen={openReception} />)}
+        <TabsContent value="today" className="mt-3 overflow-clip rounded-lg border bg-card">
+          <DataState source={todaySource} data={todayPage} isEmpty={todayRows.length === 0} what="les réceptions du jour" className="m-2 mb-3" empty="Aucune réception aujourd'hui. La première action est Nouvelle réception.">
+            {todayRows.map((reception) => <TodayTask key={reception.id} reception={reception} onOpen={openReception} />)}
           </DataState>
         </TabsContent>
 

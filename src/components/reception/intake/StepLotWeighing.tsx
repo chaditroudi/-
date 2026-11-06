@@ -221,7 +221,7 @@ export const StepLotWeighing = ({ draft, update, declaredGap, orderGap, expected
         <div className="grid gap-3 sm:grid-cols-3">
           <div className={cn('rounded-xl border p-3', net !== null && net > 0 ? 'border-primary/30 bg-primary/5' : net !== null ? 'border-red-200 bg-red-50' : 'border-dashed')}>
             <p className="text-xs font-medium text-muted-foreground">Poids net</p>
-            <p className="text-2xl font-semibold tabular-nums" data-testid="net-weight">{net !== null ? `${net} kg` : '—'}</p>
+            <p className="text-4xl font-semibold tabular-nums tracking-tight" data-testid="net-weight">{net !== null ? `${net} kg` : '—'}</p>
           </div>
           <Field label="Poids annoncé sur le BL (kg)">
             <Input inputMode="decimal" value={draft.declared_weight_kg} onChange={(event) => update({ declared_weight_kg: event.target.value })} />

@@ -83,7 +83,6 @@ export const SageOperationsHub = ({ onNavigate, accessibleTabs }: SageOperations
 
   return (
     <div className="mx-auto max-w-5xl space-y-4">
-
       <div className="grid grid-cols-3 gap-2">
         <div className="rounded-xl border px-3 py-2.5">
           <p className="text-xs text-muted-foreground">Blocages</p>

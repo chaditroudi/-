@@ -5,7 +5,6 @@ import { AlertAnalyticsPanel, FactoryAlertsCenter, TraceabilityTimeline } from '
 import { AlertsDashboard } from '@/components/batches/AlertsDashboard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Bell, BoxIcon, Clock, BarChart2 } from 'lucide-react';
-
 /** Every alert in one place: the shell's Alertes tab and the /alerts route show the same thing. */
 const AlertsCenter = ({ embedded = false }: { embedded?: boolean }) => {
   const { t } = useTranslation();

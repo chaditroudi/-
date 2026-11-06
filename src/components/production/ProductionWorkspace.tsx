@@ -137,6 +137,7 @@ export function ProductionWorkspace({
   };
 
   return (
+    <div className="flex flex-col gap-3">
     <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:gap-4">
       <nav aria-label="Sections de la production" className="-mx-1 overflow-x-auto scrollbar-hide lg:sticky lg:top-14 lg:mx-0 lg:w-48 lg:shrink-0 lg:overflow-visible">
         <div className="flex gap-1 px-1 lg:block lg:space-y-3 lg:px-0">
@@ -233,6 +234,7 @@ export function ProductionWorkspace({
 
       {orderId && <ProductionOrderDetail open onOpenChange={(open) => !open && setOrderId(null)} orderId={orderId} />}
       <LotTraceabilityDialog open={traceOpen} onOpenChange={setTraceOpen} lotNumber={traceLot} />
+    </div>
     </div>
   );
 }

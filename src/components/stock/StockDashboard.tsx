@@ -16,7 +16,6 @@ import {
 } from 'lucide-react';
 import { productCategoryLabels, productCategoryColors, ProductCategory } from '@/types/stock';
 import { ModuleHero } from '@/components/layout/ModuleHero';
-
 export const StockDashboard = () => {
   const { t } = useTranslation();
   const { data: summary } = useStockSummary();

@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertTriangle, CheckCircle, Clock, FlaskConical, MapPin, Play, Printer, Shield, XCircle } from "lucide-react";
 import { toast } from "sonner";
+import { WorkPath, type WorkStep, type WorkStepState } from "@/components/shared/WorkPath";
 import { receptionErrorMessage, useCalibrationStatus, useQcChecklist, useCreateQCInspection, useQCInspections, useSubmitQCDecision } from "@/hooks/useReceptionsV2";
 import { useModule3StorageZones } from "@/hooks/useStorageModule3";
 import { Module3StorageZone } from "@/types/storage";
@@ -238,8 +239,51 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
   );
 
   const selectedDecision = overrideDecision || score.recommendedDecision;
-  const missingMeasurements =
-    humidity.filter((value) => !isMeasured(value)).length + calibers.filter((value) => !isMeasured(value)).length;
+  const humidityMissing = humidity.filter((value) => !isMeasured(value)).length;
+  const caliberMissing = calibers.filter((value) => !isMeasured(value)).length;
+  const missingMeasurements = humidityMissing + caliberMissing;
+  const labIncomplete = labSampleRequired && (labAnalyses.length === 0 || !labStorageLocation.trim());
+  const qcSteps: WorkStep[] = phase === "start"
+    ? [
+        { label: "Démarrer", state: "current" },
+        { label: "Mesures", state: "upcoming" },
+        { label: "Décision", state: "upcoming" },
+      ]
+    : phase === "confirmed"
+      ? [
+          { label: "Mesures", state: "done" },
+          { label: "Décision", state: "done" },
+          { label: "Suite", state: "current" },
+        ]
+      : QC_SECTIONS.map((section, index) => {
+          let state: WorkStepState = "upcoming";
+          if (section.key === qcSection) state = "current";
+          else if (index < qcSectionIndex) {
+            if (section.key === "mesures" && missingMeasurements > 0) state = "blocked";
+            else if (section.key === "labo" && labIncomplete) state = "blocked";
+            else state = "done";
+          }
+          const base = section.label.replace(/^\d+ · /, "");
+          const label = section.key === "mesures" && missingMeasurements > 0 ? `${base} (${missingMeasurements})` : base;
+          return { label, state };
+        });
+  const qcNow = phase === "start"
+    ? (isOwnReceptionInspector && !canOverrideRoleSeparation
+        ? "Vous avez enregistré cette réception. Un autre inspecteur doit la contrôler."
+        : "Indiquez l’inspecteur, puis démarrez. Rien n’est enregistré avant ce démarrage.")
+    : phase === "confirmed"
+      ? "La décision est enregistrée. Le rangement des lots se fait ensuite, hors de cet écran."
+      : qcSection === "mesures"
+        ? (missingMeasurements > 0
+            ? `Il reste ${humidityMissing} humidité(s) et ${caliberMissing} calibre(s). La décision reste bloquée tant que ces mesures sont vides.`
+            : "Les 3 humidités et les 10 calibres sont saisis.")
+        : qcSection === "labo" && labIncomplete
+          ? "Ce lot exige un échantillon : choisissez au moins une analyse et son emplacement."
+          : qcSection === "verdict"
+            ? (missingMeasurements > 0
+                ? `Décision bloquée : ${missingMeasurements} mesure(s) manquante(s). Revenez à Mesures avant de valider.`
+                : `Décision proposée : ${selectedDecision}. Valider l’envoie au serveur. Rien n’est libéré avant cette réponse.`)
+            : undefined;
 
   const totalDefectsFloor = useMemo(
     () =>
@@ -502,6 +546,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
         className="flex h-[100dvh] max-h-[100dvh] w-full max-w-6xl flex-col rounded-none sm:h-[92vh] sm:max-h-[92vh] sm:rounded-lg"
         onInteractOutside={(event) => event.preventDefault()}
       >
+        <WorkPath label="Contrôle qualité" steps={qcSteps} now={qcNow} />
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5" />
@@ -664,6 +709,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                             value={value ?? ""}
                             onFocus={(e) => e.target.select()}
                             onChange={(event) => updateHumidity(index, parseMeasurement(event.target.value))}
+                            className="h-14 text-2xl tabular-nums"
                           />
                         </div>
                       ))}
@@ -687,7 +733,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                             placeholder="mm"
                             value={caliberFillValue}
                             onChange={(e) => setCaliberFillValue(e.target.value)}
-                            className="h-7 w-20 rounded-lg text-xs"
+                            className="h-11 w-24 text-base tabular-nums"
                           />
                           <Button
                             type="button"
@@ -705,7 +751,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                         </div>
                       </div>
                     </CardHeader>
-                    <CardContent className="grid grid-cols-5 gap-2">
+                    <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-5">
                       {calibers.map((value, index) => (
                         <div key={index} className="space-y-1">
                           <Label className="text-xs text-muted-foreground">L{index + 1}</Label>
@@ -719,7 +765,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                             value={value ?? ""}
                             onFocus={(e) => e.target.select()}
                             onChange={(event) => updateCaliber(index, parseMeasurement(event.target.value))}
-                            className="h-8 rounded-lg px-2 text-sm"
+                            className="h-12 text-lg tabular-nums"
                           />
                         </div>
                       ))}
@@ -743,12 +789,14 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                         ["discolorationPercent", "Décoloration"],
                       ].map(([field, label]) => (
                         <div key={field} className="space-y-1">
-                          <Label className="text-xs">{label}</Label>
+                          <Label className="text-sm">{label}</Label>
                           <Input
                             type="number"
                             min="0"
                             max="100"
                             step="0.1"
+                            inputMode="decimal"
+                            className="h-12 text-lg tabular-nums"
                             value={defects[field as keyof typeof defects]}
                             onFocus={(e) => e.target.select()}
                             onChange={(event) =>
@@ -1361,19 +1409,15 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                       Retour
                     </Button>
                   )}
-                  {qcSection !== 'verdict' && (
-                    <Button type="button" variant="secondary" className="min-h-11" title={darijaTitle('qc.continue')} onClick={() => goQcSection(1)}>
+                  {qcSection === 'verdict' ? (
+                    <Button className="min-h-12 font-semibold" title={darijaTitle('common.confirm')} onClick={() => submit()} disabled={submitDecision.isPending}>
+                      {submitDecision.isPending ? "Validation en cours..." : "Valider la décision"}
+                    </Button>
+                  ) : (
+                    <Button type="button" className="min-h-12 font-semibold" title={darijaTitle('qc.continue')} onClick={() => goQcSection(1)}>
                       Continuer
                     </Button>
                   )}
-                  {qcSection !== 'verdict' && (
-                    <Button type="button" variant="outline" className="min-h-11" onClick={() => setQcSection('verdict')}>
-                      Aller au verdict
-                    </Button>
-                  )}
-                  <Button className="min-h-11 font-semibold" title={darijaTitle('common.confirm')} onClick={() => submit()} disabled={submitDecision.isPending}>
-                    {submitDecision.isPending ? "Validation en cours..." : "Valider la décision"}
-                  </Button>
                 </div>
               )}
             </div>

@@ -343,7 +343,11 @@ const FlowBody = ({ draftId, prefillPurchaseOrderId, canRunQc, onClose, onOpenRe
         )}
       </div>
       {stageBlockers.length > 0 && (
-        <p className="mt-1 truncate px-1 text-xs text-muted-foreground">Reste à faire : {stageBlockers[0]}</p>
+        <ul className="mt-2 space-y-1 px-1 text-sm text-foreground">
+          {stageBlockers.map((text) => (
+            <li key={text}>Reste à faire : {text}</li>
+          ))}
+        </ul>
       )}
     </div>
   );

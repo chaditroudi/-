@@ -24,6 +24,7 @@ export default function Auth() {
   const [password, setPassword] = useState('');
   const [showPwd, setShowPwd] = useState(false);
   const [pending, setPending] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const isRTL = i18n.language.startsWith('ar');
 
@@ -34,14 +35,17 @@ export default function Auth() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPending(true);
+    setFormError(null);
     try {
       await signIn(email, password);
       toast({ title: t('messages.saveSuccess'), description: t('home.welcome') });
       navigate('/');
     } catch (err: any) {
+      const message = err?.message || t('messages.loadError');
+      setFormError(message);
       toast({
         title: t('common.error'),
-        description: err.message || t('messages.loadError'),
+        description: message,
         variant: 'destructive',
       });
     } finally {
@@ -177,6 +181,11 @@ export default function Auth() {
                 </span>
               )}
             </Button>
+            {formError && (
+              <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+                {formError} Vous pouvez corriger les champs et réessayer.
+              </p>
+            )}
           </form>
         </div>
 

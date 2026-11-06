@@ -131,9 +131,10 @@ const Index = () => {
     [workspaceProfile.primaryTabs, accessibleTabs],
   );
 
+  // Overflow is the role's secondary list only. Dumping every authorized tab
+  // into "Plus" is what made the phone menu feel like a full ERP.
   const quickTabs = useMemo(
-    () => Array.from(new Set([...workspaceProfile.quickTabs, ...accessibleTabs]))
-      .filter(tab => accessibleTabs.includes(tab) && !primaryTabs.includes(tab)),
+    () => workspaceProfile.quickTabs.filter(tab => accessibleTabs.includes(tab) && !primaryTabs.includes(tab)),
     [workspaceProfile.quickTabs, accessibleTabs, primaryTabs],
   );
 

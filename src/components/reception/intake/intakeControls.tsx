@@ -23,7 +23,10 @@ export const Field = ({ label, required, hint, children, className }: {
         {label}
         {required && <span className="ml-0.5 text-destructive" aria-hidden>*</span>}
       </Label>
-      {isValidElement(control) ? cloneElement(control as ReactElement<{ id?: string }>, { id }) : control}
+      {isValidElement(control) ? cloneElement(control as ReactElement<{ id?: string; className?: string }>, {
+        id,
+        className: cn('min-h-12 text-base', (control.props as { className?: string }).className),
+      }) : control}
       {rest}
       {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
     </div>

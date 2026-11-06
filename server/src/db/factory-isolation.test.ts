@@ -21,7 +21,8 @@ describe("factory model boundary", () => {
   it("separates company, factory and deployment identities without accepting database names", () => {
     const scope = { tenant_id: "company-a", factory_id: "site-a" };
     const name = factoryDatabaseName("control", scope);
-    expect(name).toMatch(/^dhh_f_[a-f0-9]{40}$/);
+    expect(name).toMatch(/^dhh_f_[a-f0-9]{32}$/);
+    expect(Buffer.byteLength(name, "utf8")).toBeLessThanOrEqual(38);
     expect(factoryDatabaseName("control", { ...scope, tenant_id: "company-b" })).not.toBe(name);
     expect(factoryDatabaseName("control", { ...scope, factory_id: "site-b" })).not.toBe(name);
     expect(factoryDatabaseName("other-control", scope)).not.toBe(name);
