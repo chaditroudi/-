@@ -102,5 +102,12 @@
       "QUARANTAINE": "حجر",
       "REJETE": "ارفض"
     }
+  },
+  "receptionDetail": {
+    "back": "الاستلامات",
+    "correct": "صلّح",
+    "lots": {
+      "viewWeighing": "شوف الميزان"
+    }
   }
 }

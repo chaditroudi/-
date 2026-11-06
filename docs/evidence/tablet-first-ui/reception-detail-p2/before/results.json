@@ -1,0 +1,2379 @@
+{
+  "head": "09b2121",
+  "dirty": true,
+  "capturedAt": "2026-11-06T23:48:26.770Z",
+  "database": "qc_visual_mw5mkzq8",
+  "widths": [
+    375,
+    768,
+    1024,
+    1440
+  ],
+  "locales": [
+    "fr",
+    "ar"
+  ],
+  "checks": [
+    {
+      "name": "inspector signature PIN provisioned",
+      "passed": true,
+      "detail": {
+        "data": {
+          "ok": true,
+          "has_signature_pin": true
+        }
+      }
+    },
+    {
+      "name": "detail-fr-375 opens from today's list",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-375 sections shown",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-375 0-overview: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 14,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-375 0-overview: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-375 supervisor can correct the reception",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-375 supervisor can cancel before the QC decision",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-375 1-lots: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 18,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-375 1-lots: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-375 lot shows its weighing action",
+      "passed": false
+    },
+    {
+      "name": "detail-fr-375 weighing record opens",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-375 1b-weighing: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 5,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "detail-fr-375 1b-weighing: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-375 2-qc: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 14,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-375 2-qc: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-375 3-stock: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 15,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-375 3-stock: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-375 4-documents: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 16,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-375 4-documents: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-375 5-history: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 14,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-375 5-history: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-375 no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "detail-fr-768 opens from today's list",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-768 sections shown",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-768 0-overview: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 14,
+        "smallTargets": 1,
+        "smallExamples": [
+          "Rechercher"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-768 0-overview: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-768 supervisor can correct the reception",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-768 supervisor can cancel before the QC decision",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-768 1-lots: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 18,
+        "smallTargets": 1,
+        "smallExamples": [
+          "Rechercher"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-768 1-lots: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-768 lot shows its weighing action",
+      "passed": false
+    },
+    {
+      "name": "detail-fr-768 weighing record opens",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-768 1b-weighing: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 5,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "detail-fr-768 1b-weighing: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-768 2-qc: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 14,
+        "smallTargets": 1,
+        "smallExamples": [
+          "Rechercher"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-768 2-qc: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-768 3-stock: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 15,
+        "smallTargets": 1,
+        "smallExamples": [
+          "Rechercher"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-768 3-stock: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-768 4-documents: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 16,
+        "smallTargets": 1,
+        "smallExamples": [
+          "Rechercher"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-768 4-documents: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-768 5-history: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 14,
+        "smallTargets": 1,
+        "smallExamples": [
+          "Rechercher"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-768 5-history: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-768 no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "detail-fr-1024 opens from today's list",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1024 sections shown",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1024 0-overview: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 14,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-1024 0-overview: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1024 supervisor can correct the reception",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1024 supervisor can cancel before the QC decision",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1024 1-lots: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 18,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-1024 1-lots: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1024 lot shows its weighing action",
+      "passed": false
+    },
+    {
+      "name": "detail-fr-1024 weighing record opens",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1024 1b-weighing: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 5,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "detail-fr-1024 1b-weighing: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1024 2-qc: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 14,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-1024 2-qc: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1024 3-stock: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 15,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-1024 3-stock: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1024 4-documents: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 16,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-1024 4-documents: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1024 5-history: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 14,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-1024 5-history: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1024 no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "detail-fr-1440 opens from today's list",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1440 sections shown",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1440 0-overview: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 14,
+        "smallTargets": 14,
+        "smallExamples": [
+          "Rechercher un écran ou un lot ",
+          "Langue : Français",
+          "BUTTON",
+          "Notifications (12 non lues)",
+          "Actualiser",
+          "Réceptions",
+          "Annuler la réception",
+          "Corriger",
+          "Fiche",
+          "Lots (1)"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-1440 0-overview: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1440 supervisor can correct the reception",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1440 supervisor can cancel before the QC decision",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1440 1-lots: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 18,
+        "smallTargets": 18,
+        "smallExamples": [
+          "Rechercher un écran ou un lot ",
+          "Langue : Français",
+          "BUTTON",
+          "Notifications (12 non lues)",
+          "Actualiser",
+          "Réceptions",
+          "Annuler la réception",
+          "Corriger",
+          "Fiche",
+          "Lots (1)"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-1440 1-lots: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1440 lot shows its weighing action",
+      "passed": false
+    },
+    {
+      "name": "detail-fr-1440 weighing record opens",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1440 1b-weighing: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 5,
+        "smallTargets": 2,
+        "smallExamples": [
+          "INPUT",
+          "Enregistrer la correction"
+        ],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "detail-fr-1440 1b-weighing: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1440 2-qc: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 14,
+        "smallTargets": 14,
+        "smallExamples": [
+          "Rechercher un écran ou un lot ",
+          "Langue : Français",
+          "BUTTON",
+          "Notifications (12 non lues)",
+          "Actualiser",
+          "Réceptions",
+          "Annuler la réception",
+          "Corriger",
+          "Fiche",
+          "Lots (1)"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-1440 2-qc: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1440 3-stock: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 15,
+        "smallTargets": 15,
+        "smallExamples": [
+          "Rechercher un écran ou un lot ",
+          "Langue : Français",
+          "BUTTON",
+          "Notifications (12 non lues)",
+          "Actualiser",
+          "Réceptions",
+          "Annuler la réception",
+          "Corriger",
+          "Fiche",
+          "Lots (1)"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-1440 3-stock: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1440 4-documents: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 16,
+        "smallTargets": 14,
+        "smallExamples": [
+          "Rechercher un écran ou un lot ",
+          "Langue : Français",
+          "BUTTON",
+          "Notifications (12 non lues)",
+          "Actualiser",
+          "Réceptions",
+          "Annuler la réception",
+          "Corriger",
+          "Fiche",
+          "Lots (1)"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-1440 4-documents: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1440 5-history: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 14,
+        "smallTargets": 14,
+        "smallExamples": [
+          "Rechercher un écran ou un lot ",
+          "Langue : Français",
+          "BUTTON",
+          "Notifications (12 non lues)",
+          "Actualiser",
+          "Réceptions",
+          "Annuler la réception",
+          "Corriger",
+          "Fiche",
+          "Lots (1)"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-fr-1440 5-history: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-fr-1440 no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "detail-ar-375 opens from today's list",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-375 sections shown",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-375 0-overview: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 14,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-375 0-overview: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-375 supervisor can correct the reception",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-375 supervisor can cancel before the QC decision",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-375 1-lots: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 18,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-375 1-lots: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-375 lot shows its weighing action",
+      "passed": false
+    },
+    {
+      "name": "detail-ar-375 weighing record opens",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-375 1b-weighing: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 5,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "detail-ar-375 1b-weighing: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-375 2-qc: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 14,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-375 2-qc: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-375 3-stock: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 15,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-375 3-stock: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-375 4-documents: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 16,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-375 4-documents: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-375 5-history: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 14,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-375 5-history: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-375 no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "detail-ar-768 opens from today's list",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-768 sections shown",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-768 0-overview: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 14,
+        "smallTargets": 1,
+        "smallExamples": [
+          "Rechercher"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-768 0-overview: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-768 supervisor can correct the reception",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-768 supervisor can cancel before the QC decision",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-768 1-lots: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 18,
+        "smallTargets": 1,
+        "smallExamples": [
+          "Rechercher"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-768 1-lots: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-768 lot shows its weighing action",
+      "passed": false
+    },
+    {
+      "name": "detail-ar-768 weighing record opens",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-768 1b-weighing: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 5,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "detail-ar-768 1b-weighing: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-768 2-qc: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 14,
+        "smallTargets": 1,
+        "smallExamples": [
+          "Rechercher"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-768 2-qc: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-768 3-stock: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 15,
+        "smallTargets": 1,
+        "smallExamples": [
+          "Rechercher"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-768 3-stock: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-768 4-documents: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 16,
+        "smallTargets": 1,
+        "smallExamples": [
+          "Rechercher"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-768 4-documents: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-768 5-history: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 14,
+        "smallTargets": 1,
+        "smallExamples": [
+          "Rechercher"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-768 5-history: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-768 no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "detail-ar-1024 opens from today's list",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1024 sections shown",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1024 0-overview: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 14,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-1024 0-overview: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1024 supervisor can correct the reception",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1024 supervisor can cancel before the QC decision",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1024 1-lots: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 18,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-1024 1-lots: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1024 lot shows its weighing action",
+      "passed": false
+    },
+    {
+      "name": "detail-ar-1024 weighing record opens",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1024 1b-weighing: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 5,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "detail-ar-1024 1b-weighing: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1024 2-qc: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 14,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-1024 2-qc: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1024 3-stock: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 15,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-1024 3-stock: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1024 4-documents: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 16,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-1024 4-documents: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1024 5-history: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 14,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-1024 5-history: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1024 no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "detail-ar-1440 opens from today's list",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1440 sections shown",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1440 0-overview: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 14,
+        "smallTargets": 14,
+        "smallExamples": [
+          "Rechercher un écran ou un lot ",
+          "اللغة : العربية الفصحى",
+          "BUTTON",
+          "Notifications (24 non lues)",
+          "Actualiser",
+          "Réceptions",
+          "Annuler la réception",
+          "Corriger",
+          "Fiche",
+          "Lots (1)"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-1440 0-overview: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1440 supervisor can correct the reception",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1440 supervisor can cancel before the QC decision",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1440 1-lots: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 18,
+        "smallTargets": 18,
+        "smallExamples": [
+          "Rechercher un écran ou un lot ",
+          "اللغة : العربية الفصحى",
+          "BUTTON",
+          "Notifications (24 non lues)",
+          "Actualiser",
+          "Réceptions",
+          "Annuler la réception",
+          "Corriger",
+          "Fiche",
+          "Lots (1)"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-1440 1-lots: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1440 lot shows its weighing action",
+      "passed": false
+    },
+    {
+      "name": "detail-ar-1440 weighing record opens",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1440 1b-weighing: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "rtl",
+        "controls": 5,
+        "smallTargets": 2,
+        "smallExamples": [
+          "INPUT",
+          "Enregistrer la correction"
+        ],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "detail-ar-1440 1b-weighing: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1440 2-qc: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 14,
+        "smallTargets": 14,
+        "smallExamples": [
+          "Rechercher un écran ou un lot ",
+          "اللغة : العربية الفصحى",
+          "BUTTON",
+          "Notifications (24 non lues)",
+          "Actualiser",
+          "Réceptions",
+          "Annuler la réception",
+          "Corriger",
+          "Fiche",
+          "Lots (1)"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-1440 2-qc: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1440 3-stock: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 15,
+        "smallTargets": 15,
+        "smallExamples": [
+          "Rechercher un écran ou un lot ",
+          "اللغة : العربية الفصحى",
+          "BUTTON",
+          "Notifications (24 non lues)",
+          "Actualiser",
+          "Réceptions",
+          "Annuler la réception",
+          "Corriger",
+          "Fiche",
+          "Lots (1)"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-1440 3-stock: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1440 4-documents: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 16,
+        "smallTargets": 14,
+        "smallExamples": [
+          "Rechercher un écran ou un lot ",
+          "اللغة : العربية الفصحى",
+          "BUTTON",
+          "Notifications (24 non lues)",
+          "Actualiser",
+          "Réceptions",
+          "Annuler la réception",
+          "Corriger",
+          "Fiche",
+          "Lots (1)"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-1440 4-documents: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1440 5-history: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "rtl",
+        "controls": 14,
+        "smallTargets": 14,
+        "smallExamples": [
+          "Rechercher un écran ou un lot ",
+          "اللغة : العربية الفصحى",
+          "BUTTON",
+          "Notifications (24 non lues)",
+          "Actualiser",
+          "Réceptions",
+          "Annuler la réception",
+          "Corriger",
+          "Fiche",
+          "Lots (1)"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "detail-ar-1440 5-history: no crash",
+      "passed": true
+    },
+    {
+      "name": "detail-ar-1440 no server or script errors",
+      "passed": true,
+      "detail": []
+    }
+  ],
+  "screens": [
+    {
+      "id": "detail-fr-375-0-overview",
+      "step": "0-overview",
+      "file": "detail-fr-375-0-overview.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 14,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-375-1-lots",
+      "step": "1-lots",
+      "file": "detail-fr-375-1-lots.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 18,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-375-1b-weighing",
+      "step": "1b-weighing",
+      "file": "detail-fr-375-1b-weighing.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 5,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-375-2-qc",
+      "step": "2-qc",
+      "file": "detail-fr-375-2-qc.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 14,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-375-3-stock",
+      "step": "3-stock",
+      "file": "detail-fr-375-3-stock.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 15,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-375-4-documents",
+      "step": "4-documents",
+      "file": "detail-fr-375-4-documents.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 16,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-375-5-history",
+      "step": "5-history",
+      "file": "detail-fr-375-5-history.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 14,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-768-0-overview",
+      "step": "0-overview",
+      "file": "detail-fr-768-0-overview.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 14,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-768-1-lots",
+      "step": "1-lots",
+      "file": "detail-fr-768-1-lots.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 18,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-768-1b-weighing",
+      "step": "1b-weighing",
+      "file": "detail-fr-768-1b-weighing.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 5,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-768-2-qc",
+      "step": "2-qc",
+      "file": "detail-fr-768-2-qc.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 14,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-768-3-stock",
+      "step": "3-stock",
+      "file": "detail-fr-768-3-stock.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 15,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-768-4-documents",
+      "step": "4-documents",
+      "file": "detail-fr-768-4-documents.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 16,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-768-5-history",
+      "step": "5-history",
+      "file": "detail-fr-768-5-history.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 14,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-1024-0-overview",
+      "step": "0-overview",
+      "file": "detail-fr-1024-0-overview.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 14,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-1024-1-lots",
+      "step": "1-lots",
+      "file": "detail-fr-1024-1-lots.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 18,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-1024-1b-weighing",
+      "step": "1b-weighing",
+      "file": "detail-fr-1024-1b-weighing.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 5,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-1024-2-qc",
+      "step": "2-qc",
+      "file": "detail-fr-1024-2-qc.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 14,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-1024-3-stock",
+      "step": "3-stock",
+      "file": "detail-fr-1024-3-stock.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 15,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-1024-4-documents",
+      "step": "4-documents",
+      "file": "detail-fr-1024-4-documents.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 16,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-1024-5-history",
+      "step": "5-history",
+      "file": "detail-fr-1024-5-history.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 14,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-1440-0-overview",
+      "step": "0-overview",
+      "file": "detail-fr-1440-0-overview.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 14,
+      "smallTargets": 14,
+      "smallExamples": [
+        "Rechercher un écran ou un lot ",
+        "Langue : Français",
+        "BUTTON",
+        "Notifications (12 non lues)",
+        "Actualiser",
+        "Réceptions",
+        "Annuler la réception",
+        "Corriger",
+        "Fiche",
+        "Lots (1)"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-1440-1-lots",
+      "step": "1-lots",
+      "file": "detail-fr-1440-1-lots.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 18,
+      "smallTargets": 18,
+      "smallExamples": [
+        "Rechercher un écran ou un lot ",
+        "Langue : Français",
+        "BUTTON",
+        "Notifications (12 non lues)",
+        "Actualiser",
+        "Réceptions",
+        "Annuler la réception",
+        "Corriger",
+        "Fiche",
+        "Lots (1)"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-1440-1b-weighing",
+      "step": "1b-weighing",
+      "file": "detail-fr-1440-1b-weighing.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 5,
+      "smallTargets": 2,
+      "smallExamples": [
+        "INPUT",
+        "Enregistrer la correction"
+      ],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-1440-2-qc",
+      "step": "2-qc",
+      "file": "detail-fr-1440-2-qc.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 14,
+      "smallTargets": 14,
+      "smallExamples": [
+        "Rechercher un écran ou un lot ",
+        "Langue : Français",
+        "BUTTON",
+        "Notifications (12 non lues)",
+        "Actualiser",
+        "Réceptions",
+        "Annuler la réception",
+        "Corriger",
+        "Fiche",
+        "Lots (1)"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-1440-3-stock",
+      "step": "3-stock",
+      "file": "detail-fr-1440-3-stock.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 15,
+      "smallTargets": 15,
+      "smallExamples": [
+        "Rechercher un écran ou un lot ",
+        "Langue : Français",
+        "BUTTON",
+        "Notifications (12 non lues)",
+        "Actualiser",
+        "Réceptions",
+        "Annuler la réception",
+        "Corriger",
+        "Fiche",
+        "Lots (1)"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-1440-4-documents",
+      "step": "4-documents",
+      "file": "detail-fr-1440-4-documents.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 16,
+      "smallTargets": 14,
+      "smallExamples": [
+        "Rechercher un écran ou un lot ",
+        "Langue : Français",
+        "BUTTON",
+        "Notifications (12 non lues)",
+        "Actualiser",
+        "Réceptions",
+        "Annuler la réception",
+        "Corriger",
+        "Fiche",
+        "Lots (1)"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-fr-1440-5-history",
+      "step": "5-history",
+      "file": "detail-fr-1440-5-history.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 14,
+      "smallTargets": 14,
+      "smallExamples": [
+        "Rechercher un écran ou un lot ",
+        "Langue : Français",
+        "BUTTON",
+        "Notifications (12 non lues)",
+        "Actualiser",
+        "Réceptions",
+        "Annuler la réception",
+        "Corriger",
+        "Fiche",
+        "Lots (1)"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-375-0-overview",
+      "step": "0-overview",
+      "file": "detail-ar-375-0-overview.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 14,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-375-1-lots",
+      "step": "1-lots",
+      "file": "detail-ar-375-1-lots.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 18,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-375-1b-weighing",
+      "step": "1b-weighing",
+      "file": "detail-ar-375-1b-weighing.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 5,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-375-2-qc",
+      "step": "2-qc",
+      "file": "detail-ar-375-2-qc.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 14,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-375-3-stock",
+      "step": "3-stock",
+      "file": "detail-ar-375-3-stock.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 15,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-375-4-documents",
+      "step": "4-documents",
+      "file": "detail-ar-375-4-documents.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 16,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-375-5-history",
+      "step": "5-history",
+      "file": "detail-ar-375-5-history.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 14,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-768-0-overview",
+      "step": "0-overview",
+      "file": "detail-ar-768-0-overview.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 14,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-768-1-lots",
+      "step": "1-lots",
+      "file": "detail-ar-768-1-lots.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 18,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-768-1b-weighing",
+      "step": "1b-weighing",
+      "file": "detail-ar-768-1b-weighing.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 5,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-768-2-qc",
+      "step": "2-qc",
+      "file": "detail-ar-768-2-qc.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 14,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-768-3-stock",
+      "step": "3-stock",
+      "file": "detail-ar-768-3-stock.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 15,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-768-4-documents",
+      "step": "4-documents",
+      "file": "detail-ar-768-4-documents.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 16,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-768-5-history",
+      "step": "5-history",
+      "file": "detail-ar-768-5-history.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 14,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-1024-0-overview",
+      "step": "0-overview",
+      "file": "detail-ar-1024-0-overview.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 14,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-1024-1-lots",
+      "step": "1-lots",
+      "file": "detail-ar-1024-1-lots.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 18,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-1024-1b-weighing",
+      "step": "1b-weighing",
+      "file": "detail-ar-1024-1b-weighing.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 5,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-1024-2-qc",
+      "step": "2-qc",
+      "file": "detail-ar-1024-2-qc.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 14,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-1024-3-stock",
+      "step": "3-stock",
+      "file": "detail-ar-1024-3-stock.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 15,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-1024-4-documents",
+      "step": "4-documents",
+      "file": "detail-ar-1024-4-documents.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 16,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-1024-5-history",
+      "step": "5-history",
+      "file": "detail-ar-1024-5-history.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 14,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-1440-0-overview",
+      "step": "0-overview",
+      "file": "detail-ar-1440-0-overview.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 14,
+      "smallTargets": 14,
+      "smallExamples": [
+        "Rechercher un écran ou un lot ",
+        "اللغة : العربية الفصحى",
+        "BUTTON",
+        "Notifications (24 non lues)",
+        "Actualiser",
+        "Réceptions",
+        "Annuler la réception",
+        "Corriger",
+        "Fiche",
+        "Lots (1)"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-1440-1-lots",
+      "step": "1-lots",
+      "file": "detail-ar-1440-1-lots.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 18,
+      "smallTargets": 18,
+      "smallExamples": [
+        "Rechercher un écran ou un lot ",
+        "اللغة : العربية الفصحى",
+        "BUTTON",
+        "Notifications (24 non lues)",
+        "Actualiser",
+        "Réceptions",
+        "Annuler la réception",
+        "Corriger",
+        "Fiche",
+        "Lots (1)"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-1440-1b-weighing",
+      "step": "1b-weighing",
+      "file": "detail-ar-1440-1b-weighing.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "rtl",
+      "controls": 5,
+      "smallTargets": 2,
+      "smallExamples": [
+        "INPUT",
+        "Enregistrer la correction"
+      ],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-1440-2-qc",
+      "step": "2-qc",
+      "file": "detail-ar-1440-2-qc.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 14,
+      "smallTargets": 14,
+      "smallExamples": [
+        "Rechercher un écran ou un lot ",
+        "اللغة : العربية الفصحى",
+        "BUTTON",
+        "Notifications (24 non lues)",
+        "Actualiser",
+        "Réceptions",
+        "Annuler la réception",
+        "Corriger",
+        "Fiche",
+        "Lots (1)"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-1440-3-stock",
+      "step": "3-stock",
+      "file": "detail-ar-1440-3-stock.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 15,
+      "smallTargets": 15,
+      "smallExamples": [
+        "Rechercher un écran ou un lot ",
+        "اللغة : العربية الفصحى",
+        "BUTTON",
+        "Notifications (24 non lues)",
+        "Actualiser",
+        "Réceptions",
+        "Annuler la réception",
+        "Corriger",
+        "Fiche",
+        "Lots (1)"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-1440-4-documents",
+      "step": "4-documents",
+      "file": "detail-ar-1440-4-documents.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 16,
+      "smallTargets": 14,
+      "smallExamples": [
+        "Rechercher un écran ou un lot ",
+        "اللغة : العربية الفصحى",
+        "BUTTON",
+        "Notifications (24 non lues)",
+        "Actualiser",
+        "Réceptions",
+        "Annuler la réception",
+        "Corriger",
+        "Fiche",
+        "Lots (1)"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "detail-ar-1440-5-history",
+      "step": "5-history",
+      "file": "detail-ar-1440-5-history.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "rtl",
+      "controls": 14,
+      "smallTargets": 14,
+      "smallExamples": [
+        "Rechercher un écran ou un lot ",
+        "اللغة : العربية الفصحى",
+        "BUTTON",
+        "Notifications (24 non lues)",
+        "Actualiser",
+        "Réceptions",
+        "Annuler la réception",
+        "Corriger",
+        "Fiche",
+        "Lots (1)"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    }
+  ],
+  "completed": true
+}

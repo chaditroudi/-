@@ -20,7 +20,7 @@ Updated: 7 Nov 2026.
 - Visual: `docs/evidence/tablet-first-ui/after-p1` (homes) and `after-p2` (reception).
 
 ## Next
-1. Reception detail `src/components/reception/ReceptionDetailV2.tsx` (767 lines): keep "Historique" tab, "Prochaine étape", exact "Corriger", "Voir la pesée", "Annuler la réception", next-step labels from `getReceptionNextStep`; then QC queue browser verification with `scripts/e2e/qc-inspection-visual.e2e.mjs`.
+1. Reception detail is IMPLEMENTED-UNVERIFIED: finish its browser pass (ar 1024/1440; try Corriger, Annuler la réception, lot release/quarantine, GS1 as `chef.reception`/`inspecteur.qualite`) with `QC_VISUAL_MODE=detail node scripts/e2e/qc-inspection-visual.e2e.mjs`. Run one browser harness at a time: the machine ran out of memory once (7 Nov). Shared text pass: `lib/receptionWorkflow` next-step titles and `types/reception` status labels are still French in Arabic.
 2. Shared text pass: page titles in `TopHeader` from `nav.*`, intake blocker sentences in `src/lib/receptionIntake.ts` (return keys, translate at render), `SupplierPicker` placeholder, `LotJourneyHub`.
 3. `ReceptionDetailV2` (767 lines), BRA documents.
 4. Then P3 (stock, production stages, packaging), P4, P5, P6 as in the plan.

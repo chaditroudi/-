@@ -7,6 +7,8 @@
  *   npm run server:build
  *   QC_VISUAL_OUT=docs/evidence/tablet-first-ui/qc-after node scripts/e2e/qc-inspection-visual.e2e.mjs
  * Optional: QC_VISUAL_LOCALES=fr,ar  QC_VISUAL_WIDTHS=375,768,1024,1440
+ * QC_VISUAL_MODE=detail walks the reception detail instead, as the reception supervisor: every section, the
+ * correction and cancel actions, and the weighing record of a lot.
  */
 import { spawn, spawnSync, execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
@@ -27,6 +29,7 @@ const MONGO = `mongodb://127.0.0.1:${MONGO_PORT}/?replicaSet=rs-qcvisual`;
 const OUT = process.env.QC_VISUAL_OUT || '.local/evidence/qc-visual';
 const WIDTHS = (process.env.QC_VISUAL_WIDTHS || '375,768,1024,1440').split(',').map(Number);
 const LOCALES = (process.env.QC_VISUAL_LOCALES || 'fr,ar').split(',');
+const MODE = process.env.QC_VISUAL_MODE || 'qc';
 const MONGOD = process.env.MONGOD_BIN || 'C:/Program Files/MongoDB/Server/8.3/bin/mongod.exe';
 const CHROME = process.env.E2E_BROWSER || 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 const PASSWORD = 'Test123!';
@@ -43,6 +46,9 @@ const START = ["Démarrer l'inspection", ...labels((j) => j.qcInspect.actions.st
 const APPLY_ALL = ['Appliquer à tous', ...labels((j) => j.qcInspect.caliber.applyAll)];
 const VALIDATE = ['Valider la décision', ...labels((j) => j.qcInspect.actions.validate)];
 const SIGN = ['Signer et libérer', ...labels((j) => j.qcInspect.pin.confirm)];
+const CORRECT = ['Corriger', ...labels((j) => j.receptionDetail.correct)];
+const CANCEL = ['Annuler la réception', ...labels((j) => j.receptionDetail.cancel)];
+const VIEW_WEIGHING = ['Voir la pesée', ...labels((j) => j.receptionDetail.lots.viewWeighing)];
 
 const env = { ...process.env, APP_ENV: 'test', NODE_ENV: 'development', API_HOST: '127.0.0.1', PORT: '4186',
   MONGODB_URI: MONGO, MONGODB_DB_NAME: DB, JWT_SECRET: 'qc-visual-test-key-not-secret', NUMERIC_SIGNATURE_GATE: 'enforce',
@@ -110,7 +116,8 @@ const typeInto = async (page, selector, value) => {
 /** Layout facts for the open dialog: overflow, direction, touch targets under 44 px. */
 const inspect = (page) => page.evaluate(() => {
   const dialog = document.querySelector('[role="dialog"]');
-  const controls = [...(dialog ?? document).querySelectorAll('button, input, textarea, select, [role="checkbox"], label')].filter((el) => {
+  const scope = dialog ?? document.querySelector('main') ?? document;
+  const controls = [...scope.querySelectorAll('button, input, textarea, select, [role="checkbox"], label')].filter((el) => {
     const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility === 'visible' && !el.closest('[aria-hidden="true"]');
   });
   const interactive = controls.filter((el) => el.tagName !== 'LABEL');
@@ -121,7 +128,7 @@ const inspect = (page) => page.evaluate(() => {
   return { overflow: document.documentElement.scrollWidth > innerWidth + 1 || Boolean(dialog && dialog.scrollWidth > dialog.clientWidth + 1),
     dialogFits: Boolean(box && box.left >= -1 && box.right <= innerWidth + 1),
     dir: document.documentElement.dir, controls: interactive.length, smallTargets: small.length, smallExamples: [...new Set(small)].slice(0, 10),
-    crash: document.body.innerText.includes('Cet écran a rencontré un problème') };
+    crash: document.body.innerText.includes('Cet écran a rencontré un problème'), dialog: Boolean(dialog) };
 });
 const capture = async (page, id, step) => {
   await wait(350);
@@ -132,13 +139,74 @@ const capture = async (page, id, step) => {
     const body = document.querySelector('[role="dialog"] .overflow-y-auto') ?? document.querySelector('[role="dialog"] [data-radix-scroll-area-viewport]');
     if (body) body.scrollTop = 0;
   });
-  await page.screenshot({ path: path.join(OUT, file), fullPage: false });
+  await page.screenshot({ path: path.join(OUT, file), fullPage: !facts.dialog });
   evidence.screens.push({ id: `${id}-${step}`, step, file, ...facts, reviewed: false });
-  check(`${id} ${step}: no horizontal overflow`, !facts.overflow && facts.dialogFits, facts);
+  check(`${id} ${step}: no horizontal overflow`, !facts.overflow && (!facts.dialog || facts.dialogFits), facts);
   check(`${id} ${step}: no crash`, !facts.crash);
   persist();
   return facts;
 };
+
+const book = async (operator, supplier, reference) => {
+  const intake = await api('POST', '/receptions/intake', operator.access_token, {
+    ...syntheticIntakeFields(reference), client_request_id: randomUUID(), supplier_id: supplier.id, variety: 'Deglet Nour',
+    gross_weight_kg: 300, tare_weight_kg: 20, lots: [{ lot_supplier: reference, quantity: 280 }],
+  });
+  if (intake.status >= 300) throw Error('delivery not booked ' + JSON.stringify(intake.body).slice(0, 200));
+  return intake.body.data.reception;
+};
+
+const openPage = async (session, lang, width, hash) => {
+  const context = await browser.createBrowserContext();
+  const page = await context.newPage();
+  page.setDefaultNavigationTimeout(120_000);
+  const failures = [];
+  page.on('pageerror', (error) => failures.push(error.message));
+  page.on('response', (response) => { const url = response.url(); if (url.includes('/api/') && !url.includes('/realtime/') && response.status() >= 500) failures.push(response.status() + ' ' + new URL(url).pathname); });
+  await page.evaluateOnNewDocument((s, lng) => {
+    try { if (window.top === window && !sessionStorage.getItem('seeded')) { localStorage.setItem('date-harvest-hub-session', JSON.stringify(s)); localStorage.setItem('i18nextLng', lng); sessionStorage.setItem('seeded', '1'); } } catch { /* sandboxed frame */ }
+  }, session, lang);
+  await page.setViewport({ width, height: width < 600 ? 812 : width < 1100 ? 1024 : 900, isMobile: width < 800, hasTouch: width < 1100 });
+  await page.goto(APP + '/#' + hash, { waitUntil: 'domcontentloaded' });
+  return { context, page, failures };
+};
+
+/** Reception detail as the reception supervisor: the delivery opened from today's list, every section captured. */
+async function walkDetail(operator, supervisor, supplier, lang, width, index) {
+  const id = `detail-${lang}-${width}`;
+  const reception = await book(operator, supplier, `DTV-${lang}-${width}-${index}`);
+  const { context, page, failures } = await openPage(supervisor, lang, width, '/?tab=receptions');
+  const opened = await until(() => page.evaluate((number) => {
+    const card = [...document.querySelectorAll('main button')].filter((b) => b.getClientRects().length).find((b) => b.innerText.includes(number));
+    card?.click();
+    return Boolean(card);
+  }, reception.reception_number), 60_000);
+  check(`${id} opens from today's list`, opened);
+  if (!opened) { await context.close(); return; }
+  check(`${id} sections shown`, await until(() => page.evaluate(() => document.querySelectorAll('[role="tab"]').length >= 6), 20_000));
+  await wait(600);
+  await capture(page, id, '0-overview');
+  const has = (names) => page.evaluate((names) => [...document.querySelectorAll('main button')].some((b) => b.getClientRects().length && names.includes(b.innerText.replace(/s+/g, ' ').trim())), names);
+  check(`${id} supervisor can correct the reception`, await until(() => has(CORRECT), 5_000));
+  check(`${id} supervisor can cancel before the QC decision`, await until(() => has(CANCEL), 5_000));
+  const steps = ['1-lots', '2-qc', '3-stock', '4-documents', '5-history'];
+  for (const [i, step] of steps.entries()) {
+    await page.evaluate((n) => { const tab = document.querySelectorAll('[role="tab"]')[n]; tab.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })); tab.click(); }, i + 1);
+    await wait(500);
+    await capture(page, id, step);
+    if (step === '1-lots') {
+      // Pressing the lot's own button is the proof that the action is there.
+      const pressed = await until(() => clickButton(page, VIEW_WEIGHING, { within: 'main' }).then(() => true), 10_000);
+      check(`${id} lot shows its weighing action`, pressed);
+      check(`${id} weighing record opens`, await until(() => page.$('[role="dialog"]'), 10_000));
+      await capture(page, id, '1b-weighing');
+      await page.keyboard.press('Escape');
+      await until(() => page.evaluate(() => !document.querySelector('[role="dialog"]')), 5_000);
+    }
+  }
+  check(`${id} no server or script errors`, failures.length === 0, failures.slice(0, 10));
+  await context.close();
+}
 
 async function walk(operator, inspector, supplier, lang, width, index) {
   const id = `qc-${lang}-${width}`;
@@ -260,6 +328,7 @@ try {
   factoryDb = connection.useDb(factoryDatabaseName(DB, { tenant_id: 'demo-company', factory_id: 'demo-site' }), { useCache: true });
 
   const operator = await signIn('operateur.reception@test.local');
+  const supervisor = await signIn('chef.reception@test.local');
   const inspector = await signIn('inspecteur.qualite@test.local');
   const director = await signIn('directeur.usine@test.local');
   const pinSet = await api('POST', '/auth/signature-pin', inspector.access_token, { pin: PIN, password: PASSWORD });
@@ -279,8 +348,8 @@ try {
     for (const width of WIDTHS) {
       index += 1;
       console.log(`WALK ${lang} ${width}`);
-      try { await walk(operator, inspector, supplier, lang, width, index); }
-      catch (error) { check(`qc-${lang}-${width} walk completes`, false, error.message); }
+      try { if (MODE === 'detail') await walkDetail(operator, supervisor, supplier, lang, width, index); else await walk(operator, inspector, supplier, lang, width, index); }
+      catch (error) { check(`${MODE}-${lang}-${width} walk completes`, false, error.message); }
     }
   }
   await connection.close();
