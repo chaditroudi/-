@@ -1502,5 +1502,38 @@
       "waitingQc": "Waiting QC",
       "blocked": "Blocked"
     }
+  },
+  "qcQueue": {
+    "title": "Quality control",
+    "subtitle": "Received lots to inspect, inspections in progress and lab results.",
+    "sampling": {
+      "small": "Recommended sample: at least 2 kg for a lot up to 1 tonne.",
+      "large": "Recommended sample: at least 5 kg for a lot above 5 tonnes.",
+      "medium": "Recommended sample: between 2 kg and 5 kg depending on how representative it is.",
+      "rule": "Sampling: at least 2 kg up to 1 tonne, at least 5 kg above 5 tonnes, representative in between."
+    },
+    "notFound": "No matching LOT-ID or QR code was found.",
+    "loaded": "{{lot}} loaded. {{guidance}}",
+    "scanError": "Error while looking up the LOT-ID.",
+    "scanPlaceholder": "Scan or type a lot number",
+    "scanLabel": "Lot number to inspect",
+    "camera": "QR camera",
+    "scan": "Scan",
+    "loading": "Loading…",
+    "emptyTitle": "No lot waiting for inspection",
+    "emptyBody": "Scan a lot or wait for a confirmed reception to reach the QC queue.",
+    "offline": "Offline: quality control resumes when the network returns. Decisions stay on the server.",
+    "toInspect": "To inspect ({{count}})",
+    "inProgress": "In progress ({{count}})",
+    "labPending": "Lab results pending ({{count}})",
+    "start": "Start QC",
+    "resume": "Resume",
+    "enterResults": "Enter results",
+    "moreLab": "+ {{count}} more pending",
+    "stat": {
+      "toInspect": "To inspect",
+      "inProgress": "In progress",
+      "lab": "Lab pending"
+    }
   }
 }

@@ -1502,5 +1502,38 @@
       "waitingQc": "En attente QC",
       "blocked": "Bloquées"
     }
+  },
+  "qcQueue": {
+    "title": "Contrôle qualité",
+    "subtitle": "Lots reçus à inspecter, contrôles en cours et résultats de laboratoire.",
+    "sampling": {
+      "small": "Échantillonnage recommandé: minimum 2 kg pour un lot jusqu'à 1 tonne.",
+      "large": "Échantillonnage recommandé: minimum 5 kg pour un lot au-delà de 5 tonnes.",
+      "medium": "Échantillonnage recommandé: entre 2 kg et 5 kg selon la représentativité du lot.",
+      "rule": "Prélèvement : minimum 2 kg jusqu'à 1 tonne, minimum 5 kg au-delà de 5 tonnes, représentatif entre les deux."
+    },
+    "notFound": "Aucun LOT-ID ou QR code correspondant n'a été trouvé.",
+    "loaded": "{{lot}} chargé. {{guidance}}",
+    "scanError": "Erreur pendant la recherche du LOT-ID.",
+    "scanPlaceholder": "Scanner ou saisir un numéro de lot",
+    "scanLabel": "Numéro de lot à contrôler",
+    "camera": "Caméra QR",
+    "scan": "Scanner",
+    "loading": "Chargement…",
+    "emptyTitle": "Aucun lot en attente de contrôle",
+    "emptyBody": "Scannez un lot ou attendez qu’une réception validée arrive en file QC.",
+    "offline": "Hors ligne : le contrôle qualité reprend dès le retour du réseau. Les décisions restent côté serveur.",
+    "toInspect": "À inspecter ({{count}})",
+    "inProgress": "En cours ({{count}})",
+    "labPending": "Résultats labo en attente ({{count}})",
+    "start": "Lancer QC",
+    "resume": "Reprendre",
+    "enterResults": "Saisir résultats",
+    "moreLab": "+ {{count}} autres en attente",
+    "stat": {
+      "toInspect": "À inspecter",
+      "inProgress": "En cours",
+      "lab": "Labo en attente"
+    }
   }
 }
