@@ -30,4 +30,6 @@ Each redesigned screen adds a row here when the parity diff reports something mi
 
 | Date | Screen | Item reported missing | Where it is now / why |
 |---|---|---|---|
-| — | — | — | — |
+| 6 Nov 2026 | Home (`home/HomePage`) | button: "Alertes {activeAlertsCount > 0 && (" | Still on the home header: same Alerts button and count badge, label now `t("worker.alerts")` (fr "Alertes"). The extractor reads the old JSX text, not the key. |
+| 6 Nov 2026 | Home | `RoleLanding` card | Its parts moved into the home header and hero: role names, workspace label, floor/manager sentence (same French), and the daily action as the hero task when nothing is queued. `RoleLanding` stays in the code base with its 35 tests. |
+| 6 Nov 2026 | Shell, floor roles | sidebar | Replaced by the dock at every width for floor roles. Every tab stays reachable from the dock or its "Plus" sheet; password change and sign-out moved into the sheet. Supervisors and direction keep the sidebar. |

@@ -199,12 +199,12 @@
   "nav": {
     "home": "Accueil",
     "dashboard": "Tableau de bord",
-    "receptions": "Réceptions",
+    "receptions": "Réception",
     "production": "Production",
     "stock": "Stock",
     "batches": "Lots",
     "alerts": "Alertes",
-    "storage": "Stockage",
+    "storage": "Stock",
     "suppliers": "Fournisseurs",
     "materials": "Matières",
     "purchasing": "Achats",
@@ -215,7 +215,15 @@
     "settings": "Paramètres",
     "audit": "Journal d'audit",
     "quality": "Qualité",
-    "logistics": "Logistique"
+    "logistics": "Expédition",
+    "scan": "Scan",
+    "live": "En direct",
+    "packaging": "Conditionnement",
+    "maintenance": "Maintenance",
+    "export": "Export",
+    "customers": "Clients",
+    "hr": "Ressources humaines",
+    "sage-operations": "Cockpit usine"
   },
   "auth": {
     "login": "Connexion",
@@ -1152,5 +1160,101 @@
     "notProvided": "Non renseigné",
     "notMeasured": "Non mesuré",
     "source": "Source"
+  },
+  "dock": {
+    "label": "Navigation principale",
+    "home": "Accueil",
+    "myWork": "{{station}}",
+    "qc": "Contrôle qualité",
+    "scan": "Scan",
+    "alerts": "Alertes",
+    "more": "Plus",
+    "account": "Mon compte"
+  },
+  "worker": {
+    "greeting": "Bonjour {{name}}",
+    "greetingNoName": "Bonjour",
+    "subtitleFloor": "Une seule action pour commencer. Le menu ne montre que votre poste.",
+    "subtitleManager": "Une action principale pour démarrer. Le reste attend dans la file du jour.",
+    "stations": "Mes postes",
+    "nextTask": "Prochaine tâche",
+    "todo": "À faire aujourd'hui",
+    "checking": "Vérification du travail en cours…",
+    "nothingUrgent": "Rien d'urgent sur vos postes.",
+    "nothingQueued": "Aucune tâche en attente pour l'instant. Vous pouvez commencer quand vous voulez.",
+    "cannotCheck": "Impossible de vérifier : {{list}}.",
+    "mayBeIncomplete": "Ce qui suit peut être incomplet.",
+    "alerts": "Alertes",
+    "fiches": "Fiches",
+    "start": "Commencer",
+    "open": "Ouvrir",
+    "tasks": {
+      "alerts_one": "{{count}} alerte à traiter",
+      "alerts_other": "{{count}} alertes à traiter",
+      "qc_one": "{{count}} contrôle QC à faire",
+      "qc_other": "{{count}} contrôles QC à faire",
+      "drafts_one": "{{count}} réception à terminer",
+      "drafts_other": "{{count}} réceptions à terminer",
+      "quarantine_one": "{{count}} lot en quarantaine",
+      "quarantine_other": "{{count}} lots en quarantaine",
+      "workshop_one": "{{count}} lot en attente atelier",
+      "workshop_other": "{{count}} lots en attente atelier",
+      "shipments_one": "{{count}} expédition à préparer",
+      "shipments_other": "{{count}} expéditions à préparer",
+      "packaging_one": "{{count}} ordre de conditionnement en cours",
+      "packaging_other": "{{count}} ordres de conditionnement en cours"
+    },
+    "taskHint": {
+      "alerts": "Ouvrez les alertes et traitez la plus ancienne d'abord.",
+      "qc": "Des lots reçus attendent leur contrôle qualité.",
+      "drafts": "Des réceptions commencées ne sont pas encore confirmées.",
+      "quarantine": "Ces lots sont bloqués et ne doivent pas être utilisés.",
+      "workshop": "Des lots libérés attendent d'être lancés en atelier.",
+      "shipments": "Des expéditions attendent leur préparation.",
+      "packaging": "Des ordres de conditionnement sont ouverts."
+    },
+    "badge": {
+      "alerts": "Urgent",
+      "qc": "QC",
+      "drafts": "Réception",
+      "quarantine": "Stock",
+      "workshop": "Prod",
+      "shipments": "Sortie",
+      "packaging": "Condit."
+    },
+    "howTo": {
+      "title": "Comment ça marche ?",
+      "step1": "Choisissez la tâche",
+      "step2": "Remplissez les informations demandées",
+      "step3": "Vérifiez puis confirmez"
+    },
+    "overview": "Vue d'ensemble",
+    "liveSource": "données de l'usine en direct",
+    "now": "maintenant",
+    "kpi": {
+      "alerts": "Alertes actives",
+      "qc": "Lots à contrôler",
+      "quarantine": "Lots en quarantaine",
+      "orders": "Ordres en cours",
+      "shipments": "Expéditions à préparer",
+      "packaging": "Conditionnement en cours"
+    },
+    "daily": {
+      "settings": "Gérer les utilisateurs",
+      "live": "Voir l’activité de l’usine",
+      "qc": "Contrôler un lot",
+      "receptions": "Nouvelle réception",
+      "storage": "Ouvrir le stock et les mouvements",
+      "production": "Ouvrir le travail en cours",
+      "packaging": "Ouvrir le conditionnement",
+      "quality": "Consulter les dossiers qualité",
+      "purchasing": "Ouvrir les demandes d’achat",
+      "maintenance": "Voir les interventions",
+      "logistics": "Voir les expéditions",
+      "export": "Ouvrir les commandes export",
+      "customers": "Consulter les clients",
+      "suppliers": "Consulter les fournisseurs",
+      "hr": "Ouvrir les ressources humaines"
+    }
   }
 }

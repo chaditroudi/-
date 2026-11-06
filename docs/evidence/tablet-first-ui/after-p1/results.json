@@ -1,0 +1,1114 @@
+{
+  "head": "b1794ee",
+  "dirty": true,
+  "capturedAt": "2026-11-06T17:48:11.348Z",
+  "database": "tablet_visual_mw59pp26",
+  "widths": [
+    375,
+    768,
+    1024,
+    1440
+  ],
+  "checks": [
+    {
+      "name": "reception-operator-home-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-home-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-home-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-home-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "reception-operator-home-fr no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "reception-operator-home-ar-375 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-375 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-home-ar-768 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-768 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-home-ar-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-1024 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-home-ar-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "reception-operator-home-ar-1440 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "reception-operator-home-ar no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "inspector-home-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "inspector-home-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "inspector-home-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "inspector-home-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "inspector-home-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "inspector-home-fr no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "cleaning-operator-home-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "cleaning-operator-home-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "cleaning-operator-home-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "cleaning-operator-home-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-operator-home-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "cleaning-operator-home-fr no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "production-supervisor-home-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-supervisor-home-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-supervisor-home-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-supervisor-home-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-supervisor-home-fr no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "director-home-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "director-home-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "director-home-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "director-home-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-home-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "director-home-fr no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "director-home-ar-375 ready",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-375 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "director-home-ar-768 ready",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-768 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "director-home-ar-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-1024 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "director-home-ar-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "director-home-ar-1440 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "director-home-ar no server or script errors",
+      "passed": true,
+      "detail": []
+    }
+  ],
+  "screens": [
+    {
+      "id": "reception-operator-home-fr-375",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "reception-operator-home-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 18,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-home-fr-768",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "reception-operator-home-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 18,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-home-fr-1024",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "reception-operator-home-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 18,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-home-fr-1440",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "reception-operator-home-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 18,
+      "smallTargets": 10,
+      "smallExamples": [
+        "Rechercher un écran ou un lot (Ctrl K)",
+        "Langue : Français",
+        "BUTTON",
+        "Notifications",
+        "Actualiser",
+        "Alertes",
+        "Fiches",
+        "N° lot"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-home-ar-375",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "ar",
+      "width": 375,
+      "touch": true,
+      "file": "reception-operator-home-ar-375.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 18,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-home-ar-768",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "ar",
+      "width": 768,
+      "touch": true,
+      "file": "reception-operator-home-ar-768.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 18,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-home-ar-1024",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "ar",
+      "width": 1024,
+      "touch": true,
+      "file": "reception-operator-home-ar-1024.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 18,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "reception-operator-home-ar-1440",
+      "role": "operateur_reception",
+      "hash": "/?tab=home",
+      "locale": "ar",
+      "width": 1440,
+      "touch": false,
+      "file": "reception-operator-home-ar-1440.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 18,
+      "smallTargets": 10,
+      "smallExamples": [
+        "Rechercher un écran ou un lot (Ctrl K)",
+        "اللغة : العربية الفصحى",
+        "BUTTON",
+        "Notifications",
+        "Actualiser",
+        "التنبيهات",
+        "البطاقات الفنية",
+        "N° lot"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "inspector-home-fr-375",
+      "role": "inspecteur_qualite",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "inspector-home-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 19,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "inspector-home-fr-768",
+      "role": "inspecteur_qualite",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "inspector-home-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 19,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "inspector-home-fr-1024",
+      "role": "inspecteur_qualite",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "inspector-home-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 19,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "inspector-home-fr-1440",
+      "role": "inspecteur_qualite",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "inspector-home-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 19,
+      "smallTargets": 10,
+      "smallExamples": [
+        "Rechercher un écran ou un lot (Ctrl K)",
+        "Langue : Français",
+        "BUTTON",
+        "Notifications",
+        "Actualiser",
+        "Alertes",
+        "Fiches",
+        "N° lot"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-operator-home-fr-375",
+      "role": "operateur_nettoyage",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "cleaning-operator-home-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 18,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-operator-home-fr-768",
+      "role": "operateur_nettoyage",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "cleaning-operator-home-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 18,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-operator-home-fr-1024",
+      "role": "operateur_nettoyage",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "cleaning-operator-home-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 18,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-operator-home-fr-1440",
+      "role": "operateur_nettoyage",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "cleaning-operator-home-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 18,
+      "smallTargets": 10,
+      "smallExamples": [
+        "Rechercher un écran ou un lot (Ctrl K)",
+        "Langue : Français",
+        "BUTTON",
+        "Notifications",
+        "Actualiser",
+        "Alertes",
+        "Fiches",
+        "N° lot"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "production-supervisor-home-fr-375",
+      "role": "responsable_production",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "production-supervisor-home-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 24,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "production-supervisor-home-fr-768",
+      "role": "responsable_production",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "production-supervisor-home-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 28,
+      "smallTargets": 10,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Production",
+        "Conditionnement",
+        "Maintenance",
+        "Ressources humaines"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "production-supervisor-home-fr-1024",
+      "role": "responsable_production",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "production-supervisor-home-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 30,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "production-supervisor-home-fr-1440",
+      "role": "responsable_production",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "production-supervisor-home-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 30,
+      "smallTargets": 22,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Production",
+        "Conditionnement",
+        "Maintenance",
+        "Ressources humaines"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "director-home-fr-375",
+      "role": "directeur_usine",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "director-home-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 33,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "director-home-fr-768",
+      "role": "directeur_usine",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "director-home-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 49,
+      "smallTargets": 22,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Réception",
+        "Contrôle qualité",
+        "Stock",
+        "Production"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "director-home-fr-1024",
+      "role": "directeur_usine",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "director-home-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 51,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "director-home-fr-1440",
+      "role": "directeur_usine",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "director-home-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 51,
+      "smallTargets": 35,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Réception",
+        "Contrôle qualité",
+        "Stock",
+        "Production"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "director-home-ar-375",
+      "role": "directeur_usine",
+      "hash": "/?tab=home",
+      "locale": "ar",
+      "width": 375,
+      "touch": true,
+      "file": "director-home-ar-375.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 33,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "director-home-ar-768",
+      "role": "directeur_usine",
+      "hash": "/?tab=home",
+      "locale": "ar",
+      "width": 768,
+      "touch": true,
+      "file": "director-home-ar-768.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 49,
+      "smallTargets": 22,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Réception",
+        "Contrôle qualité",
+        "Stock",
+        "Production"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "director-home-ar-1024",
+      "role": "directeur_usine",
+      "hash": "/?tab=home",
+      "locale": "ar",
+      "width": 1024,
+      "touch": true,
+      "file": "director-home-ar-1024.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 51,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "director-home-ar-1440",
+      "role": "directeur_usine",
+      "hash": "/?tab=home",
+      "locale": "ar",
+      "width": 1440,
+      "touch": false,
+      "file": "director-home-ar-1440.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 51,
+      "smallTargets": 35,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Réception",
+        "Contrôle qualité",
+        "Stock",
+        "Production"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    }
+  ],
+  "completed": true
+}

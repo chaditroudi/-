@@ -16,11 +16,11 @@ Columns: **Parity** = inventory diff against `docs/evidence/tablet-first-ui/inve
 
 | Screen | Files | Status | Parity | Widths | i18n | Browser | Notes and evidence |
 |---|---|---|---|---|---|---|---|
-| Shell / navigation (all roles) | `layout/*`, `pages/Index.tsx` | IN PROGRESS | — | — | — | — | Floor menu limited earlier. Known gaps: no bar on home for phones; inspector lacks QC entry; 4 roles lack mobile Scan. |
+| Shell / navigation (all roles) | `layout/*`, `pages/Index.tsx` | IMPLEMENTED-UNVERIFIED | inventory: 0 unexplained | 375/768/1024/1440 captured | fr, ar captured | not clicked through | Floor roles: dock at every width, no sidebar; inspector gets Contrôle qualité; Scan on every phone dock; sidebar opens on the reading side. `docs/evidence/tablet-first-ui/after-p1/` (28 captures, 119/119 checks) |
 | Login `/auth` | `pages/Auth.tsx` | IN PROGRESS | — | — | — | — | Errors shown on the form, 15 s timeout. Not redesigned. |
-| Home — worker | `home/HomePage`, `RoleLanding` | NOT STARTED | — | — | — | — | Counts list, not the worker's own tasks. |
-| Home — supervisor | `home/HomePage` | NOT STARTED | — | — | — | — |  |
-| Home — direction / Live | `home/FactoryCommandCenter` | NOT STARTED | — | — | — | — |  |
+| Home — worker | `home/HomePage` | IMPLEMENTED-UNVERIFIED | 1 move logged | 4 widths captured | fr, ar captured | not clicked through | Greeting, station chips, hero next task from real queues, rest of queue, how-to. 43 unit tests pass. `docs/evidence/tablet-first-ui/after-p1/` (28 captures, 119/119 checks) |
+| Home — supervisor | `home/HomePage` | IMPLEMENTED-UNVERIFIED | 1 move logged | 4 widths captured | fr captured | not clicked through | Queue plus overview tiles with source and drill-down. `docs/evidence/tablet-first-ui/after-p1/` (28 captures, 119/119 checks) |
+| Home — direction / Live | `home/HomePage`, `home/FactoryCommandCenter` | IN PROGRESS | — | home captured | fr, ar (home) | not clicked through | Home redesigned with KPI tiles; the Live command centre itself is not redesigned yet. `docs/evidence/tablet-first-ui/after-p1/` (28 captures, 119/119 checks) |
 | Reception — today / pending / registry / alerts | `reception/ReceptionDashboardV2` | IN PROGRESS | — | — | — | — | Today list is a task card (earlier pass). |
 | Reception — intake | `reception/intake/*` | IN PROGRESS | — | — | — | — | Three steps exist; not redesigned for tablet. |
 | Reception — detail | `reception/ReceptionDetailV2` | NOT STARTED | — | — | — | — |  |
@@ -60,13 +60,13 @@ Columns: **Parity** = inventory diff against `docs/evidence/tablet-first-ui/inve
 
 | Item | Status | Notes |
 |---|---|---|
-| Design tokens (reference look) | NOT STARTED | |
-| Arabic font self-hosted | NOT STARTED | Noto Sans Arabic loads from Google today |
-| Six locales + fallback + factory default language | NOT STARTED | fr/ar/en exist |
-| Locale-aware formatter | NOT STARTED | 194 hardcoded fr-FR/fr-TN |
-| RTL-safe spacing (logical classes) | NOT STARTED | ~786 physical classes |
-| Task primitives (TaskCard, TaskStepLayout, …) | NOT STARTED | |
-| Worker dock / shell | NOT STARTED | |
+| Design tokens (reference look) | DONE | `ee8d088`; AA contrast checked |
+| Arabic font self-hosted | NOT STARTED | Noto Sans Arabic still loads from Google; needs the font files downloaded (ask the user) |
+| Six locales + fallback + factory default language | DONE | `b1794ee`; dialects unreviewed |
+| Locale-aware formatter | DONE (adoption per screen) | `src/lib/format.ts`; old hardcoded formats replaced as screens are redesigned |
+| RTL-safe spacing (logical classes) | DONE | 794 classes in 155 files via `scripts/codemods/rtl-logical.mjs` |
+| Task primitives (TaskCard, TaskStepLayout, …) | DONE | `src/components/shared/task/` |
+| Worker dock / shell | DONE | dock for floor roles at every width |
 
 
 ## History before the 6 Nov 2026 plan (kept for evidence)

@@ -53,7 +53,7 @@ export function TaskCard({
             <StatusIcon className="h-3.5 w-3.5" aria-hidden />
             {t(`task.status.${status}`)}
           </p>
-          <h3 className={cn('font-display font-semibold leading-tight', hero ? 'text-2xl sm:text-[1.75rem]' : 'text-lg')}>{title}</h3>
+          <h3 className={cn('font-display font-semibold leading-tight', hero ? 'text-2xl text-primary-foreground sm:text-[1.75rem]' : 'text-lg text-foreground')}>{title}</h3>
           {description && <p className={cn('mt-1 text-sm sm:text-base', hero ? 'text-white/85' : 'text-muted-foreground')}>{description}</p>}
         </div>
       </div>

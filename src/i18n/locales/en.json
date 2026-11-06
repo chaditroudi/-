@@ -143,12 +143,12 @@
   "nav": {
     "home": "Home",
     "dashboard": "Dashboard",
-    "receptions": "Receptions",
+    "receptions": "Reception",
     "production": "Production",
     "stock": "Stock",
     "batches": "Batches",
     "alerts": "Alerts",
-    "storage": "Storage",
+    "storage": "Stock",
     "suppliers": "Suppliers",
     "materials": "Materials",
     "purchasing": "Purchasing",
@@ -159,7 +159,15 @@
     "settings": "Settings",
     "audit": "Audit Log",
     "quality": "Quality",
-    "logistics": "Logistics"
+    "logistics": "Shipping",
+    "scan": "Scan",
+    "live": "Live",
+    "packaging": "Packaging",
+    "maintenance": "Maintenance",
+    "export": "Export",
+    "customers": "Customers",
+    "hr": "Human resources",
+    "sage-operations": "Factory cockpit"
   },
   "auth": {
     "login": "Login",
@@ -1152,5 +1160,101 @@
     "notProvided": "Not provided",
     "notMeasured": "Not measured",
     "source": "Source"
+  },
+  "dock": {
+    "label": "Main navigation",
+    "home": "Home",
+    "myWork": "{{station}}",
+    "qc": "Quality control",
+    "scan": "Scan",
+    "alerts": "Alerts",
+    "more": "More",
+    "account": "My account"
+  },
+  "worker": {
+    "greeting": "Hello {{name}}",
+    "greetingNoName": "Hello",
+    "subtitleFloor": "One action to start. The menu only shows your station.",
+    "subtitleManager": "One main action to start. The rest waits in today's queue.",
+    "stations": "My stations",
+    "nextTask": "Next task",
+    "todo": "To do today",
+    "checking": "Checking your work…",
+    "nothingUrgent": "Nothing urgent at your stations.",
+    "nothingQueued": "No task waiting right now. You can start whenever you are ready.",
+    "cannotCheck": "Could not check: {{list}}.",
+    "mayBeIncomplete": "What follows may be incomplete.",
+    "alerts": "Alerts",
+    "fiches": "Sheets",
+    "start": "Start",
+    "open": "Open",
+    "tasks": {
+      "alerts_one": "{{count}} alert to handle",
+      "alerts_other": "{{count}} alerts to handle",
+      "qc_one": "{{count}} QC check to do",
+      "qc_other": "{{count}} QC checks to do",
+      "drafts_one": "{{count}} reception to finish",
+      "drafts_other": "{{count}} receptions to finish",
+      "quarantine_one": "{{count}} lot in quarantine",
+      "quarantine_other": "{{count}} lots in quarantine",
+      "workshop_one": "{{count}} lot waiting for the workshop",
+      "workshop_other": "{{count}} lots waiting for the workshop",
+      "shipments_one": "{{count}} shipment to prepare",
+      "shipments_other": "{{count}} shipments to prepare",
+      "packaging_one": "{{count}} packaging order in progress",
+      "packaging_other": "{{count}} packaging orders in progress"
+    },
+    "taskHint": {
+      "alerts": "Open the alerts and handle the oldest first.",
+      "qc": "Received lots are waiting for their quality check.",
+      "drafts": "Started receptions are not confirmed yet.",
+      "quarantine": "These lots are blocked and must not be used.",
+      "workshop": "Released lots are waiting to start in the workshop.",
+      "shipments": "Shipments are waiting to be prepared.",
+      "packaging": "Packaging orders are open."
+    },
+    "badge": {
+      "alerts": "Urgent",
+      "qc": "QC",
+      "drafts": "Reception",
+      "quarantine": "Stock",
+      "workshop": "Prod",
+      "shipments": "Outbound",
+      "packaging": "Packing"
+    },
+    "howTo": {
+      "title": "How does it work?",
+      "step1": "Pick the task",
+      "step2": "Fill in what is asked",
+      "step3": "Check, then confirm"
+    },
+    "overview": "Overview",
+    "liveSource": "live factory data",
+    "now": "now",
+    "kpi": {
+      "alerts": "Active alerts",
+      "qc": "Lots to inspect",
+      "quarantine": "Lots in quarantine",
+      "orders": "Orders in progress",
+      "shipments": "Shipments to prepare",
+      "packaging": "Packaging in progress"
+    },
+    "daily": {
+      "settings": "Manage users",
+      "live": "See factory activity",
+      "qc": "Inspect a lot",
+      "receptions": "New reception",
+      "storage": "Open stock and movements",
+      "production": "Open work in progress",
+      "packaging": "Open packaging",
+      "quality": "Open quality records",
+      "purchasing": "Open purchase requests",
+      "maintenance": "See interventions",
+      "logistics": "See shipments",
+      "export": "Open export orders",
+      "customers": "Open customers",
+      "suppliers": "Open suppliers",
+      "hr": "Open human resources"
+    }
   }
 }

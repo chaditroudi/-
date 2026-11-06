@@ -88,6 +88,7 @@ async function captureOne(target) {
   for (const locale of target.locales) {
     const context = await browser.createBrowserContext();
     const page = await context.newPage();
+    page.setDefaultNavigationTimeout(120_000); // the first load after a cold Vite cache optimizes every dependency
     const failures = [];
     page.on('pageerror', (error) => failures.push(error.message));
     page.on('response', (response) => { const url = response.url(); if (url.includes('/api/') && !url.includes('/realtime/') && response.status() >= 500) failures.push(response.status() + ' ' + new URL(url).pathname); });

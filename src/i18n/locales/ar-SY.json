@@ -20,5 +20,23 @@
     },
     "stepOf": "الخطوة {{current}} من {{total}}",
     "notProvided": "ما انكتب"
+  },
+  "dock": {
+    "more": "كمان"
+  },
+  "worker": {
+    "greeting": "أهلين {{name}}",
+    "greetingNoName": "أهلين",
+    "nextTask": "المهمة الجاية",
+    "todo": "شو عنّا اليوم",
+    "nothingUrgent": "ما في شي مستعجل.",
+    "nothingQueued": "ما في مهمة عم تستنّى هلّق. فيك تبلّش إيمتى ما بدّك.",
+    "start": "بلّش",
+    "howTo": {
+      "title": "كيف منشتغل؟",
+      "step1": "نقّي المهمة",
+      "step2": "عبّي المعلومات المطلوبة",
+      "step3": "راجع وأكّد"
+    }
   }
 }

@@ -17,7 +17,8 @@ import { useReceptions } from "@/hooks/useReceptions";
 import { useProductionOrders } from "@/hooks/useProduction";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { ROLE_CONFIG } from "@/types/roles";
-import { canPerformAction, getAccessibleTabs, getRoleWorkspaceProfile, landsOnSupplierPortal, type AppTab } from "@/lib/roleAccess";
+import { canPerformAction, getAccessibleTabs, getRoleWorkspaceProfile, getShellDensity, landsOnSupplierPortal, type AppTab } from "@/lib/roleAccess";
+import { getDailyAction } from "@/lib/roleLanding";
 import { canRead } from "@/lib/apiAccess";
 import { getReceptionPermissions } from "@/lib/receptionWorkflow";
 import { RestrictedScreen } from "@/components/auth/RestrictedScreen";
@@ -118,6 +119,7 @@ const Index = () => {
   // ── Workspace & accessible tabs ───────────────────────────────────────────
 
   const workspaceProfile = useMemo(() => getRoleWorkspaceProfile(roles), [roles]);
+  const isFloor = useMemo(() => getShellDensity(roles) === 'floor', [roles]);
 
   const roleAccessibleTabs = useMemo(() => getAccessibleTabs(roles), [roles]);
 
@@ -129,6 +131,7 @@ const Index = () => {
     [roleAccessibleTabs, settings.features],
   );
 
+  const dailyAction = useMemo(() => getDailyAction(roles, accessibleTabs), [roles, accessibleTabs]);
   const primaryTabs = useMemo(
     () => workspaceProfile.primaryTabs.filter(tab => accessibleTabs.includes(tab)),
     [workspaceProfile.primaryTabs, accessibleTabs],
@@ -358,7 +361,7 @@ const Index = () => {
           );
         }
         return (
-          <HomePage roles={roles}
+          <HomePage roles={roles} userName={profile?.full_name}
             canInspect={getReceptionPermissions(roles).canRunQc}
             onNavigate={handleNavigate}
             accessibleTabs={accessibleTabs}
@@ -477,7 +480,7 @@ const Index = () => {
         return <HRDashboard />;
       default:
         return (
-          <HomePage roles={roles}
+          <HomePage roles={roles} userName={profile?.full_name}
             canInspect={getReceptionPermissions(roles).canRunQc}
             onNavigate={handleNavigate}
             accessibleTabs={accessibleTabs}
@@ -505,17 +508,21 @@ const Index = () => {
     >
     <SidebarProvider defaultOpen={window.innerWidth >= 1024}>
       <CommandMenu accessibleTabs={accessibleTabs} onNavigate={handleNavigate} />
-      <AppSidebar
-        activeTab={deniedTab ? '' : activeTab}
-        onTabChange={handleNavigate}
-        activeView={receptionView}
-        activeAlertsCount={activeAlertsCount}
-        accessibleTabs={accessibleTabs}
-      />
+      {/* Floor workers use the dock only: no ERP sidebar, one station, big targets. */}
+      {!isFloor && (
+        <AppSidebar
+          activeTab={deniedTab ? '' : activeTab}
+          onTabChange={handleNavigate}
+          activeView={receptionView}
+          activeAlertsCount={activeAlertsCount}
+          accessibleTabs={accessibleTabs}
+        />
+      )}
 
       <SidebarInset className="flex min-h-screen min-w-0 flex-col bg-shell">
 
         <TopHeader
+          showSidebarTrigger={!isFloor}
           onRefresh={handleRefresh}
           pageTitle={
             deniedTab
@@ -530,21 +537,27 @@ const Index = () => {
           }
         />
 
-        {/* Mobile chrome only off-home — Accueil stays calm for operators */}
-        {activeTab !== 'home' && (
-          <div className="md:hidden">
-            <WorkflowNavigation
-              activeTab={activeTab}
-              onTabChange={handleNavigate}
-              primaryTabs={primaryTabs}
-              quickTabs={quickTabs}
-              metrics={mobileMetrics}
-            />
-          </div>
-        )}
+        {/* The dock: every width for floor workers, phones for everyone else (home included). */}
+        <WorkflowNavigation
+          activeTab={deniedTab ? '' : activeTab}
+          activeView={receptionView}
+          onTabChange={handleNavigate}
+          primaryTabs={primaryTabs}
+          quickTabs={quickTabs}
+          accessibleTabs={accessibleTabs}
+          workTab={dailyAction?.tab ?? null}
+          canInspect={getReceptionPermissions(roles).canRunQc}
+          floor={isFloor}
+          account={{
+            name: profile?.full_name || workspaceProfile.workspaceLabel,
+            role: roles.map((role) => ROLE_CONFIG[role]?.label).filter(Boolean).join(' · '),
+            onSignOut: () => void signOut(),
+          }}
+          metrics={mobileMetrics}
+        />
 
         <div className="min-w-0 flex-1 overflow-x-clip">
-          <div className="mx-auto w-full max-w-[1800px] px-3 py-3 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-5 md:pb-8 lg:px-6 lg:py-6">
+          <div className={`mx-auto w-full max-w-[1800px] px-3 py-3 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:px-4 sm:py-5 lg:px-6 lg:py-6 ${isFloor ? '' : 'md:pb-8'}`}>
             <div key={activeTab} className="animate-page-enter w-full">
               <AppErrorBoundary scoped resetKey={activeTab}>
                 {deniedTab ? (

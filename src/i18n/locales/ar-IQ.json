@@ -20,5 +20,23 @@
     },
     "stepOf": "الخطوة {{current}} من {{total}}",
     "notProvided": "ما انكتب"
+  },
+  "dock": {
+    "more": "بعد"
+  },
+  "worker": {
+    "greeting": "هلا {{name}}",
+    "greetingNoName": "هلا",
+    "nextTask": "الشغلة الجاية",
+    "todo": "شنو عدنا اليوم",
+    "nothingUrgent": "ماكو شي مستعجل.",
+    "nothingQueued": "ماكو شغلة منتظرة هسّه. تكدر تبدي شوكت ما تريد.",
+    "start": "ابدي",
+    "howTo": {
+      "title": "شلون نشتغل؟",
+      "step1": "اختار الشغلة",
+      "step2": "اكتب المعلومات المطلوبة",
+      "step3": "راجع وأكّد"
+    }
   }
 }

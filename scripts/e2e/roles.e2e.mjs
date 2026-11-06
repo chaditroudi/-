@@ -173,8 +173,23 @@ const visit = async (page, tab, extra = "") => {
 };
 
 const text = (page) => page.evaluate(() => document.body.innerText);
-const navLabels = (page) => page.evaluate(() =>
-  [...document.querySelectorAll('[data-sidebar="menu-button"]')].map((item) => item.textContent.trim()));
+// Navigation is the sidebar (supervisors, direction) or the dock and its "Plus" sheet (floor workers, phones).
+const navLabels = async (page) => {
+  const read = () => page.evaluate(() => [
+    ...[...document.querySelectorAll('[data-sidebar="menu-button"]')].map((item) => item.textContent.trim()),
+    ...[...document.querySelectorAll('[data-nav-item]')].map((item) => item.getAttribute('data-nav-item')),
+  ]);
+  const labels = await read();
+  const more = await page.$('nav[aria-label] button[aria-expanded]');
+  if (more && await more.isVisible()) {
+    await more.click();
+    await page.waitForSelector('[role="dialog"] [data-nav-item]', { timeout: 5_000 }).catch(() => {});
+    labels.push(...await read());
+    await page.keyboard.press('Escape');
+    await page.waitForSelector('[role="dialog"]', { hidden: true, timeout: 5_000 }).catch(() => {});
+  }
+  return [...new Set(labels)];
+};
 const shot = (page, name) => page.screenshot({ path: path.join(SHOTS, `${name}.png`) });
 
 try {

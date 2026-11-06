@@ -21,9 +21,11 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 interface TopHeaderProps {
   onRefresh: () => void;
   pageTitle: string;
+  /** Floor workers navigate with the dock; they have no sidebar to toggle. */
+  showSidebarTrigger?: boolean;
 }
 
-export const TopHeader = ({ onRefresh, pageTitle }: TopHeaderProps) => {
+export const TopHeader = ({ onRefresh, pageTitle, showSidebarTrigger = true }: TopHeaderProps) => {
   const [auditOpen, setAuditOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { isAdmin } = useAuthContext();
@@ -33,7 +35,7 @@ export const TopHeader = ({ onRefresh, pageTitle }: TopHeaderProps) => {
 
   return (
     <header className="sticky top-0 z-40 flex min-h-12 flex-wrap items-center gap-x-2 gap-y-1 border-b bg-card px-2 py-1 pointer-coarse:min-h-14 sm:h-12 sm:flex-nowrap sm:px-3 sm:py-0">
-      <SidebarTrigger className="h-9 w-9 shrink-0 rounded-md text-muted-foreground pointer-coarse:h-11 pointer-coarse:w-11 hover:bg-muted hover:text-foreground" />
+      {showSidebarTrigger && <SidebarTrigger className="h-9 w-9 shrink-0 rounded-md text-muted-foreground pointer-coarse:h-11 pointer-coarse:w-11 hover:bg-muted hover:text-foreground" />}
 
       <h1 className="min-w-0 flex-1 truncate font-display text-lg font-semibold">{pageTitle}</h1>
 

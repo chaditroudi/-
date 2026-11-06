@@ -199,12 +199,12 @@
   "nav": {
     "home": "الرئيسية",
     "dashboard": "لوحة التحكم",
-    "receptions": "الاستلامات",
+    "receptions": "الاستلام",
     "production": "الإنتاج",
     "stock": "المخزون",
     "batches": "الدفعات",
     "alerts": "التنبيهات",
-    "storage": "التخزين",
+    "storage": "المخزون",
     "suppliers": "الموردون",
     "materials": "المواد",
     "purchasing": "المشتريات",
@@ -215,7 +215,15 @@
     "settings": "الإعدادات",
     "audit": "سجل المراجعة",
     "quality": "الجودة",
-    "logistics": "اللوجستية"
+    "logistics": "الشحن",
+    "scan": "مسح",
+    "live": "مباشر",
+    "packaging": "التعبئة",
+    "maintenance": "الصيانة",
+    "export": "التصدير",
+    "customers": "الحرفاء",
+    "hr": "الموارد البشرية",
+    "sage-operations": "قمرة المصنع"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -1152,5 +1160,101 @@
     "notProvided": "غير مُدخل",
     "notMeasured": "غير مقاس",
     "source": "المصدر"
+  },
+  "dock": {
+    "label": "التنقل الرئيسي",
+    "home": "الرئيسية",
+    "myWork": "{{station}}",
+    "qc": "مراقبة الجودة",
+    "scan": "مسح",
+    "alerts": "التنبيهات",
+    "more": "المزيد",
+    "account": "حسابي"
+  },
+  "worker": {
+    "greeting": "مرحبًا {{name}}",
+    "greetingNoName": "مرحبًا",
+    "subtitleFloor": "إجراء واحد للبدء. القائمة تعرض محطتك فقط.",
+    "subtitleManager": "إجراء رئيسي للبدء. والباقي ينتظر في قائمة اليوم.",
+    "stations": "محطاتي",
+    "nextTask": "المهمة التالية",
+    "todo": "مطلوب اليوم",
+    "checking": "جارٍ التحقق من عملك…",
+    "nothingUrgent": "لا شيء عاجل في محطاتك.",
+    "nothingQueued": "لا توجد مهمة في الانتظار حاليًا. يمكنك البدء متى شئت.",
+    "cannotCheck": "تعذّر التحقق من: {{list}}.",
+    "mayBeIncomplete": "قد يكون ما يلي غير مكتمل.",
+    "alerts": "التنبيهات",
+    "fiches": "البطاقات الفنية",
+    "start": "ابدأ",
+    "open": "افتح",
+    "tasks": {
+      "alerts_other": "{{count}} تنبيهات للمعالجة",
+      "qc_other": "{{count}} فحوصات جودة مطلوبة",
+      "drafts_other": "{{count}} استلامات لإكمالها",
+      "quarantine_other": "{{count}} دفعات في الحجر",
+      "workshop_other": "{{count}} دفعات تنتظر الورشة",
+      "shipments_other": "{{count}} شحنات للتحضير",
+      "packaging_other": "{{count}} أوامر تعبئة جارية",
+      "alerts_one": "تنبيه واحد للمعالجة",
+      "qc_one": "فحص جودة واحد مطلوب",
+      "drafts_one": "استلام واحد لإكماله",
+      "quarantine_one": "دفعة واحدة في الحجر",
+      "workshop_one": "دفعة واحدة تنتظر الورشة",
+      "shipments_one": "شحنة واحدة للتحضير",
+      "packaging_one": "أمر تعبئة واحد جارٍ"
+    },
+    "taskHint": {
+      "alerts": "افتح التنبيهات وعالج الأقدم أولًا.",
+      "qc": "دفعات مستلمة تنتظر فحص الجودة.",
+      "drafts": "استلامات بدأت ولم تُؤكَّد بعد.",
+      "quarantine": "هذه الدفعات محجوزة ولا يجوز استعمالها.",
+      "workshop": "دفعات مُفرج عنها تنتظر بدء الورشة.",
+      "shipments": "شحنات تنتظر التحضير.",
+      "packaging": "أوامر تعبئة مفتوحة."
+    },
+    "badge": {
+      "alerts": "عاجل",
+      "qc": "جودة",
+      "drafts": "استلام",
+      "quarantine": "مخزون",
+      "workshop": "إنتاج",
+      "shipments": "شحن",
+      "packaging": "تعبئة"
+    },
+    "howTo": {
+      "title": "كيف يعمل؟",
+      "step1": "اختر المهمة",
+      "step2": "املأ المعلومات المطلوبة",
+      "step3": "راجع ثم أكّد"
+    },
+    "overview": "نظرة عامة",
+    "liveSource": "بيانات المصنع المباشرة",
+    "now": "الآن",
+    "kpi": {
+      "alerts": "تنبيهات نشطة",
+      "qc": "دفعات للفحص",
+      "quarantine": "دفعات في الحجر",
+      "orders": "أوامر جارية",
+      "shipments": "شحنات للتحضير",
+      "packaging": "تعبئة جارية"
+    },
+    "daily": {
+      "settings": "إدارة المستخدمين",
+      "live": "عرض نشاط المصنع",
+      "qc": "فحص دفعة",
+      "receptions": "استلام جديد",
+      "storage": "فتح المخزون والحركات",
+      "production": "فتح العمل الجاري",
+      "packaging": "فتح التعبئة",
+      "quality": "ملفات الجودة",
+      "purchasing": "طلبات الشراء",
+      "maintenance": "التدخلات",
+      "logistics": "الشحنات",
+      "export": "أوامر التصدير",
+      "customers": "الحرفاء",
+      "suppliers": "الموردون",
+      "hr": "الموارد البشرية"
+    }
   }
 }
