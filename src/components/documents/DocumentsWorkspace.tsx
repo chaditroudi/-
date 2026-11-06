@@ -77,7 +77,7 @@ export function DocumentsWorkspace({
           Parcours lot
         </Button>
         {(canBra || canBde) && (
-          <div className="ml-auto flex rounded-xl border bg-muted/40 p-1">
+          <div className="ms-auto flex rounded-xl border bg-muted/40 p-1">
             {canBra && (
               <button
                 type="button"

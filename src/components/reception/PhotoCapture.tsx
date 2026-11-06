@@ -104,7 +104,7 @@ export const PhotoCapture = ({
               onClick={capturePhoto}
               disabled={!canAddMore}
             >
-              <Camera className="mr-1.5 h-3.5 w-3.5" />
+              <Camera className="me-1.5 h-3.5 w-3.5" />
               Capturer
             </Button>
             <Button size="sm" variant="secondary" className="rounded-xl" onClick={stopCamera}>
@@ -120,7 +120,7 @@ export const PhotoCapture = ({
             className="h-11 flex-1 rounded-xl"
             onClick={startCamera}
           >
-            <Camera className="mr-2 h-4 w-4" />
+            <Camera className="me-2 h-4 w-4" />
             Caméra
           </Button>
           <Button
@@ -129,7 +129,7 @@ export const PhotoCapture = ({
             className="h-11 flex-1 rounded-xl"
             onClick={() => fileInputRef.current?.click()}
           >
-            <Upload className="mr-2 h-4 w-4" />
+            <Upload className="me-2 h-4 w-4" />
             Importer
           </Button>
         </div>
@@ -156,7 +156,7 @@ export const PhotoCapture = ({
             >
               {/* Slot number badge */}
               <div className={cn(
-                'absolute left-1.5 top-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold',
+                'absolute start-1.5 top-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold',
                 hasPhoto ? 'bg-black/40 text-white' : 'bg-muted-foreground/15 text-muted-foreground',
               )}>
                 {index + 1}
@@ -173,7 +173,7 @@ export const PhotoCapture = ({
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); removePhoto(index); }}
-                    className="absolute right-1 top-1 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-white opacity-0 shadow transition-opacity group-hover:opacity-100"
+                    className="absolute end-1 top-1 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-white opacity-0 shadow transition-opacity group-hover:opacity-100"
                   >
                     <X className="h-3 w-3" />
                   </button>

@@ -247,7 +247,7 @@ export const RequisitionsList = ({
           </div>
           {canCreate && (
             <Button size="sm" onClick={onNew}>
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 me-2" />
               Préparer une DA
             </Button>
           )}
@@ -322,12 +322,12 @@ export const RequisitionsList = ({
           {/* Filters row */}
           <div className="flex flex-wrap gap-3">
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="N° DA, article, demandeur, site..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-10"
+                className="ps-10"
               />
             </div>
             <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as RequisitionStatus | 'all')}>
@@ -401,7 +401,7 @@ export const RequisitionsList = ({
                   <TableHead>Qté</TableHead>
                   <TableHead>Urgence</TableHead>
                   <TableHead>Statut</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="text-end">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -596,7 +596,7 @@ export const RequisitionsList = ({
           </div>
 
           {filtered.length > 0 && filtered.length !== requisitions.length && (
-            <p className="text-xs text-muted-foreground text-right">
+            <p className="text-xs text-muted-foreground text-end">
               {filtered.length} résultat{filtered.length > 1 ? 's' : ''} sur {requisitions.length}
             </p>
           )}
@@ -689,7 +689,7 @@ export const RequisitionsList = ({
                     disabled={alreadySigned}
                     className="bg-emerald-600 hover:bg-emerald-700"
                   >
-                    <Check className="h-4 w-4 mr-2" />
+                    <Check className="h-4 w-4 me-2" />
                     {isFinal ? 'Confirmer la validation' : `Signer — ${nextStep?.label ?? ''}`}
                   </Button>
                 </DialogFooter>

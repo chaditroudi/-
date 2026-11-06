@@ -109,7 +109,7 @@ export const RecallDrillPanel = ({ initialLot, compact = false }: RecallDrillPan
           <div className="space-y-3 rounded-md border p-3">
             <div className="flex flex-wrap items-center gap-2">
               <Badge className={result.under60s ? 'bg-emerald-600' : 'bg-orange-500'}>
-                <Timer className="h-3 w-3 mr-1" />
+                <Timer className="h-3 w-3 me-1" />
                 {result.elapsedMs} ms
               </Badge>
               <Badge className={result.valid ? 'bg-emerald-700' : 'bg-red-600'}>

@@ -96,7 +96,7 @@ export function SignaturePinSelfPanel() {
           </div>
         </div>
         <Button size="sm" onClick={() => void save()} disabled={pending}>
-          {pending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+          {pending ? <Loader2 className="h-4 w-4 me-2 animate-spin" /> : null}
           Enregistrer mon PIN
         </Button>
       </CardContent>

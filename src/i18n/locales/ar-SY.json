@@ -1,0 +1,24 @@
+{
+  "language": {
+    "select": "اللغة",
+    "ar-SY": "شامي"
+  },
+  "common": {
+    "confirm": "أكّد",
+    "cancel": "ألغي",
+    "back": "ارجع",
+    "next": "كمّل",
+    "retry": "جرّب مرة تانية",
+    "close": "سكّر"
+  },
+  "task": {
+    "status": {
+      "ready": "جاهزة لتبلّش",
+      "waiting": "عم تستنّى",
+      "blocked": "واقفة",
+      "done": "خلصت"
+    },
+    "stepOf": "الخطوة {{current}} من {{total}}",
+    "notProvided": "ما انكتب"
+  }
+}

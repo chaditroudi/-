@@ -10,7 +10,7 @@ const Row = ({ label, gc, rp, gcm, l, poidBrut, poidNet }: {
   l?: number | null; poidBrut?: number | null; poidNet?: number | null;
 }) => (
   <tr className="border border-[#1a5276] text-center text-[11px]">
-    <td className="border border-[#1a5276] text-left px-1 py-0.5 font-medium bg-[#eaf4fb]">{label}</td>
+    <td className="border border-[#1a5276] text-start px-1 py-0.5 font-medium bg-[#eaf4fb]">{label}</td>
     <td className="border border-[#1a5276] px-1 py-0.5">{gc ?? ""}</td>
     <td className="border border-[#1a5276] px-1 py-0.5">{rp ?? ""}</td>
     <td className="border border-[#1a5276] px-1 py-0.5">{gcm ?? ""}</td>
@@ -38,7 +38,7 @@ export const BonReceptionAchatPrint = forwardRef<HTMLDivElement, Props>(({ bon }
       {/* Header */}
       <div className="flex items-stretch border-2 border-[#1a5276] mb-2">
         {/* Logo cell */}
-        <div className="border-r border-[#1a5276] flex items-center justify-center px-4 py-2" style={{ minWidth: 120 }}>
+        <div className="border-e border-[#1a5276] flex items-center justify-center px-4 py-2" style={{ minWidth: 120 }}>
           <div className="text-center">
             <div className="text-[#107754] font-bold text-lg leading-tight">Royal</div>
             <div className="text-[#107754] font-bold text-lg leading-tight">Palm</div>
@@ -47,7 +47,7 @@ export const BonReceptionAchatPrint = forwardRef<HTMLDivElement, Props>(({ bon }
         </div>
 
         {/* Center title */}
-        <div className="flex-1 flex flex-col items-center justify-center border-r border-[#1a5276] px-4 py-2">
+        <div className="flex-1 flex flex-col items-center justify-center border-e border-[#1a5276] px-4 py-2">
           <div className="text-[#1a5276] font-bold text-base text-center">BON DE RECEPTION ACHAT</div>
           <div className="flex gap-4 mt-2 text-[11px]">
             <label className="flex items-center gap-1">
@@ -119,7 +119,7 @@ export const BonReceptionAchatPrint = forwardRef<HTMLDivElement, Props>(({ bon }
           <table className="w-full border-collapse text-[10px]">
             <thead>
               <tr className="bg-[#1a5276] text-white text-center">
-                <th className="border border-[#1a5276] px-1 py-0.5 text-left">Type</th>
+                <th className="border border-[#1a5276] px-1 py-0.5 text-start">Type</th>
                 <th className="border border-[#1a5276] px-1 py-0.5">GC</th>
                 <th className="border border-[#1a5276] px-1 py-0.5">RP</th>
                 <th className="border border-[#1a5276] px-1 py-0.5">GCM</th>
@@ -131,52 +131,52 @@ export const BonReceptionAchatPrint = forwardRef<HTMLDivElement, Props>(({ bon }
             <tbody>
               <Row label="Branche 1ère" gc={b1.gc} rp={b1.rp} gcm={b1.gcm} l={b1.l} poidBrut={b1.poid_brut} poidNet={b1.poid_net} />
               <tr className="border border-[#1a5276] text-[10px]">
-                <td className="border border-[#1a5276] px-1 py-0.5 text-left bg-[#eaf4fb]">Nbre de palette</td>
+                <td className="border border-[#1a5276] px-1 py-0.5 text-start bg-[#eaf4fb]">Nbre de palette</td>
                 <td colSpan={6} className="border border-[#1a5276] px-1 py-0.5">{b1.nbre_palette ?? ""}</td>
               </tr>
               <tr className="border border-[#1a5276] text-[10px]">
-                <td className="border border-[#1a5276] px-1 py-0.5 text-left bg-[#eaf4fb]">Observation</td>
+                <td className="border border-[#1a5276] px-1 py-0.5 text-start bg-[#eaf4fb]">Observation</td>
                 <td colSpan={6} className="border border-[#1a5276] px-1 py-0.5">{b1.observation ?? ""}</td>
               </tr>
 
               <Row label="Branche 2ème" gc={b2.gc} rp={b2.rp} gcm={b2.gcm} l={b2.l} poidBrut={b2.poid_brut} poidNet={b2.poid_net} />
               <tr className="border border-[#1a5276] text-[10px]">
-                <td className="border border-[#1a5276] px-1 py-0.5 text-left bg-[#eaf4fb]">Nbre de palette</td>
+                <td className="border border-[#1a5276] px-1 py-0.5 text-start bg-[#eaf4fb]">Nbre de palette</td>
                 <td colSpan={5} className="border border-[#1a5276] px-1 py-0.5">{b2.nbre_palette ?? ""}</td>
-                <td className="border border-[#1a5276] px-1 py-0.5 text-red-600 text-right">
+                <td className="border border-[#1a5276] px-1 py-0.5 text-red-600 text-end">
                   {netB2 != null ? `-${netB2}` : ""}
                 </td>
               </tr>
               <tr className="border border-[#1a5276] text-[10px]">
-                <td className="border border-[#1a5276] px-1 py-0.5 text-left bg-[#eaf4fb]">Observation</td>
+                <td className="border border-[#1a5276] px-1 py-0.5 text-start bg-[#eaf4fb]">Observation</td>
                 <td colSpan={6} className="border border-[#1a5276] px-1 py-0.5">{b2.observation ?? ""}</td>
               </tr>
 
               <Row label="Vrac" gc={vr.gc} rp={vr.rp} gcm={vr.gcm} l={vr.l} poidBrut={vr.poid_brut} poidNet={vr.poid_net} />
               <tr className="border border-[#1a5276] text-[10px]">
-                <td className="border border-[#1a5276] px-1 py-0.5 text-left bg-[#eaf4fb]">Nbre de palette</td>
+                <td className="border border-[#1a5276] px-1 py-0.5 text-start bg-[#eaf4fb]">Nbre de palette</td>
                 <td colSpan={6} className="border border-[#1a5276] px-1 py-0.5">{vr.nbre_palette ?? ""}</td>
               </tr>
               <tr className="border border-[#1a5276] text-[10px]">
-                <td className="border border-[#1a5276] px-1 py-0.5 text-left bg-[#eaf4fb]">Observation</td>
+                <td className="border border-[#1a5276] px-1 py-0.5 text-start bg-[#eaf4fb]">Observation</td>
                 <td colSpan={6} className="border border-[#1a5276] px-1 py-0.5">{vr.observation ?? ""}</td>
               </tr>
 
               <Row label="Branche Sèche" gc={bs.gc} rp={bs.rp} gcm={bs.gcm} l={bs.l} poidBrut={bs.poid_brut} poidNet={bs.poid_net} />
               <tr className="border border-[#1a5276] text-[10px]">
-                <td className="border border-[#1a5276] px-1 py-0.5 text-left bg-[#eaf4fb]">Nbre de palette</td>
+                <td className="border border-[#1a5276] px-1 py-0.5 text-start bg-[#eaf4fb]">Nbre de palette</td>
                 <td colSpan={3} className="border border-[#1a5276] px-1 py-0.5 text-green-700">
                   {bs.nbre_palette_ajout != null ? `+${bs.nbre_palette_ajout}` : ""}
                 </td>
                 <td colSpan={2} className="border border-[#1a5276] px-1 py-0.5 text-red-600">
                   {bs.nbre_palette_retrait != null ? `-${bs.nbre_palette_retrait}` : ""}
                 </td>
-                <td className="border border-[#1a5276] px-1 py-0.5 text-red-600 text-right">
+                <td className="border border-[#1a5276] px-1 py-0.5 text-red-600 text-end">
                   {netBS != null ? `-${netBS}` : ""}
                 </td>
               </tr>
               <tr className="border border-[#1a5276] text-[10px]">
-                <td className="border border-[#1a5276] px-1 py-0.5 text-left bg-[#eaf4fb]">Observations</td>
+                <td className="border border-[#1a5276] px-1 py-0.5 text-start bg-[#eaf4fb]">Observations</td>
                 <td colSpan={6} className="border border-[#1a5276] px-1 py-0.5">{bs.observation ?? ""}</td>
               </tr>
 

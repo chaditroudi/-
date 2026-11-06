@@ -92,7 +92,7 @@ export function BonExpeditionForm({ initial, onSubmit, isSaving }: Props) {
   }, [annee, conventionnel, bioCertifie, ggp, lieu, codeFournisseur, fournisseurId, codeControleur, dateExpedition, numeroCamion, nomChauffeur, lieuReception, responsableReception, nomSignataire, lignes, casseNature, casseGc, casseP, casseL, statut, exportOrderRef, onSubmit]);
 
   return (
-    <ScrollArea className="h-full pr-4">
+    <ScrollArea className="h-full pe-4">
       <div className="space-y-5 pb-4">
 
         {/* ── Header ── */}
@@ -213,10 +213,10 @@ export function BonExpeditionForm({ initial, onSubmit, isSaving }: Props) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-muted/50 text-xs text-muted-foreground uppercase">
-                  <th className="text-left px-3 py-2 font-medium w-36">Produit</th>
-                  <th className="px-3 py-2 font-medium text-left">Nature de caisse</th>
-                  <th className="px-3 py-2 font-medium text-left">Quantité de caisse</th>
-                  <th className="px-3 py-2 font-medium text-left">Observation</th>
+                  <th className="text-start px-3 py-2 font-medium w-36">Produit</th>
+                  <th className="px-3 py-2 font-medium text-start">Nature de caisse</th>
+                  <th className="px-3 py-2 font-medium text-start">Quantité de caisse</th>
+                  <th className="px-3 py-2 font-medium text-start">Observation</th>
                 </tr>
               </thead>
               <tbody>

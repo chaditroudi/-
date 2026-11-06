@@ -119,7 +119,7 @@ export function PalettePanel({ currentUser = 'Utilisateur' }: { currentUser?: st
                         setSealForm({ seal_number: '', sealed_by: currentUser });
                       }}
                     >
-                      <ShieldCheck className="h-3 w-3 mr-1" />
+                      <ShieldCheck className="h-3 w-3 me-1" />
                       Sceller
                     </Button>
                   )}
@@ -130,7 +130,7 @@ export function PalettePanel({ currentUser = 'Utilisateur' }: { currentUser?: st
                       className="h-9 px-2 text-xs"
                       onClick={() => printPaletteLabel(pal, order, bom)}
                     >
-                      <Printer className="h-3 w-3 mr-1" />
+                      <Printer className="h-3 w-3 me-1" />
                       Étiquette
                     </Button>
                   )}
@@ -186,7 +186,7 @@ export function PalettePanel({ currentUser = 'Utilisateur' }: { currentUser?: st
               }}
               disabled={sealPalette.isPending || !sealForm.seal_number}
             >
-              {sealPalette.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {sealPalette.isPending && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
               Confirmer scellage
             </Button>
           </DialogFooter>

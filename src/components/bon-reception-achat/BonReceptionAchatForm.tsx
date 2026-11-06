@@ -492,7 +492,7 @@ export function BonReceptionAchatForm({ initial, onSubmit, isSaving }: Props) {
       </div>
 
       {/* Scrollable content area */}
-      <ScrollArea className="flex-1 pr-4">
+      <ScrollArea className="flex-1 pe-4">
         <div className="pb-2">
           {renderStep()}
         </div>

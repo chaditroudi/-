@@ -147,7 +147,7 @@ export const CertificatesPanel = ({ suppliers }: Props) => {
             {j30Count > 0 && `${j30Count} certificat(s) expire dans moins de 30 jours.`}
           </span>
           <button
-            className="ml-auto text-xs underline underline-offset-2 text-red-700 hover:text-red-900"
+            className="ms-auto text-xs underline underline-offset-2 text-red-700 hover:text-red-900"
             onClick={() => setFilterAlertOnly(true)}
           >
             Afficher uniquement
@@ -176,7 +176,7 @@ export const CertificatesPanel = ({ suppliers }: Props) => {
           Alertes seulement
         </Button>
         <Button size="sm" onClick={() => setCreateOpen(true)}>
-          <Plus className="h-4 w-4 mr-1" /> Ajouter
+          <Plus className="h-4 w-4 me-1" /> Ajouter
         </Button>
       </div>
 

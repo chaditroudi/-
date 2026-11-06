@@ -101,7 +101,7 @@ const DetailRow = ({ label, value }: { label: string; value: string | number | n
   value != null && value !== '' ? (
     <div className="flex justify-between gap-2 py-1 border-b border-gray-100 last:border-0">
       <span className="text-xs text-muted-foreground shrink-0">{label}</span>
-      <span className="text-xs font-medium text-right break-all">{String(value)}</span>
+      <span className="text-xs font-medium text-end break-all">{String(value)}</span>
     </div>
   ) : null;
 
@@ -474,7 +474,7 @@ export const LotGenealogyTree = ({ lotNumber, open, onOpenChange }: LotGenealogy
 
           {/* Detail panel */}
           {activeNode && (
-            <div className="w-[260px] shrink-0 border-l bg-white flex flex-col">
+            <div className="w-[260px] shrink-0 border-s bg-white flex flex-col">
               <div className="flex items-center justify-between px-4 py-3 border-b">
                 <span className="text-xs font-semibold text-muted-foreground">Détails</span>
                 <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => setActiveNodeId(null)}>
@@ -501,7 +501,7 @@ export const LotGenealogyTree = ({ lotNumber, open, onOpenChange }: LotGenealogy
                 <span className="text-xs text-muted-foreground">{s.label}</span>
               </div>
             ))}
-          <div className="flex items-center gap-1.5 ml-2">
+          <div className="flex items-center gap-1.5 ms-2">
             <svg width="20" height="6"><line x1="0" y1="3" x2="20" y2="3" stroke="#94a3b8" strokeWidth="1.5" markerEnd="url(#arrowhead)" /></svg>
             <span className="text-xs text-muted-foreground">Flux</span>
           </div>

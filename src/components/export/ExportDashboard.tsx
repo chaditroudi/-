@@ -98,7 +98,7 @@ function ApproveDialog({
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Annuler</Button>
           <Button onClick={handleApprove} disabled={!approver || approve.isPending}>
-            <Lock className="h-4 w-4 mr-1" />
+            <Lock className="h-4 w-4 me-1" />
             {approve.isPending ? 'Verrouillage...' : 'Approuver & Verrouiller'}
           </Button>
         </DialogFooter>
@@ -140,7 +140,7 @@ function RegenerateDialog({
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Annuler</Button>
           <Button onClick={handleRegen} disabled={!user || !reason || regen.isPending}>
-            <RefreshCw className="h-4 w-4 mr-1" />
+            <RefreshCw className="h-4 w-4 me-1" />
             {regen.isPending ? 'Création...' : 'Créer v' + major + '.' + (minor + 1)}
           </Button>
         </DialogFooter>
@@ -350,8 +350,8 @@ export function ExportDashboard() {
       {/* Toolbar */}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 min-w-48">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-9 h-9" placeholder="Rechercher commande, client, COA..."
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input className="ps-9 h-9" placeholder="Rechercher commande, client, COA..."
             value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <Button onClick={() => { setEditingOrder(null); setOrderDialogOpen(true); }} className="gap-2 h-9">
@@ -368,15 +368,15 @@ export function ExportDashboard() {
         <TabsList className="mb-4">
           <TabsTrigger value="orders">
             Commandes Export
-            <Badge variant="secondary" className="ml-2 text-xs">{orders.length}</Badge>
+            <Badge variant="secondary" className="ms-2 text-xs">{orders.length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="contracts">
             Contrats
-            <Badge variant="secondary" className="ml-2 text-xs">{contracts.length}</Badge>
+            <Badge variant="secondary" className="ms-2 text-xs">{contracts.length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="coa">
             COA
-            <Badge variant="secondary" className="ml-2 text-xs">{coaDocs.length}</Badge>
+            <Badge variant="secondary" className="ms-2 text-xs">{coaDocs.length}</Badge>
           </TabsTrigger>
         </TabsList>
 
@@ -401,14 +401,14 @@ export function ExportDashboard() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b bg-muted/40 text-xs text-muted-foreground uppercase">
-                    <th className="text-left px-4 py-2.5 font-medium">Référence</th>
-                    <th className="text-left px-4 py-2.5 font-medium">Client</th>
-                    <th className="text-left px-4 py-2.5 font-medium">Pays</th>
-                    <th className="text-left px-4 py-2.5 font-medium">Langue</th>
-                    <th className="text-right px-4 py-2.5 font-medium">Poids (kg)</th>
-                    <th className="text-right px-4 py-2.5 font-medium">Montant</th>
-                    <th className="text-left px-4 py-2.5 font-medium">Statut</th>
-                    <th className="text-right px-4 py-2.5 font-medium">Actions</th>
+                    <th className="text-start px-4 py-2.5 font-medium">Référence</th>
+                    <th className="text-start px-4 py-2.5 font-medium">Client</th>
+                    <th className="text-start px-4 py-2.5 font-medium">Pays</th>
+                    <th className="text-start px-4 py-2.5 font-medium">Langue</th>
+                    <th className="text-end px-4 py-2.5 font-medium">Poids (kg)</th>
+                    <th className="text-end px-4 py-2.5 font-medium">Montant</th>
+                    <th className="text-start px-4 py-2.5 font-medium">Statut</th>
+                    <th className="text-end px-4 py-2.5 font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -433,8 +433,8 @@ export function ExportDashboard() {
                         <td className="px-4 py-2.5">
                           <Badge variant="outline" className="text-xs">{LANG_LABEL[order.contract_language] ?? order.contract_language}</Badge>
                         </td>
-                        <td className="px-4 py-2.5 text-right">{order.total_weight_kg?.toLocaleString('fr-FR', { minimumFractionDigits: 0 })}</td>
-                        <td className="px-4 py-2.5 text-right font-semibold">
+                        <td className="px-4 py-2.5 text-end">{order.total_weight_kg?.toLocaleString('fr-FR', { minimumFractionDigits: 0 })}</td>
+                        <td className="px-4 py-2.5 text-end font-semibold">
                           {order.total_amount?.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} {order.currency}
                         </td>
                         <td className="px-4 py-2.5">
@@ -532,13 +532,13 @@ export function ExportDashboard() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b bg-muted/40 text-xs text-muted-foreground uppercase">
-                    <th className="text-left px-4 py-2.5 font-medium">Contrat</th>
-                    <th className="text-left px-4 py-2.5 font-medium">Commande</th>
-                    <th className="text-left px-4 py-2.5 font-medium">Pays / Langue</th>
-                    <th className="text-left px-4 py-2.5 font-medium">Version</th>
-                    <th className="text-left px-4 py-2.5 font-medium">Statut</th>
-                    <th className="text-left px-4 py-2.5 font-medium">Historique</th>
-                    <th className="text-right px-4 py-2.5 font-medium">Actions</th>
+                    <th className="text-start px-4 py-2.5 font-medium">Contrat</th>
+                    <th className="text-start px-4 py-2.5 font-medium">Commande</th>
+                    <th className="text-start px-4 py-2.5 font-medium">Pays / Langue</th>
+                    <th className="text-start px-4 py-2.5 font-medium">Version</th>
+                    <th className="text-start px-4 py-2.5 font-medium">Statut</th>
+                    <th className="text-start px-4 py-2.5 font-medium">Historique</th>
+                    <th className="text-end px-4 py-2.5 font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -553,7 +553,7 @@ export function ExportDashboard() {
                         <td className="px-4 py-2.5 text-muted-foreground">{contract.order_ref}</td>
                         <td className="px-4 py-2.5">
                           <span>{COUNTRY_LABEL[contract.buyer_country] ?? contract.buyer_country}</span>
-                          <Badge variant="outline" className="ml-2 text-xs">{LANG_LABEL[contract.language] ?? contract.language}</Badge>
+                          <Badge variant="outline" className="ms-2 text-xs">{LANG_LABEL[contract.language] ?? contract.language}</Badge>
                         </td>
                         <td className="px-4 py-2.5">
                           <Badge variant="outline" className="font-mono text-xs">v{contract.current_version}</Badge>
@@ -618,14 +618,14 @@ export function ExportDashboard() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b bg-muted/40 text-xs text-muted-foreground uppercase">
-                    <th className="text-left px-4 py-2.5 font-medium">Réf. COA</th>
-                    <th className="text-left px-4 py-2.5 font-medium">Lot</th>
-                    <th className="text-left px-4 py-2.5 font-medium">Fournisseur</th>
-                    <th className="text-left px-4 py-2.5 font-medium">Grade</th>
-                    <th className="text-left px-4 py-2.5 font-medium">Humidité</th>
-                    <th className="text-left px-4 py-2.5 font-medium">Expiration</th>
-                    <th className="text-left px-4 py-2.5 font-medium">Approuvé par</th>
-                    <th className="text-right px-4 py-2.5 font-medium">Actions</th>
+                    <th className="text-start px-4 py-2.5 font-medium">Réf. COA</th>
+                    <th className="text-start px-4 py-2.5 font-medium">Lot</th>
+                    <th className="text-start px-4 py-2.5 font-medium">Fournisseur</th>
+                    <th className="text-start px-4 py-2.5 font-medium">Grade</th>
+                    <th className="text-start px-4 py-2.5 font-medium">Humidité</th>
+                    <th className="text-start px-4 py-2.5 font-medium">Expiration</th>
+                    <th className="text-start px-4 py-2.5 font-medium">Approuvé par</th>
+                    <th className="text-end px-4 py-2.5 font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -809,7 +809,7 @@ export function ExportDashboard() {
                 <p className="text-xs text-muted-foreground">Marge</p>
                 <p className={`text-2xl font-bold ${marginData.margin_tnd >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                   {marginData.margin_tnd.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} TND
-                  <span className="ml-2 text-sm font-medium">({marginData.margin_pct.toFixed(1)}%)</span>
+                  <span className="ms-2 text-sm font-medium">({marginData.margin_pct.toFixed(1)}%)</span>
                 </p>
                 {marginData.missing_cost_kg > 0 && (
                   <p className="mt-1 text-xs text-amber-700">

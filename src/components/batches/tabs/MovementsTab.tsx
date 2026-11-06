@@ -254,7 +254,7 @@ export const MovementsTab: React.FC<MovementsTabProps> = ({
           <CardTitle className="flex items-center gap-2 text-base">
             <Activity className="h-4 w-4 text-primary" />
             Journal des mouvements
-            <span className="ml-1 text-sm font-normal text-muted-foreground">
+            <span className="ms-1 text-sm font-normal text-muted-foreground">
               ({movements.length})
             </span>
           </CardTitle>
@@ -275,7 +275,7 @@ export const MovementsTab: React.FC<MovementsTabProps> = ({
                     <TableHead>Lot</TableHead>
                     <TableHead>Source</TableHead>
                     <TableHead>Destination</TableHead>
-                    <TableHead className="text-right">Qté</TableHead>
+                    <TableHead className="text-end">Qté</TableHead>
                     <TableHead>Motif</TableHead>
                     <TableHead>Opérateur</TableHead>
                   </TableRow>
@@ -299,7 +299,7 @@ export const MovementsTab: React.FC<MovementsTabProps> = ({
                       <TableCell className="text-xs text-muted-foreground">
                         {m.destination_location_code ?? m.destination_zone_code ?? "—"}
                       </TableCell>
-                      <TableCell className="text-right text-xs">
+                      <TableCell className="text-end text-xs">
                         {fmtNum(m.quantity_palettes, " pal.")}
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">

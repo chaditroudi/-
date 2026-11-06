@@ -284,8 +284,8 @@ const NotificationDetailView = ({
           onClick={onNavigate}
         >
           {isExternal
-            ? <ExternalLink className="mr-2 h-3.5 w-3.5" />
-            : <ArrowRight className="mr-2 h-3.5 w-3.5" />}
+            ? <ExternalLink className="me-2 h-3.5 w-3.5" />
+            : <ArrowRight className="me-2 h-3.5 w-3.5" />}
           Voir dans {tabLabel}
         </Button>
       </div>
@@ -386,7 +386,7 @@ export const NotificationCenter = () => {
             <span className="absolute inset-0 rounded-[9px] border border-primary/30 animate-pulse" />
           )}
           {unreadCount > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-xs font-bold text-destructive-foreground">
+            <span className="absolute -end-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-xs font-bold text-destructive-foreground">
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}
@@ -475,7 +475,7 @@ export const NotificationCenter = () => {
                       key={n.id}
                       type="button"
                       onClick={() => handleSelectNotification(n)}
-                      className="w-full rounded-xl border bg-background px-3 py-2 text-left transition-colors hover:bg-muted/40"
+                      className="w-full rounded-xl border bg-background px-3 py-2 text-start transition-colors hover:bg-muted/40"
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span className="truncate text-[12.5px] font-medium">{n.title}</span>

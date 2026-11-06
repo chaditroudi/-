@@ -48,7 +48,7 @@ export function FeaturesPanel({ settings }: Props) {
         <CardContent className="divide-y">
           {(Object.entries(FEATURE_META) as [keyof SiteFeatures, typeof FEATURE_META[keyof SiteFeatures]][]).map(([key, meta]) => (
             <div key={key} className="flex items-center justify-between py-4 first:pt-0 last:pb-0">
-              <div className="space-y-0.5 pr-4">
+              <div className="space-y-0.5 pe-4">
                 <Label className="text-sm font-medium cursor-pointer" htmlFor={key} onClick={() => toggle(key)}>
                   {meta.label}
                 </Label>
@@ -70,7 +70,7 @@ export function FeaturesPanel({ settings }: Props) {
       </div>
 
       <Button onClick={handleSave} disabled={update.isPending}>
-        {update.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+        {update.isPending && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
         Enregistrer les modules
       </Button>
     </div>

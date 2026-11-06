@@ -107,7 +107,7 @@
              <div key={idx} className="flex items-start gap-2">
                <Badge variant="outline" className="text-xs font-mono">{change.field}</Badge>
                <div className="flex-1">
-                 {change.oldVal !== undefined && <span className="text-red-600 line-through mr-2">{String(change.oldVal)}</span>}
+                 {change.oldVal !== undefined && <span className="text-red-600 line-through me-2">{String(change.oldVal)}</span>}
                  {change.newVal !== undefined && <span className="text-green-600">{String(change.newVal)}</span>}
                </div>
              </div>
@@ -145,8 +145,8 @@
          {showFilters && (
            <div className="flex items-center gap-2 mt-4 flex-wrap">
              <div className="relative flex-1 min-w-[200px]">
-               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-               <Input placeholder={t('alerts.searchHistory')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-9" />
+               <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+               <Input placeholder={t('alerts.searchHistory')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="ps-9" />
              </div>
              {!entityType && (
                <div className="flex gap-1 flex-wrap">
@@ -169,12 +169,12 @@
              <p className="text-muted-foreground">{t('alerts.noEventsRecorded')}</p>
            </div>
          ) : (
-           <ScrollArea className="pr-4" style={{ height: maxHeight }}>
+           <ScrollArea className="pe-4" style={{ height: maxHeight }}>
              <div className="relative">
-               <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-border" />
+               <div className="absolute start-4 top-0 bottom-0 w-0.5 bg-border" />
                {Object.entries(groupedLogs).map(([date, dayLogs]) => (
                  <div key={date} className="mb-6">
-                   <div className="flex items-center gap-2 mb-4 ml-8">
+                   <div className="flex items-center gap-2 mb-4 ms-8">
                      <Badge variant="secondary" className="font-medium">{format(new Date(date), 'EEEE d MMMM yyyy', { locale: getLocale() })}</Badge>
                      <span className="text-xs text-muted-foreground">{dayLogs.length} {t('common.events')}</span>
                    </div>
@@ -185,7 +185,7 @@
                        const actionColor = actionColors[log.action] || 'bg-gray-500';
                        return (
                          <Collapsible key={log.id} open={isExpanded} onOpenChange={() => toggleExpanded(log.id)}>
-                           <div className="flex items-start gap-3 ml-1">
+                           <div className="flex items-start gap-3 ms-1">
                               <div className={cn("w-6 h-6 rounded-full flex items-center justify-center z-10", actionColor)}>
                                 <Icon className="h-3 w-3 text-white" />
                               </div>
@@ -194,7 +194,7 @@
                                recentLogIds.has(log.id) && "border-primary/40 bg-primary/5 shadow-sm"
                              )}>
                                <CardContent className="p-3">
-                                 <CollapsibleTrigger className="w-full text-left">
+                                 <CollapsibleTrigger className="w-full text-start">
                                    <div className="flex items-start justify-between">
                                      <div className="flex-1">
                                        <div className="flex items-center gap-2 flex-wrap">

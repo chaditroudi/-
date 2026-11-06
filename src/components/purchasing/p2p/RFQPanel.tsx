@@ -175,7 +175,7 @@ export const RFQPanel = ({ suppliers, currentUser }: Props) => {
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-base">Appels d'offres</h3>
         <Button size="sm" onClick={handleOpenCreate}>
-          <Plus className="h-4 w-4 mr-1" /> Nouvel AO
+          <Plus className="h-4 w-4 me-1" /> Nouvel AO
         </Button>
       </div>
 
@@ -486,7 +486,7 @@ const RFQDetailDialog = ({
                       <TableCell>
                         {suppliers.find((s) => s.id === r.supplier_id)?.name ?? r.supplier_name}
                         {rfq.selected_supplier_id === r.supplier_id && (
-                          <Trophy className="h-3.5 w-3.5 text-amber-500 inline ml-1" />
+                          <Trophy className="h-3.5 w-3.5 text-amber-500 inline ms-1" />
                         )}
                       </TableCell>
                       <TableCell>{r.unit_price.toLocaleString('fr-FR')} {r.currency}</TableCell>
@@ -525,7 +525,7 @@ const RFQDetailDialog = ({
                 disabled={!winnerSupplierId || !winnerReason}
                 onClick={() => onSelectWinner(winnerSupplierId, winnerReason)}
               >
-                <Trophy className="h-4 w-4 mr-1" /> Attribuer
+                <Trophy className="h-4 w-4 me-1" /> Attribuer
               </Button>
             </div>
           )}

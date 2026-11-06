@@ -168,7 +168,7 @@ export const FactoryAlertsCenter = () => {
              </CardTitle>
              <div className="flex items-center gap-2">
                <Button variant="outline" size="sm" onClick={handleRefresh}>
-                 <RefreshCw className="h-4 w-4 mr-1" />
+                 <RefreshCw className="h-4 w-4 me-1" />
                  {t('common.refresh')}
                </Button>
              </div>
@@ -203,12 +203,12 @@ export const FactoryAlertsCenter = () => {
            {/* Filters */}
            <div className="flex items-center gap-2 mt-4 flex-wrap">
              <div className="relative flex-1 min-w-[200px]">
-               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+               <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                <Input
                  placeholder={t('common.search')}
                  value={searchTerm}
                  onChange={(e) => setSearchTerm(e.target.value)}
-                 className="pl-9"
+                 className="ps-9"
                />
              </div>
              <div className="flex items-center gap-1">
@@ -261,7 +261,7 @@ export const FactoryAlertsCenter = () => {
                  <Bell className="h-4 w-4" />
                  {t('alerts.liveAlerts')}
                  {unreadCount > 0 && (
-                   <Badge variant="destructive" className="ml-1 h-5 px-1">
+                   <Badge variant="destructive" className="ms-1 h-5 px-1">
                      {unreadCount}
                    </Badge>
                  )}
@@ -274,7 +274,7 @@ export const FactoryAlertsCenter = () => {
                  <Package className="h-4 w-4" />
                  {t('alerts.receptionAlerts')}
                  {activeReceptionAlerts > 0 && (
-                   <Badge variant="destructive" className="ml-1 h-5 px-1">
+                   <Badge variant="destructive" className="ms-1 h-5 px-1">
                      {activeReceptionAlerts}
                    </Badge>
                  )}
@@ -367,13 +367,13 @@ export const FactoryAlertsCenter = () => {
        {unreadCount > 0 && (
          <div className="flex justify-end mb-2">
            <Button variant="ghost" size="sm" onClick={() => markAllRead()}>
-             <CheckCircle className="h-4 w-4 mr-1" />
+             <CheckCircle className="h-4 w-4 me-1" />
              {t('alerts.markAllRead')}
            </Button>
          </div>
        )}
 
-       <ScrollArea className="h-[500px] pr-4">
+       <ScrollArea className="h-[500px] pe-4">
          <div className="space-y-2">
            {notifications.map((notification) => {
              const config = severityConfig[notification.severity] || severityConfig.info;
@@ -384,12 +384,12 @@ export const FactoryAlertsCenter = () => {
                  key={notification.id}
                  className={cn(
                    "transition-all cursor-pointer hover:shadow-md",
-                   !notification.is_read && "border-l-4",
+                   !notification.is_read && "border-s-4",
                    recentLiveIds.has(notification.id) && "ring-1 ring-primary/30",
-                   !notification.is_read && notification.severity === 'error' && "border-l-red-600 bg-red-50",
-                   !notification.is_read && notification.severity === 'warning' && "border-l-orange-500 bg-orange-50",
-                   !notification.is_read && notification.severity === 'info' && "border-l-blue-500 bg-blue-50",
-                   !notification.is_read && notification.severity === 'success' && "border-l-green-500 bg-green-50"
+                   !notification.is_read && notification.severity === 'error' && "border-s-red-600 bg-red-50",
+                   !notification.is_read && notification.severity === 'warning' && "border-s-orange-500 bg-orange-50",
+                   !notification.is_read && notification.severity === 'info' && "border-s-blue-500 bg-blue-50",
+                   !notification.is_read && notification.severity === 'success' && "border-s-green-500 bg-green-50"
                  )}
                  onClick={() => !notification.is_read && markRead(notification.id)}
                >
@@ -471,7 +471,7 @@ export const FactoryAlertsCenter = () => {
    }
 
    return (
-     <ScrollArea className="h-[500px] pr-4">
+     <ScrollArea className="h-[500px] pe-4">
        <div className="space-y-2">
          {logs.map((log) => {
            const Icon = alertTypeIcons[log.entity_type] || Clock;
@@ -541,20 +541,20 @@ const ReceptionAlertsPanel = ({ alerts, getLocale }: { alerts: ReceptionAlert[];
    }
 
    return (
-     <ScrollArea className="h-[500px] pr-4">
+     <ScrollArea className="h-[500px] pe-4">
        <div className="space-y-2">
          {alerts.map((alert) => {
            const severityColors = {
-             CRITIQUE: 'border-l-red-600 bg-red-50',
-             MAJEUR: 'border-l-orange-500 bg-orange-50',
-             MINEUR: 'border-l-yellow-500 bg-yellow-50'
+             CRITIQUE: 'border-s-red-600 bg-red-50',
+             MAJEUR: 'border-s-orange-500 bg-orange-50',
+             MINEUR: 'border-s-yellow-500 bg-yellow-50'
            };
 
            return (
              <Card
                key={alert.id}
                className={cn(
-                 "border-l-4 transition-all",
+                 "border-s-4 transition-all",
                  severityColors[alert.severity as keyof typeof severityColors] || ''
                )}
              >
@@ -587,14 +587,14 @@ const ReceptionAlertsPanel = ({ alerts, getLocale }: { alerts: ReceptionAlert[];
                          size="sm"
                          onClick={() => handleAcknowledge(alert.id, t('production.operator'))}
                        >
-                         <Eye className="h-3 w-3 mr-1" />
+                         <Eye className="h-3 w-3 me-1" />
                          {t('alerts.acknowledge')}
                        </Button>
                        <Button
                          size="sm"
                          onClick={() => handleResolve(alert.id, t('production.operator'))}
                        >
-                         <CheckCircle className="h-3 w-3 mr-1" />
+                         <CheckCircle className="h-3 w-3 me-1" />
                          {t('alerts.resolve')}
                        </Button>
                      </div>

@@ -119,7 +119,7 @@ export const TareCalculator = ({
         <CardTitle className="text-sm flex items-center gap-2">
           <Package className="h-4 w-4 text-primary" />
           Calcul des Tares
-          <Badge variant="outline" className="ml-auto text-xs">Corrigé</Badge>
+          <Badge variant="outline" className="ms-auto text-xs">Corrigé</Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -252,7 +252,7 @@ export const TareCalculator = ({
               <span className="font-semibold text-amber-600">
                 -{totalTare.toFixed(2)} KG
                 {totalTare === 0 && containerType !== 'AUTRE' && (
-                  <Badge variant="outline" className="ml-2 text-xs">À configurer</Badge>
+                  <Badge variant="outline" className="ms-2 text-xs">À configurer</Badge>
                 )}
               </span>
             </div>

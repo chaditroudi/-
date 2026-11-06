@@ -154,7 +154,7 @@ export function LotTraceabilityDialog({ open, onOpenChange, lotNumber }: Props) 
           )}
         </div>
 
-        <ScrollArea className="max-h-[78vh] pr-4">
+        <ScrollArea className="max-h-[78vh] pe-4">
           {isLoading ? (
             <div className="py-16 flex items-center justify-center gap-2 text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin" />
@@ -338,7 +338,7 @@ export function LotTraceabilityDialog({ open, onOpenChange, lotNumber }: Props) 
                         <div key={movement.id} className="flex items-center justify-between gap-3 text-xs">
                           <div>
                             <span className="font-mono font-semibold">{movement.movement_number ?? movement.id}</span>
-                            <span className="ml-2 text-muted-foreground">{movement.movement_type}</span>
+                            <span className="ms-2 text-muted-foreground">{movement.movement_type}</span>
                           </div>
                           <div className="text-muted-foreground">
                             {(movement.quantity ?? 0).toLocaleString('fr-TN')} {movement.unit ?? 'kg'} · {fmt(movement.performed_at)}

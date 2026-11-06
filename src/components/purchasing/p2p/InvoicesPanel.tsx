@@ -182,7 +182,7 @@ export const InvoicesPanel = ({ suppliers, orders, currentUser }: Props) => {
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-base">Factures fournisseurs</h3>
         <Button size="sm" onClick={() => setCreateOpen(true)}>
-          <Plus className="h-4 w-4 mr-1" /> Nouvelle facture
+          <Plus className="h-4 w-4 me-1" /> Nouvelle facture
         </Button>
       </div>
 
@@ -512,7 +512,7 @@ const InvoiceDetailDialog = ({
                 <div className={`rounded p-2 text-xs font-semibold text-center ${matchResultColors[matchPreview.result]}`}>
                   {matchResultLabels[matchPreview.result]}
                   {matchPreview.variancePct > 0 && (
-                    <span className="ml-2">
+                    <span className="ms-2">
                       Écart: {matchPreview.variancePct.toFixed(1)}% ({matchPreview.varianceAmount > 0 ? '+' : ''}{matchPreview.varianceAmount.toLocaleString('fr-FR')})
                     </span>
                   )}
@@ -536,17 +536,17 @@ const InvoiceDetailDialog = ({
           <Button variant="outline" onClick={onClose}>Fermer</Button>
           {invoice.status === 'RECUE' && (
             <Button variant="outline" size="sm" onClick={onRunMatch}>
-              <ArrowLeftRight className="h-4 w-4 mr-1" /> Rapprocher
+              <ArrowLeftRight className="h-4 w-4 me-1" /> Rapprocher
             </Button>
           )}
           {invoice.status === 'EN_RAPPROCHEMENT' && invoice.match_result !== 'ECART_BLOQUANT' && (
             <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={onApprovePayment}>
-              <CheckCircle2 className="h-4 w-4 mr-1" /> Bon à payer
+              <CheckCircle2 className="h-4 w-4 me-1" /> Bon à payer
             </Button>
           )}
           {invoice.status === 'BON_A_PAYER' && (
             <Button size="sm" className="bg-violet-600 hover:bg-violet-700" onClick={onMarkPaid}>
-              <CircleDollarSign className="h-4 w-4 mr-1" /> Enregistrer paiement
+              <CircleDollarSign className="h-4 w-4 me-1" /> Enregistrer paiement
             </Button>
           )}
         </DialogFooter>

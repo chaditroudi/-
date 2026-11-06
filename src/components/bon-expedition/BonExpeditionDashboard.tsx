@@ -100,9 +100,9 @@ export function BonExpeditionDashboard({
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 min-w-48">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute start-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            className="pl-10 h-11"
+            className="ps-10 h-11"
             placeholder="N° bon, client, camion, commande export…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}

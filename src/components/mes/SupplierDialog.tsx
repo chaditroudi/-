@@ -302,7 +302,7 @@ export const SupplierDialog = ({ open, onOpenChange, supplier, onSave, isLoading
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <ScrollArea className="max-h-[65vh] pr-3">
+          <ScrollArea className="max-h-[65vh] pe-3">
             <div className="space-y-4 pb-2">
               <section className="space-y-3">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Essentiel</p>

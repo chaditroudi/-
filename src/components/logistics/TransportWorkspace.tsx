@@ -1018,15 +1018,15 @@ export function TransportWorkspace() {
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={() => setVehicleDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus className="me-2 h-4 w-4" />
             Camion
           </Button>
           <Button variant="outline" onClick={() => setDriverDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus className="me-2 h-4 w-4" />
             Chauffeur
           </Button>
           <Button onClick={() => setMissionDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus className="me-2 h-4 w-4" />
             Ordre mission
           </Button>
         </div>
@@ -1061,7 +1061,7 @@ export function TransportWorkspace() {
                     key={mission.id}
                     type="button"
                     onClick={() => setSelectedMissionId(mission.id)}
-                    className={`w-full rounded-2xl border px-4 py-4 text-left transition-colors ${
+                    className={`w-full rounded-2xl border px-4 py-4 text-start transition-colors ${
                       selectedMission?.id === mission.id ? 'border-primary bg-primary/5' : 'hover:bg-muted/30'
                     }`}
                   >
@@ -1205,7 +1205,7 @@ export function TransportWorkspace() {
                   </Button>
                   <Button variant="ghost" asChild>
                     <a href={getDirectionsUrl(selectedMission)} target="_blank" rel="noreferrer">
-                      <Navigation className="mr-2 h-4 w-4" />
+                      <Navigation className="me-2 h-4 w-4" />
                       Itinéraire
                     </a>
                   </Button>

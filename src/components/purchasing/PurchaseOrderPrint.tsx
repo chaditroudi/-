@@ -14,7 +14,7 @@ export const PurchaseOrderPrint = ({ order }: { order: PurchaseOrder }) => {
           </p>
         </div>
 
-        <div className="text-right text-sm">
+        <div className="text-end text-sm">
           <p className="font-semibold">Fournisseur</p>
           <p>{order.supplier?.name || '-'}</p>
           {order.supplier?.address && <p>{order.supplier.address}</p>}
@@ -44,10 +44,10 @@ export const PurchaseOrderPrint = ({ order }: { order: PurchaseOrder }) => {
       <table className="w-full text-sm border-collapse">
         <thead>
           <tr className="border-b">
-            <th className="text-left py-2">Description</th>
-            <th className="text-right py-2">Qté</th>
-            <th className="text-right py-2">PU</th>
-            <th className="text-right py-2">Total</th>
+            <th className="text-start py-2">Description</th>
+            <th className="text-end py-2">Qté</th>
+            <th className="text-end py-2">PU</th>
+            <th className="text-end py-2">Total</th>
           </tr>
         </thead>
         <tbody>
@@ -57,9 +57,9 @@ export const PurchaseOrderPrint = ({ order }: { order: PurchaseOrder }) => {
                 {l.description}{' '}
                 {l.material?.code ? <span className="text-gray-600">({l.material.code})</span> : null}
               </td>
-              <td className="py-2 text-right">{l.quantity} {l.unit}</td>
-              <td className="py-2 text-right">{l.unit_price.toFixed(3)} TND</td>
-              <td className="py-2 text-right">{l.total_price.toFixed(3)} TND</td>
+              <td className="py-2 text-end">{l.quantity} {l.unit}</td>
+              <td className="py-2 text-end">{l.unit_price.toFixed(3)} TND</td>
+              <td className="py-2 text-end">{l.total_price.toFixed(3)} TND</td>
             </tr>
           ))}
         </tbody>

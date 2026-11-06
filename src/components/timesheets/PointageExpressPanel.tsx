@@ -211,12 +211,12 @@ export function PointageExpressPanel({
         <CardContent className="grid gap-3 border-t border-border/50 pt-5 lg:grid-cols-[1.2fr_0.8fr]">
           <div className="grid gap-3 md:grid-cols-3">
             <div className="relative md:col-span-1">
-              <Search className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute start-3 top-3.5 h-4 w-4 text-muted-foreground" />
               <Input
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 placeholder="Chercher par nom, matricule, service..."
-                className="pl-10"
+                className="ps-10"
               />
             </div>
             <Select value={selectedModule} onValueChange={(value) => setSelectedModule(value as TimesheetOperationModule | 'GENERAL')}>
@@ -312,7 +312,7 @@ export function PointageExpressPanel({
                             disabled={isBusy}
                             onClick={() => void handleClockOut(row.employee.id)}
                           >
-                            <LogOut className="mr-2 h-4 w-4" />
+                            <LogOut className="me-2 h-4 w-4" />
                             {isBusy ? 'Enregistrement...' : 'Sortie'}
                           </Button>
                         ) : (
@@ -321,7 +321,7 @@ export function PointageExpressPanel({
                             disabled={isBusy}
                             onClick={() => void handleClockIn(row.employee.id)}
                           >
-                            <LogIn className="mr-2 h-4 w-4" />
+                            <LogIn className="me-2 h-4 w-4" />
                             {isBusy ? 'Enregistrement...' : 'Entrée'}
                           </Button>
                         )}

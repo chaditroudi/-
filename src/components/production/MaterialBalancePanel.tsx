@@ -68,7 +68,7 @@ function BalanceRow({
   return (
     <div className="flex items-center gap-3 py-2">
       {/* Rank */}
-      <span className="w-4 text-right text-xs font-semibold text-muted-foreground">{index + 1}</span>
+      <span className="w-4 text-end text-xs font-semibold text-muted-foreground">{index + 1}</span>
 
       {/* Code badge */}
       <Badge
@@ -106,7 +106,7 @@ function BalanceRow({
 
       {/* % range */}
       <span
-        className="w-16 shrink-0 text-right text-xs font-semibold"
+        className="w-16 shrink-0 text-end text-xs font-semibold"
       >
         {yieldRangePercent[0]}–{yieldRangePercent[1]} %
       </span>
@@ -238,7 +238,7 @@ export function MaterialBalancePanel() {
                 Source : Cartographie des flux de production · Usine de dattes
               </p>
             </div>
-            <div className="shrink-0 text-right">
+            <div className="shrink-0 text-end">
               <div className="text-2xl font-bold text-foreground">&gt; 95 %</div>
               <div className="text-xs text-muted-foreground">Taux de valorisation matière</div>
             </div>
@@ -264,7 +264,7 @@ export function MaterialBalancePanel() {
 
             {/* Losses row */}
             <div className="flex items-center gap-3 py-2 opacity-60">
-              <span className="w-4 text-right text-xs font-semibold text-muted-foreground">—</span>
+              <span className="w-4 text-end text-xs font-semibold text-muted-foreground">—</span>
               <Badge variant="outline" className="w-8 justify-center rounded-md px-1.5 py-0.5 text-xs">
                 ⊘
               </Badge>
@@ -272,7 +272,7 @@ export function MaterialBalancePanel() {
                 <p className="text-sm font-medium text-foreground">Pertes & corps étrangers</p>
                 <p className="text-xs text-muted-foreground">Élimination / compostage</p>
               </div>
-              <span className="w-16 text-right text-xs font-semibold text-muted-foreground">&lt; 3 %</span>
+              <span className="w-16 text-end text-xs font-semibold text-muted-foreground">&lt; 3 %</span>
             </div>
           </div>
 
@@ -307,7 +307,7 @@ export function MaterialBalancePanel() {
                 </p>
               </div>
               {realValorisation && (
-                <div className="shrink-0 text-right">
+                <div className="shrink-0 text-end">
                   <div className="text-2xl font-bold text-foreground">{realValorisation} %</div>
                   <div className="text-xs text-muted-foreground">Valorisation réelle</div>
                 </div>

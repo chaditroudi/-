@@ -473,7 +473,7 @@ export const BonExpeditionDialog = ({ open, onOpenChange, reception, lots }: Bon
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[78vh] pr-3">
+        <ScrollArea className="max-h-[78vh] pe-3">
           <div className="space-y-4">
             <Card className="bg-muted/30">
               <CardHeader className="pb-2">
@@ -686,14 +686,14 @@ export const BonExpeditionDialog = ({ open, onOpenChange, reception, lots }: Bon
             Fermer
           </Button>
           <Button variant="outline" onClick={() => void handleSave()} disabled={saveDoc.isPending}>
-            {saveDoc.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            {saveDoc.isPending ? <Loader2 className="me-2 h-4 w-4 animate-spin" /> : <Save className="me-2 h-4 w-4" />}
             Sauvegarder
           </Button>
           <Button onClick={() => void handlePrint()} disabled={saveDoc.isPending || updateDoc.isPending}>
             {(saveDoc.isPending || updateDoc.isPending) ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="me-2 h-4 w-4 animate-spin" />
             ) : (
-              <Printer className="mr-2 h-4 w-4" />
+              <Printer className="me-2 h-4 w-4" />
             )}
             Imprimer
           </Button>

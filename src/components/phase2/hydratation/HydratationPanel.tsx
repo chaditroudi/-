@@ -130,7 +130,7 @@ export function HydratationPanel({ currentUser = 'Utilisateur' }: { currentUser?
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm">Cycles actifs ({active.length})</CardTitle>
             <Button size="sm" onClick={() => setShowCreate(true)}>
-              <Plus className="h-4 w-4 mr-1.5" />
+              <Plus className="h-4 w-4 me-1.5" />
               Nouveau cycle
             </Button>
           </div>
@@ -167,7 +167,7 @@ export function HydratationPanel({ currentUser = 'Utilisateur' }: { currentUser?
                   <div className="flex gap-2 shrink-0">
                     {c.humidity_out_avg == null && (
                       <Button size="sm" variant="outline" className="h-9 px-2 text-xs" onClick={() => { setExitCycleId(c.id); setExitForm({ h1: '', h2: '', h3: '', inspector: currentUser }); }}>
-                        <Thermometer className="h-3.5 w-3.5 mr-1" />
+                        <Thermometer className="h-3.5 w-3.5 me-1" />
                         Mesures
                       </Button>
                     )}
@@ -196,7 +196,7 @@ export function HydratationPanel({ currentUser = 'Utilisateur' }: { currentUser?
                   <Badge className={`text-xs ${STATUS_STYLE[c.status]}`}>{c.status === 'TERMINE' ? 'Terminé' : c.status === 'NON_CONFORME' ? 'Non conforme' : c.status}</Badge>
                   <span className="text-muted-foreground text-xs">{HYDRATION_PROGRAM_CONFIG[c.program_applied].label.split(' — ')[0]}</span>
                   {c.humidity_out_avg != null && (
-                    <span className={`text-xs ml-auto ${c.conformity ? CONFORMITY_STYLE[c.conformity] : ''}`}>
+                    <span className={`text-xs ms-auto ${c.conformity ? CONFORMITY_STYLE[c.conformity] : ''}`}>
                       Sortie: {c.humidity_out_avg}%
                     </span>
                   )}
@@ -279,7 +279,7 @@ export function HydratationPanel({ currentUser = 'Utilisateur' }: { currentUser?
           <DialogFooter>
             <Button variant="ghost" onClick={() => setShowCreate(false)}>Annuler</Button>
             <Button onClick={handleCreate} disabled={createCycle.isPending || (!selectedLot && !createForm.lot_number)}>
-              {createCycle.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {createCycle.isPending && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
               Démarrer
             </Button>
           </DialogFooter>
@@ -316,7 +316,7 @@ export function HydratationPanel({ currentUser = 'Utilisateur' }: { currentUser?
           <DialogFooter>
             <Button variant="ghost" onClick={() => setExitCycleId(null)}>Annuler</Button>
             <Button onClick={handleRecordExit} disabled={recordExit.isPending || !exitForm.h1 || !exitForm.h2 || !exitForm.h3}>
-              {recordExit.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {recordExit.isPending && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
               Enregistrer
             </Button>
           </DialogFooter>
@@ -353,7 +353,7 @@ export function HydratationPanel({ currentUser = 'Utilisateur' }: { currentUser?
           <DialogFooter>
             <Button variant="ghost" onClick={() => setClosingCycle(null)}>Annuler</Button>
             <Button onClick={handleClose} disabled={closeCycle.isPending}>
-              {closeCycle.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {closeCycle.isPending && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
               Clôturer
             </Button>
           </DialogFooter>

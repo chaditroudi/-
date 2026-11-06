@@ -232,7 +232,7 @@ export const ProductionOrderDialog = ({ open, onOpenChange, receptions }: Produc
               <Label>
                 {t('production.linkedReception')}
                 {v2Selectable.length > 0 && (
-                  <Badge variant="outline" className="ml-2 text-xs py-0 px-1.5">
+                  <Badge variant="outline" className="ms-2 text-xs py-0 px-1.5">
                     {v2Selectable.length} libéré{v2Selectable.length > 1 ? 's' : ''}
                   </Badge>
                 )}

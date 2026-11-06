@@ -153,7 +153,7 @@ export function DocumentsPanel({ settings }: Props) {
       </Card>
 
       <Button onClick={handleSave} disabled={update.isPending}>
-        {update.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        {update.isPending && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
         Enregistrer documents & numérotation
       </Button>
     </div>

@@ -79,7 +79,7 @@ export const StepDelivery = ({ draft, update, policy, varieties, lastDelivery, s
                     type="button"
                     onClick={() => update({ purchase_order_id: '', purchase_order_line_id: '' })}
                     aria-pressed={!draft.purchase_order_id}
-                    className={cn('rounded-xl border p-3 text-left text-sm', !draft.purchase_order_id ? 'border-primary bg-primary/5' : 'hover:bg-muted')}
+                    className={cn('rounded-xl border p-3 text-start text-sm', !draft.purchase_order_id ? 'border-primary bg-primary/5' : 'hover:bg-muted')}
                   >
                     <span className="font-medium">Sans bon de commande</span>
                     <span className="block text-xs text-muted-foreground">Livraison directe. Aucune dette n'est créée ici.</span>
@@ -93,7 +93,7 @@ export const StepDelivery = ({ draft, update, policy, varieties, lastDelivery, s
                       type="button"
                       aria-pressed={selected}
                       onClick={() => update({ purchase_order_id: order.id, purchase_order_line_id: line.id })}
-                      className={cn('rounded-xl border p-3 text-left text-sm', selected ? 'border-primary bg-primary/5' : 'hover:bg-muted')}
+                      className={cn('rounded-xl border p-3 text-start text-sm', selected ? 'border-primary bg-primary/5' : 'hover:bg-muted')}
                     >
                       <span className="font-mono font-medium">{order.order_number}</span>
                       <span className="block truncate text-xs text-muted-foreground">{line.material?.name || line.description}</span>
@@ -128,7 +128,7 @@ export const StepDelivery = ({ draft, update, policy, varieties, lastDelivery, s
               className="h-auto p-0 text-xs"
               onClick={() => update({ vehicle_number: lastDelivery.vehicle_number ?? '', driver_name: draft.driver_name || lastDelivery.driver_name || '' })}
             >
-              <Truck className="mr-1 h-3 w-3" />
+              <Truck className="me-1 h-3 w-3" />
               Reprendre {lastDelivery.vehicle_number}
             </Button>
           )}

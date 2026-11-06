@@ -1,4 +1,5 @@
 import { useId } from 'react';
+import { UI_LANGUAGES } from '@/i18n/languages';
 import { useEffect, useState } from 'react';
 import { useUpdateSiteSettings } from '@/hooks/useSettings';
 import type { SiteSettings } from '@/types/settings';
@@ -11,11 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
-const LANGUAGES = [
-  { value: 'fr', label: 'Français' },
-  { value: 'en', label: 'English' },
-  { value: 'ar', label: 'العربية' },
-];
+// Every interface language, so a factory can open in Tunisian, Iraqi or Levantine Arabic by default.
+const LANGUAGES = UI_LANGUAGES.map((language) => ({ value: language.code, label: language.label }));
 
 const CURRENCIES = ['TND', 'EUR', 'USD', 'MAD', 'DZD', 'SAR', 'AED'];
 
@@ -279,7 +277,7 @@ export function PlantInfoPanel({ settings }: Props) {
       </Card>
 
       <Button onClick={handleSave} disabled={update.isPending}>
-        {update.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        {update.isPending && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
         Enregistrer
       </Button>
     </div>

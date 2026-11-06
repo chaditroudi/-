@@ -290,7 +290,7 @@ export const AdvancedStockPanel = () => {
                     <span className="font-bold">{(aging.quantityKg / 1000).toFixed(2)} T</span>
                   </div>
                   <Progress value={aging.percentage} className="h-2" />
-                  <p className="text-xs text-muted-foreground text-right">{aging.percentage.toFixed(1)}% du stock</p>
+                  <p className="text-xs text-muted-foreground text-end">{aging.percentage.toFixed(1)}% du stock</p>
                 </div>
               ))}
             </div>

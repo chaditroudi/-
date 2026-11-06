@@ -57,7 +57,7 @@ export function FumigationPanel({ currentUser = 'Utilisateur' }: { currentUser?:
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm">Cycles actifs ({active.length})</CardTitle>
             <Button size="sm" onClick={() => setShowCreate(true)}>
-              <Plus className="h-4 w-4 mr-1.5" />
+              <Plus className="h-4 w-4 me-1.5" />
               Nouveau cycle
             </Button>
           </div>

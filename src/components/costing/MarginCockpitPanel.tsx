@@ -59,7 +59,7 @@ export function MarginCockpitPanel() {
                   })
                 }
               >
-                <Printer className="h-3.5 w-3.5 mr-1" />
+                <Printer className="h-3.5 w-3.5 me-1" />
                 Pack CFO
               </Button>
             )}

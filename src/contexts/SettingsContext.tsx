@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, type ReactNode } from 'react';
+import { applyFactoryDefaultLanguage } from '@/i18n';
 import { useSiteSettings } from '@/hooks/useSettings';
 import type { SiteSettings, SiteFeatures } from '@/types/settings';
 import { DEFAULT_SETTINGS } from '@/types/settings';
@@ -51,7 +52,10 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const { data: settings = DEFAULT_SETTINGS, isLoading } = useSiteSettings();
 
   useEffect(() => {
-    if (!isLoading) applyTheme(settings);
+    if (!isLoading) {
+      applyTheme(settings);
+      applyFactoryDefaultLanguage(settings.default_language);
+    }
   }, [settings, isLoading]);
 
   const isFeatureEnabled = useCallback(

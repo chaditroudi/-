@@ -1,0 +1,25 @@
+{
+  "language": {
+    "select": "اللغة",
+    "ar-TN": "تونسي"
+  },
+  "common": {
+    "confirm": "أكّد",
+    "cancel": "الغي",
+    "back": "ارجع",
+    "next": "كمّل",
+    "retry": "عاود",
+    "save": "سجّل",
+    "close": "سكّر"
+  },
+  "task": {
+    "status": {
+      "ready": "جاهزة باش تبدا",
+      "waiting": "تستنّى",
+      "blocked": "واقفة",
+      "done": "كمْلت"
+    },
+    "stepOf": "مرحلة {{current}} من {{total}}",
+    "notProvided": "ما تعمّرش"
+  }
+}

@@ -114,7 +114,7 @@ export const AlertsPanel = () => {
             <p className="text-muted-foreground">Aucune alerte active</p>
           </div>
         ) : (
-          <ScrollArea className="h-[400px] pr-4">
+          <ScrollArea className="h-[400px] pe-4">
             <div className="space-y-3">
               {alerts.map((alert) => {
                 const Icon = alertTypeIcons[alert.alert_type] || AlertTriangle;
@@ -217,14 +217,14 @@ export const AlertsPanel = () => {
                 onClick={handleAcknowledge}
                 disabled={!acknowledgedBy || isProcessing}
               >
-                <Eye className="h-4 w-4 mr-1" />
+                <Eye className="h-4 w-4 me-1" />
                 Acquitter
               </Button>
               <Button 
                 onClick={handleResolve}
                 disabled={!acknowledgedBy || isProcessing}
               >
-                <CheckCircle className="h-4 w-4 mr-1" />
+                <CheckCircle className="h-4 w-4 me-1" />
                 Résoudre
               </Button>
             </DialogFooter>

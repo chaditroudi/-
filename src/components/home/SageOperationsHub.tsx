@@ -95,7 +95,7 @@ export const SageOperationsHub = ({ onNavigate, accessibleTabs }: SageOperations
             key={card.title}
             type="button"
             onClick={() => onNavigate(card.tab)}
-            className="rounded-xl border bg-card px-3 py-3 text-left hover:bg-muted/40"
+            className="rounded-xl border bg-card px-3 py-3 text-start hover:bg-muted/40"
           >
             <div className="flex items-center justify-between">
               <card.icon className="h-4 w-4 text-muted-foreground" />
@@ -116,7 +116,7 @@ export const SageOperationsHub = ({ onNavigate, accessibleTabs }: SageOperations
               <button
                 key={b.key}
                 type="button"
-                className="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left text-sm hover:bg-muted/40"
+                className="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-start text-sm hover:bg-muted/40"
                 onClick={() => onNavigate(b.tab)}
               >
                 <span className="inline-flex items-center gap-2">

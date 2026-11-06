@@ -173,7 +173,7 @@ export const LotAllocationPanel = ({
                   className="h-8 text-sm"
                   placeholder="0.00"
                 />
-                <span className="flex items-center text-sm text-muted-foreground pr-1">
+                <span className="flex items-center text-sm text-muted-foreground pe-1">
                   {selectedLot?.unit ?? targetUnit}
                 </span>
               </div>

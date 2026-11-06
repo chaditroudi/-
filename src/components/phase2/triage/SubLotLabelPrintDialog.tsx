@@ -152,7 +152,7 @@ export function SubLotLabelPrintDialog({ open, onOpenChange, subLots, sessionNum
           <Button variant="ghost" onClick={() => onOpenChange(false)}>Fermer</Button>
           {subLots.length > 0 && (
             <Button onClick={handlePrint}>
-              <Printer className="h-4 w-4 mr-1.5" />
+              <Printer className="h-4 w-4 me-1.5" />
               Imprimer {subLots.length} étiquette{subLots.length > 1 ? 's' : ''}
             </Button>
           )}

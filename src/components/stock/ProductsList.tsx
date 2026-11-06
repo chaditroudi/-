@@ -39,7 +39,7 @@ export const ProductsList = () => {
             Catalogue Produits
           </CardTitle>
           <Button onClick={() => setShowCreateDialog(true)}>
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 me-2" />
             Nouveau Produit
           </Button>
         </CardHeader>
@@ -47,10 +47,10 @@ export const ProductsList = () => {
           {/* Filtres */}
           <div className="flex gap-4 mb-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute start-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Rechercher par nom ou code..."
-                className="pl-10"
+                className="ps-10"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />

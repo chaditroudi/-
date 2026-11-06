@@ -103,7 +103,7 @@ export const ProductionOrderDetail = ({ open, onOpenChange, orderId }: Productio
           </div>
         ) : order ? (
           <div className="max-h-[92vh] overflow-y-auto">
-            <DialogHeader className="border-b px-4 py-3 pr-12 text-left">
+            <DialogHeader className="border-b px-4 py-3 pe-12 text-start">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0">
                   <DialogTitle className="font-mono text-xl">{order.order_number}</DialogTitle>
@@ -139,7 +139,7 @@ export const ProductionOrderDetail = ({ open, onOpenChange, orderId }: Productio
                         onClick={() => handleStatusChange('in_progress')}
                         disabled={!canUpdate || (lotAllocations.length === 0)}
                       >
-                        <Play className="mr-2 h-4 w-4" />
+                        <Play className="me-2 h-4 w-4" />
                         {t('common.startProduction')}
                       </ActionButton>
                     )}
@@ -151,7 +151,7 @@ export const ProductionOrderDetail = ({ open, onOpenChange, orderId }: Productio
                           loading={updateStatus.isPending}
                           onClick={() => handleStatusChange('cancelled')}
                         >
-                          <XCircle className="mr-2 h-4 w-4" />
+                          <XCircle className="me-2 h-4 w-4" />
                           {t('common.cancel')}
                         </ActionButton>
                         <ActionButton disabled={!canUpdate}
@@ -159,7 +159,7 @@ export const ProductionOrderDetail = ({ open, onOpenChange, orderId }: Productio
                           loading={updateStatus.isPending}
                           onClick={() => handleStatusChange('completed')}
                         >
-                          <CheckCircle className="mr-2 h-4 w-4" />
+                          <CheckCircle className="me-2 h-4 w-4" />
                           {t('common.completeOrder')}
                         </ActionButton>
                       </>
@@ -324,7 +324,7 @@ function ActionButton({
         tone === 'danger' && 'bg-red-700 hover:bg-red-800',
       )}
     >
-      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+      {loading && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
       {children}
     </Button>
   );

@@ -100,8 +100,8 @@ export default function CustomersDashboard() {
       {/* Toolbar */}
       <div className="flex items-center gap-2 flex-wrap">
         <div className="relative flex-1 min-w-48">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-          <Input className="pl-8 h-10" placeholder="Rechercher un client..."
+          <Search className="absolute start-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <Input className="ps-8 h-10" placeholder="Rechercher un client..."
             value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
 
@@ -134,13 +134,13 @@ export default function CustomersDashboard() {
         <table className="w-full text-sm">
           <thead className="border-b bg-muted/30 sticky top-0">
             <tr>
-              <th className="text-left px-4 py-2.5 font-medium text-xs text-muted-foreground">Code</th>
-              <th className="text-left px-4 py-2.5 font-medium text-xs text-muted-foreground">Raison sociale</th>
-              <th className="text-left px-4 py-2.5 font-medium text-xs text-muted-foreground">Pays</th>
-              <th className="text-left px-4 py-2.5 font-medium text-xs text-muted-foreground">Contact</th>
-              <th className="text-left px-4 py-2.5 font-medium text-xs text-muted-foreground">Préférences</th>
-              <th className="text-left px-4 py-2.5 font-medium text-xs text-muted-foreground">Statut</th>
-              <th className="text-right px-4 py-2.5 font-medium text-xs text-muted-foreground">Actions</th>
+              <th className="text-start px-4 py-2.5 font-medium text-xs text-muted-foreground">Code</th>
+              <th className="text-start px-4 py-2.5 font-medium text-xs text-muted-foreground">Raison sociale</th>
+              <th className="text-start px-4 py-2.5 font-medium text-xs text-muted-foreground">Pays</th>
+              <th className="text-start px-4 py-2.5 font-medium text-xs text-muted-foreground">Contact</th>
+              <th className="text-start px-4 py-2.5 font-medium text-xs text-muted-foreground">Préférences</th>
+              <th className="text-start px-4 py-2.5 font-medium text-xs text-muted-foreground">Statut</th>
+              <th className="text-end px-4 py-2.5 font-medium text-xs text-muted-foreground">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -165,7 +165,7 @@ export default function CustomersDashboard() {
                     {COUNTRY_LABEL[c.country] ?? c.country}
                   </span>
                   {c.specific_country && (
-                    <span className="ml-1 text-xs text-muted-foreground">{c.specific_country}</span>
+                    <span className="ms-1 text-xs text-muted-foreground">{c.specific_country}</span>
                   )}
                 </td>
                 <td className="px-4 py-2.5">

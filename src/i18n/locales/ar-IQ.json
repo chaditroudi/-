@@ -1,0 +1,24 @@
+{
+  "language": {
+    "select": "اللغة",
+    "ar-IQ": "عراقي"
+  },
+  "common": {
+    "confirm": "أكّد",
+    "cancel": "ألغي",
+    "back": "ارجع",
+    "next": "كمّل",
+    "retry": "حاول مرة ثانية",
+    "close": "سدّ"
+  },
+  "task": {
+    "status": {
+      "ready": "جاهزة تبدي",
+      "waiting": "دتنتظر",
+      "blocked": "واكفة",
+      "done": "خلصت"
+    },
+    "stepOf": "الخطوة {{current}} من {{total}}",
+    "notProvided": "ما انكتب"
+  }
+}

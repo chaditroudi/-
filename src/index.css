@@ -505,8 +505,15 @@ html, body {
 
 /* ── RTL ── */
 [dir="rtl"] { text-align: right; }
+/* Physical alignment left in a few print-adjacent places; screen code uses text-start / text-end. */
 [dir="rtl"] .text-left  { text-align: right; }
 [dir="rtl"] .text-right { text-align: left; }
+/* Arrows and chevrons point the way you read. */
+[dir="rtl"] svg:is(.lucide-arrow-right, .lucide-arrow-left, .lucide-chevron-right, .lucide-chevron-left, .lucide-chevrons-right,
+  .lucide-chevrons-left, .lucide-arrow-up-right, .lucide-arrow-down-right, .lucide-move-right, .lucide-undo-2, .lucide-redo-2,
+  .lucide-log-out, .lucide-log-in, .lucide-corner-down-right, .lucide-panel-left, .lucide-arrow-big-right) {
+  transform: scaleX(-1);
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {

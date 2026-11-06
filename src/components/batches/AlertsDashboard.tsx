@@ -110,21 +110,21 @@ const fromReception = (a: ReceptionAlert): UnifiedAlert => ({
 const SEV_CONFIG: Record<Sev, { icon: React.ElementType; border: string; bg: string; label: string; stat: string }> = {
   critical: {
     icon: AlertCircle,
-    border: 'border-l-red-500',
+    border: 'border-s-red-500',
     bg: 'bg-red-50 dark:bg-red-950/20',
     label: 'Critique',
     stat: 'text-red-600',
   },
   warning: {
     icon: AlertTriangle,
-    border: 'border-l-amber-500',
+    border: 'border-s-amber-500',
     bg: 'bg-amber-50 dark:bg-amber-950/20',
     label: 'Attention',
     stat: 'text-amber-600',
   },
   info: {
     icon: Info,
-    border: 'border-l-blue-500',
+    border: 'border-s-blue-500',
     bg: 'bg-blue-50 dark:bg-blue-950/20',
     label: 'Info',
     stat: 'text-blue-600',
@@ -271,12 +271,12 @@ export const AlertsDashboard = () => {
         <CardContent className="py-3 px-4">
           <div className="flex flex-wrap items-center gap-3">
             <div className="relative flex-1 min-w-[180px]">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Search className="absolute start-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Rechercher une alerte…"
-                className="h-8 pl-8 text-sm"
+                className="h-8 ps-8 text-sm"
               />
             </div>
             <div className="flex gap-1">
@@ -430,7 +430,7 @@ function StatCard({
         <div className="relative shrink-0">
           <Icon className={`h-6 w-6 ${colorClass}`} />
           {pulse && value > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+            <span className="absolute -top-0.5 -end-0.5 h-2 w-2 rounded-full bg-red-500 animate-pulse" />
           )}
         </div>
         <div>
@@ -470,14 +470,14 @@ function AlertList({
 
   return (
     <ScrollArea className="h-[420px]">
-      <div className="space-y-2 pr-1">
+      <div className="space-y-2 pe-1">
         {alerts.map((alert) => {
           const cfg = SEV_CONFIG[alert.severity];
           const SevIcon = cfg.icon;
           return (
             <div
               key={alert.id}
-              className={`flex items-start gap-3 rounded-lg border border-l-4 ${cfg.border} ${cfg.bg} px-3.5 py-3`}
+              className={`flex items-start gap-3 rounded-lg border border-s-4 ${cfg.border} ${cfg.bg} px-3.5 py-3`}
             >
               <SevIcon className={`mt-0.5 h-4 w-4 shrink-0 ${cfg.stat}`} />
               <div className="flex-1 min-w-0">
@@ -494,9 +494,9 @@ function AlertList({
                     }`}
                   >
                     {alert.source === 'batch' ? (
-                      <><Package className="h-2.5 w-2.5 mr-0.5 inline" />Lot</>
+                      <><Package className="h-2.5 w-2.5 me-0.5 inline" />Lot</>
                     ) : (
-                      <><Bell className="h-2.5 w-2.5 mr-0.5 inline" />Réception</>
+                      <><Bell className="h-2.5 w-2.5 me-0.5 inline" />Réception</>
                     )}
                   </Badge>
                 </div>

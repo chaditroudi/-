@@ -152,7 +152,7 @@ export function TriagePanel({ currentUser = 'Utilisateur' }: { currentUser?: str
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm">Sessions actives ({active.length})</CardTitle>
             <Button size="sm" onClick={() => setShowCreate(true)}>
-              <Plus className="h-4 w-4 mr-1.5" />
+              <Plus className="h-4 w-4 me-1.5" />
               Démarrer session
             </Button>
           </div>
@@ -209,7 +209,7 @@ export function TriagePanel({ currentUser = 'Utilisateur' }: { currentUser?: str
                   <Button
                     size="sm"
                     variant="outline"
-                    className="ml-auto h-6 gap-1 text-xs border-green-300 text-green-700 hover:bg-green-50"
+                    className="ms-auto h-6 gap-1 text-xs border-green-300 text-green-700 hover:bg-green-50"
                     onClick={() => setFicheSession(s)}
                   >
                     <Printer className="h-3 w-3" />
@@ -309,7 +309,7 @@ export function TriagePanel({ currentUser = 'Utilisateur' }: { currentUser?: str
           <DialogFooter>
             <Button variant="ghost" onClick={() => setShowCreate(false)}>Annuler</Button>
             <Button onClick={handleCreate} disabled={createSession.isPending || (!selectedLot && !createForm.lot_number)}>
-              {createSession.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {createSession.isPending && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
               Démarrer session
             </Button>
           </DialogFooter>
@@ -350,7 +350,7 @@ export function TriagePanel({ currentUser = 'Utilisateur' }: { currentUser?: str
           <DialogFooter>
             <Button variant="ghost" onClick={() => setActiveSessionId(null)}>Fermer</Button>
             <Button onClick={handleUpdateWeights} disabled={updateWeights.isPending}>
-              {updateWeights.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {updateWeights.isPending && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
               Enregistrer poids
             </Button>
           </DialogFooter>
@@ -385,7 +385,7 @@ export function TriagePanel({ currentUser = 'Utilisateur' }: { currentUser?: str
           <DialogFooter>
             <Button variant="ghost" onClick={() => setQcSessionId(null)}>Annuler</Button>
             <Button onClick={handleQCCheck} disabled={addQCCheck.isPending}>
-              {addQCCheck.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {addQCCheck.isPending && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
               Enregistrer contrôle
             </Button>
           </DialogFooter>
@@ -426,7 +426,7 @@ export function TriagePanel({ currentUser = 'Utilisateur' }: { currentUser?: str
                 setCloseSessionId(null);
               }}
             >
-              {closeSession.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {closeSession.isPending && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
               Confirmer clôture
             </Button>
           </DialogFooter>
@@ -525,7 +525,7 @@ function SessionRow({
             <span className="text-blue-700">C1 {session.cat1_percent}%</span>
             <span className="text-amber-700">C2 {session.cat2_percent}%</span>
             <span className={`${session.reject_percent > 10 ? 'text-red-700 font-semibold' : 'text-red-600'}`}>RJ {session.reject_percent}%{session.reject_percent > 10 ? ' ⚠' : ''}</span>
-            <span className="text-muted-foreground ml-auto">{total.toFixed(1)} kg trié</span>
+            <span className="text-muted-foreground ms-auto">{total.toFixed(1)} kg trié</span>
           </div>
         </div>
       )}
@@ -535,12 +535,12 @@ function SessionRow({
         <div className="flex items-center gap-2 flex-wrap">
           {subLots.map((sl) => (
             <div key={sl.id} className={`rounded px-2 py-1 text-xs ${GRADE_COLORS[sl.grade]}`}>
-              <Package className="h-3 w-3 inline mr-1" />
+              <Package className="h-3 w-3 inline me-1" />
               {sl.lot_number} — {sl.weight_kg} kg
             </div>
           ))}
-          <Button size="sm" variant="ghost" className="h-6 px-2 text-xs ml-auto" onClick={onLabels}>
-            <Printer className="h-3 w-3 mr-1" />
+          <Button size="sm" variant="ghost" className="h-6 px-2 text-xs ms-auto" onClick={onLabels}>
+            <Printer className="h-3 w-3 me-1" />
             Étiquettes QR
           </Button>
         </div>

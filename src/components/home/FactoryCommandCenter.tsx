@@ -85,7 +85,7 @@ const ProcessNode = ({ label, Icon, count, subtext, isActive, colorText, colorBo
       <Icon className={cn('h-6 w-6 transition-colors duration-500', isActive ? colorText : 'text-slate-300')} />
       {isActive && count > 0 && (
         <span className={cn(
-          'absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full text-xs font-bold flex items-center justify-center bg-slate-950',
+          'absolute -top-1.5 -end-1.5 h-5 w-5 rounded-full text-xs font-bold flex items-center justify-center bg-slate-950',
           'border-2', colorBorder, colorText,
         )}>
           {count}
@@ -345,7 +345,7 @@ export const FactoryCommandCenter = () => {
             </div>
 
             {/* Clock */}
-            <div className="text-right hidden sm:block">
+            <div className="text-end hidden sm:block">
               <p className="text-xl font-mono font-bold text-white tabular-nums">
                 {clock.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
               </p>
@@ -388,7 +388,7 @@ export const FactoryCommandCenter = () => {
               {critiques > 0 ? `${critiques} alerte${critiques > 1 ? 's' : ''} critique${critiques > 1 ? 's' : ''}` : ''}
             </span>
             {warnings > 0 && (
-              <span className="text-xs text-amber-400 ml-1">· {warnings} avertissement{warnings > 1 ? 's' : ''}</span>
+              <span className="text-xs text-amber-400 ms-1">· {warnings} avertissement{warnings > 1 ? 's' : ''}</span>
             )}
           </div>
         )}
@@ -475,7 +475,7 @@ export const FactoryCommandCenter = () => {
                   Lignes conditionnement
                 </span>
                 {packagingDetail.length > 0 && (
-                  <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-orange-500/15 text-orange-400 font-semibold border border-orange-500/20">
+                  <span className="ms-auto text-xs px-2 py-0.5 rounded-full bg-orange-500/15 text-orange-400 font-semibold border border-orange-500/20">
                     {packagingDetail.length} active{packagingDetail.length > 1 ? 's' : ''}
                   </span>
                 )}
@@ -502,7 +502,7 @@ export const FactoryCommandCenter = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <Progress value={pct} className="h-1.5 flex-1 bg-slate-700 [&>*]:bg-orange-500" />
-                          <span className="text-xs font-bold text-orange-400 tabular-nums w-9 text-right">
+                          <span className="text-xs font-bold text-orange-400 tabular-nums w-9 text-end">
                             {pct.toFixed(0)}%
                           </span>
                         </div>
@@ -521,10 +521,10 @@ export const FactoryCommandCenter = () => {
                   Rapports indicatifs des volumes déclarés
                 </span>
                 {today?.avgYield > 0 ? (
-                  <span className="ml-auto text-xs font-bold text-emerald-400 tabular-nums">
+                  <span className="ms-auto text-xs font-bold text-emerald-400 tabular-nums">
                     Moy. indicative {fmtPct(today.avgYield)}
                   </span>
-                ) : <span className="ml-auto text-xs text-slate-400">Moyenne non mesurée</span>}
+                ) : <span className="ms-auto text-xs text-slate-400">Moyenne non mesurée</span>}
               </div>
 
               {!today ? (

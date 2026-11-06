@@ -379,7 +379,7 @@ export const BonReceptionDialog = ({ open, onOpenChange, reception, lots }: BonR
           </DialogTitle>
         </DialogHeader>
 
-        <div className="overflow-auto max-h-[75vh] space-y-3 pr-1">
+        <div className="overflow-auto max-h-[75vh] space-y-3 pe-1">
           {/* Section 1: Read-only summary */}
           <Card className="bg-muted/30">
             <CardHeader className="pb-2 pt-3 px-4">
@@ -492,11 +492,11 @@ export const BonReceptionDialog = ({ open, onOpenChange, reception, lots }: BonR
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>Fermer</Button>
           <Button variant="outline" onClick={handleSave} disabled={saveDoc.isPending}>
-            {saveDoc.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            {saveDoc.isPending && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
             Sauvegarder
           </Button>
           <Button onClick={handlePrint}>
-            <Printer className="h-4 w-4 mr-2" />
+            <Printer className="h-4 w-4 me-2" />
             Imprimer
           </Button>
         </DialogFooter>

@@ -87,7 +87,7 @@ export function AtpPromisePanel() {
             />
           </div>
           <Button size="sm" onClick={runPromise} disabled={busy}>
-            {busy ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : null}
+            {busy ? <Loader2 className="me-1.5 h-4 w-4 animate-spin" /> : null}
             Simuler la date
           </Button>
         </div>

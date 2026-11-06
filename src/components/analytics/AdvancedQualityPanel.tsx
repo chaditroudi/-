@@ -353,18 +353,18 @@ export const AdvancedQualityPanel = ({ period }: AdvancedQualityPanelProps) => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Fournisseur</TableHead>
-                  <TableHead className="text-right">Réceptions</TableHead>
-                  <TableHead className="text-right">Quantité (kg)</TableHead>
-                  <TableHead className="text-right">Tendance</TableHead>
+                  <TableHead className="text-end">Réceptions</TableHead>
+                  <TableHead className="text-end">Quantité (kg)</TableHead>
+                  <TableHead className="text-end">Tendance</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data.supplierQuality.slice(0, 5).map((supplier) => (
                   <TableRow key={supplier.supplierId}>
                     <TableCell className="font-medium">{supplier.supplierName}</TableCell>
-                    <TableCell className="text-right">{supplier.totalReceptions}</TableCell>
-                    <TableCell className="text-right">{supplier.totalQuantityKg.toLocaleString('fr-FR')}</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-end">{supplier.totalReceptions}</TableCell>
+                    <TableCell className="text-end">{supplier.totalQuantityKg.toLocaleString('fr-FR')}</TableCell>
+                    <TableCell className="text-end">
 <span className="text-muted-foreground">Non mesurée</span>
                     </TableCell>
                   </TableRow>

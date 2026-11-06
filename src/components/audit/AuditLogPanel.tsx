@@ -127,10 +127,10 @@ export const AuditLogPanel = () => {
 
           {/* Search */}
           <div className="relative mt-3">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Rechercher action, module, utilisateur…"
-              className="pl-9"
+              className="ps-9"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -182,7 +182,7 @@ export const AuditLogPanel = () => {
                       <div className={cn('flex h-9 w-9 items-center justify-center rounded-lg text-white', bg)}>
                         <Icon className="h-4 w-4" />
                       </div>
-                      <span className={cn('absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-background', sevDot)} />
+                      <span className={cn('absolute -bottom-0.5 -end-0.5 h-2.5 w-2.5 rounded-full border-2 border-background', sevDot)} />
                     </div>
 
                     <div className="min-w-0 flex-1">

@@ -21,7 +21,7 @@ export const Field = ({ label, required, hint, children, className }: {
     <div className={cn('space-y-1.5', className)}>
       <Label htmlFor={id} className="text-sm font-medium">
         {label}
-        {required && <span className="ml-0.5 text-destructive" aria-hidden>*</span>}
+        {required && <span className="ms-0.5 text-destructive" aria-hidden>*</span>}
       </Label>
       {isValidElement(control) ? cloneElement(control as ReactElement<{ id?: string; className?: string }>, {
         id,
@@ -94,7 +94,7 @@ export const SupplierPicker = ({ suppliers, value, label, onSelect }: {
           className="h-12 w-full justify-between text-base font-normal"
         >
           <span className="truncate">{label || 'Rechercher un fournisseur…'}</span>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown className="ms-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[min(32rem,calc(100vw-2rem))] p-0" align="start">
@@ -113,9 +113,9 @@ export const SupplierPicker = ({ suppliers, value, label, onSelect }: {
                     setOpen(false);
                   }}
                 >
-                  <Check className={cn('mr-2 h-4 w-4', value === supplier.id ? 'opacity-100' : 'opacity-0')} />
+                  <Check className={cn('me-2 h-4 w-4', value === supplier.id ? 'opacity-100' : 'opacity-0')} />
                   <span className="font-mono text-xs text-muted-foreground">{supplier.code}</span>
-                  <span className="ml-2 truncate">{supplier.name}</span>
+                  <span className="ms-2 truncate">{supplier.name}</span>
                 </CommandItem>
               ))}
             </CommandGroup>

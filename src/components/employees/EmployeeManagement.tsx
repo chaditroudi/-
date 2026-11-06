@@ -45,7 +45,7 @@ export function EmployeeManagement() {
               </CardDescription>
             </div>
             <Button onClick={handleAddEmployee} className="bg-emerald-600 hover:bg-emerald-700">
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 me-2" />
               {t('employees.new')}
             </Button>
           </div>
@@ -53,12 +53,12 @@ export function EmployeeManagement() {
         <CardContent>
           <div className="flex items-center gap-4 mb-6">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute start-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder={t('common.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="ps-10"
               />
             </div>
             <Button variant="outline" size="icon"><Filter className="h-4 w-4" /></Button>

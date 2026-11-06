@@ -89,7 +89,7 @@ function SettlementsSection({ supplierId }: { supplierId: string }) {
               className="h-7 text-xs"
               onClick={() => printSettlementStatement(row)}
             >
-              <Printer className="h-3 w-3 mr-1" />
+              <Printer className="h-3 w-3 me-1" />
               Relevé
             </Button>
           </div>
@@ -281,7 +281,7 @@ export default function SupplierPortal() {
         </div>
         <div className="max-w-2xl mx-auto px-4 pb-3 flex flex-wrap gap-2">
           {supplier.region && (
-            <Badge variant="outline"><MapPin className="h-3 w-3 mr-1" />{supplier.region}</Badge>
+            <Badge variant="outline"><MapPin className="h-3 w-3 me-1" />{supplier.region}</Badge>
           )}
           {supplier.actor_type && (
             <Badge variant="secondary">{supplier.actor_type.replace(/_/g, ' ')}</Badge>
@@ -291,7 +291,7 @@ export default function SupplierPortal() {
           ))}
           {isBioValid && (
             <Badge className="border-emerald-200 bg-emerald-50 text-emerald-700">
-              <Leaf className="h-3 w-3 mr-1" />Bio certifié ✓
+              <Leaf className="h-3 w-3 me-1" />Bio certifié ✓
             </Badge>
           )}
         </div>

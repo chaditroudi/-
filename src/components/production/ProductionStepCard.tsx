@@ -162,7 +162,7 @@ export const ProductionStepCard = ({ step, isActive, allSteps }: ProductionStepC
             {isActive && !isCompleted && !isFailed && <span className="text-xs font-medium text-primary">{statusHint}</span>}
           </div>
           {isActive && step.step_definition?.description && (
-            <p className="pl-7 text-sm text-muted-foreground">{step.step_definition.description}</p>
+            <p className="ps-7 text-sm text-muted-foreground">{step.step_definition.description}</p>
           )}
         </CardHeader>
 
@@ -268,9 +268,9 @@ export const ProductionStepCard = ({ step, isActive, allSteps }: ProductionStepC
                   title={previousStepsBlocking ? t('production.previousStepsRequired', 'Les étapes précédentes doivent être terminées') : undefined}
                 >
                   {updateStep.isPending ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
                   ) : (
-                    <Play className="mr-2 h-4 w-4" />
+                    <Play className="me-2 h-4 w-4" />
                   )}
                   {t('production.start')}
                 </Button>
@@ -285,7 +285,7 @@ export const ProductionStepCard = ({ step, isActive, allSteps }: ProductionStepC
                     disabled={!canEdit || (updateStep.isPending || !hasFormChanges)}
                     className="rounded-lg"
                   >
-                    {updateStep.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    {updateStep.isPending ? <Loader2 className="me-2 h-4 w-4 animate-spin" /> : null}
                     {t('common.save')}
                   </Button>
 
@@ -296,7 +296,7 @@ export const ProductionStepCard = ({ step, isActive, allSteps }: ProductionStepC
                       onClick={() => setShowQualityCheck(true)}
                       className="rounded-lg"
                     >
-                      <ClipboardCheck className="mr-2 h-4 w-4" />
+                      <ClipboardCheck className="me-2 h-4 w-4" />
                       {t('production.qualityCheck')}
                       {existingChecks.length > 0 && ` (${existingChecks.length})`}
                     </Button>
@@ -309,7 +309,7 @@ export const ProductionStepCard = ({ step, isActive, allSteps }: ProductionStepC
                     className="rounded-lg bg-emerald-600 hover:bg-emerald-700"
                     title={!canComplete ? t('production.qualityCheckRequired', 'Contrôle qualité requis avant de terminer') : undefined}
                   >
-                    {updateStep.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle className="mr-2 h-4 w-4" />}
+                    {updateStep.isPending ? <Loader2 className="me-2 h-4 w-4 animate-spin" /> : <CheckCircle className="me-2 h-4 w-4" />}
                     {t('production.complete')}
                   </Button>
 
@@ -320,7 +320,7 @@ export const ProductionStepCard = ({ step, isActive, allSteps }: ProductionStepC
                     disabled={!canEdit || (updateStep.isPending)}
                     className="rounded-lg"
                   >
-                    {updateStep.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <XCircle className="mr-2 h-4 w-4" />}
+                    {updateStep.isPending ? <Loader2 className="me-2 h-4 w-4 animate-spin" /> : <XCircle className="me-2 h-4 w-4" />}
                     {t('production.fail')}
                   </Button>
 
@@ -332,7 +332,7 @@ export const ProductionStepCard = ({ step, isActive, allSteps }: ProductionStepC
                       disabled={!canEdit || (updateStep.isPending || previousStepsBlocking)}
                       className="rounded-lg"
                     >
-                      {updateStep.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <SkipForward className="mr-2 h-4 w-4" />}
+                      {updateStep.isPending ? <Loader2 className="me-2 h-4 w-4 animate-spin" /> : <SkipForward className="me-2 h-4 w-4" />}
                       {t('production.skip')}
                     </Button>
                   )}

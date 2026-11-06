@@ -243,9 +243,9 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
           }}
         >
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              className="pl-9"
+              className="ps-9"
               placeholder="N° lot"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -314,7 +314,7 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
                   type="button"
                   onClick={() => pickLot(lot)}
                   className={cn(
-                    'min-w-[140px] shrink-0 rounded-xl border px-3 py-2 text-left transition-colors',
+                    'min-w-[140px] shrink-0 rounded-xl border px-3 py-2 text-start transition-colors',
                     activeLotId === lot.lotId
                       ? 'border-primary bg-primary/5'
                       : 'hover:bg-muted/40',
@@ -380,7 +380,7 @@ export function LotJourneyHub({ onNavigate, accessibleTabs, compact = true }: Lo
               <button
                 type="button"
                 onClick={() => setShowStages(true)}
-                className="flex w-full items-center justify-between rounded-xl border border-dashed px-3 py-2 text-left text-sm text-muted-foreground hover:bg-muted/30"
+                className="flex w-full items-center justify-between rounded-xl border border-dashed px-3 py-2 text-start text-sm text-muted-foreground hover:bg-muted/30"
               >
                 <span>
                   {(() => {

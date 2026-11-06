@@ -72,7 +72,7 @@ export const StockLotsList = () => {
             Lots de stock
           </CardTitle>
           <Button onClick={() => setShowCreateDialog(true)}>
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 me-2" />
             Nouveau lot de stock
           </Button>
         </CardHeader>
@@ -88,10 +88,10 @@ export const StockLotsList = () => {
           {/* Filtres */}
           <div className="flex gap-4 mb-4 flex-wrap">
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute start-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Rechercher par n° lot de stock, produit, fournisseur..."
-                className="pl-10"
+                className="ps-10"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -191,7 +191,7 @@ export const StockLotsList = () => {
                       </TableCell>
                       <TableCell>
                         <span className="font-medium">{lot.current_quantity.toLocaleString('fr-FR')}</span>
-                        <span className="text-muted-foreground text-xs ml-1">{lot.unit}</span>
+                        <span className="text-muted-foreground text-xs ms-1">{lot.unit}</span>
                         {lot.current_quantity < lot.initial_quantity && (
                           <p className="text-xs text-muted-foreground">
                             (initial: {lot.initial_quantity.toLocaleString('fr-FR')})

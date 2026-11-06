@@ -99,7 +99,7 @@ export function CommandMenu({ accessibleTabs, onNavigate }: CommandMenuProps) {
                     value={`action ${a.label}`}
                     onSelect={() => go(() => a.run(onNavigate))}
                   >
-                    <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                    <Icon className="me-2 h-4 w-4 text-muted-foreground" />
                     {a.label}
                   </CommandItem>
                 );
@@ -118,7 +118,7 @@ export function CommandMenu({ accessibleTabs, onNavigate }: CommandMenuProps) {
                 value={`nav ${meta.label} ${meta.shortLabel}`}
                 onSelect={() => go(() => onNavigate(tab))}
               >
-                <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                <Icon className="me-2 h-4 w-4 text-muted-foreground" />
                 {meta.label}
               </CommandItem>
             );

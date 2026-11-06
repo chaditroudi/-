@@ -72,9 +72,9 @@ export const ZonesTab: React.FC<ZonesTabProps> = ({
             placeholder="Rechercher un emplacement, code lot…"
             value={locationSearch}
             onChange={(e) => setLocationSearch(e.target.value)}
-            className="rounded-xl pl-9"
+            className="rounded-xl ps-9"
           />
-          <Eye className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
+          <Eye className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
         </div>
       </div>
 
@@ -154,7 +154,7 @@ export const ZonesTab: React.FC<ZonesTabProps> = ({
           <CardTitle className="flex items-center gap-2 text-base">
             <MapPin className="h-4 w-4 text-primary" />
             Emplacements
-            <span className="ml-1 text-sm font-normal text-muted-foreground">({filteredLocations.length})</span>
+            <span className="ms-1 text-sm font-normal text-muted-foreground">({filteredLocations.length})</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
@@ -168,7 +168,7 @@ export const ZonesTab: React.FC<ZonesTabProps> = ({
                     <TableHead>Code</TableHead>
                     <TableHead>Zone</TableHead>
                     <TableHead>Statut</TableHead>
-                    <TableHead className="text-right">Occupation</TableHead>
+                    <TableHead className="text-end">Occupation</TableHead>
                     <TableHead>Lots présents</TableHead>
                     <TableHead>Temp / Hum</TableHead>
                     <TableHead>Dernier mvt</TableHead>
@@ -184,10 +184,10 @@ export const ZonesTab: React.FC<ZonesTabProps> = ({
                         <TableCell>
                           <LotStatusBadge status={loc.location_status} size="xs" />
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-end">
                           <div className="flex items-center justify-end gap-2">
                             <OccupancyBar pct={pct} className="w-16" />
-                            <span className="w-10 text-right text-xs font-semibold">{pct}%</span>
+                            <span className="w-10 text-end text-xs font-semibold">{pct}%</span>
                           </div>
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground">

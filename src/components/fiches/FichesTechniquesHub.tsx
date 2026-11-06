@@ -83,9 +83,9 @@ export function FichesTechniquesHub({
             </p>
           </div>
           <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              className="pl-9"
+              className="ps-9"
               placeholder="Chercher une fiche (QC, fumigation, BRA…)"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -174,7 +174,7 @@ function FicheCard({
     <button
       type="button"
       onClick={onOpen}
-      className="rounded-2xl border bg-card p-4 text-left transition-colors hover:border-primary/40 hover:bg-muted/20"
+      className="rounded-2xl border bg-card p-4 text-start transition-colors hover:border-primary/40 hover:bg-muted/20"
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">

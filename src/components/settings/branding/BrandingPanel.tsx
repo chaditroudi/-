@@ -84,12 +84,12 @@ export function BrandingPanel({ settings }: Props) {
 
           <div className="flex items-center gap-3">
             <Button type="button" variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
-              <Upload className="h-3.5 w-3.5 mr-1.5" />
+              <Upload className="h-3.5 w-3.5 me-1.5" />
               Uploader un logo
             </Button>
             {logoBase64 && (
               <Button type="button" variant="ghost" size="sm" onClick={() => setLogoBase64(null)}>
-                <X className="h-3.5 w-3.5 mr-1" />
+                <X className="h-3.5 w-3.5 me-1" />
                 Supprimer
               </Button>
             )}
@@ -167,7 +167,7 @@ export function BrandingPanel({ settings }: Props) {
       </Card>
 
       <Button onClick={handleSave} disabled={update.isPending}>
-        {update.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+        {update.isPending && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
         Enregistrer la marque
       </Button>
     </div>

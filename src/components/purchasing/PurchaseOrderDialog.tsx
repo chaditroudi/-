@@ -345,7 +345,7 @@ export const PurchaseOrderDialog = ({
                 Bio requis (certification obligatoire du fournisseur — RG-ACH05)
               </Label>
               {bioRequired && (
-                <Badge className="bg-emerald-600 text-white text-xs ml-2">Bio</Badge>
+                <Badge className="bg-emerald-600 text-white text-xs ms-2">Bio</Badge>
               )}
             </div>
           </div>
@@ -442,7 +442,7 @@ export const PurchaseOrderDialog = ({
             <div className="flex justify-between items-center">
               <Label className="text-base font-semibold">Lignes de commande</Label>
               <Button type="button" size="sm" variant="outline" onClick={addLine}>
-                <Plus className="h-4 w-4 mr-1" />
+                <Plus className="h-4 w-4 me-1" />
                 Ajouter ligne
               </Button>
             </div>
@@ -543,7 +543,7 @@ export const PurchaseOrderDialog = ({
                   </div>
                 )}
               </div>
-              <div className="space-y-1 text-right">
+              <div className="space-y-1 text-end">
                 <div className="text-sm text-muted-foreground">Sous-total : {subtotal.toFixed(2)} {watch('currency') || 'TND'}</div>
                 <div className="text-sm text-muted-foreground">TVA : {taxAmount.toFixed(2)} {watch('currency') || 'TND'}</div>
                 <div className="text-lg font-bold">

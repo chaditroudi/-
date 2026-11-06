@@ -44,7 +44,7 @@ export const TopHeader = ({ onRefresh, pageTitle }: TopHeaderProps) => {
         className="hidden h-9 w-64 items-center gap-2 rounded-md border border-input bg-background px-2.5 text-sm text-muted-foreground hover:text-foreground lg:flex"
       >
         <Search className="h-4 w-4 shrink-0" />
-        <span className="flex-1 truncate text-left">Rechercher</span>
+        <span className="flex-1 truncate text-start">Rechercher</span>
         <kbd className="text-xs">Ctrl K</kbd>
       </button>
       <Button variant="ghost" size="icon" onClick={openSearch} aria-label="Rechercher" className="h-11 w-11 sm:h-10 sm:w-10 lg:hidden">

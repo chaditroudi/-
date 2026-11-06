@@ -88,7 +88,7 @@ export function TimesheetManagement() {
         <Card className="bg-emerald-50 border-emerald-200">
           <CardContent className="pt-6">
             <Button onClick={handleAddTimesheet} className="w-full bg-emerald-600 hover:bg-emerald-700">
-              <Plus className="h-4 w-4 mr-2" />{t('timesheets.new')}
+              <Plus className="h-4 w-4 me-2" />{t('timesheets.new')}
             </Button>
           </CardContent>
         </Card>
@@ -144,17 +144,17 @@ export function TimesheetManagement() {
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead className="pl-6">N° opération / OF</TableHead>
-                              <TableHead className="text-right">Feuilles</TableHead>
-                              <TableHead className="text-right pr-4">Heures</TableHead>
+                              <TableHead className="ps-6">N° opération / OF</TableHead>
+                              <TableHead className="text-end">Feuilles</TableHead>
+                              <TableHead className="text-end pe-4">Heures</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {operations.map(({ opId, hours, count: opCount }) => (
                               <TableRow key={opId}>
-                                <TableCell className="pl-6 font-mono text-sm">{opId}</TableCell>
-                                <TableCell className="text-right text-muted-foreground">{opCount}</TableCell>
-                                <TableCell className="text-right font-semibold pr-4">{hours.toFixed(1)} h</TableCell>
+                                <TableCell className="ps-6 font-mono text-sm">{opId}</TableCell>
+                                <TableCell className="text-end text-muted-foreground">{opCount}</TableCell>
+                                <TableCell className="text-end font-semibold pe-4">{hours.toFixed(1)} h</TableCell>
                               </TableRow>
                             ))}
                           </TableBody>

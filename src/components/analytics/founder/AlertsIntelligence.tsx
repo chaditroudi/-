@@ -65,7 +65,7 @@ export function AlertsIntelligence({ period }: { period: Period }) {
               <div className="text-sm font-semibold text-blue-800">MTTR — Temps moyen de résolution</div>
               <div className="text-xs text-blue-600">Mean Time To Resolve (alertes résolues)</div>
             </div>
-            <div className="ml-auto text-2xl font-black text-blue-700">
+            <div className="ms-auto text-2xl font-black text-blue-700">
               {data.mttrMin >= 60 ? `${Math.floor(data.mttrMin / 60)}h ${data.mttrMin % 60}m` : `${data.mttrMin} min`}
             </div>
           </CardContent>

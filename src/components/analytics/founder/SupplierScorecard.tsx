@@ -98,7 +98,7 @@ export function SupplierScorecard({ period }: { period: Period }) {
                     <div className="font-medium text-sm truncate">{s.name}</div>
                     <div className="text-xs text-muted-foreground">{s.deliveries} livraison{s.deliveries > 1 ? 's' : ''}</div>
                   </div>
-                  <div className="text-right shrink-0">
+                  <div className="text-end shrink-0">
                     <div className="font-bold text-sm">
                       {s.kgReceived >= 1000 ? `${(s.kgReceived / 1000).toFixed(2)} t` : `${s.kgReceived.toFixed(0)} kg`}
                     </div>

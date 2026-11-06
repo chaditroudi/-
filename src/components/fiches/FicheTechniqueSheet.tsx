@@ -133,7 +133,7 @@ export function FicheTechniqueSheet({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-lg">
-        <SheetHeader className="space-y-2 border-b px-5 py-4 text-left">
+        <SheetHeader className="space-y-2 border-b px-5 py-4 text-start">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="outline" className="font-mono">
               {fiche.code}
@@ -173,7 +173,7 @@ export function FicheTechniqueSheet({
                       type="button"
                       onClick={() => toggleStep(i)}
                       className={cn(
-                        'flex w-full items-start gap-3 rounded-xl border px-3 py-2.5 text-left text-sm transition-colors',
+                        'flex w-full items-start gap-3 rounded-xl border px-3 py-2.5 text-start text-sm transition-colors',
                         on
                           ? 'border-emerald-200 bg-emerald-50/80 text-emerald-950'
                           : 'hover:bg-muted/40',
@@ -185,7 +185,7 @@ export function FicheTechniqueSheet({
                         <Circle className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
                       )}
                       <span className={cn(on && 'line-through opacity-80')}>
-                        <span className="mr-1 font-semibold text-muted-foreground">{i + 1}.</span>
+                        <span className="me-1 font-semibold text-muted-foreground">{i + 1}.</span>
                         {step}
                       </span>
                     </button>

@@ -833,7 +833,7 @@ const ShipmentDetailDialog = ({
                   className="w-full justify-start"
                   onClick={() => downloadTextReport(`${shipment.shipment_number}-conformite.txt`, buildConformityReport(shipment))}
                 >
-                  <FileCheck className="h-4 w-4 mr-2" />
+                  <FileCheck className="h-4 w-4 me-2" />
                   Certificat de conformité
                 </Button>
                 <Button
@@ -841,7 +841,7 @@ const ShipmentDetailDialog = ({
                   className="w-full justify-start"
                   onClick={() => downloadTextReport(`${shipment.shipment_number}-genealogie.txt`, buildGenealogyReport(shipment))}
                 >
-                  <FileSearch className="h-4 w-4 mr-2" />
+                  <FileSearch className="h-4 w-4 me-2" />
                   Rapport genealogie lot
                 </Button>
                 <Button
@@ -849,7 +849,7 @@ const ShipmentDetailDialog = ({
                   className="w-full justify-start"
                   onClick={() => downloadTextReport(`${shipment.shipment_number}-phytosanitaire.txt`, buildPhytosanitaryReport(shipment))}
                 >
-                  <ClipboardCheck className="h-4 w-4 mr-2" />
+                  <ClipboardCheck className="h-4 w-4 me-2" />
                   Fiche phytosanitaire
                 </Button>
               </CardContent>
@@ -934,11 +934,11 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={() => setMainTab('bde')}>
-            <Printer className="h-4 w-4 mr-2" />
+            <Printer className="h-4 w-4 me-2" />
             Bon BDE
           </Button>
           <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 me-2" />
             Nouvelle expédition
           </Button>
         </div>
@@ -986,9 +986,9 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
             <CardContent className="space-y-4">
               <div className="flex flex-wrap gap-3">
                 <div className="relative flex-1 min-w-[240px]">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    className="pl-10"
+                    className="ps-10"
                     placeholder="Rechercher par numéro, client ou destination"
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
@@ -1021,7 +1021,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
                     return (
                       <button
                         key={shipment.id}
-                        className="w-full rounded-xl border p-4 text-left transition-colors hover:bg-muted/40"
+                        className="w-full rounded-xl border p-4 text-start transition-colors hover:bg-muted/40"
                         onClick={() => setSelectedShipmentId(shipment.id)}
                       >
                         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -1121,7 +1121,7 @@ export const LogisticsDashboard = ({ initialView }: { initialView?: string } = {
                           </TableCell>
                           <TableCell>
                             <span className="font-medium">{Number(lot.current_quantity || 0).toLocaleString('fr-FR')}</span>
-                            <span className="text-xs text-muted-foreground ml-1">{lot.unit}</span>
+                            <span className="text-xs text-muted-foreground ms-1">{lot.unit}</span>
                           </TableCell>
                           <TableCell>
                             <span className="text-xs">{formatDateOnly(lot.packaging_date || lot.reception_date)}</span>

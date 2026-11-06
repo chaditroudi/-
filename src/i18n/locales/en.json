@@ -137,7 +137,8 @@
     "searchByMovement": "Search by movement #, lot, product...",
     "allTypes": "All types",
     "expired": "Expired",
-    "initial": "initial"
+    "initial": "initial",
+    "retry": "Try again"
   },
   "nav": {
     "home": "Home",
@@ -487,7 +488,8 @@
       "normal": "Normal",
       "high": "High",
       "urgent": "Urgent"
-    }
+    },
+    "previousStepsRequired": "Previous steps must be completed first."
   },
   "stock": {
     "title": "Stock Management",
@@ -987,7 +989,11 @@
     "select": "Language",
     "en": "English",
     "fr": "French",
-    "ar": "Arabic"
+    "ar": "Modern Standard Arabic",
+    "ar-TN": "Tunisian",
+    "ar-IQ": "Iraqi",
+    "ar-SY": "Levantine (Shami)",
+    "unreviewed": "Translation not yet reviewed"
   },
   "validation": {
     "required": "This field is required",
@@ -1077,5 +1083,74 @@
       "how": "How do I do this?",
       "explain": "Explain this screen"
     }
+  },
+  "cleaning": {
+    "active": "Active cycles",
+    "completed": "Completed cycles",
+    "averageYield": "Average yield",
+    "minimumYield": "Minimum yield",
+    "newCycle": "New cycle",
+    "loading": "Loading…",
+    "empty": "No cleaning cycle in progress.",
+    "inProgress": "In progress",
+    "complete": "Completed",
+    "incident": "Incident",
+    "program": "Programme",
+    "programA": "A — Light",
+    "programB": "B — Standard",
+    "programC": "C — Intensive",
+    "programD": "D — No washing (on the stem)",
+    "effectA": "Surface dust",
+    "effectB": "Dust and light debris",
+    "effectC": "Sand, soil and plant debris",
+    "effectD": "Keep bunches intact",
+    "lot": "Lot",
+    "variety": "Variety",
+    "operator": "Operator",
+    "started": "Started",
+    "close": "Close",
+    "history": "Recent history",
+    "yield": "Yield",
+    "createTitle": "New cleaning cycle",
+    "sourceLot": "Lot to clean",
+    "selectLot": "Select a stock lot released by QC…",
+    "sourceHelp": "Choose the physical lot released by quality control.",
+    "sourceError": "Could not load stock lots.",
+    "noSources": "No released stock lot available.",
+    "washProgram": "Wash programme",
+    "cancel": "Cancel",
+    "start": "Start",
+    "closeTitle": "Close cycle — enter measurements",
+    "balanceHelp": "Input weight must equal output weight plus waste.",
+    "input": "Input weight (kg)",
+    "output": "Output weight (kg)",
+    "waste": "Waste weight (kg)",
+    "wasteCategory": "Waste category",
+    "organic": "Organic",
+    "inert": "Inert",
+    "badDates": "Bad dates",
+    "turbidity": "Water turbidity (NTU)",
+    "ph": "Water pH (6.5–8.5)",
+    "estimatedYield": "Estimated yield",
+    "lowYield": "⚠ Below the 92 % threshold",
+    "submitClose": "Close cycle",
+    "createdToast": "Cleaning cycle {{number}} started",
+    "createError": "Could not create the cycle: {{message}}",
+    "closedToast": "Cleaning cycle closed",
+    "closedYieldToast": "Cleaning cycle closed — yield {{yield}} %",
+    "closeError": "Closing failed: {{message}}"
+  },
+  "task": {
+    "status": {
+      "ready": "Ready to start",
+      "waiting": "Waiting",
+      "blocked": "Blocked",
+      "done": "Done"
+    },
+    "details": "Task details",
+    "stepOf": "Step {{current}} of {{total}}",
+    "notProvided": "Not provided",
+    "notMeasured": "Not measured",
+    "source": "Source"
   }
 }

@@ -182,7 +182,7 @@ export const QrScannerDialog = ({ open, onOpenChange, onDetected }: QrScannerDia
               </div>
             </div>
 
-            <div className="absolute left-4 top-4 rounded-full bg-black/55 px-3 py-1.5 text-xs font-medium text-white backdrop-blur">
+            <div className="absolute start-4 top-4 rounded-full bg-black/55 px-3 py-1.5 text-xs font-medium text-white backdrop-blur">
               <span className="inline-flex items-center gap-1.5">
                 <ScanLine className="h-3.5 w-3.5" />
                 {isStarting ? 'Initialisation caméra...' : 'Cadrez le QR code'}
@@ -209,7 +209,7 @@ export const QrScannerDialog = ({ open, onOpenChange, onDetected }: QrScannerDia
 
           <div className="flex justify-end">
             <Button type="button" variant="outline" className="rounded-2xl" onClick={() => onOpenChange(false)}>
-              <Camera className="mr-2 h-4 w-4" />
+              <Camera className="me-2 h-4 w-4" />
               Fermer la caméra
             </Button>
           </div>

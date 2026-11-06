@@ -145,11 +145,11 @@ export function LabelTemplatePanel({ currentUser = 'Utilisateur' }: { currentUse
         <Tabs value={activeView} onValueChange={(v) => setActiveView(v as typeof activeView)}>
           <TabsList className="">
             <TabsTrigger value="labels" className="h-7">
-              <Tag className="h-3 w-3 mr-1.5" />
+              <Tag className="h-3 w-3 me-1.5" />
               Modèles d'étiquettes
             </TabsTrigger>
             <TabsTrigger value="clients" className="h-7">
-              <Users className="h-3 w-3 mr-1.5" />
+              <Users className="h-3 w-3 me-1.5" />
               Clients marque blanche ({clients.length})
             </TabsTrigger>
           </TabsList>
@@ -157,12 +157,12 @@ export function LabelTemplatePanel({ currentUser = 'Utilisateur' }: { currentUse
 
         {activeView === 'labels' ? (
           <Button size="sm" onClick={openCreate}>
-            <Plus className="h-4 w-4 mr-1.5" />
+            <Plus className="h-4 w-4 me-1.5" />
             Nouveau modèle
           </Button>
         ) : (
           <Button size="sm" onClick={() => setShowClientDialog(true)}>
-            <Plus className="h-4 w-4 mr-1.5" />
+            <Plus className="h-4 w-4 me-1.5" />
             Nouveau client
           </Button>
         )}
@@ -233,7 +233,7 @@ export function LabelTemplatePanel({ currentUser = 'Utilisateur' }: { currentUse
                       {tpl.status === 'BROUILLON' && (
                         <>
                           <Button size="sm" variant="outline" className="h-9 px-2 text-xs" onClick={() => openEdit(tpl)}>
-                            <Pencil className="h-3 w-3 mr-1" />
+                            <Pencil className="h-3 w-3 me-1" />
                             Modifier
                           </Button>
                           <Button
@@ -242,7 +242,7 @@ export function LabelTemplatePanel({ currentUser = 'Utilisateur' }: { currentUse
                             onClick={() => approveTemplate.mutate({ id: tpl.id, approved_by: currentUser })}
                             disabled={approveTemplate.isPending}
                           >
-                            <CheckCircle2 className="h-3 w-3 mr-1" />
+                            <CheckCircle2 className="h-3 w-3 me-1" />
                             Valider
                           </Button>
                         </>
@@ -255,7 +255,7 @@ export function LabelTemplatePanel({ currentUser = 'Utilisateur' }: { currentUse
                           onClick={() => archiveTemplate.mutate(tpl.id)}
                           disabled={archiveTemplate.isPending}
                         >
-                          <Archive className="h-3 w-3 mr-1" />
+                          <Archive className="h-3 w-3 me-1" />
                           Archiver
                         </Button>
                       )}
@@ -421,7 +421,7 @@ export function LabelTemplatePanel({ currentUser = 'Utilisateur' }: { currentUse
           <DialogFooter>
             <Button variant="ghost" onClick={() => setShowDialog(false)}>Annuler</Button>
             <Button onClick={handleSubmit} disabled={isPending || !canSubmit}>
-              {isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {isPending && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
               {editingId ? 'Enregistrer' : 'Créer (Brouillon)'}
             </Button>
           </DialogFooter>
@@ -474,7 +474,7 @@ export function LabelTemplatePanel({ currentUser = 'Utilisateur' }: { currentUse
               }}
               disabled={createClient.isPending || !clientForm.name || !clientForm.code || !clientForm.country}
             >
-              {createClient.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {createClient.isPending && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
               Créer
             </Button>
           </DialogFooter>

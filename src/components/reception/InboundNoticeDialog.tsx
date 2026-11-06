@@ -144,7 +144,7 @@ export const InboundNoticeDialog = ({ open, onOpenChange, suppliers }: Props) =>
                 </Button>
               </div>
             ) : (
-              <div className="space-y-3 pr-1">
+              <div className="space-y-3 pe-1">
                 {todayNotices.map((notice) => (
                   <div
                     key={notice.id}
@@ -206,7 +206,7 @@ export const InboundNoticeDialog = ({ open, onOpenChange, suppliers }: Props) =>
 
         {/* ── Create view ────────────────────────────────────────────── */}
         {view === 'create' && (
-          <ScrollArea className="max-h-[60vh] pr-1">
+          <ScrollArea className="max-h-[60vh] pe-1">
             <div className="space-y-4">
               <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800">
                 La pré-annonce permet à la réception de préparer l'accueil avant l'arrivée du camion (vérification BL, zone disponible, inspecteur QC prévenu).
@@ -302,7 +302,7 @@ export const InboundNoticeDialog = ({ open, onOpenChange, suppliers }: Props) =>
 
         <DialogFooter className="flex-col gap-2 sm:flex-row">
           {formError && (
-            <p className="mr-auto text-sm text-destructive">{formError}</p>
+            <p className="me-auto text-sm text-destructive">{formError}</p>
           )}
           {view === 'create' && (
             <>

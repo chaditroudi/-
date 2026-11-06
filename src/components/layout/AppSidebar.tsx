@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { isRTL } from "@/i18n/languages";
 import {
   Activity,
   BarChart3,
@@ -91,6 +93,7 @@ export function AppSidebar({ activeTab, onTabChange, activeView, activeAlertsCou
   const { user, profile, roles, signOut, isAdmin } = useAuthContext();
   const [passwordOpen, setPasswordOpen] = useState(false);
   const { companyName } = useBranding();
+  const { i18n } = useTranslation();
 
   const canSee = (id: string) =>
     id === "home" || Boolean(accessibleTabs?.includes(id));
@@ -145,7 +148,7 @@ export function AppSidebar({ activeTab, onTabChange, activeView, activeAlertsCou
         <item.icon className="h-[18px] w-[18px] shrink-0" />
         <span className="truncate">{item.title}</span>
         {typeof item.badge === "number" && item.badge > 0 && (
-          <span className="ml-auto rounded-sm bg-red-500 px-1.5 text-xs font-semibold text-white group-data-[collapsible=icon]:hidden">
+          <span className="ms-auto rounded-sm bg-red-500 px-1.5 text-xs font-semibold text-white group-data-[collapsible=icon]:hidden">
             {item.badge}
           </span>
         )}
@@ -158,7 +161,7 @@ export function AppSidebar({ activeTab, onTabChange, activeView, activeAlertsCou
   const litShare = activeStep < 0 ? 0 : ((activeStep + 0.5) / filiere.length) * 100;
 
   return (
-    <Sidebar collapsible="icon" className="border-e-0">
+    <Sidebar collapsible="icon" side={isRTL(i18n.language) ? "right" : "left"} className="border-e-0">
       <SidebarHeader className="px-2.5 pb-1 pt-3">
         <div className="flex items-center gap-2.5 px-0.5">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-white p-1">
@@ -184,12 +187,12 @@ export function AppSidebar({ activeTab, onTabChange, activeView, activeAlertsCou
             <div className="relative">
               <span
                 aria-hidden
-                className="absolute bottom-[18px] left-[18px] top-[18px] z-10 w-px bg-sidebar-foreground/25 group-data-[collapsible=icon]:left-[19px]"
+                className="absolute bottom-[18px] start-[18px] top-[18px] z-10 w-px bg-sidebar-foreground/25 group-data-[collapsible=icon]:start-[19px]"
               />
               <span
                 aria-hidden
                 data-testid="filiere-thread"
-                className="absolute left-[17.5px] top-0 z-10 w-0.5 bg-[hsl(var(--sidebar-primary))] group-data-[collapsible=icon]:left-[18.5px]"
+                className="absolute start-[17.5px] top-0 z-10 w-0.5 bg-[hsl(var(--sidebar-primary))] group-data-[collapsible=icon]:start-[18.5px]"
                 style={{ height: `${litShare}%`, opacity: activeStep < 0 ? 0 : 1 }}
               />
               <SidebarMenu className="relative z-20 gap-px [&_svg]:rounded-sm [&_svg]:bg-sidebar [&_[data-active=true]_svg]:bg-sidebar-accent [&_[data-active=true]_svg]:text-[hsl(var(--sidebar-primary))]">

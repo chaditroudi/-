@@ -92,7 +92,7 @@ export function StockLotQCDialog({ lot, onClose }: Props) {
             onClick={handleConfirm}
             disabled={!validatorName.trim() || validateLot.isPending}
           >
-            <CheckCircle className="h-4 w-4 mr-1.5" />
+            <CheckCircle className="h-4 w-4 me-1.5" />
             {validateLot.isPending ? 'Validation…' : 'Valider le lot'}
           </Button>
         </DialogFooter>

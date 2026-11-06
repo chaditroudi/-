@@ -110,7 +110,7 @@ const SelectLabel = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Label>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Label>
 >(({ className, ...props }, ref) => (
-  <SelectPrimitive.Label ref={ref} className={cn("py-1.5 pl-8 pr-2 text-xs font-semibold text-muted-foreground", className)} {...props} />
+  <SelectPrimitive.Label ref={ref} className={cn("py-1.5 ps-8 pe-2 text-xs font-semibold text-muted-foreground", className)} {...props} />
 ));
 SelectLabel.displayName = SelectPrimitive.Label.displayName;
 
@@ -121,7 +121,7 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full min-h-[42px] cursor-pointer select-none items-center rounded-lg py-2.5 pl-8 pr-2 text-[15px] outline-none transition-colors",
+      "relative flex w-full min-h-[42px] cursor-pointer select-none items-center rounded-lg py-2.5 ps-8 pe-2 text-[15px] outline-none transition-colors",
       "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       "focus:bg-accent/50 focus:text-accent-foreground",
       "hover:bg-muted/50",
@@ -129,7 +129,7 @@ const SelectItem = React.forwardRef<
     )}
     {...props}
   >
-    <span className="absolute left-2 flex h-4 w-4 items-center justify-center">
+    <span className="absolute start-2 flex h-4 w-4 items-center justify-center">
       <SelectPrimitive.ItemIndicator>
         <Check className="h-4 w-4 text-primary" />
       </SelectPrimitive.ItemIndicator>

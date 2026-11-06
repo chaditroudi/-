@@ -44,7 +44,7 @@ const ModeCard = ({ active, icon: Icon, title, text, onClick }: {
     role="radio"
     aria-checked={active}
     onClick={onClick}
-    className={cn('flex min-h-[72px] items-start gap-3 rounded-xl border p-3 text-left', active ? 'border-primary bg-primary/5' : 'hover:bg-muted')}
+    className={cn('flex min-h-[72px] items-start gap-3 rounded-xl border p-3 text-start', active ? 'border-primary bg-primary/5' : 'hover:bg-muted')}
   >
     <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
     <span>

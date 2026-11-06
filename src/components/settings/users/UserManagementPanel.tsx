@@ -172,18 +172,18 @@ export function UserManagementPanel() {
             Comptes & appartenance département
           </CardTitle>
           <Button size="sm" onClick={() => setCreateOpen(true)}>
-            <UserPlus className="h-4 w-4 mr-1.5" />
+            <UserPlus className="h-4 w-4 me-1.5" />
             Créer
           </Button>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Rechercher email ou nom..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
+              className="ps-9"
             />
           </div>
 
@@ -204,7 +204,7 @@ export function UserManagementPanel() {
                     <div className="mt-1 flex flex-wrap gap-1">
                       {u.has_signature_pin ? (
                         <Badge variant="outline" className="text-xs border-emerald-500 text-emerald-700">
-                          <Lock className="h-2.5 w-2.5 mr-0.5" />
+                          <Lock className="h-2.5 w-2.5 me-0.5" />
                           PIN
                         </Badge>
                       ) : (
@@ -384,7 +384,7 @@ export function UserManagementPanel() {
           <DialogFooter>
             <Button variant="ghost" onClick={() => setEditUser(null)}>Annuler</Button>
             <Button onClick={handleSaveRoles} disabled={updateUser.isPending}>
-              {updateUser.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {updateUser.isPending && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
               Enregistrer
             </Button>
           </DialogFooter>
@@ -404,13 +404,13 @@ export function UserManagementPanel() {
             <div className="space-y-1.5">
               <Label htmlFor="new-name" className="text-xs font-medium">Nom complet *</Label>
               <div className="relative">
-                <User className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <User className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="new-name"
                   placeholder="Prénom Nom"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  className="pl-9"
+                  className="ps-9"
                   required
                 />
               </div>
@@ -419,14 +419,14 @@ export function UserManagementPanel() {
             <div className="space-y-1.5">
               <Label htmlFor="new-email" className="text-xs font-medium">Adresse email *</Label>
               <div className="relative">
-                <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Mail className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="new-email"
                   type="email"
                   placeholder="utilisateur@usine.tn"
                   value={newEmail}
                   onChange={(e) => setNewEmail(e.target.value)}
-                  className="pl-9"
+                  className="ps-9"
                   required
                 />
               </div>
@@ -435,19 +435,19 @@ export function UserManagementPanel() {
             <div className="space-y-1.5">
               <Label htmlFor="new-password" className="text-xs font-medium">Mot de passe *</Label>
               <div className="relative">
-                <Lock className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Lock className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="new-password"
                   type={showPassword ? 'text' : 'password'}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="pl-9 pr-9"
+                  className="ps-9 pe-9"
                   required
                   minLength={10}
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                   onClick={() => setShowPassword((v) => !v)}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -474,7 +474,7 @@ export function UserManagementPanel() {
             <DialogFooter>
               <Button type="button" variant="ghost" onClick={() => setCreateOpen(false)}>Annuler</Button>
               <Button type="submit" disabled={createUser.isPending}>
-                {createUser.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                {createUser.isPending && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
                 Créer le compte
               </Button>
             </DialogFooter>

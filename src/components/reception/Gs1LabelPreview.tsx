@@ -116,9 +116,9 @@ export function Gs1LabelPreview({ lot, onClose }: Gs1LabelPreviewProps) {
               className="bg-emerald-600 hover:bg-emerald-700"
             >
               {isPending ? (
-                <><RefreshCw className="h-4 w-4 mr-2 animate-spin" />Génération…</>
+                <><RefreshCw className="h-4 w-4 me-2 animate-spin" />Génération…</>
               ) : (
-                <><QrCode className="h-4 w-4 mr-2" />
+                <><QrCode className="h-4 w-4 me-2" />
                 {(lot as { label_printed_at?: string }).label_printed_at ? "Ré-imprimer" : "Générer l'étiquette"}
                 </>
               )}
@@ -148,7 +148,7 @@ export function Gs1LabelPreview({ lot, onClose }: Gs1LabelPreviewProps) {
 
             <div className="flex items-center gap-2">
               <Badge className="bg-emerald-100 text-emerald-700 text-xs">
-                <CheckCircle2 className="h-3 w-3 mr-1" />
+                <CheckCircle2 className="h-3 w-3 me-1" />
                 Enregistré {new Date(payload.printed_at).toLocaleString('fr-FR')}
               </Badge>
             </div>
@@ -162,7 +162,7 @@ export function Gs1LabelPreview({ lot, onClose }: Gs1LabelPreviewProps) {
                 onClick={handleGenerate}
                 disabled={isPending}
               >
-                <RefreshCw className={`h-4 w-4 mr-1.5 ${isPending ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`h-4 w-4 me-1.5 ${isPending ? 'animate-spin' : ''}`} />
                 Ré-générer
               </Button>
               <Button
@@ -170,7 +170,7 @@ export function Gs1LabelPreview({ lot, onClose }: Gs1LabelPreviewProps) {
                 onClick={handlePrint}
                 className="bg-emerald-600 hover:bg-emerald-700 flex-1"
               >
-                <Printer className="h-4 w-4 mr-1.5" />
+                <Printer className="h-4 w-4 me-1.5" />
                 Imprimer l'étiquette
               </Button>
             </div>

@@ -106,7 +106,7 @@ export const LabResultsDialog = ({
           </div>
         ) : null}
 
-        <ScrollArea className="max-h-[60vh] pr-2">
+        <ScrollArea className="max-h-[60vh] pe-2">
           <div className="space-y-3 p-1">
             {drafts.map((draft, i) => (
               <Card

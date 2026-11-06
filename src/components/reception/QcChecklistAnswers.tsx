@@ -29,7 +29,7 @@ export function QcChecklistAnswers({ checklist, items, unavailable, answers, onC
         <div key={item.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 py-1.5">
           <span className="text-sm leading-tight">
             {item.name}
-            {item.severity === 'CRITIQUE' && <Badge variant="destructive" className="ml-1.5 align-text-bottom">Critique</Badge>}
+            {item.severity === 'CRITIQUE' && <Badge variant="destructive" className="ms-1.5 align-text-bottom">Critique</Badge>}
           </span>
           <span className="flex gap-1">
             {(['CONFORME', 'NON_CONFORME'] as const).map((result) => (

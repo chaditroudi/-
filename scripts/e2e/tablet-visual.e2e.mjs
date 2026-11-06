@@ -54,7 +54,7 @@ const env = { ...process.env, APP_ENV: 'test', NODE_ENV: 'development', API_HOST
   MONGODB_URI: MONGO, MONGODB_DB_NAME: DB, JWT_SECRET: 'tablet-visual-test-key-not-secret', NUMERIC_SIGNATURE_GATE: 'enforce',
   WEIGHBRIDGE_SIMULATOR_SECRET: 'tablet-visual-sim', AI_GUIDE_ENABLED: 'false', AI_GUIDE_PROVIDER: 'disabled', CORS_ORIGINS: APP,
   VITE_BUILD_TARGET: 'test', VITE_API_URL: '/api', VITE_API_PROXY_TARGET: API, VITE_DEV_PORT: '8176',
-  VITE_CACHE_DIR: path.resolve('.local/tablet-visual-vite-cache') };
+  VITE_CACHE_DIR: path.join(os.tmpdir(), 'dhh-tablet-visual-vite-cache') };
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const until = async (probe, timeout = 60_000) => { const end = Date.now() + timeout; while (Date.now() < end) { if (await probe().catch(() => false)) return true; await wait(200); } return false; };
 

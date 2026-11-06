@@ -70,7 +70,7 @@ export const MovementsList = () => {
           Journal des Mouvements
         </CardTitle>
         <Button variant="outline" onClick={exportToCSV}>
-          <Download className="h-4 w-4 mr-2" />
+          <Download className="h-4 w-4 me-2" />
           Export CSV
         </Button>
       </CardHeader>
@@ -78,10 +78,10 @@ export const MovementsList = () => {
         {/* Filtres */}
         <div className="flex gap-4 mb-4 flex-wrap">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute start-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Rechercher par n° mouvement, lot, produit..."
-              className="pl-10"
+              className="ps-10"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -165,7 +165,7 @@ export const MovementsList = () => {
                     </TableCell>
                     <TableCell>
                       <span className="font-medium">{movement.quantity.toLocaleString('fr-FR')}</span>
-                      <span className="text-muted-foreground text-xs ml-1">{movement.unit}</span>
+                      <span className="text-muted-foreground text-xs ms-1">{movement.unit}</span>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1 text-sm">

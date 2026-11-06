@@ -261,7 +261,7 @@ export const P2PKpiPanel = () => {
                         style={{ width: `${Math.min(s.ncRate * 5, 100)}%` }}
                       />
                     </div>
-                    <span className={`text-xs font-semibold w-10 text-right ${s.ncRate > 10 ? 'text-red-600' : s.ncRate > 5 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                    <span className={`text-xs font-semibold w-10 text-end ${s.ncRate > 10 ? 'text-red-600' : s.ncRate > 5 ? 'text-amber-600' : 'text-emerald-600'}`}>
                       {fmt(s.ncRate)}%
                     </span>
                   </div>

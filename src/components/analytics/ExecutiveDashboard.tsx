@@ -382,7 +382,7 @@ export const ExecutiveDashboard = ({ period }: ExecutiveDashboardProps) => {
                   </div>
                   <div className="relative h-2 bg-muted rounded-full overflow-hidden">
                     <div 
-                      className="absolute inset-y-0 left-0 rounded-full transition-all duration-500"
+                      className="absolute inset-y-0 start-0 rounded-full transition-all duration-500"
                       style={{ 
                         width: `${grade.percentage}%`, 
                         background: `linear-gradient(90deg, ${grade.color}, ${grade.color}99)`,

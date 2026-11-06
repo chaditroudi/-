@@ -357,12 +357,12 @@ export function ExportOrderDialog({ open, onOpenChange, initial, onSubmit, isSav
                     {batch && (
                       <div className="text-xs text-muted-foreground">
                         {(batch as any).origin_region && <span>Région: {(batch as any).origin_region}</span>}
-                        {(batch as any).origin_farm && <span className="ml-3">Exploitation: {(batch as any).origin_farm}</span>}
-                        {(batch as any).harvest_date && <span className="ml-3">Récolte: {(batch as any).harvest_date}</span>}
+                        {(batch as any).origin_farm && <span className="ms-3">Exploitation: {(batch as any).origin_farm}</span>}
+                        {(batch as any).harvest_date && <span className="ms-3">Récolte: {(batch as any).harvest_date}</span>}
                       </div>
                     )}
 
-                    <div className="text-right text-xs font-semibold text-primary">
+                    <div className="text-end text-xs font-semibold text-primary">
                       Sous-total: {(line.net_weight_kg * line.unit_price).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} {currency}
                     </div>
                   </div>

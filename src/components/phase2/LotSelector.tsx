@@ -92,10 +92,10 @@ export function LotSelector(props: Props | MultiProps) {
           role="combobox"
           aria-expanded={open}
           disabled={props.disabled || isLoading}
-          className="w-full justify-between h-9 text-left font-normal"
+          className="w-full justify-between h-9 text-start font-normal"
         >
           <span className="flex-1 min-w-0 truncate">{isLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : displayLabel()}</span>
-          <ChevronDown className="h-4 w-4 opacity-50 shrink-0 ml-2" />
+          <ChevronDown className="h-4 w-4 opacity-50 shrink-0 ms-2" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-96 p-0" align="start">

@@ -108,7 +108,7 @@ export const RequisitionDetailSheet = ({
             </Badge>
             {isUrgent && (
               <Badge className={cn(urgencyColors[requisition.urgency], 'text-white text-xs')}>
-                <AlertTriangle className="h-3 w-3 mr-1" />
+                <AlertTriangle className="h-3 w-3 me-1" />
                 {urgencyLabels[requisition.urgency]}
               </Badge>
             )}
@@ -128,7 +128,7 @@ export const RequisitionDetailSheet = ({
                 {requisition.requester_name}
               </p>
               {requisition.department && (
-                <p className="text-xs text-muted-foreground pl-5">{requisition.department}</p>
+                <p className="text-xs text-muted-foreground ps-5">{requisition.department}</p>
               )}
             </div>
             <div className="rounded-xl border bg-muted/30 p-3 space-y-1">
@@ -138,7 +138,7 @@ export const RequisitionDetailSheet = ({
                 {meta.site || 'Non précisé'}
               </p>
               {meta.desiredDate && (
-                <p className="text-xs text-muted-foreground flex items-center gap-1 pl-5">
+                <p className="text-xs text-muted-foreground flex items-center gap-1 ps-5">
                   <Calendar className="h-3 w-3" />
                   {format(new Date(meta.desiredDate), 'dd MMM yyyy', { locale: fr })}
                 </p>
@@ -239,14 +239,14 @@ export const RequisitionDetailSheet = ({
           {/* Timeline */}
           <div className="space-y-3">
             <p className="text-xs font-bold text-muted-foreground">Historique</p>
-            <div className="relative space-y-3 pl-5">
-              <div className="absolute left-[7px] top-1 bottom-1 w-px bg-border/60" />
+            <div className="relative space-y-3 ps-5">
+              <div className="absolute start-[7px] top-1 bottom-1 w-px bg-border/60" />
               {timeline.map((event, i) => (
                 <div key={i} className="relative flex items-start gap-3">
-                  <div className={cn('absolute -left-[13px] flex h-5 w-5 items-center justify-center rounded-full border bg-background', event.color)}>
+                  <div className={cn('absolute -start-[13px] flex h-5 w-5 items-center justify-center rounded-full border bg-background', event.color)}>
                     <event.icon className="h-3 w-3" />
                   </div>
-                  <div className="pl-2">
+                  <div className="ps-2">
                     <p className="text-sm font-medium text-foreground">{event.label}</p>
                     <p className="text-xs text-muted-foreground">
                       {format(new Date(event.date), 'dd MMM yyyy à HH:mm', { locale: fr })}
@@ -272,7 +272,7 @@ export const RequisitionDetailSheet = ({
               className="w-full"
               onClick={() => { onCreateOrder(requisition); onClose(); }}
             >
-              <ShoppingCart className="h-4 w-4 mr-2" />
+              <ShoppingCart className="h-4 w-4 me-2" />
               Créer un Bon de Commande
             </Button>
           )}

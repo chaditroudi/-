@@ -139,7 +139,7 @@ function StartRunDialog({ code, open, onOpenChange }: StartRunDialogProps) {
               Annuler
             </Button>
             <Button type="submit" disabled={start.isPending}>
-              {start.isPending ? <><Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />Démarrage…</> : <><Play className="h-3.5 w-3.5 mr-1" />Démarrer</>}
+              {start.isPending ? <><Loader2 className="h-3.5 w-3.5 animate-spin me-1" />Démarrage…</> : <><Play className="h-3.5 w-3.5 me-1" />Démarrer</>}
             </Button>
           </DialogFooter>
         </form>
@@ -259,7 +259,7 @@ function CompleteRunDialog({ run, open, onOpenChange }: CompleteRunDialogProps) 
               Annuler
             </Button>
             <Button type="submit" disabled={complete.isPending}>
-              {complete.isPending ? <><Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />Enregistrement…</> : <><CheckCircle2 className="h-3.5 w-3.5 mr-1" />Terminer</>}
+              {complete.isPending ? <><Loader2 className="h-3.5 w-3.5 animate-spin me-1" />Enregistrement…</> : <><CheckCircle2 className="h-3.5 w-3.5 me-1" />Terminer</>}
             </Button>
           </DialogFooter>
         </form>
@@ -294,7 +294,7 @@ function ActiveRunBadge({ run }: { run: FluxRun }) {
               className="h-9 rounded-lg px-2 text-xs bg-emerald-600 hover:bg-emerald-700"
               onClick={() => setCompleteOpen(true)}
             >
-              <CheckCircle2 className="mr-1 h-3 w-3" />
+              <CheckCircle2 className="me-1 h-3 w-3" />
               Terminer
             </Button>
             <Button
@@ -361,16 +361,16 @@ function RecentRunsList({ runs }: { runs: FluxRun[] }) {
                 </>
               )}
               {run.ccp2_passed === false && (
-                <Badge className="ml-auto rounded-full bg-red-100 px-1.5 py-0 text-xs font-semibold text-red-700">
+                <Badge className="ms-auto rounded-full bg-red-100 px-1.5 py-0 text-xs font-semibold text-red-700">
                   CCP2 NC
                 </Badge>
               )}
               {isCancel && (
-                <Badge className="ml-auto rounded-full bg-muted px-1.5 py-0 text-xs text-muted-foreground">
+                <Badge className="ms-auto rounded-full bg-muted px-1.5 py-0 text-xs text-muted-foreground">
                   Annulé
                 </Badge>
               )}
-              <span className="ml-auto text-xs text-muted-foreground">
+              <span className="ms-auto text-xs text-muted-foreground">
                 {new Date(run.started_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })}
               </span>
             </div>
@@ -419,12 +419,12 @@ function ProductionLineRow({
         <span className="rounded-sm px-1.5 py-0.5 text-center text-xs font-bold text-white" style={{ backgroundColor: def.color }}>
           {def.code}
         </span>
-        <button type="button" aria-expanded={isExpanded} className="min-h-9 min-w-0 text-left pointer-coarse:min-h-11" onClick={onToggle}>
+        <button type="button" aria-expanded={isExpanded} className="min-h-9 min-w-0 text-start pointer-coarse:min-h-11" onClick={onToggle}>
           <span className="flex items-center gap-1 text-sm font-medium text-foreground">
             {isExpanded ? <ChevronUp className="h-3.5 w-3.5 shrink-0" /> : <ChevronDown className="h-3.5 w-3.5 shrink-0" />}
             <span className="truncate">{def.labelFr}</span>
           </span>
-          <span className="block truncate pl-[1.125rem] text-xs text-muted-foreground">
+          <span className="block truncate ps-[1.125rem] text-xs text-muted-foreground">
             {def.steps.length} étapes{ccps.length > 0 ? `, ${ccps.join(', ')}` : ''}{def.isDerived ? ', ligne dérivée' : ''}
           </span>
         </button>
@@ -438,7 +438,7 @@ function ProductionLineRow({
           <span className="text-sm font-medium text-emerald-800 md:hidden">En production</span>
         ) : (
           <Button size="sm" variant="outline" onClick={() => setStartOpen(true)} disabled={isLoading} aria-label={`Démarrer la ligne ${def.code}`}>
-            <Play className="mr-1 h-3 w-3" />
+            <Play className="me-1 h-3 w-3" />
             Démarrer
           </Button>
         )}
@@ -477,17 +477,17 @@ function ProductionLineRow({
                 <span className="w-5 shrink-0 text-center font-medium text-muted-foreground">{step.sequence}</span>
                 <div className="min-w-0 flex-1">
                   <span className="font-medium text-foreground">{step.label}</span>
-                  {step.ccp && <Badge className="ml-1.5 rounded-sm bg-red-700 px-1.5 py-0 text-xs font-semibold text-white">{step.ccp}</Badge>}
-                  {step.requiresQC && !step.ccp && <Badge variant="outline" className="ml-1.5 rounded-sm border-amber-300 px-1.5 py-0 text-xs text-amber-800">QC</Badge>}
+                  {step.ccp && <Badge className="ms-1.5 rounded-sm bg-red-700 px-1.5 py-0 text-xs font-semibold text-white">{step.ccp}</Badge>}
+                  {step.requiresQC && !step.ccp && <Badge variant="outline" className="ms-1.5 rounded-sm border-amber-300 px-1.5 py-0 text-xs text-amber-800">QC</Badge>}
                   <p className="text-xs text-muted-foreground">{step.description}</p>
                 </div>
                 {step.parameters && step.parameters.length > 0 && (
-                  <div className="shrink-0 text-right text-xs text-muted-foreground">
+                  <div className="shrink-0 text-end text-xs text-muted-foreground">
                     {step.parameters.map((p) => (
                       <div key={p.key}>
                         {p.label}
                         {p.range && (p.range[0] !== null || p.range[1] !== null) && (
-                          <span className="ml-1 font-medium text-foreground">
+                          <span className="ms-1 font-medium text-foreground">
                             {p.range[0] ?? '–'} à {p.range[1] ?? '–'} {p.unit}
                           </span>
                         )}

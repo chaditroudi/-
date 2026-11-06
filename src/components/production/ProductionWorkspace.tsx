@@ -161,7 +161,7 @@ export function ProductionWorkspace({
                     <Icon className="h-4 w-4 shrink-0" />
                     <span className="truncate">{item.label}</span>
                     {Boolean(badge) && (
-                      <span className="ml-auto rounded-sm bg-amber-100 px-1 text-xs font-semibold text-amber-900">{badge}</span>
+                      <span className="ms-auto rounded-sm bg-amber-100 px-1 text-xs font-semibold text-amber-900">{badge}</span>
                     )}
                   </button>
                 );

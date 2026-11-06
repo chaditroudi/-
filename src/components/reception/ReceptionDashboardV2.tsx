@@ -105,10 +105,10 @@ const ReceptionListHead = () => (
     <span>Réception</span>
     <span>Fournisseur</span>
     <span>Variété</span>
-    <span className="text-right">Poids</span>
+    <span className="text-end">Poids</span>
     <span>Bon de livraison</span>
     <span>Arrivée</span>
-    <span className="text-right">Statut</span>
+    <span className="text-end">Statut</span>
   </div>
 );
 
@@ -129,7 +129,7 @@ const TodayTask = ({ reception, onOpen }: { reception: ReceptionV2; onOpen: (rec
   <button
     type="button"
     onClick={() => onOpen(reception)}
-    className="flex w-full flex-col gap-3 border-b bg-card p-4 text-left last:border-b-0 hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:flex-row sm:items-center"
+    className="flex w-full flex-col gap-3 border-b bg-card p-4 text-start last:border-b-0 hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:flex-row sm:items-center"
   >
     <div className="min-w-0 flex-1">
       <p className="truncate text-base font-semibold">
@@ -160,7 +160,7 @@ const ReceptionRow = ({ reception, onOpen }: { reception: ReceptionV2; onOpen: (
   <button
     type="button"
     onClick={() => onOpen(reception)}
-    className="grid min-h-12 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 px-3 py-2 text-left hover:bg-muted/60 lg:grid-cols-[10.5rem_minmax(0,1.4fr)_7rem_6.5rem_minmax(0,1fr)_6.5rem_9rem]"
+    className="grid min-h-12 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 px-3 py-2 text-start hover:bg-muted/60 lg:grid-cols-[10.5rem_minmax(0,1.4fr)_7rem_6.5rem_minmax(0,1fr)_6.5rem_9rem]"
   >
     <LotReference value={reception.reception_number} fallback="Réception sans numéro" />
     <Badge className={cn('justify-self-end text-xs lg:order-last', receptionStatusColors[reception.status])}>
@@ -168,7 +168,7 @@ const ReceptionRow = ({ reception, onOpen }: { reception: ReceptionV2; onOpen: (
     </Badge>
     <span className="truncate text-sm">{reception.supplier?.name || reception.supplier_name_snapshot || 'Fournisseur non renseigné'}</span>
     <span className="truncate text-sm text-muted-foreground lg:text-foreground">{reception.variety || '—'}</span>
-    <span className="text-sm lg:text-right">
+    <span className="text-sm lg:text-end">
       <QuantityDisplay value={reception.quantity_total} unit={reception.unit || 'kg'} />
     </span>
     <span className="truncate text-xs text-muted-foreground lg:text-sm">
@@ -226,13 +226,13 @@ const HistorySection = ({ onOpen, onDailyReport }: { onOpen: (reception: Recepti
   return (
     <div className="space-y-3">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           aria-label="Rechercher une réception"
           placeholder="N° réception, fournisseur, BL, lot, véhicule, commande"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          className="h-12 pl-10"
+          className="h-12 ps-10"
         />
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
@@ -255,7 +255,7 @@ const HistorySection = ({ onOpen, onDailyReport }: { onOpen: (reception: Recepti
           </Button>
         ))}
         <DateRangeFilter dateRange={dateRange} onDateRangeChange={setDateRange} />
-        <Button type="button" size="sm" variant="outline" className="ml-auto gap-1.5" onClick={onDailyReport}>
+        <Button type="button" size="sm" variant="outline" className="ms-auto gap-1.5" onClick={onDailyReport}>
           <Printer className="h-4 w-4" />
           Rapport du jour
         </Button>
@@ -308,7 +308,7 @@ const PendingSection = ({ canManage, userId, activeReceptions, onOpen, onResume 
 
   const DraftRow = ({ id, title, detail, note }: { id: string; title: string; detail: string; note?: string }) => (
     <div className="flex min-h-16 items-center gap-2 rounded-2xl border bg-card p-3">
-      <button type="button" className="min-w-0 flex-1 text-left" onClick={() => onResume(id)} disabled={!canManage}>
+      <button type="button" className="min-w-0 flex-1 text-start" onClick={() => onResume(id)} disabled={!canManage}>
         <p className="truncate text-sm font-semibold">{title || 'Fournisseur à choisir'}</p>
         <p className="text-xs text-muted-foreground">{detail}</p>
         {note && <p className="text-xs font-medium text-amber-800">{note}</p>}
@@ -486,7 +486,7 @@ export const ReceptionDashboardV2 = ({
         <button
           type="button"
           onClick={() => setNoticeOpen(true)}
-          className="flex w-full items-center gap-3 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-left text-sm text-sky-900 transition-colors hover:bg-sky-100"
+          className="flex w-full items-center gap-3 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-start text-sm text-sky-900 transition-colors hover:bg-sky-100"
         >
           <Bell className="h-4 w-4 shrink-0 text-sky-600" />
           <span>
@@ -534,7 +534,7 @@ export const ReceptionDashboardV2 = ({
             })}
           </TabsList>
         </div>
-          <div className="ml-auto flex shrink-0 gap-2 pb-1.5 max-sm:w-full max-sm:pb-2">
+          <div className="ms-auto flex shrink-0 gap-2 pb-1.5 max-sm:w-full max-sm:pb-2">
           <Button type="button" variant="outline" className="min-h-11 gap-2 max-sm:flex-1" onClick={() => setNoticeOpen(true)}>
             <Bell className="h-4 w-4" />
             <span className="max-sm:hidden">Pré-annonces</span>

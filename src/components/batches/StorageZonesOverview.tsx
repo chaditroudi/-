@@ -541,7 +541,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
             onClick={() => { setTab("lots"); setLotStatusFilter("STOCK_LIBERE"); }}
           >
             Affecter les lots
-            <ChevronRight className="ml-1 h-4 w-4" />
+            <ChevronRight className="ms-1 h-4 w-4" />
           </Button>
         </div>
       )}
@@ -638,9 +638,9 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                       <TableHead>Zone</TableHead>
                       <TableHead className="hidden sm:table-cell">Type</TableHead>
                       <TableHead className="w-[30%]">Occupation</TableHead>
-                      <TableHead className="hidden text-right md:table-cell">Charge</TableHead>
-                      <TableHead className="text-right">Lots</TableHead>
-                      <TableHead className="hidden text-right sm:table-cell">Temp.</TableHead>
+                      <TableHead className="hidden text-end md:table-cell">Charge</TableHead>
+                      <TableHead className="text-end">Lots</TableHead>
+                      <TableHead className="hidden text-end sm:table-cell">Temp.</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -655,14 +655,14 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                           <TableCell className="py-1.5">
                             <div className="flex items-center gap-2">
                               <OccupancyBar pct={pct} className="flex-1" />
-                              <span className="w-10 shrink-0 text-right text-sm">{pct} %</span>
+                              <span className="w-10 shrink-0 text-end text-sm">{pct} %</span>
                             </div>
                           </TableCell>
-                          <TableCell className="hidden py-1.5 text-right text-sm md:table-cell">
+                          <TableCell className="hidden py-1.5 text-end text-sm md:table-cell">
                             {fmtNum(zoneLoadsKg.get(z.code) ?? z.current_load_kg, "")} / {fmtNum(z.capacity_kg, " kg")}
                           </TableCell>
-                          <TableCell className="py-1.5 text-right text-sm">{lotCountByZone.get(z.code) ?? 0}</TableCell>
-                          <TableCell className="hidden py-1.5 text-right text-sm sm:table-cell">{z.current_temperature_c != null ? `${z.current_temperature_c} °C` : "—"}</TableCell>
+                          <TableCell className="py-1.5 text-end text-sm">{lotCountByZone.get(z.code) ?? 0}</TableCell>
+                          <TableCell className="hidden py-1.5 text-end text-sm sm:table-cell">{z.current_temperature_c != null ? `${z.current_temperature_c} °C` : "—"}</TableCell>
                         </TableRow>
                       );
                     })}
@@ -690,7 +690,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-foreground">
                           {storageMovementTypeLabels[m.movement_type as StorageMovementType] ?? m.movement_type}
-                          {m.lot_code && <span className="ml-2 font-normal text-muted-foreground">· {m.lot_code}</span>}
+                          {m.lot_code && <span className="ms-2 font-normal text-muted-foreground">· {m.lot_code}</span>}
                         </p>
                         <p className="truncate text-xs text-muted-foreground">
                           {m.source_zone_code ?? m.source_location_code ?? "—"}
@@ -731,9 +731,9 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                     <TableRow className="hover:bg-transparent">
                       <TableHead>N° inventaire</TableHead>
                       <TableHead>Emplacement</TableHead>
-                      <TableHead className="text-right">Qté attendue</TableHead>
-                      <TableHead className="text-right">Qté comptée</TableHead>
-                      <TableHead className="text-right">Écart</TableHead>
+                      <TableHead className="text-end">Qté attendue</TableHead>
+                      <TableHead className="text-end">Qté comptée</TableHead>
+                      <TableHead className="text-end">Écart</TableHead>
                       <TableHead>Réalisé par</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -742,9 +742,9 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                       <TableRow key={c.id}>
                         <TableCell className="font-mono text-xs">{c.count_number ?? c.id?.slice(-6)}</TableCell>
                         <TableCell className="text-xs">{c.location_code ?? "—"}</TableCell>
-                        <TableCell className="text-right text-xs">{fmtNum(c.expected_quantity)}</TableCell>
-                        <TableCell className="text-right text-xs">{fmtNum(c.counted_quantity)}</TableCell>
-                        <TableCell className={cn("text-right text-xs font-semibold", (c.variance ?? 0) !== 0 ? "text-red-600" : "text-emerald-600")}>
+                        <TableCell className="text-end text-xs">{fmtNum(c.expected_quantity)}</TableCell>
+                        <TableCell className="text-end text-xs">{fmtNum(c.counted_quantity)}</TableCell>
+                        <TableCell className={cn("text-end text-xs font-semibold", (c.variance ?? 0) !== 0 ? "text-red-600" : "text-emerald-600")}>
                           {c.variance != null ? (c.variance > 0 ? `+${c.variance}` : c.variance) : "—"}
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground">{c.performed_by ?? "—"}</TableCell>
@@ -795,9 +795,9 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                 placeholder="Rechercher un lot, variété, zone…"
                 value={lotSearch}
                 onChange={e => { setLotSearch(e.target.value); setLotPage(0); }}
-                className="pl-9"
+                className="ps-9"
               />
-              <Eye className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
+              <Eye className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
             </div>
             <div className="flex flex-wrap gap-1">
               {[
@@ -833,7 +833,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                         <TableHead>Lot interne</TableHead>
                         <TableHead>Lot fournisseur</TableHead>
                         <TableHead>Variété</TableHead>
-                        <TableHead className="text-right">Qté</TableHead>
+                        <TableHead className="text-end">Qté</TableHead>
                         <TableHead>Zone stockage</TableHead>
                         <TableHead>Statut</TableHead>
                         <TableHead>Date entrée</TableHead>
@@ -856,7 +856,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                           </TableCell>
                           <TableCell className="text-xs text-muted-foreground">{lot.lot_supplier ?? "—"}</TableCell>
                           <TableCell className="text-xs">{lot.variety ?? "—"}</TableCell>
-                          <TableCell className="text-right text-xs">{fmtNum(lot.quantity, ` ${lot.unit ?? "kg"}`)}</TableCell>
+                          <TableCell className="text-end text-xs">{fmtNum(lot.quantity, ` ${lot.unit ?? "kg"}`)}</TableCell>
                           <TableCell>
                             {lot.storage_zone_code ? (
                               <span className="inline-flex items-center gap-1 rounded-lg border border-border/60 bg-muted/40 px-2 py-0.5 text-xs font-mono">
@@ -877,7 +877,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                             <TableCell>
                               {(!lot.storage_zone_code || lot.stock_status === "STOCK_LIBERE") && (
                                 <Button variant="ghost" size="sm" onClick={() => setAssignLot(lot)}>
-                                  {lot.stock_status === "STOCK_LIBERE" ? <Truck className="mr-1 h-3 w-3" /> : <ShieldAlert className="mr-1 h-3 w-3" />}
+                                  {lot.stock_status === "STOCK_LIBERE" ? <Truck className="me-1 h-3 w-3" /> : <ShieldAlert className="me-1 h-3 w-3" />}
                                   {lot.stock_status === "STOCK_LIBERE" ? "Affecter" : "Isoler"}
                                 </Button>
                               )}
@@ -909,7 +909,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
               <button
                 type="button"
                 aria-current={selectedZoneId === "all" ? "true" : undefined}
-                className={cn("flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-muted/50", selectedZoneId === "all" && "bg-secondary font-medium")}
+                className={cn("flex w-full items-center justify-between px-3 py-2 text-start text-sm hover:bg-muted/50", selectedZoneId === "all" && "bg-secondary font-medium")}
                 onClick={() => setSelectedZoneId("all")}
               >
                 Toutes les zones
@@ -925,12 +925,12 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                         key={z.id}
                         type="button"
                         aria-current={selectedZoneId === z.id ? "true" : undefined}
-                        className={cn("flex w-full items-center gap-2 border-t px-3 py-1.5 text-left hover:bg-muted/50 pointer-coarse:py-2.5", selectedZoneId === z.id && "bg-secondary")}
+                        className={cn("flex w-full items-center gap-2 border-t px-3 py-1.5 text-start hover:bg-muted/50 pointer-coarse:py-2.5", selectedZoneId === z.id && "bg-secondary")}
                         onClick={() => setSelectedZoneId(z.id)}
                       >
                         <span className={cn("w-12 shrink-0 font-mono text-sm", selectedZoneId === z.id && "font-semibold")}>{z.code}</span>
                         <OccupancyBar pct={pct} className="flex-1" />
-                        <span className="w-11 shrink-0 text-right text-xs text-muted-foreground">{pct} %</span>
+                        <span className="w-11 shrink-0 text-end text-xs text-muted-foreground">{pct} %</span>
                         {(z.condition_status === "critical" || z.condition_status === "warning") && (
                           <AlertTriangle className={cn("h-3.5 w-3.5 shrink-0", z.condition_status === "critical" ? "text-red-700" : "text-amber-700")} aria-label={z.condition_status === "critical" ? "Critique" : "À surveiller"} />
                         )}
@@ -962,9 +962,9 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                     placeholder="Rechercher un emplacement, code lot…"
                     value={locationSearch}
                     onChange={e => setLocationSearch(e.target.value)}
-                    className="pl-9"
+                    className="ps-9"
                   />
-                  <Eye className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
+                  <Eye className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
                 </div>
               </div>
 
@@ -1020,7 +1020,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                         <TableHead>Code</TableHead>
                         {selectedZoneId === "all" && <TableHead>Zone</TableHead>}
                         <TableHead>Statut</TableHead>
-                        <TableHead className="text-right">Occupation</TableHead>
+                        <TableHead className="text-end">Occupation</TableHead>
                         <TableHead className="hidden sm:table-cell">Lots présents</TableHead>
                         <TableHead className="hidden md:table-cell">Temp. et humidité</TableHead>
                         <TableHead className="hidden xl:table-cell">Dernier mouvement</TableHead>
@@ -1038,10 +1038,10 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                                 {locationStatusLabel[loc.location_status]}
                               </Badge>
                             </TableCell>
-                            <TableCell className="py-1.5 text-right">
+                            <TableCell className="py-1.5 text-end">
                               <div className="flex items-center justify-end gap-2">
                                 <OccupancyBar pct={pct} className="w-16" />
-                                <span className="w-11 text-right text-sm">{pct} %</span>
+                                <span className="w-11 text-end text-sm">{pct} %</span>
                               </div>
                             </TableCell>
                             <TableCell className="hidden py-1.5 text-sm text-muted-foreground sm:table-cell">
@@ -1221,7 +1221,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                 <CardTitle className="flex items-center gap-2 text-base">
                   <Activity className="h-4 w-4 text-primary" />
                   Journal des mouvements
-                  <span className="ml-1 text-sm font-normal text-muted-foreground">({movements.length})</span>
+                  <span className="ms-1 text-sm font-normal text-muted-foreground">({movements.length})</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
@@ -1238,7 +1238,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                           <TableHead>Lot</TableHead>
                           <TableHead>Source</TableHead>
                           <TableHead>Destination</TableHead>
-                          <TableHead className="text-right">Qté</TableHead>
+                          <TableHead className="text-end">Qté</TableHead>
                           <TableHead>Motif</TableHead>
                           <TableHead>Opérateur</TableHead>
                         </TableRow>
@@ -1256,7 +1256,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                             <TableCell className="font-mono text-xs">{m.lot_code ?? "—"}</TableCell>
                             <TableCell className="text-xs text-muted-foreground">{m.source_location_code ?? m.source_zone_code ?? "—"}</TableCell>
                             <TableCell className="text-xs text-muted-foreground">{m.destination_location_code ?? m.destination_zone_code ?? "—"}</TableCell>
-                            <TableCell className="text-right text-xs">{fmtNum(m.quantity_palettes, " pal.")}</TableCell>
+                            <TableCell className="text-end text-xs">{fmtNum(m.quantity_palettes, " pal.")}</TableCell>
                             <TableCell className="text-xs text-muted-foreground">{storageMovementReasonLabels[m.movement_reason as StorageMovementReason] ?? m.reason ?? "—"}</TableCell>
                             <TableCell className="text-xs text-muted-foreground">{m.performed_by ?? "—"}</TableCell>
                           </TableRow>
@@ -1360,7 +1360,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                   <CardTitle className="flex items-center gap-2 text-base">
                     <Thermometer className="h-4 w-4 text-primary" />
                     Historique des lectures
-                    <span className="ml-1 text-sm font-normal text-muted-foreground">({readings.length})</span>
+                    <span className="ms-1 text-sm font-normal text-muted-foreground">({readings.length})</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
@@ -1374,9 +1374,9 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                             <TableHead>Date</TableHead>
                             <TableHead>Zone</TableHead>
                             <TableHead>Emplacement</TableHead>
-                            <TableHead className="text-right">Temp °C</TableHead>
-                            <TableHead className="text-right">Humidité %</TableHead>
-                            <TableHead className="text-right">Gaz ppm</TableHead>
+                            <TableHead className="text-end">Temp °C</TableHead>
+                            <TableHead className="text-end">Humidité %</TableHead>
+                            <TableHead className="text-end">Gaz ppm</TableHead>
                             <TableHead>État</TableHead>
                           </TableRow>
                         </TableHeader>
@@ -1386,9 +1386,9 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                               <TableCell className="text-xs text-muted-foreground">{fmt(r.reading_at)}</TableCell>
                               <TableCell className="font-mono text-xs">{r.zone_code ?? "—"}</TableCell>
                               <TableCell className="font-mono text-xs">{r.location_code ?? "—"}</TableCell>
-                              <TableCell className="text-right text-xs font-semibold">{fmtNum(r.temperature_c, "°")}</TableCell>
-                              <TableCell className="text-right text-xs">{fmtNum(r.humidity_percent, "%")}</TableCell>
-                              <TableCell className="text-right text-xs">{fmtNum(r.gas_ppm)}</TableCell>
+                              <TableCell className="text-end text-xs font-semibold">{fmtNum(r.temperature_c, "°")}</TableCell>
+                              <TableCell className="text-end text-xs">{fmtNum(r.humidity_percent, "%")}</TableCell>
+                              <TableCell className="text-end text-xs">{fmtNum(r.gas_ppm)}</TableCell>
                               <TableCell>
                                 <Badge className={cn("rounded-full text-xs", conditionCls(r.condition_status))}>
                                   {r.condition_status === "critical" ? "Critique" : r.condition_status === "warning" ? "Alerte" : "Normal"}
@@ -1426,7 +1426,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                           </span>
                           <span className="flex-1 text-xs font-medium text-foreground">
                             {e.event_type === "OPEN" ? "Ouverture" : "Fermeture"}
-                            <span className="ml-2 font-normal text-muted-foreground">· {e.zone_code ?? "—"}</span>
+                            <span className="ms-2 font-normal text-muted-foreground">· {e.zone_code ?? "—"}</span>
                           </span>
                           <span className="text-xs text-muted-foreground">{fmt(e.event_at)}</span>
                         </div>
@@ -1466,7 +1466,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                     <Warehouse className="mx-auto mb-3 h-10 w-10 text-muted-foreground/30" />
                     <p className="text-sm text-muted-foreground">{zonesKnown ? "Aucune zone configurée" : "Zones indisponibles"}</p>
                     <Button size="sm" className="mt-3 " onClick={openZoneCreate}>
-                      <Plus className="mr-1.5 h-4 w-4" />
+                      <Plus className="me-1.5 h-4 w-4" />
                       Créer la première zone
                     </Button>
                   </div>
@@ -1478,9 +1478,9 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                           <TableHead>Code</TableHead>
                           <TableHead>Nom</TableHead>
                           <TableHead>Famille</TableHead>
-                          <TableHead className="text-right">Cap. kg</TableHead>
-                          <TableHead className="text-right">Cap. palettes</TableHead>
-                          <TableHead className="text-right">Lots</TableHead>
+                          <TableHead className="text-end">Cap. kg</TableHead>
+                          <TableHead className="text-end">Cap. palettes</TableHead>
+                          <TableHead className="text-end">Lots</TableHead>
                           <TableHead>Temp. consigne</TableHead>
                           <TableHead>Actif</TableHead>
                           <TableHead />
@@ -1497,9 +1497,9 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                                 {familyLabel[z.storage_family ?? ""] ?? z.storage_family}
                               </span>
                             </TableCell>
-                            <TableCell className="text-right text-xs">{fmtNum(z.capacity_kg, " kg")}</TableCell>
-                            <TableCell className="text-right text-xs">{z.capacity_palettes ? fmtNum(z.capacity_palettes, " pal.") : "—"}</TableCell>
-                            <TableCell className="text-right text-xs">
+                            <TableCell className="text-end text-xs">{fmtNum(z.capacity_kg, " kg")}</TableCell>
+                            <TableCell className="text-end text-xs">{z.capacity_palettes ? fmtNum(z.capacity_palettes, " pal.") : "—"}</TableCell>
+                            <TableCell className="text-end text-xs">
                               {(lotCountByZone.get(z.code) ?? 0) > 0
                                 ? <span className="font-semibold text-foreground">{lotCountByZone.get(z.code)}</span>
                                 : <span className="text-muted-foreground">—</span>}
@@ -1575,7 +1575,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                       <MapPin className="mx-auto mb-3 h-10 w-10 text-muted-foreground/30" />
                       <p className="text-sm text-muted-foreground">Aucun emplacement</p>
                       <Button size="sm" className="mt-3 " onClick={openLocCreate}>
-                        <Plus className="mr-1.5 h-4 w-4" />
+                        <Plus className="me-1.5 h-4 w-4" />
                         Ajouter un emplacement
                       </Button>
                     </div>
@@ -1587,8 +1587,8 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                             <TableHead>Code</TableHead>
                             <TableHead>Nom</TableHead>
                             <TableHead>Zone</TableHead>
-                            <TableHead className="text-right">Cap. palettes</TableHead>
-                            <TableHead className="text-right">Cap. kg</TableHead>
+                            <TableHead className="text-end">Cap. palettes</TableHead>
+                            <TableHead className="text-end">Cap. kg</TableHead>
                             <TableHead>Statut</TableHead>
                             <TableHead>Actif</TableHead>
                             <TableHead />
@@ -1600,8 +1600,8 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                               <TableCell className="font-mono text-xs font-bold">{l.code}</TableCell>
                               <TableCell className="text-sm">{l.name}</TableCell>
                               <TableCell className="text-xs text-muted-foreground">{l.zone_code ?? "—"}</TableCell>
-                              <TableCell className="text-right text-xs">{fmtNum(l.capacity_palettes, " pal.")}</TableCell>
-                              <TableCell className="text-right text-xs">{l.capacity_kg ? fmtNum(l.capacity_kg, " kg") : "—"}</TableCell>
+                              <TableCell className="text-end text-xs">{fmtNum(l.capacity_palettes, " pal.")}</TableCell>
+                              <TableCell className="text-end text-xs">{l.capacity_kg ? fmtNum(l.capacity_kg, " kg") : "—"}</TableCell>
                               <TableCell>
                                 <Badge className={cn("rounded-full text-xs", locationStatusCls(l.location_status))}>
                                   {locationStatusLabel[l.location_status]}

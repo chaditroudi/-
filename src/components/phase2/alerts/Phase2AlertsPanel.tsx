@@ -156,9 +156,9 @@ export function Phase2AlertsPanel() {
               disabled={acknowledgeAll.isPending}
             >
               {acknowledgeAll.isPending ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="me-2 h-4 w-4 animate-spin" />
               ) : (
-                <CheckCheck className="mr-2 h-4 w-4" />
+                <CheckCheck className="me-2 h-4 w-4" />
               )}
               Tout acquitter ({kpis.total})
             </Button>
@@ -247,13 +247,13 @@ export function Phase2AlertsPanel() {
             <TabsList className="border">
               <TabsTrigger value="active" className="px-3 py-2 sm:text-sm">
                 Actives
-                <span className="ml-2 rounded-full bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-700">
+                <span className="ms-2 rounded-full bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-700">
                   {filteredActive.length}
                 </span>
               </TabsTrigger>
               <TabsTrigger value="history" className="px-3 py-2 sm:text-sm">
                 Historique
-                <span className="ml-2 rounded-full bg-muted px-1.5 py-0.5 text-xs font-semibold text-foreground">
+                <span className="ms-2 rounded-full bg-muted px-1.5 py-0.5 text-xs font-semibold text-foreground">
                   {filteredAcknowledged.length}
                 </span>
               </TabsTrigger>
@@ -478,9 +478,9 @@ function AlertRow({
           disabled={isAcking}
         >
           {isAcking ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <Loader2 className="me-2 h-4 w-4 animate-spin" />
           ) : (
-            <CheckCheck className="mr-2 h-4 w-4" />
+            <CheckCheck className="me-2 h-4 w-4" />
           )}
           Acquitter
         </Button>

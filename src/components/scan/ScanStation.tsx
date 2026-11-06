@@ -1026,7 +1026,7 @@ const LotPassport = ({ lotCode, onClose }: { lotCode: string; onClose: () => voi
                 <Icon className="h-3.5 w-3.5" />
                 {label}
                 {count > 0 && (
-                  <span className="ml-1 inline-flex items-center justify-center h-4 min-w-[16px] px-1 rounded-full bg-primary/15 text-xs font-bold">
+                  <span className="ms-1 inline-flex items-center justify-center h-4 min-w-[16px] px-1 rounded-full bg-primary/15 text-xs font-bold">
                     {count}
                   </span>
                 )}
@@ -1205,7 +1205,7 @@ export const ScanStation = () => {
               ))}
               <button
                 onClick={() => setHistory([])}
-                className="text-xs text-muted-foreground hover:text-destructive ml-auto"
+                className="text-xs text-muted-foreground hover:text-destructive ms-auto"
               >
                 Effacer
               </button>
@@ -1228,7 +1228,7 @@ export const ScanStation = () => {
               <CardTitle className="text-base font-semibold">
                 Tous les lots
                 {!lotsLoading && (
-                  <span className="ml-2 text-sm font-normal text-muted-foreground">
+                  <span className="ms-2 text-sm font-normal text-muted-foreground">
                     ({filteredLots.length}/{allLots.length})
                   </span>
                 )}
@@ -1237,12 +1237,12 @@ export const ScanStation = () => {
 
             <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center">
               <div className="relative w-full min-w-0 sm:max-w-xs sm:flex-1">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Search className="absolute start-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <Input
                   value={tableSearch}
                   onChange={(e) => setTableSearch(e.target.value)}
                   placeholder="Code, variété, zone…"
-                  className="pl-8 h-8 text-sm"
+                  className="ps-8 h-8 text-sm"
                 />
               </div>
 
@@ -1283,14 +1283,14 @@ export const ScanStation = () => {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-slate-50/70">
-                    <TableHead className="text-xs font-semibold pl-4 w-40">Code lot</TableHead>
+                    <TableHead className="text-xs font-semibold ps-4 w-40">Code lot</TableHead>
                     <TableHead className="text-xs font-semibold w-36">Lot fournisseur</TableHead>
                     <TableHead className="text-xs font-semibold w-28">Variété</TableHead>
-                    <TableHead className="text-xs font-semibold w-28 text-right">Quantité</TableHead>
+                    <TableHead className="text-xs font-semibold w-28 text-end">Quantité</TableHead>
                     <TableHead className="text-xs font-semibold w-32">Statut</TableHead>
                     <TableHead className="text-xs font-semibold w-32">Zone</TableHead>
                     <TableHead className="text-xs font-semibold w-28">Arrivée</TableHead>
-                    <TableHead className="text-xs font-semibold text-right pr-4 w-32">Actions</TableHead>
+                    <TableHead className="text-xs font-semibold text-end pe-4 w-32">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -1304,12 +1304,12 @@ export const ScanStation = () => {
                         className={cn(
                           'transition-colors cursor-pointer group',
                           isActive
-                            ? 'bg-primary/8 border-l-2 border-l-primary'
+                            ? 'bg-primary/8 border-s-2 border-s-primary'
                             : 'hover:bg-slate-50',
                         )}
                         onClick={() => loadLot(code)}
                       >
-                        <TableCell className="pl-4 py-2.5">
+                        <TableCell className="ps-4 py-2.5">
                           <div className="flex items-center gap-1.5">
                             {isActive && <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />}
                             <span className="font-mono text-xs font-semibold text-foreground">{code}</span>
@@ -1321,7 +1321,7 @@ export const ScanStation = () => {
                         <TableCell className="py-2.5">
                           <span className="text-xs">{lot.variety ?? '—'}</span>
                         </TableCell>
-                        <TableCell className="py-2.5 text-right">
+                        <TableCell className="py-2.5 text-end">
                           <span className="text-xs font-medium tabular-nums">
                             {lot.quantity != null ? `${fmtKg(lot.quantity)} ${lot.unit ?? 'kg'}` : '—'}
                           </span>
@@ -1347,7 +1347,7 @@ export const ScanStation = () => {
                             {fmtDate(lot.created_at)}
                           </span>
                         </TableCell>
-                        <TableCell className="py-2.5 pr-4">
+                        <TableCell className="py-2.5 pe-4">
                           <div className="flex items-center gap-1 justify-end" onClick={(e) => e.stopPropagation()}>
                             <Button
                               size="sm"

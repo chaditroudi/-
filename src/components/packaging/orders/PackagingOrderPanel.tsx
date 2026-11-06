@@ -54,7 +54,7 @@ export function PackagingOrderPanel({ currentUser = 'Utilisateur' }: { currentUs
               Ordres actifs + planifiés ({active.length + planned.length})
             </CardTitle>
             <Button data-testid="packaging-create" disabled={!canCreate} size="sm" onClick={() => setShowCreate(true)}>
-              <Plus className="h-4 w-4 mr-1.5" />
+              <Plus className="h-4 w-4 me-1.5" />
               Nouvel OF
             </Button>
           </div>
@@ -111,7 +111,7 @@ export function PackagingOrderPanel({ currentUser = 'Utilisateur' }: { currentUs
                         <div className="text-xs text-muted-foreground">
                           {order.produced_units} / {order.target_units} unités · {pct}%
                           {order.metal_detector_failures > 0 && (
-                            <span className="text-red-600 font-semibold ml-2">
+                            <span className="text-red-600 font-semibold ms-2">
                               ⚠ Métal x{order.metal_detector_failures}
                             </span>
                           )}
@@ -146,7 +146,7 @@ export function PackagingOrderPanel({ currentUser = 'Utilisateur' }: { currentUs
                     </Badge>
                     <span className="text-muted-foreground text-xs truncate max-w-36">{order.bom_name}</span>
                     {yieldPct != null && (
-                      <span className={`text-xs ml-auto ${yieldPct < 95 ? 'text-amber-600 font-semibold' : 'text-green-600'}`}>
+                      <span className={`text-xs ms-auto ${yieldPct < 95 ? 'text-amber-600 font-semibold' : 'text-green-600'}`}>
                         {order.produced_units.toLocaleString('fr-TN')} un. · {yieldPct}%
                       </span>
                     )}

@@ -155,7 +155,7 @@ export const MaintenanceRequestsList = ({
               <TableHead>Coût est.</TableHead>
               <TableHead>Statut</TableHead>
               <TableHead>Étape</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="text-end">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

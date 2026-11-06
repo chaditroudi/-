@@ -48,7 +48,7 @@ const startOfToday = () => {
 const SummaryRow = ({ label, value }: { label: string; value: string | null | undefined }) => (
   <div className="flex items-start justify-between gap-4 border-b border-border/50 py-2 text-sm last:border-0">
     <span className="text-muted-foreground">{label}</span>
-    <span className="text-right font-medium">{value || '—'}</span>
+    <span className="text-end font-medium">{value || '—'}</span>
   </div>
 );
 
@@ -306,7 +306,7 @@ const FlowBody = ({ draftId, prefillPurchaseOrderId, canRunQc, onClose, onOpenRe
       <div className="flex flex-wrap items-center gap-2">
         {draft.stage > 1 && (
           <Button type="button" variant="outline" disabled={confirming} onClick={() => goTo((draft.stage - 1) as IntakeStage)}>
-            <ArrowLeft className="mr-1 h-4 w-4" />
+            <ArrowLeft className="me-1 h-4 w-4" />
             Retour
           </Button>
         )}
@@ -321,14 +321,14 @@ const FlowBody = ({ draftId, prefillPurchaseOrderId, canRunQc, onClose, onOpenRe
         >
           Abandonner
         </Button>
-        <Button type="button" variant="outline" className="ml-auto h-12 px-3" disabled={confirming} onClick={() => void saveAndLeave()}>
+        <Button type="button" variant="outline" className="ms-auto h-12 px-3" disabled={confirming} onClick={() => void saveAndLeave()}>
           <span className="sm:hidden">Quitter</span>
           <span className="hidden sm:inline">Enregistrer et quitter</span>
         </Button>
         {draft.stage < 3 ? (
           <Button type="button" className="h-12 flex-1 px-6 sm:flex-none" disabled={!canContinue} onClick={() => goTo((draft.stage + 1) as IntakeStage)}>
             Continuer
-            <ArrowRight className="ml-1 h-4 w-4" />
+            <ArrowRight className="ms-1 h-4 w-4" />
           </Button>
         ) : (
           <Button
@@ -337,7 +337,7 @@ const FlowBody = ({ draftId, prefillPurchaseOrderId, canRunQc, onClose, onOpenRe
             disabled={allBlockers.length > 0 || confirming || createIntake.isPending || Boolean(conflict)}
             onClick={() => void confirm()}
           >
-            {confirming || createIntake.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Check className="mr-2 h-4 w-4" />}
+            {confirming || createIntake.isPending ? <Loader2 className="me-2 h-4 w-4 animate-spin" /> : <Check className="me-2 h-4 w-4" />}
             Confirmer la réception
           </Button>
         )}
@@ -361,7 +361,7 @@ const FlowBody = ({ draftId, prefillPurchaseOrderId, canRunQc, onClose, onOpenRe
         </Button>
         <h2 className="text-lg font-semibold">Nouvelle réception</h2>
         {draft.supplier_label && <span className="truncate text-sm text-muted-foreground">{draft.supplier_label}</span>}
-        <span className="ml-auto text-xs text-muted-foreground" role="status">{saveLabel}</span>
+        <span className="ms-auto text-xs text-muted-foreground" role="status">{saveLabel}</span>
       </div>
 
       <ol className="grid grid-cols-3 border-b" aria-label="Étapes de la réception">
@@ -376,7 +376,7 @@ const FlowBody = ({ draftId, prefillPurchaseOrderId, canRunQc, onClose, onOpenRe
                 aria-current={current ? 'step' : undefined}
                 onClick={() => goTo(stage.id)}
                 className={cn(
-                  '-mb-px flex min-h-11 w-full items-center gap-2 border-b-2 px-1 py-2 text-left text-sm font-semibold',
+                  '-mb-px flex min-h-11 w-full items-center gap-2 border-b-2 px-1 py-2 text-start text-sm font-semibold',
                   current ? 'border-primary text-foreground' : done ? 'border-primary/40 text-primary hover:text-foreground' : 'border-transparent text-muted-foreground',
                 )}
               >

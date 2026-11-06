@@ -85,7 +85,7 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                     className="min-h-12 shrink-0"
                     onClick={() => setScannerOpen(true)}
                   >
-                    <Camera className="mr-2 h-4 w-4" />
+                    <Camera className="me-2 h-4 w-4" />
                     Caméra QR
                   </Button>
                   <Button
@@ -94,7 +94,7 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                     onClick={() => void handleScanLot()}
                     disabled={isScanLoading || !scanValue.trim()}
                   >
-                    <QrCode className="mr-2 h-4 w-4" />
+                    <QrCode className="me-2 h-4 w-4" />
                     {isScanLoading ? 'Chargement…' : 'Scanner'}
                   </Button>
                 </div>
@@ -140,7 +140,7 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                           </span>
                         </div>
                         <Button type="button" className="min-h-11 shrink-0" disabled={!online} onClick={(e) => { e.stopPropagation(); handleStartQC(r); }}>
-                          <Shield className="mr-1.5 h-4 w-4" />
+                          <Shield className="me-1.5 h-4 w-4" />
                           Lancer QC
                         </Button>
                       </div>
@@ -163,7 +163,7 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                           </span>
                         </div>
                         <Button type="button" className="min-h-11 shrink-0 bg-sky-700 hover:bg-sky-800" disabled={!online} onClick={(e) => { e.stopPropagation(); handleStartQC(r); }}>
-                          <Shield className="mr-1.5 h-4 w-4" />
+                          <Shield className="me-1.5 h-4 w-4" />
                           Reprendre
                         </Button>
                       </div>
@@ -183,11 +183,11 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                       return (
                         <div
                           key={insp.id}
-                          className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left hover:bg-muted/60"
+                          className="flex w-full items-center justify-between gap-3 px-3 py-2 text-start hover:bg-muted/60"
                         >
                           <div className="min-w-0">
                             <span className="block whitespace-nowrap font-mono text-sm font-semibold">{rec.reception_number}</span>
-                            <span className="ml-2 text-xs text-muted-foreground">
+                            <span className="ms-2 text-xs text-muted-foreground">
                               {rec.supplier?.name || rec.supplier_name_snapshot || '—'} • {(insp.lab_analyses ?? []).join(', ')}
                             </span>
                           </div>
@@ -202,7 +202,7 @@ export const ReceptionQcQueue = ({ receptions, onOpenStorage }: {
                               setLabDialogOpen(true);
                             }}
                           >
-                            <FlaskConical className="mr-1 h-3 w-3" />
+                            <FlaskConical className="me-1 h-3 w-3" />
                             Saisir résultats
                           </Button>
                         </div>

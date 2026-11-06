@@ -71,19 +71,19 @@ export const PurchaseOrdersList = ({
             </p>
           </div>
           <Button size="sm" onClick={onNew}>
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 me-2" />
             Nouveau BC
           </Button>
         </CardHeader>
         <CardContent>
           <div className="mb-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Rechercher N° BC, fournisseur, variété..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-10"
+                className="ps-10"
               />
             </div>
           </div>
@@ -98,9 +98,9 @@ export const PurchaseOrdersList = ({
                   <TableHead>Lignes</TableHead>
                   <TableHead>Réception</TableHead>
                   <TableHead>Validation</TableHead>
-                  <TableHead className="text-right">Montant</TableHead>
+                  <TableHead className="text-end">Montant</TableHead>
                   <TableHead>Statut</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="text-end">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -195,7 +195,7 @@ export const PurchaseOrdersList = ({
                             <Badge variant="outline" className="text-xs">Standard</Badge>
                           )}
                         </TableCell>
-                        <TableCell className="text-right font-medium">
+                        <TableCell className="text-end font-medium">
                           <div>{order.total_amount?.toFixed(2)} {order.currency}</div>
                           {(order.advance_paid ?? 0) > 0 && (
                             <div className="text-xs text-muted-foreground">
@@ -222,7 +222,7 @@ export const PurchaseOrdersList = ({
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-end">
                           <div className="flex justify-end gap-1">
                             <Button
                               variant="ghost"

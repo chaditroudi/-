@@ -56,8 +56,8 @@ export const ProductionOrdersList = ({ orders, receptions, onOpenOrder }: Produc
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative min-w-[12rem] flex-1 lg:max-w-xs">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input aria-label="Rechercher un ordre" className="pl-9" placeholder="N° d'ordre, produit, réception" value={search} onChange={(event) => setSearch(event.target.value)} />
+          <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input aria-label="Rechercher un ordre" className="ps-9" placeholder="N° d'ordre, produit, réception" value={search} onChange={(event) => setSearch(event.target.value)} />
         </div>
         <div className="flex flex-wrap gap-1">
           {FILTERS.map((item) => (
@@ -66,7 +66,7 @@ export const ProductionOrdersList = ({ orders, receptions, onOpenOrder }: Produc
             </Button>
           ))}
         </div>
-        <Button data-testid="production-create" disabled={!canCreate} type="button" className="ml-auto gap-2" onClick={() => setShowCreateDialog(true)}>
+        <Button data-testid="production-create" disabled={!canCreate} type="button" className="ms-auto gap-2" onClick={() => setShowCreateDialog(true)}>
           <Plus className="h-4 w-4" />
           {t('production.new')}
         </Button>
@@ -83,7 +83,7 @@ export const ProductionOrdersList = ({ orders, receptions, onOpenOrder }: Produc
               <TableHead>{t('production.orderNumber')}</TableHead>
               <TableHead>{t('production.product')}</TableHead>
               <TableHead className="hidden lg:table-cell">Réception</TableHead>
-              <TableHead className="text-right">{t('common.quantity')}</TableHead>
+              <TableHead className="text-end">{t('common.quantity')}</TableHead>
               <TableHead className="hidden sm:table-cell">{t('production.priority')}</TableHead>
               <TableHead>{t('common.status')}</TableHead>
               <TableHead className="hidden md:table-cell">{t('production.creationDate')}</TableHead>
@@ -100,7 +100,7 @@ export const ProductionOrdersList = ({ orders, receptions, onOpenOrder }: Produc
                   {order.flux_code && <span className="block text-xs text-muted-foreground">{order.flux_code} : {fluxCodeLabels[order.flux_code]}</span>}
                 </TableCell>
                 <TableCell className="hidden lg:table-cell">{order.reception?.reception_number ?? order.reception_number_snapshot ?? '—'}</TableCell>
-                <TableCell className="text-right">
+                <TableCell className="text-end">
                   {order.target_quantity == null ? '—' : `${order.target_quantity} ${order.unit ?? ''}`}
                   {order.actual_quantity > 0 && <span className="block text-xs text-muted-foreground">{order.actual_quantity} produits</span>}
                 </TableCell>

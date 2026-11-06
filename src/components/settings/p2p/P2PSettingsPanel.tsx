@@ -268,7 +268,7 @@ export function P2PSettingsPanel({ settings }: Props) {
       </div>
 
       <Button onClick={handleSave} disabled={update.isPending}>
-        {update.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        {update.isPending && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
         Enregistrer règles P2P
       </Button>
     </div>

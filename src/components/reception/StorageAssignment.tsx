@@ -184,7 +184,7 @@ export const StorageAssignment = ({ reception, lots }: StorageAssignmentProps) =
         <Warehouse className="h-5 w-5 text-muted-foreground" />
         <h3 className="font-medium">Orientation des lots d'entrée</h3>
         {lotIsBio && (
-          <Badge className="ml-2 gap-1 bg-emerald-600 text-white">
+          <Badge className="ms-2 gap-1 bg-emerald-600 text-white">
             <Leaf className="h-3 w-3" />BIO déclaré
           </Badge>
         )}
@@ -296,7 +296,7 @@ export const StorageAssignment = ({ reception, lots }: StorageAssignmentProps) =
                         disabled={dbZones.length === 0}
                         className={lot.stock_status === 'STOCK_LIBERE' ? 'border-emerald-300 text-emerald-700 hover:bg-emerald-50' : ''}
                       >
-                        <ArrowRight className="h-4 w-4 mr-1" />
+                        <ArrowRight className="h-4 w-4 me-1" />
                         {lot.storage_zone_code
                           ? 'Déplacer'
                           : lot.stock_status === 'STOCK_LIBERE'
@@ -312,7 +312,7 @@ export const StorageAssignment = ({ reception, lots }: StorageAssignmentProps) =
                         className="border-emerald-300 text-emerald-700 hover:bg-emerald-50"
                         onClick={() => setLotToRelease(lot)}
                       >
-                        <LockOpen className="h-4 w-4 mr-1" />
+                        <LockOpen className="h-4 w-4 me-1" />
                         Libérer
                       </Button>
                     ) : lot.stock_status === 'STOCK_LIBERE' || lot.stock_status === 'NON_STOCKE' ? (
@@ -322,7 +322,7 @@ export const StorageAssignment = ({ reception, lots }: StorageAssignmentProps) =
                         className="border-amber-300 text-amber-800 hover:bg-amber-50"
                         onClick={() => setLotToQuarantine(lot)}
                       >
-                        <Lock className="h-4 w-4 mr-1" />
+                        <Lock className="h-4 w-4 me-1" />
                         Quarantaine
                       </Button>
                     ) : null}
@@ -405,7 +405,7 @@ export const StorageAssignment = ({ reception, lots }: StorageAssignmentProps) =
                               <span className="flex items-center gap-2">
                                 <span className={FAMILY_COLOR[family]}>{FAMILY_ICON[family]}</span>
                                 <span>{z.code} — {z.name}</span>
-                                <span className={`text-xs ml-auto ${occ >= 90 ? 'text-red-600' : 'text-muted-foreground'}`}>
+                                <span className={`text-xs ms-auto ${occ >= 90 ? 'text-red-600' : 'text-muted-foreground'}`}>
                                   {occ}%
                                 </span>
                               </span>

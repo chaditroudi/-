@@ -162,7 +162,7 @@ export const GoodsReceiptsPanel = ({ suppliers, orders, currentUser }: Props) =>
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-base">Bons de réception</h3>
         <Button size="sm" onClick={() => setCreateOpen(true)}>
-          <Plus className="h-4 w-4 mr-1" /> Nouveau BR
+          <Plus className="h-4 w-4 me-1" /> Nouveau BR
         </Button>
       </div>
 
@@ -377,7 +377,7 @@ export const GoodsReceiptsPanel = ({ suppliers, orders, currentUser }: Props) =>
                     className={releaseDecision === 'ACCEPTE' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
                     onClick={() => setReleaseDecision('ACCEPTE')}
                   >
-                    <CheckCircle className="h-4 w-4 mr-1" /> Accepter
+                    <CheckCircle className="h-4 w-4 me-1" /> Accepter
                   </Button>
                   <Button
                     variant={releaseDecision === 'REFUSE' ? 'default' : 'outline'}
@@ -385,7 +385,7 @@ export const GoodsReceiptsPanel = ({ suppliers, orders, currentUser }: Props) =>
                     className={releaseDecision === 'REFUSE' ? 'bg-red-600 hover:bg-red-700' : ''}
                     onClick={() => setReleaseDecision('REFUSE')}
                   >
-                    <XCircle className="h-4 w-4 mr-1" /> Refuser
+                    <XCircle className="h-4 w-4 me-1" /> Refuser
                   </Button>
                 </div>
               </div>

@@ -60,7 +60,7 @@ export const SupplierScorePanel = ({ supplier, compact = false }: SupplierScoreP
               <div className="flex items-center justify-between text-xs">
                 <span>
                   {criterion.label}
-                  <span className="ml-1 text-muted-foreground">({criterion.weight} %)</span>
+                  <span className="ms-1 text-muted-foreground">({criterion.weight} %)</span>
                 </span>
                 <span className="font-medium tabular-nums">{criterion.score.toFixed(0)}</span>
               </div>

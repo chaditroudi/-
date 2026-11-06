@@ -143,7 +143,7 @@ function UpdateCcpDialog({ ccpCode, current, open, onOpenChange }: UpdateCcpDial
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Annuler</Button>
             <Button type="submit" disabled={update.isPending}>
-              {update.isPending ? <><Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />Enregistrement…</> : 'Enregistrer'}
+              {update.isPending ? <><Loader2 className="h-3.5 w-3.5 animate-spin me-1" />Enregistrement…</> : 'Enregistrer'}
             </Button>
           </DialogFooter>
         </form>
@@ -177,8 +177,8 @@ function CcpCard({ ccp, liveState }: CcpCardProps) {
             {liveState.checked_by && `, par ${liveState.checked_by}`}
           </span>
         )}
-        <Button size="sm" variant="outline" className="ml-auto" aria-label={`Mettre à jour ${ccp.code}`} onClick={() => setUpdateOpen(true)}>
-          <Edit3 className="mr-1 h-3 w-3" />
+        <Button size="sm" variant="outline" className="ms-auto" aria-label={`Mettre à jour ${ccp.code}`} onClick={() => setUpdateOpen(true)}>
+          <Edit3 className="me-1 h-3 w-3" />
           Mettre à jour
         </Button>
       </div>
@@ -240,7 +240,7 @@ export function HaccpDashboard() {
           ].filter(Boolean).join(', ')}
         </p>
         <Button type="button" size="sm" variant="outline" onClick={() => qc.invalidateQueries({ queryKey: ['haccp-states'] })}>
-          <RefreshCw className="mr-1 h-3 w-3" />
+          <RefreshCw className="me-1 h-3 w-3" />
           Actualiser
         </Button>
       </div>

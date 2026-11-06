@@ -145,7 +145,7 @@ export function BOMPanel({ currentUser = 'Utilisateur' }: { currentUser?: string
           </div>
         </div>
         <Button size="sm" onClick={openCreate}>
-          <Plus className="h-4 w-4 mr-1.5" />
+          <Plus className="h-4 w-4 me-1.5" />
           Nouvelle nomenclature
         </Button>
       </div>
@@ -204,7 +204,7 @@ export function BOMPanel({ currentUser = 'Utilisateur' }: { currentUser?: string
                   )}
                   <div className="flex gap-2 pt-1">
                     <Button size="sm" variant="outline" className="h-9 px-2 text-xs" onClick={() => openEdit(bom)}>
-                      <Pencil className="h-3 w-3 mr-1" />
+                      <Pencil className="h-3 w-3 me-1" />
                       Modifier
                     </Button>
                     <Button
@@ -214,8 +214,8 @@ export function BOMPanel({ currentUser = 'Utilisateur' }: { currentUser?: string
                       onClick={() => toggleActive.mutate({ id: bom.id, is_active: bom.is_active })}
                     >
                       {bom.is_active
-                        ? <><ToggleRight className="h-3 w-3 mr-1" />Désactiver</>
-                        : <><ToggleLeft className="h-3 w-3 mr-1" />Activer</>}
+                        ? <><ToggleRight className="h-3 w-3 me-1" />Désactiver</>
+                        : <><ToggleLeft className="h-3 w-3 me-1" />Activer</>}
                     </Button>
                   </div>
                 </CardContent>
@@ -346,7 +346,7 @@ export function BOMPanel({ currentUser = 'Utilisateur' }: { currentUser?: string
           <DialogFooter>
             <Button variant="ghost" onClick={() => setShowDialog(false)}>Annuler</Button>
             <Button onClick={handleSubmit} disabled={isPending || !canSubmit}>
-              {isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {isPending && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
               {editingBOM ? 'Enregistrer' : 'Créer'}
             </Button>
           </DialogFooter>

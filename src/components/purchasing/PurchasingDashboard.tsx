@@ -437,7 +437,7 @@ export const PurchasingDashboard = ({
                 {awaitingReception.length} commande(s) confirmée(s) en attente de réception physique
               </span>
             </div>
-            <div className="flex flex-wrap gap-2 pl-6">
+            <div className="flex flex-wrap gap-2 ps-6">
               {awaitingReception.slice(0, 5).map((o) => (
                 <button
                   key={o.id}

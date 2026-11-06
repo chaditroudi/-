@@ -167,7 +167,7 @@ function CreateForm({ onCreated, currentUser }: { onCreated: () => void; current
           <div className="text-xs text-muted-foreground">
             {selectedLots.length} lot(s) · Total: {selectedLots.reduce((s, l) => s + (l.quantity_total ?? 0), 0).toLocaleString('fr-TN')} kg
             {selectedLots.some((l) => l.is_bio) && !proto.allows_bio && (
-              <span className="text-red-600 font-semibold ml-2">⚠ Lot(s) BIO détecté(s) — changer de protocole</span>
+              <span className="text-red-600 font-semibold ms-2">⚠ Lot(s) BIO détecté(s) — changer de protocole</span>
             )}
           </div>
         )}
@@ -178,7 +178,7 @@ function CreateForm({ onCreated, currentUser }: { onCreated: () => void; current
         onClick={handleCreate}
         disabled={create.isPending}
       >
-        {create.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+        {create.isPending && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
         Créer cycle de fumigation
       </Button>
     </div>
@@ -220,7 +220,7 @@ function CycleSummary({ cycle }: { cycle: FumigationCycle }) {
           <span>
             Durée: <strong>{durationH}h</strong> / {Math.round(cycle.minimum_duration_minutes / 60)}h min
             {cycle.duration_compliant != null && (
-              <span className={cycle.duration_compliant ? 'text-green-600 ml-1' : 'text-red-600 ml-1'}>
+              <span className={cycle.duration_compliant ? 'text-green-600 ms-1' : 'text-red-600 ms-1'}>
                 {cycle.duration_compliant ? '✓' : '✗ non conforme'}
               </span>
             )}
@@ -232,7 +232,7 @@ function CycleSummary({ cycle }: { cycle: FumigationCycle }) {
           <span>
             Résiduel: <strong>{cycle.residual_concentration_ppm} ppm</strong>
             {cycle.residual_tlv_compliant != null && (
-              <span className={cycle.residual_tlv_compliant ? 'text-green-600 ml-1' : 'text-red-600 ml-1'}>
+              <span className={cycle.residual_tlv_compliant ? 'text-green-600 ms-1' : 'text-red-600 ms-1'}>
                 {cycle.residual_tlv_compliant ? '✓ TLV' : '✗ TLV'}
               </span>
             )}
@@ -253,7 +253,7 @@ function CycleSummary({ cycle }: { cycle: FumigationCycle }) {
                 <span className="font-mono text-xs">{lot.lot_number}</span>
                 <span className="text-muted-foreground text-xs">{lot.variety}</span>
                 {lot.is_bio && <Badge variant="outline" className="text-xs text-green-700">BIO</Badge>}
-                <span className="ml-auto text-xs">{lot.weight_kg.toLocaleString('fr-TN')} kg</span>
+                <span className="ms-auto text-xs">{lot.weight_kg.toLocaleString('fr-TN')} kg</span>
               </div>
             ))}
           </div>
@@ -350,7 +350,7 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
         <span className="font-mono text-sm text-muted-foreground">{cycle.cycle_number}</span>
         <span className="text-sm text-muted-foreground">Chambre {cycle.chamber} · {proto.label}</span>
         {isCCP && (
-          <div className="ml-auto flex gap-2">
+          <div className="ms-auto flex gap-2">
             <Button size="sm" variant={view === 'details' ? 'default' : 'outline'} onClick={() => setView('details')}>Détails</Button>
             <Button size="sm" variant={view === 'ccp' ? 'default' : 'outline'} onClick={() => setView('ccp')}>CCP Monitor</Button>
           </div>
@@ -467,7 +467,7 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
                         onClick={() => setSignRole('operator')}
                         disabled={signCycle.isPending}
                       >
-                        <ShieldCheck className="h-4 w-4 mr-1.5" />
+                        <ShieldCheck className="h-4 w-4 me-1.5" />
                         Signer — Opérateur
                       </Button>
                     )}
@@ -493,7 +493,7 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
                         onClick={() => setSignRole('quality')}
                         disabled={signCycle.isPending}
                       >
-                        <ShieldCheck className="h-4 w-4 mr-1.5" />
+                        <ShieldCheck className="h-4 w-4 me-1.5" />
                         Signer — Qualité
                       </Button>
                     )}
@@ -545,7 +545,7 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
                 onClick={() => startCycle.mutate({ id: cycle.id })}
                 disabled={startCycle.isPending}
               >
-                <Play className="h-4 w-4 mr-1.5" />
+                <Play className="h-4 w-4 me-1.5" />
                 Démarrer cycle (T0)
               </Button>
             )}
@@ -561,7 +561,7 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
             )}
             {canPrint && (
               <Button size="sm" variant="outline" onClick={() => printFumigationCertificate(cycle)}>
-                <Printer className="h-4 w-4 mr-1.5" />
+                <Printer className="h-4 w-4 me-1.5" />
                 Imprimer certificat
               </Button>
             )}

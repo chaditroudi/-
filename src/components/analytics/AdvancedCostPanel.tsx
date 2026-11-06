@@ -85,7 +85,7 @@ export const AdvancedCostPanel = ({ period }: AdvancedCostPanelProps) => {
             <div className="mt-3 flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Paramètre site : {kpis?.targetCostPerKg || 0} TND</span>
               <Badge variant="outline">
-                {hasProduction && (isOverBudget ? <ArrowUpRight className="h-3 w-3 mr-1" /> : <ArrowDownRight className="h-3 w-3 mr-1" />)}
+                {hasProduction && (isOverBudget ? <ArrowUpRight className="h-3 w-3 me-1" /> : <ArrowDownRight className="h-3 w-3 me-1" />)}
                 {formatMeasurement(kpis ? Math.abs(kpis.costVariancePercent) : undefined, hasProduction, "%")}
               </Badge>
             </div>

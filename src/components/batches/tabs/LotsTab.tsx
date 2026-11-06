@@ -67,9 +67,9 @@ export const LotsTab: React.FC<LotsTabProps> = ({
             placeholder="Rechercher un lot, variété, zone…"
             value={lotSearch}
             onChange={(e) => setLotSearch(e.target.value)}
-            className="rounded-xl pl-9"
+            className="rounded-xl ps-9"
           />
-          <Eye className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
+          <Eye className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
         </div>
         <Select value={lotStatusFilter} onValueChange={setLotStatusFilter}>
           <SelectTrigger className="w-full rounded-xl sm:w-48">
@@ -108,7 +108,7 @@ export const LotsTab: React.FC<LotsTabProps> = ({
                     <TableHead>Lot interne</TableHead>
                     <TableHead>Fournisseur</TableHead>
                     <TableHead>Variété</TableHead>
-                    <TableHead className="text-right">Qté</TableHead>
+                    <TableHead className="text-end">Qté</TableHead>
                     <TableHead>Zone stockage</TableHead>
                     <TableHead>Statut</TableHead>
                     <TableHead>Date entrée</TableHead>
@@ -121,7 +121,7 @@ export const LotsTab: React.FC<LotsTabProps> = ({
                       <TableCell className="font-mono text-xs font-semibold">{lot.lot_internal ?? "—"}</TableCell>
                       <TableCell className="text-xs text-muted-foreground">{lot.lot_supplier ?? "—"}</TableCell>
                       <TableCell className="text-xs">{lot.variety ?? "—"}</TableCell>
-                      <TableCell className="text-right text-xs">{fmtNum(lot.quantity, ` ${lot.unit ?? "kg"}`)}</TableCell>
+                      <TableCell className="text-end text-xs">{fmtNum(lot.quantity, ` ${lot.unit ?? "kg"}`)}</TableCell>
                       <TableCell>
                         {lot.storage_zone_code ? (
                           <span className="inline-flex items-center gap-1 rounded-lg border border-border/60 bg-muted/40 px-2 py-0.5 text-xs font-mono">
@@ -145,7 +145,7 @@ export const LotsTab: React.FC<LotsTabProps> = ({
                               className="h-9 rounded-lg text-xs"
                               onClick={() => onAssignLot(lot)}
                             >
-                              <Truck className="mr-1 h-3 w-3" />
+                              <Truck className="me-1 h-3 w-3" />
                               Affecter
                             </Button>
                           )}

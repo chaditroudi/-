@@ -55,7 +55,7 @@ function LotCard({ lot, stage, onLaunch }: { lot: AvailableLot; stage: Phase2Sta
         <div className="flex items-center gap-1.5 flex-wrap">
           <span className="text-xs font-mono font-semibold">{lot.reception_number}</span>
           {lot.variety && <span className="text-xs text-muted-foreground">{lot.variety}</span>}
-          {lot.is_bio && <Badge variant="outline" className="text-xs h-4 px-1 text-green-600 border-green-300"><Leaf className="h-2.5 w-2.5 mr-0.5" />BIO</Badge>}
+          {lot.is_bio && <Badge variant="outline" className="text-xs h-4 px-1 text-green-600 border-green-300"><Leaf className="h-2.5 w-2.5 me-0.5" />BIO</Badge>}
           {lot.qc_grade && <Badge variant="outline" className="text-xs h-4 px-1">{lot.qc_grade}</Badge>}
         </div>
         <div className="text-xs text-muted-foreground">
@@ -181,7 +181,7 @@ export function ProductionPipelinePanel({ onLaunchFumigation }: Props) {
                   {waiting.length}
                 </Badge>
               </div>
-              <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
+              <div className="space-y-1.5 max-h-64 overflow-y-auto pe-1">
                 {waiting.map((lot) => (
                   <LotCard
                     key={lot.id}

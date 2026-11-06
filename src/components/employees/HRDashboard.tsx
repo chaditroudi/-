@@ -523,7 +523,7 @@ function PointagesPanel() {
               disabled={!selectedEmployeeId || !!openToday}
               onClick={() => clockInEmployee(selectedEmployeeId)}
             >
-              <LogIn className="h-4 w-4 mr-1.5" />
+              <LogIn className="h-4 w-4 me-1.5" />
               Entrée
             </Button>
             <Button
@@ -533,7 +533,7 @@ function PointagesPanel() {
               disabled={!selectedEmployeeId || !openToday}
               onClick={() => clockOutEmployee(selectedEmployeeId)}
             >
-              <LogOut className="h-4 w-4 mr-1.5" />
+              <LogOut className="h-4 w-4 me-1.5" />
               Sortie
             </Button>
             {openToday && (
@@ -569,7 +569,7 @@ function PointagesPanel() {
           onClick={() => setTsDialog({ mode: 'create' })}
           className="bg-emerald-600 hover:bg-emerald-700"
         >
-          <Plus className="h-4 w-4 mr-1.5" />
+          <Plus className="h-4 w-4 me-1.5" />
           Entrée manuelle
         </Button>
       </div>
@@ -591,15 +591,15 @@ function PointagesPanel() {
               <table className="w-full text-xs">
                 <thead>
                   <tr className="border-b bg-muted/40">
-                    <th className="px-3 py-2 text-left font-medium">Date</th>
-                    <th className="px-3 py-2 text-left font-medium">Employé</th>
-                    <th className="px-3 py-2 text-left font-medium">Entrée</th>
-                    <th className="px-3 py-2 text-left font-medium">Sortie</th>
-                    <th className="px-3 py-2 text-left font-medium">Pause</th>
-                    <th className="px-3 py-2 text-right font-medium">Heures</th>
-                    <th className="px-3 py-2 text-left font-medium">Module</th>
-                    <th className="px-3 py-2 text-left font-medium">Statut</th>
-                    <th className="px-3 py-2 text-left font-medium">Actions</th>
+                    <th className="px-3 py-2 text-start font-medium">Date</th>
+                    <th className="px-3 py-2 text-start font-medium">Employé</th>
+                    <th className="px-3 py-2 text-start font-medium">Entrée</th>
+                    <th className="px-3 py-2 text-start font-medium">Sortie</th>
+                    <th className="px-3 py-2 text-start font-medium">Pause</th>
+                    <th className="px-3 py-2 text-end font-medium">Heures</th>
+                    <th className="px-3 py-2 text-start font-medium">Module</th>
+                    <th className="px-3 py-2 text-start font-medium">Statut</th>
+                    <th className="px-3 py-2 text-start font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -622,7 +622,7 @@ function PointagesPanel() {
                         <td className="px-3 py-2 text-muted-foreground">
                           {ts.break_minutes ? `${ts.break_minutes}min` : '—'}
                         </td>
-                        <td className="px-3 py-2 text-right font-bold">
+                        <td className="px-3 py-2 text-end font-bold">
                           {ts.hours_worked != null ? `${ts.hours_worked.toFixed(1)}h` : '—'}
                         </td>
                         <td className="px-3 py-2">{ts.operation_module ?? '—'}</td>
@@ -801,7 +801,7 @@ function TachesPanel() {
           onClick={() => setTaskDialog({ mode: 'create' })}
           className="bg-emerald-600 hover:bg-emerald-700"
         >
-          <Plus className="h-4 w-4 mr-1.5" />
+          <Plus className="h-4 w-4 me-1.5" />
           Nouvelle tâche
         </Button>
       </div>
@@ -824,13 +824,13 @@ function TachesPanel() {
               <table className="w-full text-xs">
                 <thead>
                   <tr className="border-b bg-muted/40">
-                    <th className="px-3 py-2 text-left font-medium">Titre</th>
-                    <th className="px-3 py-2 text-left font-medium">Assigné à</th>
-                    <th className="px-3 py-2 text-left font-medium">Priorité</th>
-                    <th className="px-3 py-2 text-left font-medium">Échéance</th>
-                    <th className="px-3 py-2 text-left font-medium">Département</th>
-                    <th className="px-3 py-2 text-left font-medium">Statut</th>
-                    <th className="px-3 py-2 text-left font-medium">Actions</th>
+                    <th className="px-3 py-2 text-start font-medium">Titre</th>
+                    <th className="px-3 py-2 text-start font-medium">Assigné à</th>
+                    <th className="px-3 py-2 text-start font-medium">Priorité</th>
+                    <th className="px-3 py-2 text-start font-medium">Échéance</th>
+                    <th className="px-3 py-2 text-start font-medium">Département</th>
+                    <th className="px-3 py-2 text-start font-medium">Statut</th>
+                    <th className="px-3 py-2 text-start font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -981,7 +981,7 @@ export function HRDashboard() {
             <ClipboardList className="h-3.5 w-3.5" />
             Tâches
             {(urgentTasks > 0 || pendingCount > 0) && (
-              <Badge className="ml-1 h-4 px-1.5 text-xs bg-amber-500 text-white">
+              <Badge className="ms-1 h-4 px-1.5 text-xs bg-amber-500 text-white">
                 {urgentTasks > 0 ? `${urgentTasks} urgent` : pendingCount}
               </Badge>
             )}

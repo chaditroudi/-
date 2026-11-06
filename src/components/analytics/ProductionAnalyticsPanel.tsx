@@ -256,11 +256,11 @@ export const ProductionAnalyticsPanel = ({ period }: ProductionAnalyticsPanelPro
               </div>
               <div className="flex gap-2">
                 <Badge variant="outline" className="bg-gray-50">
-                  <Clock className="h-3 w-3 mr-1" />
+                  <Clock className="h-3 w-3 me-1" />
                   Brouillons: {stats?.draftOrders || 0}
                 </Badge>
                 <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                  <Play className="h-3 w-3 mr-1" />
+                  <Play className="h-3 w-3 me-1" />
                   En cours: {stats?.inProgressOrders || 0}
                 </Badge>
               </div>

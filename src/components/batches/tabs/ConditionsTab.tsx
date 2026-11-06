@@ -168,7 +168,7 @@ export const ConditionsTab: React.FC<ConditionsTabProps> = ({
             <CardTitle className="flex items-center gap-2 text-base">
               <Thermometer className="h-4 w-4 text-primary" />
               Historique des lectures
-              <span className="ml-1 text-sm font-normal text-muted-foreground">
+              <span className="ms-1 text-sm font-normal text-muted-foreground">
                 ({readings.length})
               </span>
             </CardTitle>
@@ -186,9 +186,9 @@ export const ConditionsTab: React.FC<ConditionsTabProps> = ({
                       <TableHead>Date</TableHead>
                       <TableHead>Zone</TableHead>
                       <TableHead>Emplacement</TableHead>
-                      <TableHead className="text-right">Temp °C</TableHead>
-                      <TableHead className="text-right">Humidité %</TableHead>
-                      <TableHead className="text-right">Gaz ppm</TableHead>
+                      <TableHead className="text-end">Temp °C</TableHead>
+                      <TableHead className="text-end">Humidité %</TableHead>
+                      <TableHead className="text-end">Gaz ppm</TableHead>
                       <TableHead>État</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -200,13 +200,13 @@ export const ConditionsTab: React.FC<ConditionsTabProps> = ({
                         </TableCell>
                         <TableCell className="font-mono text-xs">{r.zone_code ?? "—"}</TableCell>
                         <TableCell className="font-mono text-xs">{r.location_code ?? "—"}</TableCell>
-                        <TableCell className="text-right text-xs font-semibold">
+                        <TableCell className="text-end text-xs font-semibold">
                           {fmtNum(r.temperature_c, "°")}
                         </TableCell>
-                        <TableCell className="text-right text-xs">
+                        <TableCell className="text-end text-xs">
                           {fmtNum(r.humidity_percent, "%")}
                         </TableCell>
-                        <TableCell className="text-right text-xs">{fmtNum(r.gas_ppm)}</TableCell>
+                        <TableCell className="text-end text-xs">{fmtNum(r.gas_ppm)}</TableCell>
                         <TableCell>
                           <LotStatusBadge status={r.condition_status} size="xs" />
                         </TableCell>
@@ -244,7 +244,7 @@ export const ConditionsTab: React.FC<ConditionsTabProps> = ({
                     </span>
                     <span className="flex-1 text-xs font-medium text-foreground">
                       {e.event_type === "OPEN" ? "Ouverture" : "Fermeture"}
-                      <span className="ml-2 font-normal text-muted-foreground">
+                      <span className="ms-2 font-normal text-muted-foreground">
                         · {e.zone_code ?? "—"}
                       </span>
                     </span>

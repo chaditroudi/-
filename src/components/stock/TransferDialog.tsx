@@ -73,7 +73,7 @@ export const TransferDialog = ({ open, onOpenChange, lot }: TransferDialogProps)
           </div>
           <div className="flex items-center gap-3">
             <Button type="button" variant={scanToken ? 'secondary' : 'outline'} onClick={() => setScannerOpen(true)}>
-              <QrCode className="mr-2 h-4 w-4" />
+              <QrCode className="me-2 h-4 w-4" />
               {scanToken ? 'Lot vérifié par scan' : 'Scanner le lot'}
             </Button>
             {!scanToken && <span className="text-xs text-muted-foreground">Scan obligatoire avant transfert</span>}

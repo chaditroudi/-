@@ -3,6 +3,8 @@ import { APPROVAL_MATRIX, SITE_CONFIGS } from './p2p';
 import type { FicheOverridesMap } from '@/lib/fichesTechniques';
 
 export type SiteLanguage = 'fr' | 'en' | 'ar';
+/** Interface languages, including Arabic dialects. Printed documents stay in SiteLanguage. */
+export type { UiLanguage } from '@/i18n/languages';
 export type UiDensity = 'compact' | 'comfortable' | 'spacious';
 export type TimeFormat = '24h' | '12h';
 export type DateFormat = 'dd/MM/yyyy' | 'MM/dd/yyyy' | 'yyyy-MM-dd';
@@ -162,7 +164,7 @@ export interface SiteSettings {
   plant_phone: string | null;
   plant_email: string | null;
   features: SiteFeatures;
-  default_language: SiteLanguage;
+  default_language: import('@/i18n/languages').UiLanguage;
   currency: string;
   timezone: string;
   interface: SiteInterfacePreferences;

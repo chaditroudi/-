@@ -107,7 +107,7 @@ export function NettoyagePanel({ currentUser = 'Utilisateur' }: { currentUser?: 
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <CardTitle className="text-sm">{label('active')} ({active.length})</CardTitle>
             <Button size="sm" onClick={() => setShowCreate(true)}>
-              <Plus className="h-4 w-4 mr-1.5" />
+              <Plus className="h-4 w-4 me-1.5" />
               {label('newCycle')}
             </Button>
           </div>
@@ -156,8 +156,8 @@ export function NettoyagePanel({ currentUser = 'Utilisateur' }: { currentUser?: 
                   <Badge className={`text-xs ${STATUS_STYLE[c.status]}`}>{c.status === 'TERMINE' ? label('complete') : label('incident')}</Badge>
                   <span className="text-muted-foreground text-xs">{label('lot')} {c.lot_number}</span>
                   {c.yield_percent != null && (
-                    <span className={`text-xs ml-auto ${c.yield_percent < 92 ? 'text-red-600 font-semibold' : 'text-green-600'}`}>
-                      {c.yield_percent < 92 ? <><CheckCircle2 className="h-3 w-3 inline mr-0.5" /></> : null}
+                    <span className={`text-xs ms-auto ${c.yield_percent < 92 ? 'text-red-600 font-semibold' : 'text-green-600'}`}>
+                      {c.yield_percent < 92 ? <><CheckCircle2 className="h-3 w-3 inline me-0.5" /></> : null}
                       {label('yield')} {c.yield_percent}%
                     </span>
                   )}
@@ -212,7 +212,7 @@ export function NettoyagePanel({ currentUser = 'Utilisateur' }: { currentUser?: 
           <DialogFooter>
             <Button variant="ghost" onClick={() => setShowCreate(false)}>{label('cancel')}</Button>
             <Button onClick={handleCreate} disabled={createCycle.isPending || !selectedLot}>
-              {createCycle.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {createCycle.isPending && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
               {label('start')}
             </Button>
           </DialogFooter>
@@ -270,7 +270,7 @@ export function NettoyagePanel({ currentUser = 'Utilisateur' }: { currentUser?: 
           <DialogFooter>
             <Button variant="ghost" onClick={() => setClosingId(null)}>{label('cancel')}</Button>
             <Button onClick={handleClose} disabled={closeCycle.isPending || !closeForm.weight_in_kg || !closeForm.weight_out_kg || !closeForm.waste_weight_kg}>
-              {closeCycle.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {closeCycle.isPending && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
               {label('submitClose')}
             </Button>
           </DialogFooter>

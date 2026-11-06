@@ -246,13 +246,13 @@ const PurchaseOrderDetailContent = ({
                 </Badge>
               )}
               {(order as any).three_way_match_status === 'matched' && (
-                <Badge className="bg-green-700 text-white text-[11px]"><CheckCircle2 className="h-3 w-3 mr-1" />3-way OK</Badge>
+                <Badge className="bg-green-700 text-white text-[11px]"><CheckCircle2 className="h-3 w-3 me-1" />3-way OK</Badge>
               )}
               {(order as any).three_way_match_status === 'mismatch' && (
-                <Badge className="bg-red-600 text-white text-[11px]"><XCircle className="h-3 w-3 mr-1" />3-way Litige</Badge>
+                <Badge className="bg-red-600 text-white text-[11px]"><XCircle className="h-3 w-3 me-1" />3-way Litige</Badge>
               )}
-              <Button variant="outline" size="sm" onClick={handlePrint}><Printer className="h-3.5 w-3.5 mr-1" />Imprimer</Button>
-              <Button variant="outline" size="sm" onClick={handleDownloadPdf}><Download className="h-3.5 w-3.5 mr-1" />PDF</Button>
+              <Button variant="outline" size="sm" onClick={handlePrint}><Printer className="h-3.5 w-3.5 me-1" />Imprimer</Button>
+              <Button variant="outline" size="sm" onClick={handleDownloadPdf}><Download className="h-3.5 w-3.5 me-1" />PDF</Button>
             </div>
           </div>
         </DialogHeader>
@@ -270,15 +270,15 @@ const PurchaseOrderDetailContent = ({
             <TabsTrigger value="details">Détails</TabsTrigger>
             <TabsTrigger value="reception">
               Réception
-              {hasDiscrepancy && <span className="ml-1.5 h-1.5 w-1.5 rounded-full bg-red-500 inline-block" />}
+              {hasDiscrepancy && <span className="ms-1.5 h-1.5 w-1.5 rounded-full bg-red-500 inline-block" />}
             </TabsTrigger>
             <TabsTrigger value="match">
               3-Way Match
-              {(order as any).three_way_match_status === 'mismatch' && <span className="ml-1.5 h-1.5 w-1.5 rounded-full bg-red-500 inline-block" />}
+              {(order as any).three_way_match_status === 'mismatch' && <span className="ms-1.5 h-1.5 w-1.5 rounded-full bg-red-500 inline-block" />}
             </TabsTrigger>
             <TabsTrigger value="history">
               Historique
-              {receiptLogs.length > 0 && <span className="ml-1 text-xs text-muted-foreground">({receiptLogs.length})</span>}
+              {receiptLogs.length > 0 && <span className="ms-1 text-xs text-muted-foreground">({receiptLogs.length})</span>}
             </TabsTrigger>
           </TabsList>
 
@@ -335,13 +335,13 @@ const PurchaseOrderDetailContent = ({
                 <TableHeader>
                   <TableRow>
                     <TableHead>Article</TableHead>
-                    <TableHead className="text-right">Commandé</TableHead>
-                    <TableHead className="text-right">Reçu</TableHead>
-                    <TableHead className="text-right">Accepté</TableHead>
-                    <TableHead className="text-right">Quarantaine</TableHead>
-                    <TableHead className="text-right">Rejeté</TableHead>
-                    <TableHead className="text-right">Prix unit.</TableHead>
-                    <TableHead className="text-right">Total</TableHead>
+                    <TableHead className="text-end">Commandé</TableHead>
+                    <TableHead className="text-end">Reçu</TableHead>
+                    <TableHead className="text-end">Accepté</TableHead>
+                    <TableHead className="text-end">Quarantaine</TableHead>
+                    <TableHead className="text-end">Rejeté</TableHead>
+                    <TableHead className="text-end">Prix unit.</TableHead>
+                    <TableHead className="text-end">Total</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -362,13 +362,13 @@ const PurchaseOrderDetailContent = ({
                           <Progress value={pct} className={`h-1 mt-1 ${hasIssue ? 'bg-red-100' : ''}`} />
                           <span className="text-[11px] text-muted-foreground">{pct.toFixed(0)}% livré · tol +{overTol}%</span>
                         </TableCell>
-                        <TableCell className="text-right text-sm">{target.toFixed(2)} {line.unit}</TableCell>
-                        <TableCell className="text-right text-sm">{received.toFixed(2)} {line.unit}</TableCell>
-                        <TableCell className="text-right text-sm text-green-700 font-medium">{accepted.toFixed(2)}</TableCell>
-                        <TableCell className="text-right text-sm text-amber-600 font-medium">{quarantine > 0 ? quarantine.toFixed(2) : '—'}</TableCell>
-                        <TableCell className="text-right text-sm text-red-600 font-medium">{rejected > 0 ? rejected.toFixed(2) : '—'}</TableCell>
-                        <TableCell className="text-right text-sm">{line.unit_price.toFixed(2)} TND</TableCell>
-                        <TableCell className="text-right text-sm font-medium">{line.total_price.toFixed(2)} TND</TableCell>
+                        <TableCell className="text-end text-sm">{target.toFixed(2)} {line.unit}</TableCell>
+                        <TableCell className="text-end text-sm">{received.toFixed(2)} {line.unit}</TableCell>
+                        <TableCell className="text-end text-sm text-green-700 font-medium">{accepted.toFixed(2)}</TableCell>
+                        <TableCell className="text-end text-sm text-amber-600 font-medium">{quarantine > 0 ? quarantine.toFixed(2) : '—'}</TableCell>
+                        <TableCell className="text-end text-sm text-red-600 font-medium">{rejected > 0 ? rejected.toFixed(2) : '—'}</TableCell>
+                        <TableCell className="text-end text-sm">{line.unit_price.toFixed(2)} TND</TableCell>
+                        <TableCell className="text-end text-sm font-medium">{line.total_price.toFixed(2)} TND</TableCell>
                       </TableRow>
                     );
                   })}
@@ -417,7 +417,7 @@ const PurchaseOrderDetailContent = ({
                   Livraison de dattes : enregistrez-la dans Réceptions (pesée, lots, contrôle qualité). Le bon de commande se met à jour automatiquement.
                 </p>
                 <Button size="sm" className="shrink-0" onClick={() => onOpenReception(order.id)}>
-                  <Truck className="mr-1.5 h-4 w-4" />
+                  <Truck className="me-1.5 h-4 w-4" />
                   Réceptionner dans Réceptions
                 </Button>
               </div>
@@ -449,12 +449,12 @@ const PurchaseOrderDetailContent = ({
                     <div className="flex items-center gap-1">
                       {Number((line as any).quarantine_quantity || 0) > 0 && (
                         <Badge className="bg-amber-100 text-amber-700 border-amber-300 text-[11px]">
-                          <ShieldAlert className="h-2.5 w-2.5 mr-0.5" />{Number((line as any).quarantine_quantity).toFixed(2)} quarantaine
+                          <ShieldAlert className="h-2.5 w-2.5 me-0.5" />{Number((line as any).quarantine_quantity).toFixed(2)} quarantaine
                         </Badge>
                       )}
                       {Number((line as any).rejected_quantity || 0) > 0 && (
                         <Badge className="bg-red-100 text-red-700 border-red-300 text-[11px]">
-                          <XCircle className="h-2.5 w-2.5 mr-0.5" />{Number((line as any).rejected_quantity).toFixed(2)} rejeté
+                          <XCircle className="h-2.5 w-2.5 me-0.5" />{Number((line as any).rejected_quantity).toFixed(2)} rejeté
                         </Badge>
                       )}
                     </div>
@@ -615,7 +615,7 @@ const PurchaseOrderDetailContent = ({
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-sm">Résultat 3-Way Match</span>
                 <Badge className={liveMatched ? 'bg-green-600' : 'bg-red-600'}>
-                  {liveMatched ? <><CheckCircle2 className="h-3 w-3 mr-1" />Match OK</> : <><XCircle className="h-3 w-3 mr-1" />Écart détecté</>}
+                  {liveMatched ? <><CheckCircle2 className="h-3 w-3 me-1" />Match OK</> : <><XCircle className="h-3 w-3 me-1" />Écart détecté</>}
                 </Badge>
               </div>
               <div className="grid grid-cols-3 gap-4 text-sm">
@@ -650,7 +650,7 @@ const PurchaseOrderDetailContent = ({
 
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => { setInvoiceAmount(order.total_amount.toFixed(2)); setTolerancePct('2'); }}>
-                <RotateCcw className="h-3.5 w-3.5 mr-1" />Réinitialiser
+                <RotateCcw className="h-3.5 w-3.5 me-1" />Réinitialiser
               </Button>
               <Button onClick={handleSaveThreeWay} disabled={isSavingThreeWayMatch || !invoiceNumber.trim() || !invoiceDate || Number(invoiceAmount || 0) <= 0}>
                 Valider 3-Way Match
@@ -707,7 +707,7 @@ const PurchaseOrderDetailContent = ({
                           <span className="font-medium">{Number(log.received_qty ?? 0).toFixed(2)} kg</span>
                           {qcBadge(String(log.qc_status ?? 'accepted'))}
                           {log.grn_number && <Badge variant="outline" className="text-[11px]">GRN: {String(log.grn_number)}</Badge>}
-                          <span className="text-xs text-muted-foreground ml-auto">
+                          <span className="text-xs text-muted-foreground ms-auto">
                             {log.received_at ? format(new Date(String(log.received_at)), 'dd/MM/yyyy HH:mm', { locale: fr }) : '—'}
                           </span>
                         </div>

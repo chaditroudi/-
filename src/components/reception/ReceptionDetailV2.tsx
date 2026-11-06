@@ -89,7 +89,7 @@ interface ReceptionDetailV2Props {
 const InfoRow = ({ label, value }: { label: string; value: string | number | null | undefined }) => (
   <div className="flex items-start justify-between gap-3 text-sm">
     <span className="text-muted-foreground">{label}</span>
-    <span className="text-right font-medium">{value || '-'}</span>
+    <span className="text-end font-medium">{value || '-'}</span>
   </div>
 );
 
@@ -240,7 +240,7 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
             type="button"
             size="sm"
             variant="outline"
-            className="ml-auto gap-1.5 border-red-200 text-red-700 hover:bg-red-50"
+            className="ms-auto gap-1.5 border-red-200 text-red-700 hover:bg-red-50"
             onClick={() => setCancelOpen(true)}
           >
             <Ban className="h-3.5 w-3.5" />
@@ -248,7 +248,7 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
           </Button>
         )}
         {permissions.canCancel && !isCancelled && (
-          <Button type="button" size="sm" variant="outline" className={cn('gap-1.5', !canCancel && 'ml-auto')} onClick={() => setCorrectionOpen(true)}>
+          <Button type="button" size="sm" variant="outline" className={cn('gap-1.5', !canCancel && 'ms-auto')} onClick={() => setCorrectionOpen(true)}>
             <Pencil className="h-3.5 w-3.5" />
             Corriger
           </Button>
@@ -279,7 +279,7 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
         </div>
         {nextStep.action && nextStep.actionLabel && (
           <Button className="shrink-0" onClick={() => void runNextStep()} disabled={updateStatus.isPending}>
-            {nextStep.action === 'assign_storage' ? <Warehouse className="mr-2 h-4 w-4" /> : <Shield className="mr-2 h-4 w-4" />}
+            {nextStep.action === 'assign_storage' ? <Warehouse className="me-2 h-4 w-4" /> : <Shield className="me-2 h-4 w-4" />}
             {nextStep.actionLabel}
           </Button>
         )}
@@ -287,12 +287,12 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
 
       <Tabs value={section} onValueChange={(value) => setSection(value as ReceptionWorkspaceSection)}>
         <TabsList className="w-full flex-wrap justify-start">
-          <TabsTrigger value="overview"><FileText className="mr-1 h-3.5 w-3.5" />Fiche</TabsTrigger>
-          <TabsTrigger value="lots"><Package className="mr-1 h-3.5 w-3.5" />Lots ({lots.length})</TabsTrigger>
-          <TabsTrigger value="qc"><Shield className="mr-1 h-3.5 w-3.5" />Qualité</TabsTrigger>
-          <TabsTrigger value="stock"><Warehouse className="mr-1 h-3.5 w-3.5" />Entrepôt</TabsTrigger>
-          <TabsTrigger value="documents"><Printer className="mr-1 h-3.5 w-3.5" />Documents</TabsTrigger>
-          <TabsTrigger value="history"><History className="mr-1 h-3.5 w-3.5" />Historique</TabsTrigger>
+          <TabsTrigger value="overview"><FileText className="me-1 h-3.5 w-3.5" />Fiche</TabsTrigger>
+          <TabsTrigger value="lots"><Package className="me-1 h-3.5 w-3.5" />Lots ({lots.length})</TabsTrigger>
+          <TabsTrigger value="qc"><Shield className="me-1 h-3.5 w-3.5" />Qualité</TabsTrigger>
+          <TabsTrigger value="stock"><Warehouse className="me-1 h-3.5 w-3.5" />Entrepôt</TabsTrigger>
+          <TabsTrigger value="documents"><Printer className="me-1 h-3.5 w-3.5" />Documents</TabsTrigger>
+          <TabsTrigger value="history"><History className="me-1 h-3.5 w-3.5" />Historique</TabsTrigger>
         </TabsList>
 
         {/* ── FICHE ── */}
@@ -535,7 +535,7 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
                 </div>
                 {canStartQC && (
                   <Button size="sm" variant="outline" onClick={() => setQcDialogOpen(true)}>
-                    <Play className="mr-1.5 h-3.5 w-3.5" />
+                    <Play className="me-1.5 h-3.5 w-3.5" />
                     {reception.status === 'BLOQUE' ? 'Ré-inspecter' : 'Reprendre le contrôle'}
                   </Button>
                 )}
@@ -603,14 +603,14 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
             <CardContent className="space-y-2">
               <Button variant="outline" className="h-auto w-full justify-start gap-2 py-3 text-sm" onClick={() => setBonDialogOpen(true)}>
                 <Printer className="h-4 w-4" />
-                <div className="text-left">
+                <div className="text-start">
                   <div className="font-medium">Bon de réception achat</div>
                   <div className="text-xs text-muted-foreground">Produit entrant, pesée, lots</div>
                 </div>
               </Button>
               <Button variant="outline" className="h-auto w-full justify-start gap-2 py-3 text-sm" onClick={() => setExpeditionDialogOpen(true)}>
                 <Truck className="h-4 w-4" />
-                <div className="text-left">
+                <div className="text-start">
                   <div className="font-medium">Bon d'expédition fournisseur</div>
                   <div className="text-xs text-muted-foreground">Bon de livraison accompagnant le camion</div>
                 </div>
@@ -627,7 +627,7 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
                 <>
                   <Button variant="outline" className="h-auto w-full justify-start gap-2 py-3 text-sm" onClick={() => setRapportQCOpen(true)}>
                     <FlaskConical className="h-4 w-4 text-purple-600" />
-                    <div className="text-left">
+                    <div className="text-start">
                       <div className="font-medium">Rapport de contrôle qualité</div>
                       <div className="text-xs text-muted-foreground">
                         {inspections[0]?.inspection_number} — {inspections[0]?.decision ? `Décision : ${qcDecisionLabels[inspections[0].decision]}` : 'En cours'}
@@ -638,7 +638,7 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
                     <>
                       <Button variant="outline" className="h-auto w-full justify-start gap-2 border-red-200 py-3 text-sm" onClick={() => setReclamationOpen(true)}>
                         <AlertTriangle className="h-4 w-4 text-red-600" />
-                        <div className="text-left">
+                        <div className="text-start">
                           <div className="font-medium text-red-700">Réclamation fournisseur</div>
                           <div className="text-xs text-muted-foreground">
                             {inspections.some((inspection) => inspection.decision === 'REJETE') ? 'Contrôle qualité rejeté' : `Écart de poids : ${reception.weight_gap_percent?.toFixed(1)} %`}
@@ -647,7 +647,7 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
                       </Button>
                       <Button variant="outline" className="h-auto w-full justify-start gap-2 border-red-200 py-3 text-sm" onClick={() => setBonReclamationOpen(true)}>
                         <AlertTriangle className="h-4 w-4 text-red-600" />
-                        <div className="text-left">
+                        <div className="text-start">
                           <div className="font-medium text-red-700">Bon de réclamation fournisseur</div>
                           <div className="text-xs text-muted-foreground">Écart de poids, déclassement, conclusion qualité, prix</div>
                         </div>

@@ -102,7 +102,7 @@ export function NumericSignaturePad({
           </Button>
         ) : null}
         <Button type="button" size="sm" onClick={() => void handleConfirm()} disabled={pending || pin.length < 4}>
-          {pending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+          {pending ? <Loader2 className="h-4 w-4 me-2 animate-spin" /> : null}
           {confirmLabel}
         </Button>
       </div>

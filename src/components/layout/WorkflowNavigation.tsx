@@ -99,7 +99,7 @@ export function WorkflowNavigation({
                   <span className="relative">
                     <meta.icon className={cn("h-5 w-5", isActive && "scale-110")} />
                     {hasBadge && (
-                      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-xs font-bold text-white">
+                      <span className="absolute -end-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-xs font-bold text-white">
                         {(metrics.activeAlertsCount ?? 0) > 9 ? "9+" : metrics.activeAlertsCount}
                       </span>
                     )}
@@ -159,7 +159,7 @@ export function WorkflowNavigation({
                   type="button"
                   onClick={() => handleTabChange(tab)}
                   className={cn(
-                    "flex min-h-14 items-start gap-3 rounded-lg border bg-card px-4 py-4 text-left",
+                    "flex min-h-14 items-start gap-3 rounded-lg border bg-card px-4 py-4 text-start",
                     "transition-colors active:scale-[0.98]",
                     isActive
                       ? "border-primary bg-primary/5"

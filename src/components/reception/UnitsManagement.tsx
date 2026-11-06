@@ -66,7 +66,7 @@ export const UnitsManagement = ({ lot, receptionNumber, onPrintLabel }: UnitsMan
           <Badge variant="outline">{units.length} unité(s)</Badge>
         </div>
         <Button size="sm" onClick={() => setDialogOpen(true)} disabled={remainingQuantity <= 0}>
-          <Plus className="h-4 w-4 mr-1" />
+          <Plus className="h-4 w-4 me-1" />
           Ajouter
         </Button>
       </div>
@@ -136,7 +136,7 @@ export const UnitsManagement = ({ lot, receptionNumber, onPrintLabel }: UnitsMan
                     className="shrink-0"
                     onClick={() => onPrintLabel(unitItem)}
                   >
-                    <QrCode className="h-4 w-4 mr-1" />
+                    <QrCode className="h-4 w-4 me-1" />
                     Étiquette QR
                   </Button>
                 </div>

@@ -188,11 +188,11 @@ export const ProductionToday = ({
         <button
           type="button"
           onClick={() => onOpenView('alertes')}
-          className="flex w-full items-center gap-2 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-left text-sm font-semibold text-red-900"
+          className="flex w-full items-center gap-2 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-start text-sm font-semibold text-red-900"
         >
           <AlertTriangle className="h-4 w-4 shrink-0" />
           {criticalAlerts} alerte{criticalAlerts > 1 ? 's' : ''} critique{criticalAlerts > 1 ? 's' : ''} à traiter
-          <ChevronRight className="ml-auto h-4 w-4" />
+          <ChevronRight className="ms-auto h-4 w-4" />
         </button>
       )}
 

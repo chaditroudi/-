@@ -36,7 +36,7 @@
    return (
      <div className="space-y-4">
        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-         <Card className="border-l-4 border-l-slate-400">
+         <Card className="border-s-4 border-s-slate-400">
            <CardContent className="pt-4">
              <div className="flex items-center justify-between">
                <div><p className="text-sm text-muted-foreground">{t('tasks.stats.pending')}</p><p className="text-2xl font-bold">{stats.pending}</p></div>
@@ -44,7 +44,7 @@
              </div>
            </CardContent>
          </Card>
-         <Card className="border-l-4 border-l-blue-500">
+         <Card className="border-s-4 border-s-blue-500">
            <CardContent className="pt-4">
              <div className="flex items-center justify-between">
                <div><p className="text-sm text-muted-foreground">{t('tasks.stats.inProgress')}</p><p className="text-2xl font-bold">{stats.inProgress}</p></div>
@@ -52,7 +52,7 @@
              </div>
            </CardContent>
          </Card>
-         <Card className="border-l-4 border-l-emerald-500">
+         <Card className="border-s-4 border-s-emerald-500">
            <CardContent className="pt-4">
              <div className="flex items-center justify-between">
                <div><p className="text-sm text-muted-foreground">{t('tasks.stats.completed')}</p><p className="text-2xl font-bold">{stats.completed}</p></div>
@@ -60,7 +60,7 @@
              </div>
            </CardContent>
          </Card>
-         <Card className="border-l-4 border-l-orange-500">
+         <Card className="border-s-4 border-s-orange-500">
            <CardContent className="pt-4">
              <div className="flex items-center justify-between">
                <div><p className="text-sm text-muted-foreground">{t('tasks.stats.urgent')}</p><p className="text-2xl font-bold">{stats.urgent}</p></div>
@@ -68,7 +68,7 @@
              </div>
            </CardContent>
          </Card>
-         <Card className="border-l-4 border-l-red-500">
+         <Card className="border-s-4 border-s-red-500">
            <CardContent className="pt-4">
              <div className="flex items-center justify-between">
                <div><p className="text-sm text-muted-foreground">{t('tasks.stats.overdue')}</p><p className="text-2xl font-bold">{stats.overdue}</p></div>
@@ -86,15 +86,15 @@
                <CardDescription>{t('tasks.totalTasks', { count: tasks.length })}</CardDescription>
              </div>
              <Button onClick={handleAddTask} className="bg-emerald-600 hover:bg-emerald-700">
-               <Plus className="h-4 w-4 mr-2" />{t('tasks.new')}
+               <Plus className="h-4 w-4 me-2" />{t('tasks.new')}
              </Button>
            </div>
          </CardHeader>
          <CardContent>
            <div className="flex items-center gap-4 mb-6">
              <div className="relative flex-1">
-               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-               <Input placeholder={t('common.search')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
+               <Search className="absolute start-3 top-3 h-4 w-4 text-muted-foreground" />
+               <Input placeholder={t('common.search')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="ps-10" />
              </div>
              <Tabs value={statusFilter} onValueChange={setStatusFilter}>
                <TabsList>

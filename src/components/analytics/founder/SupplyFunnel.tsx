@@ -63,7 +63,7 @@ function FunnelStage({
             <span className="text-white">
               {value >= 1000 ? `${(value / 1000).toFixed(1)} t` : value.toFixed(0)}
             </span>
-            <span className="text-xs font-normal ml-1 text-white/80">{unit}</span>
+            <span className="text-xs font-normal ms-1 text-white/80">{unit}</span>
           </>
         )}
       </div>

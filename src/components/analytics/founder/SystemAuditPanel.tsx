@@ -79,7 +79,7 @@ function LogRow({ log }: { log: AuditLog }) {
           <SeverityDot sev={log.severity} />
         </div>
       </div>
-      <div className="text-xs text-muted-foreground shrink-0 text-right">
+      <div className="text-xs text-muted-foreground shrink-0 text-end">
         {log.created_at ? formatDistanceToNow(new Date(log.created_at), { locale: fr, addSuffix: true }) : '—'}
       </div>
     </div>
@@ -241,12 +241,12 @@ export function SystemAuditPanel() {
             <CardTitle className="text-sm">Flux d'activité en temps réel</CardTitle>
             <div className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto">
               <div className="relative">
-                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Search className="absolute start-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <Input
                   placeholder="Recherche…"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  className="h-8 pl-7 w-40 text-xs"
+                  className="h-8 ps-7 w-40 text-xs"
                 />
               </div>
               <Select value={moduleFilter} onValueChange={setModuleFilter}>
@@ -281,7 +281,7 @@ export function SystemAuditPanel() {
           ) : filtered.length === 0 ? (
             <div className="py-12 text-center text-sm text-muted-foreground">Aucune activité sur cette période.</div>
           ) : (
-            <div className="max-h-[520px] overflow-y-auto pr-1">
+            <div className="max-h-[520px] overflow-y-auto pe-1">
               {filtered.map(log => <LogRow key={log.id} log={log} />)}
             </div>
           )}

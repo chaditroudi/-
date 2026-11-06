@@ -74,7 +74,7 @@ const RelatedList = ({
         {rows.slice(0, 5).map((row) => (
           <li key={row.id} className="rounded-md border px-2.5 py-1.5 text-sm">
             <span className="font-medium">{row.primary}</span>
-            {row.secondary && <span className="ml-2 text-xs text-muted-foreground">{row.secondary}</span>}
+            {row.secondary && <span className="ms-2 text-xs text-muted-foreground">{row.secondary}</span>}
           </li>
         ))}
       </ul>
@@ -158,24 +158,24 @@ export const SupplierDetailSheet = ({ supplier, open, onOpenChange, onEdit }: Pr
           </div>
           <div className="flex flex-wrap gap-2">
             <Button size="sm" variant="outline" onClick={() => onEdit(supplier)}>
-              <Edit2 className="mr-1.5 h-3.5 w-3.5" />
+              <Edit2 className="me-1.5 h-3.5 w-3.5" />
               Modifier
             </Button>
             {status !== 'active' && (
               <Button size="sm" onClick={handleApprove} disabled={approveMutation.isPending}>
-                <CheckCircle className="mr-1.5 h-3.5 w-3.5" />
+                <CheckCircle className="me-1.5 h-3.5 w-3.5" />
                 Approuver
               </Button>
             )}
             {status !== 'blocked' && (
               <Button size="sm" variant="destructive" onClick={handleBlock} disabled={blockMutation.isPending}>
-                <ShieldBan className="mr-1.5 h-3.5 w-3.5" />
+                <ShieldBan className="me-1.5 h-3.5 w-3.5" />
                 Bloquer
               </Button>
             )}
             {status !== 'archived' && (
               <Button size="sm" variant="secondary" onClick={handleArchive} disabled={archiveMutation.isPending}>
-                <Archive className="mr-1.5 h-3.5 w-3.5" />
+                <Archive className="me-1.5 h-3.5 w-3.5" />
                 Archiver
               </Button>
             )}

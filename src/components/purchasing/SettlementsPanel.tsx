@@ -70,10 +70,10 @@ export function SettlementsPanel() {
                 <TableHead>N°</TableHead>
                 <TableHead>Fournisseur</TableHead>
                 <TableHead>Session</TableHead>
-                <TableHead className="text-right">Payable kg</TableHead>
-                <TableHead className="text-right">Montant TND</TableHead>
+                <TableHead className="text-end">Payable kg</TableHead>
+                <TableHead className="text-end">Montant TND</TableHead>
                 <TableHead>Statut</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="text-end">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -82,14 +82,14 @@ export function SettlementsPanel() {
                   <TableCell className="font-mono text-xs">{row.settlement_number}</TableCell>
                   <TableCell>{row.supplier_name || row.supplier_id}</TableCell>
                   <TableCell className="text-xs">{row.triage_session_number || '—'}</TableCell>
-                  <TableCell className="text-right">{row.payable_weight_kg.toFixed(1)}</TableCell>
-                  <TableCell className="text-right font-medium">
+                  <TableCell className="text-end">{row.payable_weight_kg.toFixed(1)}</TableCell>
+                  <TableCell className="text-end font-medium">
                     {row.total_amount_tnd.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline">{STATUS_LABEL[row.status] || row.status}</Badge>
                   </TableCell>
-                  <TableCell className="text-right space-x-1">
+                  <TableCell className="text-end space-x-1">
                     <Button
                       size="sm"
                       variant="ghost"
@@ -101,21 +101,21 @@ export function SettlementsPanel() {
                         })
                       }
                     >
-                      <Printer className="h-3.5 w-3.5 mr-1" /> Relevé
+                      <Printer className="h-3.5 w-3.5 me-1" /> Relevé
                     </Button>
                     {row.status === 'DRAFT' && (
                       <Button size="sm" variant="outline" onClick={() => approve.mutate(row.id)}>
-                        <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Approuver
+                        <CheckCircle2 className="h-3.5 w-3.5 me-1" /> Approuver
                       </Button>
                     )}
                     {row.status === 'APPROVED' && (
                       <Button size="sm" variant="outline" onClick={() => pay.mutate(row.id)}>
-                        <Banknote className="h-3.5 w-3.5 mr-1" /> Payer
+                        <Banknote className="h-3.5 w-3.5 me-1" /> Payer
                       </Button>
                     )}
                     {(row.status === 'DRAFT' || row.status === 'APPROVED') && (
                       <Button size="sm" variant="ghost" onClick={() => cancel.mutate(row.id)}>
-                        <XCircle className="h-3.5 w-3.5 mr-1" /> Annuler
+                        <XCircle className="h-3.5 w-3.5 me-1" /> Annuler
                       </Button>
                     )}
                   </TableCell>

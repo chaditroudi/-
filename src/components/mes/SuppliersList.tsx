@@ -179,8 +179,8 @@ export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProp
 
         <div className="grid grid-cols-2 gap-2 lg:grid-cols-[minmax(14rem,1.4fr)_repeat(4,minmax(0,0.7fr))]">
           <div className="relative col-span-2 lg:col-span-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input className="min-h-11 pl-9" placeholder="Nom, code, ville, CIN" aria-label="Rechercher un fournisseur" value={search} onChange={(event) => setSearch(event.target.value)} />
+            <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input className="min-h-11 ps-9" placeholder="Nom, code, ville, CIN" aria-label="Rechercher un fournisseur" value={search} onChange={(event) => setSearch(event.target.value)} />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger>
@@ -257,8 +257,8 @@ export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProp
                 <TableHead className="hidden md:table-cell">Région</TableHead>
                 <TableHead>Statut</TableHead>
                 <TableHead className="hidden lg:table-cell">Qualification</TableHead>
-                <TableHead className="text-right">Score</TableHead>
-                <TableHead className="hidden text-right md:table-cell">Rejet</TableHead>
+                <TableHead className="text-end">Score</TableHead>
+                <TableHead className="hidden text-end md:table-cell">Rejet</TableHead>
                 <TableHead className="hidden lg:table-cell">Alertes</TableHead>
                 {canManage && <TableHead className="w-20"><span className="sr-only">Actions</span></TableHead>}
               </TableRow>
@@ -272,7 +272,7 @@ export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProp
                 return (
                   <TableRow key={supplier.id}>
                     <TableCell>
-                      <button type="button" className="text-left font-medium hover:underline" onClick={() => handleOpenSheet(supplier)}>
+                      <button type="button" className="text-start font-medium hover:underline" onClick={() => handleOpenSheet(supplier)}>
                         {supplier.name}
                       </button>
                       <span className="block font-mono text-xs text-muted-foreground">{supplier.code}</span>
@@ -282,7 +282,7 @@ export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProp
                       <Badge variant="outline" className={getSupplierStatusClassName(status)}>{getSupplierStatusLabel(status)}</Badge>
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">{getSupplierQualificationLabel(supplier.qualification_status)}</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-end">
                       {score ? (
                         <>
                           <span className="font-semibold">{score.finalScore.toFixed(0)}</span>
@@ -300,7 +300,7 @@ export const SuppliersList = ({ suppliers, canManage = true }: SuppliersListProp
                         <span className="text-xs text-muted-foreground">Score indisponible</span>
                       )}
                     </TableCell>
-                    <TableCell className="hidden text-right md:table-cell">
+                    <TableCell className="hidden text-end md:table-cell">
                       {scoreReady ? `${supplier.rejection_rate ?? 0} %` : '—'}
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">

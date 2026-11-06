@@ -554,7 +554,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 pr-4">
+        <ScrollArea className="flex-1 pe-4">
           {phase === "start" && (
             <div className="space-y-4 p-2">
               {/* RG-Q12: reception operator cannot inspect their own lot */}
@@ -662,7 +662,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                   (isOwnReceptionInspector && !canOverrideRoleSeparation)
                 }
               >
-                <Play className="h-4 w-4 mr-2" />
+                <Play className="h-4 w-4 me-2" />
                 {createInspection.isPending ? "Démarrage…" : "Démarrer l'inspection"}
               </Button>
             </div>
@@ -1034,7 +1034,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                         >
                           {decision}
                           {decision === score.recommendedDecision && (
-                            <span className="ml-1 text-xs opacity-60">auto</span>
+                            <span className="ms-1 text-xs opacity-60">auto</span>
                           )}
                         </Button>
                       ))}
@@ -1112,7 +1112,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                             ))}
                           </div>
                         )}
-                        <div className="grid grid-cols-1 gap-1.5 max-h-40 overflow-y-auto pr-1">
+                        <div className="grid grid-cols-1 gap-1.5 max-h-40 overflow-y-auto pe-1">
                           {QC_NC_CODES.map((nc) => (
                             <label
                               key={nc.code}
@@ -1134,7 +1134,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                               />
                               <span className="font-mono font-medium">{nc.code}</span>
                               <span className="text-muted-foreground">{nc.label}</span>
-                              <Badge variant="outline" className="ml-auto text-[0.55rem] shrink-0">
+                              <Badge variant="outline" className="ms-auto text-[0.55rem] shrink-0">
                                 {nc.severity}
                               </Badge>
                             </label>
@@ -1172,7 +1172,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                         <span>{label}</span>
                       </label>
                     ))}
-                    <div className="ml-auto flex items-center gap-4">
+                    <div className="ms-auto flex items-center gap-4">
                       <span className="text-xs text-muted-foreground font-medium">Type dattes :</span>
                       {[['type_dattes_branche','Branche'],['type_dattes_vrac','Vrac']].map(([key,label]) => (
                         <label key={key} className="flex items-center gap-1 cursor-pointer text-sm">
@@ -1210,7 +1210,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                     <table className="w-full text-xs border-collapse">
                       <thead>
                         <tr className="bg-slate-700 text-white">
-                          <th className="border border-slate-600 px-2 py-1 text-left min-w-[100px]">Critères</th>
+                          <th className="border border-slate-600 px-2 py-1 text-start min-w-[100px]">Critères</th>
                           <th className="border border-slate-600 px-2 py-1">TEST 1 (%)</th>
                           <th className="border border-slate-600 px-2 py-1">TEST 2 (%)</th>
                           <th className="border border-slate-600 px-2 py-1">TEST 3 (%)</th>
@@ -1328,7 +1328,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
 
               {/* Rangement : passe par l'affectation des lots de la réception (même règles et traçabilité que le magasin). */}
               {confirmedDecision === "ACCEPTE" && (
-                <div className="mx-auto max-w-xl space-y-3 rounded-xl border border-primary/20 bg-primary/5 p-5 text-left shadow-sm">
+                <div className="mx-auto max-w-xl space-y-3 rounded-xl border border-primary/20 bg-primary/5 p-5 text-start shadow-sm">
                   <div className="flex items-start gap-2">
                     <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                     <div className="space-y-1">
@@ -1349,7 +1349,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                         onAssignStorage();
                       }}
                     >
-                      <MapPin className="mr-2 h-4 w-4" />
+                      <MapPin className="me-2 h-4 w-4" />
                       Affecter au stock
                     </Button>
                   )}
@@ -1372,7 +1372,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                     printRQC(fakeInsp, reception);
                   }}
                 >
-                  <Printer className="h-4 w-4 mr-2" />
+                  <Printer className="h-4 w-4 me-2" />
                   Imprimer RQC
                 </Button>
               </div>
@@ -1386,7 +1386,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
             <p className="flex-1 text-sm text-red-600">{submitError}</p>
           )}
           {phase === "inspection" && releasePinOpen ? (
-            <div className="w-full sm:max-w-sm sm:ml-auto">
+            <div className="w-full sm:max-w-sm sm:ms-auto">
               <NumericSignaturePad
                 title="Libération QC — code signature"
                 subtitle="Confirmez votre code signature personnel pour libérer ce lot vers le stock."
