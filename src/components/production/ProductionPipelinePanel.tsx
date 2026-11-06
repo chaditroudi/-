@@ -156,7 +156,7 @@ export function ProductionPipelinePanel({ onLaunchFumigation }: Props) {
               <div key={s.stage} className="flex items-center gap-1">
                 <StagePill stage={s.stage} count={s.count} />
                 {i < stages.length - 1 && (
-                  <ChevronRight className="h-4 w-4 text-muted-foreground/40 mt-[-10px]" />
+                  <ChevronRight className="h-4 w-4 text-muted-foreground mt-[-10px]" />
                 )}
               </div>
             ))}

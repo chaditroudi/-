@@ -101,7 +101,7 @@ export function Gs1LabelPreview({ lot, onClose }: Gs1LabelPreviewProps) {
 
         {!payload ? (
           <div className="flex flex-col items-center gap-4 py-6">
-            <QrCode className="h-16 w-16 text-muted-foreground/40" />
+            <QrCode className="h-16 w-16 text-muted-foreground" />
             <p className="text-sm text-muted-foreground text-center">
               Aucune étiquette générée pour ce lot.
               {(lot as any).label_printed_at && (

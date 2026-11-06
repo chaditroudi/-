@@ -179,7 +179,7 @@ export const PhotoCapture = ({
                   </button>
                 </>
               ) : (
-                <div className="flex h-full w-full flex-col items-center justify-center gap-1 text-muted-foreground/50">
+                <div className="flex h-full w-full flex-col items-center justify-center gap-1 text-muted-foreground">
                   <Image className="h-5 w-5" />
                 </div>
               )}
@@ -197,7 +197,7 @@ export const PhotoCapture = ({
               'rounded-lg border px-2 py-0.5 text-xs font-medium transition-colors',
               photos[i]
                 ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                : 'border-border text-muted-foreground/60',
+                : 'border-border text-muted-foreground',
             )}
           >
             {i + 1}. {hint}

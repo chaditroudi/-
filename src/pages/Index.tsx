@@ -431,18 +431,18 @@ const Index = () => {
         return (
           <div className="space-y-4">
             {waitingLots.length > 0 && features.phase2_enabled && (
-              <div className="flex items-center gap-3 rounded-xl border border-amber-200/70 bg-amber-50/80 px-4 py-2.5 text-sm backdrop-blur-sm">
+              <div className="flex items-center gap-3 rounded-xl border border-warning/30 bg-sand px-4 py-2.5 text-sm">
                 <span className="relative flex h-2 w-2 shrink-0">
-                  <span className="absolute inline-flex h-full w-full hidden rounded-full bg-amber-400 opacity-60" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" />
+                  <span className="absolute inline-flex h-full w-full hidden rounded-full bg-warning opacity-60" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-warning" />
                 </span>
-                <span className="font-semibold text-amber-700">
+                <span className="font-semibold text-sand-foreground">
                   {waitingLots.length} lot{waitingLots.length > 1 ? 's' : ''} à transformer
                 </span>
                 <span className="flex-1" />
                 <button
                   onClick={handleGoToProduction}
-                  className="shrink-0 rounded-lg border border-amber-300/60 bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700 transition-colors hover:bg-amber-200 hover:text-amber-900"
+                  className="shrink-0 rounded-lg border border-warning/40 bg-card px-2.5 py-1 text-xs font-semibold text-sand-foreground transition-colors hover:bg-sand"
                 >
                   Production →
                 </button>
@@ -572,11 +572,11 @@ const Index = () => {
           </div>
         </div>
 
-        <footer className="flex items-center justify-between gap-2 border-t border-border/40 px-4 py-2 text-xs text-muted-foreground/50 sm:px-5 lg:px-6">
+        <footer className="flex items-center justify-between gap-2 border-t border-border/40 px-4 py-2 text-xs text-muted-foreground sm:px-5 lg:px-6">
           <span>
             © {new Date().getFullYear()} {companyName}
           </span>
-          <span className="font-medium text-muted-foreground/40">
+          <span className="font-medium text-muted-foreground">
             {PRODUCT.commercialName} v{PRODUCT.version}
           </span>
         </footer>

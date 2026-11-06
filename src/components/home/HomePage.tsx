@@ -79,13 +79,13 @@ export const HomePage = ({ onNavigate, accessibleTabs, canInspect, metrics, role
   // Ranked most urgent first; each row jumps to the exact screen. Only known, positive counts become tasks.
   const tasks = useMemo<QueueTask[]>(() => {
     const items: Array<QueueTask | null> = [
-      { key: "alerts", count: metrics.activeAlertsCount ?? 0, tab: "alerts", icon: AlertTriangle, tone: "bg-red-600 text-white" },
-      canInspect ? { key: "qc", count: metrics.qualityLots ?? 0, tab: "receptions", options: { view: "qc" }, icon: ShieldCheck, tone: "bg-amber-600 text-white" } : null,
+      { key: "alerts", count: metrics.activeAlertsCount ?? 0, tab: "alerts", icon: AlertTriangle, tone: "bg-destructive text-destructive-foreground" },
+      canInspect ? { key: "qc", count: metrics.qualityLots ?? 0, tab: "receptions", options: { view: "qc" }, icon: ShieldCheck, tone: "bg-warning text-warning-foreground" } : null,
       canWrite(roles, "receptionCreate") ? { key: "drafts", count: metrics.draftReceptions ?? 0, tab: "receptions", options: { view: "pending" }, icon: Truck, tone: "bg-primary text-primary-foreground" } : null,
-      { key: "quarantine", count: metrics.quarantinedLots ?? 0, tab: "storage", options: { focus: "quarantine" }, icon: Warehouse, tone: "bg-orange-600 text-white" },
-      { key: "workshop", count: metrics.phase2Waiting ?? 0, tab: "production", options: { view: "phase2", module: "pipeline" }, icon: Factory, tone: "bg-violet-600 text-white" },
-      { key: "packaging", count: floor ? metrics.activePackagingOrders ?? 0 : 0, tab: "packaging", icon: PackageCheck, tone: "bg-sky-700 text-white" },
-      { key: "shipments", count: metrics.pendingShipments ?? 0, tab: "logistics", options: { view: "shipments" }, icon: Ship, tone: "bg-cyan-700 text-white" },
+      { key: "quarantine", count: metrics.quarantinedLots ?? 0, tab: "storage", options: { focus: "quarantine" }, icon: Warehouse, tone: "bg-warning text-warning-foreground" },
+      { key: "workshop", count: metrics.phase2Waiting ?? 0, tab: "production", options: { view: "phase2", module: "pipeline" }, icon: Factory, tone: "bg-info text-info-foreground" },
+      { key: "packaging", count: floor ? metrics.activePackagingOrders ?? 0 : 0, tab: "packaging", icon: PackageCheck, tone: "bg-info text-info-foreground" },
+      { key: "shipments", count: metrics.pendingShipments ?? 0, tab: "logistics", options: { view: "shipments" }, icon: Ship, tone: "bg-info text-info-foreground" },
     ];
     return items.filter((item): item is QueueTask => !!item && item.count > 0 && accessibleTabs.includes(item.tab));
   }, [accessibleTabs, canInspect, floor, metrics, roles]);
@@ -146,7 +146,7 @@ export const HomePage = ({ onNavigate, accessibleTabs, canInspect, metrics, role
             <Button type="button" variant="outline" className="gap-1.5" onClick={() => onNavigate("alerts")}>
               <AlertTriangle className="h-4 w-4" aria-hidden />
               {t("worker.alerts")}
-              {(metrics.activeAlertsCount ?? 0) > 0 && <Badge className="ms-1 bg-red-600 text-white">{metrics.activeAlertsCount}</Badge>}
+              {(metrics.activeAlertsCount ?? 0) > 0 && <Badge variant="destructive" className="ms-1">{metrics.activeAlertsCount}</Badge>}
             </Button>
           )}
           <Button type="button" variant="ghost" className="gap-1.5" onClick={() => onNavigate("home", { view: "fiches" })}>
@@ -164,7 +164,7 @@ export const HomePage = ({ onNavigate, accessibleTabs, canInspect, metrics, role
       )}
 
       {coverage.unavailable.length > 0 && (
-        <div role="status" className="flex items-start gap-2 rounded-xl border border-amber-300 bg-sand px-4 py-3 text-sm text-sand-foreground">
+        <div role="status" className="flex items-start gap-2 rounded-xl border border-warning/40 bg-sand px-4 py-3 text-sm text-sand-foreground">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
           <span>
             <span className="font-medium">{t("worker.cannotCheck", { list: coverage.unavailable.join(", ") })}</span>{" "}
@@ -199,7 +199,7 @@ export const HomePage = ({ onNavigate, accessibleTabs, canInspect, metrics, role
         ) : null}
 
         {!next && !coverage.loading && coverage.unavailable.length === 0 && (
-          <div role="status" className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-accent px-4 py-3 text-sm text-accent-foreground">
+          <div role="status" className="flex items-center gap-2 rounded-xl border border-success/30 bg-accent px-4 py-3 text-sm text-accent-foreground">
             <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden />
             {t("worker.nothingUrgent")}
           </div>

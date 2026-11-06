@@ -48,8 +48,8 @@ export const PwaInstallBanner = () => {
 
   return (
     <div className="fixed bottom-4 left-1/2 z-50 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 animate-in fade-in-0 slide-in-from-bottom-4 duration-300">
-      <div className="flex items-start gap-3 rounded-2xl border border-primary/20 bg-white/95 p-4 shadow-xl shadow-primary/10 backdrop-blur-md">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-white">
+      <div className="flex items-start gap-3 rounded-2xl border border-primary/20 bg-card/95 p-4 shadow-xl shadow-primary/10 backdrop-blur-md">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
           <Download className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">

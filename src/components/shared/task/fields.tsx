@@ -50,10 +50,10 @@ export const NumericField = forwardRef<HTMLInputElement, {
   return (
     <div className="space-y-1.5">
       <label htmlFor={inputId} className="text-sm font-medium">
-        {label}{required && <span className="text-red-700" aria-hidden> *</span>}
+        {label}{required && <span className="text-destructive" aria-hidden> *</span>}
       </label>
       <div className={cn('flex items-center rounded-md border border-input bg-card focus-within:ring-2 focus-within:ring-ring',
-        error && 'border-red-500', disabled && 'opacity-60')}>
+        error && 'border-destructive', disabled && 'opacity-60')}>
         <input
           ref={ref}
           id={inputId}
@@ -75,7 +75,7 @@ export const NumericField = forwardRef<HTMLInputElement, {
         {unit && <span className={cn('pe-3 font-medium text-muted-foreground', size === 'measure' ? 'text-xl' : 'text-base')}>{unit}</span>}
       </div>
       {hint && !error && <p id={`${inputId}-hint`} className="text-sm text-muted-foreground">{hint}</p>}
-      {error && <p id={`${inputId}-error`} className="text-sm font-medium text-red-700">{error}</p>}
+      {error && <p id={`${inputId}-error`} className="text-sm font-medium text-destructive">{error}</p>}
     </div>
   );
 });

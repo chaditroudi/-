@@ -69,7 +69,7 @@ export const LotsTab: React.FC<LotsTabProps> = ({
             onChange={(e) => setLotSearch(e.target.value)}
             className="rounded-xl ps-9"
           />
-          <Eye className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
+          <Eye className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         </div>
         <Select value={lotStatusFilter} onValueChange={setLotStatusFilter}>
           <SelectTrigger className="w-full rounded-xl sm:w-48">
@@ -97,7 +97,7 @@ export const LotsTab: React.FC<LotsTabProps> = ({
             <div className="py-16 text-center text-sm text-muted-foreground">Chargement des lots…</div>
           ) : filteredLots.length === 0 ? (
             <div className="py-16 text-center">
-              <BoxIcon className="mx-auto mb-3 h-10 w-10 text-muted-foreground/30" />
+              <BoxIcon className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">Aucun lot correspondant</p>
             </div>
           ) : (
@@ -129,7 +129,7 @@ export const LotsTab: React.FC<LotsTabProps> = ({
                             {lot.storage_zone_code}
                           </span>
                         ) : (
-                          <span className="text-xs text-muted-foreground/50">—</span>
+                          <span className="text-xs text-muted-foreground">—</span>
                         )}
                       </TableCell>
                       <TableCell>

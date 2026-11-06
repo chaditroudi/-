@@ -17,9 +17,9 @@ export const RealtimeIndicator = () => {
         aria-hidden
         className={cn(
           'h-2 w-2 rounded-full',
-          shown.tone === 'good' && 'bg-emerald-600',
-          shown.tone === 'wait' && 'bg-amber-600',
-          shown.tone === 'bad' && 'bg-red-600',
+          shown.tone === 'good' && 'bg-success',
+          shown.tone === 'wait' && 'bg-warning',
+          shown.tone === 'bad' && 'bg-destructive',
         )}
       />
       <span className="max-sm:sr-only">{shown.label}</span>

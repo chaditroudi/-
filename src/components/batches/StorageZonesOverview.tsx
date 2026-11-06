@@ -797,7 +797,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                 onChange={e => { setLotSearch(e.target.value); setLotPage(0); }}
                 className="ps-9"
               />
-              <Eye className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
+              <Eye className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             </div>
             <div className="flex flex-wrap gap-1">
               {[
@@ -822,7 +822,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                 <div className="py-16 text-center text-sm text-muted-foreground">Chargement des lots…</div>
               ) : filteredLots.length === 0 ? (
                 <div className="py-16 text-center">
-                  <BoxIcon className="mx-auto mb-3 h-10 w-10 text-muted-foreground/30" />
+                  <BoxIcon className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
                   <p className="text-sm text-muted-foreground">Aucun lot correspondant</p>
                 </div>
               ) : (
@@ -864,7 +864,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                                 {lot.storage_zone_code}
                               </span>
                             ) : (
-                              <span className="text-xs text-muted-foreground/50">—</span>
+                              <span className="text-xs text-muted-foreground">—</span>
                             )}
                           </TableCell>
                           <TableCell>
@@ -964,7 +964,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                     onChange={e => setLocationSearch(e.target.value)}
                     className="ps-9"
                   />
-                  <Eye className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
+                  <Eye className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 </div>
               </div>
 
@@ -1463,7 +1463,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
               <CardContent className="p-0">
                 {zones.length === 0 ? (
                   <div className="py-12 text-center">
-                    <Warehouse className="mx-auto mb-3 h-10 w-10 text-muted-foreground/30" />
+                    <Warehouse className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
                     <p className="text-sm text-muted-foreground">{zonesKnown ? "Aucune zone configurée" : "Zones indisponibles"}</p>
                     <Button size="sm" className="mt-3 " onClick={openZoneCreate}>
                       <Plus className="me-1.5 h-4 w-4" />
@@ -1572,7 +1572,7 @@ export const StorageZonesOverview = ({ canManage = true, defaultTab = "dashboard
                     : allLocations.filter(l => l.storage_zone_id === mgmtZoneFilter);
                   return locs.length === 0 ? (
                     <div className="py-12 text-center">
-                      <MapPin className="mx-auto mb-3 h-10 w-10 text-muted-foreground/30" />
+                      <MapPin className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
                       <p className="text-sm text-muted-foreground">Aucun emplacement</p>
                       <Button size="sm" className="mt-3 " onClick={openLocCreate}>
                         <Plus className="me-1.5 h-4 w-4" />

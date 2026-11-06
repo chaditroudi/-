@@ -26,9 +26,9 @@ export function SummaryStrip({ items, className }: { items: SummaryStripItem[]; 
           <dd
             className={cn(
               'truncate font-display text-xl font-semibold',
-              item.tone === 'good' && 'text-emerald-800',
-              item.tone === 'watch' && 'text-amber-800',
-              item.tone === 'bad' && 'text-red-700',
+              item.tone === 'good' && 'text-success',
+              item.tone === 'watch' && 'text-warning',
+              item.tone === 'bad' && 'text-destructive',
             )}
           >
             {item.value}

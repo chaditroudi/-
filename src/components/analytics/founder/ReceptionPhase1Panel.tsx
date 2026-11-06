@@ -78,7 +78,7 @@ export function ReceptionPhase1Panel({ period }: { period: Period }) {
               <XCircle className="h-3.5 w-3.5 text-red-500" />
               <span className="text-xs text-muted-foreground">Rejetées</span>
             </div>
-            <div className={`text-2xl font-black ${(r?.rejected ?? 0) > 0 ? 'text-red-600' : 'text-muted-foreground/50'}`}>{r?.rejected ?? 0}</div>
+            <div className={`text-2xl font-black ${(r?.rejected ?? 0) > 0 ? 'text-red-600' : 'text-muted-foreground'}`}>{r?.rejected ?? 0}</div>
             <div className="text-xs text-muted-foreground mt-0.5">{r?.quarantine ?? 0} en quarantaine</div>
           </CardContent>
         </Card>

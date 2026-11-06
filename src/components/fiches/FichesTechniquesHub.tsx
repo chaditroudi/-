@@ -71,7 +71,7 @@ export function FichesTechniquesHub({
       <Card className="surface-card overflow-hidden rounded-lg border-primary/20">
         <CardHeader className="space-y-3 border-b bg-muted/20 pb-4">
           <div>
-            <p className="text-xs font-semibold text-muted-foreground/70">
+            <p className="text-xs font-semibold text-muted-foreground">
               Aide atelier
             </p>
             <CardTitle className="mt-1 flex items-center gap-2 text-xl">

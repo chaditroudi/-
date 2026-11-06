@@ -194,7 +194,7 @@ export const P2PKpiPanel = () => {
               <p className={`text-xl font-bold ${kpi.color}`}>{kpi.value}</p>
               <p className="text-xs text-muted-foreground">{kpi.label}</p>
               {kpi.target && (
-                <p className="text-xs text-muted-foreground/60">Cible: {kpi.target}</p>
+                <p className="text-xs text-muted-foreground">Cible: {kpi.target}</p>
               )}
             </CardContent>
           </Card>

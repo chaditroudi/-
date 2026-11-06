@@ -61,7 +61,7 @@ export default function Auth() {
 
       {/* ── Language switcher ── */}
       <div className="absolute end-4 top-4 z-10">
-        <div className="rounded-xl border border-border/60 bg-white/80 p-0.5 backdrop-blur-sm shadow-xs">
+        <div className="rounded-xl border border-border/60 bg-card p-0.5">
           <LanguageSwitcher />
         </div>
       </div>
@@ -72,7 +72,7 @@ export default function Auth() {
         {/* Logo + Brand */}
         <div className="mb-8 flex flex-col items-center gap-4 text-center">
           <div
-            className="flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/18 bg-white p-2.5"
+            className="flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/20 bg-card p-2.5"
           >
             <BrandLogo className="h-full w-full" imgClassName="h-full w-full object-contain" alt={companyName} />
           </div>
@@ -85,7 +85,7 @@ export default function Auth() {
                   ? 'Connexion équipe'
                   : 'Team login'}
             </h1>
-            <p className="mt-1 text-[13px] text-muted-foreground/70">
+            <p className="mt-1 text-sm text-muted-foreground">
               {i18n.language.startsWith('ar')
                 ? 'افتح مساحة عملك'
                 : i18n.language.startsWith('fr')
@@ -97,7 +97,7 @@ export default function Auth() {
 
         {/* Form card */}
         <div
-          className="rounded-2xl border border-border/60 bg-white p-6 sm:p-7"
+          className="rounded-2xl border border-border/60 bg-card p-6 sm:p-7"
         >
           <form onSubmit={handleSubmit} className="space-y-4">
 
@@ -118,7 +118,7 @@ export default function Auth() {
                   autoComplete="email"
                   className={cn(
                     'h-12 rounded-xl border-border/60 ps-11',
-                    'placeholder:text-muted-foreground/40',
+                    'placeholder:text-muted-foreground',
                     'focus-visible:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/15',
                     'transition-all duration-150',
                   )}
@@ -143,7 +143,7 @@ export default function Auth() {
                   autoComplete="current-password"
                   className={cn(
                     'h-12 rounded-xl border-border/60 ps-11 pe-12',
-                    'placeholder:text-muted-foreground/40',
+                    'placeholder:text-muted-foreground',
                     'focus-visible:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/15',
                     'transition-all duration-150',
                   )}
@@ -151,7 +151,7 @@ export default function Auth() {
                 <button
                   type="button"
                   onClick={() => setShowPwd((v) => !v)}
-                  className="absolute end-1.5 top-1/2 -translate-y-1/2 rounded-lg p-2.5 text-muted-foreground/50 transition-colors hover:bg-muted/60 hover:text-foreground"
+                  className="absolute end-1.5 top-1/2 -translate-y-1/2 rounded-lg p-2.5 text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
                   aria-label={showPwd ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                 >
                   {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -171,7 +171,7 @@ export default function Auth() {
             >
               {pending ? (
                 <span className="flex items-center gap-2">
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground" />
                   {t('common.loading')}
                 </span>
               ) : (
@@ -182,7 +182,7 @@ export default function Auth() {
               )}
             </Button>
             {formError && (
-              <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+              <p role="alert" className="rounded-xl border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
                 {formError} Vous pouvez corriger les champs et réessayer.
               </p>
             )}
@@ -203,8 +203,8 @@ export default function Auth() {
       </div>
 
       {/* ── Footer ── */}
-      <footer className="absolute bottom-0 inset-x-0 border-t border-border/30 bg-white/50 py-3 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-[900px] items-center justify-between gap-3 px-5 text-xs text-muted-foreground/40">
+      <footer className="absolute bottom-0 inset-x-0 border-t border-border/60 bg-card/60 py-3">
+        <div className="mx-auto flex max-w-[900px] items-center justify-between gap-3 px-5 text-xs text-muted-foreground">
           <span>© {new Date().getFullYear()} {companyName}</span>
           <span>v{PRODUCT.version}</span>
         </div>

@@ -74,7 +74,7 @@ export const ZonesTab: React.FC<ZonesTabProps> = ({
             onChange={(e) => setLocationSearch(e.target.value)}
             className="rounded-xl ps-9"
           />
-          <Eye className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
+          <Eye className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         </div>
       </div>
 

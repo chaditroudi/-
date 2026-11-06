@@ -41,7 +41,7 @@ export function NumericSignaturePad({
     <div className="rounded-lg border bg-muted/30 p-3 space-y-3">
       <div>
         <div className="flex items-center gap-2 text-sm font-semibold">
-          <ShieldCheck className="h-4 w-4 text-emerald-700" />
+          <ShieldCheck className="h-4 w-4 text-success" />
           {title}
         </div>
         {subtitle ? <p className="text-xs text-muted-foreground mt-1">{subtitle}</p> : null}
@@ -53,7 +53,7 @@ export function NumericSignaturePad({
             key={i}
             className={cn(
               'h-3 w-3 rounded-full border',
-              i < pin.length ? 'bg-emerald-700 border-emerald-700' : 'border-muted-foreground/40',
+              i < pin.length ? 'bg-success border-success' : 'border-input',
             )}
           />
         ))}

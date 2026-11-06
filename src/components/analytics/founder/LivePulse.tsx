@@ -74,7 +74,7 @@ export function LivePulse() {
                 </div>
                 <span className="text-xs font-medium text-muted-foreground">{label}</span>
               </div>
-              <div className={`text-2xl font-black ${count > 0 ? text : 'text-muted-foreground/50'}`}>{isLoading ? '—' : count}</div>
+              <div className={`text-2xl font-black ${count > 0 ? text : 'text-muted-foreground'}`}>{isLoading ? '—' : count}</div>
               <div className="text-xs text-muted-foreground mt-0.5">{count > 0 ? 'cycle(s) actif(s)' : 'aucun actif'}</div>
             </div>
           );

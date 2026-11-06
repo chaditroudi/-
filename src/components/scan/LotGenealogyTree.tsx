@@ -276,7 +276,7 @@ const NodeCard = ({ node, isActive, onClick }: NodeCardProps) => {
         </div>
       </div>
       <div className="px-2.5 pb-2 flex items-center justify-between">
-        <span className="text-xs font-semibold text-muted-foreground/60">{s.label}</span>
+        <span className="text-xs font-semibold text-muted-foreground">{s.label}</span>
         {node.status && (
           <span className={cn('text-xs px-1.5 py-0.5 rounded-full font-semibold', STATUS_BADGE[node.status] ?? 'bg-gray-100 text-gray-500')}>
             {node.status.replace(/_/g, ' ')}

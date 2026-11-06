@@ -164,7 +164,7 @@ export const AiGuide = () => {
           variant="ghost"
           size="icon"
           title={t("aiGuide.title")}
-          className="h-9 w-9 rounded-[9px] text-muted-foreground/70 hover:bg-card hover:text-foreground hover:shadow-xs"
+          className="h-9 w-9 rounded-[9px] text-muted-foreground hover:bg-card hover:text-foreground hover:shadow-xs"
         >
           <Bot className="h-4 w-4" />
         </Button>

@@ -107,12 +107,12 @@ export const OfflineSyncStatus = () => {
     <div
       className={`fixed inset-x-4 top-14 z-[100] flex md:inset-x-auto md:bottom-4 md:left-[248px] md:top-auto md:max-w-sm items-center gap-3 rounded-xl border px-4 py-3 text-sm backdrop-blur ${
         !online || needsLogin
-          ? 'border-amber-300 bg-amber-50/95 text-amber-950'
+          ? 'border-warning/40 bg-sand text-foreground'
           : 'bg-background/95 shadow-lg'
       }`}
       role="status"
     >
-      {!online ? <CloudOff className="h-5 w-5 shrink-0 text-amber-700" />
+      {!online ? <CloudOff className="h-5 w-5 shrink-0 text-warning" />
         : failed.length > 0 || needsLogin ? <TriangleAlert className="h-5 w-5 shrink-0 text-destructive" />
           : <Cloud className="h-5 w-5 shrink-0 text-primary" />}
       <div className="min-w-0">
@@ -122,7 +122,7 @@ export const OfflineSyncStatus = () => {
       {online && needsLogin && userId && (
         <button
           type="button"
-          className="flex min-h-11 items-center gap-1 rounded-md px-2 text-sm font-medium hover:bg-amber-100"
+          className="flex min-h-11 items-center gap-1 rounded-md px-2 text-sm font-medium hover:bg-sand"
           onClick={() => void signOut()}
         >
           <LogIn className="h-4 w-4" />

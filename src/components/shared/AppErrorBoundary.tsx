@@ -35,9 +35,9 @@ export class AppErrorBoundary extends Component<AppErrorBoundaryProps, { failed:
 
     return (
       <div className={this.props.scoped ? 'p-4' : 'flex min-h-screen items-center justify-center bg-background p-4'}>
-        <div role="alert" className="w-full max-w-md space-y-3 rounded-lg border border-red-300 bg-card p-4">
+        <div role="alert" className="w-full max-w-md space-y-3 rounded-lg border border-destructive/40 bg-card p-4">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-red-700" aria-hidden />
+            <AlertTriangle className="h-5 w-5 text-destructive" aria-hidden />
             <h1 className="text-base">Cet écran a rencontré un problème</h1>
           </div>
           <p className="text-sm text-muted-foreground">

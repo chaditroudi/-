@@ -148,7 +148,7 @@ export function AppSidebar({ activeTab, onTabChange, activeView, activeAlertsCou
         <item.icon className="h-[18px] w-[18px] shrink-0" />
         <span className="truncate">{item.title}</span>
         {typeof item.badge === "number" && item.badge > 0 && (
-          <span className="ms-auto rounded-sm bg-red-500 px-1.5 text-xs font-semibold text-white group-data-[collapsible=icon]:hidden">
+          <span className="ms-auto rounded-sm bg-destructive px-1.5 text-xs font-semibold text-destructive-foreground group-data-[collapsible=icon]:hidden">
             {item.badge}
           </span>
         )}
@@ -192,10 +192,10 @@ export function AppSidebar({ activeTab, onTabChange, activeView, activeAlertsCou
               <span
                 aria-hidden
                 data-testid="filiere-thread"
-                className="absolute start-[17.5px] top-0 z-10 w-0.5 bg-[hsl(var(--sidebar-primary))] group-data-[collapsible=icon]:start-[18.5px]"
+                className="absolute start-[17.5px] top-0 z-10 w-0.5 bg-sidebar-primary group-data-[collapsible=icon]:start-[18.5px]"
                 style={{ height: `${litShare}%`, opacity: activeStep < 0 ? 0 : 1 }}
               />
-              <SidebarMenu className="relative z-20 gap-px [&_svg]:rounded-sm [&_svg]:bg-sidebar [&_[data-active=true]_svg]:bg-sidebar-accent [&_[data-active=true]_svg]:text-[hsl(var(--sidebar-primary))]">
+              <SidebarMenu className="relative z-20 gap-px [&_svg]:rounded-sm [&_svg]:bg-sidebar [&_[data-active=true]_svg]:bg-sidebar-accent [&_[data-active=true]_svg]:text-sidebar-primary">
                 {filiere.map(renderItem)}
               </SidebarMenu>
             </div>

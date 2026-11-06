@@ -44,8 +44,8 @@ const Panel = ({ icon, title, detail, action, tone, compact, className }: {
     className={cn(
       'flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border bg-card px-3 text-sm',
       compact ? 'py-2' : 'py-3',
-      tone === 'danger' && 'border-red-300',
-      tone === 'warning' && 'border-amber-300',
+      tone === 'danger' && 'border-destructive/40',
+      tone === 'warning' && 'border-warning/40',
       className,
     )}
   >
@@ -91,7 +91,7 @@ const blocked = (condition: DataCondition, what: string): { icon: ReactNode; tit
   }
   if (condition === 'error') {
     return {
-      icon: <AlertTriangle className={cn(ICON, 'text-red-700')} aria-hidden />,
+      icon: <AlertTriangle className={cn(ICON, 'text-destructive')} aria-hidden />,
       title: 'Données indisponibles',
       detail: `Le serveur n'a pas pu fournir ${what}. Ce n'est pas une liste vide.`,
       tone: 'danger',

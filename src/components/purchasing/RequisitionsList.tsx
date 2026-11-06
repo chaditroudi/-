@@ -656,7 +656,7 @@ export const RequisitionsList = ({
                               ) : isNext ? (
                                 <Badge className="bg-amber-500 text-white text-xs">À signer</Badge>
                               ) : (
-                                <span className="text-xs text-muted-foreground/60">En attente</span>
+                                <span className="text-xs text-muted-foreground">En attente</span>
                               )}
                             </div>
                           );

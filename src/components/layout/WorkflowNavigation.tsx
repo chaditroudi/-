@@ -141,7 +141,7 @@ export function WorkflowNavigation({
                   <span className="relative">
                     <item.icon className="h-5 w-5" aria-hidden />
                     {hasBadge && (
-                      <span className="absolute -end-2 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-xs font-bold text-white">
+                      <span className="absolute -end-2 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-xs font-bold text-destructive-foreground">
                         {(metrics.activeAlertsCount ?? 0) > 9 ? "9+" : metrics.activeAlertsCount}
                       </span>
                     )}

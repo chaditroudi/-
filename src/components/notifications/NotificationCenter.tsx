@@ -88,7 +88,7 @@ const NotificationItem = ({ notification, onSelect, onMarkRead, locale }: Notifi
           </p>
 
           <div className="mt-2 flex items-center justify-between gap-2">
-            <span className="text-xs text-muted-foreground/70">
+            <span className="text-xs text-muted-foreground">
               {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale })}
             </span>
             <span className="flex items-center gap-0.5 text-xs font-semibold text-primary opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
@@ -101,7 +101,7 @@ const NotificationItem = ({ notification, onSelect, onMarkRead, locale }: Notifi
           <button
             type="button"
             aria-label="Marquer comme lu"
-            className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground/50 transition-colors hover:bg-muted hover:text-foreground"
+            className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             onClick={(e) => { e.stopPropagation(); onMarkRead(notification.id); }}
           >
             <Check className="h-3.5 w-3.5" />
@@ -214,7 +214,7 @@ const NotificationDetailView = ({
 
         {/* Info grid */}
         <div className="px-4 pb-4 pt-4">
-          <p className="mb-3 text-xs font-bold text-muted-foreground/50">
+          <p className="mb-3 text-xs font-bold text-muted-foreground">
             Informations
           </p>
           <div className="space-y-2.5">
@@ -239,7 +239,7 @@ const NotificationDetailView = ({
           <>
             <Separator />
             <div className="px-4 pb-4 pt-4">
-              <p className="mb-3 text-xs font-bold text-muted-foreground/50">
+              <p className="mb-3 text-xs font-bold text-muted-foreground">
                 Contexte
               </p>
               <div className="space-y-2.5">
@@ -377,7 +377,7 @@ export const NotificationCenter = () => {
           size="icon"
           aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} non lues)` : ''}`}
           className={cn(
-            'relative h-9 w-9 rounded-[9px] text-muted-foreground/70 hover:bg-card hover:text-foreground hover:shadow-xs',
+            'relative h-9 w-9 rounded-[9px] text-muted-foreground hover:bg-card hover:text-foreground hover:shadow-xs',
             livePulseActive && 'border-primary/40 bg-primary/5',
           )}
         >
@@ -440,7 +440,7 @@ export const NotificationCenter = () => {
                   type="button"
                   aria-label="Fermer"
                   onClick={() => setOpen(false)}
-                  className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground/60 transition-colors hover:bg-muted hover:text-foreground"
+                  className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -466,7 +466,7 @@ export const NotificationCenter = () => {
             {/* Live / recent strip */}
             {recentLive.length > 0 && (
               <div className="border-b px-3 py-3">
-                <p className="mb-2 text-xs font-bold text-muted-foreground/50">
+                <p className="mb-2 text-xs font-bold text-muted-foreground">
                   Récentes
                 </p>
                 <div className="space-y-1.5">
