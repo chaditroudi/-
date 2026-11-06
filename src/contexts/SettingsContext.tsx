@@ -28,8 +28,8 @@ const applyTheme = (settings: SiteSettings) => {
     root.style.setProperty('--primary', hsl);
   }
   if (/^#[0-9a-f]{6}$/i.test(settings.accent_color)) {
-    const accentHsl = hexToHsl(settings.accent_color);
-    root.style.setProperty('--accent', accentHsl);
+    // The brand accent marks branded details only; --accent stays the soft surface used for hovers and selection.
+    root.style.setProperty('--brand-accent', hexToHsl(settings.accent_color));
   }
   root.dataset.uiDensity = settings.interface.ui_density;
   root.dataset.uiAnimations = settings.interface.enable_animations ? 'on' : 'off';

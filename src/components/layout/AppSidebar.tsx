@@ -78,8 +78,8 @@ const isItemActive = (item: NavItem, activeTab: string, activeView?: string, can
 };
 
 const ITEM_CLASS =
-  "h-9 gap-2.5 rounded-md px-2.5 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-white " +
-  "data-[active=true]:bg-sidebar-accent data-[active=true]:text-white pointer-coarse:h-11";
+  "h-9 gap-2.5 rounded-md px-2.5 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground " +
+  "data-[active=true]:bg-sidebar-accent data-[active=true]:font-semibold data-[active=true]:text-sidebar-accent-foreground pointer-coarse:h-11";
 
 const GroupLabel = ({ children }: { children: string }) => (
   <p className="px-2.5 pb-1 pt-3 text-xs font-medium text-sidebar-foreground/55 group-data-[collapsible=icon]:hidden">
@@ -164,7 +164,7 @@ export function AppSidebar({ activeTab, onTabChange, activeView, activeAlertsCou
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-white p-1">
             <BrandLogo className="h-full w-full" imgClassName="h-full w-full object-contain" alt={companyName} />
           </div>
-          <p className="truncate font-display text-base font-semibold text-white group-data-[collapsible=icon]:hidden">
+          <p className="truncate font-display text-base font-semibold text-sidebar-foreground group-data-[collapsible=icon]:hidden">
             {companyName}
           </p>
         </div>
@@ -223,7 +223,7 @@ export function AppSidebar({ activeTab, onTabChange, activeView, activeAlertsCou
       <SidebarFooter className="border-t border-sidebar-border px-2.5 py-2">
         <div className="flex items-center gap-1 group-data-[collapsible=icon]:hidden">
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-white">{identityLabel}</p>
+            <p className="truncate text-sm font-medium text-sidebar-foreground">{identityLabel}</p>
             {roleLabel && <p className="truncate text-xs text-sidebar-foreground/65">{roleLabel}</p>}
           </div>
           {user && (
@@ -233,7 +233,7 @@ export function AppSidebar({ activeTab, onTabChange, activeView, activeAlertsCou
                 onClick={() => setPasswordOpen(true)}
                 title="Changer mon mot de passe"
                 aria-label="Changer mon mot de passe"
-                className="rounded-md p-2 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-white"
+                className="rounded-md p-2 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               >
                 <KeyRound className="h-4 w-4" />
               </button>
@@ -242,7 +242,7 @@ export function AppSidebar({ activeTab, onTabChange, activeView, activeAlertsCou
                 onClick={signOut}
                 title="Se déconnecter"
                 aria-label="Se déconnecter"
-                className="rounded-md p-2 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-white"
+                className="rounded-md p-2 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               >
                 <LogOut className="h-4 w-4" />
               </button>

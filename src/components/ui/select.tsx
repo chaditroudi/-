@@ -22,7 +22,7 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger aria-label={props["aria-label"] ?? (!props.id && !props["aria-labelledby"] ? valuePlaceholder : undefined)}
     ref={ref}
     className={cn(
-      "flex h-11 w-full items-center justify-between rounded-lg border border-input bg-background px-3.5 py-2 text-base md:text-[15px]",
+      "flex h-11 w-full items-center justify-between rounded-md border border-input bg-card px-3.5 py-2 text-base md:text-[15px]",
       "ring-offset-background transition-all duration-200",
       "placeholder:text-muted-foreground/60",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-ring",

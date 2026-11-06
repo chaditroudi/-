@@ -9,47 +9,53 @@
    ═══════════════════════════════════════════════════════════════ */
 @layer base {
   :root {
-    /* Sel: the cool salt of Chott el Djerid. Encre: warm ink. */
-    --background: 180 8% 94%;        /* Sel    #EEF1F1 */
-    --foreground: 26 13% 11%;        /* Encre  #1F1B18 */
+    /* Tablet-first look (docs/design-reference): warm off-white, palm green, soft cards.
+       Contrast checked: ink on page 11.5:1, muted text 4.9:1, white on primary 5.8:1. */
+    --background: 94 23% 94%;        /* Page   #EFF3EC */
+    --foreground: 149 24% 17%;       /* Ink    #21362B */
 
     --card: 0 0% 100%;
-    --card-foreground: 26 13% 11%;
+    --card-foreground: 149 24% 17%;
     --popover: 0 0% 100%;
-    --popover-foreground: 26 13% 11%;
+    --popover-foreground: 149 24% 17%;
 
-    --primary: 168 73% 20%;          /* Palme  #0E5A4B */
+    --primary: 156 65% 27%;          /* Palme  #18734E (factory branding may override) */
     --primary-foreground: 0 0% 100%;
+    --primary-strong: 159 76% 18%;   /* #0B5139, hero surfaces */
 
-    --secondary: 160 5% 90%;
-    --secondary-foreground: 26 13% 18%;
-    --muted: 160 6% 93%;
-    --muted-foreground: 146 3% 36%;
-    --accent: 160 25% 93%;
-    --accent-foreground: 168 73% 18%;
+    --secondary: 90 22% 96%;         /* #F6F8F4 */
+    --secondary-foreground: 149 24% 17%;
+    --muted: 90 22% 96%;
+    --muted-foreground: 135 8% 40%;  /* #5D6D61 */
+    --accent: 125 35% 93%;           /* Soft green #E8F4E9 */
+    --accent-foreground: 159 76% 18%;
+    --sand: 40 52% 91%;              /* #F4ECDC, gentle warnings and highlights */
+    --sand-foreground: 37 84% 29%;   /* #87580C */
 
-    --destructive: 3 71% 41%;        /* #B3261E */
+    --destructive: 6 48% 44%;        /* #A4443A */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 150 5% 84%;
-    --input: 150 5% 76%;
-    --ring: 38 87% 35%;              /* Deglet, darkened to hold 3:1 on white */
+    --border: 107 18% 90%;           /* #E3EAE1 */
+    --input: 133 7% 58%;             /* field outlines hold 3:1 on white */
+    --ring: 156 65% 27%;
 
-    --radius: 0.25rem;
-    --radius-sm: 0.1875rem;
-    --radius-lg: 0.375rem;
+    --radius-xs: 0.5rem;             /*  8px */
+    --radius-sm: 0.625rem;           /* 10px: inputs, chips */
+    --radius: 0.875rem;              /* 14px: buttons, cards */
+    --radius-lg: 1.125rem;           /* 18px: panels */
+    --radius-xl: 1.375rem;           /* 22px: hero cards, sheets */
 
-    /* Datte noire: the skin of a ripe date. */
-    --sidebar-background: 18 46% 12%; /* #2B1810 */
-    --sidebar-foreground: 24 24% 88%;
-    --sidebar-primary: 39 76% 45%;
-    --sidebar-primary-foreground: 18 46% 12%;
-    --sidebar-accent: 18 34% 19%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 18 30% 19%;
-    --sidebar-ring: 39 76% 45%;
+    /* Light navigation for supervisors and direction; floor workers use the dock. */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 149 24% 17%;
+    --sidebar-primary: 156 65% 27%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 125 35% 93%;
+    --sidebar-accent-foreground: 159 76% 18%;
+    --sidebar-border: 107 18% 90%;
+    --sidebar-ring: 156 65% 27%;
 
-    --success: 150 64% 29%;          /* #1B7A4B */
+    --success: 156 65% 27%;          /* #18734E */
     --success-foreground: 0 0% 100%;
     --warning: 38 87% 30%;           /* #8F5D09 */
     --warning-foreground: 0 0% 100%;
@@ -58,11 +64,11 @@
     --disabled: 120 2% 61%;
 
     /* Existing chart components use these semantic palette aliases. */
-    --chart-1: 168 73% 20%;
-    --chart-2: 38 87% 35%;
-    --chart-3: 150 64% 29%;
+    --chart-1: 156 65% 27%;
+    --chart-2: 36 59% 42%;
+    --chart-3: 145 34% 47%;
     --chart-4: 201 63% 33%;
-    --chart-5: 18 46% 28%;
+    --chart-5: 6 48% 44%;
   }
 
   .dark {
