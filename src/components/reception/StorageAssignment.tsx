@@ -9,7 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { AlertTriangle, ArrowRight, CheckCircle2, Leaf, Lock, LockOpen, MapPin, Snowflake, Factory, Warehouse, Wind, ShieldAlert } from 'lucide-react';
-import { ReceptionV2, ReceptionLot, stockStatusLabels, stockStatusColors } from '@/types/reception';
+import { ReceptionV2, ReceptionLot, stockStatusColors } from '@/types/reception';
+import { useReceptionLabels } from '@/lib/receptionLabels';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useMoveReceptionLotToStorage } from '@/hooks/useReceptionsV2';
 import { getReceptionPermissions } from '@/lib/receptionWorkflow';
@@ -73,6 +74,7 @@ interface StorageAssignmentProps {
 }
 
 export const StorageAssignment = ({ reception, lots }: StorageAssignmentProps) => {
+  const labels = useReceptionLabels();
   const { roles, profile, user } = useAuthContext();
   const permissions = useMemo(() => getReceptionPermissions(roles), [roles]);
   const actorLabel = profile?.full_name?.trim() || user?.email || '—';
@@ -272,7 +274,7 @@ export const StorageAssignment = ({ reception, lots }: StorageAssignmentProps) =
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge className={stockStatusColors[lot.stock_status]}>
-                      {stockStatusLabels[lot.stock_status]}
+                      {labels.stockStatus(lot.stock_status)}
                     </Badge>
                     {/* Current zone — shown when lot is already placed */}
                     {lot.storage_zone_code && (
@@ -373,7 +375,7 @@ export const StorageAssignment = ({ reception, lots }: StorageAssignmentProps) =
                 <div>
                   <p className="font-medium font-mono">{selectedLot.lot_internal || selectedLot.lot_supplier}</p>
                   <p className="text-sm text-muted-foreground">
-                    {selectedLot.quantity} {selectedLot.unit} • {stockStatusLabels[selectedLot.stock_status]}
+                    {selectedLot.quantity} {selectedLot.unit} • {labels.stockStatus(selectedLot.stock_status)}
                   </p>
                 </div>
                 {lotIsBio && (

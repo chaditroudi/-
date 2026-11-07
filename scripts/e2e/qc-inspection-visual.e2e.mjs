@@ -189,6 +189,14 @@ async function walkDetail(operator, supervisor, supplier, lang, width, index) {
   const has = (names) => page.evaluate((names) => [...document.querySelectorAll('main button')].some((b) => b.getClientRects().length && names.includes(b.innerText.replace(/s+/g, ' ').trim())), names);
   check(`${id} supervisor can correct the reception`, await until(() => has(CORRECT), 5_000));
   check(`${id} supervisor can cancel before the QC decision`, await until(() => has(CANCEL), 5_000));
+  // Both dialogs open over the page and close without writing anything.
+  for (const [names, step] of [[CORRECT, '0b-correct'], [CANCEL, '0c-cancel']]) {
+    await clickButton(page, names, { within: 'main' });
+    check(`${id} ${step} dialog opens`, await until(() => page.$('[role="dialog"], [role="alertdialog"]'), 10_000));
+    await capture(page, id, step);
+    await page.keyboard.press('Escape');
+    await until(() => page.evaluate(() => !document.querySelector('[role="dialog"], [role="alertdialog"]')), 5_000);
+  }
   const steps = ['1-lots', '2-qc', '3-stock', '4-documents', '5-history'];
   for (const [i, step] of steps.entries()) {
     await page.evaluate((n) => { const tab = document.querySelectorAll('[role="tab"]')[n]; tab.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })); tab.click(); }, i + 1);

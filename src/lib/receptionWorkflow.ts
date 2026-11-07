@@ -28,7 +28,14 @@ export const getReceptionPermissions = (roles: ActorRole[]): ReceptionPermission
 
 export type ReceptionNextAction = 'submit_draft' | 'start_qc' | 'resume_qc' | 'reinspect' | 'assign_storage';
 
+/** Stable id of a next step, so screens can show it in the reader's language (`receptionNext.<key>`). */
+export type ReceptionNextStepKey = 'draftSubmit' | 'draftWaiting' | 'qcStart' | 'qcWaiting' | 'qcResume' | 'qcInProgress'
+  | 'quarantineAction' | 'quarantineWaiting' | 'storeAction' | 'storeWaiting' | 'done' | 'rejected' | 'cancelled';
+
 export interface ReceptionNextStep {
+  key: ReceptionNextStepKey;
+  /** Number the title counts, when it counts something (lots to put away). */
+  count?: number;
   tone: 'action' | 'waiting' | 'done' | 'closed';
   title: string;
   description: string;
@@ -52,6 +59,8 @@ export const getReceptionNextStep = (
     case 'BROUILLON':
       return permissions.canRegister
         ? {
+            key: 'draftSubmit',
+
             tone: 'action',
             title: 'Brouillon à soumettre',
             description: 'Vérifiez le fournisseur et les lots, puis envoyez la réception au contrôle qualité.',
@@ -59,6 +68,8 @@ export const getReceptionNextStep = (
             actionLabel: 'Soumettre au contrôle',
           }
         : {
+            key: 'draftWaiting',
+
             tone: 'waiting',
             title: 'Brouillon en cours de saisie',
             description: "L'équipe réception doit compléter et soumettre ce brouillon.",
@@ -68,6 +79,8 @@ export const getReceptionNextStep = (
     case 'EN_ATTENTE_QC':
       return permissions.canRunQc
         ? {
+            key: 'qcStart',
+
             tone: 'action',
             title: 'Contrôle qualité à lancer',
             description: 'Les lots sont en quarantaine en attendant votre inspection.',
@@ -75,6 +88,8 @@ export const getReceptionNextStep = (
             actionLabel: 'Lancer le contrôle QC',
           }
         : {
+            key: 'qcWaiting',
+
             tone: 'waiting',
             title: 'En attente du contrôle qualité',
             description: 'Les lots restent en quarantaine jusqu’à la décision du service qualité.',
@@ -84,6 +99,8 @@ export const getReceptionNextStep = (
     case 'EN_QC':
       return permissions.canRunQc
         ? {
+            key: 'qcResume',
+
             tone: 'action',
             title: 'Inspection en cours',
             description: 'Reprenez l’inspection pour saisir les mesures et signer la décision.',
@@ -91,6 +108,8 @@ export const getReceptionNextStep = (
             actionLabel: 'Reprendre le contrôle',
           }
         : {
+            key: 'qcInProgress',
+
             tone: 'waiting',
             title: 'Inspection qualité en cours',
             description: 'Le service qualité est en train d’inspecter cette livraison.',
@@ -100,6 +119,8 @@ export const getReceptionNextStep = (
     case 'BLOQUE':
       return permissions.canRunQc
         ? {
+            key: 'quarantineAction',
+
             tone: 'action',
             title: 'Lots en quarantaine',
             description: 'Ré-inspectez la livraison, ou libérez les lots conformes un par un dans la section Lots.',
@@ -107,6 +128,8 @@ export const getReceptionNextStep = (
             actionLabel: 'Ré-inspecter',
           }
         : {
+            key: 'quarantineWaiting',
+
             tone: 'waiting',
             title: 'Bloquée en quarantaine',
             description: 'Une décision du service qualité est nécessaire avant toute utilisation.',
@@ -118,6 +141,10 @@ export const getReceptionNextStep = (
       if (pending > 0) {
         return permissions.canMoveStock
           ? {
+              key: 'storeAction',
+
+              count: pending,
+
               tone: 'action',
               title: `${pending} lot(s) libéré(s) à ranger`,
               description: 'Affectez les lots libérés à une chambre froide pour les rendre localisables en stock.',
@@ -125,6 +152,10 @@ export const getReceptionNextStep = (
               actionLabel: 'Affecter au stock',
             }
           : {
+              key: 'storeWaiting',
+
+              count: pending,
+
               tone: 'waiting',
               title: `${pending} lot(s) libéré(s) à ranger`,
               description: 'Le magasin doit affecter ces lots à une chambre froide.',
@@ -133,6 +164,8 @@ export const getReceptionNextStep = (
             };
       }
       return {
+        key: 'done',
+
         tone: 'done',
         title: 'Réception terminée',
         description: 'Lots libérés et rangés : disponibles pour la production.',
@@ -142,6 +175,8 @@ export const getReceptionNextStep = (
     }
     case 'REJETE':
       return {
+        key: 'rejected',
+
         tone: 'closed',
         title: 'Livraison rejetée',
         description: 'Les lots sont exclus du stock. Les documents de réclamation sont dans la section Documents.',
@@ -151,6 +186,8 @@ export const getReceptionNextStep = (
     case 'ANNULE':
     default:
       return {
+        key: 'cancelled',
+
         tone: 'closed',
         title: 'Réception annulée',
         description: 'Le stock et le bon de commande ont été corrigés ; l’historique est conservé.',

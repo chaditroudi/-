@@ -41,7 +41,7 @@ import {
   getReceptionPermissions,
   type ReceptionAuditLog,
 } from '@/lib/receptionWorkflow';
-import { describeWeighingSource } from '@/lib/receptionIntake';
+import { useReceptionLabels } from '@/lib/receptionLabels';
 import { useListReceptionAuditQuery } from '@/store/api/receptionsApi';
 import {
   receptionErrorMessage,
@@ -52,13 +52,10 @@ import {
 } from '@/hooks/useReceptionsV2';
 import {
   qcDecisionColors,
-  qcDecisionLabels,
   receptionStatusColors,
-  receptionStatusLabels,
   ReceptionLot,
   ReceptionUnit,
   stockStatusColors,
-  stockStatusLabels,
 } from '@/types/reception';
 
 import { LabelPrintDialog } from './LabelPrintDialog';
@@ -120,6 +117,7 @@ const TONE = {
  */
 export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overview', autoStartQc = false }: ReceptionDetailV2Props) => {
   const { t } = useTranslation();
+  const labels = useReceptionLabels();
   const { roles } = useAuthContext();
   const permissions = useMemo(() => getReceptionPermissions(roles), [roles]);
   const { data: reception, isLoading, isError } = useReceptionV2Detail(receptionId);
@@ -240,6 +238,7 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
 
   const supplierName = reception.supplier?.name || reception.supplier_name_snapshot || t('receptionDetail.noSupplier');
   const tone = TONE[nextStep.tone];
+  const stepText = labels.nextStep(nextStep);
   const ToneIcon = tone.icon;
   const hero = nextStep.tone === 'action';
   const documentTile = 'flex min-h-16 w-full items-center gap-3 rounded-xl border bg-card px-4 py-3 text-start transition-colors hover:border-primary/40 hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
@@ -290,7 +289,7 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
             </p>
             <h2 className="font-display text-2xl font-semibold leading-tight sm:text-3xl">{supplierName}</h2>
             <div className="flex flex-wrap items-center gap-2 pt-1">
-              <Badge className={receptionStatusColors[reception.status]}>{receptionStatusLabels[reception.status]}</Badge>
+              <Badge className={receptionStatusColors[reception.status]}>{labels.receptionStatus(reception.status)}</Badge>
               {reception.variety && <Badge variant="outline">{reception.variety}</Badge>}
               {reception.bio_declared && <Badge variant="outline">{t('receptionDetail.bio')}</Badge>}
             </div>
@@ -328,11 +327,11 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
           </span>
           <div className="min-w-0">
             <p className={cn('text-sm font-semibold', hero ? 'text-white/80' : 'text-muted-foreground')}>{t('receptionDetail.nextStep')}</p>
-            <p className={cn('font-display text-xl font-semibold leading-tight', hero && 'text-white')}>{nextStep.title}</p>
+            <p className={cn('font-display text-xl font-semibold leading-tight', hero && 'text-white')}>{stepText.title}</p>
             <p className={cn('mt-1 text-sm', hero ? 'text-white/85' : 'text-muted-foreground')}>
               {isCancelled && reception.cancellation_reason
                 ? t('receptionDetail.cancelledOn', { date: formatDateTime(reception.cancelled_at) ?? '—', reason: reception.cancellation_reason })
-                : nextStep.description}
+                : stepText.description}
             </p>
           </div>
         </div>
@@ -345,7 +344,7 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
             disabled={updateStatus.isPending}
           >
             {nextStep.action === 'assign_storage' ? <Warehouse aria-hidden /> : <Shield aria-hidden />}
-            {nextStep.actionLabel}
+            {stepText.actionLabel}
             <ArrowRight aria-hidden />
           </Button>
         )}
@@ -390,7 +389,7 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
                 { label: t('receptionDetail.overview.gross'), value: qty(reception.gross_weight_kg, 'kg'), emphasis: true },
                 { label: t('receptionDetail.overview.tare'), value: qty(reception.tare_weight_kg, 'kg'), emphasis: true },
                 { label: t('receptionDetail.overview.net'), value: qty(reception.quantity_total, reception.unit), emphasis: true },
-                { label: t('receptionDetail.overview.weightSource'), value: describeWeighingSource(reception.weighing_source, reception.weighing_verified_device) },
+                { label: t('receptionDetail.overview.weightSource'), value: labels.weighingSource(reception.weighing_source, reception.weighing_verified_device) },
                 { label: t('receptionDetail.overview.noteGap'), value: reception.weight_gap_percent != null ? <bdi dir="ltr">{formatNumber(reception.weight_gap_percent)} %</bdi> : undefined },
                 { label: t('receptionDetail.overview.variety'), value: reception.variety },
                 { label: t('receptionDetail.overview.presentation'), value: reception.presentation },
@@ -490,7 +489,7 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
                       <p className="text-sm text-muted-foreground">{t('receptionDetail.lots.supplierRef', { ref: lot.lot_supplier || '—' })}</p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge className={stockStatusColors[lot.stock_status]}>{stockStatusLabels[lot.stock_status]}</Badge>
+                      <Badge className={stockStatusColors[lot.stock_status]}>{labels.stockStatus(lot.stock_status)}</Badge>
                       {lot.storage_zone_code && <Badge variant="outline">{t('receptionDetail.lots.zone', { zone: lot.storage_zone_code })}</Badge>}
                       {hasNet && (
                         <Badge variant="outline" className="border-success/40 text-success">
@@ -596,7 +595,7 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
                   {reception.qc_decision === 'ACCEPTE' ? <CheckCircle className="h-6 w-6" /> : reception.qc_decision === 'REJETE' ? <XCircle className="h-6 w-6" /> : <AlertTriangle className="h-6 w-6" />}
                 </span>
                 <div>
-                  <p className="font-display text-xl font-semibold">{qcDecisionLabels[reception.qc_decision]}</p>
+                  <p className="font-display text-xl font-semibold">{labels.qcDecided(reception.qc_decision)}</p>
                   <p className="text-sm text-muted-foreground">
                     {t('receptionDetail.qc.scoreGrade', { score: reception.qc_score ?? '-', grade: reception.qc_grade || '-' })}
                   </p>
@@ -624,7 +623,7 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <h3 className="font-mono text-lg font-semibold">{inspection.inspection_number}</h3>
                   {inspection.decision ? (
-                    <Badge className={qcDecisionColors[inspection.decision]}>{qcDecisionLabels[inspection.decision]}</Badge>
+                    <Badge className={qcDecisionColors[inspection.decision]}>{labels.qcDecided(inspection.decision)}</Badge>
                   ) : (
                     <Badge variant="outline" className="border-info/40 text-info">{t('receptionDetail.qc.inProgress')}</Badge>
                   )}
@@ -691,7 +690,7 @@ export const ReceptionDetailV2 = ({ receptionId, onBack, initialSection = 'overv
                       <span className="block font-semibold">{t('receptionDetail.documents.qcReport')}</span>
                       <span className="block text-sm text-muted-foreground">
                         {inspections[0]?.inspection_number} — {inspections[0]?.decision
-                          ? t('receptionDetail.documents.decision', { decision: qcDecisionLabels[inspections[0].decision] })
+                          ? t('receptionDetail.documents.decision', { decision: labels.qcDecided(inspections[0].decision) })
                           : t('receptionDetail.qc.inProgress')}
                       </span>
                     </span>

@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useOnline } from '@/hooks/useOnline';
 import { describeRealtime, getRealtimeStatus, subscribeRealtimeStatus } from '@/lib/realtimeStatus';
@@ -6,6 +7,7 @@ import { cn } from '@/lib/utils';
 
 /** The one place that says whether screens are being kept up to date. */
 export const RealtimeIndicator = () => {
+  const { t } = useTranslation();
   const status = useSyncExternalStore(subscribeRealtimeStatus, getRealtimeStatus);
   const online = useOnline();
   const shown = describeRealtime(status, online);
@@ -22,7 +24,7 @@ export const RealtimeIndicator = () => {
           shown.tone === 'bad' && 'bg-destructive',
         )}
       />
-      <span className="max-sm:sr-only">{shown.label}</span>
+      <span className="max-sm:sr-only">{t(shown.at ? `realtime.${shown.key}Since` : `realtime.${shown.key}`, { time: shown.at, defaultValue: shown.label })}</span>
     </span>
   );
 };

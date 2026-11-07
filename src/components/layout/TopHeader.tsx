@@ -2,6 +2,15 @@ import { History, RefreshCw, Search } from "lucide-react";
 import { RealtimeIndicator } from "@/components/layout/RealtimeIndicator";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { APP_TAB_META } from "@/lib/appTabs";
+
+// Page titles arrive in French from the shell; each one has a key so it reads in the chosen language.
+const PAGE_TITLE_KEYS: Record<string, string> = {
+  ...Object.fromEntries(Object.entries(APP_TAB_META).map(([tab, meta]) => [meta.pageTitle, tab])),
+  "Accès réservé": "restricted",
+  "Contrôle qualité": "qc",
+  "Fiches techniques": "fiches",
+};
 import { Button } from "@/components/ui/button";
 import { NotificationCenter } from "@/components/notifications";
 import {
@@ -37,19 +46,21 @@ export const TopHeader = ({ onRefresh, pageTitle, showSidebarTrigger = true }: T
     <header className="sticky top-0 z-40 flex min-h-12 flex-wrap items-center gap-x-2 gap-y-1 border-b bg-card px-2 py-1 pointer-coarse:min-h-14 sm:h-12 sm:flex-nowrap sm:px-3 sm:py-0">
       {showSidebarTrigger && <SidebarTrigger className="h-9 w-9 shrink-0 rounded-md text-muted-foreground pointer-coarse:h-11 pointer-coarse:w-11 hover:bg-muted hover:text-foreground" />}
 
-      <h1 className="min-w-0 flex-1 truncate font-display text-lg font-semibold">{pageTitle}</h1>
+      <h1 className="min-w-0 flex-1 truncate font-display text-lg font-semibold">
+        {PAGE_TITLE_KEYS[pageTitle] ? t(`pageTitle.${PAGE_TITLE_KEYS[pageTitle]}`, { defaultValue: pageTitle }) : pageTitle}
+      </h1>
 
       <button
         type="button"
         onClick={openSearch}
-        aria-label="Rechercher un écran ou un lot (Ctrl K)"
+        aria-label={t("header.searchLong")}
         className="hidden h-9 w-64 items-center gap-2 rounded-md border border-input bg-background px-2.5 text-sm text-muted-foreground hover:text-foreground lg:flex"
       >
         <Search className="h-4 w-4 shrink-0" />
-        <span className="flex-1 truncate text-start">Rechercher</span>
+        <span className="flex-1 truncate text-start">{t("header.search")}</span>
         <kbd className="text-xs">Ctrl K</kbd>
       </button>
-      <Button variant="ghost" size="icon" onClick={openSearch} aria-label="Rechercher" className="h-11 w-11 sm:h-10 sm:w-10 lg:hidden">
+      <Button variant="ghost" size="icon" onClick={openSearch} aria-label={t("header.search")} className="h-11 w-11 sm:h-10 sm:w-10 lg:hidden">
         <Search className="h-5 w-5" />
       </Button>
 
@@ -83,8 +94,8 @@ export const TopHeader = ({ onRefresh, pageTitle, showSidebarTrigger = true }: T
             await onRefresh();
             setTimeout(() => setIsRefreshing(false), 600);
           }}
-          title="Actualiser"
-          aria-label="Actualiser"
+          title={t("header.refresh")}
+          aria-label={t("header.refresh")}
           className="h-9 w-9 text-muted-foreground"
         >
           <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />

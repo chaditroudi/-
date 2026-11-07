@@ -31,6 +31,7 @@ import type { SubmitQcDecisionInput } from "@/lib/api/receptions";
 import { checklistResults, hasNonConformity, unansweredCount, type QcChecklistAnswers as ChecklistAnswers } from "@/lib/qcChecklist";
 import { darijaTitle } from "@/i18n/workerDarija";
 import { formatNumber } from "@/lib/format";
+import { useReceptionLabels } from "@/lib/receptionLabels";
 import { cn } from "@/lib/utils";
 
 /**
@@ -179,6 +180,7 @@ function Notice({ tone, icon, title, children }: { tone: 'warning' | 'danger' | 
 
 export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStorage }: QCInspectionDialogProps) => {
   const { t } = useTranslation();
+  const labels = useReceptionLabels();
   const { user, isAdmin, profile } = useAuth();
   const { data: calibration } = useCalibrationStatus();
   const [caliberFillValue, setCaliberFillValue] = useState("");
@@ -1138,7 +1140,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                       <dl className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
                         <div>
                           <dt className="text-muted-foreground">{t("qcInspect.verdict.classification")}</dt>
-                          <dd><Badge variant="outline" className="mt-1 text-sm">{getQcClassificationLabel(score.classification)}</Badge></dd>
+                          <dd><Badge variant="outline" className="mt-1 text-sm">{labels.qcGrade(score.classification)}</Badge></dd>
                         </div>
                         <div>
                           <dt className="text-muted-foreground">{t("qcInspect.verdict.proposed")}</dt>
@@ -1351,7 +1353,7 @@ export const QCInspectionDialog = ({ open, onOpenChange, reception, onAssignStor
                       <p className="text-sm text-muted-foreground">
                         {t("qcInspect.confirmed.summary", {
                           score: score.finalScore,
-                          classification: getQcClassificationLabel(score.classification),
+                          classification: labels.qcGrade(score.classification),
                           humidity: score.humidityAverage,
                         })}
                       </p>

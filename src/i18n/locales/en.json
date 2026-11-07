@@ -195,7 +195,10 @@
     "traceability": "Traceability & Quality",
     "auditLog": "Audit Log",
     "productionSystem": "Production Management System",
-    "chainOverview": "Production chain overview"
+    "chainOverview": "Production chain overview",
+    "search": "Search",
+    "searchLong": "Search a screen or a lot (Ctrl K)",
+    "refresh": "Refresh"
   },
   "home": {
     "pendingReceptions": "Pending Receptions",
@@ -1885,5 +1888,159 @@
       "noActions": "No action recorded.",
       "by": "by {{actor}}"
     }
+  },
+  "receptionStatus": {
+    "BROUILLON": "Draft",
+    "EN_ATTENTE_QC": "Waiting for QC",
+    "EN_QC": "In QC",
+    "LIBERE": "Released",
+    "BLOQUE": "Blocked (quarantine)",
+    "REJETE": "Rejected",
+    "ANNULE": "Cancelled"
+  },
+  "stockStatus": {
+    "NON_STOCKE": "Not in stock",
+    "EN_QUARANTAINE": "In quarantine",
+    "STOCK_LIBERE": "Stock released",
+    "STOCK_REJETE": "Stock rejected"
+  },
+  "qcDecided": {
+    "ACCEPTE": "Accepted",
+    "QUARANTAINE": "Quarantine",
+    "REJETE": "Rejected"
+  },
+  "qcGrade": {
+    "EXTRA": "Extra",
+    "CATEGORIE_I": "Class I",
+    "CATEGORIE_II": "Class II",
+    "REJETE": "Rejected"
+  },
+  "receptionNext": {
+    "draftSubmit": {
+      "title": "Draft to submit",
+      "description": "Check the supplier and the lots, then send the reception to quality control.",
+      "action": "Send to quality control"
+    },
+    "draftWaiting": {
+      "title": "Draft being entered",
+      "description": "The reception team must complete and submit this draft."
+    },
+    "qcStart": {
+      "title": "Quality control to start",
+      "description": "The lots are in quarantine until you inspect them.",
+      "action": "Start quality control"
+    },
+    "qcWaiting": {
+      "title": "Waiting for quality control",
+      "description": "The lots stay in quarantine until the quality team decides."
+    },
+    "qcResume": {
+      "title": "Inspection in progress",
+      "description": "Resume the inspection to enter the readings and sign the decision.",
+      "action": "Resume the inspection"
+    },
+    "qcInProgress": {
+      "title": "Quality inspection in progress",
+      "description": "The quality team is inspecting this delivery."
+    },
+    "quarantineAction": {
+      "title": "Lots in quarantine",
+      "description": "Inspect the delivery again, or release compliant lots one by one in the Lots section.",
+      "action": "Inspect again"
+    },
+    "quarantineWaiting": {
+      "title": "Blocked in quarantine",
+      "description": "A quality decision is needed before any use."
+    },
+    "storeAction": {
+      "title": "{{n}} released lot(s) to put away",
+      "description": "Assign the released lots to a cold room so they can be found in stock.",
+      "action": "Assign to storage"
+    },
+    "storeWaiting": {
+      "title": "{{n}} released lot(s) to put away",
+      "description": "The warehouse must assign these lots to a cold room."
+    },
+    "done": {
+      "title": "Reception complete",
+      "description": "Lots released and put away: available for production."
+    },
+    "rejected": {
+      "title": "Delivery rejected",
+      "description": "The lots are kept out of stock. The claim documents are in the Documents section."
+    },
+    "cancelled": {
+      "title": "Reception cancelled",
+      "description": "Stock and the purchase order were corrected; the history is kept."
+    }
+  },
+  "receptionCancel": {
+    "title": "Cancel reception {{number}}",
+    "description": "The lots are taken out of stock (traced adjustment movement). The history is kept.",
+    "descriptionWithOrder": "The lots are taken out of stock (traced adjustment movement) and the quantity goes back to the purchase order. The history is kept.",
+    "reason": "Reason for cancelling",
+    "placeholder": "E.g. wrong supplier selected, delivery refused at the gate...",
+    "back": "Back",
+    "pending": "Cancelling…",
+    "confirm": "Confirm the cancellation"
+  },
+  "receptionCorrection": {
+    "title": "Correct reception {{number}}",
+    "description": "The old value, the new one and your reason stay in the log. Weights, quantities and quality are not changed here.",
+    "fields": {
+      "delivery_note_number": "Delivery note no.",
+      "vehicle_number": "Registration",
+      "driver_name": "Driver",
+      "remarks": "Remarks"
+    },
+    "reason": "Reason for the correction",
+    "minLength": "{{n}} characters minimum ({{typed}} typed).",
+    "cancel": "Cancel",
+    "save": "Save the correction",
+    "saved": "Correction saved in the history",
+    "refused": "Correction refused"
+  },
+  "pageTitle": {
+    "home": "Home",
+    "live": "Live",
+    "scan": "Scan",
+    "receptions": "Reception",
+    "storage": "Stock",
+    "production": "Production",
+    "packaging": "Packaging",
+    "logistics": "Shipping",
+    "purchasing": "Purchasing",
+    "maintenance": "Maintenance",
+    "analytics": "Indicators",
+    "alerts": "Alerts",
+    "suppliers": "Suppliers",
+    "materials": "Items",
+    "quality": "Quality",
+    "hr": "Human resources",
+    "stock-dashboard": "Lots in stock",
+    "stock-lots": "Lots in stock",
+    "stock-products": "Storage zones",
+    "stock-movements": "Stock movements",
+    "sage-operations": "Factory cockpit",
+    "export": "Export",
+    "customers": "Customers",
+    "settings": "Settings",
+    "restricted": "Restricted access",
+    "qc": "Quality control",
+    "fiches": "Technical sheets"
+  },
+  "realtime": {
+    "live": "Live",
+    "connecting": "Connecting…",
+    "offline": "Offline",
+    "offlineSince": "Offline, data from {{time}}",
+    "reconnecting": "Reconnecting",
+    "reconnectingSince": "Reconnecting, data from {{time}}"
+  },
+  "weighingSource": {
+    "device": "Connected scale · signed reading",
+    "manual": "Typed by hand · no scale",
+    "scale": "Typed by hand · read on the scale",
+    "unknown": "Source not recorded"
   }
 }

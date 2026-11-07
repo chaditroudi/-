@@ -8,7 +8,8 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { useQcChecklist, useQuarantineReceptionLot, useReleaseReceptionLot } from '@/hooks/useReceptionsV2';
 import { QcChecklistAnswers } from './QcChecklistAnswers';
 import { checklistResults, unansweredCount, type QcChecklistAnswers as ChecklistAnswers } from '@/lib/qcChecklist';
-import { ReceptionLot, stockStatusLabels } from '@/types/reception';
+import { ReceptionLot } from '@/types/reception';
+import { useReceptionLabels } from '@/lib/receptionLabels';
 import { AlertTriangle, ShieldCheck } from 'lucide-react';
 
 interface ReceptionLotStatusDialogProps {
@@ -32,6 +33,7 @@ export function ReceptionLotStatusDialog({
   receptionType,
   onClose,
 }: ReceptionLotStatusDialogProps) {
+  const labels = useReceptionLabels();
   const { profile, user } = useAuthContext();
   const quarantineLot = useQuarantineReceptionLot();
   const releaseLot = useReleaseReceptionLot();
@@ -108,7 +110,7 @@ export function ReceptionLotStatusDialog({
                 Quantité : <strong className="text-foreground">{lot.quantity.toLocaleString('fr-FR')} {lot.unit}</strong>
               </p>
               <p>Lot fournisseur : {lot.lot_supplier || '-'}</p>
-              <p>Statut actuel : {stockStatusLabels[lot.stock_status] ?? lot.stock_status}</p>
+              <p>Statut actuel : {labels.stockStatus(lot.stock_status)}</p>
               {lot.quarantine_reason && <p>Motif actuel : {lot.quarantine_reason}</p>}
               <p>Responsable : <strong className="text-foreground">{actorLabel}</strong></p>
             </div>

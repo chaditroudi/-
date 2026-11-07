@@ -251,7 +251,10 @@
     "traceability": "Traçabilité & Qualité",
     "auditLog": "Journal d'Audit",
     "productionSystem": "Système de Gestion de Production",
-    "chainOverview": "Vue d'ensemble de la chaîne de production"
+    "chainOverview": "Vue d'ensemble de la chaîne de production",
+    "search": "Rechercher",
+    "searchLong": "Rechercher un écran ou un lot (Ctrl K)",
+    "refresh": "Actualiser"
   },
   "home": {
     "pendingReceptions": "Réceptions en attente",
@@ -1885,5 +1888,159 @@
       "noActions": "Aucune action enregistrée.",
       "by": "par {{actor}}"
     }
+  },
+  "receptionStatus": {
+    "BROUILLON": "Brouillon",
+    "EN_ATTENTE_QC": "En attente QC",
+    "EN_QC": "En contrôle QC",
+    "LIBERE": "Libéré",
+    "BLOQUE": "Bloqué (Quarantaine)",
+    "REJETE": "Rejeté",
+    "ANNULE": "Annulé"
+  },
+  "stockStatus": {
+    "NON_STOCKE": "Non stocké",
+    "EN_QUARANTAINE": "En quarantaine",
+    "STOCK_LIBERE": "Stock libéré",
+    "STOCK_REJETE": "Stock rejeté"
+  },
+  "qcDecided": {
+    "ACCEPTE": "Accepté",
+    "QUARANTAINE": "Quarantaine",
+    "REJETE": "Rejeté"
+  },
+  "qcGrade": {
+    "EXTRA": "Extra",
+    "CATEGORIE_I": "Categorie I",
+    "CATEGORIE_II": "Categorie II",
+    "REJETE": "Rejete"
+  },
+  "receptionNext": {
+    "draftSubmit": {
+      "title": "Brouillon à soumettre",
+      "description": "Vérifiez le fournisseur et les lots, puis envoyez la réception au contrôle qualité.",
+      "action": "Soumettre au contrôle"
+    },
+    "draftWaiting": {
+      "title": "Brouillon en cours de saisie",
+      "description": "L'équipe réception doit compléter et soumettre ce brouillon."
+    },
+    "qcStart": {
+      "title": "Contrôle qualité à lancer",
+      "description": "Les lots sont en quarantaine en attendant votre inspection.",
+      "action": "Lancer le contrôle QC"
+    },
+    "qcWaiting": {
+      "title": "En attente du contrôle qualité",
+      "description": "Les lots restent en quarantaine jusqu’à la décision du service qualité."
+    },
+    "qcResume": {
+      "title": "Inspection en cours",
+      "description": "Reprenez l’inspection pour saisir les mesures et signer la décision.",
+      "action": "Reprendre le contrôle"
+    },
+    "qcInProgress": {
+      "title": "Inspection qualité en cours",
+      "description": "Le service qualité est en train d’inspecter cette livraison."
+    },
+    "quarantineAction": {
+      "title": "Lots en quarantaine",
+      "description": "Ré-inspectez la livraison, ou libérez les lots conformes un par un dans la section Lots.",
+      "action": "Ré-inspecter"
+    },
+    "quarantineWaiting": {
+      "title": "Bloquée en quarantaine",
+      "description": "Une décision du service qualité est nécessaire avant toute utilisation."
+    },
+    "storeAction": {
+      "title": "{{n}} lot(s) libéré(s) à ranger",
+      "description": "Affectez les lots libérés à une chambre froide pour les rendre localisables en stock.",
+      "action": "Affecter au stock"
+    },
+    "storeWaiting": {
+      "title": "{{n}} lot(s) libéré(s) à ranger",
+      "description": "Le magasin doit affecter ces lots à une chambre froide."
+    },
+    "done": {
+      "title": "Réception terminée",
+      "description": "Lots libérés et rangés : disponibles pour la production."
+    },
+    "rejected": {
+      "title": "Livraison rejetée",
+      "description": "Les lots sont exclus du stock. Les documents de réclamation sont dans la section Documents."
+    },
+    "cancelled": {
+      "title": "Réception annulée",
+      "description": "Le stock et le bon de commande ont été corrigés ; l’historique est conservé."
+    }
+  },
+  "receptionCancel": {
+    "title": "Annuler la réception {{number}}",
+    "description": "Les lots sont retirés du stock (mouvement d'ajustement tracé). L'historique est conservé.",
+    "descriptionWithOrder": "Les lots sont retirés du stock (mouvement d'ajustement tracé) et la quantité est rendue au bon de commande. L'historique est conservé.",
+    "reason": "Motif d'annulation",
+    "placeholder": "Ex. : mauvais fournisseur sélectionné, livraison refusée au portail...",
+    "back": "Retour",
+    "pending": "Annulation…",
+    "confirm": "Confirmer l'annulation"
+  },
+  "receptionCorrection": {
+    "title": "Corriger la réception {{number}}",
+    "description": "L'ancienne valeur, la nouvelle et votre motif restent dans le journal. Pesées, quantités et qualité ne se modifient pas ici.",
+    "fields": {
+      "delivery_note_number": "N° bon de livraison",
+      "vehicle_number": "Immatriculation",
+      "driver_name": "Chauffeur",
+      "remarks": "Remarques"
+    },
+    "reason": "Motif de la correction",
+    "minLength": "{{n}} caractères minimum ({{typed}} saisis).",
+    "cancel": "Annuler",
+    "save": "Enregistrer la correction",
+    "saved": "Correction enregistrée dans l'historique",
+    "refused": "Correction refusée"
+  },
+  "pageTitle": {
+    "home": "Accueil",
+    "live": "En direct",
+    "scan": "Scanner",
+    "receptions": "Réception",
+    "storage": "Stock",
+    "production": "Production",
+    "packaging": "Conditionnement",
+    "logistics": "Expédition",
+    "purchasing": "Achats",
+    "maintenance": "Maintenance",
+    "analytics": "Indicateurs",
+    "alerts": "Alertes",
+    "suppliers": "Fournisseurs",
+    "materials": "Articles",
+    "quality": "Qualité",
+    "hr": "Ressources humaines",
+    "stock-dashboard": "Lots en stock",
+    "stock-lots": "Lots en stock",
+    "stock-products": "Zones de stockage",
+    "stock-movements": "Mouvements de stock",
+    "sage-operations": "Cockpit usine",
+    "export": "Export",
+    "customers": "Clients",
+    "settings": "Paramètres",
+    "restricted": "Accès réservé",
+    "qc": "Contrôle qualité",
+    "fiches": "Fiches techniques"
+  },
+  "realtime": {
+    "live": "En direct",
+    "connecting": "Connexion…",
+    "offline": "Hors ligne",
+    "offlineSince": "Hors ligne, données de {{time}}",
+    "reconnecting": "Reconnexion",
+    "reconnectingSince": "Reconnexion, données de {{time}}"
+  },
+  "weighingSource": {
+    "device": "Bascule connectée · lecture signée",
+    "manual": "Saisie manuelle · sans bascule",
+    "scale": "Saisie manuelle · lu sur la bascule",
+    "unknown": "Provenance non renseignée"
   }
 }

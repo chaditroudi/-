@@ -28,9 +28,11 @@ const time = (at: number) => new Date(at).toLocaleTimeString('fr-FR', { hour: '2
 
 export const describeRealtime = ({ state, lastLiveAt }: RealtimeStatus, online: boolean) => {
   const since = lastLiveAt ? `, données de ${time(lastLiveAt)}` : '';
-  if (!online) return { label: `Hors ligne${since}`, tone: 'bad' as const };
-  if (state === 'live') return { label: 'En direct', tone: 'good' as const };
-  if (state === 'reconnecting') return { label: `Reconnexion${since}`, tone: 'bad' as const };
-  if (state === 'connecting') return { label: 'Connexion…', tone: 'wait' as const };
+  // `key` and `at` let the indicator say the same thing in the reader's language.
+  const at = lastLiveAt ? time(lastLiveAt) : null;
+  if (!online) return { key: 'offline' as const, at, label: `Hors ligne${since}`, tone: 'bad' as const };
+  if (state === 'live') return { key: 'live' as const, at: null, label: 'En direct', tone: 'good' as const };
+  if (state === 'reconnecting') return { key: 'reconnecting' as const, at, label: `Reconnexion${since}`, tone: 'bad' as const };
+  if (state === 'connecting') return { key: 'connecting' as const, at: null, label: 'Connexion…', tone: 'wait' as const };
   return null;
 };

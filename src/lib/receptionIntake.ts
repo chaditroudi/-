@@ -156,6 +156,10 @@ export const getWeighingSource = (draft: IntakeDraft): 'SCALE' | 'MANUAL' | unde
 };
 
 /** Provenance in one line, from what was recorded. Used before and after confirmation. */
+/** Stable id of the weighing source (`weighingSource.<key>`), for screens shown in other languages. */
+export const weighingSourceKey = (source?: string | null, verifiedDevice?: boolean | null) =>
+  source === 'DEVICE' && verifiedDevice !== false ? 'device' : source === 'MANUAL' ? 'manual' : source === 'SCALE' ? 'scale' : 'unknown';
+
 export const describeWeighingSource = (source?: string | null, verifiedDevice?: boolean | null) => {
   if (source === 'DEVICE' && verifiedDevice !== false) return 'Bascule connectée · lecture signée';
   if (source === 'MANUAL') return 'Saisie manuelle · sans bascule';

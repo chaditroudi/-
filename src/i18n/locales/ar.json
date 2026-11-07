@@ -251,7 +251,10 @@
     "traceability": "التتبع والجودة",
     "auditLog": "سجل المراجعة",
     "productionSystem": "نظام إدارة الإنتاج",
-    "chainOverview": "نظرة عامة على سلسلة الإنتاج"
+    "chainOverview": "نظرة عامة على سلسلة الإنتاج",
+    "search": "بحث",
+    "searchLong": "ابحث عن شاشة أو دفعة (Ctrl K)",
+    "refresh": "تحديث"
   },
   "home": {
     "pendingReceptions": "استلامات معلقة",
@@ -1885,5 +1888,159 @@
       "noActions": "لا يوجد إجراء مسجّل.",
       "by": "بواسطة {{actor}}"
     }
+  },
+  "receptionStatus": {
+    "BROUILLON": "مسودة",
+    "EN_ATTENTE_QC": "في انتظار مراقبة الجودة",
+    "EN_QC": "قيد مراقبة الجودة",
+    "LIBERE": "مُفرج عنه",
+    "BLOQUE": "موقوف (حجر)",
+    "REJETE": "مرفوض",
+    "ANNULE": "ملغى"
+  },
+  "stockStatus": {
+    "NON_STOCKE": "غير مخزّن",
+    "EN_QUARANTAINE": "في الحجر",
+    "STOCK_LIBERE": "مخزون مُفرج عنه",
+    "STOCK_REJETE": "مخزون مرفوض"
+  },
+  "qcDecided": {
+    "ACCEPTE": "مقبول",
+    "QUARANTAINE": "حجر",
+    "REJETE": "مرفوض"
+  },
+  "qcGrade": {
+    "EXTRA": "ممتاز",
+    "CATEGORIE_I": "الصنف الأول",
+    "CATEGORIE_II": "الصنف الثاني",
+    "REJETE": "مرفوض"
+  },
+  "receptionNext": {
+    "draftSubmit": {
+      "title": "مسودة للإرسال",
+      "description": "تحقّق من المورّد والدفعات، ثم أرسل الاستلام إلى مراقبة الجودة.",
+      "action": "إرسال إلى المراقبة"
+    },
+    "draftWaiting": {
+      "title": "مسودة قيد الإدخال",
+      "description": "على فريق الاستلام إكمال هذه المسودة وإرسالها."
+    },
+    "qcStart": {
+      "title": "مراقبة جودة يجب بدؤها",
+      "description": "الدفعات في الحجر في انتظار فحصك.",
+      "action": "بدء مراقبة الجودة"
+    },
+    "qcWaiting": {
+      "title": "في انتظار مراقبة الجودة",
+      "description": "تبقى الدفعات في الحجر حتى قرار مصلحة الجودة."
+    },
+    "qcResume": {
+      "title": "فحص جارٍ",
+      "description": "استأنف الفحص لإدخال القياسات وتوقيع القرار.",
+      "action": "استئناف المراقبة"
+    },
+    "qcInProgress": {
+      "title": "فحص الجودة جارٍ",
+      "description": "مصلحة الجودة بصدد فحص هذه الشحنة."
+    },
+    "quarantineAction": {
+      "title": "دفعات في الحجر",
+      "description": "أعد فحص الشحنة، أو أفرج عن الدفعات المطابقة واحدة واحدة في قسم الدفعات.",
+      "action": "إعادة الفحص"
+    },
+    "quarantineWaiting": {
+      "title": "موقوفة في الحجر",
+      "description": "يلزم قرار من مصلحة الجودة قبل أي استعمال."
+    },
+    "storeAction": {
+      "title": "{{n}} دفعة مُفرج عنها للتخزين",
+      "description": "خصّص الدفعات المُفرج عنها لغرفة تبريد حتى يمكن تحديد مكانها في المخزون.",
+      "action": "تخصيص للمخزون"
+    },
+    "storeWaiting": {
+      "title": "{{n}} دفعة مُفرج عنها للتخزين",
+      "description": "على المخزن تخصيص هذه الدفعات لغرفة تبريد."
+    },
+    "done": {
+      "title": "اكتمل الاستلام",
+      "description": "دفعات مُفرج عنها ومخزّنة: متاحة للإنتاج."
+    },
+    "rejected": {
+      "title": "شحنة مرفوضة",
+      "description": "الدفعات مستبعدة من المخزون. وثائق الشكوى في قسم الوثائق."
+    },
+    "cancelled": {
+      "title": "استلام ملغى",
+      "description": "تم تصحيح المخزون وطلبية الشراء؛ والسجل محفوظ."
+    }
+  },
+  "receptionCancel": {
+    "title": "إلغاء الاستلام {{number}}",
+    "description": "تُسحب الدفعات من المخزون (حركة تسوية متتبَّعة). يبقى السجل محفوظًا.",
+    "descriptionWithOrder": "تُسحب الدفعات من المخزون (حركة تسوية متتبَّعة) وتُعاد الكمية إلى طلبية الشراء. يبقى السجل محفوظًا.",
+    "reason": "سبب الإلغاء",
+    "placeholder": "مثال: اختيار مورّد خاطئ، شحنة مرفوضة عند البوابة...",
+    "back": "رجوع",
+    "pending": "جارٍ الإلغاء…",
+    "confirm": "تأكيد الإلغاء"
+  },
+  "receptionCorrection": {
+    "title": "تصحيح الاستلام {{number}}",
+    "description": "تبقى القيمة القديمة والجديدة وسببك في السجل. لا تُعدَّل هنا الأوزان والكميات والجودة.",
+    "fields": {
+      "delivery_note_number": "رقم وصل التسليم",
+      "vehicle_number": "رقم التسجيل",
+      "driver_name": "السائق",
+      "remarks": "ملاحظات"
+    },
+    "reason": "سبب التصحيح",
+    "minLength": "{{n}} أحرف على الأقل ({{typed}} مكتوبة).",
+    "cancel": "إلغاء",
+    "save": "حفظ التصحيح",
+    "saved": "تم حفظ التصحيح في السجل",
+    "refused": "رُفض التصحيح"
+  },
+  "pageTitle": {
+    "home": "الرئيسية",
+    "live": "مباشر",
+    "scan": "مسح",
+    "receptions": "الاستلام",
+    "storage": "المخزون",
+    "production": "الإنتاج",
+    "packaging": "التعبئة",
+    "logistics": "الشحن",
+    "purchasing": "المشتريات",
+    "maintenance": "الصيانة",
+    "analytics": "المؤشرات",
+    "alerts": "التنبيهات",
+    "suppliers": "الموردون",
+    "materials": "المواد",
+    "quality": "الجودة",
+    "hr": "الموارد البشرية",
+    "stock-dashboard": "الدفعات في المخزون",
+    "stock-lots": "الدفعات في المخزون",
+    "stock-products": "مناطق التخزين",
+    "stock-movements": "حركات المخزون",
+    "sage-operations": "لوحة قيادة المصنع",
+    "export": "التصدير",
+    "customers": "العملاء",
+    "settings": "الإعدادات",
+    "restricted": "وصول مقيّد",
+    "qc": "مراقبة الجودة",
+    "fiches": "البطاقات الفنية"
+  },
+  "realtime": {
+    "live": "مباشر",
+    "connecting": "جارٍ الاتصال…",
+    "offline": "غير متصل",
+    "offlineSince": "غير متصل، بيانات {{time}}",
+    "reconnecting": "إعادة الاتصال",
+    "reconnectingSince": "إعادة الاتصال، بيانات {{time}}"
+  },
+  "weighingSource": {
+    "device": "ميزان متصل · قراءة موقّعة",
+    "manual": "إدخال يدوي · دون ميزان",
+    "scale": "إدخال يدوي · مقروء على الميزان",
+    "unknown": "المصدر غير مسجّل"
   }
 }

@@ -9,7 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Separator } from '@/components/ui/separator';
 import { Plus, Package, Box, QrCode } from 'lucide-react';
 import { useReceptionUnits, useCreateReceptionUnit } from '@/hooks/useReceptionsV2';
-import { ReceptionLot, ReceptionUnit, unitTypeLabels, stockStatusLabels, stockStatusColors, ReceptionUnitType } from '@/types/reception';
+import { ReceptionLot, ReceptionUnit, unitTypeLabels, stockStatusColors, ReceptionUnitType } from '@/types/reception';
+import { useReceptionLabels } from '@/lib/receptionLabels';
 
 interface UnitsManagementProps {
   lot: ReceptionLot;
@@ -18,6 +19,7 @@ interface UnitsManagementProps {
 }
 
 export const UnitsManagement = ({ lot, receptionNumber, onPrintLabel }: UnitsManagementProps) => {
+  const labels = useReceptionLabels();
   const [dialogOpen, setDialogOpen] = useState(false);
   const { data: units = [], isLoading } = useReceptionUnits(lot.id);
   const createUnit = useCreateReceptionUnit();
@@ -103,7 +105,7 @@ export const UnitsManagement = ({ lot, receptionNumber, onPrintLabel }: UnitsMan
                     </div>
                   </div>
                   <Badge className={stockStatusColors[unitItem.unit_status]}>
-                    {stockStatusLabels[unitItem.unit_status]}
+                    {labels.stockStatus(unitItem.unit_status)}
                   </Badge>
                 </div>
                 
