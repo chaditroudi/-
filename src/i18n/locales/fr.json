@@ -53,7 +53,12 @@
     "createError": "Erreur création cycle : {{message}}",
     "closedToast": "Cycle nettoyage clôturé",
     "closedYieldToast": "Cycle nettoyage clôturé — rendement {{yield}} %",
-    "closeError": "Clôture échouée : {{message}}"
+    "closeError": "Clôture échouée : {{message}}",
+    "readyLots_one": "{{count}} lot libéré prêt à nettoyer",
+    "readyLots_other": "{{count}} lots libérés prêts à nettoyer",
+    "quantity": "Quantité",
+    "balanceOk": "Bilan juste : entrée = sortie + déchets.",
+    "balanceGap": "Écart de bilan : {{gap}} kg (entrée − sortie − déchets). Le serveur refuse un bilan faux."
   },
   "common": {
     "loading": "Chargement...",

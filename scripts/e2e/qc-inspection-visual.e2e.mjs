@@ -9,6 +9,8 @@
  * Optional: QC_VISUAL_LOCALES=fr,ar  QC_VISUAL_WIDTHS=375,768,1024,1440
  * QC_VISUAL_MODE=detail walks the reception detail instead, as the reception supervisor: every section, the
  * correction and cancel actions, and the weighing record of a lot.
+ * QC_VISUAL_MODE=cleaning: a lot released through QC (API, with the PIN), a cleaning cycle created through the API the
+ * panel uses, then the cleaning operator's today screen, stage screen, new-cycle dialog and the close with real weights.
  */
 import { spawn, spawnSync, execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
@@ -49,6 +51,12 @@ const SIGN = ['Signer et libérer', ...labels((j) => j.qcInspect.pin.confirm)];
 const CORRECT = ['Corriger', ...labels((j) => j.receptionDetail.correct)];
 const CANCEL = ['Annuler la réception', ...labels((j) => j.receptionDetail.cancel)];
 const VIEW_WEIGHING = ['Voir la pesée', ...labels((j) => j.receptionDetail.lots.viewWeighing)];
+const IN_PROGRESS_TAB = labels((j) => j.productionNav.item.inProgress);
+const NEW_CYCLE = labels((j) => j.cleaning.newCycle);
+const CLOSE_CYCLE = labels((j) => j.cleaning.close);
+const SUBMIT_CLOSE = labels((j) => j.cleaning.submitClose);
+// The panel's own wording for "source lots could not be loaded", in every language.
+const SOURCE_ERROR = labels((j) => j.cleaning.sourceError);
 
 const env = { ...process.env, APP_ENV: 'test', NODE_ENV: 'development', API_HOST: '127.0.0.1', PORT: '4186',
   MONGODB_URI: MONGO, MONGODB_DB_NAME: DB, JWT_SECRET: 'qc-visual-test-key-not-secret', NUMERIC_SIGNATURE_GATE: 'enforce',
@@ -216,6 +224,66 @@ async function walkDetail(operator, supervisor, supplier, lang, width, index) {
   await context.close();
 }
 
+/** Releases a booked delivery through the QC API with the inspector's PIN, as the inspection dialog does. */
+const releaseByApi = async (inspector, reception) => {
+  const started = await api('POST', '/qc/start', inspector.access_token, { reception_id: reception.id, inspector_name: 'Inspectrice Visuel' });
+  if (started.status >= 300) throw Error('qc start ' + JSON.stringify(started.body).slice(0, 200));
+  const checklist = await factoryDb.collection('qc_checklists').findOne({ reception_type: 'DATTE', is_active: true });
+  const items = await factoryDb.collection('qc_checklist_items').find({ checklist_id: checklist.id, is_active: true }).toArray();
+  const decision = await api('POST', '/qc/submit', inspector.access_token, {
+    inspectionId: started.body.data.id, decision: 'ACCEPTE', pin: PIN, comment: 'Libération pour le parcours visuel',
+    checkResults: items.map((item) => ({ checklist_item_id: item.id, check_code: item.code, result: 'CONFORME' })),
+    qualitySummary: { score: 100, grade: 'EXTRA', automaticRejectReasons: [], lab_humidity_pct: 22, lab_defects_pct: 0 },
+    labSampleRequired: false, labAnalyses: [], labStorageLocation: '', recommendedDecision: 'ACCEPTE',
+  });
+  if (decision.status >= 300) throw Error('qc submit ' + JSON.stringify(decision.body).slice(0, 300));
+  return factoryDb.collection('reception_lots').findOne({ reception_id: reception.id });
+};
+
+/** Cleaning as the cleaning operator: today, the stage, the new-cycle dialog and a real close with weights. */
+async function walkCleaning(operator, inspector, cleaner, supplier, lang, width, index) {
+  const id = `cleaning-${lang}-${width}`;
+  const reception = await book(operator, supplier, `CLV-${lang}-${width}-${index}`);
+  const lot = await releaseByApi(inspector, reception);
+  check(`${id} lot released through QC`, lot?.stock_status === 'STOCK_LIBERE', lot?.stock_status);
+  const stock = await factoryDb.collection('stock_lots').findOne({ reception_lot_id: lot.id });
+  const created = await api('POST', '/phase2/cleaning/cycles', cleaner.access_token, {
+    source_stock_lot_id: stock?.id, reception_id: reception.id, lot_number: lot.lot_internal, variety: 'Deglet Nour', program: 'B', operator_name: 'Opérateur Visuel', created_by: 'Opérateur Visuel',
+  });
+  check(`${id} cleaning cycle created`, created.status < 300, created.body);
+  if (created.status >= 300) return;
+  const cycle = created.body.data ?? created.body;
+  const { context, page, failures } = await openPage(cleaner, lang, width, '/?tab=production&view=today');
+  check(`${id} today shows the running cycle`, await until(() => page.evaluate((n) => document.body.innerText.includes(n), cycle.cycle_number), 60_000));
+  await wait(500);
+  await capture(page, id, '0-today');
+  await clickButton(page, IN_PROGRESS_TAB, { within: 'main' });
+  check(`${id} stage screen lists the cycle`, await until(() => page.evaluate((n) => [...document.querySelectorAll('main li')].some((li) => li.innerText.includes(n)), cycle.cycle_number), 20_000));
+  await capture(page, id, '1-stage');
+  await clickButton(page, NEW_CYCLE, { within: 'main' });
+  check(`${id} new-cycle dialog opens`, await until(() => page.$('[role="dialog"]'), 10_000));
+  await wait(800);
+  const sourceState = await page.evaluate(() => document.querySelector('[role="dialog"]')?.innerText ?? '');
+  check(`${id} released lots listed for a new cycle`, !SOURCE_ERROR.some((text) => sourceState.includes(text)), sourceState.slice(0, 160));
+  await capture(page, id, '2-new-cycle');
+  await page.keyboard.press('Escape');
+  await until(() => page.evaluate(() => !document.querySelector('[role="dialog"]')), 5_000);
+  await clickButton(page, CLOSE_CYCLE, { within: 'main' });
+  check(`${id} close dialog opens`, await until(() => page.$('#cleaning-input'), 10_000));
+  await typeInto(page, '#cleaning-input', '280');
+  await typeInto(page, '#cleaning-output', '270');
+  await typeInto(page, '#cleaning-waste', '10');
+  await capture(page, id, '3-close-form');
+  await clickButton(page, SUBMIT_CLOSE, { within: 'body' });
+  const closed = await until(async () => (await factoryDb.collection('cleaning_cycles').findOne({ id: cycle.id }))?.status === 'TERMINE', 20_000);
+  const stored = await factoryDb.collection('cleaning_cycles').findOne({ id: cycle.id });
+  check(`${id} cycle closed on the server with the typed weights`, closed && stored.weight_in_kg === 280 && stored.weight_out_kg === 270, { status: stored?.status, in: stored?.weight_in_kg, out: stored?.weight_out_kg });
+  await wait(600);
+  await capture(page, id, '4-closed');
+  check(`${id} no server or script errors`, failures.length === 0, failures.slice(0, 10));
+  await context.close();
+}
+
 async function walk(operator, inspector, supplier, lang, width, index) {
   const id = `qc-${lang}-${width}`;
   const reference = `QCV-${lang}-${width}-${index}`;
@@ -337,6 +405,7 @@ try {
 
   const operator = await signIn('operateur.reception@test.local');
   const supervisor = await signIn('chef.reception@test.local');
+  const cleaner = MODE === 'cleaning' ? await signIn('operateur.nettoyage@test.local') : null;
   const inspector = await signIn('inspecteur.qualite@test.local');
   const director = await signIn('directeur.usine@test.local');
   const pinSet = await api('POST', '/auth/signature-pin', inspector.access_token, { pin: PIN, password: PASSWORD });
@@ -345,7 +414,9 @@ try {
   const now = new Date().toISOString();
   // New supplier with no delivered lots: the lab-sample rule applies, so the Labo step is exercised.
   const supplier = { id: randomUUID(), code: 'SUP-QCV', name: 'Oasis Essai Visuel', is_active: true, supplier_status: 'active', region: 'Tozeur',
-    oasis_name: 'Oasis QC', created_at: now, updated_at: now };
+    oasis_name: 'Oasis QC', created_at: now, updated_at: now,
+    // The cleaning walk releases by API without a lab sample: a supplier with earlier deliveries.
+    ...(MODE === 'cleaning' ? { delivered_lots_count: 5 } : {}) };
   await factoryDb.collection('suppliers').insertOne(supplier);
 
   browser = await puppeteer.launch({ executablePath: CHROME, headless: true, args: ['--no-sandbox', '--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE localhost, EXCLUDE 127.0.0.1'] });
@@ -356,7 +427,11 @@ try {
     for (const width of WIDTHS) {
       index += 1;
       console.log(`WALK ${lang} ${width}`);
-      try { if (MODE === 'detail') await walkDetail(operator, supervisor, supplier, lang, width, index); else await walk(operator, inspector, supplier, lang, width, index); }
+      try {
+        if (MODE === 'detail') await walkDetail(operator, supervisor, supplier, lang, width, index);
+        else if (MODE === 'cleaning') await walkCleaning(operator, inspector, cleaner, supplier, lang, width, index);
+        else await walk(operator, inspector, supplier, lang, width, index);
+      }
       catch (error) { check(`${MODE}-${lang}-${width} walk completes`, false, error.message); }
     }
   }

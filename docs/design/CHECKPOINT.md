@@ -20,12 +20,13 @@ Updated: 7 Nov 2026.
 - Visual: `docs/evidence/tablet-first-ui/after-p1` (homes) and `after-p2` (reception).
 
 ## Next
-1. Production (P3): workspace and today done (layout verified, no data walk). Next: the cleaning stage `phase2/nettoyage/NettoyagePanel.tsx` with a real data walk (book a delivery, release it through QC with the PIN as in `qc-inspection-visual.e2e.mjs`, then start/finish cleaning as `operateur.nettoyage`), then fumigation, hydration, triage, orders/pipeline/done, order detail. One browser stack at a time, foreground, one locale per run if memory is short.
+1. Production (P3): workspace, today and cleaning done. Cleaning start is BLOCKED by a missing server route `GET /phase2/cleaning/source-lots` (404 on main too); ask the user before adding a server endpoint. Next: fumigation `phase2/fumigation/*`, then hydration, triage, orders/pipeline/done, order detail. Harness: `QC_VISUAL_MODE=cleaning` shows how to seed a released lot by API.
 2. Shared text pass: page titles in `TopHeader` from `nav.*`, intake blocker sentences in `src/lib/receptionIntake.ts` (return keys, translate at render), `SupplierPicker` placeholder, `LotJourneyHub`.
 3. `ReceptionDetailV2` (767 lines), BRA documents.
 4. Then P3 (stock, production stages, packaging), P4, P5, P6 as in the plan.
 
 ## Open defects found on main (not caused by the redesign)
+- Cleaning: `NettoyagePanel` fetches `/phase2/cleaning/source-lots`, which the server does not define; "Nouveau cycle" shows "Impossible de charger les lots de stock" and no cycle can be started from the screen.
 Reception suite D, H, S, V, Q, P, R fail on main too; supplier sees other suppliers (isolation suite).
 
 ## Verification notes (7 Nov 2026)

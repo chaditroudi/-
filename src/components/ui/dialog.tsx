@@ -62,7 +62,8 @@ const DialogContent = React.forwardRef<
 DialogContent.displayName = DialogPrimitive.Content.displayName;
 
 const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("flex flex-col space-y-2 text-center sm:text-start", className)} {...props} />
+  // pe-10 keeps the title clear of the close button in both reading directions.
+  <div className={cn("flex flex-col space-y-2 pe-10 text-center sm:text-start", className)} {...props} />
 );
 DialogHeader.displayName = "DialogHeader";
 

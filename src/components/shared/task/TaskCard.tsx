@@ -13,6 +13,8 @@ export interface TaskCardProps {
   /** Short facts shown as chips: station, reception number, lot. Real values only. */
   meta?: string[];
   status?: TaskStatus;
+  /** Shown instead of the generic status wording when the real state is more precise (e.g. "En cours"). */
+  statusLabel?: string;
   /** Why the task cannot start, in plain words. Shown instead of the action when blocked. */
   blockedReason?: string;
   actionLabel?: string;
@@ -26,7 +28,7 @@ export interface TaskCardProps {
 const STATUS_ICON = { ready: ArrowRight, waiting: Clock, blocked: Ban, done: CheckCircle2 } as const;
 
 export function TaskCard({
-  title, description, meta = [], status = 'ready', blockedReason, actionLabel, onAction, icon, variant = 'default', className,
+  title, description, meta = [], status = 'ready', statusLabel, blockedReason, actionLabel, onAction, icon, variant = 'default', className,
 }: TaskCardProps) {
   const { t } = useTranslation();
   const hero = variant === 'hero';
@@ -51,7 +53,7 @@ export function TaskCard({
           <p className={cn('mb-1 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold',
             hero ? 'bg-white/12 text-white' : status === 'blocked' ? 'bg-red-50 text-red-700' : status === 'waiting' ? 'bg-sand text-sand-foreground' : 'bg-accent text-accent-foreground')}>
             <StatusIcon className="h-3.5 w-3.5" aria-hidden />
-            {t(`task.status.${status}`)}
+            {statusLabel ?? t(`task.status.${status}`)}
           </p>
           <h3 className={cn('font-display font-semibold leading-tight', hero ? 'text-2xl text-primary-foreground sm:text-[1.75rem]' : 'text-lg text-foreground')}>{title}</h3>
           {description && <p className={cn('mt-1 text-sm sm:text-base', hero ? 'text-white/85' : 'text-muted-foreground')}>{description}</p>}

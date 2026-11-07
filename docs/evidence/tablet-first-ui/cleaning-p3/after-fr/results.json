@@ -1,0 +1,1014 @@
+{
+  "head": "4493ca5",
+  "dirty": true,
+  "capturedAt": "2026-11-07T06:58:10.224Z",
+  "database": "qc_visual_mw61xmc9",
+  "widths": [
+    375,
+    768,
+    1024,
+    1440
+  ],
+  "locales": [
+    "fr"
+  ],
+  "checks": [
+    {
+      "name": "inspector signature PIN provisioned",
+      "passed": true,
+      "detail": {
+        "data": {
+          "ok": true,
+          "has_signature_pin": true
+        }
+      }
+    },
+    {
+      "name": "cleaning-fr-375 lot released through QC",
+      "passed": true,
+      "detail": "STOCK_LIBERE"
+    },
+    {
+      "name": "cleaning-fr-375 cleaning cycle created",
+      "passed": true,
+      "detail": {
+        "data": {
+          "cycle_number": "NET-20261107-001",
+          "reception_id": "3d27b3fc-4950-4c1e-bbb1-06f02866bf0e",
+          "lot_number": "LOT-0001",
+          "variety": "Deglet Nour",
+          "status": "EN_COURS",
+          "program": "B",
+          "program_forced_reason": null,
+          "weight_in_kg": null,
+          "weight_out_kg": null,
+          "yield_percent": null,
+          "water_volume_liters": null,
+          "water_recycled_percent": null,
+          "water_temperature_c": null,
+          "turbidity_ntu": null,
+          "ph_water": null,
+          "waste_weight_kg": null,
+          "waste_category": null,
+          "waste_photo_urls": [],
+          "started_at": "2026-11-07T06:58:36.470Z",
+          "ended_at": null,
+          "operator_name": "Opérateur Visuel",
+          "created_by": "Opérateur Visuel",
+          "created_at": "2026-11-07T06:58:36.470Z",
+          "updated_at": "2026-11-07T06:58:36.486Z",
+          "id": "5b9a8eda-7738-4bda-83fb-f3d5c9e2a1e2",
+          "mass_balance_variance_pct": null
+        }
+      }
+    },
+    {
+      "name": "cleaning-fr-375 today shows the running cycle",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-375 0-today: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 9,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "cleaning-fr-375 0-today: no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-375 stage screen lists the cycle",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-375 1-stage: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 10,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "cleaning-fr-375 1-stage: no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-375 new-cycle dialog opens",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-375 released lots listed for a new cycle",
+      "passed": false,
+      "detail": "Nouveau cycle de nettoyage\n\nChoisir le lot physique libéré par le contrôle qualité.\n\nLot à nettoyer\nSélectionner un lot de stock libéré…\n\nImpossible de charger "
+    },
+    {
+      "name": "cleaning-fr-375 2-new-cycle: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 10,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "cleaning-fr-375 2-new-cycle: no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-375 close dialog opens",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-375 3-close-form: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 11,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "cleaning-fr-375 3-close-form: no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-375 cycle closed on the server with the typed weights",
+      "passed": true,
+      "detail": {
+        "status": "TERMINE",
+        "in": 280,
+        "out": 270
+      }
+    },
+    {
+      "name": "cleaning-fr-375 4-closed: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 9,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "cleaning-fr-375 4-closed: no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-375 no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "cleaning-fr-768 lot released through QC",
+      "passed": true,
+      "detail": "STOCK_LIBERE"
+    },
+    {
+      "name": "cleaning-fr-768 cleaning cycle created",
+      "passed": true,
+      "detail": {
+        "data": {
+          "cycle_number": "NET-20261107-002",
+          "reception_id": "dd56234b-79ca-4d4b-8901-b80ebe19bafe",
+          "lot_number": "LOT-0002",
+          "variety": "Deglet Nour",
+          "status": "EN_COURS",
+          "program": "B",
+          "program_forced_reason": null,
+          "weight_in_kg": null,
+          "weight_out_kg": null,
+          "yield_percent": null,
+          "water_volume_liters": null,
+          "water_recycled_percent": null,
+          "water_temperature_c": null,
+          "turbidity_ntu": null,
+          "ph_water": null,
+          "waste_weight_kg": null,
+          "waste_category": null,
+          "waste_photo_urls": [],
+          "started_at": "2026-11-07T06:58:48.179Z",
+          "ended_at": null,
+          "operator_name": "Opérateur Visuel",
+          "created_by": "Opérateur Visuel",
+          "created_at": "2026-11-07T06:58:48.179Z",
+          "updated_at": "2026-11-07T06:58:48.185Z",
+          "id": "fb80e66c-4d67-4140-b532-48d88f5faafb",
+          "mass_balance_variance_pct": null
+        }
+      }
+    },
+    {
+      "name": "cleaning-fr-768 today shows the running cycle",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-768 0-today: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 9,
+        "smallTargets": 1,
+        "smallExamples": [
+          "Rechercher"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "cleaning-fr-768 0-today: no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-768 stage screen lists the cycle",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-768 1-stage: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 10,
+        "smallTargets": 1,
+        "smallExamples": [
+          "Rechercher"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "cleaning-fr-768 1-stage: no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-768 new-cycle dialog opens",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-768 released lots listed for a new cycle",
+      "passed": false,
+      "detail": "Nouveau cycle de nettoyage\n\nChoisir le lot physique libéré par le contrôle qualité.\n\nLot à nettoyer\nSélectionner un lot de stock libéré…\n\nImpossible de charger "
+    },
+    {
+      "name": "cleaning-fr-768 2-new-cycle: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 10,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "cleaning-fr-768 2-new-cycle: no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-768 close dialog opens",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-768 3-close-form: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 11,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "cleaning-fr-768 3-close-form: no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-768 cycle closed on the server with the typed weights",
+      "passed": true,
+      "detail": {
+        "status": "TERMINE",
+        "in": 280,
+        "out": 270
+      }
+    },
+    {
+      "name": "cleaning-fr-768 4-closed: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 9,
+        "smallTargets": 1,
+        "smallExamples": [
+          "Rechercher"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "cleaning-fr-768 4-closed: no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-768 no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "cleaning-fr-1024 lot released through QC",
+      "passed": true,
+      "detail": "STOCK_LIBERE"
+    },
+    {
+      "name": "cleaning-fr-1024 cleaning cycle created",
+      "passed": true,
+      "detail": {
+        "data": {
+          "cycle_number": "NET-20261107-003",
+          "reception_id": "7ca02a01-ffe0-463d-a6d6-9ad64c30348b",
+          "lot_number": "LOT-0003",
+          "variety": "Deglet Nour",
+          "status": "EN_COURS",
+          "program": "B",
+          "program_forced_reason": null,
+          "weight_in_kg": null,
+          "weight_out_kg": null,
+          "yield_percent": null,
+          "water_volume_liters": null,
+          "water_recycled_percent": null,
+          "water_temperature_c": null,
+          "turbidity_ntu": null,
+          "ph_water": null,
+          "waste_weight_kg": null,
+          "waste_category": null,
+          "waste_photo_urls": [],
+          "started_at": "2026-11-07T06:58:58.863Z",
+          "ended_at": null,
+          "operator_name": "Opérateur Visuel",
+          "created_by": "Opérateur Visuel",
+          "created_at": "2026-11-07T06:58:58.863Z",
+          "updated_at": "2026-11-07T06:58:58.872Z",
+          "id": "6282dd6f-a179-44c8-9648-9b77e654ad1a",
+          "mass_balance_variance_pct": null
+        }
+      }
+    },
+    {
+      "name": "cleaning-fr-1024 today shows the running cycle",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-1024 0-today: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 9,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "cleaning-fr-1024 0-today: no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-1024 stage screen lists the cycle",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-1024 1-stage: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 10,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "cleaning-fr-1024 1-stage: no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-1024 new-cycle dialog opens",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-1024 released lots listed for a new cycle",
+      "passed": false,
+      "detail": "Nouveau cycle de nettoyage\n\nChoisir le lot physique libéré par le contrôle qualité.\n\nLot à nettoyer\nSélectionner un lot de stock libéré…\n\nImpossible de charger "
+    },
+    {
+      "name": "cleaning-fr-1024 2-new-cycle: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 10,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "cleaning-fr-1024 2-new-cycle: no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-1024 close dialog opens",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-1024 3-close-form: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 11,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "cleaning-fr-1024 3-close-form: no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-1024 cycle closed on the server with the typed weights",
+      "passed": true,
+      "detail": {
+        "status": "TERMINE",
+        "in": 280,
+        "out": 270
+      }
+    },
+    {
+      "name": "cleaning-fr-1024 4-closed: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 9,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "cleaning-fr-1024 4-closed: no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-1024 no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "cleaning-fr-1440 lot released through QC",
+      "passed": true,
+      "detail": "STOCK_LIBERE"
+    },
+    {
+      "name": "cleaning-fr-1440 cleaning cycle created",
+      "passed": true,
+      "detail": {
+        "data": {
+          "cycle_number": "NET-20261107-004",
+          "reception_id": "655046f1-de83-44a6-902e-35c0e25dc3e0",
+          "lot_number": "LOT-0004",
+          "variety": "Deglet Nour",
+          "status": "EN_COURS",
+          "program": "B",
+          "program_forced_reason": null,
+          "weight_in_kg": null,
+          "weight_out_kg": null,
+          "yield_percent": null,
+          "water_volume_liters": null,
+          "water_recycled_percent": null,
+          "water_temperature_c": null,
+          "turbidity_ntu": null,
+          "ph_water": null,
+          "waste_weight_kg": null,
+          "waste_category": null,
+          "waste_photo_urls": [],
+          "started_at": "2026-11-07T06:59:09.605Z",
+          "ended_at": null,
+          "operator_name": "Opérateur Visuel",
+          "created_by": "Opérateur Visuel",
+          "created_at": "2026-11-07T06:59:09.605Z",
+          "updated_at": "2026-11-07T06:59:09.613Z",
+          "id": "4165fdf8-5ffd-4320-96b1-1c816413b8a4",
+          "mass_balance_variance_pct": null
+        }
+      }
+    },
+    {
+      "name": "cleaning-fr-1440 today shows the running cycle",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-1440 0-today: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 9,
+        "smallTargets": 5,
+        "smallExamples": [
+          "Rechercher un écran ou un lot ",
+          "Langue : Français",
+          "BUTTON",
+          "Notifications",
+          "Actualiser"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "cleaning-fr-1440 0-today: no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-1440 stage screen lists the cycle",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-1440 1-stage: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 10,
+        "smallTargets": 5,
+        "smallExamples": [
+          "Rechercher un écran ou un lot ",
+          "Langue : Français",
+          "BUTTON",
+          "Notifications",
+          "Actualiser"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "cleaning-fr-1440 1-stage: no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-1440 new-cycle dialog opens",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-1440 released lots listed for a new cycle",
+      "passed": false,
+      "detail": "Nouveau cycle de nettoyage\n\nChoisir le lot physique libéré par le contrôle qualité.\n\nLot à nettoyer\nSélectionner un lot de stock libéré…\n\nImpossible de charger "
+    },
+    {
+      "name": "cleaning-fr-1440 2-new-cycle: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 10,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "cleaning-fr-1440 2-new-cycle: no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-1440 close dialog opens",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-1440 3-close-form: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 11,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "cleaning-fr-1440 3-close-form: no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-1440 cycle closed on the server with the typed weights",
+      "passed": true,
+      "detail": {
+        "status": "TERMINE",
+        "in": 280,
+        "out": 270
+      }
+    },
+    {
+      "name": "cleaning-fr-1440 4-closed: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 9,
+        "smallTargets": 5,
+        "smallExamples": [
+          "Rechercher un écran ou un lot ",
+          "Langue : Français",
+          "BUTTON",
+          "Notifications",
+          "Actualiser"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "cleaning-fr-1440 4-closed: no crash",
+      "passed": true
+    },
+    {
+      "name": "cleaning-fr-1440 no server or script errors",
+      "passed": true,
+      "detail": []
+    }
+  ],
+  "screens": [
+    {
+      "id": "cleaning-fr-375-0-today",
+      "step": "0-today",
+      "file": "cleaning-fr-375-0-today.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 9,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-fr-375-1-stage",
+      "step": "1-stage",
+      "file": "cleaning-fr-375-1-stage.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 10,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-fr-375-2-new-cycle",
+      "step": "2-new-cycle",
+      "file": "cleaning-fr-375-2-new-cycle.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 10,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-fr-375-3-close-form",
+      "step": "3-close-form",
+      "file": "cleaning-fr-375-3-close-form.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 11,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-fr-375-4-closed",
+      "step": "4-closed",
+      "file": "cleaning-fr-375-4-closed.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 9,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-fr-768-0-today",
+      "step": "0-today",
+      "file": "cleaning-fr-768-0-today.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 9,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-fr-768-1-stage",
+      "step": "1-stage",
+      "file": "cleaning-fr-768-1-stage.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 10,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-fr-768-2-new-cycle",
+      "step": "2-new-cycle",
+      "file": "cleaning-fr-768-2-new-cycle.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 10,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-fr-768-3-close-form",
+      "step": "3-close-form",
+      "file": "cleaning-fr-768-3-close-form.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 11,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-fr-768-4-closed",
+      "step": "4-closed",
+      "file": "cleaning-fr-768-4-closed.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 9,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-fr-1024-0-today",
+      "step": "0-today",
+      "file": "cleaning-fr-1024-0-today.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 9,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-fr-1024-1-stage",
+      "step": "1-stage",
+      "file": "cleaning-fr-1024-1-stage.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 10,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-fr-1024-2-new-cycle",
+      "step": "2-new-cycle",
+      "file": "cleaning-fr-1024-2-new-cycle.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 10,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-fr-1024-3-close-form",
+      "step": "3-close-form",
+      "file": "cleaning-fr-1024-3-close-form.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 11,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-fr-1024-4-closed",
+      "step": "4-closed",
+      "file": "cleaning-fr-1024-4-closed.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 9,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-fr-1440-0-today",
+      "step": "0-today",
+      "file": "cleaning-fr-1440-0-today.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 9,
+      "smallTargets": 5,
+      "smallExamples": [
+        "Rechercher un écran ou un lot ",
+        "Langue : Français",
+        "BUTTON",
+        "Notifications",
+        "Actualiser"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-fr-1440-1-stage",
+      "step": "1-stage",
+      "file": "cleaning-fr-1440-1-stage.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 10,
+      "smallTargets": 5,
+      "smallExamples": [
+        "Rechercher un écran ou un lot ",
+        "Langue : Français",
+        "BUTTON",
+        "Notifications",
+        "Actualiser"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-fr-1440-2-new-cycle",
+      "step": "2-new-cycle",
+      "file": "cleaning-fr-1440-2-new-cycle.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 10,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-fr-1440-3-close-form",
+      "step": "3-close-form",
+      "file": "cleaning-fr-1440-3-close-form.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 11,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "cleaning-fr-1440-4-closed",
+      "step": "4-closed",
+      "file": "cleaning-fr-1440-4-closed.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 9,
+      "smallTargets": 5,
+      "smallExamples": [
+        "Rechercher un écran ou un lot ",
+        "Langue : Français",
+        "BUTTON",
+        "Notifications",
+        "Actualiser"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    }
+  ],
+  "completed": true
+}

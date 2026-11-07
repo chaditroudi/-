@@ -234,7 +234,7 @@ export const ProductionToday = ({
           icon={<hero.icon />}
           title={hero.title}
           description={hero.detail}
-          meta={[hero.status]}
+          statusLabel={hero.status}
           actionLabel={t('productionToday.open')}
           onAction={() => onOpenView(hero.view)}
         />

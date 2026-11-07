@@ -1149,7 +1149,12 @@
     "createError": "Could not create the cycle: {{message}}",
     "closedToast": "Cleaning cycle closed",
     "closedYieldToast": "Cleaning cycle closed — yield {{yield}} %",
-    "closeError": "Closing failed: {{message}}"
+    "closeError": "Closing failed: {{message}}",
+    "readyLots_one": "{{count}} released lot ready for cleaning",
+    "readyLots_other": "{{count}} released lots ready for cleaning",
+    "quantity": "Quantity",
+    "balanceOk": "Balance is right: input = output + waste.",
+    "balanceGap": "Balance gap: {{gap}} kg (input − output − waste). The server refuses a wrong balance."
   },
   "task": {
     "status": {
