@@ -2042,5 +2042,102 @@
     "manual": "إدخال يدوي · دون ميزان",
     "scale": "إدخال يدوي · مقروء على الميزان",
     "unknown": "المصدر غير مسجّل"
+  },
+  "productionNav": {
+    "label": "أقسام الإنتاج",
+    "group": {
+      "post": "المحطة",
+      "work": "العمل",
+      "stages": "المراحل",
+      "follow": "المتابعة"
+    },
+    "item": {
+      "todo": "للإنجاز",
+      "inProgress": "جارٍ",
+      "done": "منجز",
+      "orders": "أوامر التصنيع",
+      "pipeline": "دفعات للانطلاق",
+      "fumigation": "التبخير",
+      "nettoyage": "التنظيف",
+      "hydratation": "الترطيب",
+      "triage": "الفرز",
+      "alertes": "التنبيهات",
+      "flux": "الخطوط F1 إلى F8",
+      "balance": "حصيلة المادة",
+      "haccp": "خطة HACCP",
+      "kpi": "المؤشرات"
+    }
+  },
+  "productionWorkspace": {
+    "traceLabel": "رقم الدفعة للتتبّع",
+    "tracePlaceholder": "تتبّع دفعة",
+    "traceAction": "تتبّع هذه الدفعة",
+    "traceShort": "تتبّع",
+    "dailyReport": "تقرير اليوم"
+  },
+  "productionToday": {
+    "unknown": "لم يتم التحقق: تعذّر تحميل دورات الورشة.",
+    "nothing": "لا شيء حاليًا.",
+    "noLot": "لا دفعة مخصّصة",
+    "allocate": "تخصيص دفعة",
+    "start": "ابدأ",
+    "follow": "متابعة",
+    "open": "فتح",
+    "plan": "تخطيط",
+    "seeLots": "عرض الدفعات",
+    "toHandle": "للمعالجة",
+    "quantityUnset": "الكمية غير محدّدة",
+    "chamber": "الغرفة {{chamber}}",
+    "lot": "الدفعة {{lot}}",
+    "hydration": "الترطيب",
+    "statusRunning": "جارٍ",
+    "paused": "متوقّف مؤقتًا",
+    "progress": "{{product}}: {{done}} من {{target}}",
+    "fumigationStatus": {
+      "PREPARATION": "التحضير",
+      "CHARGEMENT": "التحميل",
+      "EN_COURS": "قيد التبخير",
+      "VENTILATION": "التهوية",
+      "VALIDATION": "للمصادقة"
+    },
+    "stuck": {
+      "fumigationFailed": "فشل التبخير",
+      "fumigationStopped": "توقّف التبخير",
+      "cleaning": "حادث في التنظيف",
+      "hydration": "ترطيب غير مطابق",
+      "triage": "حادث في الفرز"
+    },
+    "running": {
+      "title": "جارٍ",
+      "hint": "العمل في الورشة"
+    },
+    "next": {
+      "title": "للانطلاق",
+      "hint": "الإجراءات الممكنة التالية"
+    },
+    "blocked": {
+      "title": "موقوف",
+      "hint": "حوادث الأيام السبعة الأخيرة"
+    },
+    "criticalAlerts_zero": "لا تنبيه حرج",
+    "criticalAlerts_one": "تنبيه حرج واحد للمعالجة",
+    "criticalAlerts_two": "تنبيهان حرجان للمعالجة",
+    "criticalAlerts_few": "{{count}} تنبيهات حرجة للمعالجة",
+    "criticalAlerts_many": "{{count}} تنبيهًا حرجًا للمعالجة",
+    "criticalAlerts_other": "{{count}} تنبيه حرج للمعالجة",
+    "pipelineTitle_zero": "{{count}} دفعة مُفرج عنها للتحويل",
+    "pipelineTitle_one": "دفعة واحدة مُفرج عنها للتحويل",
+    "pipelineTitle_two": "دفعتان مُفرج عنهما للتحويل",
+    "pipelineTitle_few": "{{count}} دفعات مُفرج عنها للتحويل",
+    "pipelineTitle_many": "{{count}} دفعة مُفرج عنها للتحويل",
+    "pipelineTitle_other": "{{count}} دفعة مُفرج عنها للتحويل",
+    "pipelineDetail": "{{kg}} كغ في انتظار التبخير",
+    "fumigationReadyTitle_zero": "{{count}} دفعة جاهزة للتبخير",
+    "fumigationReadyTitle_one": "دفعة واحدة جاهزة للتبخير",
+    "fumigationReadyTitle_two": "دفعتان جاهزتان للتبخير",
+    "fumigationReadyTitle_few": "{{count}} دفعات جاهزة للتبخير",
+    "fumigationReadyTitle_many": "{{count}} دفعة جاهزة للتبخير",
+    "fumigationReadyTitle_other": "{{count}} دفعة جاهزة للتبخير",
+    "fumigationReadyDetail": "{{kg}} كغ في الانتظار"
   }
 }

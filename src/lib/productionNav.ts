@@ -27,10 +27,13 @@ export const getOperatorProductionStage = (roles: ActorRole[]): ProductionStageV
 export interface ProductionNavItem {
   view: ProductionView;
   label: string;
+  /** Stable id of the label (`productionNav.item.<key>`): the same view reads "En cours" for an operator, its stage name for a supervisor. */
+  labelKey: string;
   stage?: boolean;
 }
 
 export interface ProductionNavGroup {
+  id: 'post' | 'work' | 'stages' | 'follow';
   label: string;
   items: ProductionNavItem[];
 }
@@ -48,41 +51,44 @@ export const getProductionNavGroups = (
 
   if (stage && !supervisor) {
     const base: ProductionNavItem[] = [
-      { view: 'today', label: 'À faire' },
-      { view: stage, label: 'En cours', stage: true },
-      { view: 'done', label: 'Terminé', stage: true },
+      { view: 'today', label: 'À faire', labelKey: 'todo' },
+      { view: stage, label: 'En cours', labelKey: 'inProgress', stage: true },
+      { view: 'done', label: 'Terminé', labelKey: 'done', stage: true },
     ];
     const items = base.filter((item) => stagesEnabled || !item.stage);
-    return items.length ? [{ label: 'Poste', items }] : [];
+    return items.length ? [{ id: 'post', label: 'Poste', items }] : [];
   }
 
   const all: ProductionNavGroup[] = [
     {
+      id: 'work',
       label: 'Travail',
       items: [
-        { view: 'today', label: 'À faire' },
-        { view: 'orders', label: 'Ordres de fabrication' },
-        { view: 'pipeline', label: 'Lots à lancer', stage: true },
-        { view: 'done', label: 'Terminé', stage: true },
+        { view: 'today', label: 'À faire', labelKey: 'todo' },
+        { view: 'orders', label: 'Ordres de fabrication', labelKey: 'orders' },
+        { view: 'pipeline', label: 'Lots à lancer', labelKey: 'pipeline', stage: true },
+        { view: 'done', label: 'Terminé', labelKey: 'done', stage: true },
       ],
     },
     {
+      id: 'stages',
       label: 'Étapes',
       items: [
-        { view: 'fumigation', label: 'Fumigation', stage: true },
-        { view: 'nettoyage', label: 'Nettoyage', stage: true },
-        { view: 'hydratation', label: 'Hydratation', stage: true },
-        { view: 'triage', label: 'Triage', stage: true },
+        { view: 'fumigation', label: 'Fumigation', labelKey: 'fumigation', stage: true },
+        { view: 'nettoyage', label: 'Nettoyage', labelKey: 'nettoyage', stage: true },
+        { view: 'hydratation', label: 'Hydratation', labelKey: 'hydratation', stage: true },
+        { view: 'triage', label: 'Triage', labelKey: 'triage', stage: true },
       ],
     },
     {
+      id: 'follow',
       label: 'Suivi',
       items: [
-        { view: 'alertes', label: 'Alertes', stage: true },
-        { view: 'flux', label: 'Lignes F1 à F8' },
-        { view: 'balance', label: 'Bilan matière' },
-        { view: 'haccp', label: 'Plan HACCP' },
-        { view: 'kpi', label: 'Indicateurs' },
+        { view: 'alertes', label: 'Alertes', labelKey: 'alertes', stage: true },
+        { view: 'flux', label: 'Lignes F1 à F8', labelKey: 'flux' },
+        { view: 'balance', label: 'Bilan matière', labelKey: 'balance' },
+        { view: 'haccp', label: 'Plan HACCP', labelKey: 'haccp' },
+        { view: 'kpi', label: 'Indicateurs', labelKey: 'kpi' },
       ],
     },
   ];

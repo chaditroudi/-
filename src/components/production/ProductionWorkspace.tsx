@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DataState, type DataSource } from '@/components/shared/DataState';
 import {
   Bell,
@@ -97,6 +98,7 @@ export function ProductionWorkspace({
   preSelectedLot,
   roles = [],
 }: ProductionWorkspaceProps) {
+  const { t } = useTranslation();
   const pipeline = usePhase2Pipeline({ enabled: stagesEnabled });
   const alerts = usePhase2AlertKpis();
   const { data: fumigation = [] } = useFumigationCycles(undefined, { enabled: stagesEnabled });
@@ -112,6 +114,8 @@ export function ProductionWorkspace({
   const operatorStage = useMemo(() => getOperatorProductionStage(roles), [roles]);
   const supervisor = useMemo(() => isProductionSupervisor(roles), [roles]);
   const groups = useMemo(() => getProductionNavGroups(roles, stagesEnabled), [roles, stagesEnabled]);
+  // A stage operator has one post: three large tabs, like the dock. Supervisors get the whole workshop.
+  const postOnly = groups.length === 1 && groups[0].id === 'post';
 
   useEffect(() => {
     if (!preSelectedLot) return;
@@ -137,54 +141,66 @@ export function ProductionWorkspace({
   };
 
   return (
-    <div className="flex flex-col gap-3">
-    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:gap-4">
-      <nav aria-label="Sections de la production" className="-mx-1 overflow-x-auto scrollbar-hide lg:sticky lg:top-14 lg:mx-0 lg:w-48 lg:shrink-0 lg:overflow-visible">
-        <div className="flex gap-1 px-1 lg:block lg:space-y-3 lg:px-0">
-          {groups.map((group) => (
-            <div key={group.label} className="flex gap-1 lg:block lg:space-y-px">
-              <p className="hidden pb-1 text-xs font-medium text-muted-foreground lg:block">{group.label}</p>
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-4">
+      <nav aria-label={t('productionNav.label')} className="-mx-1 overflow-x-auto px-1 pb-1 scrollbar-hide">
+        <div
+          className={cn(
+            'rounded-2xl border bg-card p-1.5 shadow-sm',
+            postOnly ? 'grid grid-cols-3 gap-1.5' : 'flex w-max min-w-full items-center gap-1.5 lg:w-full lg:flex-wrap',
+          )}
+        >
+          {groups.map((group, groupIndex) => (
+            <Fragment key={group.id}>
+              {!postOnly && groupIndex > 0 && <span aria-hidden className="mx-1 h-7 w-px shrink-0 bg-border" />}
+              {!postOnly && (
+                <span className="sr-only">{t(`productionNav.group.${group.id}`, { defaultValue: group.label })}</span>
+              )}
               {group.items.map((item) => {
                 const Icon = ICONS[item.view];
                 const badge = badgeFor(item.view);
+                const active = view === item.view;
                 return (
                   <button
                     key={item.view}
                     type="button"
-                    aria-current={view === item.view ? 'page' : undefined}
+                    aria-current={active ? 'page' : undefined}
                     onClick={() => onViewChange(item.view)}
                     className={cn(
-                      'flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-2.5 text-sm font-medium lg:w-full',
-                      view === item.view ? 'bg-card text-foreground ring-1 ring-border' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                      'relative flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                      postOnly ? 'min-h-14 flex-col gap-1 px-2 text-sm sm:flex-row sm:gap-2 sm:text-base' : 'min-h-11 px-3.5 text-sm',
+                      active ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground',
                     )}
                   >
-                    <Icon className="h-4 w-4 shrink-0" />
-                    <span className="truncate">{item.label}</span>
+                    <Icon className={cn('shrink-0', postOnly ? 'h-5 w-5' : 'h-4 w-4')} aria-hidden />
+                    <span className="truncate">{t(`productionNav.item.${item.labelKey}`, { defaultValue: item.label })}</span>
                     {Boolean(badge) && (
-                      <span className="ms-auto rounded-sm bg-amber-100 px-1 text-xs font-semibold text-amber-900">{badge}</span>
+                      <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-warning px-1.5 text-xs font-bold leading-none text-warning-foreground">
+                        {badge}
+                      </span>
                     )}
                   </button>
                 );
               })}
-            </div>
+            </Fragment>
           ))}
         </div>
       </nav>
 
-      <div className="min-w-0 flex-1 space-y-3">
+      <div className="min-w-0 space-y-4">
         {view === 'today' && stagesEnabled && supervisor && (
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <div className="flex gap-1">
+          <div className="flex flex-wrap items-center gap-2 rounded-2xl border bg-card p-3">
+            <div className="flex min-w-0 flex-1 gap-2">
               <Input
-                aria-label="Numéro de lot à tracer"
-                placeholder="Tracer un lot"
+                aria-label={t('productionWorkspace.traceLabel')}
+                placeholder={t('productionWorkspace.tracePlaceholder')}
                 value={lotQuery}
                 onChange={(event) => setLotQuery(event.target.value)}
                 onKeyDown={(event) => event.key === 'Enter' && lotQuery.trim() && openTraceability()}
-                className="h-11 w-44"
+                className="h-11 min-w-0 flex-1 sm:max-w-xs"
               />
-              <Button type="button" size="icon" variant="outline" className="h-11 w-11" aria-label="Tracer ce lot" disabled={!lotQuery.trim()} onClick={openTraceability}>
+              <Button type="button" variant="outline" className="h-11 gap-1.5" aria-label={t('productionWorkspace.traceAction')} disabled={!lotQuery.trim()} onClick={openTraceability}>
                 <Search className="h-4 w-4" />
+                <span className="hidden sm:inline">{t('productionWorkspace.traceShort')}</span>
               </Button>
             </div>
             <Button
@@ -194,7 +210,7 @@ export function ProductionWorkspace({
               onClick={() => printPhase2DailyReport({ fumigation, cleaning, hydration, triage })}
             >
               <Printer className="h-4 w-4" />
-              Rapport du jour
+              {t('productionWorkspace.dailyReport')}
             </Button>
           </div>
         )}
@@ -234,7 +250,6 @@ export function ProductionWorkspace({
 
       {orderId && <ProductionOrderDetail open onOpenChange={(open) => !open && setOrderId(null)} orderId={orderId} />}
       <LotTraceabilityDialog open={traceOpen} onOpenChange={setTraceOpen} lotNumber={traceLot} />
-    </div>
     </div>
   );
 }

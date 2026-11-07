@@ -2042,5 +2042,90 @@
     "manual": "Saisie manuelle · sans bascule",
     "scale": "Saisie manuelle · lu sur la bascule",
     "unknown": "Provenance non renseignée"
+  },
+  "productionNav": {
+    "label": "Sections de la production",
+    "group": {
+      "post": "Poste",
+      "work": "Travail",
+      "stages": "Étapes",
+      "follow": "Suivi"
+    },
+    "item": {
+      "todo": "À faire",
+      "inProgress": "En cours",
+      "done": "Terminé",
+      "orders": "Ordres de fabrication",
+      "pipeline": "Lots à lancer",
+      "fumigation": "Fumigation",
+      "nettoyage": "Nettoyage",
+      "hydratation": "Hydratation",
+      "triage": "Triage",
+      "alertes": "Alertes",
+      "flux": "Lignes F1 à F8",
+      "balance": "Bilan matière",
+      "haccp": "Plan HACCP",
+      "kpi": "Indicateurs"
+    }
+  },
+  "productionWorkspace": {
+    "traceLabel": "Numéro de lot à tracer",
+    "tracePlaceholder": "Tracer un lot",
+    "traceAction": "Tracer ce lot",
+    "traceShort": "Tracer",
+    "dailyReport": "Rapport du jour"
+  },
+  "productionToday": {
+    "unknown": "Non vérifié : les cycles de l'atelier n'ont pas pu être chargés.",
+    "nothing": "Rien pour le moment.",
+    "noLot": "Aucun lot alloué",
+    "allocate": "Allouer un lot",
+    "start": "Démarrer",
+    "follow": "Suivre",
+    "open": "Ouvrir",
+    "plan": "Planifier",
+    "seeLots": "Voir les lots",
+    "toHandle": "À traiter",
+    "quantityUnset": "quantité à définir",
+    "chamber": "Chambre {{chamber}}",
+    "lot": "Lot {{lot}}",
+    "hydration": "Hydratation",
+    "statusRunning": "En cours",
+    "paused": "En pause",
+    "progress": "{{product}} : {{done}} sur {{target}}",
+    "fumigationStatus": {
+      "PREPARATION": "Préparation",
+      "CHARGEMENT": "Chargement",
+      "EN_COURS": "En fumigation",
+      "VENTILATION": "Ventilation",
+      "VALIDATION": "À valider"
+    },
+    "stuck": {
+      "fumigationFailed": "Fumigation en échec",
+      "fumigationStopped": "Fumigation interrompue",
+      "cleaning": "Incident de nettoyage",
+      "hydration": "Hydratation non conforme",
+      "triage": "Incident de triage"
+    },
+    "running": {
+      "title": "En cours",
+      "hint": "Le travail en atelier"
+    },
+    "next": {
+      "title": "À lancer",
+      "hint": "Les prochaines actions possibles"
+    },
+    "blocked": {
+      "title": "Bloqué",
+      "hint": "Incidents des 7 derniers jours"
+    },
+    "criticalAlerts_one": "{{count}} alerte critique à traiter",
+    "criticalAlerts_other": "{{count}} alertes critiques à traiter",
+    "pipelineTitle_one": "{{count}} lot libéré à transformer",
+    "pipelineTitle_other": "{{count}} lots libérés à transformer",
+    "pipelineDetail": "{{kg}} kg en attente de fumigation",
+    "fumigationReadyTitle_one": "{{count}} lot prêt pour fumigation",
+    "fumigationReadyTitle_other": "{{count}} lots prêts pour fumigation",
+    "fumigationReadyDetail": "{{kg}} kg en attente"
   }
 }

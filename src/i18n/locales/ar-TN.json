@@ -109,5 +109,16 @@
     "lots": {
       "viewWeighing": "شوف الميزان"
     }
+  },
+  "productionNav": {
+    "item": {
+      "todo": "باش تعمل",
+      "inProgress": "تخدم توّا",
+      "done": "كمل"
+    }
+  },
+  "productionToday": {
+    "open": "حلّ",
+    "start": "ابدأ"
   }
 }

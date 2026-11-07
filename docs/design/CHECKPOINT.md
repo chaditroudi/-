@@ -20,7 +20,7 @@ Updated: 7 Nov 2026.
 - Visual: `docs/evidence/tablet-first-ui/after-p1` (homes) and `after-p2` (reception).
 
 ## Next
-1. Production (P3): `src/components/production/*` (today / orders / pipeline / done, order detail) then the stages `phase2/*` (cleaning, fumigation, hydration, triage). Inventory first (`node scripts/docs/feature-inventory.mjs --json`), keep every action and rule, translate, then a browser walk per screen with the harness pattern of `scripts/e2e/qc-inspection-visual.e2e.mjs` (one locale per run, foreground, one stack at a time: the host ran out of memory once).
+1. Production (P3): workspace and today done (layout verified, no data walk). Next: the cleaning stage `phase2/nettoyage/NettoyagePanel.tsx` with a real data walk (book a delivery, release it through QC with the PIN as in `qc-inspection-visual.e2e.mjs`, then start/finish cleaning as `operateur.nettoyage`), then fumigation, hydration, triage, orders/pipeline/done, order detail. One browser stack at a time, foreground, one locale per run if memory is short.
 2. Shared text pass: page titles in `TopHeader` from `nav.*`, intake blocker sentences in `src/lib/receptionIntake.ts` (return keys, translate at render), `SupplierPicker` placeholder, `LotJourneyHub`.
 3. `ReceptionDetailV2` (767 lines), BRA documents.
 4. Then P3 (stock, production stages, packaging), P4, P5, P6 as in the plan.

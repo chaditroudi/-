@@ -2042,5 +2042,90 @@
     "manual": "Typed by hand · no scale",
     "scale": "Typed by hand · read on the scale",
     "unknown": "Source not recorded"
+  },
+  "productionNav": {
+    "label": "Production sections",
+    "group": {
+      "post": "Post",
+      "work": "Work",
+      "stages": "Stages",
+      "follow": "Follow-up"
+    },
+    "item": {
+      "todo": "To do",
+      "inProgress": "In progress",
+      "done": "Done",
+      "orders": "Production orders",
+      "pipeline": "Lots to start",
+      "fumigation": "Fumigation",
+      "nettoyage": "Cleaning",
+      "hydratation": "Hydration",
+      "triage": "Sorting",
+      "alertes": "Alerts",
+      "flux": "Lines F1 to F8",
+      "balance": "Mass balance",
+      "haccp": "HACCP plan",
+      "kpi": "Indicators"
+    }
+  },
+  "productionWorkspace": {
+    "traceLabel": "Lot number to trace",
+    "tracePlaceholder": "Trace a lot",
+    "traceAction": "Trace this lot",
+    "traceShort": "Trace",
+    "dailyReport": "Daily report"
+  },
+  "productionToday": {
+    "unknown": "Not checked: the workshop cycles could not be loaded.",
+    "nothing": "Nothing for now.",
+    "noLot": "No lot allocated",
+    "allocate": "Allocate a lot",
+    "start": "Start",
+    "follow": "Follow",
+    "open": "Open",
+    "plan": "Plan",
+    "seeLots": "See the lots",
+    "toHandle": "To handle",
+    "quantityUnset": "quantity to set",
+    "chamber": "Chamber {{chamber}}",
+    "lot": "Lot {{lot}}",
+    "hydration": "Hydration",
+    "statusRunning": "In progress",
+    "paused": "Paused",
+    "progress": "{{product}}: {{done}} of {{target}}",
+    "fumigationStatus": {
+      "PREPARATION": "Preparation",
+      "CHARGEMENT": "Loading",
+      "EN_COURS": "Fumigating",
+      "VENTILATION": "Ventilation",
+      "VALIDATION": "To validate"
+    },
+    "stuck": {
+      "fumigationFailed": "Fumigation failed",
+      "fumigationStopped": "Fumigation stopped",
+      "cleaning": "Cleaning incident",
+      "hydration": "Hydration non-compliant",
+      "triage": "Sorting incident"
+    },
+    "running": {
+      "title": "In progress",
+      "hint": "Work on the floor"
+    },
+    "next": {
+      "title": "To start",
+      "hint": "The next possible actions"
+    },
+    "blocked": {
+      "title": "Blocked",
+      "hint": "Incidents of the last 7 days"
+    },
+    "criticalAlerts_one": "{{count}} critical alert to handle",
+    "criticalAlerts_other": "{{count}} critical alerts to handle",
+    "pipelineTitle_one": "{{count}} released lot to process",
+    "pipelineTitle_other": "{{count}} released lots to process",
+    "pipelineDetail": "{{kg}} kg waiting for fumigation",
+    "fumigationReadyTitle_one": "{{count}} lot ready for fumigation",
+    "fumigationReadyTitle_other": "{{count}} lots ready for fumigation",
+    "fumigationReadyDetail": "{{kg}} kg waiting"
   }
 }

@@ -1,0 +1,804 @@
+{
+  "head": "8523f90",
+  "dirty": true,
+  "capturedAt": "2026-11-07T06:31:06.625Z",
+  "database": "tablet_visual_mw60ytio",
+  "widths": [
+    375,
+    768,
+    1024,
+    1440
+  ],
+  "checks": [
+    {
+      "name": "production-supervisor-home-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-supervisor-home-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-supervisor-home-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-supervisor-home-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-home-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-supervisor-home-fr no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "production-operator-today-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-operator-today-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-operator-today-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-operator-today-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-operator-today-fr no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "production-operator-today-ar-375 ready",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-ar-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-ar-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-ar-375 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "production-operator-today-ar-768 ready",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-ar-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-ar-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-ar-768 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "production-operator-today-ar-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-ar-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-ar-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-ar-1024 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "production-operator-today-ar-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-ar-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-ar-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-operator-today-ar-1440 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "production-operator-today-ar no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "production-supervisor-today-fr-375 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-375 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-supervisor-today-fr-768 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-768 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-supervisor-today-fr-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-1024 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-supervisor-today-fr-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-fr-1440 direction",
+      "passed": true,
+      "detail": "ltr"
+    },
+    {
+      "name": "production-supervisor-today-fr no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "production-supervisor-today-ar-375 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-ar-375 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-ar-375 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-ar-375 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "production-supervisor-today-ar-768 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-ar-768 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-ar-768 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-ar-768 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "production-supervisor-today-ar-1024 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-ar-1024 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-ar-1024 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-ar-1024 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "production-supervisor-today-ar-1440 ready",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-ar-1440 no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-ar-1440 no crash",
+      "passed": true
+    },
+    {
+      "name": "production-supervisor-today-ar-1440 direction",
+      "passed": true,
+      "detail": "rtl"
+    },
+    {
+      "name": "production-supervisor-today-ar no server or script errors",
+      "passed": true,
+      "detail": []
+    }
+  ],
+  "screens": [
+    {
+      "id": "production-supervisor-home-fr-375",
+      "role": "responsable_production",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "production-supervisor-home-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 24,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "production-supervisor-home-fr-768",
+      "role": "responsable_production",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "production-supervisor-home-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 28,
+      "smallTargets": 10,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Production",
+        "Conditionnement",
+        "Maintenance",
+        "Ressources humaines"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "production-supervisor-home-fr-1024",
+      "role": "responsable_production",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "production-supervisor-home-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 30,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "production-supervisor-home-fr-1440",
+      "role": "responsable_production",
+      "hash": "/?tab=home",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "production-supervisor-home-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 30,
+      "smallTargets": 22,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Production",
+        "Conditionnement",
+        "Maintenance",
+        "Ressources humaines"
+      ],
+      "crash": false,
+      "heading": "Accueil",
+      "reviewed": false
+    },
+    {
+      "id": "production-operator-today-fr-375",
+      "role": "operateur_nettoyage",
+      "hash": "/?tab=production&view=today",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "production-operator-today-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 13,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Production",
+      "reviewed": false
+    },
+    {
+      "id": "production-operator-today-fr-768",
+      "role": "operateur_nettoyage",
+      "hash": "/?tab=production&view=today",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "production-operator-today-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 13,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "heading": "Production",
+      "reviewed": false
+    },
+    {
+      "id": "production-operator-today-fr-1024",
+      "role": "operateur_nettoyage",
+      "hash": "/?tab=production&view=today",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "production-operator-today-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 13,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Production",
+      "reviewed": false
+    },
+    {
+      "id": "production-operator-today-fr-1440",
+      "role": "operateur_nettoyage",
+      "hash": "/?tab=production&view=today",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "production-operator-today-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 13,
+      "smallTargets": 5,
+      "smallExamples": [
+        "Rechercher un écran ou un lot (Ctrl K)",
+        "Langue : Français",
+        "BUTTON",
+        "Notifications",
+        "Actualiser"
+      ],
+      "crash": false,
+      "heading": "Production",
+      "reviewed": false
+    },
+    {
+      "id": "production-operator-today-ar-375",
+      "role": "operateur_nettoyage",
+      "hash": "/?tab=production&view=today",
+      "locale": "ar",
+      "width": 375,
+      "touch": true,
+      "file": "production-operator-today-ar-375.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 13,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "الإنتاج",
+      "reviewed": false
+    },
+    {
+      "id": "production-operator-today-ar-768",
+      "role": "operateur_nettoyage",
+      "hash": "/?tab=production&view=today",
+      "locale": "ar",
+      "width": 768,
+      "touch": true,
+      "file": "production-operator-today-ar-768.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 13,
+      "smallTargets": 1,
+      "smallExamples": [
+        "بحث"
+      ],
+      "crash": false,
+      "heading": "الإنتاج",
+      "reviewed": false
+    },
+    {
+      "id": "production-operator-today-ar-1024",
+      "role": "operateur_nettoyage",
+      "hash": "/?tab=production&view=today",
+      "locale": "ar",
+      "width": 1024,
+      "touch": true,
+      "file": "production-operator-today-ar-1024.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 13,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "الإنتاج",
+      "reviewed": false
+    },
+    {
+      "id": "production-operator-today-ar-1440",
+      "role": "operateur_nettoyage",
+      "hash": "/?tab=production&view=today",
+      "locale": "ar",
+      "width": 1440,
+      "touch": false,
+      "file": "production-operator-today-ar-1440.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 13,
+      "smallTargets": 5,
+      "smallExamples": [
+        "ابحث عن شاشة أو دفعة (Ctrl K)",
+        "اللغة : العربية الفصحى",
+        "BUTTON",
+        "Notifications",
+        "تحديث"
+      ],
+      "crash": false,
+      "heading": "الإنتاج",
+      "reviewed": false
+    },
+    {
+      "id": "production-supervisor-today-fr-375",
+      "role": "responsable_production",
+      "hash": "/?tab=production",
+      "locale": "fr",
+      "width": 375,
+      "touch": true,
+      "file": "production-supervisor-today-fr-375.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 27,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "Production",
+      "reviewed": false
+    },
+    {
+      "id": "production-supervisor-today-fr-768",
+      "role": "responsable_production",
+      "hash": "/?tab=production",
+      "locale": "fr",
+      "width": 768,
+      "touch": true,
+      "file": "production-supervisor-today-fr-768.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 31,
+      "smallTargets": 10,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Production",
+        "Conditionnement",
+        "Maintenance",
+        "Ressources humaines"
+      ],
+      "crash": false,
+      "heading": "Production",
+      "reviewed": false
+    },
+    {
+      "id": "production-supervisor-today-fr-1024",
+      "role": "responsable_production",
+      "hash": "/?tab=production",
+      "locale": "fr",
+      "width": 1024,
+      "touch": true,
+      "file": "production-supervisor-today-fr-1024.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 33,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "Production",
+      "reviewed": false
+    },
+    {
+      "id": "production-supervisor-today-fr-1440",
+      "role": "responsable_production",
+      "hash": "/?tab=production",
+      "locale": "fr",
+      "width": 1440,
+      "touch": false,
+      "file": "production-supervisor-today-fr-1440.png",
+      "overflow": false,
+      "dir": "ltr",
+      "controls": 33,
+      "smallTargets": 17,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Production",
+        "Conditionnement",
+        "Maintenance",
+        "Ressources humaines"
+      ],
+      "crash": false,
+      "heading": "Production",
+      "reviewed": false
+    },
+    {
+      "id": "production-supervisor-today-ar-375",
+      "role": "responsable_production",
+      "hash": "/?tab=production",
+      "locale": "ar",
+      "width": 375,
+      "touch": true,
+      "file": "production-supervisor-today-ar-375.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 27,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "heading": "الإنتاج",
+      "reviewed": false
+    },
+    {
+      "id": "production-supervisor-today-ar-768",
+      "role": "responsable_production",
+      "hash": "/?tab=production",
+      "locale": "ar",
+      "width": 768,
+      "touch": true,
+      "file": "production-supervisor-today-ar-768.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 31,
+      "smallTargets": 10,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Production",
+        "Conditionnement",
+        "Maintenance",
+        "Ressources humaines"
+      ],
+      "crash": false,
+      "heading": "الإنتاج",
+      "reviewed": false
+    },
+    {
+      "id": "production-supervisor-today-ar-1024",
+      "role": "responsable_production",
+      "hash": "/?tab=production",
+      "locale": "ar",
+      "width": 1024,
+      "touch": true,
+      "file": "production-supervisor-today-ar-1024.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 33,
+      "smallTargets": 3,
+      "smallExamples": [
+        "Changer mon mot de passe",
+        "Se déconnecter",
+        "Ouvrir ou fermer le menu"
+      ],
+      "crash": false,
+      "heading": "الإنتاج",
+      "reviewed": false
+    },
+    {
+      "id": "production-supervisor-today-ar-1440",
+      "role": "responsable_production",
+      "hash": "/?tab=production",
+      "locale": "ar",
+      "width": 1440,
+      "touch": false,
+      "file": "production-supervisor-today-ar-1440.png",
+      "overflow": false,
+      "dir": "rtl",
+      "controls": 33,
+      "smallTargets": 17,
+      "smallExamples": [
+        "Accueil",
+        "Scanner",
+        "Alertes",
+        "En direct",
+        "Production",
+        "Conditionnement",
+        "Maintenance",
+        "Ressources humaines"
+      ],
+      "crash": false,
+      "heading": "الإنتاج",
+      "reviewed": false
+    }
+  ],
+  "completed": true
+}
