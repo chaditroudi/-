@@ -2132,5 +2132,134 @@
     "fumigationReadyTitle_one": "{{count}} lot ready for fumigation",
     "fumigationReadyTitle_other": "{{count}} lots ready for fumigation",
     "fumigationReadyDetail": "{{kg}} kg waiting"
+  },
+  "fumigation": {
+    "eyebrow": "Fumigation",
+    "title": "Fumigation",
+    "subtitle": "CCP cycles: loading, fumigation, ventilation, validation with two signatures.",
+    "newCycle": "New cycle",
+    "loading": "Loading…",
+    "empty": "No active cycle. Create a cycle to start.",
+    "history": "Recent history",
+    "active_one": "Active cycle ({{count}})",
+    "active_other": "Active cycles ({{count}})",
+    "kpi": {
+      "active": "Active cycles",
+      "completed": "Completed cycles",
+      "compliance": "CCP compliance",
+      "volume": "Volume treated"
+    },
+    "status": {
+      "PREPARATION": "Preparation",
+      "CHARGEMENT": "Loading",
+      "EN_COURS": "In progress",
+      "VENTILATION": "Ventilation",
+      "VALIDATION": "Validation",
+      "TERMINE": "Done",
+      "INTERROMPU": "Stopped",
+      "ECHEC": "Failed"
+    },
+    "progressLabel": "Cycle progress",
+    "live": "LIVE",
+    "chamber": "Chamber {{chamber}}",
+    "weight": "Total weight",
+    "fill": "Fill rate",
+    "duration": "Duration",
+    "durationOf": "{{hours}} h / {{min}} h min",
+    "created": "Created",
+    "ccpOk": "CCP compliant",
+    "ccpKo": "Not compliant",
+    "certificate": "Certificate",
+    "printCertificateOf": "Print the certificate of cycle {{number}}",
+    "open": "Open",
+    "manageHint": "One step at a time; each change is recorded on the server.",
+    "viewLabel": "Cycle view",
+    "details": "Details",
+    "ccpMonitor": "CCP monitor",
+    "now": {
+      "PREPARATION": "Prepare the cycle and enter the dosage, then move to loading.",
+      "CHARGEMENT": "Load the lots into the chamber, then start the cycle: T0 is recorded at the start.",
+      "EN_COURS": "Fumigation running: watch the CCPs. Move to ventilation after the minimum duration.",
+      "VENTILATION": "Ventilate the chamber, then move to validation.",
+      "VALIDATION": "Enter the residual test; the two signatures (operator and quality) close the cycle.",
+      "TERMINE": "Cycle complete: the certificate can be printed.",
+      "INTERROMPU": "Cycle stopped by an emergency stop.",
+      "ECHEC": "Cycle failed."
+    },
+    "summary": {
+      "t0": "Start (T0)",
+      "end": "Actual end",
+      "duration": "Duration: {{hours}} h / {{min}} h min",
+      "notCompliant": "✗ not compliant",
+      "dose": "Dose:",
+      "product": "Product:",
+      "residual": "Residual:",
+      "operatorSigned": "Signed by operator: {{name}}",
+      "qualitySigned": "Signed by quality: {{name}}",
+      "lots_one": "Lot ({{count}})",
+      "lots_other": "Lots ({{count}})"
+    },
+    "dosage": {
+      "title": "Product dosage",
+      "dose": "Dose applied (g)",
+      "productLot": "Product lot no.",
+      "expiry": "Product expiry",
+      "save": "Save dosage",
+      "photos": "Layout photos (at least one before the start)",
+      "readyLabel": "Before starting",
+      "ready": {
+        "dose": "Dose saved",
+        "productLot": "Product lot no. saved",
+        "photo": "Layout photo saved"
+      }
+    },
+    "residual": {
+      "title": "Post-ventilation residual test (RG-FUM-09)",
+      "ppm": "Residual concentration (ppm)",
+      "save": "Save"
+    },
+    "sign": {
+      "title": "Two CCP signatures required (RG-FUM-12)",
+      "hint": "Each signature asks for the signer’s numeric code (4–6 digits).",
+      "operatorRole": "Fumigation operator",
+      "qualityRole": "Quality / HACCP manager",
+      "operator": "Sign — Operator",
+      "quality": "Sign — Quality",
+      "pinVerified": "PIN verified",
+      "operatorPad": "Fumigation operator signature",
+      "qualityPad": "Quality / HACCP signature",
+      "as": "Signing as {{name}}",
+      "confirm": "Confirm the signature"
+    },
+    "actions": {
+      "toLoading": "Move to loading",
+      "start": "Start cycle (T0)",
+      "toVentilation": "Move to ventilation",
+      "toValidation": "Move to validation / signature",
+      "print": "Print certificate"
+    },
+    "stop": {
+      "button": "Emergency stop",
+      "hint": "The emergency stop ends the cycle for good.",
+      "confirmHint": "Confirm: the cycle will be stopped and cannot resume.",
+      "confirm": "Confirm the stop",
+      "keep": "Keep the cycle"
+    },
+    "create": {
+      "title": "New fumigation cycle",
+      "hint": "Choose the chamber, the protocol and the released lots.",
+      "chamber": "Chamber",
+      "protocol": "Protocol",
+      "minDuration": "Min. duration: {{hours}} h",
+      "bioAllowed": "Allowed for organic lots",
+      "bioForbidden": "Forbidden for organic lots",
+      "concentration": "Concentration",
+      "temperature": "Temperature",
+      "lots": "Lots to fumigate (several)",
+      "lotsPlaceholder": "Select the lots…",
+      "selection": "{{count}} lot(s) · Total: {{kg}} kg",
+      "bioConflict": "⚠ Organic lot(s) found — change the protocol",
+      "submit": "Create fumigation cycle"
+    }
   }
 }

@@ -2132,5 +2132,134 @@
     "fumigationReadyTitle_one": "{{count}} lot prêt pour fumigation",
     "fumigationReadyTitle_other": "{{count}} lots prêts pour fumigation",
     "fumigationReadyDetail": "{{kg}} kg en attente"
+  },
+  "fumigation": {
+    "eyebrow": "Fumigation",
+    "title": "Fumigation",
+    "subtitle": "Cycles CCP : chargement, fumigation, ventilation, validation à double signature.",
+    "newCycle": "Nouveau cycle",
+    "loading": "Chargement…",
+    "empty": "Aucun cycle actif. Créez un cycle pour commencer.",
+    "history": "Historique récent",
+    "active_one": "Cycle actif ({{count}})",
+    "active_other": "Cycles actifs ({{count}})",
+    "kpi": {
+      "active": "Cycles actifs",
+      "completed": "Cycles terminés",
+      "compliance": "Conformité CCP",
+      "volume": "Volume traité"
+    },
+    "status": {
+      "PREPARATION": "Préparation",
+      "CHARGEMENT": "Chargement",
+      "EN_COURS": "En cours",
+      "VENTILATION": "Ventilation",
+      "VALIDATION": "Validation",
+      "TERMINE": "Terminé",
+      "INTERROMPU": "Interrompu",
+      "ECHEC": "Échec"
+    },
+    "progressLabel": "Avancement du cycle",
+    "live": "EN DIRECT",
+    "chamber": "Chambre {{chamber}}",
+    "weight": "Poids total",
+    "fill": "Remplissage",
+    "duration": "Durée",
+    "durationOf": "{{hours}} h / {{min}} h min",
+    "created": "Créé",
+    "ccpOk": "Conforme CCP",
+    "ccpKo": "Non conforme",
+    "certificate": "Certificat",
+    "printCertificateOf": "Imprimer le certificat du cycle {{number}}",
+    "open": "Ouvrir",
+    "manageHint": "Une étape à la fois ; chaque passage est enregistré sur le serveur.",
+    "viewLabel": "Vue du cycle",
+    "details": "Détails",
+    "ccpMonitor": "CCP Monitor",
+    "now": {
+      "PREPARATION": "Préparez le cycle et saisissez le dosage, puis passez au chargement.",
+      "CHARGEMENT": "Chargez les lots dans la chambre, puis démarrez le cycle : T0 est enregistré au démarrage.",
+      "EN_COURS": "Fumigation en cours : suivez les CCP. Passez en ventilation à la fin de la durée minimale.",
+      "VENTILATION": "Ventilez la chambre, puis passez en validation.",
+      "VALIDATION": "Saisissez le test résiduel ; la double signature (opérateur et qualité) clôt le cycle.",
+      "TERMINE": "Cycle terminé : le certificat peut être imprimé.",
+      "INTERROMPU": "Cycle interrompu par un arrêt d’urgence.",
+      "ECHEC": "Cycle en échec."
+    },
+    "summary": {
+      "t0": "Début (T0)",
+      "end": "Fin réelle",
+      "duration": "Durée : {{hours}} h / {{min}} h min",
+      "notCompliant": "✗ non conforme",
+      "dose": "Dose :",
+      "product": "Produit :",
+      "residual": "Résiduel :",
+      "operatorSigned": "Signé opérateur : {{name}}",
+      "qualitySigned": "Signé qualité : {{name}}",
+      "lots_one": "Lot ({{count}})",
+      "lots_other": "Lots ({{count}})"
+    },
+    "dosage": {
+      "title": "Dosage produit",
+      "dose": "Dose appliquée (g)",
+      "productLot": "N° lot produit",
+      "expiry": "Expiration produit",
+      "save": "Enregistrer dosage",
+      "photos": "Photos de disposition (au moins une avant le démarrage)",
+      "readyLabel": "Avant de démarrer",
+      "ready": {
+        "dose": "Dose enregistrée",
+        "productLot": "N° lot produit enregistré",
+        "photo": "Photo de disposition enregistrée"
+      }
+    },
+    "residual": {
+      "title": "Test résiduel post-ventilation (RG-FUM-09)",
+      "ppm": "Concentration résiduelle (ppm)",
+      "save": "Enregistrer"
+    },
+    "sign": {
+      "title": "Double signature CCP obligatoire (RG-FUM-12)",
+      "hint": "Chaque visa demande le code signature numérique (4–6 chiffres) du signataire.",
+      "operatorRole": "Opérateur fumigation",
+      "qualityRole": "Responsable Qualité / HACCP",
+      "operator": "Signer — Opérateur",
+      "quality": "Signer — Qualité",
+      "pinVerified": "PIN vérifié",
+      "operatorPad": "Signature Opérateur fumigation",
+      "qualityPad": "Signature Qualité / HACCP",
+      "as": "Visa en tant que {{name}}",
+      "confirm": "Confirmer le visa"
+    },
+    "actions": {
+      "toLoading": "Passer au chargement",
+      "start": "Démarrer cycle (T0)",
+      "toVentilation": "Passer en ventilation",
+      "toValidation": "Passer en validation / signature",
+      "print": "Imprimer certificat"
+    },
+    "stop": {
+      "button": "Arrêt d'urgence",
+      "hint": "L'arrêt d'urgence interrompt définitivement le cycle.",
+      "confirmHint": "Confirmer : le cycle sera interrompu et ne pourra pas reprendre.",
+      "confirm": "Confirmer l'arrêt",
+      "keep": "Continuer le cycle"
+    },
+    "create": {
+      "title": "Nouveau cycle de fumigation",
+      "hint": "Choisissez la chambre, le protocole et les lots libérés.",
+      "chamber": "Chambre",
+      "protocol": "Protocole",
+      "minDuration": "Durée min : {{hours}} h",
+      "bioAllowed": "Autorisé lots biologiques",
+      "bioForbidden": "Interdit pour lots biologiques",
+      "concentration": "Concentration",
+      "temperature": "Température",
+      "lots": "Lots à fumiger (sélection multiple)",
+      "lotsPlaceholder": "Sélectionner les lots…",
+      "selection": "{{count}} lot(s) · Total : {{kg}} kg",
+      "bioConflict": "⚠ Lot(s) BIO détecté(s) — changer de protocole",
+      "submit": "Créer cycle de fumigation"
+    }
   }
 }

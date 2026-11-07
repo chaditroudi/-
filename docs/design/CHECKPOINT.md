@@ -20,12 +20,13 @@ Updated: 7 Nov 2026.
 - Visual: `docs/evidence/tablet-first-ui/after-p1` (homes) and `after-p2` (reception).
 
 ## Next
-1. Production (P3): workspace, today and cleaning done. Cleaning start is BLOCKED by a missing server route `GET /phase2/cleaning/source-lots` (404 on main too); ask the user before adding a server endpoint. Next: fumigation `phase2/fumigation/*`, then hydration, triage, orders/pipeline/done, order detail. Harness: `QC_VISUAL_MODE=cleaning` shows how to seed a released lot by API.
+1. Production (P3): workspace, today, cleaning (start BLOCKED: missing `/phase2/cleaning/source-lots` route, ask the user) and fumigation (VERIFIED) done. Next: hydration `phase2/hydratation/HydratationPanel.tsx`, triage `phase2/triage/*`, then orders/pipeline/done, order detail, flux/balance/HACCP/KPI. Harness modes `cleaning`/`fumigation` show how to seed a released lot and a stage cycle by API.
 2. Shared text pass: page titles in `TopHeader` from `nav.*`, intake blocker sentences in `src/lib/receptionIntake.ts` (return keys, translate at render), `SupplierPicker` placeholder, `LotJourneyHub`.
 3. `ReceptionDetailV2` (767 lines), BRA documents.
 4. Then P3 (stock, production stages, packaging), P4, P5, P6 as in the plan.
 
 ## Open defects found on main (not caused by the redesign)
+- Fumigation (fixed on `feature/tablet-first`, 7 Nov): no screen could attach the disposition photo the server requires before T0, so no cycle could start from the app; the photo field is now in the dosage section.
 - Cleaning: `NettoyagePanel` fetches `/phase2/cleaning/source-lots`, which the server does not define; "Nouveau cycle" shows "Impossible de charger les lots de stock" and no cycle can be started from the screen.
 Reception suite D, H, S, V, Q, P, R fail on main too; supplier sees other suppliers (isolation suite).
 

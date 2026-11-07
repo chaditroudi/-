@@ -1,118 +1,91 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useFumigationCycles, useFumigationKpis } from '@/hooks/useFumigation';
 import { FumigationCycleDialog } from './FumigationCycleDialog';
+import { FUMIGATION_STEPS, FumigationProgress } from './FumigationProgress';
 import { FumigationCycle, FumigationCycleStatus, FUMIGATION_PROTOCOL_CONFIG } from '@/types/phase2';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Printer, Plus, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, ChevronRight, Flame, Plus, Printer } from 'lucide-react';
 import { printFumigationCertificate } from './printFumigationCertificate';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import { SummaryStrip } from '@/components/shared/SummaryStrip';
+import { formatDateTime, formatNumber } from '@/lib/format';
+import { cn } from '@/lib/utils';
 
-const STATUS_LABELS: Record<FumigationCycleStatus, string> = {
-  PREPARATION: 'Préparation',
-  CHARGEMENT: 'Chargement',
-  EN_COURS: 'En cours',
-  VENTILATION: 'Ventilation',
-  VALIDATION: 'Validation',
-  TERMINE: 'Terminé',
-  INTERROMPU: 'Interrompu',
-  ECHEC: 'Échec',
-};
-
-const STATUS_VARIANT: Record<FumigationCycleStatus, string> = {
-  PREPARATION: 'bg-gray-100 text-gray-700',
-  CHARGEMENT: 'bg-blue-100 text-blue-700',
-  EN_COURS: 'bg-amber-100 text-amber-800 font-semibold',
-  VENTILATION: 'bg-purple-100 text-purple-700',
-  VALIDATION: 'bg-orange-100 text-orange-700',
-  TERMINE: 'bg-green-100 text-green-700',
-  INTERROMPU: 'bg-red-100 text-red-700',
-  ECHEC: 'bg-red-100 text-red-700',
+const STATUS_TONE: Record<FumigationCycleStatus, string> = {
+  PREPARATION: 'border-input bg-card text-muted-foreground',
+  CHARGEMENT: 'border-info/40 bg-card text-info',
+  EN_COURS: 'border-warning/40 bg-sand text-sand-foreground',
+  VENTILATION: 'border-info/40 bg-card text-info',
+  VALIDATION: 'border-warning/40 bg-card text-warning',
+  TERMINE: 'border-success/40 bg-card text-success',
+  INTERROMPU: 'border-destructive/40 bg-card text-destructive',
+  ECHEC: 'border-destructive/40 bg-card text-destructive',
 };
 
 export function FumigationPanel({ currentUser = 'Utilisateur' }: { currentUser?: string }) {
+  const { t } = useTranslation();
   const { data: cycles = [], isLoading } = useFumigationCycles();
   const { data: kpis } = useFumigationKpis();
-  const [selectedCycle, setSelectedCycle] = useState<FumigationCycle | null>(null);
+  // The open cycle is read from the live list, so each step shows the server's new status at once.
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selectedCycle = cycles.find((c) => c.id === selectedId) ?? null;
   const [showCreate, setShowCreate] = useState(false);
 
-  const active = cycles.filter((c) => ['PREPARATION', 'CHARGEMENT', 'EN_COURS', 'VENTILATION', 'VALIDATION'].includes(c.status));
+  const active = cycles.filter((c) => FUMIGATION_STEPS.includes(c.status));
   const recent = cycles.filter((c) => ['TERMINE', 'INTERROMPU', 'ECHEC'].includes(c.status)).slice(0, 10);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
+      <section className="flex flex-col gap-4 rounded-2xl border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground">
+            <Flame className="h-6 w-6" aria-hidden />
+          </span>
+          <div>
+            <h2 className="font-display text-xl font-semibold">{t('fumigation.title')}</h2>
+            <p className="text-sm text-muted-foreground">{t('fumigation.subtitle')}</p>
+          </div>
+        </div>
+        <Button size="xl" className="w-full sm:w-auto" onClick={() => setShowCreate(true)}>
+          <Plus aria-hidden />
+          {t('fumigation.newCycle')}
+        </Button>
+      </section>
+
       <SummaryStrip items={[
-        { label: 'Cycles actifs', value: kpis?.active_count ?? active.length },
-        { label: 'Cycles terminés', value: kpis?.completed_count ?? recent.filter(c => c.status === 'TERMINE').length },
-        { label: 'Conformité CCP', value: kpis?.compliance_pct != null ? `${kpis.compliance_pct} %` : '—' },
-        { label: 'Volume traité', value: kpis?.total_kg_treated != null ? `${kpis.total_kg_treated.toLocaleString('fr-TN')} kg` : '—' },
+        { label: t('fumigation.kpi.active'), value: kpis?.active_count ?? active.length },
+        { label: t('fumigation.kpi.completed'), value: kpis?.completed_count ?? recent.filter(c => c.status === 'TERMINE').length },
+        { label: t('fumigation.kpi.compliance'), value: kpis?.compliance_pct != null ? `${kpis.compliance_pct} %` : '—' },
+        { label: t('fumigation.kpi.volume'), value: kpis?.total_kg_treated != null ? `${formatNumber(kpis.total_kg_treated, 0)} kg` : '—' },
       ]} />
 
-      {/* Active cycles */}
-      <Card>
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-sm">Cycles actifs ({active.length})</CardTitle>
-            <Button size="sm" onClick={() => setShowCreate(true)}>
-              <Plus className="h-4 w-4 me-1.5" />
-              Nouveau cycle
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="text-sm text-muted-foreground py-4 text-center">Chargement…</div>
-          ) : active.length === 0 ? (
-            <div className="text-sm text-muted-foreground py-4 text-center">
-              Aucun cycle actif. Créez un cycle pour commencer.
-            </div>
-          ) : (
-            <div className="divide-y">
-              {active.map((c) => (
-                <CycleRow
-                  key={c.id}
-                  cycle={c}
-                  onOpen={() => setSelectedCycle(c)}
-                />
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <section className="space-y-2">
+        <h3 className="font-display text-lg font-semibold">{t('fumigation.active', { count: active.length })}</h3>
+        {isLoading ? (
+          <p role="status" className="rounded-2xl border bg-card px-4 py-6 text-center text-sm text-muted-foreground">{t('fumigation.loading')}</p>
+        ) : active.length === 0 ? (
+          <p className="rounded-2xl border border-dashed bg-card px-4 py-6 text-center text-sm text-muted-foreground">{t('fumigation.empty')}</p>
+        ) : (
+          <ul className="grid gap-3 lg:grid-cols-2">
+            {active.map((c) => <CycleCard key={c.id} cycle={c} onOpen={() => setSelectedId(c.id)} />)}
+          </ul>
+        )}
+      </section>
 
-      {/* Recent completed */}
       {recent.length > 0 && (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Historique récent</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="divide-y">
-              {recent.map((c) => (
-                <CycleRow
-                  key={c.id}
-                  cycle={c}
-                  onOpen={() => setSelectedCycle(c)}
-                  showPrint
-                />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <section className="space-y-2">
+          <h3 className="font-display text-lg font-semibold">{t('fumigation.history')}</h3>
+          <ul className="grid gap-3 lg:grid-cols-2">
+            {recent.map((c) => <CycleCard key={c.id} cycle={c} onOpen={() => setSelectedId(c.id)} showPrint />)}
+          </ul>
+        </section>
       )}
 
-      {/* Dialogs */}
-      <FumigationCycleDialog
-        open={showCreate}
-        onOpenChange={setShowCreate}
-        currentUser={currentUser}
-      />
+      <FumigationCycleDialog open={showCreate} onOpenChange={setShowCreate} currentUser={currentUser} />
       <FumigationCycleDialog
         open={!!selectedCycle}
-        onOpenChange={(v) => { if (!v) setSelectedCycle(null); }}
+        onOpenChange={(v) => { if (!v) setSelectedId(null); }}
         cycle={selectedCycle}
         currentUser={currentUser}
       />
@@ -120,72 +93,77 @@ export function FumigationPanel({ currentUser = 'Utilisateur' }: { currentUser?:
   );
 }
 
-function CycleRow({
-  cycle,
-  onOpen,
-  showPrint = false,
-}: {
-  cycle: FumigationCycle;
-  onOpen: () => void;
-  showPrint?: boolean;
-}) {
+function CycleCard({ cycle, onOpen, showPrint = false }: { cycle: FumigationCycle; onOpen: () => void; showPrint?: boolean }) {
+  const { t } = useTranslation();
   const proto = FUMIGATION_PROTOCOL_CONFIG[cycle.protocol];
   const durationMs = cycle.t0_start
     ? (cycle.t_end_real ? new Date(cycle.t_end_real) : new Date()).getTime() - new Date(cycle.t0_start).getTime()
     : null;
   const durationH = durationMs != null ? Math.floor(durationMs / 3_600_000) : null;
+  const finished = ['TERMINE', 'INTERROMPU', 'ECHEC'].includes(cycle.status);
 
   return (
-    <div
-      className="py-3 flex items-start gap-3 -mx-2 px-2 rounded-lg cursor-pointer transition-colors hover:bg-muted/40"
-      onClick={onOpen}
-    >
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-mono text-sm font-semibold">{cycle.cycle_number}</span>
-          <Badge className={`text-xs ${STATUS_VARIANT[cycle.status]}`}>{STATUS_LABELS[cycle.status]}</Badge>
-          {cycle.has_bio_lots && <Badge variant="outline" className="text-xs text-green-700">BIO</Badge>}
-          {cycle.status === 'EN_COURS' && <span className="text-xs text-amber-600 animate-pulse font-semibold">● LIVE</span>}
+    <li className="flex flex-col gap-3 rounded-2xl border bg-card p-4 sm:p-5">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <p className="font-mono text-lg font-semibold">{cycle.cycle_number}</p>
+          <p className="text-sm text-muted-foreground">{t('fumigation.chamber', { chamber: cycle.chamber })} · {proto.label.split(' — ')[0]}</p>
         </div>
-        <div className="text-xs text-muted-foreground mt-0.5 flex gap-3 flex-wrap">
-          <span>Chambre: {cycle.chamber}</span>
-          <span>{proto.label.split(' — ')[0]}</span>
-          <span>{cycle.total_weight_kg.toLocaleString('fr-TN')} kg · {cycle.fill_rate_percent}% remplissage</span>
-          {durationH != null && <span>Durée: {durationH}h / {proto.min_duration_h}h min</span>}
-          {cycle.created_at && (
-            <span>Créé: {format(new Date(cycle.created_at), 'dd/MM HH:mm', { locale: fr })}</span>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Badge variant="outline" className={STATUS_TONE[cycle.status]}>{t(`fumigation.status.${cycle.status}`)}</Badge>
+          {cycle.has_bio_lots && <Badge variant="outline" className="border-success/40 text-success">BIO</Badge>}
+          {cycle.status === 'EN_COURS' && (
+            <span className="inline-flex items-center gap-1 text-xs font-semibold text-warning">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-warning" aria-hidden />{t('fumigation.live')}
+            </span>
           )}
         </div>
-        {cycle.status === 'TERMINE' && (
-          <div className="flex items-center gap-2 mt-1">
-            {cycle.duration_compliant && cycle.parameters_compliant ? (
-              <span className="text-xs text-green-600 flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3" /> Conforme CCP
-              </span>
-            ) : (
-              <span className="text-xs text-red-600 flex items-center gap-1">
-                <AlertTriangle className="h-3 w-3" /> Non conforme
-              </span>
-            )}
-          </div>
-        )}
       </div>
-      <div className="flex gap-2 shrink-0">
+
+      {!finished && <FumigationProgress status={cycle.status} />}
+
+      <dl className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
+        <div className="rounded-xl bg-secondary/60 px-3 py-2">
+          <dt className="text-muted-foreground">{t('fumigation.weight')}</dt>
+          <dd className="font-semibold tabular-nums"><bdi dir="ltr">{formatNumber(cycle.total_weight_kg, 0)} kg</bdi></dd>
+        </div>
+        <div className="rounded-xl bg-secondary/60 px-3 py-2">
+          <dt className="text-muted-foreground">{t('fumigation.fill')}</dt>
+          <dd className="font-semibold tabular-nums">{cycle.fill_rate_percent}%</dd>
+        </div>
+        {durationH != null ? (
+          <div className="rounded-xl bg-secondary/60 px-3 py-2">
+            <dt className="text-muted-foreground">{t('fumigation.duration')}</dt>
+            <dd className="font-semibold tabular-nums">{t('fumigation.durationOf', { hours: durationH, min: proto.min_duration_h })}</dd>
+          </div>
+        ) : cycle.created_at ? (
+          <div className="rounded-xl bg-secondary/60 px-3 py-2">
+            <dt className="text-muted-foreground">{t('fumigation.created')}</dt>
+            <dd className="font-semibold">{formatDateTime(cycle.created_at)}</dd>
+          </div>
+        ) : null}
+      </dl>
+
+      {cycle.status === 'TERMINE' && (
+        cycle.duration_compliant && cycle.parameters_compliant ? (
+          <p className="flex items-center gap-1.5 text-sm font-semibold text-success"><CheckCircle2 className="h-4 w-4" aria-hidden />{t('fumigation.ccpOk')}</p>
+        ) : (
+          <p className="flex items-center gap-1.5 text-sm font-semibold text-destructive"><AlertTriangle className="h-4 w-4" aria-hidden />{t('fumigation.ccpKo')}</p>
+        )
+      )}
+
+      <div className="flex flex-wrap gap-2 sm:justify-end">
         {showPrint && cycle.status === 'TERMINE' && (
-          <Button
-            size="sm"
-            variant="ghost"
-            className="h-9 px-2"
-            aria-label={`Imprimer le certificat du cycle ${cycle.cycle_number}`}
-            onClick={(e) => { e.stopPropagation(); printFumigationCertificate(cycle); }}
-          >
-            <Printer className="h-3.5 w-3.5" />
+          <Button variant="outline" className="min-h-11 flex-1 sm:flex-none" aria-label={t('fumigation.printCertificateOf', { number: cycle.cycle_number })} onClick={() => printFumigationCertificate(cycle)}>
+            <Printer aria-hidden />
+            {t('fumigation.certificate')}
           </Button>
         )}
-        <Button size="sm" variant="outline" className="h-9 px-3 text-xs" onClick={(e) => { e.stopPropagation(); onOpen(); }}>
-          Ouvrir
+        <Button variant={finished ? 'outline' : 'default'} className="min-h-12 flex-1 sm:flex-none" onClick={onOpen}>
+          {t('fumigation.open')}
+          <ChevronRight aria-hidden />
         </Button>
       </div>
-    </div>
+    </li>
   );
 }

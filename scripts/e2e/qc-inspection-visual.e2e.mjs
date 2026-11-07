@@ -11,6 +11,8 @@
  * correction and cancel actions, and the weighing record of a lot.
  * QC_VISUAL_MODE=cleaning: a lot released through QC (API, with the PIN), a cleaning cycle created through the API the
  * panel uses, then the cleaning operator's today screen, stage screen, new-cycle dialog and the close with real weights.
+ * QC_VISUAL_MODE=fumigation: a released lot in a fumigation cycle created through the API, then the fumigation operator
+ * walks it: loading, emergency stop asked and kept, T0 start, ventilation, validation, residual test, operator PIN signature.
  */
 import { spawn, spawnSync, execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
@@ -57,6 +59,7 @@ const CLOSE_CYCLE = labels((j) => j.cleaning.close);
 const SUBMIT_CLOSE = labels((j) => j.cleaning.submitClose);
 // The panel's own wording for "source lots could not be loaded", in every language.
 const SOURCE_ERROR = labels((j) => j.cleaning.sourceError);
+const FUM = (pick) => labels((j) => pick(j.fumigation));
 
 const env = { ...process.env, APP_ENV: 'test', NODE_ENV: 'development', API_HOST: '127.0.0.1', PORT: '4186',
   MONGODB_URI: MONGO, MONGODB_DB_NAME: DB, JWT_SECRET: 'qc-visual-test-key-not-secret', NUMERIC_SIGNATURE_GATE: 'enforce',
@@ -284,6 +287,90 @@ async function walkCleaning(operator, inspector, cleaner, supplier, lang, width,
   await context.close();
 }
 
+/** Fumigation as the fumigation operator, step by step on one real cycle, checking the server after each step. */
+async function walkFumigation(operator, inspector, fumigator, supplier, lang, width, index) {
+  const id = `fumigation-${lang}-${width}`;
+  const reception = await book(operator, supplier, `FUV-${lang}-${width}-${index}`);
+  const lot = await releaseByApi(inspector, reception);
+  check(`${id} lot released through QC`, lot?.stock_status === 'STOCK_LIBERE', lot?.stock_status);
+  const created = await api('POST', '/phase2/fumigation/cycles', fumigator.access_token, {
+    chamber: 'FU-01', protocol: 'FUM-PH3-72', total_weight_kg: 280, fill_rate_percent: 2.8, created_by: 'Opérateur Visuel',
+    lot_refs: [{ reception_id: reception.id, lot_number: reception.reception_number, variety: 'Deglet Nour', weight_kg: 280, is_bio: false }],
+  });
+  check(`${id} fumigation cycle created`, created.status < 300, created.body);
+  if (created.status >= 300) return;
+  const cycle = created.body.data ?? created.body;
+  const status = async () => (await factoryDb.collection('fumigation_cycles').findOne({ id: cycle.id }))?.status;
+  const { context, page, failures } = await openPage(fumigator, lang, width, '/?tab=production&view=today');
+  check(`${id} today shows the cycle`, await until(() => page.evaluate((n) => document.body.innerText.includes(n), cycle.cycle_number), 60_000));
+  await wait(500);
+  await capture(page, id, '0-today');
+  await clickButton(page, IN_PROGRESS_TAB, { within: 'main' });
+  await until(() => page.evaluate((n) => [...document.querySelectorAll('main li')].some((li) => li.innerText.includes(n)), cycle.cycle_number), 20_000);
+  await capture(page, id, '1-stage');
+  const opened = await page.evaluate((n, names) => {
+    const card = [...document.querySelectorAll('main li')].find((li) => li.innerText.includes(n));
+    const button = [...(card?.querySelectorAll('button') ?? [])].find((b) => names.some((name) => b.innerText.trim().startsWith(name)));
+    button?.click();
+    return Boolean(button);
+  }, cycle.cycle_number, FUM((f) => f.open));
+  check(`${id} cycle opens`, opened && await until(() => page.$('[role="dialog"]'), 10_000));
+  await capture(page, id, '2-preparation');
+  const step = async (names, expected, shot) => {
+    await clickButton(page, names, { within: '[role="dialog"]' });
+    const reached = await until(async () => (await status()) === expected, 15_000);
+    check(`${id} ${shot}: server status ${expected}`, reached, await status());
+    await wait(700);
+    await capture(page, id, shot);
+  };
+  await step(FUM((f) => f.actions.toLoading), 'CHARGEMENT', '3-loading');
+  // Emergency stop: the first tap only asks; keeping the cycle leaves it untouched.
+  await clickButton(page, FUM((f) => f.stop.button), { within: '[role="dialog"]' });
+  check(`${id} emergency stop asks for confirmation`, await until(() => page.evaluate((names) => [...document.querySelectorAll('[role="dialog"] button')].some((b) => names.some((n) => b.innerText.includes(n))), FUM((f) => f.stop.confirm)), 5_000));
+  await capture(page, id, '3b-stop-confirm');
+  await clickButton(page, FUM((f) => f.stop.keep), { within: '[role="dialog"]' });
+  check(`${id} cycle kept after cancelling the stop`, (await status()) === 'CHARGEMENT', await status());
+  // T0 needs a dose, a product lot and one disposition photo on the server.
+  await typeInto(page, '#fum-dose', '2500');
+  await typeInto(page, '#fum-product-lot', 'PH3-VISUEL-01');
+  const photoFile = path.join(os.tmpdir(), 'dhh-visual-disposition.jpg');
+  writeFileSync(photoFile, Buffer.from('/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAAA//EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AN//Z', 'base64'));
+  const fileInput = await page.$('[role="dialog"] input[type="file"]');
+  await fileInput.uploadFile(photoFile);
+  await until(() => page.evaluate(() => document.querySelectorAll('[role="dialog"] img').length > 0), 10_000);
+  await clickButton(page, FUM((f) => f.dosage.save), { within: '[role="dialog"]' });
+  const saved = await until(async () => {
+    const row = await factoryDb.collection('fumigation_cycles').findOne({ id: cycle.id });
+    return row?.dose_applied_g === 2500 && row?.product_lot_number === 'PH3-VISUEL-01' && (row?.photo_disposition_urls?.length ?? 0) > 0;
+  }, 15_000);
+  check(`${id} dose, product lot and disposition photo saved`, saved);
+  await wait(700);
+  await capture(page, id, '3c-ready-to-start');
+  await step(FUM((f) => f.actions.start), 'EN_COURS', '4-running');
+  await step(FUM((f) => f.actions.toVentilation), 'VENTILATION', '5-ventilation');
+  await step(FUM((f) => f.actions.toValidation), 'VALIDATION', '6-validation');
+  await typeInto(page, '#fum-residual', '0.05');
+  await clickButton(page, FUM((f) => f.residual.save), { within: '[role="dialog"]' });
+  check(`${id} residual test stored`, await until(async () => (await factoryDb.collection('fumigation_cycles').findOne({ id: cycle.id }))?.residual_concentration_ppm === 0.05, 10_000));
+  await clickButton(page, FUM((f) => f.sign.operator), { within: '[role="dialog"]' });
+  const padOpen = await until(() => page.evaluate((names) => [...document.querySelectorAll('button')].some((b) => names.includes(b.innerText.trim())), FUM((f) => f.sign.confirm)), 5_000);
+  check(`${id} operator signature asks for the PIN`, padOpen);
+  await capture(page, id, '7-sign-pad');
+  await page.evaluate((digits, names) => {
+    const confirm = [...document.querySelectorAll('button')].find((b) => names.includes(b.innerText.trim()));
+    const padRoot = confirm.closest('.rounded-lg.border') ?? confirm.parentElement.parentElement;
+    for (const digit of digits) [...padRoot.querySelectorAll('button')].find((b) => b.innerText.trim() === digit)?.click();
+  }, PIN, FUM((f) => f.sign.confirm));
+  await wait(200);
+  await clickButton(page, FUM((f) => f.sign.confirm), { within: 'body' });
+  const signed = await until(async () => Boolean((await factoryDb.collection('fumigation_cycles').findOne({ id: cycle.id }))?.operator_signed_at), 15_000);
+  check(`${id} operator signature stored with the PIN`, signed);
+  await wait(700);
+  await capture(page, id, '8-operator-signed');
+  check(`${id} no server or script errors`, failures.length === 0, failures.slice(0, 10));
+  await context.close();
+}
+
 async function walk(operator, inspector, supplier, lang, width, index) {
   const id = `qc-${lang}-${width}`;
   const reference = `QCV-${lang}-${width}-${index}`;
@@ -406,6 +493,11 @@ try {
   const operator = await signIn('operateur.reception@test.local');
   const supervisor = await signIn('chef.reception@test.local');
   const cleaner = MODE === 'cleaning' ? await signIn('operateur.nettoyage@test.local') : null;
+  const fumigator = MODE === 'fumigation' ? await signIn('operateur.fumigation@test.local') : null;
+  if (fumigator) {
+    const fumPin = await api('POST', '/auth/signature-pin', fumigator.access_token, { pin: PIN, password: PASSWORD });
+    check('fumigation operator signature PIN provisioned', fumPin.status < 300, fumPin.body);
+  }
   const inspector = await signIn('inspecteur.qualite@test.local');
   const director = await signIn('directeur.usine@test.local');
   const pinSet = await api('POST', '/auth/signature-pin', inspector.access_token, { pin: PIN, password: PASSWORD });
@@ -416,7 +508,7 @@ try {
   const supplier = { id: randomUUID(), code: 'SUP-QCV', name: 'Oasis Essai Visuel', is_active: true, supplier_status: 'active', region: 'Tozeur',
     oasis_name: 'Oasis QC', created_at: now, updated_at: now,
     // The cleaning walk releases by API without a lab sample: a supplier with earlier deliveries.
-    ...(MODE === 'cleaning' ? { delivered_lots_count: 5 } : {}) };
+    ...(MODE === 'cleaning' || MODE === 'fumigation' ? { delivered_lots_count: 5 } : {}) };
   await factoryDb.collection('suppliers').insertOne(supplier);
 
   browser = await puppeteer.launch({ executablePath: CHROME, headless: true, args: ['--no-sandbox', '--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE localhost, EXCLUDE 127.0.0.1'] });
@@ -430,6 +522,7 @@ try {
       try {
         if (MODE === 'detail') await walkDetail(operator, supervisor, supplier, lang, width, index);
         else if (MODE === 'cleaning') await walkCleaning(operator, inspector, cleaner, supplier, lang, width, index);
+        else if (MODE === 'fumigation') await walkFumigation(operator, inspector, fumigator, supplier, lang, width, index);
         else await walk(operator, inspector, supplier, lang, width, index);
       }
       catch (error) { check(`${MODE}-${lang}-${width} walk completes`, false, error.message); }

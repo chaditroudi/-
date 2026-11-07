@@ -1,0 +1,1954 @@
+{
+  "head": "e101036",
+  "dirty": true,
+  "capturedAt": "2026-11-07T07:21:03.736Z",
+  "database": "qc_visual_mw62r251",
+  "widths": [
+    375,
+    768,
+    1024,
+    1440
+  ],
+  "locales": [
+    "fr"
+  ],
+  "checks": [
+    {
+      "name": "fumigation operator signature PIN provisioned",
+      "passed": true,
+      "detail": {
+        "data": {
+          "ok": true,
+          "has_signature_pin": true
+        }
+      }
+    },
+    {
+      "name": "inspector signature PIN provisioned",
+      "passed": true,
+      "detail": {
+        "data": {
+          "ok": true,
+          "has_signature_pin": true
+        }
+      }
+    },
+    {
+      "name": "fumigation-fr-375 lot released through QC",
+      "passed": true,
+      "detail": "STOCK_LIBERE"
+    },
+    {
+      "name": "fumigation-fr-375 fumigation cycle created",
+      "passed": true,
+      "detail": {
+        "data": {
+          "cycle_number": "FUM-FU01-20261107-001",
+          "chamber": "FU-01",
+          "protocol": "FUM-PH3-72",
+          "status": "PREPARATION",
+          "lot_refs": [
+            {
+              "reception_id": "9b03995a-64e2-472f-80c5-a4628c2aa84b",
+              "lot_number": "REC-20261107-0001",
+              "variety": "Deglet Nour",
+              "weight_kg": 280,
+              "is_bio": false
+            }
+          ],
+          "total_weight_kg": 280,
+          "fill_rate_percent": 2.8,
+          "has_bio_lots": false,
+          "dose_calculated_g": null,
+          "dose_applied_g": null,
+          "dose_variance_percent": null,
+          "product_lot_number": null,
+          "product_expiry_date": null,
+          "photo_disposition_urls": [],
+          "t0_start": null,
+          "t_end_real": null,
+          "duration_minutes": null,
+          "minimum_duration_minutes": 4320,
+          "duration_compliant": null,
+          "parameters_compliant": null,
+          "residual_concentration_ppm": null,
+          "residual_tlv_compliant": null,
+          "operator_id": null,
+          "operator_name": null,
+          "operator_signed_at": null,
+          "quality_inspector_id": null,
+          "quality_inspector_name": null,
+          "quality_signed_at": null,
+          "certificate_pdf_url": null,
+          "certificate_generated_at": null,
+          "created_by": "Opérateur Visuel",
+          "created_at": "2026-11-07T07:21:31.731Z",
+          "updated_at": "2026-11-07T07:21:31.744Z",
+          "id": "b6a688ee-beda-438c-9d95-fe16615aea02"
+        }
+      }
+    },
+    {
+      "name": "fumigation-fr-375 today shows the cycle",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-375 0-today: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 9,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "fumigation-fr-375 0-today: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-375 1-stage: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 10,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "fumigation-fr-375 1-stage: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-375 cycle opens",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-375 2-preparation: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 9,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-375 2-preparation: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-375 3-loading: server status CHARGEMENT",
+      "passed": true,
+      "detail": "CHARGEMENT"
+    },
+    {
+      "name": "fumigation-fr-375 3-loading: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 9,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-375 3-loading: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-375 emergency stop asks for confirmation",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-375 3b-stop-confirm: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 10,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-375 3b-stop-confirm: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-375 cycle kept after cancelling the stop",
+      "passed": true,
+      "detail": "CHARGEMENT"
+    },
+    {
+      "name": "fumigation-fr-375 dose, product lot and disposition photo saved",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-375 3c-ready-to-start: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 10,
+        "smallTargets": 1,
+        "smallExamples": [
+          "BUTTON"
+        ],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-375 3c-ready-to-start: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-375 4-running: server status EN_COURS",
+      "passed": true,
+      "detail": "EN_COURS"
+    },
+    {
+      "name": "fumigation-fr-375 4-running: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 5,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-375 4-running: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-375 5-ventilation: server status VENTILATION",
+      "passed": true,
+      "detail": "VENTILATION"
+    },
+    {
+      "name": "fumigation-fr-375 5-ventilation: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 4,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-375 5-ventilation: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-375 6-validation: server status VALIDATION",
+      "passed": true,
+      "detail": "VALIDATION"
+    },
+    {
+      "name": "fumigation-fr-375 6-validation: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 7,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-375 6-validation: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-375 residual test stored",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-375 operator signature asks for the PIN",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-375 7-sign-pad: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 20,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-375 7-sign-pad: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-375 operator signature stored with the PIN",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-375 8-operator-signed: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 6,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-375 8-operator-signed: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-375 no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "fumigation-fr-768 lot released through QC",
+      "passed": true,
+      "detail": "STOCK_LIBERE"
+    },
+    {
+      "name": "fumigation-fr-768 fumigation cycle created",
+      "passed": true,
+      "detail": {
+        "data": {
+          "cycle_number": "FUM-FU01-20261107-002",
+          "chamber": "FU-01",
+          "protocol": "FUM-PH3-72",
+          "status": "PREPARATION",
+          "lot_refs": [
+            {
+              "reception_id": "b896911b-0e5f-4b3a-84a2-4d788e4c4684",
+              "lot_number": "REC-20261107-0002",
+              "variety": "Deglet Nour",
+              "weight_kg": 280,
+              "is_bio": false
+            }
+          ],
+          "total_weight_kg": 280,
+          "fill_rate_percent": 2.8,
+          "has_bio_lots": false,
+          "dose_calculated_g": null,
+          "dose_applied_g": null,
+          "dose_variance_percent": null,
+          "product_lot_number": null,
+          "product_expiry_date": null,
+          "photo_disposition_urls": [],
+          "t0_start": null,
+          "t_end_real": null,
+          "duration_minutes": null,
+          "minimum_duration_minutes": 4320,
+          "duration_compliant": null,
+          "parameters_compliant": null,
+          "residual_concentration_ppm": null,
+          "residual_tlv_compliant": null,
+          "operator_id": null,
+          "operator_name": null,
+          "operator_signed_at": null,
+          "quality_inspector_id": null,
+          "quality_inspector_name": null,
+          "quality_signed_at": null,
+          "certificate_pdf_url": null,
+          "certificate_generated_at": null,
+          "created_by": "Opérateur Visuel",
+          "created_at": "2026-11-07T07:21:52.033Z",
+          "updated_at": "2026-11-07T07:21:52.040Z",
+          "id": "66727a64-7e49-4ee3-98e5-9cee445db5ae"
+        }
+      }
+    },
+    {
+      "name": "fumigation-fr-768 today shows the cycle",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-768 0-today: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 10,
+        "smallTargets": 1,
+        "smallExamples": [
+          "Rechercher"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "fumigation-fr-768 0-today: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-768 1-stage: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 11,
+        "smallTargets": 1,
+        "smallExamples": [
+          "Rechercher"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "fumigation-fr-768 1-stage: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-768 cycle opens",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-768 2-preparation: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 9,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-768 2-preparation: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-768 3-loading: server status CHARGEMENT",
+      "passed": true,
+      "detail": "CHARGEMENT"
+    },
+    {
+      "name": "fumigation-fr-768 3-loading: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 9,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-768 3-loading: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-768 emergency stop asks for confirmation",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-768 3b-stop-confirm: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 10,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-768 3b-stop-confirm: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-768 cycle kept after cancelling the stop",
+      "passed": true,
+      "detail": "CHARGEMENT"
+    },
+    {
+      "name": "fumigation-fr-768 dose, product lot and disposition photo saved",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-768 3c-ready-to-start: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 10,
+        "smallTargets": 1,
+        "smallExamples": [
+          "BUTTON"
+        ],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-768 3c-ready-to-start: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-768 4-running: server status EN_COURS",
+      "passed": true,
+      "detail": "EN_COURS"
+    },
+    {
+      "name": "fumigation-fr-768 4-running: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 5,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-768 4-running: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-768 5-ventilation: server status VENTILATION",
+      "passed": true,
+      "detail": "VENTILATION"
+    },
+    {
+      "name": "fumigation-fr-768 5-ventilation: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 4,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-768 5-ventilation: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-768 6-validation: server status VALIDATION",
+      "passed": true,
+      "detail": "VALIDATION"
+    },
+    {
+      "name": "fumigation-fr-768 6-validation: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 7,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-768 6-validation: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-768 residual test stored",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-768 operator signature asks for the PIN",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-768 7-sign-pad: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 20,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-768 7-sign-pad: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-768 operator signature stored with the PIN",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-768 8-operator-signed: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 6,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-768 8-operator-signed: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-768 no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "fumigation-fr-1024 lot released through QC",
+      "passed": true,
+      "detail": "STOCK_LIBERE"
+    },
+    {
+      "name": "fumigation-fr-1024 fumigation cycle created",
+      "passed": true,
+      "detail": {
+        "data": {
+          "cycle_number": "FUM-FU01-20261107-003",
+          "chamber": "FU-01",
+          "protocol": "FUM-PH3-72",
+          "status": "PREPARATION",
+          "lot_refs": [
+            {
+              "reception_id": "1c42dc38-9198-43f6-ab53-35d2149b5b21",
+              "lot_number": "REC-20261107-0003",
+              "variety": "Deglet Nour",
+              "weight_kg": 280,
+              "is_bio": false
+            }
+          ],
+          "total_weight_kg": 280,
+          "fill_rate_percent": 2.8,
+          "has_bio_lots": false,
+          "dose_calculated_g": null,
+          "dose_applied_g": null,
+          "dose_variance_percent": null,
+          "product_lot_number": null,
+          "product_expiry_date": null,
+          "photo_disposition_urls": [],
+          "t0_start": null,
+          "t_end_real": null,
+          "duration_minutes": null,
+          "minimum_duration_minutes": 4320,
+          "duration_compliant": null,
+          "parameters_compliant": null,
+          "residual_concentration_ppm": null,
+          "residual_tlv_compliant": null,
+          "operator_id": null,
+          "operator_name": null,
+          "operator_signed_at": null,
+          "quality_inspector_id": null,
+          "quality_inspector_name": null,
+          "quality_signed_at": null,
+          "certificate_pdf_url": null,
+          "certificate_generated_at": null,
+          "created_by": "Opérateur Visuel",
+          "created_at": "2026-11-07T07:22:11.416Z",
+          "updated_at": "2026-11-07T07:22:11.422Z",
+          "id": "4f400c6f-c21e-427e-b30f-a1a069f83875"
+        }
+      }
+    },
+    {
+      "name": "fumigation-fr-1024 today shows the cycle",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1024 0-today: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 11,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "fumigation-fr-1024 0-today: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1024 1-stage: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 12,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "fumigation-fr-1024 1-stage: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1024 cycle opens",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1024 2-preparation: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 9,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-1024 2-preparation: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1024 3-loading: server status CHARGEMENT",
+      "passed": true,
+      "detail": "CHARGEMENT"
+    },
+    {
+      "name": "fumigation-fr-1024 3-loading: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 9,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-1024 3-loading: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1024 emergency stop asks for confirmation",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1024 3b-stop-confirm: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 10,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-1024 3b-stop-confirm: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1024 cycle kept after cancelling the stop",
+      "passed": true,
+      "detail": "CHARGEMENT"
+    },
+    {
+      "name": "fumigation-fr-1024 dose, product lot and disposition photo saved",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1024 3c-ready-to-start: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 10,
+        "smallTargets": 1,
+        "smallExamples": [
+          "BUTTON"
+        ],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-1024 3c-ready-to-start: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1024 4-running: server status EN_COURS",
+      "passed": true,
+      "detail": "EN_COURS"
+    },
+    {
+      "name": "fumigation-fr-1024 4-running: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 5,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-1024 4-running: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1024 5-ventilation: server status VENTILATION",
+      "passed": true,
+      "detail": "VENTILATION"
+    },
+    {
+      "name": "fumigation-fr-1024 5-ventilation: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 4,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-1024 5-ventilation: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1024 6-validation: server status VALIDATION",
+      "passed": true,
+      "detail": "VALIDATION"
+    },
+    {
+      "name": "fumigation-fr-1024 6-validation: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 7,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-1024 6-validation: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1024 residual test stored",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1024 operator signature asks for the PIN",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1024 7-sign-pad: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 20,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-1024 7-sign-pad: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1024 operator signature stored with the PIN",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1024 8-operator-signed: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 6,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-1024 8-operator-signed: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1024 no server or script errors",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "fumigation-fr-1440 lot released through QC",
+      "passed": true,
+      "detail": "STOCK_LIBERE"
+    },
+    {
+      "name": "fumigation-fr-1440 fumigation cycle created",
+      "passed": true,
+      "detail": {
+        "data": {
+          "cycle_number": "FUM-FU01-20261107-004",
+          "chamber": "FU-01",
+          "protocol": "FUM-PH3-72",
+          "status": "PREPARATION",
+          "lot_refs": [
+            {
+              "reception_id": "a7b7e455-dd22-48dc-9ab4-37e4e24b804f",
+              "lot_number": "REC-20261107-0004",
+              "variety": "Deglet Nour",
+              "weight_kg": 280,
+              "is_bio": false
+            }
+          ],
+          "total_weight_kg": 280,
+          "fill_rate_percent": 2.8,
+          "has_bio_lots": false,
+          "dose_calculated_g": null,
+          "dose_applied_g": null,
+          "dose_variance_percent": null,
+          "product_lot_number": null,
+          "product_expiry_date": null,
+          "photo_disposition_urls": [],
+          "t0_start": null,
+          "t_end_real": null,
+          "duration_minutes": null,
+          "minimum_duration_minutes": 4320,
+          "duration_compliant": null,
+          "parameters_compliant": null,
+          "residual_concentration_ppm": null,
+          "residual_tlv_compliant": null,
+          "operator_id": null,
+          "operator_name": null,
+          "operator_signed_at": null,
+          "quality_inspector_id": null,
+          "quality_inspector_name": null,
+          "quality_signed_at": null,
+          "certificate_pdf_url": null,
+          "certificate_generated_at": null,
+          "created_by": "Opérateur Visuel",
+          "created_at": "2026-11-07T07:22:31.505Z",
+          "updated_at": "2026-11-07T07:22:31.510Z",
+          "id": "838c8e9a-059e-42a2-9771-1511a77829d9"
+        }
+      }
+    },
+    {
+      "name": "fumigation-fr-1440 today shows the cycle",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1440 0-today: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 12,
+        "smallTargets": 5,
+        "smallExamples": [
+          "Rechercher un écran ou un lot ",
+          "Langue : Français",
+          "BUTTON",
+          "Notifications",
+          "Actualiser"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "fumigation-fr-1440 0-today: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1440 1-stage: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": false,
+        "dir": "ltr",
+        "controls": 13,
+        "smallTargets": 5,
+        "smallExamples": [
+          "Rechercher un écran ou un lot ",
+          "Langue : Français",
+          "BUTTON",
+          "Notifications",
+          "Actualiser"
+        ],
+        "crash": false,
+        "dialog": false
+      }
+    },
+    {
+      "name": "fumigation-fr-1440 1-stage: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1440 cycle opens",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1440 2-preparation: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 9,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-1440 2-preparation: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1440 3-loading: server status CHARGEMENT",
+      "passed": true,
+      "detail": "CHARGEMENT"
+    },
+    {
+      "name": "fumigation-fr-1440 3-loading: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 9,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-1440 3-loading: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1440 emergency stop asks for confirmation",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1440 3b-stop-confirm: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 10,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-1440 3b-stop-confirm: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1440 cycle kept after cancelling the stop",
+      "passed": true,
+      "detail": "CHARGEMENT"
+    },
+    {
+      "name": "fumigation-fr-1440 dose, product lot and disposition photo saved",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1440 3c-ready-to-start: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 10,
+        "smallTargets": 1,
+        "smallExamples": [
+          "BUTTON"
+        ],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-1440 3c-ready-to-start: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1440 4-running: server status EN_COURS",
+      "passed": true,
+      "detail": "EN_COURS"
+    },
+    {
+      "name": "fumigation-fr-1440 4-running: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 5,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-1440 4-running: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1440 5-ventilation: server status VENTILATION",
+      "passed": true,
+      "detail": "VENTILATION"
+    },
+    {
+      "name": "fumigation-fr-1440 5-ventilation: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 4,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-1440 5-ventilation: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1440 6-validation: server status VALIDATION",
+      "passed": true,
+      "detail": "VALIDATION"
+    },
+    {
+      "name": "fumigation-fr-1440 6-validation: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 7,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-1440 6-validation: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1440 residual test stored",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1440 operator signature asks for the PIN",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1440 7-sign-pad: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 20,
+        "smallTargets": 2,
+        "smallExamples": [
+          "Annuler",
+          "Confirmer le visa"
+        ],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-1440 7-sign-pad: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1440 operator signature stored with the PIN",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1440 8-operator-signed: no horizontal overflow",
+      "passed": true,
+      "detail": {
+        "overflow": false,
+        "dialogFits": true,
+        "dir": "ltr",
+        "controls": 6,
+        "smallTargets": 0,
+        "smallExamples": [],
+        "crash": false,
+        "dialog": true
+      }
+    },
+    {
+      "name": "fumigation-fr-1440 8-operator-signed: no crash",
+      "passed": true
+    },
+    {
+      "name": "fumigation-fr-1440 no server or script errors",
+      "passed": true,
+      "detail": []
+    }
+  ],
+  "screens": [
+    {
+      "id": "fumigation-fr-375-0-today",
+      "step": "0-today",
+      "file": "fumigation-fr-375-0-today.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 9,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-375-1-stage",
+      "step": "1-stage",
+      "file": "fumigation-fr-375-1-stage.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 10,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-375-2-preparation",
+      "step": "2-preparation",
+      "file": "fumigation-fr-375-2-preparation.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 9,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-375-3-loading",
+      "step": "3-loading",
+      "file": "fumigation-fr-375-3-loading.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 9,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-375-3b-stop-confirm",
+      "step": "3b-stop-confirm",
+      "file": "fumigation-fr-375-3b-stop-confirm.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 10,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-375-3c-ready-to-start",
+      "step": "3c-ready-to-start",
+      "file": "fumigation-fr-375-3c-ready-to-start.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 10,
+      "smallTargets": 1,
+      "smallExamples": [
+        "BUTTON"
+      ],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-375-4-running",
+      "step": "4-running",
+      "file": "fumigation-fr-375-4-running.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 5,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-375-5-ventilation",
+      "step": "5-ventilation",
+      "file": "fumigation-fr-375-5-ventilation.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 4,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-375-6-validation",
+      "step": "6-validation",
+      "file": "fumigation-fr-375-6-validation.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 7,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-375-7-sign-pad",
+      "step": "7-sign-pad",
+      "file": "fumigation-fr-375-7-sign-pad.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 20,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-375-8-operator-signed",
+      "step": "8-operator-signed",
+      "file": "fumigation-fr-375-8-operator-signed.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 6,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-768-0-today",
+      "step": "0-today",
+      "file": "fumigation-fr-768-0-today.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 10,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-768-1-stage",
+      "step": "1-stage",
+      "file": "fumigation-fr-768-1-stage.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 11,
+      "smallTargets": 1,
+      "smallExamples": [
+        "Rechercher"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-768-2-preparation",
+      "step": "2-preparation",
+      "file": "fumigation-fr-768-2-preparation.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 9,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-768-3-loading",
+      "step": "3-loading",
+      "file": "fumigation-fr-768-3-loading.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 9,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-768-3b-stop-confirm",
+      "step": "3b-stop-confirm",
+      "file": "fumigation-fr-768-3b-stop-confirm.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 10,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-768-3c-ready-to-start",
+      "step": "3c-ready-to-start",
+      "file": "fumigation-fr-768-3c-ready-to-start.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 10,
+      "smallTargets": 1,
+      "smallExamples": [
+        "BUTTON"
+      ],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-768-4-running",
+      "step": "4-running",
+      "file": "fumigation-fr-768-4-running.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 5,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-768-5-ventilation",
+      "step": "5-ventilation",
+      "file": "fumigation-fr-768-5-ventilation.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 4,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-768-6-validation",
+      "step": "6-validation",
+      "file": "fumigation-fr-768-6-validation.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 7,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-768-7-sign-pad",
+      "step": "7-sign-pad",
+      "file": "fumigation-fr-768-7-sign-pad.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 20,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-768-8-operator-signed",
+      "step": "8-operator-signed",
+      "file": "fumigation-fr-768-8-operator-signed.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 6,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-1024-0-today",
+      "step": "0-today",
+      "file": "fumigation-fr-1024-0-today.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 11,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-1024-1-stage",
+      "step": "1-stage",
+      "file": "fumigation-fr-1024-1-stage.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 12,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-1024-2-preparation",
+      "step": "2-preparation",
+      "file": "fumigation-fr-1024-2-preparation.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 9,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-1024-3-loading",
+      "step": "3-loading",
+      "file": "fumigation-fr-1024-3-loading.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 9,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-1024-3b-stop-confirm",
+      "step": "3b-stop-confirm",
+      "file": "fumigation-fr-1024-3b-stop-confirm.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 10,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-1024-3c-ready-to-start",
+      "step": "3c-ready-to-start",
+      "file": "fumigation-fr-1024-3c-ready-to-start.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 10,
+      "smallTargets": 1,
+      "smallExamples": [
+        "BUTTON"
+      ],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-1024-4-running",
+      "step": "4-running",
+      "file": "fumigation-fr-1024-4-running.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 5,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-1024-5-ventilation",
+      "step": "5-ventilation",
+      "file": "fumigation-fr-1024-5-ventilation.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 4,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-1024-6-validation",
+      "step": "6-validation",
+      "file": "fumigation-fr-1024-6-validation.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 7,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-1024-7-sign-pad",
+      "step": "7-sign-pad",
+      "file": "fumigation-fr-1024-7-sign-pad.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 20,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-1024-8-operator-signed",
+      "step": "8-operator-signed",
+      "file": "fumigation-fr-1024-8-operator-signed.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 6,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-1440-0-today",
+      "step": "0-today",
+      "file": "fumigation-fr-1440-0-today.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 12,
+      "smallTargets": 5,
+      "smallExamples": [
+        "Rechercher un écran ou un lot ",
+        "Langue : Français",
+        "BUTTON",
+        "Notifications",
+        "Actualiser"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-1440-1-stage",
+      "step": "1-stage",
+      "file": "fumigation-fr-1440-1-stage.png",
+      "overflow": false,
+      "dialogFits": false,
+      "dir": "ltr",
+      "controls": 13,
+      "smallTargets": 5,
+      "smallExamples": [
+        "Rechercher un écran ou un lot ",
+        "Langue : Français",
+        "BUTTON",
+        "Notifications",
+        "Actualiser"
+      ],
+      "crash": false,
+      "dialog": false,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-1440-2-preparation",
+      "step": "2-preparation",
+      "file": "fumigation-fr-1440-2-preparation.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 9,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-1440-3-loading",
+      "step": "3-loading",
+      "file": "fumigation-fr-1440-3-loading.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 9,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-1440-3b-stop-confirm",
+      "step": "3b-stop-confirm",
+      "file": "fumigation-fr-1440-3b-stop-confirm.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 10,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-1440-3c-ready-to-start",
+      "step": "3c-ready-to-start",
+      "file": "fumigation-fr-1440-3c-ready-to-start.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 10,
+      "smallTargets": 1,
+      "smallExamples": [
+        "BUTTON"
+      ],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-1440-4-running",
+      "step": "4-running",
+      "file": "fumigation-fr-1440-4-running.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 5,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-1440-5-ventilation",
+      "step": "5-ventilation",
+      "file": "fumigation-fr-1440-5-ventilation.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 4,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-1440-6-validation",
+      "step": "6-validation",
+      "file": "fumigation-fr-1440-6-validation.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 7,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-1440-7-sign-pad",
+      "step": "7-sign-pad",
+      "file": "fumigation-fr-1440-7-sign-pad.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 20,
+      "smallTargets": 2,
+      "smallExamples": [
+        "Annuler",
+        "Confirmer le visa"
+      ],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    },
+    {
+      "id": "fumigation-fr-1440-8-operator-signed",
+      "step": "8-operator-signed",
+      "file": "fumigation-fr-1440-8-operator-signed.png",
+      "overflow": false,
+      "dialogFits": true,
+      "dir": "ltr",
+      "controls": 6,
+      "smallTargets": 0,
+      "smallExamples": [],
+      "crash": false,
+      "dialog": true,
+      "reviewed": false
+    }
+  ],
+  "completed": true
+}

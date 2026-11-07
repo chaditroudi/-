@@ -1,12 +1,10 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useTranslation } from 'react-i18next';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-// Note: FumigationChamber chips replace the Select for chamber selection
-import { Separator } from '@/components/ui/separator';
 import {
   useCreateFumigationCycle,
   useUpdateFumigationCycle,
@@ -15,6 +13,7 @@ import {
 } from '@/hooks/useFumigation';
 import { printFumigationCertificate } from './printFumigationCertificate';
 import { FumigationCCPMonitor } from './FumigationCCPMonitor';
+import { FumigationProgress } from './FumigationProgress';
 import {
   FumigationCycle,
   FumigationChamber,
@@ -23,33 +22,14 @@ import {
   Phase2LotRef,
   FUMIGATION_PROTOCOL_CONFIG,
 } from '@/types/phase2';
-import { AlertTriangle, CheckCircle2, Printer, ShieldCheck, Play, Loader2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2, OctagonX, Printer, ShieldCheck, Play, Loader2 } from 'lucide-react';
 import { LotSelector } from '../LotSelector';
 import { AvailableLot } from '@/hooks/useAvailableLotsForPhase2';
 import { useAuth } from '@/hooks/useAuth';
 import { NumericSignaturePad } from '@/components/shared/NumericSignatureDialog';
-
-const STATUS_LABELS: Record<FumigationCycleStatus, string> = {
-  PREPARATION: 'Préparation',
-  CHARGEMENT: 'Chargement lots',
-  EN_COURS: 'En cours (CCP actif)',
-  VENTILATION: 'Ventilation',
-  VALIDATION: 'Validation / Signature',
-  TERMINE: 'Terminé',
-  INTERROMPU: 'Interrompu',
-  ECHEC: 'Échec',
-};
-
-const STATUS_COLOR: Record<FumigationCycleStatus, string> = {
-  PREPARATION: 'bg-gray-100 text-gray-700',
-  CHARGEMENT: 'bg-blue-100 text-blue-700',
-  EN_COURS: 'bg-amber-100 text-amber-700',
-  VENTILATION: 'bg-purple-100 text-purple-700',
-  VALIDATION: 'bg-orange-100 text-orange-700',
-  TERMINE: 'bg-green-100 text-green-700',
-  INTERROMPU: 'bg-red-100 text-red-700',
-  ECHEC: 'bg-red-100 text-red-700',
-};
+import { PhotoCapture } from '@/components/reception/PhotoCapture';
+import { formatDateTime, formatNumber } from '@/lib/format';
+import { cn } from '@/lib/utils';
 
 interface Props {
   open: boolean;
@@ -58,15 +38,20 @@ interface Props {
   currentUser?: string;
 }
 
+const fieldLabel = 'text-sm font-medium';
+
 // ─── Create form ────────────────────────────────────────────────────────────
 
 function CreateForm({ onCreated, currentUser }: { onCreated: () => void; currentUser: string }) {
+  const { t } = useTranslation();
   const create = useCreateFumigationCycle();
   const [chamber, setChamber] = useState<FumigationChamber>('FU-01');
   const [protocol, setProtocol] = useState<FumigationProtocol>('FUM-PH3-72');
   const [selectedLots, setSelectedLots] = useState<AvailableLot[]>([]);
 
   const proto = FUMIGATION_PROTOCOL_CONFIG[protocol];
+  const totalKg = selectedLots.reduce((s, l) => s + (l.quantity_total ?? 0), 0);
+  const bioConflict = selectedLots.some((l) => l.is_bio) && !proto.allows_bio;
 
   // Lot BIO sélectionné + protocole incompatible → bascule automatique vers
   // CO2 (autorisé bio) au lieu de demander à l'opérateur de corriger lui-même.
@@ -78,7 +63,6 @@ function CreateForm({ onCreated, currentUser }: { onCreated: () => void; current
   };
 
   const handleCreate = async () => {
-    const totalKg = selectedLots.reduce((s, l) => s + (l.quantity_total ?? 0), 0);
     // Rough chamber capacity estimate: FU-01/FU-02 ~10T each
     const CHAMBER_CAPACITY_KG = 10_000;
     const fillRate = CHAMBER_CAPACITY_KG > 0 ? Math.round((totalKg / CHAMBER_CAPACITY_KG) * 1000) / 10 : 0;
@@ -101,85 +85,71 @@ function CreateForm({ onCreated, currentUser }: { onCreated: () => void; current
   };
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        {/* Chamber — chip buttons (only 2 options) */}
-        <div className="space-y-1.5">
-          <Label>Chambre</Label>
-          <div className="flex gap-2">
-            {(['FU-01', 'FU-02'] as FumigationChamber[]).map((ch) => (
-              <button
-                key={ch}
-                type="button"
-                onClick={() => setChamber(ch)}
-                className={`flex-1 rounded-xl border-2 py-2.5 font-mono text-sm font-bold transition-all ${
-                  chamber === ch
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : 'border-border text-muted-foreground hover:border-primary/50'
-                }`}
-              >
-                {ch}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="space-y-1.5">
-          <Label>Protocole</Label>
-          <Select value={protocol} onValueChange={(v) => setProtocol(v as FumigationProtocol)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {(Object.entries(FUMIGATION_PROTOCOL_CONFIG) as [FumigationProtocol, typeof proto][]).map(
-                ([key, cfg]) => (
-                  <SelectItem key={key} value={key}>{cfg.label}</SelectItem>
-                )
-              )}
-            </SelectContent>
-          </Select>
+    <div className="space-y-5">
+      <div className="space-y-2" role="group" aria-labelledby="fum-chamber">
+        <p id="fum-chamber" className={fieldLabel}>{t('fumigation.create.chamber')}</p>
+        <div className="grid grid-cols-2 gap-2">
+          {(['FU-01', 'FU-02'] as FumigationChamber[]).map((ch) => (
+            <button
+              key={ch}
+              type="button"
+              aria-pressed={chamber === ch}
+              onClick={() => setChamber(ch)}
+              className={cn('min-h-14 rounded-xl border-2 font-mono text-lg font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                chamber === ch ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/50')}
+            >
+              {ch}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="bg-muted/40 rounded-lg p-3 text-sm space-y-1">
-        <div className="font-semibold">{proto.label}</div>
-        <div className="text-muted-foreground">Durée min: <strong>{proto.min_duration_h}h</strong></div>
-        <div className="text-muted-foreground">Concentration: {proto.target_concentration}</div>
-        <div className="text-muted-foreground">Température: {proto.target_temperature}</div>
-        {!proto.allows_bio && (
-          <div className="text-amber-700 flex items-center gap-1.5 mt-1">
-            <AlertTriangle className="h-3.5 w-3.5" />
-            <span>Interdit pour lots biologiques</span>
-          </div>
-        )}
-        {proto.allows_bio && (
-          <div className="text-green-700 text-xs">Autorisé lots biologiques</div>
-        )}
+      <div className="space-y-2" role="group" aria-labelledby="fum-protocol">
+        <p id="fum-protocol" className={fieldLabel}>{t('fumigation.create.protocol')}</p>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {(Object.entries(FUMIGATION_PROTOCOL_CONFIG) as [FumigationProtocol, typeof proto][]).map(([key, cfg]) => (
+            <button
+              key={key}
+              type="button"
+              aria-pressed={protocol === key}
+              onClick={() => setProtocol(key)}
+              className={cn('flex min-h-16 flex-col justify-center gap-0.5 rounded-xl border-2 bg-card px-4 py-2.5 text-start transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                protocol === key ? 'border-primary bg-accent' : 'border-border hover:border-primary/40')}
+            >
+              <span className="font-semibold">{cfg.label}</span>
+              <span className="text-sm text-muted-foreground">{t('fumigation.create.minDuration', { hours: cfg.min_duration_h })}</span>
+              <span className={cn('text-xs font-semibold', cfg.allows_bio ? 'text-success' : 'text-warning')}>
+                {cfg.allows_bio ? t('fumigation.create.bioAllowed') : t('fumigation.create.bioForbidden')}
+              </span>
+            </button>
+          ))}
+        </div>
+        <dl className="grid grid-cols-2 gap-2 rounded-xl bg-secondary/60 p-3 text-sm">
+          <div><dt className="text-muted-foreground">{t('fumigation.create.concentration')}</dt><dd className="font-semibold">{proto.target_concentration}</dd></div>
+          <div><dt className="text-muted-foreground">{t('fumigation.create.temperature')}</dt><dd className="font-semibold">{proto.target_temperature}</dd></div>
+        </dl>
       </div>
 
-      <div className="space-y-1.5">
-        <Label className="text-xs">Lots à fumiger (sélection multiple)</Label>
+      <div className="space-y-2">
+        <Label className={fieldLabel}>{t('fumigation.create.lots')}</Label>
         <LotSelector
           multi
           value={selectedLots.map((l) => l.id)}
           onChange={handleLotsChange}
-          placeholder="Sélectionner les lots…"
+          placeholder={t('fumigation.create.lotsPlaceholder')}
           maxItems={10}
         />
         {selectedLots.length > 0 && (
-          <div className="text-xs text-muted-foreground">
-            {selectedLots.length} lot(s) · Total: {selectedLots.reduce((s, l) => s + (l.quantity_total ?? 0), 0).toLocaleString('fr-TN')} kg
-            {selectedLots.some((l) => l.is_bio) && !proto.allows_bio && (
-              <span className="text-red-600 font-semibold ms-2">⚠ Lot(s) BIO détecté(s) — changer de protocole</span>
-            )}
-          </div>
+          <p className={cn('rounded-xl px-3 py-2 text-sm', bioConflict ? 'border border-destructive/30 bg-destructive/5 font-semibold text-destructive' : 'bg-accent')}>
+            {t('fumigation.create.selection', { count: selectedLots.length, kg: formatNumber(totalKg, 0) })}
+            {bioConflict && <span className="ms-2">{t('fumigation.create.bioConflict')}</span>}
+          </p>
         )}
       </div>
 
-      <Button
-        className="w-full"
-        onClick={handleCreate}
-        disabled={create.isPending}
-      >
-        {create.isPending && <Loader2 className="h-4 w-4 me-2 animate-spin" />}
-        Créer cycle de fumigation
+      <Button size="xl" className="w-full" onClick={handleCreate} disabled={create.isPending}>
+        {create.isPending && <Loader2 className="animate-spin" />}
+        {t('fumigation.create.submit')}
       </Button>
     </div>
   );
@@ -188,75 +158,60 @@ function CreateForm({ onCreated, currentUser }: { onCreated: () => void; current
 // ─── Read-only summary (always visible — historical cycles have no actions) ─
 
 function CycleSummary({ cycle }: { cycle: FumigationCycle }) {
-  const fmt = (iso: string | null | undefined) =>
-    iso ? new Date(iso).toLocaleString('fr-FR') : '—';
-  const durationH =
-    cycle.duration_minutes != null ? Math.round((cycle.duration_minutes / 60) * 10) / 10 : null;
+  const { t } = useTranslation();
+  const durationH = cycle.duration_minutes != null ? Math.round((cycle.duration_minutes / 60) * 10) / 10 : null;
   const lots = cycle.lot_refs ?? [];
+  const tile = 'rounded-xl bg-secondary/60 px-3 py-2.5';
 
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
-        <div className="bg-muted/40 rounded-lg p-2.5">
-          <div className="text-xs text-muted-foreground">Poids total</div>
-          <div className="font-semibold">{cycle.total_weight_kg.toLocaleString('fr-TN')} kg</div>
-        </div>
-        <div className="bg-muted/40 rounded-lg p-2.5">
-          <div className="text-xs text-muted-foreground">Remplissage</div>
-          <div className="font-semibold">{cycle.fill_rate_percent}%</div>
-        </div>
-        <div className="bg-muted/40 rounded-lg p-2.5">
-          <div className="text-xs text-muted-foreground">Début (T0)</div>
-          <div className="font-semibold text-xs">{fmt(cycle.t0_start)}</div>
-        </div>
-        <div className="bg-muted/40 rounded-lg p-2.5">
-          <div className="text-xs text-muted-foreground">Fin réelle</div>
-          <div className="font-semibold text-xs">{fmt(cycle.t_end_real)}</div>
-        </div>
-      </div>
+      <dl className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
+        <div className={tile}><dt className="text-muted-foreground">{t('fumigation.weight')}</dt><dd className="text-lg font-semibold tabular-nums"><bdi dir="ltr">{formatNumber(cycle.total_weight_kg, 0)} kg</bdi></dd></div>
+        <div className={tile}><dt className="text-muted-foreground">{t('fumigation.fill')}</dt><dd className="text-lg font-semibold tabular-nums">{cycle.fill_rate_percent}%</dd></div>
+        <div className={tile}><dt className="text-muted-foreground">{t('fumigation.summary.t0')}</dt><dd className="font-semibold">{formatDateTime(cycle.t0_start)}</dd></div>
+        <div className={tile}><dt className="text-muted-foreground">{t('fumigation.summary.end')}</dt><dd className="font-semibold">{formatDateTime(cycle.t_end_real)}</dd></div>
+      </dl>
 
-      <div className="text-xs text-muted-foreground flex gap-4 flex-wrap">
+      <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
         {durationH != null && (
           <span>
-            Durée: <strong>{durationH}h</strong> / {Math.round(cycle.minimum_duration_minutes / 60)}h min
+            {t('fumigation.summary.duration', { hours: durationH, min: Math.round(cycle.minimum_duration_minutes / 60) })}
             {cycle.duration_compliant != null && (
-              <span className={cycle.duration_compliant ? 'text-green-600 ms-1' : 'text-red-600 ms-1'}>
-                {cycle.duration_compliant ? '✓' : '✗ non conforme'}
+              <span className={cn('ms-1 font-semibold', cycle.duration_compliant ? 'text-success' : 'text-destructive')}>
+                {cycle.duration_compliant ? '✓' : t('fumigation.summary.notCompliant')}
               </span>
             )}
           </span>
         )}
-        {cycle.dose_applied_g != null && <span>Dose: <strong>{cycle.dose_applied_g} g</strong></span>}
-        {cycle.product_lot_number && <span>Produit: {cycle.product_lot_number}</span>}
+        {cycle.dose_applied_g != null && <span>{t('fumigation.summary.dose')} <strong className="text-foreground">{cycle.dose_applied_g} g</strong></span>}
+        {cycle.product_lot_number && <span>{t('fumigation.summary.product')} {cycle.product_lot_number}</span>}
         {cycle.residual_concentration_ppm != null && (
           <span>
-            Résiduel: <strong>{cycle.residual_concentration_ppm} ppm</strong>
+            {t('fumigation.summary.residual')} <strong className="text-foreground">{cycle.residual_concentration_ppm} ppm</strong>
             {cycle.residual_tlv_compliant != null && (
-              <span className={cycle.residual_tlv_compliant ? 'text-green-600 ms-1' : 'text-red-600 ms-1'}>
+              <span className={cn('ms-1 font-semibold', cycle.residual_tlv_compliant ? 'text-success' : 'text-destructive')}>
                 {cycle.residual_tlv_compliant ? '✓ TLV' : '✗ TLV'}
               </span>
             )}
           </span>
         )}
-        {cycle.operator_signed_at && <span>Signé opérateur: {cycle.operator_name}</span>}
-        {cycle.quality_signed_at && <span>Signé qualité: {cycle.quality_inspector_name}</span>}
+        {cycle.operator_signed_at && <span>{t('fumigation.summary.operatorSigned', { name: cycle.operator_name })}</span>}
+        {cycle.quality_signed_at && <span>{t('fumigation.summary.qualitySigned', { name: cycle.quality_inspector_name })}</span>}
       </div>
 
       {lots.length > 0 && (
-        <div className="space-y-1">
-          <div className="text-xs font-semibold text-muted-foreground">
-            Lots ({lots.length})
-          </div>
-          <div className="border rounded-lg divide-y max-h-40 overflow-y-auto">
+        <div className="space-y-1.5">
+          <p className="text-sm font-semibold">{t('fumigation.summary.lots', { count: lots.length })}</p>
+          <ul className="max-h-44 divide-y overflow-y-auto rounded-xl border bg-card">
             {lots.map((lot) => (
-              <div key={lot.reception_id} className="flex items-center gap-2 px-3 py-1.5 text-sm">
-                <span className="font-mono text-xs">{lot.lot_number}</span>
-                <span className="text-muted-foreground text-xs">{lot.variety}</span>
-                {lot.is_bio && <Badge variant="outline" className="text-xs text-green-700">BIO</Badge>}
-                <span className="ms-auto text-xs">{lot.weight_kg.toLocaleString('fr-TN')} kg</span>
-              </div>
+              <li key={lot.reception_id} className="flex min-h-11 items-center gap-2 px-3 py-2 text-sm">
+                <span className="font-mono font-semibold">{lot.lot_number}</span>
+                <span className="text-muted-foreground">{lot.variety}</span>
+                {lot.is_bio && <Badge variant="outline" className="border-success/40 text-success">BIO</Badge>}
+                <span className="ms-auto tabular-nums"><bdi dir="ltr">{formatNumber(lot.weight_kg, 0)} kg</bdi></span>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       )}
     </div>
@@ -266,6 +221,7 @@ function CycleSummary({ cycle }: { cycle: FumigationCycle }) {
 // ─── View / manage existing cycle ──────────────────────────────────────────
 
 function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser: string }) {
+  const { t } = useTranslation();
   const { user, profile } = useAuth();
   const updateCycle = useUpdateFumigationCycle();
   const startCycle = useStartFumigationCycle();
@@ -273,12 +229,15 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
 
   const [view, setView] = useState<'details' | 'ccp'>('details');
   const [signRole, setSignRole] = useState<'operator' | 'quality' | null>(null);
+  const [confirmStop, setConfirmStop] = useState(false);
   const [dosage, setDosage] = useState({
     dose_applied_g: String(cycle.dose_applied_g ?? ''),
     product_lot_number: cycle.product_lot_number ?? '',
     product_expiry_date: cycle.product_expiry_date?.slice(0, 10) ?? '',
   });
   const [residualPpm, setResidualPpm] = useState(String(cycle.residual_concentration_ppm ?? ''));
+  // The server refuses T0 without at least one disposition photo; this is where the operator adds it.
+  const [photos, setPhotos] = useState<string[]>(cycle.photo_disposition_urls ?? []);
 
   const signerId = user?.id || currentUser;
   const signerName =
@@ -293,9 +252,6 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
   const canSign = cycle.status === 'VALIDATION';
   const canPrint = cycle.status === 'TERMINE';
   const canAbort = ['EN_COURS', 'CHARGEMENT', 'PREPARATION'].includes(cycle.status);
-  const hasActions =
-    canAdvance || canStart || canPrint || canAbort ||
-    cycle.status === 'EN_COURS' || cycle.status === 'VENTILATION';
 
   const advance = async () => {
     const nextStatus: Record<string, FumigationCycleStatus> = {
@@ -318,6 +274,7 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
         product_lot_number: dosage.product_lot_number || null,
         product_expiry_date: dosage.product_expiry_date || null,
         dose_variance_percent: variance,
+        photo_disposition_urls: photos,
       },
     });
   };
@@ -341,21 +298,51 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
   };
 
   const proto = FUMIGATION_PROTOCOL_CONFIG[cycle.protocol];
+  const readiness = [
+    { key: 'dose', ok: Boolean(cycle.dose_applied_g) },
+    { key: 'productLot', ok: Boolean(cycle.product_lot_number) },
+    { key: 'photo', ok: (cycle.photo_disposition_urls?.length ?? 0) > 0 },
+  ];
+  const readyToStart = readiness.every((item) => item.ok);
+  const finished = ['TERMINE', 'INTERROMPU', 'ECHEC'].includes(cycle.status);
+  const pending = updateCycle.isPending || startCycle.isPending;
+
+  // The one action that moves the cycle on, as on every task screen.
+  const primary =
+    canAdvance ? { label: t('fumigation.actions.toLoading'), onClick: () => void advance(), icon: <ArrowRight aria-hidden /> }
+    : canStart ? { label: t('fumigation.actions.start'), onClick: () => startCycle.mutate({ id: cycle.id }), icon: <Play aria-hidden />, disabled: !readyToStart }
+    : cycle.status === 'EN_COURS' ? { label: t('fumigation.actions.toVentilation'), onClick: moveToVentilation, icon: <ArrowRight aria-hidden /> }
+    : cycle.status === 'VENTILATION' ? { label: t('fumigation.actions.toValidation'), onClick: () => void advance(), icon: <ArrowRight aria-hidden /> }
+    : null;
 
   return (
-    <div className="space-y-4">
-      {/* Status header */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <Badge className={STATUS_COLOR[cycle.status]}>{STATUS_LABELS[cycle.status]}</Badge>
-        <span className="font-mono text-sm text-muted-foreground">{cycle.cycle_number}</span>
-        <span className="text-sm text-muted-foreground">Chambre {cycle.chamber} · {proto.label}</span>
-        {isCCP && (
-          <div className="ms-auto flex gap-2">
-            <Button size="sm" variant={view === 'details' ? 'default' : 'outline'} onClick={() => setView('details')}>Détails</Button>
-            <Button size="sm" variant={view === 'ccp' ? 'default' : 'outline'} onClick={() => setView('ccp')}>CCP Monitor</Button>
-          </div>
-        )}
+    <div className="space-y-5">
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="outline">{t(`fumigation.status.${cycle.status}`)}</Badge>
+          <span className="text-sm text-muted-foreground">{t('fumigation.chamber', { chamber: cycle.chamber })} · {proto.label}</span>
+        </div>
+        {!finished && <FumigationProgress status={cycle.status} />}
+        <p className="rounded-xl bg-accent px-3 py-2.5 text-sm">{t(`fumigation.now.${cycle.status}`)}</p>
       </div>
+
+      {isCCP && (
+        <div className="grid grid-cols-2 gap-1.5 rounded-2xl border bg-card p-1.5" role="tablist" aria-label={t('fumigation.viewLabel')}>
+          {(['details', 'ccp'] as const).map((key) => (
+            <button
+              key={key}
+              type="button"
+              role="tab"
+              aria-selected={view === key}
+              onClick={() => setView(key)}
+              className={cn('min-h-11 rounded-xl text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                view === key ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:bg-secondary')}
+            >
+              {key === 'details' ? t('fumigation.details') : t('fumigation.ccpMonitor')}
+            </button>
+          ))}
+        </div>
+      )}
 
       {view === 'ccp' ? (
         <FumigationCCPMonitor cycle={cycle} />
@@ -363,219 +350,160 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
         <>
           <CycleSummary cycle={cycle} />
 
-          {/* Phase-specific content */}
           {(cycle.status === 'PREPARATION' || cycle.status === 'CHARGEMENT') && (
-            <div className="space-y-3">
-              <div className="text-xs font-semibold text-muted-foreground">Dosage produit</div>
-              <div className="grid grid-cols-3 gap-3">
-                <div className="space-y-1">
-                  <Label className="text-xs">Dose appliquée (g)</Label>
-                  <Input
-                    type="number"
-                    value={dosage.dose_applied_g}
-                    onFocus={(e) => e.target.select()}
-                    onChange={(e) => setDosage((p) => ({ ...p, dose_applied_g: e.target.value }))}
-                    placeholder="ex: 2500"
-                  />
+            <section className="space-y-3 rounded-2xl border bg-secondary/40 p-4">
+              <h3 className="font-display text-lg font-semibold">{t('fumigation.dosage.title')}</h3>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="fum-dose" className={fieldLabel}>{t('fumigation.dosage.dose')}</Label>
+                  <Input id="fum-dose" type="number" inputMode="decimal" className="h-12 text-lg tabular-nums" value={dosage.dose_applied_g}
+                    onFocus={(e) => e.target.select()} onChange={(e) => setDosage((p) => ({ ...p, dose_applied_g: e.target.value }))} placeholder="ex: 2500" />
                 </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">N° lot produit</Label>
-                  <Input
-                    value={dosage.product_lot_number}
-                    onChange={(e) => setDosage((p) => ({ ...p, product_lot_number: e.target.value }))}
-                    placeholder="ex: PH3-2026-042"
-                  />
+                <div className="space-y-1.5">
+                  <Label htmlFor="fum-product-lot" className={fieldLabel}>{t('fumigation.dosage.productLot')}</Label>
+                  <Input id="fum-product-lot" className="h-12 text-base" value={dosage.product_lot_number}
+                    onChange={(e) => setDosage((p) => ({ ...p, product_lot_number: e.target.value }))} placeholder="ex: PH3-2026-042" />
                 </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Expiration produit</Label>
-                  <Input
-                    type="date"
-                    value={dosage.product_expiry_date}
-                    onChange={(e) => setDosage((p) => ({ ...p, product_expiry_date: e.target.value }))}
-                  />
+                <div className="space-y-1.5">
+                  <Label htmlFor="fum-expiry" className={fieldLabel}>{t('fumigation.dosage.expiry')}</Label>
+                  <Input id="fum-expiry" type="date" className="h-12 text-base" value={dosage.product_expiry_date}
+                    onChange={(e) => setDosage((p) => ({ ...p, product_expiry_date: e.target.value }))} />
                 </div>
               </div>
-              <Button size="sm" variant="secondary" onClick={saveDosage} disabled={updateCycle.isPending}>
-                Enregistrer dosage
+              <div className="space-y-2">
+                <p className={fieldLabel}>{t('fumigation.dosage.photos')}</p>
+                <PhotoCapture photos={photos} onPhotosChange={setPhotos} maxPhotos={4} />
+              </div>
+              <Button variant="secondary" className="min-h-11" onClick={saveDosage} disabled={updateCycle.isPending}>
+                {t('fumigation.dosage.save')}
               </Button>
-            </div>
+              {canStart && (
+                <ul className="grid gap-1.5 sm:grid-cols-3" aria-label={t('fumigation.dosage.readyLabel')}>
+                  {readiness.map((item) => (
+                    <li key={item.key} className={cn('flex min-h-11 items-center gap-2 rounded-xl border px-3 text-sm font-medium', item.ok ? 'border-success/40 bg-accent' : 'border-warning/40 bg-sand')}>
+                      {item.ok ? <CheckCircle2 className="h-4 w-4 text-success" aria-hidden /> : <span className="h-4 w-4 rounded-full border-2 border-warning" aria-hidden />}
+                      {t(`fumigation.dosage.ready.${item.key}`)}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
           )}
 
-          {/* Validation / residual test */}
           {cycle.status === 'VALIDATION' && (
-            <div className="space-y-3">
-              <div className="text-xs font-semibold text-muted-foreground">Test résiduel post-ventilation (RG-FUM-09)</div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <Label className="text-xs">Concentration résiduelle (ppm)</Label>
-                  <Input
-                    type="number"
-                    value={residualPpm}
-                    onFocus={(e) => e.target.select()}
-                    onChange={(e) => setResidualPpm(e.target.value)}
-                    placeholder="ex: 0.05"
-                  />
+            <section className="space-y-3 rounded-2xl border bg-secondary/40 p-4">
+              <h3 className="font-display text-lg font-semibold">{t('fumigation.residual.title')}</h3>
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="min-w-[12rem] flex-1 space-y-1.5">
+                  <Label htmlFor="fum-residual" className={fieldLabel}>{t('fumigation.residual.ppm')}</Label>
+                  <Input id="fum-residual" type="number" inputMode="decimal" className="h-12 text-lg tabular-nums" value={residualPpm}
+                    onFocus={(e) => e.target.select()} onChange={(e) => setResidualPpm(e.target.value)} placeholder="ex: 0.05" />
                 </div>
-                <div className="flex items-end">
+                <Button
+                  variant="secondary"
+                  className="min-h-12"
+                  disabled={!residualPpm || updateCycle.isPending}
+                  onClick={() => {
+                    const val = Number(residualPpm);
+                    updateCycle.mutate({ id: cycle.id, patch: { residual_concentration_ppm: val, residual_tlv_compliant: val <= 0.3 } });
+                  }}
+                >
+                  {t('fumigation.residual.save')}
+                </Button>
+              </div>
+            </section>
+          )}
+
+          {canSign && (
+            <section className="space-y-3 rounded-2xl border p-4">
+              <h3 className="font-display text-lg font-semibold">{t('fumigation.sign.title')}</h3>
+              <p className="text-sm text-muted-foreground">{t('fumigation.sign.hint')}</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {(['operator', 'quality'] as const).map((role) => {
+                  const signedAt = role === 'operator' ? cycle.operator_signed_at : cycle.quality_signed_at;
+                  const name = role === 'operator' ? cycle.operator_name : cycle.quality_inspector_name;
+                  const verified = role === 'operator' ? cycle.operator_pin_verified : cycle.quality_pin_verified;
+                  return (
+                    <div key={role} className={cn('rounded-xl border p-3', signedAt && 'border-success/40 bg-accent')}>
+                      <p className="mb-2 text-sm text-muted-foreground">{t(`fumigation.sign.${role}Role`)}</p>
+                      {signedAt ? (
+                        <div className="flex items-start gap-2 text-success">
+                          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
+                          <div>
+                            <p className="font-semibold text-foreground">{name}</p>
+                            <p className="text-sm text-muted-foreground">{formatDateTime(signedAt)}</p>
+                            {verified ? <p className="text-sm font-semibold">{t('fumigation.sign.pinVerified')}</p> : null}
+                          </div>
+                        </div>
+                      ) : (
+                        <Button className="min-h-12 w-full" variant={role === 'operator' ? 'default' : 'outline'} onClick={() => setSignRole(role)} disabled={signCycle.isPending}>
+                          <ShieldCheck aria-hidden />
+                          {t(`fumigation.sign.${role}`)}
+                        </Button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {signRole ? (
+                <NumericSignaturePad
+                  key={signRole}
+                  title={signRole === 'quality' ? t('fumigation.sign.qualityPad') : t('fumigation.sign.operatorPad')}
+                  subtitle={t('fumigation.sign.as', { name: signerName })}
+                  confirmLabel={t('fumigation.sign.confirm')}
+                  pending={signCycle.isPending}
+                  onCancel={() => setSignRole(null)}
+                  onConfirm={async (pin) => {
+                    await signCycle.mutateAsync({ id: cycle.id, role: signRole, signerName, signerId, pin });
+                    setSignRole(null);
+                  }}
+                />
+              ) : null}
+            </section>
+          )}
+
+          {(primary || canPrint || canAbort) && (
+            <div className="space-y-3 border-t pt-4">
+              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end">
+                {canPrint && (
+                  <Button variant="outline" className="min-h-12" onClick={() => printFumigationCertificate(cycle)}>
+                    <Printer aria-hidden />
+                    {t('fumigation.actions.print')}
+                  </Button>
+                )}
+                {primary && (
+                  <Button size="xl" className="w-full sm:w-auto" onClick={primary.onClick} disabled={pending || ('disabled' in primary && primary.disabled)}>
+                    {pending && <Loader2 className="animate-spin" />}
+                    {primary.label}
+                    {primary.icon}
+                  </Button>
+                )}
+              </div>
+              {canAbort && (
+                // An emergency stop ends a CCP cycle for good: one tap asks, the second stops.
+                <div className="flex flex-wrap items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3">
+                  <p className="min-w-[12rem] flex-1 text-sm text-destructive">{confirmStop ? t('fumigation.stop.confirmHint') : t('fumigation.stop.hint')}</p>
+                  {confirmStop && (
+                    <Button variant="outline" className="min-h-11" onClick={() => setConfirmStop(false)}>{t('fumigation.stop.keep')}</Button>
+                  )}
                   <Button
-                    size="sm"
-                    variant="secondary"
-                    disabled={!residualPpm || updateCycle.isPending}
+                    variant="destructive"
+                    className="min-h-11"
                     onClick={() => {
-                      const val = Number(residualPpm);
-                      updateCycle.mutate({
-                        id: cycle.id,
-                        patch: { residual_concentration_ppm: val, residual_tlv_compliant: val <= 0.3 },
-                      });
+                      if (!confirmStop) { setConfirmStop(true); return; }
+                      updateCycle.mutate({ id: cycle.id, patch: { status: 'INTERROMPU' } });
+                      setConfirmStop(false);
                     }}
+                    disabled={updateCycle.isPending}
                   >
-                    Enregistrer
+                    <OctagonX aria-hidden />
+                    {confirmStop ? t('fumigation.stop.confirm') : t('fumigation.stop.button')}
                   </Button>
                 </div>
-              </div>
+              )}
             </div>
           )}
-
-          {/* Signature section */}
-          {canSign && (
-            <>
-              <Separator />
-              <div className="space-y-3">
-                <div className="text-xs font-semibold text-muted-foreground">
-                  Double signature CCP obligatoire (RG-FUM-12)
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Chaque visa demande le code signature numérique (4–6 chiffres) du signataire.
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="border rounded-lg p-3">
-                    {cycle.operator_signed_at ? (
-                      <div className="flex items-center gap-2 text-green-700">
-                        <CheckCircle2 className="h-4 w-4" />
-                        <div>
-                          <div className="text-sm font-semibold">{cycle.operator_name}</div>
-                          <div className="text-xs">{new Date(cycle.operator_signed_at).toLocaleString('fr-FR')}</div>
-                          {cycle.operator_pin_verified ? (
-                            <div className="text-xs text-emerald-700">PIN vérifié</div>
-                          ) : null}
-                        </div>
-                      </div>
-                    ) : (
-                      <Button
-                        size="sm"
-                        className="w-full"
-                        onClick={() => setSignRole('operator')}
-                        disabled={signCycle.isPending}
-                      >
-                        <ShieldCheck className="h-4 w-4 me-1.5" />
-                        Signer — Opérateur
-                      </Button>
-                    )}
-                    <div className="text-xs text-muted-foreground mt-1">Opérateur fumigation</div>
-                  </div>
-                  <div className="border rounded-lg p-3">
-                    {cycle.quality_signed_at ? (
-                      <div className="flex items-center gap-2 text-green-700">
-                        <CheckCircle2 className="h-4 w-4" />
-                        <div>
-                          <div className="text-sm font-semibold">{cycle.quality_inspector_name}</div>
-                          <div className="text-xs">{new Date(cycle.quality_signed_at).toLocaleString('fr-FR')}</div>
-                          {cycle.quality_pin_verified ? (
-                            <div className="text-xs text-emerald-700">PIN vérifié</div>
-                          ) : null}
-                        </div>
-                      </div>
-                    ) : (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="w-full"
-                        onClick={() => setSignRole('quality')}
-                        disabled={signCycle.isPending}
-                      >
-                        <ShieldCheck className="h-4 w-4 me-1.5" />
-                        Signer — Qualité
-                      </Button>
-                    )}
-                    <div className="text-xs text-muted-foreground mt-1">Responsable Qualité / HACCP</div>
-                  </div>
-                </div>
-
-                {signRole ? (
-                  <NumericSignaturePad
-                    key={signRole}
-                    title={
-                      signRole === 'quality'
-                        ? 'Signature Qualité / HACCP'
-                        : 'Signature Opérateur fumigation'
-                    }
-                    subtitle={`Visa en tant que ${signerName}`}
-                    confirmLabel="Confirmer le visa"
-                    pending={signCycle.isPending}
-                    onCancel={() => setSignRole(null)}
-                    onConfirm={async (pin) => {
-                      await signCycle.mutateAsync({
-                        id: cycle.id,
-                        role: signRole,
-                        signerName,
-                        signerId,
-                        pin,
-                      });
-                      setSignRole(null);
-                    }}
-                  />
-                ) : null}
-              </div>
-            </>
-          )}
-
-          {hasActions && <Separator />}
-
-          {/* Action buttons */}
-          <div className="flex flex-wrap gap-2">
-            {canAdvance && (
-              <Button size="sm" onClick={advance} disabled={updateCycle.isPending}>
-                → Passer au chargement
-              </Button>
-            )}
-            {canStart && (
-              <Button
-                size="sm"
-                className="bg-amber-600 hover:bg-amber-700"
-                onClick={() => startCycle.mutate({ id: cycle.id })}
-                disabled={startCycle.isPending}
-              >
-                <Play className="h-4 w-4 me-1.5" />
-                Démarrer cycle (T0)
-              </Button>
-            )}
-            {cycle.status === 'EN_COURS' && (
-              <Button size="sm" variant="secondary" onClick={moveToVentilation} disabled={updateCycle.isPending}>
-                → Passer en ventilation
-              </Button>
-            )}
-            {cycle.status === 'VENTILATION' && (
-              <Button size="sm" onClick={advance} disabled={updateCycle.isPending}>
-                → Passer en validation / signature
-              </Button>
-            )}
-            {canPrint && (
-              <Button size="sm" variant="outline" onClick={() => printFumigationCertificate(cycle)}>
-                <Printer className="h-4 w-4 me-1.5" />
-                Imprimer certificat
-              </Button>
-            )}
-            {canAbort && (
-              <Button
-                size="sm"
-                variant="destructive"
-                onClick={() => updateCycle.mutate({ id: cycle.id, patch: { status: 'INTERROMPU' } })}
-                disabled={updateCycle.isPending}
-              >
-                Arrêt d'urgence
-              </Button>
-            )}
-          </div>
         </>
       )}
     </div>
@@ -585,13 +513,16 @@ function CycleView({ cycle, currentUser }: { cycle: FumigationCycle; currentUser
 // ─── Dialog shell ───────────────────────────────────────────────────────────
 
 export function FumigationCycleDialog({ open, onOpenChange, cycle, currentUser = 'Utilisateur' }: Props) {
+  const { t } = useTranslation();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            {cycle ? `Cycle — ${cycle.cycle_number}` : 'Nouveau cycle de fumigation'}
+      <DialogContent className="max-h-[94dvh] max-w-2xl overflow-y-auto">
+        <DialogHeader className="text-start">
+          <p className="text-sm font-semibold text-primary">{t('fumigation.eyebrow')}</p>
+          <DialogTitle className="font-display text-2xl">
+            {cycle ? <span className="font-mono">{cycle.cycle_number}</span> : t('fumigation.create.title')}
           </DialogTitle>
+          <DialogDescription>{cycle ? t('fumigation.manageHint') : t('fumigation.create.hint')}</DialogDescription>
         </DialogHeader>
 
         {cycle ? (
@@ -603,3 +534,4 @@ export function FumigationCycleDialog({ open, onOpenChange, cycle, currentUser =
     </Dialog>
   );
 }
+
