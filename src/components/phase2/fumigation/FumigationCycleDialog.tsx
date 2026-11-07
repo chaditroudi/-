@@ -534,4 +534,3 @@ export function FumigationCycleDialog({ open, onOpenChange, cycle, currentUser =
     </Dialog>
   );
 }
-
